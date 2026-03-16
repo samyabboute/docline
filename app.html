@@ -457,6 +457,30 @@
   .theme-toggle { background:none; border:none; cursor:pointer; padding:6px; border-radius:8px; color:var(--text-muted); transition:all var(--t-fast); display:flex; align-items:center; justify-content:center; }
   .theme-toggle:hover { background:var(--bg-hover); color:var(--text-primary); }
   .theme-toggle svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* ── SMART UPGRADE GATES ─────────────────────────────── */
+  .limit-bar-wrap{background:var(--bg-subtle);border-radius:4px;height:5px;overflow:hidden;margin:6px 0 2px}
+  .limit-bar{height:100%;border-radius:4px;transition:width .4s var(--ease,ease)}
+  .limit-bar.safe{background:var(--success)}
+  .limit-bar.warn{background:var(--warning)}
+  .limit-bar.full{background:var(--danger)}
+  .limit-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;margin-bottom:6px;cursor:default}
+  .lb-safe{background:var(--bg-subtle);color:var(--text-secondary)}
+  .lb-warn{background:#FEF3C7;color:#92400E}
+  .lb-full{background:#FEF2F2;color:var(--danger)}
+  [data-theme=dark] .lb-warn{background:rgba(251,191,36,.15);color:#FCD34D}
+  [data-theme=dark] .lb-full{background:rgba(220,38,38,.15);color:#FCA5A5}
+  .upgrade-nudge{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--brand-light),#F5F3FF);border:1px solid rgba(0,51,153,.15);border-radius:var(--r-md);padding:12px 16px;margin:12px 0;animation:fadeInUp .4s var(--ease,ease)}
+  [data-theme=dark] .upgrade-nudge{background:rgba(0,51,153,.18);border-color:rgba(0,51,153,.35)}
+  .upgrade-nudge-text{font-size:13px;font-weight:600;color:var(--brand)}
+  .upgrade-nudge-sub{font-size:11px;color:var(--text-secondary);margin-top:1px}
+  .upgrade-nudge-btn{font-size:12px;padding:6px 14px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-full);cursor:pointer;font-weight:600;white-space:nowrap;transition:opacity .15s}
+  .upgrade-nudge-btn:hover{opacity:.85}
+  .feature-preview{border:1.5px dashed var(--border);border-radius:var(--r-md);padding:20px;text-align:center;color:var(--text-muted);font-size:13px;position:relative;overflow:hidden}
+  .feature-preview::before{content:'PRO';position:absolute;top:8px;right:8px;font-size:9px;font-weight:700;letter-spacing:.05em;background:linear-gradient(135deg,var(--brand),#6366F1);color:#fff;padding:2px 7px;border-radius:var(--r-full)}
+  .feature-preview-icon{font-size:28px;margin-bottom:8px}
+  .feature-preview-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+  .feature-preview-desc{font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0066FF">
@@ -705,7 +729,7 @@ const Auth = {
     return s;
   },
   async verifyPlan(force=false) {
-    if(!this._session) return {plan:'free',is_pro:false,limits:{leads_allowed:false,leads_count:0,leads_limit:10}};
+    if(!this._session) return {plan:'free',is_pro:false,limits:{leads_allowed:false,leads_count:0,leads_limit:25,clients_limit:15,invoices_month_limit:3,tasks_limit:20}};
     const now=Date.now();
     if(!force&&this._plan&&(now-this._planAt)<300000) return this._plan;
     try {
@@ -716,7 +740,7 @@ const Auth = {
       // Safe fallback: if server unreachable, check local DB subscription
       const {data}=await _supa.from('subscriptions').select('plan,status').eq('user_id',this._session.user.id).single();
       const isPro=data?.plan!=='free'&&data?.status==='active';
-      this._plan={plan:data?.plan??'free',is_pro:isPro,limits:{leads_allowed:true,leads_count:0,leads_limit:isPro?999999:10}};
+      this._plan={plan:data?.plan??'free',is_pro:isPro,limits:{leads_allowed:true,leads_count:0,leads_limit:isPro?999999:25,clients_limit:isPro?999999:15,invoices_month_limit:isPro?999999:3,tasks_limit:isPro?999999:20}};
       return this._plan;
     }
   },
@@ -817,6 +841,34 @@ const ACT_ICON={
   const session=await Auth.requireAuth(); if(!session) return;
   await Auth.verifyPlan();
   Sidebar.init('dashboard');
+
+  // Load plan limits
+  await Limits.load(session.user.id);
+  var _planData = await Auth.verifyPlan();
+
+  // Show limit bars
+  Limits.showLimitBar('limit-leads-bar', 'leads', _planData);
+  Limits.showLimitBar('limit-clients-bar', 'clients', _planData);
+
+  // Revenue widget for Pro users
+  if (_planData && (_planData.plan === 'pro' || _planData.is_pro)) {
+    document.getElementById('revenue-widget-container') &&
+    (document.getElementById('revenue-widget-container').style.display = 'block');
+    loadRevenueStats(session.user.id);
+  }
+
+  // Check overdue invoices and notify
+  var invData = await DB.getInvoices();
+  if (invData && typeof Notifications !== 'undefined') {
+    Notifications.checkOverdueInvoices(invData);
+  }
+
+  // Check due tasks
+  var taskData = await _supa.from('events').select('*').eq('user_id', session.user.id).eq('completed', false);
+  if (taskData.data && typeof Notifications !== 'undefined') {
+    Notifications.checkUpcomingTasks(taskData.data);
+  }
+
   // Track login count for feedback widget
   FeedbackWidget.incrementAndCheck(session.user.id);
   // Init Hanna with plan and token
@@ -840,6 +892,34 @@ const ACT_ICON={
 
   if(new URLSearchParams(location.search).get('upgrade')==='success'){
     await Auth.verifyPlan(true); Sidebar.init('dashboard');
+
+  // Load plan limits
+  await Limits.load(session.user.id);
+  var _planData = await Auth.verifyPlan();
+
+  // Show limit bars
+  Limits.showLimitBar('limit-leads-bar', 'leads', _planData);
+  Limits.showLimitBar('limit-clients-bar', 'clients', _planData);
+
+  // Revenue widget for Pro users
+  if (_planData && (_planData.plan === 'pro' || _planData.is_pro)) {
+    document.getElementById('revenue-widget-container') &&
+    (document.getElementById('revenue-widget-container').style.display = 'block');
+    loadRevenueStats(session.user.id);
+  }
+
+  // Check overdue invoices and notify
+  var invData = await DB.getInvoices();
+  if (invData && typeof Notifications !== 'undefined') {
+    Notifications.checkOverdueInvoices(invData);
+  }
+
+  // Check due tasks
+  var taskData = await _supa.from('events').select('*').eq('user_id', session.user.id).eq('completed', false);
+  if (taskData.data && typeof Notifications !== 'undefined') {
+    Notifications.checkUpcomingTasks(taskData.data);
+  }
+
     Toast.success('Welcome to Pro!','All features are now unlocked.');
     history.replaceState({},'','app.html');
   }
@@ -915,6 +995,34 @@ async function saveLead(){
     _leads.unshift(lead); renderKPIs(_leads); renderPipeline(_leads); closeNL();
     Toast.success('Lead added!',`${fn} ${ln} added to pipeline.`);
     await Auth.verifyPlan(true); Sidebar.init('dashboard');
+
+  // Load plan limits
+  await Limits.load(session.user.id);
+  var _planData = await Auth.verifyPlan();
+
+  // Show limit bars
+  Limits.showLimitBar('limit-leads-bar', 'leads', _planData);
+  Limits.showLimitBar('limit-clients-bar', 'clients', _planData);
+
+  // Revenue widget for Pro users
+  if (_planData && (_planData.plan === 'pro' || _planData.is_pro)) {
+    document.getElementById('revenue-widget-container') &&
+    (document.getElementById('revenue-widget-container').style.display = 'block');
+    loadRevenueStats(session.user.id);
+  }
+
+  // Check overdue invoices and notify
+  var invData = await DB.getInvoices();
+  if (invData && typeof Notifications !== 'undefined') {
+    Notifications.checkOverdueInvoices(invData);
+  }
+
+  // Check due tasks
+  var taskData = await _supa.from('events').select('*').eq('user_id', session.user.id).eq('completed', false);
+  if (taskData.data && typeof Notifications !== 'undefined') {
+    Notifications.checkUpcomingTasks(taskData.data);
+  }
+
   }catch(err){
     if(err.message?.startsWith('LIMIT_REACHED')){closeNL();PlanGate.show('unlimited leads');}
     else Toast.error('Could not save',err.message);
@@ -1767,5 +1875,90 @@ if (typeof Notifications !== 'undefined') Notifications.init();
 </div>
 
 
-<script src="prospeo-animations.js"></script>
+<script src="prospeo-animations.js">
+// ── PLAN LIMITS MANAGER ──────────────────────────────────────
+var Limits = (function() {
+  var _counts = {};
+
+  async function load(uid) {
+    try {
+      var now = new Date();
+      var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      var [leadsR, clientsR, invR, tasksR] = await Promise.all([
+        _supa.from('leads').select('id', {count:'exact',head:true}).eq('user_id', uid),
+        _supa.from('clients').select('id', {count:'exact',head:true}).eq('user_id', uid),
+        _supa.from('invoices').select('id', {count:'exact',head:true}).eq('user_id', uid).gte('created_at', monthStart),
+        _supa.from('events').select('id', {count:'exact',head:true}).eq('user_id', uid).eq('completed', false)
+      ]);
+      _counts = {
+        leads:    leadsR.count  || 0,
+        clients:  clientsR.count || 0,
+        invoices: invR.count    || 0,
+        tasks:    tasksR.count  || 0
+      };
+    } catch(e) { _counts = {leads:0,clients:0,invoices:0,tasks:0}; }
+  }
+
+  function check(type, plan) {
+    var isPro = plan && (plan.plan === 'pro' || plan.is_pro);
+    if (isPro) return { allowed: true, count: _counts[type]||0, limit: 999999, pct: 0 };
+    var limits = { leads:25, clients:15, invoices:3, tasks:20 };
+    var limit = limits[type] || 999999;
+    var count = _counts[type] || 0;
+    var pct   = Math.round((count / limit) * 100);
+    return { allowed: count < limit, count: count, limit: limit, pct: Math.min(pct, 100) };
+  }
+
+  function showLimitBar(containerId, type, plan) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    var info = check(type, plan);
+    if (info.limit === 999999) { el.innerHTML = ''; return; }
+    var barClass = info.pct >= 100 ? 'full' : info.pct >= 80 ? 'warn' : 'safe';
+    var badgeClass = info.pct >= 100 ? 'lb-full' : info.pct >= 80 ? 'lb-warn' : 'lb-safe';
+    var label = type.charAt(0).toUpperCase() + type.slice(1);
+    el.innerHTML =
+      '<span class="limit-badge ' + badgeClass + '">' + info.count + ' / ' + info.limit + ' ' + label + '</span>' +
+      '<div class="limit-bar-wrap"><div class="limit-bar ' + barClass + '" style="width:' + info.pct + '%"></div></div>';
+  }
+
+  function showUpgradeNudge(containerId, message, sub) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML =
+      '<div class="upgrade-nudge">' +
+        '<div><div class="upgrade-nudge-text">' + sanitize(message) + '</div>' +
+        '<div class="upgrade-nudge-sub">' + sanitize(sub||'Upgrade to Pro — €12/month') + '</div></div>' +
+        '<button class="upgrade-nudge-btn" onclick="window.location.href='pricing.html'">Upgrade &#8594;</button>' +
+      '</div>';
+  }
+
+  function increment(type) { _counts[type] = (_counts[type] || 0) + 1; }
+  function decrement(type) { _counts[type] = Math.max(0, (_counts[type] || 0) - 1); }
+  function get(type) { return _counts[type] || 0; }
+
+  return { load:load, check:check, showLimitBar:showLimitBar, showUpgradeNudge:showUpgradeNudge, increment:increment, decrement:decrement, get:get };
+})();
+
+// ── REVENUE ANALYTICS (Pro) ─────────────────────────────────
+async function loadRevenueStats(uid) {
+  try {
+    var now = new Date();
+    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    var {data:invs} = await _supa.from('invoices').select('amount_ttc,status,created_at,due_date')
+      .eq('user_id', uid).gte('created_at', monthStart);
+    if (!invs) return;
+    var paid = invs.filter(function(i){return i.status==='paid';}).reduce(function(a,i){return a+(i.amount_ttc||0);},0);
+    var pending = invs.filter(function(i){return i.status==='sent'||i.status==='draft';}).reduce(function(a,i){return a+(i.amount_ttc||0);},0);
+    var total = paid + pending;
+    var el = document.getElementById('revenue-month-val');
+    if (el && typeof Animate !== 'undefined') Animate.countUp(el, total, 800, '€');
+    else if (el) el.textContent = '€' + total.toFixed(2);
+    var paidEl = document.getElementById('revenue-paid-label');
+    var pendEl = document.getElementById('revenue-pending-label');
+    if (paidEl) paidEl.textContent = '€' + paid.toFixed(2) + ' paid';
+    if (pendEl) pendEl.textContent = '€' + pending.toFixed(2) + ' pending';
+  } catch(e) {}
+}
+</script>
 </body></html>

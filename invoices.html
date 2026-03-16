@@ -290,7 +290,14 @@
   .li-input{background:var(--bg-raised);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:7px 10px;font-family:'Sora',sans-serif;font-size:.6875rem;color:var(--text-primary);outline:none;width:100%;transition:border-color var(--t-fast)}
   .li-input:focus{border-color:var(--brand)}
   @media print{.sidebar,.topbar,.modal-head,.modal-foot,.btn,.filter-pills{display:none!important}.overlay{position:static;background:none;padding:0}.modal{box-shadow:none;border:none;max-width:100%;border-radius:0;max-height:none;overflow:visible}}
-  </style>
+  
+  .portal-link-box{background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-top:10px}
+  .portal-link-input{flex:1;font-size:12px;color:var(--text-secondary);background:none;border:none;outline:none;font-family:var(--font-mono,monospace);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .portal-copy-btn{font-size:11px;padding:4px 10px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;font-weight:600}
+  .recurring-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:20px;background:#F5F3FF;color:#534AB7;font-weight:600}
+  [data-theme=dark] .recurring-badge{background:rgba(83,74,183,.2);color:#AFA9EC}
+  .inv-limit-bar{padding:8px 0 4px}
+</style>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="shortcut icon" href="favicon.svg">
   <link rel="apple-touch-icon" href="favicon.svg">
@@ -300,6 +307,7 @@
 <div class="toasts" id="toasts"></div>
 <div class="app">
   <nav class="sidebar" id="sidebar"></nav>
+<!-- Recurring invoices link added by feature update -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <header class="topbar">
     <button class="hamburger"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -928,5 +936,81 @@ async function sendEmail(id){
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeForm();closePrev();}});
 </script>
 
-<script src="prospeo-animations.js"></script>
+<script src="prospeo-animations.js">
+// ── INVOICE LIMIT CHECK ──────────────────────────────────────
+async function checkInvoiceLimit() {
+  var plan = await Auth.verifyPlan();
+  var isPro = plan && (plan.plan === 'pro' || plan.is_pro);
+  if (isPro) return true;
+  // Count this month's invoices
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  var {count} = await _supa.from('invoices').select('id',{count:'exact',head:true})
+    .eq('user_id', (await _supa.auth.getSession()).data.session.user.id)
+    .gte('created_at', monthStart);
+  if ((count||0) >= 3) {
+    PlanGate.show('unlimited invoices');
+    return false;
+  }
+  return true;
+}
+
+// ── CLIENT PORTAL LINK ────────────────────────────────────────
+async function getPortalLink(invoiceId) {
+  try {
+    var plan = await Auth.verifyPlan();
+    var isPro = plan && (plan.plan === 'pro' || plan.is_pro);
+    if (!isPro) { PlanGate.show('client portal links'); return null; }
+    // Check if token exists
+    var {data:existing} = await _supa.from('client_portal_tokens')
+      .select('token').eq('invoice_id', invoiceId).single();
+    if (existing) return window.location.origin + '/prospeo/portal.html?t=' + existing.token;
+    // Create new token
+    var {data:newToken} = await _supa.from('client_portal_tokens')
+      .insert({invoice_id:invoiceId, user_id:(await _supa.auth.getSession()).data.session.user.id})
+      .select('token').single();
+    if (newToken) return window.location.origin + '/prospeo/portal.html?t=' + newToken.token;
+  } catch(e) { return null; }
+}
+
+async function showPortalLink(invoiceId) {
+  var link = await getPortalLink(invoiceId);
+  if (!link) return;
+  var el = document.getElementById('portal-link-' + invoiceId);
+  if (!el) return;
+  el.innerHTML = '<div class="portal-link-box">' +
+    '<svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+    '<input class="portal-link-input" id="plink-input-' + invoiceId + '" readonly value="' + sanitize(link) + '">' +
+    '<button class="portal-copy-btn" onclick="copyPortalLink('' + invoiceId + '')">Copy</button>' +
+    '</div>';
+}
+
+function copyPortalLink(invoiceId) {
+  var input = document.getElementById('plink-input-' + invoiceId);
+  if (!input) return;
+  navigator.clipboard.writeText(input.value).then(function() {
+    Toast.success('', 'Client link copied to clipboard!');
+  }).catch(function() {
+    input.select(); document.execCommand('copy');
+    Toast.success('', 'Link copied!');
+  });
+}
+
+// ── AUTO PAYMENT REMINDERS SETUP ─────────────────────────────
+async function setupPaymentReminder(invoiceId, dueDate) {
+  try {
+    var plan = await Auth.verifyPlan();
+    if (!plan || (plan.plan !== 'pro' && !plan.is_pro)) return;
+    if (!dueDate) return;
+    // Log reminder intent (actual sending is via Edge Function cron)
+    var {data:session} = await _supa.auth.getSession();
+    if (!session.session) return;
+    await _supa.from('audit_log').insert({
+      user_id: session.session.user.id,
+      event:   'invoice.reminder_scheduled',
+      metadata: { invoice_id: invoiceId, due_date: dueDate }
+    });
+  } catch(e) {}
+}
+</script>
 </body></html>
