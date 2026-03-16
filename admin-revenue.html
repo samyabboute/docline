@@ -323,7 +323,12 @@
   .security-ok .security-icon{background:var(--success-bg);color:var(--success)}
   .security-warn .security-icon{background:var(--warning-bg);color:var(--warning)}
   .security-danger .security-icon{background:var(--danger-bg);color:var(--danger)}
-</style></head>
+</style>  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0066FF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Prospeo">
+</head>
 <body>
 <div class="toasts" id="toasts"></div>
 <div class="app">
@@ -376,6 +381,13 @@
   </main>
 </div>
 <script>
+// Dark mode persistence
+(function(){
+  var t=localStorage.getItem('p_theme');
+  if(!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t='dark';
+  if(t) document.documentElement.setAttribute('data-theme',t);
+})();
+
 
 const SUPA_URL  = 'https://ferkzwzypmdtuypxribz.supabase.co';
 const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg';

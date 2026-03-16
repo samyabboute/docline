@@ -34,6 +34,11 @@
   .back a{color:#003399;text-decoration:none;font-size:14px}
   .stripe-note{text-align:center;color:#9CA3AF;font-size:12px;margin-top:16px}
 </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0066FF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Prospeo">
 </head>
 <body>
 <div class="header">
@@ -79,6 +84,13 @@
 </div>
 <div class="back"><a href="app.html">← Back to dashboard</a></div>
 <script>
+// Dark mode persistence
+(function(){
+  var t=localStorage.getItem('p_theme');
+  if(!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t='dark';
+  if(t) document.documentElement.setAttribute('data-theme',t);
+})();
+
   var _supa = supabase.createClient(
     'https://ferkzwzypmdtuypxribz.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg'

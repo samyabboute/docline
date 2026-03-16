@@ -329,6 +329,11 @@
   .security-warn .security-icon{background:var(--warning-bg);color:var(--warning)}
   .security-danger .security-icon{background:var(--danger-bg);color:var(--danger)}
 </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0066FF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Prospeo">
 </head>
 <body>
 <div class="toasts" id="toasts"></div>
@@ -450,6 +455,13 @@
   </main>
 </div>
 <script>
+// Dark mode persistence
+(function(){
+  var t=localStorage.getItem('p_theme');
+  if(!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t='dark';
+  if(t) document.documentElement.setAttribute('data-theme',t);
+})();
+
 
 // ── UTILITIES ────────────────────────────────────────────────
 function sanitize(s) {
