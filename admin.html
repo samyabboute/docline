@@ -540,11 +540,11 @@ function kpiCard(type, icon, value, label, delta, deltaDir) {
 var SUPA_URL  = 'https://ferkzwzypmdtuypxribz.supabase.co';
 var SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg';
 var EDGE_BASE = 'https://ferkzwzypmdtuypxribz.supabase.co/functions/v1';
-var ADMIN_IDS = ['YOUR_SUPABASE_USER_ID'];
+var ADMIN_IDS = ['477c2407-f889-43ee-86fe-d8e873d2bb6f'];
 
 // Detect preview/demo mode: if credentials are placeholders OR supabase CDN failed
 var IS_DEMO = (
-  SUPA_URL.indexOf('YOUR_PROJECT') !== -1 ||
+  SUPA_URL.indexOf('https://ferkzwzypmdtuypxribz.supabase.co') !== -1 ||
   typeof window.supabase === 'undefined'
 );
 
