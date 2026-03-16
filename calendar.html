@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calendar — Prospeo</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFF;min-height:100vh}
+  .topbar{background:#fff;border-bottom:1px solid #E5E7EB;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-size:22px;font-weight:800;color:#003399;cursor:pointer}
+  .logo span{color:#6366F1}
+  .nav a{color:#6B7280;text-decoration:none;margin-left:24px;font-size:14px;font-weight:500}
+  .nav a:hover{color:#003399}
+  .content{max-width:1100px;margin:32px auto;padding:0 24px}
+  h1{font-size:28px;font-weight:700;color:#0D1117;margin-bottom:24px}
+  .card{background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:24px}
+  .coming{text-align:center;padding:80px;color:#9CA3AF}
+  .coming-icon{font-size:56px;margin-bottom:16px}
+  .coming h2{font-size:20px;font-weight:600;color:#374151;margin-bottom:8px}
+  .coming p{font-size:14px}
+  .back{display:inline-block;margin-top:24px;color:#003399;text-decoration:none;font-size:14px;font-weight:500}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo" onclick="window.location.href='app.html'">prospe<span>o</span></div>
+  <div class="nav">
+    <a href="app.html">Dashboard</a>
+    <a href="clients.html">Clients</a>
+    <a href="invoices.html">Invoices</a>
+  </div>
+</div>
+<div class="content">
+  <h1>Calendar & Tasks</h1>
+  <div class="card">
+    <div class="coming">
+      <div class="coming-icon">📅</div>
+      <h2>Calendar coming soon</h2>
+      <p>Task management and calendar view are being built. Check back in the next update.</p>
+      <a class="back" href="app.html">← Back to dashboard</a>
+    </div>
+  </div>
+</div>
+<script>
+var _supa = supabase.createClient(
+  'https://ferkzwzypmdtuypxribz.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg'
+);
+(async function(){
+  var s = await _supa.auth.getSession();
+  if(!s.data.session){ window.location.href='index.html'; }
+})();
+</script>
+</body>
+</html>
