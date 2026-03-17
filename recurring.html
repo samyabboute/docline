@@ -7,6 +7,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="prospeo-animations.css">
+  <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -156,9 +157,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script src="prospeo-animations.js"></script>
 <script>
-var SUPA_URL='https://ferkzwzypmdtuypxribz.supabase.co';
-var ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg';
-var _supa=supabase.createClient(SUPA_URL,ANON_KEY);
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _uid=null, _recs=[], _clients=[], _editId=null;
 function sanitize(s){var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
 function formatEUR(n){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(n||0);}

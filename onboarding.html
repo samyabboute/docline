@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Welcome to Prospeo</title>
+  <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -37,11 +38,8 @@
   <button class="btn" onclick="goToDashboard()">Go to my dashboard</button>
 </div>
 <script>
-  var _supa = supabase.createClient(
-    'https://ferkzwzypmdtuypxribz.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg'
-  );
-  async function goToDashboard() {
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+    async function goToDashboard() {
     var s = await _supa.auth.getSession();
     if (!s.data.session) { window.location.href = 'login.html'; return; }
     window.location.href = 'app.html';

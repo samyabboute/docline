@@ -332,6 +332,7 @@
   <link rel="shortcut icon" href="favicon.svg">
   <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="stylesheet" href="prospeo-animations.css">
+  <script src="config.js"></script>
 </head>
 <body>
 <div class="toasts" id="toasts"></div>
@@ -408,12 +409,9 @@
 })();
 
 
-const SUPA_URL  = 'https://ferkzwzypmdtuypxribz.supabase.co';
-const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg';
-const EDGE_BASE = 'https://ferkzwzypmdtuypxribz.supabase.co/functions/v1';
 // Your Supabase user ID — only this user can access admin
 // Get it from Supabase Dashboard → Authentication → Users
-const ADMIN_USER_IDS = ['YOUR_SUPABASE_USER_ID'];
+const ADMIN_USER_IDS = [ADMIN_USER_ID /* set your UUID here */];
 
 const _supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
   auth: { storage: localStorage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }

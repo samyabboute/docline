@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sign in — Prospeo</title>
 <meta name="description" content="Sign in to your Prospeo account.">
+  <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -344,17 +345,13 @@ footer a:hover{color:var(--brand)}
 </footer>
 
 <script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 // Dark mode persistence
 (function(){
   var t=localStorage.getItem('p_theme');
   if(!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t='dark';
   if(t) document.documentElement.setAttribute('data-theme',t);
 })();
-
-var _supa = supabase.createClient(
-  'https://ferkzwzypmdtuypxribz.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg'
-);
 
 // ── CHECK EXISTING SESSION ─────────────────────────────────────
 (async function(){
@@ -435,7 +432,7 @@ async function register() {
     var r = await _supa.auth.signUp({
       email: email, password: pw,
       options: { data: { first_name: parts[0] || name, last_name: parts.slice(1).join(' ') || '' },
-        emailRedirectTo: 'https://samyabboute.github.io/prospeo/login.html' }
+        emailRedirectTo: APP_URL + '/login.html' }
     });
     if (r.error) throw r.error;
     showMsg('ok', 'Account created! Check your email to confirm, then sign in.');
@@ -454,7 +451,7 @@ async function oauthLogin(provider) {
   try {
     var r = await _supa.auth.signInWithOAuth({
       provider: provider,
-      options: { redirectTo: 'https://samyabboute.github.io/prospeo/app.html' }
+      options: { redirectTo: APP_URL + '/app.html' }
     });
     if (r.error) throw r.error;
   } catch(e) {
@@ -469,7 +466,7 @@ async function forgotPw(e) {
   if (!email) { showMsg('err', 'Enter your email above first.'); return; }
   try {
     await _supa.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://samyabboute.github.io/prospeo/login.html'
+      redirectTo: APP_URL + '/login.html'
     });
     showMsg('ok', 'Password reset email sent. Check your inbox.');
   } catch(e) {

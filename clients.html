@@ -7,6 +7,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="prospeo-animations.css">
+  <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -102,6 +103,7 @@ a{color:var(--brand);text-decoration:none}
   <a href="app.html" class="topbar-logo"><img src="prospeo-logo.svg" alt="Prospeo"></a>
   <div class="topbar-sep"></div>
   <span class="topbar-title">Clients</span>
+  <nav style="display:flex;gap:2px;margin-left:8px"><a href="invoices.html" style="font-size:12px;color:var(--text3);text-decoration:none;padding:5px 10px;border-radius:8px;transition:all .15s" onmouseover="this.style.background='var(--brand-light)'" onmouseout="this.style.background='transparent'">Invoices</a><a href="proposals.html" style="font-size:12px;color:var(--text3);text-decoration:none;padding:5px 10px;border-radius:8px;transition:all .15s" onmouseover="this.style.background='var(--brand-light)'" onmouseout="this.style.background='transparent'">Smart Files</a><a href="calendar.html" style="font-size:12px;color:var(--text3);text-decoration:none;padding:5px 10px;border-radius:8px;transition:all .15s" onmouseover="this.style.background='var(--brand-light)'" onmouseout="this.style.background='transparent'">Calendar</a></nav>
   <div class="topbar-search">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="text" id="search-input" placeholder="Search clients, companies..." oninput="filterClients()">
@@ -201,9 +203,7 @@ a{color:var(--brand);text-decoration:none}
 
 <script src="prospeo-animations.js"></script>
 <script>
-var SUPA_URL='https://ferkzwzypmdtuypxribz.supabase.co';
-var ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg';
-var _supa=supabase.createClient(SUPA_URL,ANON_KEY);
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _clients=[], _uid=null, _view='grid', _filter='all', _editId=null;
 var COLORS=['#EEF2FF','#ECFDF5','#FEF3C7','#FEF2F2','#F5F3FF','#E0F2FE','#FFF7ED','#F0FDF4'];
 var TEXT_COLORS=['#003399','#059669','#D97706','#DC2626','#7C3AED','#0284C7','#C2410C','#15803D'];

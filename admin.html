@@ -338,6 +338,7 @@
   <link rel="shortcut icon" href="favicon.svg">
   <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="stylesheet" href="prospeo-animations.css">
+  <script src="config.js"></script>
 </head>
 <body>
 <div class="toasts" id="toasts"></div>
@@ -553,14 +554,11 @@ function kpiCard(type, icon, value, label, delta, deltaDir) {
 }
 
 // ── SUPABASE + DEMO MODE ─────────────────────────────────────
-var SUPA_URL  = 'https://ferkzwzypmdtuypxribz.supabase.co';
-var SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg';
-var EDGE_BASE = 'https://ferkzwzypmdtuypxribz.supabase.co/functions/v1';
-var ADMIN_IDS = ['YOUR_SUPABASE_USER_ID'];
+var ADMIN_IDS = [ADMIN_USER_ID /* set your UUID here */];
 
 // Detect preview/demo mode: if credentials are placeholders OR supabase CDN failed
 var IS_DEMO = (
-  SUPA_URL.indexOf('YOUR_PROJECT') !== -1 ||
+  SUPA_URL.indexOf('ferkzwzypmdtuypxribz') !== -1 ||
   typeof window.supabase === 'undefined'
 );
 
@@ -633,7 +631,7 @@ var AdminAuth = {
     var r = await _supa.auth.getSession();
     this._session = r.data.session;
     if (!this._session) { window.location.href = 'login.html'; return null; }
-    if (ADMIN_IDS[0] !== 'YOUR_SUPABASE_USER_ID' && ADMIN_IDS.indexOf(this._session.user.id) === -1) {
+    if (ADMIN_IDS[0] !== ADMIN_USER_ID /* set your UUID here */ && ADMIN_IDS.indexOf(this._session.user.id) === -1) {
       window.location.href = 'app.html'; return null;
     }
     return this._session;

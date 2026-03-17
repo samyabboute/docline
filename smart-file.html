@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Smart File — Prospeo</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -87,9 +88,7 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
 </div>
 <div class="toast" id="toast"></div>
 <script>
-var SUPA_URL='https://ferkzwzypmdtuypxribz.supabase.co';
-var ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg';
-var _supa=supabase.createClient(SUPA_URL,ANON_KEY);
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _proposal=null, _sigMode='draw', _hasSig=false;
 var _canvas=null, _ctx=null, _drawing=false, _lastX=0, _lastY=0;
 
@@ -201,10 +200,10 @@ async function submitSignature(){
     document.querySelector('.progress-steps').innerHTML='<div class="ps-step done"><div class="ps-circle">✓</div>Proposal</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Contract</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Signed</div>';
     toast('Signed successfully!','toast-success');
     // Trigger automation: proposal signed → create invoice
-    var edgeBase='https://ferkzwzypmdtuypxribz.supabase.co/functions/v1';
+    var edgeBase='SUPA_URL/functions/v1';
     fetch(edgeBase+'/automation-engine',{
       method:'POST',
-      headers:{'Content-Type':'application/json','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg'},
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY},
       body:JSON.stringify({trigger:'proposal.signed',payload:{proposal_id:_proposal.id}})
     }).then(function(r){return r.json();}).then(function(d){
       if(d.ok&&d.action==='invoice_created'){
