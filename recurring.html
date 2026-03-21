@@ -8,6 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="prospeo-animations.css">
   <script src="config.js"></script>
+<script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -84,10 +85,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
-<div class="topbar">
-  <img src="prospeo-logo.svg" alt="Prospeo">
-  <a class="back" href="invoices.html">&#8592; Invoices</a>
-</div>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="shell-page">
 <div class="content">
   <div class="page-head">
     <div>
@@ -295,10 +298,13 @@ async function toggleRec(id, active){
 
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 window.addEventListener('unhandledrejection',function(e){console.error('[Recurring]',e.reason);});
+
+document.addEventListener('DOMContentLoaded', function() {
+  if(typeof Shell !== 'undefined') Shell.init({ page: 'recurring', title: 'Recurring' });
+});
 </script>
-
-
-
-<nav class="bottom-nav"><div class="bottom-nav-row"><a href="app.html" class="bn-item" id="bn-dash"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Home</span></a><a href="clients.html" class="bn-item" id="bn-clients"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Clients</span></a><a href="proposals.html" class="bn-item" id="bn-files"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Files</span></a><a href="invoices.html" class="bn-item active" id="bn-inv"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Invoices</span></a><a href="calendar.html" class="bn-item" id="bn-cal"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Calendar</span></a></div></nav>
+    </div>
+  </main>
+</div>
 </body>
 </html>

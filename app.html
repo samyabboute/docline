@@ -708,6 +708,9 @@
   .bn-item span{font-size:9px;font-weight:600;letter-spacing:.01em;line-height:1}
   .bn-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--brand);border-radius:0 0 2px 2px}
   @media(max-width:768px){.bottom-nav{display:flex}.page{padding-bottom:72px!important}}
+
+  @media(max-width:1100px){#dash-grid{grid-template-columns:1fr!important}}
+.nav-item-locked{opacity:.6}
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0066FF">
@@ -945,10 +948,7 @@
   </div>
 </div>
 
-<style>
-@media(max-width:1100px){#dash-grid{grid-template-columns:1fr!important}}
-.nav-item-locked{opacity:.6}
-</style>
+
 <script>
 
 const _supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
@@ -1240,13 +1240,14 @@ const ACT_ICON={
   }, 800);
 
   // Fetch all dashboard data with individual error isolation
+  var _invoices = [], _tasks = [];
   const [leads, acts, evts, invs] = await Promise.all([
     DB.getLeads().catch(function(e){ console.error('[Leads]',e); return []; }),
     _supa.from('activities').select('*').order('happened_at',{ascending:false}).limit(8).then(r=>r.data??[]).catch(function(){return [];}),
     DB.getEvents(new Date(Date.now()-86400000).toISOString(), new Date(Date.now()+30*86400000).toISOString()).catch(function(){return [];}),
     _supa.from('invoices').select('id,status,total,due_date,created_at,client_name,invoice_number').order('created_at',{ascending:false}).limit(50).then(function(r){return (r.data||[]).map(function(i){return Object.assign({},i,{amount_ttc:i.total||0,number:i.invoice_number});});}).catch(function(e){console.error('[Invoices]',e);return [];})
   ]);
-  _leads=leads;
+  _leads=leads; _invoices=invs; _tasks=evts;
 
   // Render all dashboard sections — each isolated so one failure can't break others
   try { renderKPIs(leads, invs, evts); } catch(e){ console.error('[KPIs]',e); }
@@ -1546,49 +1547,43 @@ function closeNL(){
   document.getElementById('nl-st').value='new'; document.getElementById('nl-ty').value='company';
 }
 async function saveLead(){
-  const fn=document.getElementById('nl-fn').value.trim();
-  const ln=document.getElementById('nl-ln').value.trim();
+  var fn=document.getElementById('nl-fn').value.trim();
+  var ln=document.getElementById('nl-ln').value.trim();
   if(!fn||!ln){Toast.error('Name required','First and last name are required.');return;}
-  const btn=document.getElementById('save-lead-btn'); btn.disabled=true; btn.textContent='Saving…';
+  var em=document.getElementById('nl-em').value.trim();
+  if(em && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){Toast.error('Invalid email','Please enter a valid email address.');return;}
+  var btn=document.getElementById('save-lead-btn');
+  btn.disabled=true; btn.textContent='Saving…';
   try{
-    const lead=await DB.createLead({first_name:fn,last_name:ln,company:document.getElementById('nl-co').value.trim()||null,job_title:document.getElementById('nl-jt').value.trim()||null,email:document.getElementById('nl-em').value.trim()||null,phone:document.getElementById('nl-ph').value.trim()||null,stage:document.getElementById('nl-st').value,client_type:document.getElementById('nl-ty').value,deal_value:parseFloat(document.getElementById('nl-vl').value)||0,expected_close:document.getElementById('nl-cl').value||null,country:document.getElementById('nl-cn').value.trim()||null,vat_number:document.getElementById('nl-vat').value.trim()||null,notes:document.getElementById('nl-nt').value.trim()||null});
-    _leads.unshift(lead); renderKPIs(_leads); renderPipeline(_leads); closeNL();
-    Toast.success('Lead added!',`${fn} ${ln} added to pipeline.`);
-    await Auth.verifyPlan(true); Sidebar.init('dashboard');
-
-  // Load plan limits
-  await Limits.load(session.user.id);
-  var _planData = await Auth.verifyPlan();
-
-  // Show limit bars
-  Limits.showLimitBar('limit-leads-bar', 'leads', _planData);
-  Limits.showLimitBar('limit-clients-bar', 'clients', _planData);
-
-  // Revenue widget for Pro users
-  if (_planData && (_planData.plan === 'pro' || _planData.is_pro)) {
-    document.getElementById('revenue-widget-container') &&
-    (document.getElementById('revenue-widget-container').style.display = 'block');
-    loadRevenueStats(session.user.id);
-  }
-
-  // Check overdue invoices and notify
-  var invData = await DB.getInvoices();
-  if (invData && typeof Notifications !== 'undefined') {
-    Notifications.checkOverdueInvoices(invData);
-  }
-
-  // Check due tasks
-  var taskData = await _supa.from('events').select('*').eq('user_id', session.user.id).eq('completed', false);
-  if (taskData.data && typeof Notifications !== 'undefined') {
-    Notifications.checkUpcomingTasks(taskData.data);
-  }
-
+    var lead=await DB.createLead({
+      first_name:fn, last_name:ln,
+      company:document.getElementById('nl-co').value.trim()||null,
+      job_title:document.getElementById('nl-jt').value.trim()||null,
+      email:document.getElementById('nl-em').value.trim()||null,
+      phone:document.getElementById('nl-ph').value.trim()||null,
+      stage:document.getElementById('nl-st').value,
+      client_type:document.getElementById('nl-ty').value,
+      deal_value:parseFloat(document.getElementById('nl-vl').value)||0,
+      expected_close:document.getElementById('nl-cl').value||null,
+      country:document.getElementById('nl-cn').value.trim()||null,
+      vat_number:document.getElementById('nl-vat').value.trim()||null,
+      notes:document.getElementById('nl-nt').value.trim()||null
+    });
+    // STATE UPDATE: add to local array and re-render ALL dashboard sections
+    _leads.unshift(lead);
+    try { renderKPIs(_leads, _invoices||[], _tasks||[]); } catch(e){}
+    try { renderPipeline(_leads); } catch(e){}
+    try { renderLifecycleBar(_leads); } catch(e){}
+    try { renderMiniPipeline(_leads); } catch(e){}
+    closeNL();
+    Toast.success('Lead added!', fn+' '+ln+' added to pipeline.');
   }catch(err){
-    if(err.message?.startsWith('LIMIT_REACHED')){closeNL();PlanGate.show('unlimited leads');}
-    else Toast.error('Could not save',err.message);
+    if(err.message&&err.message.startsWith('LIMIT_REACHED')){closeNL();PlanGate.show('unlimited leads');}
+    else Toast.error('Could not save', err.message||'Unknown error');
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Add Lead';
   }
-  btn.disabled=false;
-  btn.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Add Lead';
 }
 document.getElementById('nl-overlay').addEventListener('click',e=>{if(e.target.id==='nl-overlay')closeNL();});
 document.addEventListener('keydown',e=>{
@@ -2129,7 +2124,7 @@ var CSVImport = (function() {
 
 // ── DARK MODE ────────────────────────────────────────────────
 var ThemeManager = (function() {
-  var STORAGE_KEY = 'p_theme';
+  var STORAGE_KEY = 'prospeo-theme';
   
   function get() { return localStorage.getItem(STORAGE_KEY) || 'light'; }
   

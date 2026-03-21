@@ -278,14 +278,14 @@ footer a:hover{color:var(--brand)}
     <div id="form-login">
       <div class="form-group">
         <label class="form-label" for="li-email">Email</label>
-        <input class="form-input" type="email" id="li-email" placeholder="you@example.com" autocomplete="email" onkeydown="if(event.key==='Enter')signIn()">
+        <input class="form-input" type="email" required id="li-email" placeholder="you@example.com" autocomplete="email" onkeydown="if(event.key==='Enter')signIn()">
       </div>
       <div class="form-group">
         <label class="form-label" for="li-pw">
           Password
           <a class="forgot" href="#" onclick="forgotPw(event)">Forgot?</a>
         </label>
-        <input class="form-input" type="password" id="li-pw" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()">
+        <input class="form-input" type="password" required id="li-pw" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()">
         <span class="pw-toggle" onclick="togglePw('li-pw',this)">Show</span>
       </div>
       <button class="btn-submit" id="btn-signin" onclick="signIn()">
@@ -306,11 +306,11 @@ footer a:hover{color:var(--brand)}
       </div>
       <div class="form-group">
         <label class="form-label" for="re-email">Email</label>
-        <input class="form-input" type="email" id="re-email" placeholder="you@example.com" autocomplete="email">
+        <input class="form-input" type="email" required id="re-email" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="form-group">
         <label class="form-label" for="re-pw">Password</label>
-        <input class="form-input" type="password" id="re-pw" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
+        <input class="form-input" type="password" required id="re-pw" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
         <span class="pw-toggle" onclick="togglePw('re-pw',this)">Show</span>
         <div class="pw-strength" id="pw-strength">
           <div class="pw-bars">
@@ -348,7 +348,7 @@ footer a:hover{color:var(--brand)}
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 // Dark mode persistence
 (function(){
-  var t=localStorage.getItem('p_theme');
+  var t=localStorage.getItem('prospeo-theme');
   if(!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t='dark';
   if(t) document.documentElement.setAttribute('data-theme',t);
 })();

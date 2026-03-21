@@ -92,7 +92,7 @@
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 // Dark mode persistence
 (function(){
-  var t=localStorage.getItem('p_theme');
+  var t=localStorage.getItem('prospeo-theme');
   if(!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t='dark';
   if(t) document.documentElement.setAttribute('data-theme',t);
 })();
