@@ -211,6 +211,33 @@ footer a:hover{color:var(--brand)}
   [data-theme=dark] .bg-orb-2{background:rgba(0,102,255,.15)}
   [data-theme=dark] .bg-orb-3{background:rgba(139,92,246,.15)}
 
+
+  /* ── LOGIN MOBILE ── */
+  @media(max-width:600px){
+    body{padding:0}
+    .auth-split{flex-direction:column;min-height:100vh}
+    .auth-brand{display:none}
+    .auth-form-wrap{
+      width:100%;min-height:100vh;
+      padding:40px 20px 60px;
+      border-radius:0;
+      justify-content:center;
+    }
+    .auth-card{width:100%;max-width:100%;padding:28px 20px;border-radius:16px}
+    .auth-logo{margin-bottom:28px}
+    .form-group input{padding:11px 14px;font-size:16px}
+    .auth-submit{padding:13px;font-size:15px}
+    .auth-alt{margin-top:20px}
+  }
+  @media(max-width:380px){
+    .auth-card{padding:22px 16px}
+    .auth-form-wrap{padding:24px 14px 50px}
+  }
+  /* iOS input zoom prevention */
+  @supports (-webkit-touch-callout: none){
+    .form-group input{font-size:16px!important}
+  }
+
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0066FF">
@@ -278,14 +305,14 @@ footer a:hover{color:var(--brand)}
     <div id="form-login">
       <div class="form-group">
         <label class="form-label" for="li-email">Email</label>
-        <input class="form-input" type="email" required id="li-email" placeholder="you@example.com" autocomplete="email" onkeydown="if(event.key==='Enter')signIn()">
+        <input class="form-input" type="email" required autocomplete="email" inputmode="email" required id="li-email" placeholder="you@example.com" autocomplete="email" onkeydown="if(event.key==='Enter')signIn()">
       </div>
       <div class="form-group">
         <label class="form-label" for="li-pw">
           Password
           <a class="forgot" href="#" onclick="forgotPw(event)">Forgot?</a>
         </label>
-        <input class="form-input" type="password" required id="li-pw" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()">
+        <input class="form-input" type="password" required autocomplete="current-password" required id="li-pw" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()">
         <span class="pw-toggle" onclick="togglePw('li-pw',this)">Show</span>
       </div>
       <button class="btn-submit" id="btn-signin" onclick="signIn()">
@@ -306,11 +333,11 @@ footer a:hover{color:var(--brand)}
       </div>
       <div class="form-group">
         <label class="form-label" for="re-email">Email</label>
-        <input class="form-input" type="email" required id="re-email" placeholder="you@example.com" autocomplete="email">
+        <input class="form-input" type="email" required autocomplete="email" inputmode="email" required id="re-email" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="form-group">
         <label class="form-label" for="re-pw">Password</label>
-        <input class="form-input" type="password" required id="re-pw" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
+        <input class="form-input" type="password" required autocomplete="current-password" required id="re-pw" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
         <span class="pw-toggle" onclick="togglePw('re-pw',this)">Show</span>
         <div class="pw-strength" id="pw-strength">
           <div class="pw-bars">

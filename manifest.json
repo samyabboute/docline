@@ -1,48 +1,54 @@
 {
-  "name": "Prospeo — CRM for European Freelancers",
+  "name": "Prospeo \u2014 CRM for Freelancers",
   "short_name": "Prospeo",
-  "description": "Manage clients, track leads, send EU-compliant invoices.",
+  "description": "CRM, invoicing, and e-signatures for European freelancers",
   "start_url": "/prospeo/app.html",
   "scope": "/prospeo/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#FBFBFD",
-  "theme_color": "#0066FF",
-  "categories": ["business", "productivity"],
+  "theme_color": "#003399",
+  "background_color": "#003399",
   "lang": "en",
+  "categories": [
+    "business",
+    "productivity"
+  ],
   "icons": [
     {
-      "src": "favicon.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "icon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
     },
     {
-      "src": "favicon.svg",
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "apple touch icon"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
+  "screenshots": [],
   "shortcuts": [
     {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "url": "/prospeo/app.html",
-      "description": "Open your pipeline"
+      "name": "New Invoice",
+      "url": "/prospeo/invoices.html?new=1",
+      "description": "Create a new invoice"
     },
     {
-      "name": "Invoices",
-      "short_name": "Invoices",
-      "url": "/prospeo/invoices.html",
-      "description": "Manage invoices"
-    },
-    {
-      "name": "Clients",
-      "short_name": "Clients",
-      "url": "/prospeo/clients.html",
-      "description": "View clients"
+      "name": "New Client",
+      "url": "/prospeo/clients.html?new=1",
+      "description": "Add a new client"
     }
-  ],
-  "screenshots": []
+  ]
 }

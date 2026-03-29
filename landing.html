@@ -2,6 +2,10 @@
 <html lang="en" id="html-root">
 <head>
 <meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Prospeo">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Prospeo — The CRM that invoices. Built for European freelancers.</title>
 <meta name="description" content="Manage clients, send EU-compliant invoices, sign contracts, and get AI business advice — all in one tool built for European freelancers.">
@@ -1196,6 +1200,76 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
     if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});}
   });
 });
+
+// ── PWA REGISTRATION ─────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/prospeo/sw.js', { scope: '/prospeo/' })
+      .then(function(reg) {
+        console.log('[SW] Registered, scope:', reg.scope);
+        // Check for updates
+        reg.addEventListener('updatefound', function() {
+          var newSW = reg.installing;
+          if (newSW) {
+            newSW.addEventListener('statechange', function() {
+              if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[SW] Update available');
+              }
+            });
+          }
+        });
+      })
+      .catch(function(err) { console.warn('[SW] Registration failed:', err); });
+  });
+}
+
+// ── PWA INSTALL PROMPT ────────────────────────────────────────
+var _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _pwaPrompt = e;
+  if (!localStorage.getItem('pwa-installed') && !localStorage.getItem('pwa-dismissed-v2')) {
+    setTimeout(function() { showPWABanner(); }, 1000);
+  }
+});
+
+window.addEventListener('appinstalled', function() {
+  localStorage.setItem('pwa-installed', '1');
+  hidePWABanner();
+  console.log('[PWA] Installed');
+});
+
+function showPWABanner() {
+  var banner = document.getElementById('pwa-banner');
+  if (banner) {
+    banner.style.display = 'flex';
+    requestAnimationFrame(function() { banner.classList.add('show'); });
+  }
+}
+function hidePWABanner() {
+  var banner = document.getElementById('pwa-banner');
+  if (banner) {
+    banner.classList.remove('show');
+    setTimeout(function() { banner.style.display = 'none'; }, 400);
+  }
+}
+function pwaInstall() {
+  if (_pwaPrompt) {
+    _pwaPrompt.prompt();
+    _pwaPrompt.userChoice.then(function(r) {
+      if (r.outcome === 'accepted') localStorage.setItem('pwa-installed', '1');
+      _pwaPrompt = null;
+      hidePWABanner();
+    });
+  } else {
+    // iOS fallback
+    alert('To install: tap the Share button then "Add to Home Screen"');
+  }
+}
+function pwaDismiss() {
+  localStorage.setItem('pwa-dismissed-v2', '1');
+  hidePWABanner();
+}
 </script>
 
 <!-- PWA Install Banner -->
