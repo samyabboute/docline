@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -734,7 +734,7 @@
     <div class="shell-page">
       <!-- Dashboard topbar action (injected into topbar by Shell) -->
       <div id="dash-action-bar" style="display:none">
-        <button class="btn btn-primary" id="new-lead-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Lead</button>
+        <button class="btn btn-primary" id="new-lead-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nouveau lead</button>
       </div>
       <div id="loading">
         <!-- Skeleton KPIs -->
@@ -764,8 +764,8 @@
 
         <!-- Greeting + Focus -->
         <div class="dash-greeting">
-          <div class="dash-greeting-name" id="greeting-name">Good morning</div>
-          <div class="dash-greeting-sub" id="greeting-sub">Here's what's happening with your business today.</div>
+          <div class="dash-greeting-name" id="greeting-name">Bonjour</div>
+          <div class="dash-greeting-sub" id="greeting-sub">Voici ce qui se passe dans votre activité aujourd'hui.</div>
         </div>
 
         <!-- Focus badge (dynamic) -->
@@ -781,15 +781,15 @@
         <div class="quick-actions">
           <button class="qa-btn qa-primary" onclick="openNewLead()">
             <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-            New client
+            Nouveau client
           </button>
           <button class="qa-btn qa-ghost" onclick="openNewLead()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            New deal
+            Nouveau deal
           </button>
           <a class="qa-btn qa-ghost" href="invoices.html">
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Create invoice
+            Créer une facture
           </a>
           <a class="qa-btn qa-ghost" href="proposals.html">
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -810,8 +810,8 @@
                 </div>
                 <div style="display:flex;gap:6px;align-items:center">
                   <div class="tab-bar" style="padding:2px">
-                    <button class="tab-btn active" id="vb" onclick="setView('board')">Board</button>
-                    <button class="tab-btn" id="vl" onclick="setView('list')">List</button>
+                    <button class="tab-btn active" id="vb" onclick="setView('board')">Kanban</button>
+                    <button class="tab-btn" id="vl" onclick="setView('list')">Liste</button>
                   </div>
                   <button class="btn btn-secondary btn-sm" onclick="openNewLead()">+ Lead</button>
                 </div>
@@ -831,9 +831,9 @@
               <div class="dash-card-head">
                 <div class="dash-card-title">
                   <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                  Tasks
+                  Tâches
                 </div>
-                <a href="calendar.html" style="font-size:11px;color:var(--brand);text-decoration:none;font-weight:500">View all →</a>
+                <a href="calendar.html" style="font-size:11px;color:var(--brand);text-decoration:none;font-weight:500">Tout voir →</a>
               </div>
               <div class="dash-card-body">
                 <div id="tasks-today"></div>
@@ -845,7 +845,7 @@
               <div class="dash-card-head">
                 <div class="dash-card-title">
                   <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  Activity
+                  Activité
                 </div>
               </div>
               <div class="dash-card-body">
@@ -863,9 +863,9 @@
               <div class="dash-card-head">
                 <div class="dash-card-title">
                   <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                  Revenue
+                  Revenus
                 </div>
-                <a href="invoices.html" style="font-size:11px;color:var(--brand);text-decoration:none;font-weight:500">Details →</a>
+                <a href="invoices.html" style="font-size:11px;color:var(--brand);text-decoration:none;font-weight:500">Détails →</a>
               </div>
               <div class="dash-card-body">
                 <div id="revenue-snapshot"></div>
@@ -877,7 +877,7 @@
               <div class="dash-card-head">
                 <div class="dash-card-title">
                   <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                  Stage breakdown
+                  Répartition par étape
                 </div>
               </div>
               <div class="dash-card-body">
@@ -897,11 +897,11 @@
               <div class="dash-card-body" style="padding:0">
                 <!-- Inline quick prompts -->
                 <div style="padding:12px 18px;display:flex;flex-direction:column;gap:6px" id="nex-inline-prompts">
-                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:500">Ask Nex:</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:500">Demander à Nex :</div>
                 </div>
                 <div style="padding:12px 18px;border-top:1px solid var(--border)">
                   <button class="qa-btn qa-primary" style="width:100%;justify-content:center;font-size:12px;padding:8px 14px" onclick="AIAssistant.toggle()">
-                    Open full chat →
+                    Ouvrir le chat complet →
                   </button>
                 </div>
               </div>
@@ -921,24 +921,24 @@
 <div class="overlay" id="nl-overlay">
   <div class="modal modal-lg">
     <div class="modal-head">
-      <div><div class="modal-title">New Lead</div><div class="modal-subtitle">Add a prospect to your pipeline</div></div>
+      <div><div class="modal-title">Nouveau lead</div><div class="modal-subtitle">Ajouter un prospect à votre pipeline</div></div>
       <button class="btn btn-ghost btn-icon" onclick="closeNL()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
-      <div class="field-row"><div class="field"><label>First Name *</label><input id="nl-fn" type="text" placeholder="Jean"></div><div class="field"><label>Last Name *</label><input id="nl-ln" type="text" placeholder="Dupont"></div></div>
-      <div class="field-row"><div class="field"><label>Company</label><input id="nl-co" type="text" placeholder="Dupont Consulting"></div><div class="field"><label>Job Title</label><input id="nl-jt" type="text" placeholder="CEO"></div></div>
-      <div class="field-row"><div class="field"><label>Email</label><input id="nl-em" type="email" placeholder="jean@company.com"></div><div class="field"><label>Phone</label><input id="nl-ph" type="tel" placeholder="+33 6 12 34 56 78"></div></div>
+      <div class="field-row"><div class="field"><label>Prénom *</label><input id="nl-fn" type="text" placeholder="Jean"></div><div class="field"><label>Nom *</label><input id="nl-ln" type="text" placeholder="Dupont"></div></div>
+      <div class="field-row"><div class="field"><label>Entreprise</label><input id="nl-co" type="text" placeholder="Dupont Consulting"></div><div class="field"><label>Poste</label><input id="nl-jt" type="text" placeholder="CEO"></div></div>
+      <div class="field-row"><div class="field"><label>Email</label><input id="nl-em" type="email" placeholder="jean@entreprise.fr"></div><div class="field"><label>Téléphone</label><input id="nl-ph" type="tel" placeholder="+33 6 12 34 56 78"></div></div>
       <div class="field-row">
-        <div class="field"><label>Pipeline Stage</label><select id="nl-st"><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="proposal">Proposal Sent</option></select></div>
-        <div class="field"><label>Client Type</label><select id="nl-ty"><option value="company">Company</option><option value="freelancer">Freelancer</option><option value="individual">Individual</option></select></div>
+        <div class="field"><label>Étape pipeline</label><select id="nl-st"><option value="new">Nouveau</option><option value="contacted">Contacté</option><option value="qualified">Qualifié</option><option value="proposal">Devis envoyé</option></select></div>
+        <div class="field"><label>Type de client</label><select id="nl-ty"><option value="company">Entreprise</option><option value="freelancer">Freelance</option><option value="individual">Particulier</option></select></div>
       </div>
-      <div class="field-row"><div class="field"><label>Deal Value (€)</label><input id="nl-vl" type="number" placeholder="0" min="0"></div><div class="field"><label>Expected Close</label><input id="nl-cl" type="date"></div></div>
-      <div class="field-row"><div class="field"><label>Country</label><input id="nl-cn" type="text" placeholder="France"></div><div class="field"><label>EU VAT Number</label><input id="nl-vat" type="text" placeholder="FR 12 345 678 901"></div></div>
-      <div class="field"><label>Notes</label><textarea id="nl-nt" rows="3" placeholder="Source, context, key information…"></textarea></div>
+      <div class="field-row"><div class="field"><label>Valeur du deal (€)</label><input id="nl-vl" type="number" placeholder="0" min="0"></div><div class="field"><label>Clôture prévue</label><input id="nl-cl" type="date"></div></div>
+      <div class="field-row"><div class="field"><label>Pays</label><input id="nl-cn" type="text" placeholder="France"></div><div class="field"><label>N° SIRET / SIREN</label><input id="nl-vat" type="text" placeholder="123 456 789 00010"></div></div>
+      <div class="field"><label>Notes</label><textarea id="nl-nt" rows="3" placeholder="Source, contexte, informations clés…"></textarea></div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeNL()">Cancel</button>
-      <button class="btn btn-primary" id="save-lead-btn" onclick="saveLead()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Add Lead</button>
+      <button class="btn btn-secondary" onclick="closeNL()">Annuler</button>
+      <button class="btn btn-primary" id="save-lead-btn" onclick="saveLead()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Ajouter le lead</button>
     </div>
   </div>
 </div>
@@ -1035,11 +1035,11 @@ const PlanGate = {
     const ov=document.createElement('div'); ov.id='_plan-gate'; ov.className='overlay open';
     ov.innerHTML=`<div class="modal" style="max-width:420px;text-align:center"><div class="modal-body" style="padding:40px 32px;align-items:center">
       <div class="plan-gate-icon" style="margin:0 auto 20px"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-      <h3 style="font-size:var(--text-lg);font-weight:800;color:var(--text-primary);margin-bottom:8px">Pro Feature</h3>
-      <p style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;margin-bottom:28px"><strong>${sanitize(feat)}</strong> requires the Pro plan.</p>
+      <h3 style="font-size:var(--text-lg);font-weight:800;color:var(--text-primary);margin-bottom:8px">Fonctionnalité Pro</h3>
+      <p style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;margin-bottom:28px"><strong>${sanitize(feat)}</strong> nécessite le plan Pro.</p>
       <div style="display:flex;gap:10px;justify-content:center">
-        <button class="btn btn-secondary" onclick="document.getElementById('_plan-gate').remove()">Maybe later</button>
-        <a href="pricing.html" class="btn btn-pro">Upgrade to Pro →</a>
+        <button class="btn btn-secondary" onclick="document.getElementById('_plan-gate').remove()">Plus tard</button>
+        <a href="pricing.html" class="btn btn-pro">Passer en Pro →</a>
       </div></div></div>`;
     document.body.appendChild(ov);
     ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
@@ -1049,7 +1049,7 @@ const PlanGate = {
 function confirmAction(title, msg) {
   return new Promise(resolve => {
     const ov=document.createElement('div'); ov.className='overlay open';
-    ov.innerHTML=`<div class="modal" style="max-width:360px"><div class="modal-head"><div class="modal-title">${sanitize(title)}</div></div><div class="modal-body"><p style="color:var(--text-secondary);font-size:var(--text-sm)">${sanitize(msg)}</p></div><div class="modal-foot"><button class="btn btn-secondary" id="_cn">Cancel</button><button class="btn btn-danger" id="_co">Delete</button></div></div>`;
+    ov.innerHTML=`<div class="modal" style="max-width:360px"><div class="modal-head"><div class="modal-title">${sanitize(title)}</div></div><div class="modal-body"><p style="color:var(--text-secondary);font-size:var(--text-sm)">${sanitize(msg)}</p></div><div class="modal-foot"><button class="btn btn-secondary" id="_cn">Annuler</button><button class="btn btn-danger" id="_co">Supprimer</button></div></div>`;
     document.body.appendChild(ov);
     ov.querySelector('#_co').onclick=()=>{ov.remove();resolve(true)};
     ov.querySelector('#_cn').onclick=()=>{ov.remove();resolve(false)};
@@ -1064,12 +1064,12 @@ function stageBadge(s) {
 }
 function clientTypeBadge(t) {
   const m={company:'biz-company',freelancer:'biz-freelancer',individual:'biz-individual'};
-  const l={company:'Company',freelancer:'Freelancer',individual:'Individual'};
+  const l={company:'Entreprise',freelancer:'Freelance',individual:'Particulier'};
   return `<span class="badge ${m[t]||'biz-company'}">${l[t]||t}</span>`;
 }
 function invoiceStatusBadge(s) {
   const m={draft:'inv-draft',sent:'inv-sent',paid:'inv-paid',overdue:'inv-overdue'};
-  const l={draft:'Draft',sent:'Sent',paid:'Paid',overdue:'Overdue'};
+  const l={draft:'Brouillon',sent:'Envoyée',paid:'Payée',overdue:'En retard'};
   return `<span class="badge ${m[s]||'inv-draft'}">${l[s]||s}</span>`;
 }
 
@@ -1139,12 +1139,12 @@ const Sidebar = {
 <script>
 let _leads=[],_view='board';
 const STAGE_META=[
-  {k:'new',        l:'Inquiry',          c:'#7C3AED', icon:'📬', desc:'New enquiries'},
-  {k:'contacted',  l:'Proposal Sent',    c:'#2E90FA', icon:'📄', desc:'Awaiting response'},
-  {k:'qualified',  l:'Contract Signed',  c:'#F79009', icon:'✍️',  desc:'Active projects'},
-  {k:'proposal',   l:'Invoice Sent',     c:'#EE46BC', icon:'💳', desc:'Awaiting payment'},
-  {k:'won',        l:'Paid',             c:'#12B76A', icon:'✅', desc:'Completed'},
-  {k:'lost',       l:'Archived',         c:'#98A2B3', icon:'📁', desc:'Closed'}
+  {k:'new',        l:'Demande',          c:'#7C3AED', icon:'📬', desc:'Nouvelles demandes'},
+  {k:'contacted',  l:'Devis envoyé',     c:'#2E90FA', icon:'📄', desc:'En attente de réponse'},
+  {k:'qualified',  l:'Contrat signé',    c:'#F79009', icon:'✍️',  desc:'Projets en cours'},
+  {k:'proposal',   l:'Facture envoyée',  c:'#EE46BC', icon:'💳', desc:'En attente de paiement'},
+  {k:'won',        l:'Payé',             c:'#12B76A', icon:'✅', desc:'Terminé'},
+  {k:'lost',       l:'Archivé',          c:'#98A2B3', icon:'📁', desc:'Clôturé'}
 ];
 const ACT_ICON={
   note:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
@@ -1249,7 +1249,7 @@ const ACT_ICON={
 
   if(new URLSearchParams(location.search).get('upgrade')==='success'){
     await Auth.verifyPlan(true); Sidebar.init('dashboard');
-    Toast.success('Welcome to Pro!','All features are now unlocked.');
+    Toast.success('Bienvenue en Pro !','Toutes les fonctionnalités sont maintenant débloquées.');
     history.replaceState({},'','app.html');
   }
 })();
@@ -1281,52 +1281,52 @@ function renderKPIs(leads, invoices, tasks){
   const greetEl = document.getElementById('greeting-name');
   const hour = now.getHours();
 
-  if(greetEl) greetEl.textContent = hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+  if(greetEl) greetEl.textContent = hour<12?'Bonjour':hour<17?'Bon après-midi':'Bonsoir';
 
   // Focus badge
   const focusBadge = document.getElementById('focus-badge');
   const focusText = document.getElementById('focus-text');
   if(tasksDueToday.length>0&&focusBadge&&focusText){
     focusBadge.style.display='inline-flex';
-    focusText.textContent=tasksDueToday.length+' task'+(tasksDueToday.length>1?'s':'')+' due today';
+    focusText.textContent=tasksDueToday.length+' tâche'+(tasksDueToday.length>1?'s':'')+' à faire aujourd\'hui';
   }
 
   document.getElementById('kpis').innerHTML=`
     <div class="kpi-v2 kv-brand" title="Total pipeline value of active leads">
       <div class="kpi-v2-top">
         <div class="kpi-v2-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-        <span class="kpi-v2-badge ${active.length>0?'badge-up':'badge-neutral'}">${active.length} active</span>
+        <span class="kpi-v2-badge ${active.length>0?'badge-up':'badge-neutral'}">${active.length} actif${active.length>1?'s':''}</span>
       </div>
       <div class="kpi-v2-value">${formatEUR(pipe)}</div>
-      <div class="kpi-v2-label">Pipeline value</div>
-      <div class="kpi-v2-sub">Across ${active.length} open deal${active.length!==1?'s':''}</div>
+      <div class="kpi-v2-label">Valeur pipeline</div>
+      <div class="kpi-v2-sub">${active.length} deal${active.length!==1?'s':''} en cours</div>
     </div>
-    <div class="kpi-v2 kv-green" title="Revenue from paid invoices this month">
+    <div class="kpi-v2 kv-green" title="Revenus des factures payées ce mois">
       <div class="kpi-v2-top">
         <div class="kpi-v2-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <span class="kpi-v2-badge ${invRevenue>0?'badge-up':'badge-neutral'}">${invThisMonth.length} paid</span>
+        <span class="kpi-v2-badge ${invRevenue>0?'badge-up':'badge-neutral'}">${invThisMonth.length} payée${invThisMonth.length>1?'s':''}</span>
       </div>
       <div class="kpi-v2-value">${formatEUR(invRevenue)}</div>
-      <div class="kpi-v2-label">Revenue this month</div>
-      <div class="kpi-v2-sub">${invRevenue===0?'No paid invoices yet':'From '+invThisMonth.length+' invoice'+(invThisMonth.length!==1?'s':'')}</div>
+      <div class="kpi-v2-label">CA ce mois</div>
+      <div class="kpi-v2-sub">${invRevenue===0?'Aucune facture payée':'Sur '+invThisMonth.length+' facture'+(invThisMonth.length!==1?'s':'')}</div>
     </div>
-    <div class="kpi-v2 kv-amber" title="Percentage of leads converted to won">
+    <div class="kpi-v2 kv-amber" title="Pourcentage de leads convertis">
       <div class="kpi-v2-top">
         <div class="kpi-v2-icon"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
         <span class="kpi-v2-badge ${cr>=30?'badge-up':cr>0?'badge-neutral':'badge-down'}">${cr}%</span>
       </div>
       <div class="kpi-v2-value">${won.length}</div>
-      <div class="kpi-v2-label">Deals won</div>
-      <div class="kpi-v2-sub">Conversion rate: ${cr}%</div>
+      <div class="kpi-v2-label">Deals gagnés</div>
+      <div class="kpi-v2-sub">Taux de conversion : ${cr}%</div>
     </div>
-    <div class="kpi-v2 kv-purple" title="Tasks due today">
+    <div class="kpi-v2 kv-purple" title="Tâches à faire aujourd'hui">
       <div class="kpi-v2-top">
         <div class="kpi-v2-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-        <span class="kpi-v2-badge ${tasksDueToday.length>0?'badge-down':'badge-up'}">${tasksDueToday.length>0?tasksDueToday.length+' urgent':'On track'}</span>
+        <span class="kpi-v2-badge ${tasksDueToday.length>0?'badge-down':'badge-up'}">${tasksDueToday.length>0?tasksDueToday.length+' urgent':'En ordre'}</span>
       </div>
       <div class="kpi-v2-value">${tasksDueToday.length}</div>
-      <div class="kpi-v2-label">Due today</div>
-      <div class="kpi-v2-sub">${newThisWeek>0?'+'+newThisWeek+' new leads this week':'No new leads this week'}</div>
+      <div class="kpi-v2-label">À faire aujourd'hui</div>
+      <div class="kpi-v2-sub">${newThisWeek>0?'+'+newThisWeek+' nouveau'+(newThisWeek>1?'x':'')+' lead'+(newThisWeek>1?'s':'')+' cette semaine':'Aucun nouveau lead cette semaine'}</div>
     </div>`;
 
   // Render mini pipeline funnel
@@ -1362,18 +1362,18 @@ function renderTasksToday(tasks){
   var upcoming=tasks.filter(function(t){return t.due_date&&t.due_date.slice(0,10)>today&&!t.completed;}).slice(0,3);
   var all=[...todayTasks,...upcoming];
   if(!all.length){
-    el.innerHTML='<div class="empty-dash"><div class="empty-dash-icon">✅</div><div class="empty-dash-text">No tasks due today</div><a href="calendar.html" class="empty-dash-cta">+ Add task</a></div>';
+    el.innerHTML='<div class="empty-dash"><div class="empty-dash-icon">✅</div><div class="empty-dash-text">Aucune tâche pour aujourd\'hui</div><a href="calendar.html" class="empty-dash-cta">+ Ajouter une tâche</a></div>';
     return;
   }
   el.innerHTML=all.map(function(t){
     var isToday=t.due_date&&t.due_date.slice(0,10)<=today;
     var overdue=t.due_date&&t.due_date.slice(0,10)<today;
     return '<div class="task-item">' +
-      '<div class="task-check '+(t.completed?'done':'')+'" onclick="completeTask(\''+t.id+'\')" title="Mark complete"></div>' +
+      '<div class="task-check '+(t.completed?'done':'')+'" onclick="completeTask(\''+t.id+'\')" title="Marquer terminé"></div>' +
       '<div class="task-body">' +
         '<div class="task-name '+(t.completed?'done':'')+'">' + sanitize(t.title||t.name||'Untitled task') + '</div>' +
         '<div class="task-meta">' +
-          (overdue?'<span class="task-urgent">Overdue</span>':isToday?'<span class="task-today">Today</span>':'<span>'+new Date(t.due_date).toLocaleDateString('fr-FR')+'</span>') +
+          (overdue?'<span class="task-urgent">En retard</span>':isToday?'<span class="task-today">Aujourd\'hui</span>':'<span>'+new Date(t.due_date).toLocaleDateString('fr-FR')+'</span>') +
         '</div>' +
       '</div>' +
     '</div>';
@@ -1383,11 +1383,11 @@ function renderTasksToday(tasks){
 async function completeTask(id){
   try{
     await _supa.from('events').update({completed:true}).eq('id',id);
-    Toast.success('Done!','Task marked as complete.');
+    Toast.success('Fait !','Tâche marquée comme terminée.');
     // Re-fetch and re-render
     var evts=await DB.getEvents(new Date(Date.now()-86400000).toISOString(),new Date(Date.now()+30*86400000).toISOString());
     renderTasksToday(evts);
-  }catch(e){Toast.error('Error','Could not update task.');}
+  }catch(e){Toast.error('Erreur','Impossible de mettre à jour la tâche.');}
 }
 
 function renderRevenue(invoices){
@@ -1419,23 +1419,23 @@ function updateNexContext(leads, invoices, tasks){
   var todayTasks=tasks.filter(function(t){return t.due_date&&t.due_date.slice(0,10)===today&&!t.completed;});
   var overdue=invoices.filter(function(i){return i.status==='sent'&&i.due_date&&i.due_date<today;});
   var ctx='Date: '+now.toLocaleDateString('fr-FR')+'\n'+
-    'Active deals: '+active.length+' (total pipeline: '+formatEUR(active.reduce(function(s,l){return s+(l.deal_value||0);},0))+')\n'+
-    'Tasks due today: '+todayTasks.length+'\n'+
-    'Overdue invoices: '+overdue.length+'\n'+
+    'Deals actifs: '+active.length+' (pipeline total: '+formatEUR(active.reduce(function(s,l){return s+(l.deal_value||0);},0))+')\n'+
+    'Tâches à faire aujourd\'hui: '+todayTasks.length+'\n'+
+    'Factures en retard: '+overdue.length+'\n'+
     'Total leads: '+leads.length+'\n'+
-    'Pipeline stages: '+STAGE_META.map(function(s){return s.l+':'+leads.filter(function(l){return l.stage===s.k;}).length;}).join(', ');
+    'Étapes du pipeline: '+STAGE_META.map(function(s){return s.l+':'+leads.filter(function(l){return l.stage===s.k;}).length;}).join(', ');
   AIAssistant.setDashboardContext(ctx);
 
   // Render inline quick prompts
   var promptsEl=document.getElementById('nex-inline-prompts');
   if(promptsEl){
     var prompts=[
-      'Summarize my pipeline',
-      'Who should I follow up with today?',
-      'What are my '+overdue.length+' overdue invoice'+(overdue.length!==1?'s':'')+'?',
-      'Help me write a client follow-up'
-    ].filter(function(p){return !p.includes('0 overdue');});
-    promptsEl.innerHTML='<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:500">Ask Nex:</div>'+
+      'Résume mon pipeline',
+      'Qui relancer aujourd\'hui ?',
+      'Que faire avec mes '+overdue.length+' facture'+(overdue.length!==1?'s':''')+' en retard ?',
+      'Aide-moi à rédiger une relance client'
+    ].filter(function(p){return !p.includes('0 facture');});
+    promptsEl.innerHTML='<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:500">Demander à Nex :</div>'+
       prompts.slice(0,3).map(function(p){
         return '<button class="ai-quick-btn" onclick="inlineAskNex(\''+p.replace(/'/g,"\\'")+'\')">'+sanitize(p)+'</button>';
       }).join('');
@@ -1454,7 +1454,7 @@ function renderActivityFeed(acts){
   var el=document.getElementById('activity');
   if(!el) return;
   if(!acts||!acts.length){
-    el.innerHTML='<div class="empty-dash"><div class="empty-dash-icon">📋</div><div class="empty-dash-text">No activity yet</div></div>';
+    el.innerHTML='<div class="empty-dash"><div class="empty-dash-icon">📋</div><div class="empty-dash-text">Aucune activité pour l\'instant</div></div>';
     return;
   }
   el.innerHTML=acts.slice(0,8).map(function(a){
@@ -1487,7 +1487,7 @@ function renderPipeline(leads){
       </div>`;
     }).join('')}</div>`;
   } else {
-    el.innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Company</th><th>Stage</th><th>Value</th><th>Close</th></tr></thead><tbody>${leads.length?leads.map(l=>`<tr style="cursor:pointer" onclick="window.location.href='clients.html?lead=${l.id}'"><td><strong>${sanitize(l.first_name)} ${sanitize(l.last_name)}</strong></td><td style="color:var(--text-muted)">${sanitize(l.company||'—')}</td><td>${stageBadge(l.stage)}</td><td style="font-family:'DM Mono',monospace;font-size:.6875rem">${l.deal_value?formatEUR(l.deal_value):'—'}</td><td style="color:var(--text-muted)">${l.expected_close?new Date(l.expected_close).toLocaleDateString('en-GB'):'—'}</td></tr>`).join(''):`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">No leads yet. <a href="#" onclick="openNewLead()" style="color:var(--brand)">Add your first →</a></td></tr>`}</tbody></table></div>`;
+    el.innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Nom</th><th>Entreprise</th><th>Étape</th><th>Valeur</th><th>Clôture</th></tr></thead><tbody>${leads.length?leads.map(l=>`<tr style="cursor:pointer" onclick="window.location.href='clients.html?lead=${l.id}'"><td><strong>${sanitize(l.first_name)} ${sanitize(l.last_name)}</strong></td><td style="color:var(--text-muted)">${sanitize(l.company||'—')}</td><td>${stageBadge(l.stage)}</td><td style="font-family:'DM Mono',monospace;font-size:.6875rem">${l.deal_value?formatEUR(l.deal_value):'—'}</td><td style="color:var(--text-muted)">${l.expected_close?new Date(l.expected_close).toLocaleDateString('fr-FR'):'—'}</td></tr>`).join(''):`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">Aucun lead pour l'instant. <a href="#" onclick="openNewLead()" style="color:var(--brand)">Ajouter le premier →</a></td></tr>`}</tbody></table></div>`;
   }
 }
 
@@ -1499,7 +1499,7 @@ function renderUpcoming(evts){
   const el=document.getElementById('upcoming');
   const up=evts.filter(e=>!e.completed).slice(0,5);
   const dotC={meeting:'var(--brand)',call:'var(--success)',task:'var(--warning)',deadline:'var(--danger)'};
-  if(!up.length){el.innerHTML=`<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:.6875rem">No upcoming events. <a href="calendar.html" style="color:var(--brand)">Open Calendar →</a></div>`;return;}
+  if(!up.length){el.innerHTML=`<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:.6875rem">Aucun événement à venir. <a href="calendar.html" style="color:var(--brand)">Ouvrir l'agenda →</a></div>`;return;}
   el.innerHTML=up.map(e=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border)"><div style="width:8px;height:8px;border-radius:50%;background:${dotC[e.type]||'var(--brand)'};flex-shrink:0"></div><div style="flex:1"><div style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary)">${sanitize(e.title)}</div><div style="font-size:.6875rem;color:var(--text-muted)">${new Date(e.start_at).toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div><span class="badge badge-${e.type==='meeting'?'brand':e.type==='call'?'success':e.type==='deadline'?'danger':'warning'}">${e.type}</span></div>`).join('');
 }
 
@@ -1517,11 +1517,11 @@ function closeNL(){
 async function saveLead(){
   var fn=document.getElementById('nl-fn').value.trim();
   var ln=document.getElementById('nl-ln').value.trim();
-  if(!fn||!ln){Toast.error('Name required','First and last name are required.');return;}
+  if(!fn||!ln){Toast.error('Nom requis','Le prénom et le nom sont obligatoires.');return;}
   var em=document.getElementById('nl-em').value.trim();
-  if(em && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){Toast.error('Invalid email','Please enter a valid email address.');return;}
+  if(em && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){Toast.error('Email invalide','Veuillez saisir une adresse email valide.');return;}
   var btn=document.getElementById('save-lead-btn');
-  btn.disabled=true; btn.textContent='Saving…';
+  btn.disabled=true; btn.textContent='Enregistrement…';
   try{
     var lead=await DB.createLead({
       first_name:fn, last_name:ln,
@@ -1544,13 +1544,13 @@ async function saveLead(){
     try { renderLifecycleBar(_leads); } catch(e){}
     try { renderMiniPipeline(_leads); } catch(e){}
     closeNL();
-    Toast.success('Lead added!', fn+' '+ln+' added to pipeline.');
+    Toast.success('Lead ajouté !', fn+' '+ln+' ajouté au pipeline.');
   }catch(err){
-    if(err.message&&err.message.startsWith('LIMIT_REACHED')){closeNL();PlanGate.show('unlimited leads');}
-    else Toast.error('Could not save', err.message||'Unknown error');
+    if(err.message&&err.message.startsWith('LIMIT_REACHED')){closeNL();PlanGate.show('leads illimités');}
+    else Toast.error('Impossible d\'enregistrer', err.message||'Erreur inconnue');
   }finally{
     btn.disabled=false;
-    btn.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Add Lead';
+    btn.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Ajouter le lead';
   }
 }
 document.getElementById('nl-overlay').addEventListener('click',e=>{if(e.target.id==='nl-overlay')closeNL();});
@@ -1614,11 +1614,11 @@ var FeedbackWidget = (function() {
   }
 
   async function submit() {
-    if (_rating === 0) { Toast.info('', 'Please select a rating first.'); return; }
+    if (_rating === 0) { Toast.info('', 'Veuillez d\'abord sélectionner une note.'); return; }
     var el   = document.getElementById('feedback-widget');
     var ta   = el ? el.querySelector('.feedback-textarea') : null;
     var text = (ta && ta.style.display !== 'none') ? (ta.value || '').trim() : '';
-    var labels = ['', 'Very unhappy', 'Unhappy', 'Neutral', 'Happy', 'Love it'];
+    var labels = ['', 'Très insatisfait', 'Insatisfait', 'Neutre', 'Satisfait', 'J\'adore'];
     try {
       await _supa.from('feedback').insert({
         user_id:      _userId,
@@ -1634,8 +1634,8 @@ var FeedbackWidget = (function() {
       el.querySelector('.feedback-card').innerHTML =
         '<div class="feedback-success">' +
         '<div class="feedback-success-icon" style="font-size:36px;margin-bottom:8px">&#10084;</div>' +
-        '<div class="feedback-success-text">Thank you for your feedback!</div>' +
-        '<div class="feedback-success-sub">Your feedback helps shape the next version of Prospeo.</div>' +
+        '<div class="feedback-success-text">Merci pour votre retour !</div>' +
+        '<div class="feedback-success-sub">Votre avis aide à améliorer la prochaine version de Prospeo.</div>' +
         '</div>';
       setTimeout(function() { hide(); }, 2200);
     }
@@ -1645,23 +1645,23 @@ var FeedbackWidget = (function() {
     return '<div class="feedback-card">' +
       '<div class="feedback-header">' +
         '<div>' +
-          '<div class="feedback-title">How is Prospeo working for you?</div>' +
-          '<div class="feedback-sub">30 seconds. Helps us improve.</div>' +
+          '<div class="feedback-title">Prospeo vous convient-il ?</div>' +
+          '<div class="feedback-sub">30 secondes. Aide à améliorer l\'appli.</div>' +
         '</div>' +
         '<button class="feedback-close" onclick="FeedbackWidget.skip()">&#x2715;</button>' +
       '</div>' +
       '<div class="emoji-row">' +
-        '<button class="emoji-btn" data-rating="1"><span style="font-size:22px">&#128545;</span><span>Terrible</span></button>' +
-        '<button class="emoji-btn" data-rating="2"><span style="font-size:22px">&#128542;</span><span>Not great</span></button>' +
+        '<button class="emoji-btn" data-rating="1"><span style="font-size:22px">&#128545;</span><span>Nul</span></button>' +
+        '<button class="emoji-btn" data-rating="2"><span style="font-size:22px">&#128542;</span><span>Moyen</span></button>' +
         '<button class="emoji-btn" data-rating="3"><span style="font-size:22px">&#128528;</span><span>OK</span></button>' +
-        '<button class="emoji-btn" data-rating="4"><span style="font-size:22px">&#128512;</span><span>Happy</span></button>' +
-        '<button class="emoji-btn" data-rating="5"><span style="font-size:22px">&#129321;</span><span>Love it!</span></button>' +
+        '<button class="emoji-btn" data-rating="4"><span style="font-size:22px">&#128512;</span><span>Bien</span></button>' +
+        '<button class="emoji-btn" data-rating="5"><span style="font-size:22px">&#129321;</span><span>J\'adore !</span></button>' +
       '</div>' +
-      '<p class="feedback-hint" style="font-size:.6875rem;color:var(--text-secondary);margin-bottom:8px;display:none">What would you like to see in the next update?</p>' +
-      '<textarea class="feedback-textarea" id="feedback-text" placeholder="Tell us what you would like to see next... (optional)" style="display:none"></textarea>' +
+      '<p class="feedback-hint" style="font-size:.6875rem;color:var(--text-secondary);margin-bottom:8px;display:none">Qu\'aimeriez-vous voir dans la prochaine mise à jour ?</p>' +
+      '<textarea class="feedback-textarea" id="feedback-text" placeholder="Dites-nous ce que vous souhaitez voir ensuite… (optionnel)" style="display:none"></textarea>' +
       '<div class="feedback-actions">' +
-        '<button class="btn btn-ghost btn-sm" onclick="FeedbackWidget.skip()">Maybe later</button>' +
-        '<button class="btn btn-primary btn-sm" onclick="FeedbackWidget.submit()">Send feedback</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="FeedbackWidget.skip()">Plus tard</button>' +
+        '<button class="btn btn-primary btn-sm" onclick="FeedbackWidget.submit()">Envoyer</button>' +
       '</div>' +
     '</div>';
   }
@@ -1688,17 +1688,17 @@ var AIAssistant = (function() {
     _dashboardContext = ctx;
   }
 
-  var SYSTEM_PROMPT = 'You are Nex, an expert business advisor built into Prospeo CRM. ' +
-    'You specialize in: EU accounting and invoicing rules (HT/TVA/TTC, reverse charge, VIES), ' +
-    'French and European freelance taxation (auto-entrepreneur, micro-entreprise, SASU, SAS, SARL), ' +
-    'business strategy for freelancers and small businesses, ' +
-    'sales pipeline management and CRM best practices, ' +
-    'cash flow management, pricing strategy, and client negotiation. ' +
-    'Always be direct, practical, and give concrete actionable advice. ' +
-    'When discussing tax or legal matters, remind the user to verify with a professional for their specific situation. ' +
-    'Keep responses concise — maximum 3-4 paragraphs unless the user asks for detail. ' +
-    'You are speaking to a European freelancer or small business owner using Prospeo CRM. ' +
-    'Respond in the same language the user writes in (French or English).';
+  var SYSTEM_PROMPT = 'Tu es Nex, conseiller business expert intégré au CRM Prospeo. ' +
+    'Tu es spécialisé dans : la comptabilité et la facturation française (HT/TVA/TTC, auto-liquidation, SIRET/SIREN), ' +
+    'la fiscalité des freelances et indépendants en France (auto-entrepreneur, micro-entreprise, SASU, SAS, SARL), ' +
+    'la stratégie commerciale pour freelances et TPE, ' +
+    'la gestion de pipeline de vente et les bonnes pratiques CRM, ' +
+    'la gestion de trésorerie, la stratégie tarifaire et la négociation client. ' +
+    'Sois direct, pratique et donne des conseils concrets et actionnables. ' +
+    'Lorsque tu abordes des sujets fiscaux ou juridiques, rappelle à l\'utilisateur de vérifier avec un professionnel pour sa situation spécifique. ' +
+    'Garde tes réponses concises — 3 à 4 paragraphes maximum sauf si l\'utilisateur demande plus de détails. ' +
+    'Tu t\'adresses à un freelance ou dirigeant de TPE français utilisant le CRM Prospeo. ' +
+    'Réponds toujours en français.';
 
   function init(plan, accessToken) {
     // plan can be a string ('pro'/'free') or an object {plan:'pro', is_pro:true}
@@ -1742,18 +1742,18 @@ var AIAssistant = (function() {
   }
 
   function showUpgradePrompt() {
-    Toast.info('Pro feature', 'Upgrade to Pro to access the Nex — AI Assistant.');
+    Toast.info('Fonctionnalité Pro', 'Passez en Pro pour accéder à Nex — l\'assistant IA.');
     if (typeof window.showUpgradeModal === 'function') { window.showUpgradeModal(); }
   }
 
   function addWelcomeMessage() {
     addMessage('assistant',
-      'Hi, I am Nex \u2014 your Prospeo business advisor. I can help you with:\n\n' +
-      '- EU invoicing rules (TVA, reverse charge, VIES)\n' +
-      '- French freelance taxation (auto-entrepreneur, SAS...)\n' +
-      '- Pricing strategy and client negotiation\n' +
-      '- Cash flow and business strategy\n\n' +
-      'What can I help you with today?'
+      'Bonjour, je suis Nex \u2014 votre conseiller business Prospeo. Je peux vous aider avec :\n\n' +
+      '- La facturation française (TVA, auto-liquidation, SIRET/SIREN)\n' +
+      '- La fiscalité des freelances (auto-entrepreneur, SAS…)\n' +
+      '- La stratégie tarifaire et la négociation client\n' +
+      '- La trésorerie et la stratégie commerciale\n\n' +
+      'Comment puis-je vous aider aujourd\'hui ?'
     );
   }
 
@@ -1816,16 +1816,16 @@ var AIAssistant = (function() {
 
       if (!resp.ok) {
         var err = await resp.json().catch(function() { return {}; });
-        throw new Error(err.error || 'AI service unavailable');
+        throw new Error(err.error || 'Service IA indisponible');
       }
 
       var data = await resp.json();
-      var reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : 'Sorry, I could not generate a response. Please try again.';
+      var reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : 'Désolé, je n\'ai pas pu générer une réponse. Veuillez réessayer.';
       addMessage('assistant', reply);
 
     } catch(e) {
-      var errMsg = e.message || 'Unknown error';
-      var retryHtml = 'Sorry, I hit an error: ' + sanitize(errMsg) + '. <a href="#" onclick="AIAssistant.retry();return false;" style="color:var(--brand);text-decoration:underline">Retry</a>';
+      var errMsg = e.message || 'Erreur inconnue';
+      var retryHtml = 'Désolé, une erreur s\'est produite : ' + sanitize(errMsg) + '. <a href="#" onclick="AIAssistant.retry();return false;" style="color:var(--brand);text-decoration:underline">Réessayer</a>';
       var container = document.getElementById('ai-messages');
       if (container) {
         var div = document.createElement('div');
@@ -1895,22 +1895,22 @@ var CSVImport = (function() {
 
   var TARGET_FIELDS = {
     clients: [
-      {key:'name',    label:'Full name *', required:true},
+      {key:'name',    label:'Nom complet *', required:true},
       {key:'email',   label:'Email'},
-      {key:'company', label:'Company'},
-      {key:'phone',   label:'Phone'},
+      {key:'company', label:'Entreprise'},
+      {key:'phone',   label:'Téléphone'},
     ],
     leads: [
-      {key:'title',   label:'Deal title *', required:true},
-      {key:'value',   label:'Value (EUR)'},
-      {key:'stage',   label:'Stage'},
+      {key:'title',   label:'Titre du deal *', required:true},
+      {key:'value',   label:'Valeur (EUR)'},
+      {key:'stage',   label:'Étape'},
     ]
   };
 
   function open(type) {
     _importType = type || 'clients';
     _step = 1; _headers = []; _rows = []; _mapping = {};
-    document.getElementById('import-modal-title').textContent = 'Import ' + (_importType === 'clients' ? 'Clients' : 'Leads') + ' from CSV';
+    document.getElementById('import-modal-title').textContent = 'Importer ' + (_importType === 'clients' ? 'Clients' : 'Leads') + ' depuis CSV';
     showStep(1);
     document.getElementById('import-overlay').classList.add('open');
     document.getElementById('import-next-btn').style.display='none';
@@ -1928,7 +1928,7 @@ var CSVImport = (function() {
     if(nextBtn && n >= 2) nextBtn.style.display='block';
     var nextBtn = document.getElementById('import-next-btn');
     if (nextBtn) {
-      nextBtn.textContent = n === 3 ? 'Import now' : 'Next';
+      nextBtn.textContent = n === 3 ? 'Importer maintenant' : 'Suivant';
       nextBtn.style.display = n === 4 ? 'none' : 'block';
     }
     var backBtn = document.getElementById('import-back-btn');
@@ -1949,7 +1949,7 @@ var CSVImport = (function() {
   function handleFile(file) {
     if (!file) return;
     var ext = file.name.split('.').pop().toLowerCase();
-    if (ext !== 'csv') { Toast.error('', 'Please upload a CSV file (.csv)'); return; }
+    if (ext !== 'csv') { Toast.error('', 'Veuillez importer un fichier CSV (.csv)'); return; }
     var reader = new FileReader();
     reader.onload = function(e) { parseCSV(e.target.result); };
     reader.readAsText(file);
@@ -1957,7 +1957,7 @@ var CSVImport = (function() {
 
   function buildMappingUI() {
     var fields = TARGET_FIELDS[_importType];
-    var html = '<div style="margin-bottom:12px;font-size:13px;color:var(--text-secondary)">Match your CSV columns to Prospeo fields:</div>';
+    var html = '<div style="margin-bottom:12px;font-size:13px;color:var(--text-secondary)">Associez les colonnes de votre CSV aux champs Prospeo :</div>';
     // Auto-map by name similarity
     _mapping = {};
     fields.forEach(function(f) {
@@ -1968,7 +1968,7 @@ var CSVImport = (function() {
       _mapping[f.key] = auto >= 0 ? auto : -1;
     });
     fields.forEach(function(f) {
-      var opts = '<option value="-1">-- Skip --</option>' + _headers.map(function(h, i) {
+      var opts = '<option value="-1">-- Ignorer --</option>' + _headers.map(function(h, i) {
         return '<option value="' + i + '"' + (_mapping[f.key] === i ? ' selected' : '') + '>' + sanitize(h) + '</option>';
       }).join('');
       html += '<div class="map-row">' +
@@ -1989,7 +1989,7 @@ var CSVImport = (function() {
     var requiredFields = fields.filter(function(f) { return f.required; });
     for (var i = 0; i < requiredFields.length; i++) {
       if (_mapping[requiredFields[i].key] === -1 || _mapping[requiredFields[i].key] === undefined) {
-        Toast.error('', 'Please map the required field: ' + requiredFields[i].label);
+        Toast.error('', 'Veuillez associer le champ obligatoire : ' + requiredFields[i].label);
         return false;
       }
     }
@@ -2008,11 +2008,11 @@ var CSVImport = (function() {
 
     document.getElementById('import-step-3').innerHTML =
       '<div class="import-stats">' +
-        '<div class="stat-pill"><div class="stat-pill-num">' + _rows.length + '</div><div class="stat-pill-lbl">Total rows</div></div>' +
-        '<div class="stat-pill"><div class="stat-pill-num" style="color:var(--success)">' + validRows.length + '</div><div class="stat-pill-lbl">Valid rows</div></div>' +
-        '<div class="stat-pill"><div class="stat-pill-num" style="color:var(--warning)">' + (_rows.length - validRows.length) + '</div><div class="stat-pill-lbl">Skipped (missing required)</div></div>' +
+        '<div class="stat-pill"><div class="stat-pill-num">' + _rows.length + '</div><div class="stat-pill-lbl">Total lignes</div></div>' +
+        '<div class="stat-pill"><div class="stat-pill-num" style="color:var(--success)">' + validRows.length + '</div><div class="stat-pill-lbl">Lignes valides</div></div>' +
+        '<div class="stat-pill"><div class="stat-pill-num" style="color:var(--warning)">' + (_rows.length - validRows.length) + '</div><div class="stat-pill-lbl">Ignorées (champ requis manquant)</div></div>' +
       '</div>' +
-      '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Preview (first 5 rows):</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Aperçu (5 premières lignes) :</div>' +
       '<div style="overflow-x:auto"><table class="preview-table"><thead><tr>' + heads + '</tr></thead><tbody>' + bodyRows + '</tbody></table></div>';
     return true;
   }
@@ -2023,18 +2023,18 @@ var CSVImport = (function() {
     var validRows = _rows.filter(function(row) {
       return requiredFields.every(function(f) { return row[_mapping[f.key]] && row[_mapping[f.key]].trim(); });
     });
-    if (!validRows.length) { Toast.error('', 'No valid rows to import.'); return; }
+    if (!validRows.length) { Toast.error('', 'Aucune ligne valide à importer.'); return; }
 
     showStep(4);
     document.getElementById('import-step-4').innerHTML =
       '<div style="text-align:center;padding:16px">' +
-      '<div style="font-size:15px;font-weight:600;margin-bottom:12px">Importing ' + validRows.length + ' records...</div>' +
+      '<div style="font-size:15px;font-weight:600;margin-bottom:12px">Importation de ' + validRows.length + ' enregistrements…</div>' +
       '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="import-progress" style="width:0%"></div></div>' +
       '<div id="import-progress-label" style="font-size:12px;color:var(--text-secondary);margin-top:8px">0 / ' + validRows.length + '</div>' +
       '</div>';
 
     var session = await _supa.auth.getSession();
-    if (!session.data.session) { Toast.error('', 'Not authenticated'); return; }
+    if (!session.data.session) { Toast.error('', 'Non authentifié'); return; }
     var uid = session.data.session.user.id;
     var table = _importType === 'clients' ? 'clients' : 'leads';
     var batchSize = 50, success = 0, errors = [];
@@ -2069,10 +2069,10 @@ var CSVImport = (function() {
       '<div style="text-align:center;padding:16px">' +
       '<div style="font-size:32px;margin-bottom:12px">' + (errors.length ? '&#9888;' : '&#10003;') + '</div>' +
       '<div style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:4px">' +
-        success + ' records imported successfully' +
+        success + ' enregistrements importés avec succès' +
       '</div>' +
-      (errors.length ? '<div style="font-size:13px;color:var(--warning);margin-top:8px">' + errors.length + ' errors occurred.</div>' : '') +
-      '<div style="margin-top:20px"><button class="btn btn-primary btn-sm" onclick="CSVImport.close();window.location.reload()">Done</button></div>' +
+      (errors.length ? '<div style="font-size:13px;color:var(--warning);margin-top:8px">' + errors.length + ' erreurs rencontrées.</div>' : '') +
+      '<div style="margin-top:20px"><button class="btn btn-primary btn-sm" onclick="CSVImport.close();window.location.reload()">Terminer</button></div>' +
       '</div>';
   }
 
@@ -2139,10 +2139,10 @@ var Notifications = (function() {
 
   function timeAgo(ts) {
     var diff = Math.floor((Date.now() - new Date(ts)) / 1000);
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
-    return Math.floor(diff/86400) + 'd ago';
+    if (diff < 60) return 'À l\'instant';
+    if (diff < 3600) return 'Il y a ' + Math.floor(diff/60) + ' min';
+    if (diff < 86400) return 'Il y a ' + Math.floor(diff/3600) + ' h';
+    return 'Il y a ' + Math.floor(diff/86400) + ' j';
   }
 
   function add(type, text, link) {
@@ -2166,7 +2166,7 @@ var Notifications = (function() {
     var count = unreadCount();
     if (badge) { badge.textContent = count > 9 ? '9+' : count; badge.classList.toggle('hidden', count === 0); }
     if (!list) return;
-    if (!_notifs.length) { list.innerHTML = '<div class="notif-empty">No notifications yet</div>'; return; }
+    if (!_notifs.length) { list.innerHTML = '<div class="notif-empty">Aucune notification pour l\'instant</div>'; return; }
     var icons = { invoice:'&#128196;', lead:'&#127919;', task:'&#9989;', system:'&#128276;' };
     var iconClass = { invoice:'ni-invoice', lead:'ni-lead', task:'ni-task', system:'ni-system' };
     list.innerHTML = _notifs.slice(0,15).map(function(n) {
@@ -2208,7 +2208,7 @@ var Notifications = (function() {
         if (due < today) {
           var key = 'notif-inv-' + inv.id;
           if (!localStorage.getItem(key)) {
-            add('invoice', 'Invoice #' + (inv.number || inv.id.slice(0,6)) + ' is overdue', 'invoices.html');
+            add('invoice', 'Facture n°' + (inv.number || inv.id.slice(0,6)) + ' est en retard', 'invoices.html');
             localStorage.setItem(key, '1');
           }
         }
@@ -2225,7 +2225,7 @@ var Notifications = (function() {
         if (due.getTime() === today.getTime()) {
           var key = 'notif-task-' + t.id;
           if (!localStorage.getItem(key)) {
-            add('task', 'Task due today: ' + t.title, 'calendar.html');
+            add('task', 'Tâche à faire aujourd\'hui : ' + t.title, 'calendar.html');
             localStorage.setItem(key, '1');
           }
         }
@@ -2286,7 +2286,7 @@ var Notifications = (function() {
 
     var info = document.createElement('div');
     info.style.cssText = 'flex:1;min-width:0';
-    info.innerHTML = '<div style="font-size:14px;font-weight:600;color:#1D1D1F">Install Prospeo</div><div style="font-size:12px;color:#6E6E73">Add to home screen for the best experience</div>';
+    info.innerHTML = '<div style="font-size:14px;font-weight:600;color:#1D1D1F">Installer Prospeo</div><div style="font-size:12px;color:#6E6E73">Ajoutez à l\'écran d\'accueil pour la meilleure expérience</div>';
 
     var installBtn = document.createElement('button');
     installBtn.textContent = 'Install';
@@ -2333,7 +2333,7 @@ var Notifications = (function() {
 
       var info = document.createElement('div');
       info.style.flex = '1';
-      info.innerHTML = '<div style="font-size:14px;font-weight:600;color:#1D1D1F;margin-bottom:4px">Install Prospeo on iPhone</div><div style="font-size:12px;color:#6E6E73;line-height:1.5">Tap the <strong>Share</strong> button then <strong>"Add to Home Screen"</strong></div>';
+      info.innerHTML = '<div style="font-size:14px;font-weight:600;color:#1D1D1F;margin-bottom:4px">Installer Prospeo sur iPhone</div><div style="font-size:12px;color:#6E6E73;line-height:1.5">Appuyez sur <strong>Partager</strong> puis <strong>« Sur l\'écran d\'accueil »</strong></div>';
 
       var closeBtn = document.createElement('button');
       closeBtn.innerHTML = '&#x2715;';
@@ -2418,7 +2418,7 @@ function pwaInstall() {
     });
   } else {
     // iOS fallback
-    alert('To install: tap the Share button then "Add to Home Screen"');
+    alert('Pour installer : appuyez sur le bouton Partager puis « Sur l\'écran d\'accueil »');
   }
 }
 function pwaDismiss() {
@@ -2431,7 +2431,7 @@ function pwaDismiss() {
 <div class="feedback-overlay" id="feedback-widget"></div>
 
 <!-- AI Assistant Widget -->
-<button class="ai-btn" onclick="AIAssistant.toggle()" title="Nex — AI Assistant">
+<button class="ai-btn" onclick="AIAssistant.toggle()" title="Nex — Assistant IA">
   <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg>
   <span class="ai-badge">AI</span>
 </button>
@@ -2442,11 +2442,11 @@ function pwaDismiss() {
     </div>
     <div class="ai-head-info">
       <div class="ai-head-name">Nex</div>
-      <div class="ai-head-status">Online &mdash; EU Business Expert</div>
+      <div class="ai-head-status">En ligne &mdash; Expert Business France</div>
     </div>
     <div class="ai-head-actions">
       <span class="ai-pro-badge">PRO</span>
-      <button class="ai-icon-btn" onclick="AIAssistant.clearHistory()" title="New conversation">
+      <button class="ai-icon-btn" onclick="AIAssistant.clearHistory()" title="Nouvelle conversation">
         <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg>
       </button>
       <button class="ai-icon-btn" onclick="AIAssistant.close()" title="Close">
@@ -2463,13 +2463,13 @@ function pwaDismiss() {
     </div>
   </div>
   <div class="ai-suggestions" id="ai-suggestions">
-    <button class="ai-suggestion" onclick="document.getElementById('ai-input').value=this.textContent;AIAssistant.send()">How do I set my day rate?</button>
-    <button class="ai-suggestion" onclick="document.getElementById('ai-input').value=this.textContent;AIAssistant.send()">TVA auto-entrepreneur rules</button>
-    <button class="ai-suggestion" onclick="document.getElementById('ai-input').value=this.textContent;AIAssistant.send()">How to follow up on unpaid invoice?</button>
+    <button class="ai-suggestion" onclick="document.getElementById('ai-input').value=this.textContent;AIAssistant.send()">Comment fixer mon TJM ?</button>
+    <button class="ai-suggestion" onclick="document.getElementById('ai-input').value=this.textContent;AIAssistant.send()">TVA en auto-entrepreneur</button>
+    <button class="ai-suggestion" onclick="document.getElementById('ai-input').value=this.textContent;AIAssistant.send()">Comment relancer une facture impayée ?</button>
     <button class="ai-suggestion" onclick="document.getElementById('ai-input').value=this.textContent;AIAssistant.send()">SAS vs auto-entrepreneur</button>
   </div>
   <div class="ai-input-row">
-    <textarea class="ai-input" id="ai-input" rows="1" placeholder="Ask about invoicing, tax, strategy..." onkeydown="AIAssistant.handleKeydown(event)"></textarea>
+    <textarea class="ai-input" id="ai-input" rows="1" placeholder="Posez une question sur la facturation, la TVA, la stratégie…" onkeydown="AIAssistant.handleKeydown(event)"></textarea>
     <button class="ai-send" id="ai-send-btn" onclick="AIAssistant.send()">
       <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
     </button>
@@ -2481,7 +2481,7 @@ function pwaDismiss() {
 <div class="import-overlay" id="import-overlay">
   <div class="import-modal">
     <div class="import-head">
-      <h3 id="import-modal-title">Import from CSV</h3>
+      <h3 id="import-modal-title">Importer depuis CSV</h3>
       <button class="btn btn-ghost btn-sm" onclick="CSVImport.close()">&#x2715;</button>
     </div>
     <div class="import-body">
@@ -2492,14 +2492,14 @@ function pwaDismiss() {
           ondrop="event.preventDefault();this.classList.remove('dragover');CSVImport.handleFile(event.dataTransfer.files[0])"
           onclick="document.getElementById('csv-file-input').click()">
           <div style="font-size:40px;margin-bottom:12px">&#128190;</div>
-          <div class="drop-title">Drop your CSV file here</div>
-          <div class="drop-sub">or click to browse &mdash; max 500 rows</div>
+          <div class="drop-title">Déposez votre fichier CSV ici</div>
+          <div class="drop-sub">ou cliquez pour parcourir &mdash; max 500 lignes</div>
           <input type="file" id="csv-file-input" accept=".csv" style="display:none"
             onchange="CSVImport.handleFile(this.files[0])">
         </div>
         <div style="margin-top:16px;font-size:12px;color:var(--text-secondary)">
-          <strong>Supported format:</strong> CSV with headers in the first row.
-          Columns can be in any order &mdash; you will map them in the next step.
+          <strong>Format accepté :</strong> CSV avec en-têtes en première ligne.
+          Les colonnes peuvent être dans n'importe quel ordre &mdash; vous les associerez à l'étape suivante.
         </div>
       </div>
       <div class="import-step" id="import-step-2"></div>
@@ -2507,9 +2507,9 @@ function pwaDismiss() {
       <div class="import-step" id="import-step-4"></div>
     </div>
     <div class="import-foot">
-      <button class="btn btn-ghost btn-sm" id="import-back-btn" onclick="CSVImport.back()" style="display:none">Back</button>
-      <button class="btn btn-ghost btn-sm" onclick="CSVImport.close()">Cancel</button>
-      <button class="btn btn-primary btn-sm" id="import-next-btn" onclick="CSVImport.next()" style="display:none">Next</button>
+      <button class="btn btn-ghost btn-sm" id="import-back-btn" onclick="CSVImport.back()" style="display:none">Retour</button>
+      <button class="btn btn-ghost btn-sm" onclick="CSVImport.close()">Annuler</button>
+      <button class="btn btn-primary btn-sm" id="import-next-btn" onclick="CSVImport.next()" style="display:none">Suivant</button>
     </div>
   </div>
 </div>
@@ -2568,8 +2568,8 @@ var Limits = (function() {
     el.innerHTML =
       '<div class="upgrade-nudge">' +
         '<div><div class="upgrade-nudge-text">' + sanitize(message) + '</div>' +
-        '<div class="upgrade-nudge-sub">' + sanitize(sub||'Upgrade to Pro — €12/month') + '</div></div>' +
-        '<button class="upgrade-nudge-btn" onclick="window.location.href='pricing.html'">Upgrade &#8594;</button>' +
+        '<div class="upgrade-nudge-sub">' + sanitize(sub||'Passer en Pro — 12 €/mois') + '</div></div>' +
+        '<button class="upgrade-nudge-btn" onclick="window.location.href=\'pricing.html\'">Passer en Pro &#8594;</button>' +
       '</div>';
   }
 
@@ -2596,8 +2596,8 @@ async function loadRevenueStats(uid) {
     else if (el) el.textContent = '€' + total.toFixed(2);
     var paidEl = document.getElementById('revenue-paid-label');
     var pendEl = document.getElementById('revenue-pending-label');
-    if (paidEl) paidEl.textContent = '€' + paid.toFixed(2) + ' paid';
-    if (pendEl) pendEl.textContent = '€' + pending.toFixed(2) + ' pending';
+    if (paidEl) paidEl.textContent = '€' + paid.toFixed(2) + ' payé';
+    if (pendEl) pendEl.textContent = '€' + pending.toFixed(2) + ' en attente';
   } catch(e) {}
 }
 
@@ -2622,6 +2622,6 @@ function renderLifecycleBar(leads) {
 function filterStage(stage) {
   var filtered = _leads.filter(function(l) { return l.stage === stage; });
   renderPipeline(filtered);
-  Toast.info('', 'Showing ' + STAGE_META.find(function(s){return s.k===stage;}).l + ' leads only. Click pipeline header to reset.');
+  Toast.info('', 'Affichage des leads « ' + STAGE_META.find(function(s){return s.k===stage;}).l + » uniquement. Cliquez sur l\'en-tête du pipeline pour réinitialiser.');
 }
 

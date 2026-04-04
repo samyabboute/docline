@@ -9,18 +9,20 @@ var Shell = (function() {
   var LOGO_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 187.3" style="height:22px;width:auto;display:block"><path fill="currentColor" d="M112.46 9.26C103.11 3.64 92.46.82 80.51.82c-17.66 0-31.86 5.89-42.59 17.66L35.32 3.42H0v183.89h40.78v-68.05c10.56 13.41 24.49 20.12 41.7 20.12 11.95 0 22.6-2.96 31.95-8.84 9.35-5.89 16.65-14.18 21.89-24.9 5.24-10.71 7.86-23.01 7.86-36.88 0-13.87-2.62-26.06-7.86-36.6-5.24-10.54-12.54-18.73-21.89-24.62h.09zM95.6 105.15c-5.89 9.07-14.33 13.6-25.32 13.6-10.99 0-19.43-4.53-25.32-13.6C38.89 97.29 35.94 87 35.94 75.41c0-11.59 2.95-21.89 8.84-29.74 5.89-7.86 14.33-11.79 25.32-11.79s19.43 3.93 25.32 11.79c5.89 7.86 8.84 18.15 8.84 29.74.09 11.59-2.86 21.88-8.66 29.74zM228.82.82c-13.87 0-26.17 2.95-36.88 8.84-10.71 5.89-19.07 14.27-24.9 25.13-5.89 10.89-8.84 23.54-8.84 37.95v114.57h40.78v-64.79c9.62 11.32 22.78 16.97 39.52 16.97 13.23 0 24.9-2.95 35.08-8.84s18.15-14.27 23.99-25.13c5.8-10.89 8.75-23.36 8.75-37.41 0-14.06-2.95-26.52-8.75-37.41-5.89-10.89-14.06-19.43-24.62-25.58C262.39 3.95 246.48.82 228.82.82zm17.66 104.33c-5.89 9.07-14.33 13.6-25.32 13.6-10.99 0-19.43-4.53-25.32-13.6-5.89-9.07-8.84-19.34-8.84-30.93 0-11.59 2.95-21.89 8.84-29.74 5.89-7.86 14.33-11.79 25.32-11.79s19.43 3.93 25.32 11.79c5.89 7.86 8.84 18.15 8.84 29.74 0 11.59-2.95 21.86-8.84 30.93zM396.71 0c-22.6 0-40.6 6.07-54.03 18.24-13.43 12.16-20.12 29.19-20.12 50.97v117.9h40.78V74.25c0-11.41 3.04-20.3 9.12-26.52 6.07-6.25 14.36-9.35 24.9-9.35 6.43 0 11.68.89 15.61 2.68l10.09-38.55C417.28 1.01 407.7 0 396.71 0zM519.41 0c-15.55 0-28.97 2.86-40.33 8.57-11.32 5.71-20.12 13.87-26.35 24.49-6.25 10.63-9.35 23.1-9.35 37.5v116.65h40.78V74.25c0-11.41 3.04-20.3 9.12-26.52 6.07-6.25 14.36-9.35 24.9-9.35 10.54 0 18.83 3.13 24.9 9.35 6.07 6.25 9.12 15.11 9.12 26.52v112.96h40.78V70.56c0-14.36-3.13-26.88-9.35-37.5-6.25-10.63-14.99-18.79-26.35-24.49C546.29 2.86 533.87 0 519.41 0zM677.9 0c-15.49 0-29.46 3.69-41.91 11.06-12.43 7.37-22.24 17.57-29.37 30.57-7.13 13-10.71 27.72-10.71 44.15 0 16.43 3.58 31.06 10.71 43.97 7.13 12.9 16.92 23.01 29.37 30.22 12.43 7.22 26.35 10.8 41.91 10.8 15.46 0 29.19-3.58 41.16-10.8 11.97-7.22 21.35-17.31 28.04-30.22 6.69-12.9 10.01-27.54 10.01-43.97 0-16.43-3.31-31.15-10.01-44.15-6.69-13-16.06-23.19-28.04-30.57C707.09 3.69 693.36 0 677.9 0zm24.9 110.08c-6.34 9.17-15.14 13.77-26.35 13.77-11.32 0-20.3-4.6-26.88-13.77-6.61-9.17-9.88-20.66-9.88-34.3 0-13.64 3.27-25.04 9.88-34.12 6.61-9.07 15.61-13.6 26.88-13.6 11.23 0 20.01 4.53 26.35 13.6 6.34 9.07 9.47 20.48 9.47 34.12.09 13.64-3.13 25.13-9.47 34.3zM840.22 0c-15.55 0-28.97 2.86-40.33 8.57-11.32 5.71-20.12 13.87-26.35 24.49-6.25 10.63-9.35 23.1-9.35 37.5v116.65h40.78V74.25c0-11.41 3.04-20.3 9.12-26.52 6.07-6.25 14.36-9.35 24.9-9.35 10.54 0 18.83 3.13 24.9 9.35 6.07 6.25 9.12 15.11 9.12 26.52v112.96h40.78V70.56c0-14.36-3.13-26.88-9.35-37.5-6.25-10.63-14.99-18.79-26.35-24.49C868.2 2.86 855.69 0 840.22 0zM988.82 62.29c-6.43-3.84-15.7-6.96-27.84-9.35-8.75-1.79-15.23-3.67-19.43-5.71-4.18-2.04-6.25-5.09-6.25-9.12 0-3.84 1.52-6.96 4.53-9.35 3.04-2.39 7.86-3.58 14.45-3.58 12.43 0 21.89 4.62 28.41 13.86l30.31-18.72c-5.71-9.17-13.6-16.39-23.54-21.71C979.5 3.4 967.6.76 954.28.76c-11.59 0-21.89 2.13-30.93 6.34-9.07 4.18-16.21 10.09-21.35 17.75-5.17 7.66-7.75 16.56-7.75 26.7 0 10.99 2.77 20.01 8.31 27.0 5.53 6.96 12.51 12.07 20.93 15.32 8.4 3.27 18.24 5.89 29.46 7.86 8.4 1.52 14.54 3.49 18.42 5.89 3.84 2.39 5.8 5.8 5.8 10.18 0 4.01-1.79 7.22-5.33 9.53-3.58 2.33-8.4 3.49-14.45 3.49-8.4 0-15.79-1.96-22.19-5.89-6.43-3.93-11.41-9.44-14.98-16.56l-31.19 19.43c5.89 11.32 14.9 20.3 27.0 26.97 12.07 6.69 26.26 10.0 42.38 10.0 12.16 0 23.1-2.04 32.72-6.16 9.62-4.09 17.13-10.0 22.6-17.66 5.44-7.66 8.18-16.65 8.18-26.97.09-10.54-3.04-19.25-9.09-25.69z"/></svg>';
 
   var NAV = [
-    {href:'app.html',    key:'dashboard', label:'Dashboard',
+    {href:'app.html',    key:'dashboard', label:'Tableau de bord',
       icon:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>'},
     {href:'clients.html',key:'clients',   label:'Clients',
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'},
     {href:'proposals.html',key:'proposals',label:'Smart Files',
       icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'},
-    {href:'invoices.html',key:'invoices', label:'Invoices',
+    {href:'invoices.html',key:'invoices', label:'Factures',
       icon:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'},
-    {href:'calendar.html',key:'calendar', label:'Calendar',
+    {href:'calendar.html',key:'calendar', label:'Agenda',
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'},
-    {href:'recurring.html',key:'recurring',label:'Recurring',
+    {href:'recurring.html',key:'recurring',label:'Récurrents',
       icon:'<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'},
+    {href:'timer.html',key:'timer',label:'Suivi du temps',
+      icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'},
   ];
 
   var CSS = `
@@ -200,9 +202,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
     var usageHTML = !isPro ? (
       '<div class="sb-divider"></div>' +
       '<div class="sb-usage">' +
-        '<div class="sb-usage-label"><span>Leads used</span><span>'+leadCount+'/'+leadLimit+'</span></div>' +
+        '<div class="sb-usage-label"><span>Leads utilisés</span><span>'+leadCount+'/'+leadLimit+'</span></div>' +
         '<div class="sb-usage-bar"><div class="sb-usage-fill'+(pct>80?' warn':'')+(pct>=100?' danger':'')+'" style="width:'+pct+'%"></div></div>' +
-        '<a href="pricing.html" class="sb-upgrade">⚡ Upgrade to Pro</a>' +
+        '<a href="pricing.html" class="sb-upgrade">⚡ Passer en Pro</a>' +
       '</div>'
     ) : '';
 
@@ -214,16 +216,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
         '</div>' +
       '</div>' +
       '<nav class="sb-nav">' +
-        '<div class="sb-section">Workspace</div>' +
+        '<div class="sb-section">Espace de travail</div>' +
         navHTML +
       '</nav>' +
       usageHTML +
       '<div class="sb-footer">' +
-        '<div class="sb-user" onclick="if(typeof Auth!==\'undefined\')Auth.signOut()" title="Sign out">' +
+        '<div class="sb-user" onclick="if(typeof Auth!==\'undefined\')Auth.signOut()" title="Se déconnecter">' +
           '<div class="sb-avatar">'+initials+'</div>' +
           '<div style="min-width:0;flex:1">' +
             '<div class="sb-username">'+(userName||userEmail||'Account')+'</div>' +
-            '<div class="sb-email">'+(userEmail||'Click to sign out')+'</div>' +
+            '<div class="sb-email">'+(userEmail||'Cliquer pour se déconnecter')+'</div>' +
           '</div>' +
           '<svg style="width:14px;height:14px;flex-shrink:0;opacity:.4;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
         '</div>' +
@@ -238,10 +240,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
       '<div class="tb-spacer"></div>' +
       '<div class="tb-search">' +
         '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
-        '<input id="shell-search" type="search" placeholder="Search…" autocomplete="off">' +
+        '<input id="shell-search" type="search" placeholder="Rechercher…" autocomplete="off">' +
       '</div>' +
       '<div class="tb-actions">' +
-        '<button class="theme-toggle" onclick="Shell.toggleTheme()" title="Toggle theme">' +
+        '<button class="theme-toggle" onclick="Shell.toggleTheme()" title="Changer le thème">' +
           '<svg class="theme-icon-moon" viewBox="0 0 24 24" style="display:'+(_theme==='dark'?'none':'block')+'"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' +
           '<svg class="theme-icon-sun" viewBox="0 0 24 24" style="display:'+(_theme==='dark'?'block':'none')+'"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' +
         '</button>' +

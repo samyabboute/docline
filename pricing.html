@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pricing — Prospeo</title>
-<meta name="description" content="Simple, honest pricing for freelancers. Start free, upgrade when ready.">
+<title>Tarifs — Prospeo</title>
+<meta name="description" content="Tarification simple et transparente pour freelances. Commencez gratuitement, passez en Pro quand vous êtes prêt.">
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -144,13 +144,13 @@ h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spaci
 <nav>
   <a href="index.html" class="nav-logo"><img src="prospeo-logo.svg" alt="Prospeo"></a>
   <div class="nav-right">
-    <button class="theme-btn" id="theme-btn" title="Toggle theme" onclick="toggleTheme()">
+    <button class="theme-btn" id="theme-btn" title="Changer le thème" onclick="toggleTheme()">
       <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       <svg class="icon-sun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     </button>
     <a href="app.html" class="nav-back">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Dashboard
+      Tableau de bord
     </a>
   </div>
 </nav>
@@ -158,17 +158,17 @@ h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spaci
 <div class="hero anim-fade-up">
   <div class="hero-badge">
     <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-    Simple, honest pricing
+    Tarification simple et transparente
   </div>
-  <h1>Grow your freelance business</h1>
-  <p class="hero-sub">Start free with the essentials. Upgrade to Pro when you're ready to scale — no lock-in, cancel anytime.</p>
+  <h1>Développez votre activité freelance</h1>
+  <p class="hero-sub">Commencez gratuitement avec l'essentiel. Passez en Pro quand vous êtes prêt à évoluer — sans engagement, résiliable à tout moment.</p>
 
   <!-- Billing toggle -->
   <div class="billing-toggle">
-    <button class="bt-btn active" id="bt-monthly" onclick="setBilling('monthly')">Monthly</button>
+    <button class="bt-btn active" id="bt-monthly" onclick="setBilling('monthly')">Mensuel</button>
     <button class="bt-btn" id="bt-yearly" onclick="setBilling('yearly')">
-      Yearly
-      <span class="bt-save hidden" id="bt-save">2 months free</span>
+      Annuel
+      <span class="bt-save hidden" id="bt-save">2 mois offerts</span>
     </button>
   </div>
 </div>
@@ -184,56 +184,56 @@ h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spaci
 
   <!-- FREE -->
   <div class="plan anim-fade-up delay-100">
-    <div class="plan-name">Free</div>
+    <div class="plan-name">Gratuit</div>
     <div class="plan-price-row">
       <div class="plan-price">€0</div>
-      <div class="plan-price-suffix">/month</div>
+      <div class="plan-price-suffix">/mois</div>
     </div>
     <div class="plan-price-yearly">&nbsp;</div>
-    <p class="plan-desc">Everything you need to get started and land your first clients.</p>
+    <p class="plan-desc">Tout ce qu'il faut pour démarrer et décrocher vos premiers clients.</p>
     <ul class="features">
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Up to 10 leads</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>CRM pipeline</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Client management</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Calendar &amp; tasks</li>
-      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>EU invoicing (HT/TVA/TTC)</li>
-      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Smart Files &amp; contracts</li>
-      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>AI Business Assistant</li>
-      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Email sending</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Jusqu'à 10 leads</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Pipeline CRM</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Gestion des clients</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Agenda &amp; tâches</li>
+      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Facturation TVA (HT/TVA/TTC)</li>
+      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Smart Files &amp; contrats</li>
+      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Assistant IA business</li>
+      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Envoi d'emails</li>
     </ul>
     <button class="plan-btn btn-free" onclick="window.location.href='app.html'">
-      <span class="btn-label">Continue with Free</span>
+      <span class="btn-label">Continuer avec le plan Gratuit</span>
     </button>
   </div>
 
   <!-- PRO -->
   <div class="plan pro anim-fade-up delay-200">
-    <div class="plan-badge">Most Popular</div>
+    <div class="plan-badge">Le plus populaire</div>
     <div class="plan-name">Pro</div>
     <div class="plan-price-row">
       <div class="plan-price" id="pro-price">€12</div>
-      <div class="plan-price-suffix" id="pro-suffix">/month</div>
+      <div class="plan-price-suffix" id="pro-suffix">/mois</div>
     </div>
     <div class="plan-price-yearly" id="pro-yearly">&nbsp;</div>
-    <p class="plan-desc">Unlimited everything. Invoice, sign contracts, and grow your business.</p>
+    <p class="plan-desc">Illimité sur tout. Facturez, signez des contrats, développez votre activité.</p>
     <ul class="features">
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Unlimited leads &amp; clients</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>EU invoicing (HT/TVA/TTC)</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>PDF invoice export</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Leads &amp; clients illimités</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Facturation TVA (HT/TVA/TTC)</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Export PDF des factures</li>
       <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Smart Files &amp; e-signatures</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Recurring invoices</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>AI Business Assistant</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Email sending via Resend</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Factures récurrentes</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Assistant IA business</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Envoi d'emails via Resend</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Support prioritaire</li>
     </ul>
     <button class="plan-btn btn-pro" id="btn-upgrade" onclick="upgradePro()">
       <div class="btn-spinner"></div>
-      <span class="btn-label">Upgrade to Pro</span>
+      <span class="btn-label">Passer en Pro</span>
       <svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
     </button>
     <div class="plan-trust">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Secured by Stripe · Cancel anytime
+      Sécurisé par Stripe · Résiliable à tout moment
     </div>
   </div>
 
@@ -243,19 +243,19 @@ h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spaci
 <div class="trust-bar">
   <div class="trust-item">
     <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    EU-hosted · Frankfurt
+    Hébergé en EU
   </div>
   <div class="trust-item">
     <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    GDPR compliant
+    Conforme RGPD
   </div>
   <div class="trust-item">
     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-    No setup fees
+    Sans frais d'installation
   </div>
   <div class="trust-item">
     <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-    Stripe payments
+    Paiements Stripe
   </div>
 </div>
 
@@ -287,7 +287,7 @@ function toggleTheme() {
   var { data: sub } = await _supa.from('subscriptions').select('plan,status').eq('user_id', s.data.session.user.id).single();
   if (sub && sub.plan !== 'free' && sub.status === 'active') {
     var btn = document.getElementById('btn-upgrade');
-    btn.querySelector('.btn-label').textContent = 'Manage subscription';
+    btn.querySelector('.btn-label').textContent = 'Gérer mon abonnement';
     btn.querySelector('svg:last-child').style.display = 'none';
   }
 })();
@@ -302,11 +302,11 @@ function setBilling(mode) {
 
   if (mode === 'yearly') {
     document.getElementById('pro-price').textContent = '€10';
-    document.getElementById('pro-suffix').textContent = '/month';
-    document.getElementById('pro-yearly').textContent = 'Billed €120/year · Save €24';
+    document.getElementById('pro-suffix').textContent = '/mois';
+    document.getElementById('pro-yearly').textContent = 'Facturé 120 €/an · Économisez 24 €';
   } else {
     document.getElementById('pro-price').textContent = '€12';
-    document.getElementById('pro-suffix').textContent = '/month';
+    document.getElementById('pro-suffix').textContent = '/mois';
     document.getElementById('pro-yearly').innerHTML = '&nbsp;';
   }
 }
@@ -326,7 +326,7 @@ async function upgradePro() {
     : PROSPEO_CONFIG.STRIPE_PRICE_PRO_MONTHLY;
 
   if (!priceId || priceId.startsWith('price_REPLACE')) {
-    showError('Stripe is not yet configured. Please contact hello@prospeo.app to upgrade — we activate within 24h.');
+    showError('Stripe n\'est pas encore configuré. Contactez hello@prospeo.app pour passer en Pro — activation sous 24h.');
     return;
   }
 
@@ -352,11 +352,11 @@ async function upgradePro() {
     });
 
     var data = await res.json();
-    if (!res.ok || !data.url) throw new Error(data.error || 'Could not create checkout session.');
+    if (!res.ok || !data.url) throw new Error(data.error || 'Impossible de créer la session de paiement.');
     window.location.href = data.url;
 
   } catch (e) {
-    showError(e.message || 'Something went wrong. Please try again.');
+    showError(e.message || 'Une erreur est survenue. Veuillez réessayer.');
     btn.classList.remove('loading');
     btn.disabled = false;
   }
@@ -375,7 +375,7 @@ function hideError() {
   if (window.location.search.includes('upgrade=success')) {
     var d = document.createElement('div');
     d.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:12px 24px;border-radius:999px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:fadeIn .3s ease';
-    d.textContent = '🎉 Welcome to Pro! Your account has been upgraded.';
+    d.textContent = '🎉 Bienvenue en Pro ! Votre compte a été mis à niveau.';
     document.body.appendChild(d);
     setTimeout(function(){ d.remove(); }, 5000);
     window.history.replaceState({}, '', 'pricing.html');

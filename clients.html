@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="fr" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -132,21 +132,21 @@
         <div style="display:flex;gap:8px">
           <a href="import.html" class="btn btn-ghost btn-sm">
             <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-            Import
+            Importer
           </a>
           <button class="btn btn-primary" onclick="openModal()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            New Client
+            Nouveau client
           </button>
         </div>
       </div>
 
       <div class="filter-bar">
-        <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
-        <button class="filter-btn" data-filter="individual" onclick="setFilter('individual',this)">Individual</button>
-        <button class="filter-btn" data-filter="company" onclick="setFilter('company',this)">Company</button>
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Tous</button>
+        <button class="filter-btn" data-filter="individual" onclick="setFilter('individual',this)">Particuliers</button>
+        <button class="filter-btn" data-filter="company" onclick="setFilter('company',this)">Entreprises</button>
         <div class="view-toggle">
-          <button class="view-btn active" id="vg" onclick="setView('grid')" title="Grid">
+          <button class="view-btn active" id="vg" onclick="setView('grid')" title="Grille">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
           </button>
           <button class="view-btn" id="vl" onclick="setView('list')" title="List">
@@ -163,44 +163,48 @@
 <!-- Add/Edit Modal -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
-    <div class="modal-title" id="modal-title">Add Client</div>
+    <div class="modal-title" id="modal-title">Ajouter un client</div>
     <div class="form-row">
-      <div class="fg"><label>First name *</label><input id="f-first" placeholder="Sophie" maxlength="80"></div>
-      <div class="fg"><label>Last name *</label><input id="f-last" placeholder="Martin" maxlength="80"></div>
+      <div class="fg"><label>Prénom *</label><input id="f-first" placeholder="Sophie" maxlength="80"></div>
+      <div class="fg"><label>Nom *</label><input id="f-last" placeholder="Martin" maxlength="80"></div>
     </div>
     <div class="form-row">
       <div class="fg"><label>Email</label><input id="f-email" type="email" placeholder="sophie@co.fr" maxlength="200"></div>
-      <div class="fg"><label>Phone</label><input id="f-phone" placeholder="+33 6 00 00 00" maxlength="40"></div>
+      <div class="fg"><label>Téléphone</label><input id="f-phone" placeholder="+33 6 00 00 00" maxlength="40"></div>
     </div>
     <div class="form-row full">
-      <div class="fg"><label>Company</label><input id="f-company" placeholder="Agence Martin" maxlength="120"></div>
+      <div class="fg"><label>Entreprise</label><input id="f-company" placeholder="Agence Martin" maxlength="120"></div>
     </div>
     <div class="form-row">
       <div class="fg"><label>Type</label>
         <select id="f-type">
-          <option value="individual">Individual</option>
-          <option value="company">Company</option>
+          <option value="individual">Particulier</option>
+          <option value="company">Entreprise</option>
         </select>
       </div>
-      <div class="fg"><label>City</label><input id="f-city" placeholder="Paris" maxlength="80"></div>
+      <div class="fg"><label>Ville</label><input id="f-city" placeholder="Paris" maxlength="80"></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>N° SIRET / SIREN</label><input id="f-siret" placeholder="123 456 789 00010" maxlength="20"></div>
+      <div class="fg"><label>N° TVA intracommunautaire</label><input id="f-vat" placeholder="FR12345678901" maxlength="20"></div>
     </div>
     <div class="form-row full">
-      <div class="fg"><label>Notes</label><textarea id="f-notes" placeholder="Internal notes…" maxlength="1000"></textarea></div>
+      <div class="fg"><label>Notes</label><textarea id="f-notes" placeholder="Notes internes…" maxlength="1000"></textarea></div>
     </div>
     <!-- Custom delete confirm (replaces native confirm()) -->
     <div class="delete-confirm" id="delete-confirm">
-      <strong>Delete this client permanently?</strong>
+      <strong>Supprimer ce client définitivement ?</strong>
       <div class="delete-confirm-btns">
-        <button class="dc-cancel" onclick="cancelDelete()">Cancel</button>
-        <button class="dc-confirm" onclick="confirmDelete()">Yes, delete</button>
+        <button class="dc-cancel" onclick="cancelDelete()">Annuler</button>
+        <button class="dc-confirm" onclick="confirmDelete()">Oui, supprimer</button>
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="document.getElementById('modal-overlay').classList.remove('open')">Cancel</button>
-      <button id="btn-delete" class="btn btn-danger btn-sm" style="display:none" onclick="askDelete()">Delete</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-overlay').classList.remove('open')">Annuler</button>
+      <button id="btn-delete" class="btn btn-danger btn-sm" style="display:none" onclick="askDelete()">Supprimer</button>
       <button class="btn btn-primary" id="btn-save" onclick="saveClient()">
         <div class="btn-spinner-sm"></div>
-        <span class="btn-label-txt">Save</span>
+        <span class="btn-label-txt">Enregistrer</span>
       </button>
     </div>
   </div>
@@ -244,7 +248,7 @@ function toast(msg, type) {
     await loadClients();
   } catch(e) {
     console.error('[Clients init]', e);
-    toast('Failed to load. Please refresh.', 'error');
+    toast('Échec du chargement. Veuillez rafraîchir.', 'error');
   }
 })();
 
@@ -272,7 +276,7 @@ async function loadClients() {
     document.getElementById('clients-container').innerHTML =
       '<div class="empty-state">' +
         '<div class="empty-icon-wrap">⚠️</div>' +
-        '<div class="empty-title">Could not load clients</div>' +
+        '<div class="empty-title">Impossible de charger les clients</div>' +
         '<div class="empty-sub">' + sanitize(e.message) + '</div>' +
       '</div>';
   }
@@ -301,9 +305,9 @@ function renderClients(search) {
     el.className = '';
     el.innerHTML = '<div class="empty-state">' +
       '<div class="empty-icon-wrap">' + (noClients ? '👥' : '🔍') + '</div>' +
-      '<div class="empty-title">' + (noClients ? 'No clients yet' : 'No results') + '</div>' +
-      '<div class="empty-sub">' + (noClients ? 'Add your first client to start tracking your business relationships.' : 'Try a different search or filter.') + '</div>' +
-      (noClients ? '<button class="btn btn-primary" onclick="openModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add First Client</button>' : '') +
+      '<div class="empty-title">' + (noClients ? 'Aucun client pour l\'instant' : 'Aucun résultat') + '</div>' +
+      '<div class="empty-sub">' + (noClients ? 'Ajoutez votre premier client pour commencer à suivre vos relations commerciales.' : 'Essayez une autre recherche ou un autre filtre.') + '</div>' +
+      (noClients ? '<button class="btn btn-primary" onclick="openModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter le premier client</button>' : '') +
       '</div>';
     return;
   }
@@ -325,7 +329,7 @@ function renderClients(search) {
         '<div class="cr-email">' + sanitize(c.email||'—') + '</div>' +
         '<div class="cr-actions-row">' +
           (c.email ? '<a href="mailto:' + c.email + '" class="row-btn" onclick="event.stopPropagation()">Email</a>' : '') +
-          '<button class="row-btn" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">Edit</button>' +
+          '<button class="row-btn" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">Modifier</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -341,15 +345,15 @@ function renderClients(search) {
       return '<div class="client-card" data-id="' + c.id + '">' +
         '<div class="cc-avatar" style="background:' + COLORS[ci] + ';color:' + TEXT_COLORS[ci] + '">' + sanitize(ini.toUpperCase()) + '</div>' +
         '<div class="cc-name">' + sanitize((c.first_name||'') + ' ' + (c.last_name||'')) + '</div>' +
-        (c.company ? '<div class="cc-company">' + sanitize(c.company) + '</div>' : '<div class="cc-company" style="color:var(--text4)">Individual</div>') +
+        (c.company ? '<div class="cc-company">' + sanitize(c.company) + '</div>' : '<div class="cc-company" style="color:var(--text4)">Particulier</div>') +
         '<div class="cc-meta">' +
           (c.email ? '<span class="cc-tag"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' + sanitize(c.email) + '</span>' : '') +
           (c.phone ? '<span class="cc-tag"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.94 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' + sanitize(c.phone) + '</span>' : '') +
         '</div>' +
         '<div class="cc-actions">' +
           (c.email ? '<a class="cc-action" href="mailto:'+sanitize(c.email)+'" onclick="event.stopPropagation()">Email</a>' : '') +
-          '<button class="cc-action" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">Edit</button>' +
-          '<button class="cc-action" data-cid="'+c.id+'" data-cname="'+sanitize((c.first_name||'')+' '+(c.last_name||'')).trim()+'" onclick="event.stopPropagation();newInvoice(this.dataset.cid,this.dataset.cname)">Invoice</button>' +
+          '<button class="cc-action" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">Modifier</button>' +
+          '<button class="cc-action" data-cid="'+c.id+'" data-cname="'+sanitize((c.first_name||'')+' '+(c.last_name||'')).trim()+'" onclick="event.stopPropagation();newInvoice(this.dataset.cid,this.dataset.cname)">Facture</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -396,12 +400,12 @@ function openModal(id) {
     document.getElementById('f-type').value = c.type || 'individual';
     document.getElementById('f-city').value = c.city || '';
     document.getElementById('f-notes').value = c.notes || '';
-    title.textContent = 'Edit Client';
+    title.textContent = 'Modifier le client';
     del.style.display = 'inline-flex';
   } else {
     ['f-first','f-last','f-email','f-phone','f-company','f-city','f-notes'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('f-type').value = 'individual';
-    title.textContent = 'Add Client';
+    title.textContent = 'Ajouter un client';
     del.style.display = 'none';
   }
   document.getElementById('modal-overlay').classList.add('open');
@@ -416,9 +420,9 @@ function closeModal(e) {
 async function saveClient() {
   var first = document.getElementById('f-first').value.trim();
   var last = document.getElementById('f-last').value.trim();
-  if (!first && !last) { toast('Please enter at least a first or last name.', 'error'); return; }
+  if (!first && !last) { toast('Veuillez saisir au moins un prénom ou un nom.', 'error'); return; }
   var email = document.getElementById('f-email').value.trim();
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Please enter a valid email address.', 'error'); return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Veuillez saisir une adresse email valide.', 'error'); return; }
 
   var btn = document.getElementById('btn-save');
   btn.classList.add('loading');
@@ -445,11 +449,11 @@ async function saveClient() {
       op = await _supa.from('clients').insert(payload);
     }
     if (op.error) throw op.error;
-    toast(_editId ? 'Client updated.' : 'Client added.', 'success');
+    toast(_editId ? 'Client mis à jour.' : 'Client ajouté.', 'success');
     document.getElementById('modal-overlay').classList.remove('open');
     await loadClients();
   } catch(e) {
-    toast('Failed to save: ' + sanitize(e.message), 'error');
+    toast('Échec de l\'enregistrement : ' + sanitize(e.message), 'error');
   } finally {
     btn.classList.remove('loading');
   }
@@ -460,11 +464,11 @@ async function deleteClient() {
   try {
     var { error } = await _supa.from('clients').delete().eq('id', _editId).eq('user_id', _uid);
     if (error) throw error;
-    toast('Client deleted.', 'success');
+    toast('Client supprimé.', 'success');
     document.getElementById('modal-overlay').classList.remove('open');
     await loadClients();
   } catch(e) {
-    toast('Delete failed: ' + sanitize(e.message), 'error');
+    toast('Échec de la suppression : ' + sanitize(e.message), 'error');
     cancelDelete();
   }
 }
