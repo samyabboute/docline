@@ -2515,7 +2515,8 @@ function pwaDismiss() {
 </div>
 
 
-<script src="prospeo-animations.js">
+<script src="prospeo-animations.js"></script>
+<script>
 // ── PLAN LIMITS MANAGER ──────────────────────────────────────
 var Limits = (function() {
   var _counts = {};
@@ -2624,4 +2625,10 @@ function filterStage(stage) {
   renderPipeline(filtered);
   Toast.info('', 'Affichage des leads « ' + STAGE_META.find(function(s){return s.k===stage;}).l + » uniquement. Cliquez sur l\'en-tête du pipeline pour réinitialiser.');
 }
+</script>
+</div>
+</main>
+</div>
+</body>
+</html>
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -168,13 +168,13 @@ textarea{resize:vertical;min-height:80px}
     <div class="shell-page">
 <div class="content">
   <div class="page-tabs">
-    <button class="page-tab active" id="tab-list" onclick="showTab('list')">All Smart Files</button>
-    <button class="page-tab" id="tab-new" onclick="showTab('new')">Create New</button>
+    <button class="page-tab active" id="tab-list" onclick="showTab('list')">Tous les Smart Files</button>
+    <button class="page-tab" id="tab-new" onclick="showTab('new')">Créer</button>
   </div>
 
   <!-- LIST VIEW -->
   <div id="view-list">
-    <div id="proposals-container"><div class="empty-state"><div style="font-size:32px">⏳</div><br>Loading...</div></div>
+    <div id="proposals-container"><div class="empty-state"><div style="font-size:32px">⏳</div><br>Chargement…</div></div>
   </div>
 
   <!-- NEW SMART FILE FORM -->
@@ -184,64 +184,64 @@ textarea{resize:vertical;min-height:80px}
       <div>
         <div class="card">
           <div class="card-head">
-            <div class="card-title"><div class="card-icon ci-blue">📄</div>Client & Project Details</div>
+            <div class="card-title"><div class="card-icon ci-blue">📄</div>Client & Projet</div>
           </div>
           <div class="card-body">
             <div class="form-section">
               <div class="form-section-title">Client</div>
               <div class="form-grid">
-                <div class="fg"><label>Client name *</label><input id="f-client-name" placeholder="Sophie Martin" maxlength="100"></div>
-                <div class="fg"><label>Client email *</label><input id="f-client-email" type="email" placeholder="sophie@company.fr"></div>
-                <div class="fg"><label>Company</label><input id="f-company" placeholder="Agence Martin"></div>
-                <div class="fg"><label>Phone</label><input id="f-phone" placeholder="+33 6 00 00 00 00"></div>
+                <div class="fg"><label>Nom du client *</label><input id="f-client-name" placeholder="Sophie Martin" maxlength="100"></div>
+                <div class="fg"><label>Email client *</label><input id="f-client-email" type="email" placeholder="sophie@entreprise.fr"></div>
+                <div class="fg"><label>Entreprise</label><input id="f-company" placeholder="Agence Martin"></div>
+                <div class="fg"><label>Téléphone</label><input id="f-phone" placeholder="+33 6 00 00 00 00"></div>
               </div>
             </div>
             <div class="form-section">
-              <div class="form-section-title">Project</div>
-              <div class="fg form-full"><label>Project title *</label><input id="f-project-title" placeholder="Brand identity design for Agence Martin"></div>
+              <div class="form-section-title">Projet</div>
+              <div class="fg form-full"><label>Titre du projet *</label><input id="f-project-title" placeholder="Identité visuelle pour Agence Martin"></div>
               <div class="form-grid">
-                <div class="fg"><label>Project type</label>
+                <div class="fg"><label>Type de prestation</label>
                   <select id="f-project-type">
                     <option value="design">Design</option>
-                    <option value="development">Development</option>
-                    <option value="consulting">Consulting</option>
-                    <option value="photography">Photography</option>
+                    <option value="development">Développement</option>
+                    <option value="consulting">Conseil</option>
+                    <option value="photography">Photographie</option>
                     <option value="marketing">Marketing</option>
-                    <option value="writing">Writing / Copywriting</option>
-                    <option value="other">Other</option>
+                    <option value="writing">Rédaction / Copywriting</option>
+                    <option value="other">Autre</option>
                   </select>
                 </div>
-                <div class="fg"><label>Valid until</label><input id="f-valid-until" type="date"></div>
+                <div class="fg"><label>Valide jusqu'au</label><input id="f-valid-until" type="date"></div>
               </div>
-              <div class="fg"><label>Project description</label><textarea id="f-description" placeholder="Describe the scope of work, deliverables, and timeline..."></textarea></div>
+              <div class="fg"><label>Description du projet</label><textarea id="f-description" placeholder="Décrivez le périmètre, les livrables et le calendrier…"></textarea></div>
             </div>
           </div>
         </div>
 
         <div class="card" style="margin-top:16px">
           <div class="card-head">
-            <div class="card-title"><div class="card-icon ci-orange">💶</div>Pricing & Line Items</div>
+            <div class="card-title"><div class="card-icon ci-orange">💶</div>Tarification & lignes</div>
           </div>
           <div class="card-body">
             <div class="line-item-head">
               <span class="li-label">Description</span>
-              <span class="li-label">Qty</span>
-              <span class="li-label">Unit price</span>
+              <span class="li-label">Qté</span>
+              <span class="li-label">PU HT</span>
               <span class="li-label"></span>
             </div>
             <div class="line-items" id="line-items-container"></div>
-            <button class="add-line-btn" onclick="addLineItem()">+ Add line item</button>
+            <button class="add-line-btn" onclick="addLineItem()">+ Ajouter une ligne</button>
             <div class="form-grid" style="margin-top:16px">
-              <div class="fg"><label>TVA rate (%)</label>
+              <div class="fg"><label>Taux de TVA (%)</label>
                 <select id="f-tva" onchange="calcTotals()">
-                  <option value="0">0% — Exonéré (auto-entrepreneur)</option>
-                  <option value="5.5">5.5%</option>
-                  <option value="10">10%</option>
-                  <option value="20" selected>20%</option>
+                  <option value="0">0% — Autoliquidation / Intracommunautaire</option>
+                  <option value="5.5">5,5% — Taux réduit FR</option>
+                  <option value="10">10% — Taux intermédiaire FR</option>
+                  <option value="20" selected>20% — Taux normal FR</option>
                 </select>
               </div>
-              <div class="fg"><label>Currency</label>
-                <select id="f-currency"><option value="EUR" selected>EUR (€)</option><option value="GBP">GBP (£)</option><option value="USD">USD ($)</option></select>
+              <div class="fg"><label>Devise</label>
+                <select id="f-currency"><option value="EUR" selected>EUR (€)</option></select>
               </div>
             </div>
             <div class="totals" id="totals-display">
@@ -254,8 +254,8 @@ textarea{resize:vertical;min-height:80px}
 
         <div class="card" style="margin-top:16px">
           <div class="card-head">
-            <div class="card-title"><div class="card-icon ci-purple">📋</div>Contract Terms</div>
-            <button class="btn btn-ghost btn-sm" onclick="showTemplateSelector()">Templates</button><button class="btn btn-ghost btn-sm" onclick="toggleContract()">Edit</button>
+            <div class="card-title"><div class="card-icon ci-purple">📋</div>Conditions du contrat</div>
+            <button class="btn btn-ghost btn-sm" onclick="showTemplateSelector()">Modèles</button><button class="btn btn-ghost btn-sm" onclick="toggleContract()">Modifier</button>
           </div>
           <div class="card-body">
             <div class="contract-preview" id="contract-preview"></div>
@@ -267,31 +267,31 @@ textarea{resize:vertical;min-height:80px}
 
         <div class="card" style="margin-top:16px">
           <div class="card-head">
-            <div class="card-title"><div class="card-icon ci-green">📅</div>Payment Schedule (optional)</div>
+            <div class="card-title"><div class="card-icon ci-green">📅</div>Échéancier de paiement (optionnel)</div>
           </div>
           <div class="card-body">
             <div class="form-grid">
-              <div class="fg"><label>Payment type</label>
+              <div class="fg"><label>Type de paiement</label>
                 <select id="f-payment-type" onchange="updatePaymentUI()">
-                  <option value="full">Full payment on completion</option>
-                  <option value="deposit">Deposit + final payment</option>
-                  <option value="split3">3 equal payments</option>
-                  <option value="custom">Custom schedule</option>
+                  <option value="full">Paiement à la livraison</option>
+                  <option value="deposit">Acompte + solde</option>
+                  <option value="split3">3 paiements égaux</option>
+                  <option value="custom">Calendrier personnalisé</option>
                 </select>
               </div>
-              <div class="fg"><label>Due date</label><input id="f-due-date" type="date"></div>
+              <div class="fg"><label>Date d'échéance</label><input id="f-due-date" type="date"></div>
             </div>
             <div id="payment-details" style="font-size:13px;color:var(--text3);background:var(--bg);border-radius:var(--rsm);padding:12px;margin-top:8px">
-              Full payment due on the specified date.
+              Paiement intégral à la date indiquée.
             </div>
           </div>
         </div>
 
         <div style="display:flex;gap:10px;margin-top:16px">
-          <button class="btn btn-ghost" onclick="saveProposal('draft')">Save as draft</button>
+          <button class="btn btn-ghost" onclick="saveProposal('draft')">Enregistrer comme brouillon</button>
           <button class="btn btn-primary btn-lg" style="flex:1;justify-content:center" onclick="saveProposal('ready')">
             <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Create Smart File & Get Link
+            Créer le Smart File & obtenir le lien
           </button>
         </div>
       </div>
@@ -299,25 +299,25 @@ textarea{resize:vertical;min-height:80px}
       <!-- Sidebar -->
       <div>
         <div class="sidebar-card">
-          <div class="sc-title"><span class="sc-icon">⚡</span>Smart File Flow</div>
-          <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><strong>You create</strong> — fill in client details, scope, pricing, and contract terms here</div></div>
-          <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><strong>You send</strong> — one link is generated that contains everything</div></div>
-          <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><strong>Client reviews</strong> — they read the proposal, review the contract, see the total</div></div>
-          <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><strong>Client signs</strong> — e-signature captured securely in their browser</div></div>
-          <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><strong>Invoice sent</strong> — automatically generated from the signed Smart File</div></div>
+          <div class="sc-title"><span class="sc-icon">⚡</span>Fonctionnement</div>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><strong>Vous créez</strong> — renseignez les infos client, le périmètre, la tarification et les CGV</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><strong>Vous envoyez</strong> — un lien unique contenant tout est généré</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><strong>Le client consulte</strong> — il lit la proposition, les conditions et voit le total TTC</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><strong>Le client signe</strong> — signature électronique sécurisée dans son navigateur</div></div>
+          <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><strong>Facture envoyée</strong> — générée automatiquement depuis le Smart File signé</div></div>
         </div>
         <div class="sidebar-card">
-          <div class="sc-title"><span class="sc-icon">💶</span>File Summary</div>
+          <div class="sc-title"><span class="sc-icon">💶</span>Résumé</div>
           <div class="preview-box">
             <div class="preview-box-title">Total TTC</div>
             <div class="preview-val" id="preview-total">€0.00</div>
-            <div class="preview-sub" id="preview-items">0 line items</div>
+            <div class="preview-sub" id="preview-items">0 ligne</div>
           </div>
         </div>
         <div class="sidebar-card">
-          <div class="sc-title"><span class="sc-icon">💡</span>Tips</div>
+          <div class="sc-title"><span class="sc-icon">💡</span>Conseils</div>
           <div style="font-size:12px;color:var(--text3);line-height:1.7">
-            A good Smart File includes a clear scope, realistic timeline, and explicit payment terms. Clients sign 40% faster when they see the full picture upfront — no surprises after.
+            Un bon Smart File inclut un périmètre clair, un calendrier réaliste et des conditions de paiement explicites. Les clients signent 40% plus vite quand ils voient tout dès le départ — sans mauvaise surprise.
           </div>
         </div>
       </div>
@@ -329,15 +329,15 @@ textarea{resize:vertical;min-height:80px}
 <div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .2s" id="success-modal">
   <div style="background:var(--white);border-radius:20px;padding:36px;max-width:480px;width:90%;text-align:center;transform:translateY(12px);transition:transform .2s">
     <div style="font-size:52px;margin-bottom:16px">🎉</div>
-    <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Smart File Created!</div>
-    <div style="font-size:14px;color:var(--text3);margin-bottom:24px;line-height:1.6">Your client link is ready. Share it — they can review, sign, and pay all in one place.</div>
+    <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Smart File créé !</div>
+    <div style="font-size:14px;color:var(--text3);margin-bottom:24px;line-height:1.6">Le lien client est prêt. Partagez-le — votre client peut consulter, signer et payer en un seul endroit.</div>
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:20px;text-align:left">
       <input id="share-link-input" readonly style="flex:1;border:none;background:none;font-size:13px;color:var(--text3);font-family:monospace;outline:none">
-      <button class="btn btn-primary btn-sm" onclick="copyLink()">Copy</button>
+      <button class="btn btn-primary btn-sm" onclick="copyLink()">Copier</button>
     </div>
     <div style="display:flex;gap:10px">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeSuccessModal()">Done</button>
-      <button class="btn btn-success" style="flex:1;justify-content:center" onclick="sendByEmail()">📧 Email to client</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeSuccessModal()">Fermer</button>
+      <button class="btn btn-success" style="flex:1;justify-content:center" onclick="sendByEmail()">📧 Envoyer par email</button>
     </div>
   </div>
 </div>
@@ -349,37 +349,37 @@ textarea{resize:vertical;min-height:80px}
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _uid=null, _lineItems=[], _createdProposalId=null;
 
-var CURRENCY_SYMBOLS={EUR:'€',GBP:'£',USD:'$'};
-var DEFAULT_CONTRACT = `AGREEMENT FOR SERVICES
+var CURRENCY_SYMBOLS={EUR:'€'};
+var DEFAULT_CONTRACT = `CONTRAT DE PRESTATION DE SERVICES
 
-This agreement is between the Service Provider ({PROVIDER_NAME}) and the Client ({CLIENT_NAME}).
+Le présent contrat est conclu entre le Prestataire ({PROVIDER_NAME}) et le Client ({CLIENT_NAME}).
 
-SCOPE OF WORK
+OBJET DE LA MISSION
 {PROJECT_DESCRIPTION}
 
-DELIVERABLES
-As described in the project scope above.
+LIVRABLES
+Tels que décrits dans le périmètre de la mission ci-dessus.
 
-TIMELINE
-Work will begin upon receipt of signed agreement and deposit payment (if applicable).
+DÉLAIS
+Les travaux débuteront à réception du contrat signé et de l'acompte (le cas échéant).
 
-PAYMENT TERMS
+CONDITIONS DE PAIEMENT
 {PAYMENT_TERMS}
-Payment is due upon receipt of invoice. Late payments incur a 2% monthly interest charge.
+Le paiement est dû à réception de la facture. Tout retard de paiement entraîne des pénalités de 2% par mois conformément à l'article L.441-10 du Code de commerce.
 
-REVISIONS
-This agreement includes up to 2 rounds of revisions. Additional revisions are billed at the hourly rate.
+RÉVISIONS
+Ce contrat inclut jusqu'à 2 séries de révisions. Les révisions supplémentaires sont facturées au taux horaire convenu.
 
-OWNERSHIP
-All final deliverables become the property of the Client upon full payment. The Service Provider retains rights to display the work in their portfolio.
+PROPRIÉTÉ INTELLECTUELLE
+L'ensemble des livrables finaux devient la propriété du Client après paiement intégral. Le Prestataire conserve le droit de présenter les travaux dans son portfolio.
 
-CONFIDENTIALITY
-Both parties agree to keep confidential any proprietary information shared during the project.
+CONFIDENTIALITÉ
+Les deux parties s'engagent à garder confidentielles toutes les informations propriétaires échangées dans le cadre de la mission.
 
-CANCELLATION
-Either party may cancel with 14 days written notice. Work completed to date will be invoiced at the agreed rate.
+RÉSILIATION
+Chaque partie peut résilier le contrat avec un préavis écrit de 14 jours. Les travaux réalisés jusqu'à la date de résiliation seront facturés au tarif convenu.
 
-By signing below, both parties agree to these terms.`;
+En signant ci-dessous, les deux parties acceptent les présentes conditions.`;
 
 function sanitize(s){var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
 function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'toast-success')+' show';setTimeout(function(){t.className='toast';},3000);}
@@ -393,7 +393,7 @@ function formatEUR(n,sym){sym=sym||'€';return sym+parseFloat(n||0).toFixed(2).
   // Check pro plan
   var {data:sub}=await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single();
   if(!sub||sub.plan!=='pro'){
-    document.querySelector('.content').innerHTML='<div class="empty-state"><div class="es-icon">🔒</div><div class="es-title">Smart Files is a Pro feature</div><div class="es-sub">Smart Files — combining proposal, contract, and invoice in one shareable link — is available on the Pro plan.</div><a href="pricing.html" class="btn btn-primary btn-lg">Upgrade to Pro →</a></div>';
+    document.querySelector('.content').innerHTML='<div class="empty-state"><div class="es-icon">🔒</div><div class="es-title">Smart Files — Fonctionnalité Pro</div><div class="es-sub">Les Smart Files — proposition, contrat et facture en un seul lien — sont disponibles avec le plan Pro.</div><a href="pricing.html" class="btn btn-primary btn-lg">Passer en Pro →</a></div>';
     return;
   }
 
@@ -431,7 +431,7 @@ function addLineItem(desc,qty,price){
   div.className='line-item';
   div.id='row-'+id;
   div.innerHTML=
-    '<input placeholder="Description of service..." value="'+sanitize(desc||'')+'" oninput="updateLine(\''+id+'\',\'desc\',this.value)" style="font-size:13px">'+
+    '<input placeholder="Description de la prestation…" value="'+sanitize(desc||'')+'" oninput="updateLine(\''+id+'\',\'desc\',this.value)" style="font-size:13px">'+
     '<input type="number" min="1" value="'+(qty||1)+'" oninput="updateLine(\''+id+'\',\'qty\',this.value)" style="text-align:center;font-size:13px">'+
     '<input type="number" min="0" step="0.01" value="'+(price||'')+'" placeholder="0.00" oninput="updateLine(\''+id+'\',\'price\',this.value)" style="text-align:right;font-size:13px">'+
     '<button class="remove-line" onclick="removeLine(\''+id+'\')">✕</button>';
@@ -466,7 +466,7 @@ function calcTotals(){
   document.getElementById('t-tva').textContent=formatEUR(tvaAmt,sym);
   document.getElementById('t-ttc').textContent=formatEUR(ttc,sym);
   document.getElementById('preview-total').textContent=formatEUR(ttc,sym);
-  document.getElementById('preview-items').textContent=_lineItems.length+' line item'+(  _lineItems.length!==1?'s':'');
+  document.getElementById('preview-items').textContent=_lineItems.length+' ligne'+(_lineItems.length!==1?'s':'');
   updateContractPreview();
 }
 
@@ -480,8 +480,8 @@ function toggleContract(){
 }
 
 function updateContractPreview(){
-  var clientName=document.getElementById('f-client-name').value||'[Client Name]';
-  var projectTitle=document.getElementById('f-project-title').value||'[Project Title]';
+  var clientName=document.getElementById('f-client-name').value||'[Nom du client]';
+  var projectTitle=document.getElementById('f-project-title').value||'[Titre du projet]';
   var tva=document.getElementById('f-tva').value;
   var terms=document.getElementById('f-contract-terms').value||DEFAULT_CONTRACT;
   var sym=CURRENCY_SYMBOLS[document.getElementById('f-currency').value]||'€';
@@ -490,8 +490,8 @@ function updateContractPreview(){
   var preview=terms
     .replace('{CLIENT_NAME}',clientName)
     .replace('{PROJECT_DESCRIPTION}',projectTitle)
-    .replace('{PAYMENT_TERMS}','Total amount: '+formatEUR(ttc,sym)+' TTC')
-    .replace('{PROVIDER_NAME}','[Your Name]');
+    .replace('{PAYMENT_TERMS}','Montant total : '+formatEUR(ttc,sym)+' TTC')
+    .replace('{PROVIDER_NAME}','[Votre nom]');
   // Convert to HTML with highlighted placeholders
   var html=preview.split('\n').map(function(line){
     if(!line.trim())return '<br>';
@@ -510,10 +510,10 @@ document.getElementById('f-tva').addEventListener('change',updateContractPreview
 function updatePaymentUI(){
   var type=document.getElementById('f-payment-type').value;
   var msgs={
-    full:'Full payment due on the specified date.',
-    deposit:'50% deposit due upon signing. Remaining 50% due on project completion.',
-    split3:'Payment split into 3 equal parts: on signing, at project midpoint, and on delivery.',
-    custom:'Define a custom payment schedule for this client.'
+    full:'Paiement intégral à la date indiquée.',
+    deposit:'50% d\'acompte à la signature. Solde de 50% à la livraison du projet.',
+    split3:'Paiement en 3 fois égaux : à la signature, à mi-parcours et à la livraison.',
+    custom:'Définissez un calendrier de paiement personnalisé pour ce client.'
   };
   document.getElementById('payment-details').textContent=msgs[type]||msgs.full;
 }
@@ -524,11 +524,11 @@ async function saveProposal(status){
   var clientEmail=(document.getElementById('f-client-email').value||'').trim();
   var projectTitle=(document.getElementById('f-project-title').value||'').trim();
   if(!clientName||!clientEmail||!projectTitle){
-    toast('Please fill in client name, email, and project title.','toast-error');
+    toast('Veuillez renseigner le nom du client, l\'email et le titre du projet.','toast-error');
     return;
   }
   if(!_lineItems.length||!_lineItems.some(function(l){return l.price>0;})){
-    toast('Please add at least one line item with a price.','toast-error');
+    toast('Ajoutez au moins une ligne avec un prix.','toast-error');
     return;
   }
 
@@ -571,13 +571,13 @@ async function saveProposal(status){
     var modal=document.getElementById('success-modal');
     modal.style.opacity='1';modal.style.pointerEvents='all';
     modal.querySelector('div').style.transform='translateY(0)';
-    toast(status==='draft'?'Draft saved!':'Smart File ready to send!');
+    toast(status==='draft'?'Brouillon enregistré !':'Smart File prêt à envoyer !');
     loadProposals();
   }catch(e){
     if(e.message&&e.message.includes('relation "public.proposals" does not exist')){
-      toast('Run the schema SQL first — see deployment guide.','toast-error');
+      toast('Exécutez d\'abord le SQL du schéma — voir le guide de déploiement.','toast-error');
     } else {
-      toast('Save failed: '+(e.message||'unknown error'),'toast-error');
+      toast('Échec de l\'enregistrement : '+(e.message||'erreur inconnue'),'toast-error');
     }
   }
 }
@@ -589,13 +589,13 @@ function closeSuccessModal(){
 
 function copyLink(){
   var input=document.getElementById('share-link-input');
-  navigator.clipboard.writeText(input.value).then(function(){toast('Link copied to clipboard!');}).catch(function(){input.select();document.execCommand('copy');toast('Link copied!');});
+  navigator.clipboard.writeText(input.value).then(function(){toast('Lien copié dans le presse-papiers !');}).catch(function(){input.select();document.execCommand('copy');toast('Lien copié !');});
 }
 
 function sendByEmail(){
   var email=document.getElementById('f-client-email').value;
   var link=document.getElementById('share-link-input').value;
-  if(email){window.location.href='mailto:'+email+'?subject=Your%20Smart%20File%20from%20Prospeo&body=Hi%2C%0A%0APlease%20review%2C%20sign%2C%20and%20approve%20your%20Smart%20File%20here%3A%0A%0A'+encodeURIComponent(link)+'%0A%0AThis%20link%20contains%20the%20full%20proposal%2C%20contract%2C%20and%20invoice.%0A%0ABest%20regards';}
+  if(email){window.location.href='mailto:'+email+'?subject=Votre%20Smart%20File%20depuis%20Prospeo&body=Bonjour%2C%0A%0AVeuillez%20consulter%2C%20signer%20et%20valider%20votre%20Smart%20File%20ici%20%3A%0A%0A'+encodeURIComponent(link)+'%0A%0ACe%20lien%20contient%20la%20proposition%2C%20le%20contrat%20et%20la%20facture.%0A%0ACordialement';}
   closeSuccessModal();
 }
 
@@ -606,7 +606,7 @@ async function loadProposals(){
     var {data,error}=await _supa.from('proposals').select('*').eq('user_id',_uid).order('created_at',{ascending:false});
     if(error)throw error;
     if(!data||!data.length){
-      el.innerHTML='<div class="empty-state"><div class="es-icon">📄</div><div class="es-title">No Smart Files yet</div><div class="es-sub">Create your first Smart File — a combined proposal, contract, and invoice in one shareable link. Your clients review, sign, and pay without leaving the page.</div><button class="btn btn-primary btn-lg" onclick="showTab(\'new\')">+ Create your first Smart File</button></div>';
+      el.innerHTML='<div class="empty-state"><div class="es-icon">📄</div><div class="es-title">Aucun Smart File pour l\'instant</div><div class="es-sub">Créez votre premier Smart File — proposition, contrat et facture réunis en un seul lien. Vos clients consultent, signent et paient sans quitter la page.</div><button class="btn btn-primary btn-lg" onclick="showTab(\'new\')">+ Créer votre premier Smart File</button></div>';
       return;
     }
     var colors=['#EEF2FF','#ECFDF5','#FFF7ED','#FEF3C7','#F5F3FF','#E0F2FE'];
@@ -615,7 +615,7 @@ async function loadProposals(){
       var ci=i%colors.length;
       var ini=(p.client_name||'?').split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2);
       var sbClass={draft:'sb-draft',ready:'sb-sent',sent:'sb-sent',signed:'sb-signed',paid:'sb-paid',declined:'sb-declined'}[p.status]||'sb-draft';
-      var sbLabel={draft:'Draft',ready:'Ready to send',sent:'Sent',signed:'Signed',paid:'Paid',declined:'Declined'}[p.status]||'Draft';
+      var sbLabel={draft:'Brouillon',ready:'Prêt à envoyer',sent:'Envoyé',signed:'Signé',paid:'Payé',declined:'Refusé'}[p.status]||'Brouillon';
       var created=new Date(p.created_at).toLocaleDateString('fr-FR');
       return '<div class="proposal-row" onclick="openProposal(\''+p.id+'\',\''+p.share_token+'\')">' +
         '<div class="pr-avatar" style="background:'+colors[ci]+';color:'+textColors[ci]+'">'+ini+'</div>'+
@@ -625,7 +625,7 @@ async function loadProposals(){
       '</div>';
     }).join('')+'</div>';
   }catch(e){
-    el.innerHTML='<div class="empty-state"><div class="es-icon">⚠️</div><div class="es-title">Could not load Smart Files</div><div class="es-sub">'+sanitize(e.message||'Please refresh.')+'</div></div>';
+    el.innerHTML='<div class="empty-state"><div class="es-icon">⚠️</div><div class="es-title">Impossible de charger les Smart Files</div><div class="es-sub">'+sanitize(e.message||'Veuillez rafraîchir la page.')+'</div></div>';
   }
 }
 
@@ -635,172 +635,172 @@ function openProposal(id,token){
   _createdProposalId=id;
   var modal=document.getElementById('success-modal');
   modal.querySelector('div>div:first-child').textContent='📄';
-  modal.querySelector('div>div:nth-child(2)').textContent='Smart File';
+  modal.querySelector('div>div:nth-child(2)').textContent='Smart File existant';
   modal.style.opacity='1';modal.style.pointerEvents='all';
 }
 
-window.addEventListener('unhandledrejection',function(e){console.error('[Proposals]',e.reason);toast('Error: '+(e.reason?.message||'unknown'),'toast-error');});
+window.addEventListener('unhandledrejection',function(e){console.error('[Proposals]',e.reason);toast('Erreur : '+(e.reason?.message||'inconnue'),'toast-error');});
 
 // ── CONTRACT TEMPLATES ────────────────────────────────────────
 var CONTRACT_TEMPLATES = {
   web_design: {
     name:'Web Design', icon:'💻',
-    title:'Web Design & Development Agreement',
-    terms:`WEB DESIGN & DEVELOPMENT AGREEMENT
+    title:'Contrat de conception & développement web',
+    terms:`CONTRAT DE CONCEPTION & DÉVELOPPEMENT WEB
 
-This agreement is between the Designer ({PROVIDER_NAME}) and the Client ({CLIENT_NAME}).
+Le présent contrat est conclu entre le Prestataire ({PROVIDER_NAME}) et le Client ({CLIENT_NAME}).
 
-SCOPE OF WORK
+OBJET DE LA MISSION
 {PROJECT_DESCRIPTION}
 
-DELIVERABLES
-- Custom website design (desktop + mobile responsive)
-- Up to {PAGES} pages as agreed
-- Browser compatibility: Chrome, Firefox, Safari, Edge
-- Source files delivered upon final payment
+LIVRABLES
+- Conception de site web sur mesure (desktop + responsive mobile)
+- Jusqu'à {PAGES} pages convenues
+- Compatibilité navigateurs : Chrome, Firefox, Safari, Edge
+- Fichiers sources livrés après paiement intégral
 
-TIMELINE
-Project begins upon receipt of signed agreement and 50% deposit.
-Estimated completion: {TIMELINE} weeks from project start.
-Timeline subject to timely client feedback (max 5 business days per review round).
+DÉLAIS
+Le projet débute à réception du contrat signé et d'un acompte de 50%.
+Durée estimée : {TIMELINE} semaines à compter du début.
+Délais soumis aux retours du client dans les temps (5 jours ouvrés max par cycle de validation).
 
-REVISIONS
-This project includes 2 rounds of revisions per design phase.
-Additional revisions: €{HOURLY_RATE}/hour.
+RÉVISIONS
+Ce projet inclut 2 cycles de révisions par phase de conception.
+Révisions supplémentaires : {HOURLY_RATE} €/heure.
 
-PAYMENT TERMS
-50% deposit due upon signing. Remaining 50% due on delivery.
-Late payments accrue 2% monthly interest after 30 days.
+CONDITIONS DE PAIEMENT
+50% d'acompte à la signature. Solde de 50% à la livraison.
+Retards de paiement : pénalités de 2% par mois après 30 jours (L.441-10 C.com.).
 
-INTELLECTUAL PROPERTY
-All final deliverables become Client property upon full payment.
-Designer retains right to display work in portfolio.
+PROPRIÉTÉ INTELLECTUELLE
+Les livrables finaux deviennent la propriété du Client après paiement intégral.
+Le Prestataire conserve le droit de présenter les travaux dans son portfolio.
 
-HOSTING & MAINTENANCE
-This agreement covers design and development only.
-Hosting, domain, and ongoing maintenance quoted separately.`
+HÉBERGEMENT & MAINTENANCE
+Ce contrat couvre uniquement la conception et le développement.
+Hébergement, nom de domaine et maintenance font l'objet d'un devis séparé.`
   },
   photography: {
-    name:'Photography', icon:'📷',
-    title:'Photography Services Agreement',
-    terms:`PHOTOGRAPHY SERVICES AGREEMENT
+    name:'Photographie', icon:'📷',
+    title:'Contrat de prestation photographique',
+    terms:`CONTRAT DE PRESTATION PHOTOGRAPHIQUE
 
-This agreement is between the Photographer ({PROVIDER_NAME}) and the Client ({CLIENT_NAME}).
+Le présent contrat est conclu entre le Photographe ({PROVIDER_NAME}) et le Client ({CLIENT_NAME}).
 
-SCOPE OF WORK
+OBJET DE LA MISSION
 {PROJECT_DESCRIPTION}
 
-DELIVERABLES
-- Professional edited photos (minimum quantity as agreed)
-- High-resolution digital files delivered via online gallery
-- Delivery within 2 weeks of session date
+LIVRABLES
+- Photos professionnelles retouchées (quantité minimale convenue)
+- Fichiers numériques haute résolution livrés via galerie en ligne
+- Livraison sous 2 semaines après la séance
 
-SESSION DETAILS
-Date, time, and location as communicated separately.
-Session duration as agreed in scope above.
+DÉTAILS DE LA SÉANCE
+Date, heure et lieu communiqués séparément.
+Durée de la séance telle que convenue dans le périmètre ci-dessus.
 
-PAYMENT TERMS
-50% deposit to confirm booking. Balance due day of session.
-Cancellation with less than 72 hours notice forfeits deposit.
+CONDITIONS DE PAIEMENT
+50% d'acompte pour confirmer la réservation. Solde dû le jour de la séance.
+Annulation moins de 72h avant la séance : acompte non remboursable.
 
-USAGE RIGHTS
-Client receives license for personal and commercial use.
-Photographer retains right to use images for portfolio and marketing.
+DROITS D'UTILISATION
+Le Client reçoit une licence d'utilisation personnelle et commerciale.
+Le Photographe conserve le droit d'utiliser les images pour son portfolio et sa communication.
 
-LIMITATION OF LIABILITY
-Photographer's liability limited to refund of fees paid.
-Not responsible for events beyond reasonable control.`
+LIMITATION DE RESPONSABILITÉ
+La responsabilité du Photographe est limitée au remboursement des honoraires perçus.
+Non responsable des événements indépendants de sa volonté.`
   },
   consulting: {
-    name:'Consulting', icon:'📊',
-    title:'Consulting Services Agreement',
-    terms:`CONSULTING SERVICES AGREEMENT
+    name:'Conseil', icon:'📊',
+    title:'Contrat de prestation de conseil',
+    terms:`CONTRAT DE PRESTATION DE CONSEIL
 
-This agreement is between the Consultant ({PROVIDER_NAME}) and the Client ({CLIENT_NAME}).
+Le présent contrat est conclu entre le Consultant ({PROVIDER_NAME}) et le Client ({CLIENT_NAME}).
 
-SCOPE OF WORK
+OBJET DE LA MISSION
 {PROJECT_DESCRIPTION}
 
-DELIVERABLES & MILESTONES
-As outlined in the project scope. Written deliverables within agreed timelines.
+LIVRABLES & JALONS
+Tels que définis dans le périmètre de la mission. Livrables écrits selon les délais convenus.
 
-RATE & PAYMENT
+TARIF & PAIEMENT
 {PAYMENT_TERMS}
-Invoices due within 30 days of receipt. Late fee: 2% per month.
+Factures payables sous 30 jours. Pénalités de retard : 2% par mois (L.441-10 C.com.).
 
-CONFIDENTIALITY
-Consultant agrees to keep all Client information confidential.
-Client agrees not to solicit Consultant employees for 12 months.
+CONFIDENTIALITÉ
+Le Consultant s'engage à garder confidentielles toutes les informations du Client.
+Le Client s'engage à ne pas solliciter les collaborateurs du Consultant pendant 12 mois.
 
-INDEPENDENT CONTRACTOR
-Consultant is an independent contractor, not an employee.
-Consultant responsible for own taxes and insurance.
+STATUT INDÉPENDANT
+Le Consultant intervient en tant que prestataire indépendant, non salarié.
+Le Consultant est responsable de ses propres impôts et cotisations sociales.
 
-TERMINATION
-Either party may terminate with 14 days written notice.
-Client owes payment for all work completed to termination date.`
+RÉSILIATION
+Chaque partie peut résilier avec un préavis écrit de 14 jours.
+Le Client doit le paiement de tous les travaux réalisés jusqu'à la date de résiliation.`
   },
   marketing: {
     name:'Marketing', icon:'📣',
-    title:'Marketing Services Agreement',
-    terms:`MARKETING SERVICES AGREEMENT
+    title:'Contrat de prestation marketing',
+    terms:`CONTRAT DE PRESTATION MARKETING
 
-This agreement is between the Marketer ({PROVIDER_NAME}) and the Client ({CLIENT_NAME}).
+Le présent contrat est conclu entre le Prestataire ({PROVIDER_NAME}) et le Client ({CLIENT_NAME}).
 
-SCOPE OF WORK
+OBJET DE LA MISSION
 {PROJECT_DESCRIPTION}
 
-DELIVERABLES
-Content, campaigns, and assets as described in scope.
-Monthly reporting on agreed KPIs.
+LIVRABLES
+Contenus, campagnes et assets tels que décrits dans le périmètre.
+Reporting mensuel sur les KPIs convenus.
 
-TIMELINE & TERM
-Contract term: as agreed. Renewable monthly unless cancelled.
-30 days written notice required to terminate ongoing services.
+DURÉE & RENOUVELLEMENT
+Durée : telle que convenue. Renouvelable mensuellement sauf résiliation.
+Préavis écrit de 30 jours requis pour mettre fin aux prestations récurrentes.
 
-PAYMENT TERMS
+CONDITIONS DE PAIEMENT
 {PAYMENT_TERMS}
-Ad spend budgets billed separately at cost.
+Budgets publicitaires facturés séparément au coût réel.
 
-CLIENT RESPONSIBILITIES
-Client to provide brand assets, approvals within 48 hours.
-Client approves all content before publication.
+OBLIGATIONS DU CLIENT
+Le Client fournit les assets de marque et valide les contenus sous 48 heures.
+Le Client approuve tous les contenus avant publication.
 
 PERFORMANCE
-No guarantees of specific results (rankings, conversions, revenue).
-Marketer commits to professional best-effort service.`
+Aucune garantie de résultats spécifiques (classements, conversions, chiffre d'affaires).
+Le Prestataire s'engage à fournir une prestation professionnelle de qualité.`
   },
   copywriting: {
-    name:'Copywriting', icon:'✍️',
-    title:'Copywriting Services Agreement',
-    terms:`COPYWRITING SERVICES AGREEMENT
+    name:'Rédaction', icon:'✍️',
+    title:'Contrat de prestation rédactionnelle',
+    terms:`CONTRAT DE PRESTATION RÉDACTIONNELLE
 
-This agreement is between the Copywriter ({PROVIDER_NAME}) and the Client ({CLIENT_NAME}).
+Le présent contrat est conclu entre le Rédacteur ({PROVIDER_NAME}) et le Client ({CLIENT_NAME}).
 
-SCOPE OF WORK
+OBJET DE LA MISSION
 {PROJECT_DESCRIPTION}
 
-DELIVERABLES
-Written content as specified in scope.
-Delivered in agreed format (Word, Google Docs, etc.)
+LIVRABLES
+Contenus écrits tels que définis dans le périmètre.
+Livrés dans le format convenu (Word, Google Docs, etc.)
 
-REVISIONS
-2 rounds of revisions included.
-Additional revisions: €{HOURLY_RATE}/hour.
+RÉVISIONS
+2 cycles de révisions inclus.
+Révisions supplémentaires : {HOURLY_RATE} €/heure.
 
-TIMELINE
-Drafts delivered within agreed timeframe.
-Timeline requires timely client feedback.
+DÉLAIS
+Brouillons livrés dans les délais convenus.
+Les délais supposent des retours client dans les temps.
 
-PAYMENT TERMS
+CONDITIONS DE PAIEMENT
 {PAYMENT_TERMS}
 
-OWNERSHIP
-All content becomes Client property upon full payment.
-Copywriter may use work samples for portfolio with Client permission.
+PROPRIÉTÉ INTELLECTUELLE
+Tous les contenus deviennent la propriété du Client après paiement intégral.
+Le Rédacteur peut utiliser des extraits pour son portfolio avec l'accord du Client.
 
-PLAGIARISM
-All content guaranteed original. Not AI-generated unless agreed.`
+ORIGINALITÉ
+Tous les contenus sont garantis originaux. Non générés par IA sauf accord préalable.`
   }
 };
 
@@ -809,7 +809,7 @@ function showTemplateSelector() {
   if (existing) { existing.remove(); return; }
   var div = document.createElement('div');
   div.id = 'tpl-selector';
-  div.innerHTML = '<div style="margin-bottom:12px;font-size:13px;font-weight:600;color:var(--text)">Choose a template to get started quickly:</div>' +
+  div.innerHTML = '<div style="margin-bottom:12px;font-size:13px;font-weight:600;color:var(--text)">Choisissez un modèle pour démarrer rapidement :</div>' +
     '<div class="templates-grid">' +
     Object.entries(CONTRACT_TEMPLATES).map(function(entry) {
       var key = entry[0], tpl = entry[1];
@@ -841,12 +841,12 @@ function applyTemplate(key) {
     c.classList.toggle('selected', c.getAttribute('onclick') === 'applyTemplate(\'' + key + '\')');
   });
   updateContractPreview();
-  toast('Template applied — customise the terms below.');
+  toast('Modèle appliqué — personnalisez les conditions ci-dessous.');
   document.getElementById('tpl-selector').style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  if(typeof Shell !== 'undefined') Shell.init({ page: 'proposals', title: 'Smart Files' });
+  if(typeof Shell !== 'undefined') Shell.init({ page: 'proposals', title: 'Smart Files', isPro: true });
 });
 </script>
     </div>

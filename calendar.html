@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Calendar — Prospeo</title>
+<title>Agenda — Prospeo</title>
   <script src="config.js"></script>
 <script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -130,8 +130,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="content">
   <div class="page-header">
     <div>
-      <div class="page-title">Calendar & Tasks</div>
-      <div class="page-sub" id="selected-date-label">Select a day to see tasks</div>
+      <div class="page-title">Agenda & Tâches</div>
+      <div class="page-sub" id="selected-date-label">Sélectionnez un jour pour voir les tâches</div>
     </div>
   </div>
 
@@ -142,7 +142,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="cal-title" id="cal-month-label">March 2026</div>
         <div class="cal-nav">
           <button onclick="changeMonth(-1)">&#8249;</button>
-          <button onclick="changeMonth(0)">Today</button>
+          <button onclick="changeMonth(0)">Aujourd'hui</button>
           <button onclick="changeMonth(1)">&#8250;</button>
         </div>
       </div>
@@ -156,16 +156,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div>
       <div class="sidebar-card">
         <div class="sidebar-header">
-          <span>Tasks</span>
-          <button class="btn btn-ghost btn-sm" onclick="openAddTask()">+ Add</button>
+          <span>Tâches</span>
+          <button class="btn btn-ghost btn-sm" onclick="openAddTask()">+ Ajouter</button>
         </div>
         <div class="filter-tabs">
-          <button class="filter-tab active" onclick="filterTasks('all',this)">All</button>
-          <button class="filter-tab" onclick="filterTasks('today',this)">Today</button>
-          <button class="filter-tab" onclick="filterTasks('overdue',this)">Overdue</button>
-          <button class="filter-tab" onclick="filterTasks('done',this)">Done</button>
+          <button class="filter-tab active" onclick="filterTasks('all',this)">Toutes</button>
+          <button class="filter-tab" onclick="filterTasks('today',this)">Aujourd'hui</button>
+          <button class="filter-tab" onclick="filterTasks('overdue',this)">En retard</button>
+          <button class="filter-tab" onclick="filterTasks('done',this)">Terminées</button>
         </div>
-        <div class="task-list" id="task-list"><div class="loading">Loading tasks...</div></div>
+        <div class="task-list" id="task-list"><div class="loading">Chargement…</div></div>
       </div>
     </div>
   </div>
@@ -174,41 +174,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- Add Task Modal -->
 <div class="overlay" id="task-modal">
   <div class="modal">
-    <div class="modal-title" id="modal-title">Add Task</div>
+    <div class="modal-title" id="modal-title">Ajouter une tâche</div>
     <div class="form-group">
-      <label class="form-label">Title *</label>
-      <input class="form-input" id="task-title-input" placeholder="e.g. Follow up with client" maxlength="200">
+      <label class="form-label">Titre *</label>
+      <input class="form-input" id="task-title-input" placeholder="Ex. Relancer le client" maxlength="200">
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Due date</label>
+        <label class="form-label">Date d'échéance</label>
         <input class="form-input" id="task-due-input" type="date">
       </div>
       <div class="form-group">
-        <label class="form-label">Priority</label>
+        <label class="form-label">Priorité</label>
         <select class="form-input" id="task-priority-input">
-          <option value="low">Low</option>
-          <option value="medium" selected>Medium</option>
-          <option value="high">High</option>
+          <option value="low">Basse</option>
+          <option value="medium" selected>Moyenne</option>
+          <option value="high">Haute</option>
         </select>
       </div>
     </div>
     <div class="form-group">
       <label class="form-label">Type</label>
       <select class="form-input" id="task-type-input">
-        <option value="task">Task</option>
-        <option value="meeting">Meeting</option>
-        <option value="deadline">Deadline</option>
-        <option value="follow-up">Follow-up</option>
+        <option value="task">Tâche</option>
+        <option value="meeting">Réunion</option>
+        <option value="deadline">Échéance</option>
+        <option value="follow-up">Suivi</option>
       </select>
     </div>
     <div class="form-group">
       <label class="form-label">Notes</label>
-      <textarea class="form-input" id="task-notes-input" rows="2" placeholder="Optional notes..." maxlength="500"></textarea>
+      <textarea class="form-input" id="task-notes-input" rows="2" placeholder="Notes optionnelles…" maxlength="500"></textarea>
     </div>
     <div class="form-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveTask()">Save task</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveTask()">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -229,8 +229,8 @@ var _today=new Date(); _today.setHours(0,0,0,0);
 var _viewYear=_today.getFullYear(), _viewMonth=_today.getMonth();
 var _selectedDate=null, _editingId=null;
 
-var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var MONTHS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+var DAYS=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 var TYPE_COLORS={task:'ev-task',meeting:'ev-meeting',deadline:'ev-deadline','follow-up':'ev-follow'};
 
 function sanitize(s){var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
@@ -239,7 +239,7 @@ function toast(msg,type){var t=document.getElementById('toast');t.textContent=ms
 function formatDate(d){
   if(!d)return'';
   var dt=new Date(d+'T00:00:00');
-  return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  return dt.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
 }
 function getDueClass(due,done){
   if(done)return'';
@@ -250,13 +250,13 @@ function getDueClass(due,done){
   return'due-future';
 }
 function getDueLabel(due,done){
-  if(done)return'Done';
-  if(!due)return'No due date';
+  if(done)return'Terminée';
+  if(!due)return'Sans échéance';
   var d=new Date(due+'T00:00:00');
-  if(d<_today){var diff=Math.floor((_today-d)/86400000);return diff+'d overdue';}
-  if(d.getTime()===_today.getTime())return'Today';
+  if(d<_today){var diff=Math.floor((_today-d)/86400000);return'J+'+diff+' retard';}
+  if(d.getTime()===_today.getTime())return'Aujourd\'hui';
   var diff=Math.ceil((d-_today)/86400000);
-  return'In '+diff+'d';
+  return'Dans '+diff+'j';
 }
 
 // ── CALENDAR ──────────────────────────────────────────────────
@@ -305,7 +305,7 @@ function renderCalendar(){
     var evHtml=dayTasks.slice(0,2).map(function(t){
       return'<div class="event-dot '+TYPE_COLORS[t.type||'task']+'" title="'+sanitize(t.title)+'">'+sanitize(t.title)+'</div>';
     }).join('');
-    if(dayTasks.length>2)evHtml+='<div class="more-events">+'+( dayTasks.length-2)+' more</div>';
+    if(dayTasks.length>2)evHtml+='<div class="more-events">+'+(dayTasks.length-2)+' autres</div>';
     return'<div class="'+classes+'" onclick="selectDate(\''+dateStr+'\')">'+numHtml+evHtml+'</div>';
   }).join('');
 }
@@ -313,7 +313,7 @@ function renderCalendar(){
 function selectDate(dateStr){
   _selectedDate=dateStr;
   var d=new Date(dateStr+'T00:00:00');
-  document.getElementById('selected-date-label').textContent=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('selected-date-label').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('task-due-input').value=dateStr;
   renderCalendar();
   renderTasks();
@@ -351,7 +351,7 @@ function renderTasks(){
   var el=document.getElementById('task-list');
   var filtered=getFilteredTasks();
   if(!filtered.length){
-    el.innerHTML='<div class="empty-tasks">No tasks here. Add one above.</div>';
+    el.innerHTML='<div class="empty-tasks">Aucune tâche. Ajoutez-en une ci-dessus.</div>';
     return;
   }
   el.innerHTML=filtered.map(function(t){
@@ -389,15 +389,15 @@ async function toggleTask(e,id){
   renderTasks();
   try{
     await _supa.from('events').update({completed:task.completed,updated_at:new Date().toISOString()}).eq('id',id);
-    toast(task.completed?'Task completed':'Task reopened');
+    toast(task.completed?'Tâche terminée':'Tâche rouverte');
     renderCalendar();
-  }catch(err){task.completed=!task.completed;renderTasks();toast('Failed to update task','toast-error');}
+  }catch(err){task.completed=!task.completed;renderTasks();toast('Échec de la mise à jour','toast-error');}
 }
 
 // ── MODAL ─────────────────────────────────────────────────────
 function openAddTask(){
   _editingId=null;
-  document.getElementById('modal-title').textContent='Add Task';
+  document.getElementById('modal-title').textContent='Ajouter une tâche';
   document.getElementById('task-title-input').value='';
   document.getElementById('task-due-input').value=_selectedDate||'';
   document.getElementById('task-priority-input').value='medium';
@@ -411,7 +411,7 @@ function editTask(id){
   var t=_tasks.find(function(x){return x.id===id;});
   if(!t)return;
   _editingId=id;
-  document.getElementById('modal-title').textContent='Edit Task';
+  document.getElementById('modal-title').textContent='Modifier la tâche';
   document.getElementById('task-title-input').value=t.title||'';
   document.getElementById('task-due-input').value=(t.due_date||'').slice(0,10);
   document.getElementById('task-priority-input').value=t.priority||'medium';
@@ -424,7 +424,7 @@ function closeModal(){document.getElementById('task-modal').classList.remove('op
 
 async function saveTask(){
   var title=(document.getElementById('task-title-input').value||'').trim();
-  if(!title){toast('Please enter a task title','toast-error');return;}
+  if(!title){toast('Veuillez saisir un titre pour la tâche','toast-error');return;}
   var due=document.getElementById('task-due-input').value||null;
   var priority=document.getElementById('task-priority-input').value;
   var type=document.getElementById('task-type-input').value;
@@ -438,20 +438,20 @@ async function saveTask(){
       if(error)throw error;
       var idx=_tasks.findIndex(function(t){return t.id===_editingId;});
       if(idx>=0) Object.assign(_tasks[idx],{title:title,due_date:due,priority:priority,type:type,notes:notes});
-      toast('Task updated');
+      toast('Tâche mise à jour');
     } else {
       var {data,error}=await _supa.from('events').insert({
         user_id:_uid,title:title,due_date:due,priority:priority,type:type,notes:notes,completed:false,event_date:due||new Date().toISOString().slice(0,10)
       }).select().single();
       if(error)throw error;
       _tasks.unshift(data);
-      toast('Task added');
+      toast('Tâche ajoutée');
     }
     closeModal();
     renderCalendar();
     renderTasks();
   }catch(err){
-    toast('Failed to save: '+(err.message||'unknown error'),'toast-error');
+    toast('Échec de l\'enregistrement : '+(err.message||'erreur inconnue'),'toast-error');
   }
 }
 
@@ -468,7 +468,7 @@ document.getElementById('task-modal').addEventListener('click',function(e){
 
     var today_str=_today.toISOString().slice(0,10);
     _selectedDate=today_str;
-    document.getElementById('selected-date-label').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('selected-date-label').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     document.getElementById('task-due-input').value=today_str;
 
     var {data,error}=await _supa.from('events').select('*').eq('user_id',_uid).order('due_date',{ascending:true});
@@ -477,7 +477,7 @@ document.getElementById('task-modal').addEventListener('click',function(e){
     renderCalendar();
     renderTasks();
   }catch(err){
-    document.getElementById('task-list').innerHTML='<div class="empty-tasks">Could not load tasks. Please refresh.</div>';
+    document.getElementById('task-list').innerHTML='<div class="empty-tasks">Impossible de charger les tâches. Veuillez rafraîchir.</div>';
     renderCalendar();
     console.error('[Calendar]',err);
   }
@@ -485,13 +485,14 @@ document.getElementById('task-modal').addEventListener('click',function(e){
 
 window.addEventListener('unhandledrejection',function(e){
   console.error('[Calendar] Unhandled error:',e.reason);
-  toast('An error occurred. Please refresh.','toast-error');
+  toast('Une erreur est survenue. Veuillez rafraîchir.','toast-error');
 });
 </script>
 
-<script src="prospeo-animations.js">
+<script src="prospeo-animations.js"></script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
-  if(typeof Shell !== 'undefined') Shell.init({ page: 'calendar', title: 'Calendar' });
+  if(typeof Shell !== 'undefined') Shell.init({ page: 'calendar', title: 'Agenda' });
 });
 </script>
     </div>

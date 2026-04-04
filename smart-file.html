@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -84,7 +84,7 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
   <span class="header-badge">Smart File</span>
 </header>
 <div class="container">
-  <div id="smart-file-content"><div class="loading">Loading your Smart File...</div></div>
+  <div id="smart-file-content"><div class="loading">Chargement de votre Smart File…</div></div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
@@ -100,47 +100,47 @@ function toast(msg,type){var t=document.getElementById('toast');t.textContent=ms
   var params=new URLSearchParams(window.location.search);
   var token=params.get('t');
   var el=document.getElementById('smart-file-content');
-  if(!token){el.innerHTML='<div class="error-state"><div style="font-size:48px">🔗</div><h2 style="margin:16px 0 8px;color:var(--text)">Invalid link</h2><p style="color:var(--text3)">This Smart File link is invalid.</p></div>';return;}
+  if(!token){el.innerHTML='<div class="error-state"><div style="font-size:48px">🔗</div><h2 style="margin:16px 0 8px;color:var(--text)">Lien invalide</h2><p style="color:var(--text3)">Ce lien Smart File est invalide.</p></div>';return;}
   try{
     var {data:proposal,error}=await _supa.from('proposals').select('*').eq('share_token',token).single();
     if(error||!proposal)throw new Error('Smart File not found');
     _proposal=proposal;
-    var sym={EUR:'€',GBP:'£',USD:'$'}[proposal.currency]||'€';
+    var sym='€';
     var lines=[];
     try{lines=JSON.parse(proposal.line_items||'[]');}catch(e){lines=[];}
     var isSigned=proposal.status==='signed'||proposal.status==='paid';
-    var signedBanner=isSigned?'<div class="signed-banner"><div class="sb-icon">✅</div><div class="sb-title">This Smart File has been signed</div><div class="sb-sub">Signed on '+new Date(proposal.signed_at||proposal.updated_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})+'</div></div>':'';
+    var signedBanner=isSigned?'<div class="signed-banner"><div class="sb-icon">✅</div><div class="sb-title">Ce Smart File a été signé</div><div class="sb-sub">Signé le '+new Date(proposal.signed_at||proposal.updated_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})+'</div></div>':'';
     var linesHTML=lines.map(function(l){return '<tr><td>'+sanitize(l.desc||'—')+'</td><td style="text-align:center">'+sanitize(l.qty||1)+'</td><td style="text-align:right">'+fmtEUR(l.price,sym)+'</td><td style="text-align:right;font-weight:600">'+fmtEUR((l.qty||1)*(l.price||0),sym)+'</td></tr>';}).join('');
     var tva=parseFloat(proposal.tva_rate||0);
     var ht=parseFloat(proposal.amount_ht||0);
     var ttc=parseFloat(proposal.amount_ttc||0);
     var tvaAmt=ttc-ht;
     var sigSection=isSigned?
-      '<div style="background:#ECFDF5;border-radius:var(--r);padding:16px;text-align:center;color:var(--success);font-weight:600;font-size:14px">✓ Electronically signed · '+new Date(proposal.signed_at||proposal.updated_at).toLocaleString('fr-FR')+'</div>':
-      '<div id="sig-section"><div class="sig-tab-row"><button class="sig-tab on" onclick="switchSigMode(\'draw\',this)">Draw signature</button><button class="sig-tab" onclick="switchSigMode(\'type\',this)">Type signature</button></div><div id="sig-draw"><div class="sig-box" id="sig-box" style="height:140px"><canvas id="sig-canvas" height="140"></canvas><div class="sig-hint" id="sig-hint">Sign here with your mouse or finger</div></div><div class="sig-actions"><button class="sig-clear" onclick="clearSig()">Clear</button><span style="font-size:12px;color:var(--text3);margin-left:auto">Your signature is legally binding under EU eIDAS regulation</span></div></div><div id="sig-type" style="display:none"><input id="sig-name-input" placeholder="Type your full name to sign" style="margin-bottom:8px;font-size:15px" oninput="updateTypedSig()"><div class="sig-typed" id="sig-typed-preview">Your name will appear here</div><div style="font-size:11px;color:var(--text3);margin-top:4px">Typing your name constitutes a valid electronic signature</div></div><button class="btn btn-primary" style="margin-top:16px" onclick="submitSignature()"><svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>I agree and sign this Smart File</button></div>';
+      '<div style="background:#ECFDF5;border-radius:var(--r);padding:16px;text-align:center;color:var(--success);font-weight:600;font-size:14px">✓ Signé électroniquement · '+new Date(proposal.signed_at||proposal.updated_at).toLocaleString('fr-FR')+'</div>':
+      '<div id="sig-section"><div class="sig-tab-row"><button class="sig-tab on" onclick="switchSigMode(\'draw\',this)">Dessiner la signature</button><button class="sig-tab" onclick="switchSigMode(\'type\',this)">Taper la signature</button></div><div id="sig-draw"><div class="sig-box" id="sig-box" style="height:140px"><canvas id="sig-canvas" height="140"></canvas><div class="sig-hint" id="sig-hint">Signez ici avec votre souris ou votre doigt</div></div><div class="sig-actions"><button class="sig-clear" onclick="clearSig()">Effacer</button><span style="font-size:12px;color:var(--text3);margin-left:auto">Valide selon l\'ordonnance n°2000-272 (signature électronique, droit français)</span></div></div><div id="sig-type" style="display:none"><input id="sig-name-input" placeholder="Tapez votre nom complet pour signer" style="margin-bottom:8px;font-size:15px" oninput="updateTypedSig()"><div class="sig-typed" id="sig-typed-preview">Votre nom apparaîtra ici</div><div style="font-size:11px;color:var(--text3);margin-top:4px">Taper votre nom constitue une signature électronique valide</div></div><button class="btn btn-primary" style="margin-top:16px" onclick="submitSignature()"><svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>J\'accepte et signe ce Smart File</button></div>';
     el.innerHTML=
       (isSigned?signedBanner:'')+
       '<div class="progress-steps">'+(isSigned?
-        '<div class="ps-step done"><div class="ps-circle">✓</div>Proposal</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Contract</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Signed</div>':
-        '<div class="ps-step done"><div class="ps-circle">✓</div>Proposal</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Review</div><div class="ps-line"></div><div class="ps-step active"><div class="ps-circle">3</div>Sign</div>'
+        '<div class="ps-step done"><div class="ps-circle">✓</div>Proposition</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Contrat</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Signé</div>':
+        '<div class="ps-step done"><div class="ps-circle">✓</div>Proposition</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Révision</div><div class="ps-line"></div><div class="ps-step active"><div class="ps-circle">3</div>Signer</div>'
       )+'</div>'+
       '<div class="doc-card">'+
         '<div class="doc-head">'+
-          '<div><div class="doc-brand"><img src="prospeo-logo.svg" alt="Prospeo"></div><div class="doc-title">Smart File</div><div class="doc-ref">Ref: '+(proposal.id||'').slice(0,8).toUpperCase()+(proposal.valid_until?' · Valid until '+new Date(proposal.valid_until).toLocaleDateString('fr-FR'):'')+'</div></div>'+
+          '<div><div class="doc-brand"><img src="prospeo-logo.svg" alt="Prospeo"></div><div class="doc-title">Smart File</div><div class="doc-ref">Réf : '+(proposal.id||'').slice(0,8).toUpperCase()+(proposal.valid_until?' · Valide jusqu\'au '+new Date(proposal.valid_until).toLocaleDateString('fr-FR'):'')+'</div></div>'+
           '<div class="doc-amount"><div class="doc-amount-val">'+fmtEUR(ttc,sym)+'</div><div class="doc-amount-lbl">Total TTC · '+tva+'% TVA</div></div>'+
         '</div>'+
         '<div class="doc-parties">'+
-          '<div><div class="party-lbl">Project</div><div class="party-name">'+sanitize(proposal.project_title||'—')+'</div><div class="party-detail">'+sanitize(proposal.description||'')+'</div></div>'+
+          '<div><div class="party-lbl">Projet</div><div class="party-name">'+sanitize(proposal.project_title||'—')+'</div><div class="party-detail">'+sanitize(proposal.description||'')+'</div></div>'+
           '<div><div class="party-lbl">Client</div><div class="party-name">'+sanitize(proposal.client_name||'—')+'</div><div class="party-detail">'+sanitize(proposal.client_email||'')+(proposal.client_company?'<br>'+sanitize(proposal.client_company):'')+'</div></div>'+
         '</div>'+
         '<div class="doc-section">'+
-          '<div class="ds-title">Services & Pricing</div>'+
-          '<table class="line-table"><thead><tr><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Unit price</th><th style="text-align:right">Total HT</th></tr></thead><tbody>'+(linesHTML||'<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:20px">No line items</td></tr>')+'</tbody></table>'+
+          '<div class="ds-title">Prestations & Tarification</div>'+
+          '<table class="line-table"><thead><tr><th>Description</th><th style="text-align:center">Qté</th><th style="text-align:right">PU HT</th><th style="text-align:right">Total HT</th></tr></thead><tbody>'+(linesHTML||'<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:20px">Aucune ligne</td></tr>')+'</tbody></table>'+
           '<div class="totals-block"><div class="tot-row"><span>Subtotal HT</span><span><strong>'+fmtEUR(ht,sym)+'</strong></span></div><div class="tot-row"><span>TVA ('+tva+'%)</span><span><strong>'+fmtEUR(tvaAmt,sym)+'</strong></span></div><div class="tot-final"><span>Total TTC</span><span>'+fmtEUR(ttc,sym)+'</span></div></div>'+
         '</div>'+
         '<div class="doc-section">'+
-          '<div class="ds-title">Contract Terms</div>'+
-          '<div class="contract-text">'+sanitize(proposal.contract_terms||'No contract terms specified.')+'</div>'+
+          '<div class="ds-title">Conditions du contrat</div>'+
+          '<div class="contract-text">'+sanitize(proposal.contract_terms||'Aucunes conditions de contrat spécifiées.')+'</div>'+
         '</div>'+
         '<div class="doc-section">'+
           '<div class="ds-title">Signature</div>'+
@@ -149,7 +149,7 @@ function toast(msg,type){var t=document.getElementById('toast');t.textContent=ms
       '</div>';
     if(!isSigned) initCanvas();
   }catch(e){
-    el.innerHTML='<div class="error-state"><div style="font-size:48px">❌</div><h2 style="margin:16px 0 8px;color:var(--text)">Smart File not found</h2><p style="color:var(--text3)">'+sanitize(e.message||'This link may be invalid or expired.')+'</p></div>';
+    el.innerHTML='<div class="error-state"><div style="font-size:48px">❌</div><h2 style="margin:16px 0 8px;color:var(--text)">Smart File introuvable</h2><p style="color:var(--text3)">'+sanitize(e.message||'Ce lien est peut-être invalide ou expiré.')+'</p></div>';
   }
 })();
 
@@ -181,24 +181,24 @@ function initCanvas(){
 
 function clearSig(){if(!_ctx)return;_ctx.clearRect(0,0,_canvas.width,_canvas.height);_hasSig=false;document.getElementById('sig-hint').style.opacity='1';}
 function switchSigMode(mode,el){_sigMode=mode;document.querySelectorAll('.sig-tab').forEach(function(b){b.classList.remove('on');});el.classList.add('on');document.getElementById('sig-draw').style.display=mode==='draw'?'block':'none';document.getElementById('sig-type').style.display=mode==='type'?'block':'none';}
-function updateTypedSig(){var val=document.getElementById('sig-name-input').value;document.getElementById('sig-typed-preview').textContent=val||'Your name will appear here';_hasSig=val.trim().length>0;}
+function updateTypedSig(){var val=document.getElementById('sig-name-input').value;document.getElementById('sig-typed-preview').textContent=val||'Votre nom apparaîtra ici';_hasSig=val.trim().length>0;}
 
 async function submitSignature(){
   var sigData='';
   if(_sigMode==='draw'){
-    if(!_hasSig){toast('Please draw your signature first.','toast-error');return;}
+    if(!_hasSig){toast('Veuillez d\'abord dessiner votre signature.','toast-error');return;}
     sigData=_canvas.toDataURL('image/png');
   }else{
     var name=(document.getElementById('sig-name-input').value||'').trim();
-    if(!name){toast('Please type your full name to sign.','toast-error');return;}
+    if(!name){toast('Veuillez taper votre nom complet pour signer.','toast-error');return;}
     sigData='typed:'+name;
   }
   try{
     var {error}=await _supa.from('proposals').update({status:'signed',signature_data:sigData,signed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('share_token',new URLSearchParams(window.location.search).get('t'));
     if(error)throw error;
-    document.getElementById('sig-section').innerHTML='<div style="background:#ECFDF5;border-radius:var(--r);padding:20px;text-align:center"><div style="font-size:32px;margin-bottom:8px">✅</div><div style="font-size:16px;font-weight:700;color:var(--success);margin-bottom:4px">Signed successfully!</div><div style="font-size:13px;color:#065F46">Thank you. Your signature has been recorded. A copy will be sent to your email.</div></div>';
-    document.querySelector('.progress-steps').innerHTML='<div class="ps-step done"><div class="ps-circle">✓</div>Proposal</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Contract</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Signed</div>';
-    toast('Signed successfully!','toast-success');
+    document.getElementById('sig-section').innerHTML='<div style="background:#ECFDF5;border-radius:var(--r);padding:20px;text-align:center"><div style="font-size:32px;margin-bottom:8px">✅</div><div style="font-size:16px;font-weight:700;color:var(--success);margin-bottom:4px">Signé avec succès !</div><div style="font-size:13px;color:#065F46">Merci. Votre signature a été enregistrée. Une copie vous sera envoyée par email.</div></div>';
+    document.querySelector('.progress-steps').innerHTML='<div class="ps-step done"><div class="ps-circle">✓</div>Proposition</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Contrat</div><div class="ps-line"></div><div class="ps-step done"><div class="ps-circle">✓</div>Signé</div>';
+    toast('Signé avec succès !','toast-success');
     // Trigger automation: proposal signed → create invoice
     var edgeBase='SUPA_URL/functions/v1';
     fetch(edgeBase+'/automation-engine',{
@@ -209,12 +209,12 @@ async function submitSignature(){
       if(d.ok&&d.action==='invoice_created'){
         var note=document.createElement('div');
         note.style.cssText='margin-top:12px;background:#ECFDF5;border-radius:8px;padding:12px;font-size:13px;color:#059669;text-align:center';
-        note.textContent='Invoice automatically created and sent to '+_proposal.client_email;
+        note.textContent='Facture créée automatiquement et envoyée à '+_proposal.client_email;
         var sigSec=document.getElementById('sig-section');
         if(sigSec)sigSec.appendChild(note);
       }
     }).catch(function(){});
-  }catch(e){toast('Signing failed: '+(e.message||'please try again'),'toast-error');}
+  }catch(e){toast('Échec de la signature : '+(e.message||'veuillez réessayer'),'toast-error');}
 }
 </script>
 </body>

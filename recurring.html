@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Recurring Invoices — Prospeo</title>
+<title>Factures récurrentes — Prospeo</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="prospeo-animations.css">
@@ -94,76 +94,76 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="content">
   <div class="page-head">
     <div>
-      <div class="page-title anim-fade-up">Recurring Invoices</div>
-      <div class="page-sub anim-fade-up delay-100">Auto-generate invoices for your regular clients. Set it once, get paid every month.</div>
+      <div class="page-title anim-fade-up">Factures récurrentes</div>
+      <div class="page-sub anim-fade-up delay-100">Générez automatiquement les factures de vos clients réguliers. Configurez une fois, encaissez chaque mois.</div>
     </div>
-    <button class="btn btn-primary anim-fade-up delay-200" onclick="openModal()">&#43; New recurring invoice</button>
+    <button class="btn btn-primary anim-fade-up delay-200" onclick="openModal()">&#43; Nouvelle facture récurrente</button>
   </div>
-  <div id="main-content"><div class="empty"><div style="font-size:32px">&#8987;</div><br>Loading...</div></div>
+  <div id="main-content"><div class="empty"><div style="font-size:32px">&#8987;</div><br>Chargement…</div></div>
 </div>
 
 <!-- Add/Edit Modal -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
-    <div class="modal-title" id="modal-title">New Recurring Invoice</div>
+    <div class="modal-title" id="modal-title">Nouvelle facture récurrente</div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Invoice title *</label>
-        <input class="form-input" id="rec-title" placeholder="e.g. Monthly retainer">
+        <label class="form-label">Titre *</label>
+        <input class="form-input" id="rec-title" placeholder="Ex. Forfait mensuel">
       </div>
       <div class="form-group">
         <label class="form-label">Client</label>
-        <select class="form-input" id="rec-client"><option value="">Select client...</option></select>
+        <select class="form-input" id="rec-client"><option value="">Sélectionner un client…</option></select>
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Amount HT (€) *</label>
+        <label class="form-label">Montant HT (€) *</label>
         <input class="form-input" id="rec-amount" type="number" min="0" step="0.01" placeholder="1000.00">
       </div>
       <div class="form-group">
-        <label class="form-label">TVA rate (%)</label>
+        <label class="form-label">Taux de TVA (%)</label>
         <select class="form-input" id="rec-tva">
-          <option value="0">0% (exonéré)</option>
-          <option value="5.5">5.5%</option>
-          <option value="10">10%</option>
-          <option value="20" selected>20%</option>
+          <option value="0">0% — Autoliquidation / Intracommunautaire</option>
+          <option value="5.5">5,5% — Taux réduit FR</option>
+          <option value="10">10% — Taux intermédiaire FR</option>
+          <option value="20" selected>20% — Taux normal FR</option>
         </select>
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Frequency</label>
+        <label class="form-label">Fréquence</label>
         <select class="form-input" id="rec-freq">
-          <option value="monthly">Monthly</option>
-          <option value="quarterly">Quarterly</option>
-          <option value="yearly">Yearly</option>
+          <option value="monthly">Mensuelle</option>
+          <option value="quarterly">Trimestrielle</option>
+          <option value="yearly">Annuelle</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Day of month</label>
+        <label class="form-label">Jour du mois</label>
         <select class="form-input" id="rec-day">
-          <option value="1">1st</option>
-          <option value="5">5th</option>
-          <option value="15">15th</option>
-          <option value="28">28th (last safe)</option>
+          <option value="1">1er</option>
+          <option value="5">5</option>
+          <option value="15">15</option>
+          <option value="28">28 (sûr)</option>
         </select>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Description (optional)</label>
-      <input class="form-input" id="rec-desc" placeholder="e.g. Monthly SEO consulting retainer">
+      <label class="form-label">Description (optionnelle)</label>
+      <input class="form-input" id="rec-desc" placeholder="Ex. Prestation mensuelle de référencement">
     </div>
     <div class="toggle-row">
       <div>
-        <div class="toggle-label">Auto-send to client</div>
-        <div class="toggle-sub">Automatically email the invoice on the scheduled date</div>
+        <div class="toggle-label">Envoi automatique au client</div>
+        <div class="toggle-sub">Envoie la facture par email à la date programmée</div>
       </div>
       <label class="switch"><input type="checkbox" id="rec-autosend"><span class="switch-track"></span></label>
     </div>
     <div class="form-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveRecurring()">Save</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveRecurring()">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -189,9 +189,9 @@ function toast(msg,type){var t=document.getElementById('toast');t.textContent=ms
     document.getElementById('main-content').innerHTML=
       '<div class="pro-gate">' +
         '<div class="pro-gate-icon">&#128196;</div>' +
-        '<div class="pro-gate-title">Recurring invoices is a Pro feature</div>' +
-        '<div class="pro-gate-sub">Set up automatic monthly invoices for your retainer clients. Never forget to invoice again.</div>' +
-        '<a href="pricing.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:#fff;padding:12px 24px;border-radius:var(--r);font-size:14px;font-weight:600;text-decoration:none">Upgrade to Pro &#8594;</a>' +
+        '<div class="pro-gate-title">Factures récurrentes — Fonctionnalité Pro</div>' +
+        '<div class="pro-gate-sub">Configurez des factures mensuelles automatiques pour vos clients en forfait. Ne ratez plus jamais une facturation.</div>' +
+        '<a href="pricing.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:#fff;padding:12px 24px;border-radius:var(--r);font-size:14px;font-weight:600;text-decoration:none">Passer en Pro &#8594;</a>' +
       '</div>';
     return;
   }
@@ -217,13 +217,13 @@ async function loadRecs(){
 function renderRecs(){
   var el=document.getElementById('main-content');
   if(!_recs.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">&#128197;</div><div class="empty-title">No recurring invoices yet</div><div class="empty-sub">Set up your first recurring invoice and never forget to bill a retainer client again.</div><button class="btn btn-primary" onclick="openModal()">&#43; Create first recurring invoice</button></div>';
+    el.innerHTML='<div class="empty"><div class="empty-icon">&#128197;</div><div class="empty-title">Aucune facture récurrente pour l\'instant</div><div class="empty-sub">Configurez votre première facture récurrente et ne ratez plus jamais la facturation d\'un client en forfait.</div><button class="btn btn-primary" onclick="openModal()">&#43; Créer la première facture récurrente</button></div>';
     return;
   }
-  var freqLabel={monthly:'Every month',quarterly:'Every 3 months',yearly:'Every year'};
+  var freqLabel={monthly:'Mensuelle',quarterly:'Trimestrielle',yearly:'Annuelle'};
   el.innerHTML='<div class="recurring-grid">' + _recs.map(function(r){
     var amtTTC=r.amount_ht*(1+(r.tva_rate||20)/100);
-    var clientName=(r.clients&&r.clients.name)||'No client';
+    var clientName=(r.clients&&r.clients.name)||'Sans client';
     var nextDate=r.next_date?new Date(r.next_date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}):'—';
     return '<div class="rec-card anim-fade-up' + (r.is_active?'':' inactive') + '">' +
       '<div class="rec-icon">&#128197;</div>' +
@@ -232,30 +232,30 @@ function renderRecs(){
         '<div class="rec-meta">' +
           '<span>&#128101; ' + sanitize(clientName) + '</span>' +
           '<span class="freq-badge">' + (freqLabel[r.frequency]||r.frequency) + '</span>' +
-          '<span>&#128197; Next: ' + nextDate + '</span>' +
-          (r.auto_send?'<span style="color:var(--success)">&#10003; Auto-send on</span>':'') +
+          '<span>&#128197; Prochain : ' + nextDate + '</span>' +
+          (r.auto_send?'<span style="color:var(--success)">&#10003; Envoi auto activé</span>':'') +
         '</div>' +
       '</div>' +
       '<div>' +
         '<div class="rec-amount">' + formatEUR(amtTTC) + '</div>' +
-        '<div class="rec-freq">TTC / ' + r.frequency.replace('ly','') + '</div>' +
+        '<div class="rec-freq">TTC / ' + freqLabel[r.frequency] + '</div>' +
         '<div class="rec-actions">' +
-          '<button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="editRec(\'' + r.id + '\')">Edit</button>' +
-          '<button class="btn ' + (r.is_active?'btn-danger':'btn-ghost') + '" style="padding:5px 10px;font-size:11px" onclick="toggleRec(\'' + r.id + '\',' + !r.is_active + ')">' + (r.is_active?'Pause':'Resume') + '</button>' +
+          '<button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="editRec(\'' + r.id + '\')">Modifier</button>' +
+          '<button class="btn ' + (r.is_active?'btn-danger':'btn-ghost') + '" style="padding:5px 10px;font-size:11px" onclick="toggleRec(\'' + r.id + '\',' + !r.is_active + ')">' + (r.is_active?'Suspendre':'Reprendre') + '</button>' +
         '</div>' +
       '</div>' +
     '</div>';
   }).join('') + '</div>';
 }
 
-function openModal(){ _editId=null; document.getElementById('modal-title').textContent='New recurring invoice'; clearForm(); document.getElementById('modal').classList.add('open'); }
+function openModal(){ _editId=null; document.getElementById('modal-title').textContent='Nouvelle facture récurrente'; clearForm(); document.getElementById('modal').classList.add('open'); }
 function closeModal(){ document.getElementById('modal').classList.remove('open'); }
 function clearForm(){ ['rec-title','rec-amount','rec-desc'].forEach(function(id){document.getElementById(id).value='';}); document.getElementById('rec-client').value=''; document.getElementById('rec-tva').value='20'; document.getElementById('rec-freq').value='monthly'; document.getElementById('rec-day').value='1'; document.getElementById('rec-autosend').checked=false; }
 
 function editRec(id){
   var r=_recs.find(function(x){return x.id===id;}); if(!r) return;
   _editId=id;
-  document.getElementById('modal-title').textContent='Edit recurring invoice';
+  document.getElementById('modal-title').textContent='Modifier la facture récurrente';
   document.getElementById('rec-title').value=r.title||'';
   document.getElementById('rec-client').value=r.client_id||'';
   document.getElementById('rec-amount').value=r.amount_ht||'';
@@ -270,9 +270,9 @@ function editRec(id){
 async function saveRecurring(){
   var title=(document.getElementById('rec-title').value||'').trim();
   var amtStr=(document.getElementById('rec-amount').value||'').trim();
-  if(!title||!amtStr){toast('Please fill in title and amount','toast-error');return;}
+  if(!title||!amtStr){toast('Veuillez renseigner le titre et le montant','toast-error');return;}
   var amtHT=parseFloat(amtStr);
-  if(isNaN(amtHT)||amtHT<0){toast('Invalid amount','toast-error');return;}
+  if(isNaN(amtHT)||amtHT<0){toast('Montant invalide','toast-error');return;}
   var freq=document.getElementById('rec-freq').value;
   var day=parseInt(document.getElementById('rec-day').value,10);
   var now=new Date();
@@ -287,20 +287,20 @@ async function saveRecurring(){
   try{
     if(_editId){ await _supa.from('recurring_invoices').update(rec).eq('id',_editId); }
     else { await _supa.from('recurring_invoices').insert(rec); }
-    closeModal(); await loadRecs(); toast(_editId?'Recurring invoice updated':'Recurring invoice created');
-  }catch(e){toast('Failed to save: '+(e.message||'unknown'),'toast-error');}
+    closeModal(); await loadRecs(); toast(_editId?'Facture récurrente mise à jour':'Facture récurrente créée');
+  }catch(e){toast('Échec de l\'enregistrement : '+(e.message||'erreur inconnue'),'toast-error');}
 }
 
 async function toggleRec(id, active){
-  try{ await _supa.from('recurring_invoices').update({is_active:active,updated_at:new Date().toISOString()}).eq('id',id); await loadRecs(); toast(active?'Recurring invoice resumed':'Recurring invoice paused'); }
-  catch(e){toast('Failed to update','toast-error');}
+  try{ await _supa.from('recurring_invoices').update({is_active:active,updated_at:new Date().toISOString()}).eq('id',id); await loadRecs(); toast(active?'Facture récurrente reprise':'Facture récurrente suspendue'); }
+  catch(e){toast('Échec de la mise à jour','toast-error');}
 }
 
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 window.addEventListener('unhandledrejection',function(e){console.error('[Recurring]',e.reason);});
 
 document.addEventListener('DOMContentLoaded', function() {
-  if(typeof Shell !== 'undefined') Shell.init({ page: 'recurring', title: 'Recurring' });
+  if(typeof Shell !== 'undefined') Shell.init({ page: 'recurring', title: 'Récurrent' });
 });
 </script>
     </div>
