@@ -11,18 +11,20 @@ var Shell = (function() {
   var NAV = [
     {href:'app.html',    key:'dashboard', label:'Tableau de bord',
       icon:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>'},
-    {href:'clients.html',key:'clients',   label:'Clients',
+    {href:'clients.html',key:'clients',   label:'Patients',
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'},
-    {href:'proposals.html',key:'proposals',label:'Smart Files',
-      icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'},
-    {href:'invoices.html',key:'invoices', label:'Factures',
-      icon:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'},
-    {href:'calendar.html',key:'calendar', label:'Agenda',
+    {href:'calendar.html',key:'calendar', label:'Agenda & RDV',
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'},
-    {href:'recurring.html',key:'recurring',label:'Récurrents',
-      icon:'<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'},
-    {href:'timer.html',key:'timer',label:'Suivi du temps',
-      icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'},
+    {href:'consultations.html',key:'consultations',label:'Consultations',
+      icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'},
+    {href:'ordonnances.html',key:'ordonnances',label:'Ordonnances',
+      icon:'<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/>'},
+    {href:'queue.html',key:'queue',label:"File d'attente",
+      icon:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'},
+    {href:'staff.html',key:'staff',label:'Personnel',
+      icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><line x1="19" y1="8" x2="23" y2="8"/>'},
+    {href:'labo.html',key:'labo',label:'Laboratoire',
+      icon:'<path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>'},
   ];
 
   var CSS = `
@@ -41,15 +43,7 @@ var Shell = (function() {
   --sidebar-bg:#FFFFFF;--sidebar-border:#E5E7EB;--sidebar-text:#374151;
   --topbar-bg:rgba(255,255,255,.92);
 }
-[data-theme="dark"]{
-  --bg:#0D1117;--surface:#111827;--surface2:#1F2937;
-  --text:#F9FAFB;--text2:#D1D5DB;--text3:#9CA3AF;--text4:#6B7280;
-  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.04);
-  --brand-light:rgba(0,51,153,.2);--brand-border:rgba(0,51,153,.4);
-  --shadow:0 1px 4px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
-  --sidebar-bg:#111827;--sidebar-border:rgba(255,255,255,.06);--sidebar-text:#D1D5DB;
-  --topbar-bg:rgba(17,24,39,.92);
-}
+/* Light-only app — dark mode removed */
 html{-webkit-font-smoothing:antialiased;font-size:16px}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
 
@@ -150,23 +144,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
 }
 </style>`;
 
-  // ── THEME ─────────────────────────────────────────────────────
-  var _theme = localStorage.getItem('prospeo-theme') || 'light';
+  // ── THEME — light only ────────────────────────────────────────
+  var _theme = 'light';
 
   function applyTheme(t) {
-    _theme = t;
-    document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('prospeo-theme', t);
-    var icons = document.querySelectorAll('.theme-icon-moon,.theme-icon-sun');
-    icons.forEach(function(ic) {
-      if (ic.classList.contains('theme-icon-moon')) ic.style.display = t === 'dark' ? 'none' : 'block';
-      if (ic.classList.contains('theme-icon-sun')) ic.style.display = t === 'dark' ? 'block' : 'none';
-    });
+    _theme = 'light';
+    document.documentElement.setAttribute('data-theme', 'light');
   }
 
-  function toggleTheme() {
-    applyTheme(_theme === 'dark' ? 'light' : 'dark');
-  }
+  function toggleTheme() { /* light only */ }
 
   // ── INJECT CSS IMMEDIATELY ────────────────────────────────────
   (function injectCSS() {
@@ -202,7 +188,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
     var usageHTML = !isPro ? (
       '<div class="sb-divider"></div>' +
       '<div class="sb-usage">' +
-        '<div class="sb-usage-label"><span>Leads utilisés</span><span>'+leadCount+'/'+leadLimit+'</span></div>' +
+        '<div class="sb-usage-label"><span>Patients enregistrés</span><span>'+leadCount+'/'+leadLimit+'</span></div>' +
         '<div class="sb-usage-bar"><div class="sb-usage-fill'+(pct>80?' warn':'')+(pct>=100?' danger':'')+'" style="width:'+pct+'%"></div></div>' +
         '<a href="pricing.html" class="sb-upgrade">⚡ Passer en Pro</a>' +
       '</div>'
@@ -216,7 +202,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
         '</div>' +
       '</div>' +
       '<nav class="sb-nav">' +
-        '<div class="sb-section">Espace de travail</div>' +
+        '<div class="sb-section">Espace clinique</div>' +
         navHTML +
       '</nav>' +
       usageHTML +
@@ -243,10 +229,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
         '<input id="shell-search" type="search" placeholder="Rechercher…" autocomplete="off">' +
       '</div>' +
       '<div class="tb-actions">' +
-        '<button class="theme-toggle" onclick="Shell.toggleTheme()" title="Changer le thème">' +
-          '<svg class="theme-icon-moon" viewBox="0 0 24 24" style="display:'+(_theme==='dark'?'none':'block')+'"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' +
-          '<svg class="theme-icon-sun" viewBox="0 0 24 24" style="display:'+(_theme==='dark'?'block':'none')+'"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' +
-        '</button>' +
         '<button class="tb-icon-btn" id="tb-notif" title="Notifications">' +
           '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' +
           '<span class="tb-notif-badge" id="notif-badge"></span>' +
@@ -331,8 +313,5 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
   };
 })();
 
-// Apply theme immediately on script load (no FOUC)
-(function() {
-  var t = localStorage.getItem('prospeo-theme') || 'light';
-  document.documentElement.setAttribute('data-theme', t);
-})();
+// Force light theme on load
+document.documentElement.setAttribute('data-theme', 'light');

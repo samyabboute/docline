@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" id="html-root">
+<html lang="fr" data-theme="light" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -7,47 +7,34 @@
 <meta name="apple-mobile-web-app-title" content="Prospeo">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Prospeo — Le CRM qui facture. Fait pour les freelances français.</title>
-<meta name="description" content="Gérez vos clients, envoyez des factures conformes, signez vos contrats et obtenez des conseils IA — tout en un, conçu pour les freelances français.">
+<title>Prospeo — CRM médical pour cabinets et cliniques en Algérie</title>
+<meta name="description" content="Gérez vos patients, consultations et ordonnances. File d'attente QR, agenda, dossiers CNAS/CASNOS — conçu pour les médecins algériens.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.json">
 
-<script>
-/* Prevent FOUC — runs before CSS */
-(function(){
-  var t = localStorage.getItem('prospeo-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', t);
-})();
-</script>
-
 <style>
-/* ── RESET & TOKENS ─────────────────────────────────────────── */
+/* ── RESET & TOKENS (light-only) ──────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --brand:#003399;--brand2:#1D4ED8;--brand-light:#EEF2FF;
-  --bg:#080C1A;--bg2:#0F1629;--card-bg:#111827;--card-border:rgba(255,255,255,.08);
-  --text:#F9FAFB;--text2:#D1D5DB;--text3:#9CA3AF;--text4:#6B7280;
+  --bg:#F8FAFF;--bg2:#EEF2FF;--card-bg:#FFFFFF;--card-border:rgba(0,0,0,.08);
+  --text:#0D1117;--text2:#374151;--text3:#6B7280;--text4:#9CA3AF;
   --success:#10B981;--amber:#F59E0B;--danger:#EF4444;
   --r:12px;--rlg:20px;--rxl:28px;--rfull:999px;
   --ease:cubic-bezier(.25,.46,.45,.94);
   --ease-spring:cubic-bezier(.34,1.56,.64,1);
-  --hero-grad:linear-gradient(180deg,#080C1A 0%,#0F1629 100%);
-}
-[data-theme="light"]{
-  --bg:#F8FAFF;--bg2:#EEF2FF;--card-bg:#FFFFFF;--card-border:rgba(0,0,0,.08);
-  --text:#0D1117;--text2:#374151;--text3:#6B7280;--text4:#9CA3AF;
   --hero-grad:linear-gradient(180deg,#EEF2FF 0%,#F0F4FF 100%);
 }
 
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body{
   font-family:'Sora',system-ui,sans-serif;
   background:var(--bg);color:var(--text);
   overflow-x:hidden;line-height:1.6;
-  transition:background .25s,color .25s;
+  max-width:100vw;
 }
 
 /* ── ANIMATIONS ── */
@@ -57,7 +44,7 @@ body{
 @keyframes pulse-ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.4);opacity:0}}
 @keyframes blob{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}}
 @keyframes gradient-shift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-@keyframes glow-pulse{0%,100%{box-shadow:0 0 20px rgba(0,51,153,.3)}50%{box-shadow:0 0 40px rgba(0,51,153,.6),0 0 80px rgba(29,78,216,.2)}}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 20px rgba(0,51,153,.2)}50%{box-shadow:0 0 40px rgba(0,51,153,.4),0 0 80px rgba(29,78,216,.1)}}
 @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
 
 .anim-fade-up{opacity:0;animation:fadeUp .6s var(--ease) forwards}
@@ -66,134 +53,98 @@ body{
 
 /* ── NAV ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;transition:all .3s}
-nav.scrolled{background:rgba(8,12,26,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border)}
-[data-theme="light"] nav.scrolled{background:rgba(248,250,255,.9);border-bottom:1px solid rgba(0,0,0,.08)}
+nav.scrolled{background:rgba(248,250,255,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.08)}
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-logo img{height:24px;width:auto;filter:brightness(0) invert(1)}
-[data-theme="light"] .nav-logo img{filter:none}
+.nav-logo img{height:24px;width:auto}
 .nav-links{display:flex;align-items:center;gap:8px}
 .nav-link{font-size:14px;font-weight:500;color:var(--text3);text-decoration:none;padding:6px 14px;border-radius:var(--rfull);transition:all .2s}
-.nav-link:hover{color:var(--text);background:rgba(255,255,255,.06)}
-[data-theme="light"] .nav-link:hover{background:rgba(0,0,0,.05)}
+.nav-link:hover{color:var(--text);background:rgba(0,0,0,.05)}
 .nav-cta{font-size:14px;font-weight:600;color:#fff;background:var(--brand);text-decoration:none;padding:8px 20px;border-radius:var(--rfull);transition:all .2s;border:none;cursor:pointer;font-family:inherit}
-.nav-cta:hover{background:var(--brand2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,51,153,.4)}
+.nav-cta:hover{background:var(--brand2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,51,153,.3)}
 .nav-actions{display:flex;align-items:center;gap:10px}
 @media(max-width:768px){.nav-links{display:none}.nav-cta{padding:7px 16px}nav{padding:0 16px;height:56px}}
-
-/* ── THEME TOGGLE ── */
-#theme-toggle{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;color:var(--text3)}
-#theme-toggle:hover{background:rgba(255,255,255,.12);color:var(--text2)}
-[data-theme="light"] #theme-toggle{border-color:rgba(0,0,0,.12);background:rgba(0,0,0,.04);color:#6B7280}
-[data-theme="light"] #theme-toggle:hover{background:rgba(0,0,0,.08)}
 
 /* ── HERO ── */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 24px 80px;position:relative;overflow:hidden;background:var(--hero-grad)}
 .hero-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.blob{position:absolute;opacity:.15;filter:blur(80px);animation:blob 8s ease-in-out infinite}
-[data-theme="light"] .blob{opacity:.2;filter:blur(80px)}
-.blob-1{width:600px;height:600px;background:radial-gradient(circle,#003399,transparent);top:-100px;left:-150px;animation-delay:0s}
-.blob-2{width:500px;height:500px;background:radial-gradient(circle,#7C3AED,transparent);top:20%;right:-100px;animation-delay:3s}
-.blob-3{width:400px;height:400px;background:radial-gradient(circle,#1D4ED8,transparent);bottom:-100px;left:30%;animation-delay:6s}
-.grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black,transparent)}
-[data-theme="light"] .grid-lines{background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px)}
+.blob{position:absolute;opacity:.2;filter:blur(80px);animation:blob 8s ease-in-out infinite}
+.blob-1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,51,153,.4),transparent);top:-100px;left:-150px;animation-delay:0s}
+.blob-2{width:500px;height:500px;background:radial-gradient(circle,rgba(29,78,216,.3),transparent);top:20%;right:-100px;animation-delay:3s}
+.blob-3{width:400px;height:400px;background:radial-gradient(circle,rgba(0,51,153,.25),transparent);bottom:-100px;left:30%;animation-delay:6s}
+.grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black,transparent)}
 
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,51,153,.2);border:1px solid rgba(0,51,153,.4);border-radius:var(--rfull);padding:6px 16px;font-size:13px;font-weight:500;color:#93B4FF;margin-bottom:28px;backdrop-filter:blur(10px)}
-[data-theme="light"] .hero-badge{background:rgba(0,51,153,.08);border-color:rgba(0,51,153,.2);color:var(--brand)}
-.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#4ADE80;position:relative;flex-shrink:0}
-.hero-badge-dot::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:#4ADE80;animation:pulse-ring 1.5s ease-out infinite}
-[data-theme="light"] .hero-badge-dot{background:#059669}
-[data-theme="light"] .hero-badge-dot::after{background:#059669}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,51,153,.08);border:1px solid rgba(0,51,153,.2);border-radius:var(--rfull);padding:6px 16px;font-size:13px;font-weight:500;color:var(--brand);margin-bottom:28px;backdrop-filter:blur(10px)}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#059669;position:relative;flex-shrink:0}
+.hero-badge-dot::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:#059669;animation:pulse-ring 1.5s ease-out infinite}
 
 .hero-title{font-size:clamp(40px,7vw,80px);font-weight:800;letter-spacing:-2px;line-height:1.05;margin-bottom:24px;max-width:900px}
-.hero-title-line1{display:block;color:#fff}
-[data-theme="light"] .hero-title-line1{color:#0D1117}
-.hero-title-line2{display:block;background:linear-gradient(135deg,#60A5FA,#A78BFA,#60A5FA);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradient-shift 4s ease infinite}
+.hero-title-line1{display:block;color:#0D1117}
+.hero-title-line2{display:block;background:linear-gradient(135deg,#003399,#1D4ED8,#003399);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradient-shift 4s ease infinite}
 
-.hero-sub{font-size:clamp(16px,2vw,20px);color:var(--text3);max-width:560px;margin:0 auto 40px;line-height:1.7}
-[data-theme="light"] .hero-sub{color:#6B7280}
+.hero-sub{font-size:clamp(16px,2vw,20px);color:#6B7280;max-width:560px;margin:0 auto 40px;line-height:1.7}
 
 .hero-ctas{display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap}
 .btn-hero-primary{display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:#fff;text-decoration:none;padding:14px 28px;border-radius:var(--rfull);font-size:16px;font-weight:700;transition:all .25s;border:none;cursor:pointer;font-family:inherit;animation:glow-pulse 3s ease-in-out infinite}
-.btn-hero-primary:hover{background:var(--brand2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,51,153,.5)}
+.btn-hero-primary:hover{background:var(--brand2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,51,153,.4)}
 .btn-hero-primary svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
-.btn-hero-ghost{display:inline-flex;align-items:center;gap:8px;color:var(--text2);text-decoration:none;padding:14px 24px;border-radius:var(--rfull);font-size:15px;font-weight:500;border:1px solid var(--card-border);transition:all .2s;background:rgba(255,255,255,.04)}
-.btn-hero-ghost:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.08);transform:translateY(-1px)}
-[data-theme="light"] .btn-hero-ghost{color:#374151;border-color:rgba(0,0,0,.15);background:rgba(0,0,0,.03)}
-[data-theme="light"] .btn-hero-ghost:hover{background:rgba(0,0,0,.06)}
+.btn-hero-ghost{display:inline-flex;align-items:center;gap:8px;color:#374151;text-decoration:none;padding:14px 24px;border-radius:var(--rfull);font-size:15px;font-weight:500;border:1px solid rgba(0,0,0,.15);transition:all .2s;background:rgba(0,0,0,.03)}
+.btn-hero-ghost:hover{border-color:rgba(0,51,153,.3);background:rgba(0,51,153,.05);transform:translateY(-1px)}
 
-.hero-trust{margin-top:48px;font-size:13px;color:var(--text4);display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
-[data-theme="light"] .hero-trust{color:#9CA3AF}
-.hero-trust-sep{width:1px;height:14px;background:var(--card-border)}
-[data-theme="light"] .hero-trust-sep{background:rgba(0,0,0,.12)}
+.hero-trust{margin-top:48px;font-size:13px;color:#9CA3AF;display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-trust-sep{width:1px;height:14px;background:rgba(0,0,0,.12)}
 
 /* ── DASHBOARD PREVIEW ── */
-.dashboard-preview{padding:0 24px 100px;max-width:1100px;margin:0 auto;position:relative}
-.preview-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(0,51,153,.3),transparent 70%);pointer-events:none}
-.preview-frame{border-radius:var(--rlg);overflow:hidden;border:1px solid var(--card-border);background:var(--card-bg);box-shadow:0 40px 100px rgba(0,0,0,.6);transform:perspective(1200px) rotateX(4deg);transition:transform .5s var(--ease)}
+.dashboard-preview{padding:0 24px 100px;max-width:1100px;margin:0 auto;position:relative;overflow:hidden}
+.preview-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(0,51,153,.15),transparent 70%);pointer-events:none}
+.preview-frame{border-radius:var(--rlg);overflow:hidden;border:1px solid rgba(0,0,0,.08);background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.12);transform:perspective(1200px) rotateX(4deg);transition:transform .5s var(--ease)}
 .preview-frame:hover{transform:perspective(1200px) rotateX(0deg)}
-[data-theme="light"] .preview-frame{box-shadow:0 20px 60px rgba(0,0,0,.15)}
-.preview-bar{background:rgba(255,255,255,.04);padding:14px 18px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:8px}
-[data-theme="light"] .preview-bar{background:#F3F4F6}
+.preview-bar{background:#F3F4F6;padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:8px}
 .preview-dot{width:11px;height:11px;border-radius:50%}
-.preview-url{flex:1;background:rgba(255,255,255,.06);border-radius:6px;height:28px;margin:0 20px;display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--text4)}
-[data-theme="light"] .preview-url{color:#9CA3AF;background:rgba(0,0,0,.04)}
+.preview-url{flex:1;background:rgba(0,0,0,.04);border-radius:6px;height:28px;margin:0 20px;display:flex;align-items:center;padding:0 12px;font-size:12px;color:#9CA3AF}
 .preview-body{padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.preview-kpi{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:12px;padding:16px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s}
-.preview-kpi:hover{transform:translateY(-3px);border-color:rgba(0,51,153,.4)}
-[data-theme="light"] .preview-kpi:hover{border-color:rgba(0,51,153,.25)}
+.preview-kpi{background:rgba(0,51,153,.03);border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:16px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s}
+.preview-kpi:hover{transform:translateY(-3px);border-color:rgba(0,51,153,.25)}
 .preview-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .pk-blue::before{background:#003399}.pk-green::before{background:#10B981}.pk-amber::before{background:#F59E0B}.pk-purple::before{background:#7C3AED}
-.preview-kpi-val{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
-[data-theme="light"] .preview-kpi-val{color:#0D1117}
-.preview-kpi-lbl{font-size:11px;color:var(--text4)}
+.preview-kpi-val{font-size:22px;font-weight:700;color:#0D1117;margin-bottom:4px}
+.preview-kpi-lbl{font-size:11px;color:#9CA3AF}
 .preview-kpi-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--rfull);margin-bottom:8px;display:inline-block}
-.badge-green{background:rgba(16,185,129,.15);color:#34D399}
-.badge-amber{background:rgba(245,158,11,.15);color:#FCD34D}
-[data-theme="light"] .badge-green{background:rgba(5,150,105,.12);color:#065F46}
-[data-theme="light"] .badge-amber{background:rgba(217,119,6,.12);color:#92400E}
-.preview-pipeline{grid-column:1/-1;background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:12px;padding:16px}
-[data-theme="light"] .preview-pipeline{background:rgba(0,0,0,.02)}
+.badge-green{background:rgba(5,150,105,.12);color:#065F46}
+.badge-amber{background:rgba(217,119,6,.12);color:#92400E}
+.badge-blue{background:rgba(0,51,153,.1);color:#003399}
+.preview-queue{grid-column:1/-1;background:rgba(0,51,153,.02);border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:16px}
 .preview-stages{display:flex;gap:8px;margin-top:12px}
-.preview-stage{flex:1;background:rgba(255,255,255,.04);border-radius:8px;padding:12px;text-align:center;font-size:11px;color:var(--text4);transition:background .2s}
-.preview-stage:hover{background:rgba(255,255,255,.08)}
-[data-theme="light"] .preview-stage{color:#6B7280}
-[data-theme="light"] .preview-stage:hover{background:rgba(0,0,0,.05)}
-.preview-stage-num{font-size:20px;font-weight:700;color:#fff;margin-bottom:2px}
-[data-theme="light"] .preview-stage-num{color:#374151}
+.preview-stage{flex:1;background:#F9FAFB;border-radius:8px;padding:12px;text-align:center;font-size:11px;color:#6B7280;transition:background .2s}
+.preview-stage:hover{background:rgba(0,51,153,.05)}
+.preview-stage-num{font-size:20px;font-weight:700;color:#374151;margin-bottom:2px}
 
 /* ── STATS BAR ── */
-.stats{padding:60px 24px;border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border);background:rgba(255,255,255,.015)}
+.stats{padding:60px 24px;border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06);background:rgba(0,51,153,.02)}
 .stats-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
-.stat-val{font-size:40px;font-weight:800;letter-spacing:-1px;color:#fff;line-height:1}
-[data-theme="light"] .stat-val{color:#0D1117}
-.stat-lbl{font-size:13px;color:var(--text4);margin-top:6px}
-[data-theme="light"] .stat-lbl{color:#9CA3AF}
-.stat-accent{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-[data-theme="light"] .stat-accent{background:linear-gradient(135deg,#003399,#7C3AED);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-val{font-size:40px;font-weight:800;letter-spacing:-1px;color:#0D1117;line-height:1}
+.stat-lbl{font-size:13px;color:#9CA3AF;margin-top:6px}
+.stat-accent{background:linear-gradient(135deg,#003399,#1D4ED8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 
 .stat-badge-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
-.stat-badge-ring{width:110px;height:110px;border-radius:50%;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;position:relative;transition:all .3s var(--ease);box-shadow:0 0 0 6px rgba(255,255,255,.02),0 0 0 12px rgba(255,255,255,.01)}
-[data-theme="light"] .stat-badge-ring{border-color:rgba(0,51,153,.15);background:#fff;box-shadow:0 0 0 6px rgba(0,51,153,.03),0 0 0 12px rgba(0,51,153,.01)}
-.stat-badge-ring:hover{transform:scale(1.06);border-color:rgba(96,165,250,.4);box-shadow:0 0 0 6px rgba(96,165,250,.06),0 0 0 12px rgba(96,165,250,.02),0 0 24px rgba(96,165,250,.15)}
-.stat-badge-ring.green:hover{border-color:rgba(52,211,153,.4);box-shadow:0 0 0 6px rgba(52,211,153,.06),0 0 24px rgba(52,211,153,.15)}
-.stat-badge-ring.amber:hover{border-color:rgba(252,211,77,.4);box-shadow:0 0 0 6px rgba(252,211,77,.06),0 0 24px rgba(252,211,77,.15)}
-.stat-badge-ring.purple:hover{border-color:rgba(167,139,250,.4);box-shadow:0 0 0 6px rgba(167,139,250,.06),0 0 24px rgba(167,139,250,.15)}
-.stat-badge-ring::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;border-top-color:rgba(96,165,250,.5);transition:border-color .3s}
-.stat-badge-ring.green::before{border-top-color:rgba(52,211,153,.5)}
-.stat-badge-ring.amber::before{border-top-color:rgba(252,211,77,.5)}
-.stat-badge-ring.purple::before{border-top-color:rgba(167,139,250,.5)}
-.stat-badge-num{font-size:28px;font-weight:800;letter-spacing:-0.5px;text-align:center}
-[data-theme="light"] .stat-badge-num{color:#0D1117}
+.stat-badge-ring{width:110px;height:110px;border-radius:50%;border:2px solid rgba(0,51,153,.15);background:#fff;display:flex;align-items:center;justify-content:center;position:relative;transition:all .3s var(--ease);box-shadow:0 0 0 6px rgba(0,51,153,.03),0 0 0 12px rgba(0,51,153,.01)}
+.stat-badge-ring:hover{transform:scale(1.06);border-color:rgba(0,51,153,.35);box-shadow:0 0 0 6px rgba(0,51,153,.06),0 0 24px rgba(0,51,153,.12)}
+.stat-badge-ring.green{border-color:rgba(5,150,105,.2)}
+.stat-badge-ring.green:hover{border-color:rgba(5,150,105,.4);box-shadow:0 0 0 6px rgba(5,150,105,.06),0 0 24px rgba(5,150,105,.15)}
+.stat-badge-ring.amber{border-color:rgba(217,119,6,.2)}
+.stat-badge-ring.amber:hover{border-color:rgba(217,119,6,.4);box-shadow:0 0 0 6px rgba(217,119,6,.06),0 0 24px rgba(217,119,6,.15)}
+.stat-badge-ring.purple{border-color:rgba(124,58,237,.2)}
+.stat-badge-ring.purple:hover{border-color:rgba(124,58,237,.4);box-shadow:0 0 0 6px rgba(124,58,237,.06),0 0 24px rgba(124,58,237,.15)}
+.stat-badge-ring::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;border-top-color:rgba(0,51,153,.4);transition:border-color .3s}
+.stat-badge-ring.green::before{border-top-color:rgba(5,150,105,.5)}
+.stat-badge-ring.amber::before{border-top-color:rgba(217,119,6,.5)}
+.stat-badge-ring.purple::before{border-top-color:rgba(124,58,237,.5)}
+.stat-badge-num{font-size:28px;font-weight:800;letter-spacing:-0.5px;text-align:center;color:#0D1117}
 
 /* ── SECTION SHARED ── */
-.section-eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60A5FA;margin-bottom:14px}
-[data-theme="light"] .section-eyebrow{color:var(--brand)}
-.section-title{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-1px;color:#fff;margin-bottom:16px;line-height:1.15}
-[data-theme="light"] .section-title{color:#0D1117}
-.section-sub{font-size:17px;color:var(--text3);max-width:520px;line-height:1.6}
-[data-theme="light"] .section-sub{color:#6B7280}
-.gradient-text{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-[data-theme="light"] .gradient-text{background:linear-gradient(135deg,#003399,#7C3AED);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);margin-bottom:14px}
+.section-title{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-1px;color:#0D1117;margin-bottom:16px;line-height:1.15}
+.section-sub{font-size:17px;color:#6B7280;max-width:520px;line-height:1.6}
+.gradient-text{background:linear-gradient(135deg,#003399,#1D4ED8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 
 /* ── SCROLL ANIMATIONS ── */
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
@@ -210,24 +161,20 @@ nav.scrolled{background:rgba(8,12,26,.85);backdrop-filter:blur(20px);border-bott
 .flip-card:hover .flip-card-inner,
 .flip-card.flipped .flip-card-inner{transform:rotateY(180deg)}
 .flip-front,
-.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--rlg);padding:28px;border:1px solid var(--card-border);will-change:transform}
-.flip-front{background:var(--card-bg);display:flex;flex-direction:column}
+.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--rlg);padding:28px;border:1px solid rgba(0,0,0,.08);will-change:transform}
+.flip-front{background:#fff;display:flex;flex-direction:column}
 .flip-back{background:var(--brand);transform:rotateY(180deg);display:flex;flex-direction:column;justify-content:center}
-[data-theme="light"] .flip-front{background:#fff;border-color:rgba(0,0,0,.08)}
 
 .flip-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;flex-shrink:0}
 .flip-icon svg{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.fi-blue{background:rgba(0,51,153,.2)}.fi-green{background:rgba(16,185,129,.2)}.fi-purple{background:rgba(124,58,237,.2)}
-.fi-amber{background:rgba(245,158,11,.2)}.fi-pink{background:rgba(236,72,153,.2)}.fi-teal{background:rgba(20,184,166,.2)}
-.fi-blue svg{stroke:#60A5FA}.fi-green svg{stroke:#34D399}.fi-purple svg{stroke:#A78BFA}
-.fi-amber svg{stroke:#FCD34D}.fi-pink svg{stroke:#F472B6}.fi-teal svg{stroke:#2DD4BF}
+.fi-blue{background:rgba(0,51,153,.1)}.fi-green{background:rgba(16,185,129,.12)}.fi-purple{background:rgba(124,58,237,.1)}
+.fi-amber{background:rgba(245,158,11,.12)}.fi-pink{background:rgba(236,72,153,.1)}.fi-teal{background:rgba(20,184,166,.12)}
+.fi-blue svg{stroke:#003399}.fi-green svg{stroke:#059669}.fi-purple svg{stroke:#7C3AED}
+.fi-amber svg{stroke:#D97706}.fi-pink svg{stroke:#DB2777}.fi-teal svg{stroke:#0D9488}
 
-.flip-title{font-size:17px;font-weight:700;color:#fff;margin-bottom:8px}
-[data-theme="light"] .flip-title{color:#0D1117}
-.flip-desc{font-size:13px;color:var(--text3);line-height:1.6;flex:1}
-[data-theme="light"] .flip-desc{color:#6B7280}
-.flip-hint{font-size:11px;color:var(--text4);margin-top:auto;display:flex;align-items:center;gap:4px}
-[data-theme="light"] .flip-hint{color:#9CA3AF}
+.flip-title{font-size:17px;font-weight:700;color:#0D1117;margin-bottom:8px}
+.flip-desc{font-size:13px;color:#6B7280;line-height:1.6;flex:1}
+.flip-hint{font-size:11px;color:#9CA3AF;margin-top:auto;display:flex;align-items:center;gap:4px}
 .flip-hint svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 .flip-back-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:12px}
 .flip-back-body{font-size:14px;color:rgba(255,255,255,.85);line-height:1.7}
@@ -235,137 +182,172 @@ nav.scrolled{background:rgba(8,12,26,.85);backdrop-filter:blur(20px);border-bott
 .flip-back-cta:hover{background:rgba(255,255,255,.25)}
 
 /* ── HOW IT WORKS ── */
-.how{padding:120px 24px;background:linear-gradient(180deg,transparent,rgba(0,51,153,.06),transparent)}
-[data-theme="light"] .how{background:linear-gradient(180deg,transparent,rgba(0,51,153,.04),transparent)}
+.how{padding:120px 24px;background:linear-gradient(180deg,transparent,rgba(0,51,153,.04),transparent)}
 .how-inner{max-width:900px;margin:0 auto}
 .steps-row{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:60px;position:relative}
-.steps-row::before{content:'';position:absolute;top:28px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,var(--card-border),var(--card-border),transparent)}
-[data-theme="light"] .steps-row::before{background:linear-gradient(90deg,transparent,rgba(0,0,0,.08),rgba(0,0,0,.08),transparent)}
+.steps-row::before{content:'';position:absolute;top:28px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,.08),rgba(0,0,0,.08),transparent)}
 .step{text-align:center;padding:0 8px}
-.step-num{width:56px;height:56px;border-radius:50%;background:var(--card-bg);border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:20px;font-weight:800;color:#fff;position:relative;z-index:1;transition:all .3s}
-[data-theme="light"] .step-num{background:#fff;border-color:rgba(0,0,0,.1);color:#0D1117}
-.step:hover .step-num{background:var(--brand);border-color:var(--brand);box-shadow:0 0 20px rgba(0,51,153,.4);color:#fff}
-.step-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
-[data-theme="light"] .step-title{color:#0D1117}
-.step-desc{font-size:12px;color:var(--text4);line-height:1.5}
-[data-theme="light"] .step-desc{color:#6B7280}
+.step-num{width:56px;height:56px;border-radius:50%;background:#fff;border:1px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:20px;font-weight:800;color:#0D1117;position:relative;z-index:1;transition:all .3s}
+.step:hover .step-num{background:var(--brand);border-color:var(--brand);box-shadow:0 0 20px rgba(0,51,153,.3);color:#fff}
+.step-title{font-size:14px;font-weight:700;color:#0D1117;margin-bottom:6px}
+.step-desc{font-size:12px;color:#6B7280;line-height:1.5}
 
-/* ── AI SECTION ── */
-.ai-section{padding:120px 24px;max-width:1100px;margin:0 auto}
-.ai-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-.ai-chat-demo{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--rlg);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
-[data-theme="light"] .ai-chat-demo{background:#fff;border-color:rgba(0,0,0,.08);box-shadow:0 12px 40px rgba(0,0,0,.12)}
-.ai-demo-head{padding:14px 18px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:10px}
-[data-theme="light"] .ai-demo-head{border-color:rgba(0,0,0,.06)}
-.ai-demo-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#003399,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
-.ai-demo-name{font-size:14px;font-weight:600;color:#fff}
-[data-theme="light"] .ai-demo-name{color:#0D1117}
-.ai-demo-status{font-size:11px;color:#34D399;display:flex;align-items:center;gap:4px}
-.ai-demo-status::before{content:'';width:6px;height:6px;border-radius:50%;background:#34D399;display:block}
-[data-theme="light"] .ai-demo-status{color:#059669}
-[data-theme="light"] .ai-demo-status::before{background:#059669}
-.ai-demo-body{padding:16px;display:flex;flex-direction:column;gap:10px;min-height:280px}
-.ai-msg{max-width:82%;border-radius:14px;padding:10px 14px;font-size:13px;line-height:1.6}
-.ai-msg-user{background:var(--brand);color:#fff;align-self:flex-end;border-radius:14px 14px 2px 14px}
-.ai-msg-bot{background:rgba(255,255,255,.06);color:var(--text2);border-radius:14px 14px 14px 2px;border:1px solid var(--card-border)}
-.ai-msg-bot strong{color:#fff}
-[data-theme="light"] .ai-msg-bot{background:#F3F4F6;border-color:#E5E7EB;color:#374151}
-[data-theme="light"] .ai-msg-bot strong{color:#0D1117}
-.ai-demo-input{padding:12px 16px;border-top:1px solid var(--card-border);display:flex;gap:8px;align-items:center}
-[data-theme="light"] .ai-demo-input{border-color:rgba(0,0,0,.06)}
-.ai-demo-inp{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--card-border);border-radius:10px;padding:9px 14px;font-size:13px;color:var(--text2);font-family:inherit;outline:none}
-[data-theme="light"] .ai-demo-inp{background:#F9FAFB;border-color:#E5E7EB;color:#374151}
-.ai-demo-send{width:36px;height:36px;border-radius:10px;background:var(--brand);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
-.ai-demo-send:hover{background:var(--brand2)}
-.ai-demo-send svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+/* ── QR QUEUE SPOTLIGHT (Apple luxury) ── */
+.qrs{padding:140px 24px;background:linear-gradient(180deg,#07091A 0%,#0B0F22 55%,#07091A 100%);position:relative;overflow:hidden}
+.qrs-orb{position:absolute;border-radius:50%;filter:blur(130px);pointer-events:none}
+.qrs-orb-1{width:800px;height:800px;background:radial-gradient(circle,rgba(0,51,153,.4),transparent 65%);top:-300px;left:-200px}
+.qrs-orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(29,78,216,.3),transparent 65%);bottom:-200px;right:-100px}
+.qrs-orb-3{width:400px;height:400px;background:radial-gradient(circle,rgba(96,165,250,.12),transparent 70%);top:40%;left:50%;transform:translateX(-50%)}
+.qrs-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 90% 80% at 50% 50%,black 30%,transparent 100%)}
+.qrs-inner{max-width:1120px;margin:0 auto;position:relative;z-index:1}
+.qrs-eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#60A5FA;margin-bottom:20px;text-align:center}
+.qrs-title{font-size:clamp(44px,7vw,84px);font-weight:800;letter-spacing:-3px;line-height:.95;text-align:center;color:#fff;margin-bottom:24px}
+.qrs-title-accent{background:linear-gradient(135deg,#60A5FA 0%,#A78BFA 40%,#60A5FA 100%);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradient-shift 4s ease infinite}
+.qrs-sub{font-size:18px;color:rgba(255,255,255,.45);max-width:520px;margin:0 auto 80px;text-align:center;line-height:1.7;font-weight:400}
 
-.pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid var(--card-border);border-radius:var(--rfull);padding:5px 14px;font-size:12px;color:var(--text3)}
-[data-theme="light"] .pill{background:#F3F4F6;border-color:#E5E7EB;color:#6B7280}
+/* Scene */
+.qrs-scene{display:flex;align-items:flex-end;justify-content:center;gap:24px;position:relative}
+.qrs-scene::before{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(96,165,250,.2),transparent)}
+
+/* TV display */
+@keyframes qrs-float-tv{0%,100%{transform:translateY(0) perspective(1000px) rotateX(2deg)}50%{transform:translateY(-10px) perspective(1000px) rotateX(2deg)}}
+.qrs-tv{width:320px;background:#0B0E1A;border-radius:20px;border:1px solid rgba(96,165,250,.18);box-shadow:0 0 0 1px rgba(0,0,0,.8),0 48px 100px rgba(0,0,0,.7),0 0 80px rgba(0,51,153,.35),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden;flex-shrink:0;animation:qrs-float-tv 7s ease-in-out infinite}
+.qrs-tv-topbar{background:linear-gradient(135deg,#003399 0%,#1D4ED8 100%);padding:11px 16px;display:flex;align-items:center;justify-content:space-between}
+.qrs-tv-topbar-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:.1em;text-transform:uppercase}
+.qrs-tv-topbar-time{font-size:12px;color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums;font-weight:600}
+.qrs-tv-body{padding:24px 20px 20px;text-align:center}
+.qrs-tv-called-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px}
+.qrs-tv-num-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;width:120px;height:100px;margin-bottom:8px}
+.qrs-ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1.5px solid rgba(96,165,250,.5);transform:translate(-50%,-50%) scale(1);animation:qrs-ring-out 2.8s ease-out infinite}
+.qrs-ring-1{width:90px;height:90px;animation-delay:0s}
+.qrs-ring-2{width:90px;height:90px;animation-delay:.7s}
+.qrs-ring-3{width:90px;height:90px;animation-delay:1.4s}
+@keyframes qrs-ring-out{0%{transform:translate(-50%,-50%) scale(1);opacity:.7}100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}
+.qrs-tv-big-num{font-size:72px;font-weight:800;color:#fff;line-height:1;letter-spacing:-3px;font-variant-numeric:tabular-nums;position:relative;z-index:1;text-shadow:0 0 40px rgba(96,165,250,.6)}
+.qrs-tv-big-num.qrs-pop{animation:qrs-num-pop .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes qrs-num-pop{0%{transform:scale(.55);opacity:0}65%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.qrs-tv-patient-name{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:16px;font-style:italic}
+.qrs-tv-list{display:flex;flex-direction:column;gap:4px;text-align:left}
+.qrs-tv-row{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-radius:9px;font-size:11px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.03);border:1px solid transparent;transition:all .5s ease}
+.qrs-tv-row.qrs-active{background:rgba(0,51,153,.45);border-color:rgba(96,165,250,.3);color:#fff;box-shadow:0 0 20px rgba(0,51,153,.4)}
+.qrs-tv-row-num{font-weight:800;font-size:13px;font-variant-numeric:tabular-nums;color:rgba(255,255,255,.7)}
+.qrs-tv-row.qrs-active .qrs-tv-row-num{color:#fff}
+.qrs-tv-row-status{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+
+/* Phone */
+@keyframes qrs-float-phone{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-16px) rotate(-2deg)}}
+.qrs-phone{width:150px;background:#fff;border-radius:28px;border:1px solid rgba(0,0,0,.1);box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.12),0 0 40px rgba(0,51,153,.2);overflow:hidden;position:relative;z-index:2;flex-shrink:0;align-self:flex-end;margin-bottom:32px;animation:qrs-float-phone 5s ease-in-out infinite}
+.qrs-phone-notch{width:70px;height:20px;background:#0B0E1A;border-radius:0 0 14px 14px;margin:0 auto}
+.qrs-phone-screen{padding:8px 10px 14px}
+.qrs-phone-header{background:linear-gradient(135deg,#003399,#1D4ED8);border-radius:10px;padding:8px 10px;text-align:center;margin-bottom:8px}
+.qrs-phone-header-txt{font-size:8px;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:.08em;text-transform:uppercase}
+.qrs-phone-header-name{font-size:10px;font-weight:600;color:#fff;margin-top:2px}
+.qrs-phone-ticket{background:linear-gradient(135deg,#EEF2FF 0%,#E0E7FF 100%);border:1px solid rgba(0,51,153,.12);border-radius:10px;padding:10px 8px;text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+.qrs-phone-ticket-label{font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;margin-bottom:2px}
+.qrs-phone-ticket-num{font-size:36px;font-weight:800;color:#003399;line-height:1;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+.qrs-phone-ticket-num.qrs-pop{animation:qrs-num-pop .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.qrs-phone-ticket-name{font-size:9px;color:#6B7280;margin-top:4px}
+.qrs-phone-pos-bar{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:6px 8px;margin-top:7px}
+.qrs-phone-pos-txt{font-size:8px;color:#374151;font-weight:700;text-align:center}
+.qrs-phone-pos-sub{font-size:7px;color:#9CA3AF;text-align:center;margin-top:1px}
+.qrs-phone-progress{margin-top:5px;height:3px;background:#E5E7EB;border-radius:2px;overflow:hidden}
+.qrs-phone-progress-fill{height:3px;background:linear-gradient(90deg,#003399,#60A5FA);border-radius:2px;transition:width 1s var(--ease)}
+
+/* Feature bullets */
+.qrs-bullets{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:64px;background:rgba(255,255,255,.05);border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.qrs-bullet{padding:28px 22px;background:#0B0F22;transition:background .25s}
+.qrs-bullet:hover{background:#0f1428}
+.qrs-bullet-icon{width:40px;height:40px;border-radius:12px;background:rgba(0,51,153,.3);border:1px solid rgba(96,165,250,.15);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.qrs-bullet-icon svg{fill:none;stroke:#60A5FA;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.qrs-bullet-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px}
+.qrs-bullet-desc{font-size:12px;color:rgba(255,255,255,.38);line-height:1.55}
+.qrs-cta-row{text-align:center;margin-top:52px}
+.qrs-cta-btn{display:inline-flex;align-items:center;gap:9px;background:#fff;color:#003399;font-size:15px;font-weight:700;padding:15px 34px;border-radius:var(--rfull);text-decoration:none;transition:all .25s;box-shadow:0 8px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.9)}
+.qrs-cta-btn:hover{background:#EEF2FF;transform:translateY(-2px);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.qrs-cta-btn svg{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+.pill{display:inline-flex;align-items:center;gap:6px;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:var(--rfull);padding:5px 14px;font-size:12px;color:#6B7280}
+
+@media(max-width:768px){
+  .qrs{padding:80px 20px}
+  .qrs-title{font-size:clamp(36px,10vw,60px);letter-spacing:-2px}
+  .qrs-sub{font-size:15px;margin-bottom:48px}
+  .qrs-scene{flex-direction:column;align-items:center;gap:20px}
+  .qrs-tv{width:100%;max-width:320px}
+  .qrs-phone{align-self:auto;margin-bottom:0;animation:none;transform:rotate(-2deg)}
+  .qrs-bullets{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){.qrs-bullets{grid-template-columns:1fr}}
 
 /* ── TESTIMONIALS ── */
-.testimonials{padding:120px 24px;background:rgba(255,255,255,.01)}
-[data-theme="light"] .testimonials{background:rgba(0,0,0,.01)}
+.testimonials{padding:120px 24px;background:rgba(0,51,153,.02)}
 .test-inner{max-width:1100px;margin:0 auto}
 .test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:60px}
-.test-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--rlg);padding:28px;transition:all .3s var(--ease);cursor:default}
-[data-theme="light"] .test-card{background:#fff;border-color:rgba(0,0,0,.08)}
-.test-card:hover{transform:translateY(-4px);border-color:rgba(0,51,153,.3);box-shadow:0 16px 40px rgba(0,0,0,.3)}
-[data-theme="light"] .test-card:hover{box-shadow:0 16px 40px rgba(0,0,0,.1)}
-.test-stars{color:#FCD34D;font-size:14px;margin-bottom:14px;letter-spacing:2px}
-[data-theme="light"] .test-stars{color:#D97706}
-.test-quote{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:20px;font-style:italic}
-[data-theme="light"] .test-quote{color:#374151}
+.test-card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:var(--rlg);padding:28px;transition:all .3s var(--ease);cursor:default}
+.test-card:hover{transform:translateY(-4px);border-color:rgba(0,51,153,.2);box-shadow:0 16px 40px rgba(0,0,0,.08)}
+.test-stars{color:#D97706;font-size:14px;margin-bottom:14px;letter-spacing:2px}
+.test-quote{font-size:14px;color:#374151;line-height:1.7;margin-bottom:20px;font-style:italic}
 .test-author{display:flex;align-items:center;gap:10px}
 .test-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
-.test-name{font-size:13px;font-weight:600;color:#fff}
-[data-theme="light"] .test-name{color:#0D1117}
-.test-role{font-size:11px;color:var(--text4)}
-[data-theme="light"] .test-role{color:#9CA3AF}
+.test-name{font-size:13px;font-weight:600;color:#0D1117}
+.test-role{font-size:11px;color:#9CA3AF}
 
 /* ── PRICING ── */
-.pricing-section{padding:120px 24px;max-width:800px;margin:0 auto;text-align:center}
-.pricing-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:50px;text-align:left}
-.price-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--rlg);padding:32px;transition:all .3s var(--ease)}
-[data-theme="light"] .price-card{background:#fff;border-color:rgba(0,0,0,.08)}
-.price-card.featured{border-color:rgba(0,51,153,.5);background:linear-gradient(135deg,rgba(0,51,153,.15),rgba(124,58,237,.08));position:relative}
-.price-card.featured::before{content:'Most popular';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:0 0 10px 10px}
-.price-card:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.3)}
-[data-theme="light"] .price-card:hover{box-shadow:0 20px 50px rgba(0,0,0,.1)}
-.price-name{font-size:15px;font-weight:600;color:var(--text3);margin-bottom:8px}
-[data-theme="light"] .price-name{color:#6B7280}
-.price-val{font-size:42px;font-weight:800;color:var(--text);letter-spacing:-1px;margin-bottom:6px;line-height:1;display:inline-flex;align-items:baseline;gap:3px}
-.price-per{font-size:14px;color:var(--text4);margin-bottom:24px}
-[data-theme="light"] .price-per{color:#9CA3AF}
+.pricing-section{padding:120px 24px;max-width:1000px;margin:0 auto;text-align:center}
+.pricing-toggle{display:inline-flex;align-items:center;gap:0;background:#F3F4F6;border-radius:var(--rfull);padding:4px;margin:24px auto 40px;border:1px solid rgba(0,0,0,.08)}
+.pricing-toggle-btn{font-size:13px;font-weight:600;padding:6px 18px;border-radius:var(--rfull);border:none;background:none;cursor:pointer;font-family:inherit;color:#6B7280;transition:all .2s}
+.pricing-toggle-btn.active{background:#fff;color:#0D1117;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.pricing-save{font-size:11px;font-weight:700;background:#10B981;color:#fff;padding:2px 8px;border-radius:var(--rfull);margin-left:6px}
+.pricing-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:0;text-align:left}
+.price-card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:var(--rlg);padding:32px;transition:all .3s var(--ease);position:relative}
+.price-card.featured{border-color:rgba(0,51,153,.4);background:linear-gradient(135deg,rgba(0,51,153,.04),rgba(29,78,216,.02));box-shadow:0 8px 32px rgba(0,51,153,.1)}
+.price-card.featured::before{content:'Plus populaire';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:0 0 10px 10px;white-space:nowrap}
+.price-card:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.08)}
+.price-name{font-size:15px;font-weight:600;color:#6B7280;margin-bottom:8px}
+.price-val{font-size:38px;font-weight:800;color:#0D1117;letter-spacing:-1px;margin-bottom:2px;line-height:1}
+.price-val-sub{font-size:14px;font-weight:400;color:#9CA3AF}
+.price-per{font-size:13px;color:#9CA3AF;margin-bottom:24px}
 .price-features{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
-.pf{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text2)}
-[data-theme="light"] .pf{color:#374151}
-.pf-check{width:16px;height:16px;border-radius:50%;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.pf-check::after{content:'✓';font-size:9px;color:#34D399;font-weight:700}
-[data-theme="light"] .pf-check::after{color:#059669}
-.pf-x{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.pf-x::after{content:'—';font-size:10px;color:var(--text4)}
-[data-theme="light"] .pf-x::after{color:#9CA3AF}
+.pf{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#374151}
+.pf-check{width:16px;height:16px;border-radius:50%;background:rgba(5,150,105,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.pf-check::after{content:'✓';font-size:9px;color:#059669;font-weight:700}
+.pf-x{width:16px;height:16px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.pf-x::after{content:'—';font-size:10px;color:#9CA3AF}
 .price-btn{display:block;text-align:center;padding:12px;border-radius:var(--rfull);font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;border:none;cursor:pointer;font-family:inherit}
 .pb-primary{background:var(--brand);color:#fff}
-.pb-primary:hover{background:var(--brand2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,51,153,.4)}
-.pb-ghost{background:rgba(255,255,255,.06);color:var(--text2);border:1px solid var(--card-border)}
-.pb-ghost:hover{background:rgba(255,255,255,.1)}
-[data-theme="light"] .pb-ghost{background:#F3F4F6;color:#374151;border-color:#E5E7EB}
+.pb-primary:hover{background:var(--brand2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,51,153,.3)}
+.pb-ghost{background:#F3F4F6;color:#374151;border:1px solid #E5E7EB}
+.pb-ghost:hover{background:#E5E7EB}
+.pb-contact{background:rgba(0,51,153,.08);color:#003399;border:1px solid rgba(0,51,153,.2)}
+.pb-contact:hover{background:rgba(0,51,153,.14)}
 
 /* ── FINAL CTA ── */
 .final-cta{padding:120px 24px;text-align:center;position:relative;overflow:hidden}
-.cta-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,51,153,.2),transparent);pointer-events:none}
-[data-theme="light"] .cta-bg{background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,51,153,.1),transparent)}
-.cta-title{font-size:clamp(32px,5vw,60px);font-weight:800;letter-spacing:-1.5px;color:#fff;margin-bottom:16px;line-height:1.1}
-[data-theme="light"] .cta-title{color:#0D1117}
-.cta-sub{font-size:18px;color:var(--text3);max-width:480px;margin:0 auto 40px}
-[data-theme="light"] .cta-sub{color:#6B7280}
+.cta-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,51,153,.07),transparent);pointer-events:none}
+.cta-title{font-size:clamp(32px,5vw,60px);font-weight:800;letter-spacing:-1.5px;color:#0D1117;margin-bottom:16px;line-height:1.1}
+.cta-sub{font-size:18px;color:#6B7280;max-width:480px;margin:0 auto 40px}
 
 /* ── FOOTER ── */
-footer{border-top:1px solid var(--card-border);width:100%}
-[data-theme="light"] footer{border-color:rgba(0,0,0,.1)}
+footer{border-top:1px solid rgba(0,0,0,.08);width:100%}
 .footer-inner{max-width:900px;margin:0 auto;padding:32px 24px;display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
 .footer-links{display:flex;gap:24px;align-items:center}
-.footer-link{font-size:13px;color:var(--text4);text-decoration:none;transition:color .2s}
-.footer-link:hover{color:var(--text2)}
-[data-theme="light"] .footer-link{color:#9CA3AF}
-[data-theme="light"] .footer-link:hover{color:#374151}
-.footer-right{font-size:12px;color:var(--text4)}
-[data-theme="light"] .footer-right{color:#9CA3AF}
+.footer-link{font-size:13px;color:#9CA3AF;text-decoration:none;transition:color .2s}
+.footer-link:hover{color:#374151}
+.footer-right{font-size:12px;color:#9CA3AF}
 
 /* ── PWA BANNER ── */
-.pwa-banner{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--rlg);padding:16px 20px;display:flex;align-items:center;gap:14px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,.4);transition:transform .4s var(--ease);max-width:380px;width:calc(100% - 40px)}
+.pwa-banner{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:var(--rlg);padding:16px 20px;display:flex;align-items:center;gap:14px;z-index:9999;box-shadow:0 12px 40px rgba(0,0,0,.12);transition:transform .4s var(--ease);max-width:380px;width:calc(100% - 40px)}
 .pwa-banner.show{transform:translateX(-50%) translateY(0)}
 .pwa-banner-icon{width:44px;height:44px;border-radius:10px;background:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .pwa-banner-icon img{width:26px;height:26px;filter:brightness(0) invert(1)}
 .pwa-banner-body{flex:1;min-width:0}
-.pwa-banner-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
-.pwa-banner-sub{font-size:11px;color:var(--text3)}
+.pwa-banner-title{font-size:13px;font-weight:600;color:#0D1117;margin-bottom:2px}
+.pwa-banner-sub{font-size:11px;color:#6B7280}
 .pwa-banner-actions{display:flex;gap:6px;flex-shrink:0}
 .pwa-install-btn{font-size:12px;font-weight:600;color:#fff;background:var(--brand);border:none;border-radius:var(--rfull);padding:7px 14px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
 .pwa-install-btn:hover{background:var(--brand2)}
-.pwa-dismiss-btn{font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:7px;font-family:inherit;border-radius:var(--rfull)}
-.pwa-dismiss-btn:hover{color:var(--text)}
+.pwa-dismiss-btn{font-size:12px;color:#6B7280;background:none;border:none;cursor:pointer;padding:7px;font-family:inherit;border-radius:var(--rfull)}
+.pwa-dismiss-btn:hover{color:#374151}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
@@ -374,10 +356,10 @@ footer{border-top:1px solid var(--card-border);width:100%}
   .hero-ctas{flex-direction:column;align-items:stretch;gap:10px}
   .btn-hero-primary,.btn-hero-ghost{justify-content:center;padding:14px 20px}
   .hero-trust{flex-direction:column;gap:8px}.hero-trust-sep{display:none}
-  .dashboard-preview{padding:0 16px 60px}
+  .dashboard-preview{padding:0 16px 60px;overflow:hidden}
   .preview-frame{transform:none!important}
   .preview-body{grid-template-columns:1fr 1fr;gap:8px;padding:12px}
-  .preview-pipeline{grid-column:1/-1}
+  .preview-queue{grid-column:1/-1}
   .preview-stages{flex-wrap:wrap;gap:6px}
   .stats{padding:40px 20px}
   .stats-inner{grid-template-columns:1fr 1fr;gap:20px}
@@ -385,13 +367,10 @@ footer{border-top:1px solid var(--card-border);width:100%}
   .stat-badge-num{font-size:20px}
   .features{padding:60px 20px}
   .cards-grid{grid-template-columns:1fr;gap:12px}
-  /* Mobile flip cards: fixed height so 3D flip still works */
   .flip-card{height:260px;perspective:800px}
   .how{padding:60px 20px}
   .steps-row{grid-template-columns:1fr 1fr;gap:16px}
   .steps-row::before{display:none}
-  .ai-section{padding:60px 20px}
-  .ai-inner{grid-template-columns:1fr;gap:32px}
   .testimonials{padding:60px 20px}
   .test-grid{grid-template-columns:1fr}
   .pricing-section{padding:60px 20px}
@@ -401,12 +380,18 @@ footer{border-top:1px solid var(--card-border);width:100%}
   .cta-title{font-size:clamp(26px,6vw,42px)}
   .pwa-banner{bottom:0;left:0;right:0;transform:translateY(120px);max-width:none;border-radius:var(--rlg) var(--rlg) 0 0}
   .pwa-banner.show{transform:translateY(0)}
+  nav{padding:0 16px}
+  .nav-cta{display:none}
+}
+@media(max-width:600px){
+  .pricing-cards{grid-template-columns:1fr}
+  .test-grid{grid-template-columns:1fr}
 }
 @media(max-width:480px){
   .stats-inner{grid-template-columns:1fr 1fr}
   .steps-row{grid-template-columns:1fr}
   .preview-body{grid-template-columns:1fr}
-  .preview-pipeline{grid-column:1}
+  .preview-queue{grid-column:1}
   .preview-stages{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
 }
 @media(prefers-reduced-motion:reduce){
@@ -426,15 +411,12 @@ footer{border-top:1px solid var(--card-border);width:100%}
   </a>
   <div class="nav-links">
     <a href="#features" class="nav-link">Fonctionnalités</a>
-    <a href="#how" class="nav-link">Comment ça marche</a>
-    <a href="#pricing" class="nav-link">Tarifs</a>
+    <a href="#comment" class="nav-link">Comment ça marche</a>
+    <a href="#tarifs" class="nav-link">Tarifs</a>
   </div>
   <div class="nav-actions">
-    <button id="theme-toggle" onclick="toggleTheme()" title="Changer le thème" aria-label="Changer le thème">
-      <svg id="theme-icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      <svg id="theme-icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-    </button>
-    <a href="login.html" class="nav-cta">Commencer gratuitement →</a>
+    <a href="login.html" style="font-size:14px;font-weight:500;color:#374151;text-decoration:none;padding:6px 14px">Connexion</a>
+    <a href="login.html" class="nav-cta">Essayer gratuitement →</a>
   </div>
 </nav>
 
@@ -449,38 +431,38 @@ footer{border-top:1px solid var(--card-border);width:100%}
 
   <div class="hero-badge anim-fade-up">
     <span class="hero-badge-dot"></span>
-    <span>Nouveau : Nex IA — votre conseiller business</span>
+    <span>Disponible dans les 48 wilayas · Gratuit pour commencer</span>
   </div>
 
   <h1 class="hero-title anim-fade-up delay-1">
-    <span class="hero-title-line1">Gérez votre activité</span>
-    <span class="hero-title-line2">freelance depuis un seul endroit</span>
+    <span class="hero-title-line1">Votre cabinet, enfin</span>
+    <span class="hero-title-line2">organisé.</span>
   </h1>
 
   <p class="hero-sub anim-fade-up delay-2">
-    CRM, facturation conforme TVA, e-signatures et conseiller IA — conçu pour les freelances français.
-    Tout ce dont vous avez besoin à 12 €/mois.
+    Patients, consultations, ordonnances et file d'attente QR —
+    tout ce dont un médecin algérien a besoin, en un seul outil.
   </p>
 
   <div class="hero-ctas anim-fade-up delay-3">
     <a href="login.html" class="btn-hero-primary">
-      <svg viewBox="0 0 24 24"><polyline points="13 2 13 9 20 9"/><polygon points="22 2 13 2 13 9 20 9 22 2"/><path d="M4 17h16M4 12h10M4 7h6"/></svg>
-      Commencer gratuitement
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Démarrer gratuitement
     </a>
     <a href="#features" class="btn-hero-ghost">
-      Découvrir les fonctionnalités
+      Voir comment ça marche
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
     </a>
   </div>
 
   <div class="hero-trust anim-fade-up delay-4">
-    <span>🔒 Conforme RGPD</span>
+    <span>🔒 Données privées &amp; sécurisées</span>
     <div class="hero-trust-sep"></div>
-    <span>🇫🇷 Données en France / EU</span>
+    <span>🏥 CNAS &amp; CASNOS natif</span>
     <div class="hero-trust-sep"></div>
-    <span>✍️ Signatures électroniques eIDAS</span>
+    <span>📱 File QR sans application</span>
     <div class="hero-trust-sep"></div>
-    <span>Sans carte bancaire</span>
+    <span>Aucune carte bancaire</span>
   </div>
 </section>
 
@@ -496,33 +478,33 @@ footer{border-top:1px solid var(--card-border);width:100%}
     </div>
     <div class="preview-body">
       <div class="preview-kpi pk-blue">
-        <div class="preview-kpi-badge badge-green">+12 actifs</div>
-        <div class="preview-kpi-val">€24 800</div>
-        <div class="preview-kpi-lbl">Valeur pipeline</div>
+        <div class="preview-kpi-badge badge-blue">Aujourd'hui</div>
+        <div class="preview-kpi-val">24</div>
+        <div class="preview-kpi-lbl">Patients vus</div>
       </div>
       <div class="preview-kpi pk-green">
-        <div class="preview-kpi-badge badge-green">3 payées</div>
-        <div class="preview-kpi-val">€8 400</div>
-        <div class="preview-kpi-lbl">CA ce mois</div>
+        <div class="preview-kpi-badge badge-green">+3 ce matin</div>
+        <div class="preview-kpi-val">8</div>
+        <div class="preview-kpi-lbl">En attente</div>
       </div>
       <div class="preview-kpi pk-amber">
-        <div class="preview-kpi-badge badge-amber">68%</div>
-        <div class="preview-kpi-val">14</div>
-        <div class="preview-kpi-lbl">Projets gagnés</div>
+        <div class="preview-kpi-badge badge-amber">À venir</div>
+        <div class="preview-kpi-val">5</div>
+        <div class="preview-kpi-lbl">RDV aujourd'hui</div>
       </div>
       <div class="preview-kpi pk-purple">
-        <div class="preview-kpi-badge badge-green">En cours</div>
-        <div class="preview-kpi-val">2</div>
-        <div class="preview-kpi-lbl">Échéances aujourd'hui</div>
+        <div class="preview-kpi-badge badge-green">Ce mois</div>
+        <div class="preview-kpi-val">312</div>
+        <div class="preview-kpi-lbl">Consultations</div>
       </div>
-      <div class="preview-pipeline">
-        <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:4px">Cycle de vie projet</div>
+      <div class="preview-queue">
+        <div style="font-size:12px;font-weight:600;color:#6B7280;margin-bottom:4px">File d'attente — Numéro en cours : <strong style="color:#003399">N°12</strong></div>
         <div class="preview-stages">
-          <div class="preview-stage"><div class="preview-stage-num" style="color:#7C3AED">5</div>Demande</div>
-          <div class="preview-stage"><div class="preview-stage-num" style="color:#2E90FA">3</div>Devis</div>
-          <div class="preview-stage"><div class="preview-stage-num" style="color:#F79009">4</div>Signé</div>
-          <div class="preview-stage"><div class="preview-stage-num" style="color:#EE46BC">2</div>Facture</div>
-          <div class="preview-stage"><div class="preview-stage-num" style="color:#12B76A">14</div>Payé</div>
+          <div class="preview-stage"><div class="preview-stage-num" style="color:#003399">N°12</div>En cours</div>
+          <div class="preview-stage"><div class="preview-stage-num" style="color:#374151">N°13</div>Prochain</div>
+          <div class="preview-stage"><div class="preview-stage-num" style="color:#9CA3AF">N°14</div>En attente</div>
+          <div class="preview-stage"><div class="preview-stage-num" style="color:#9CA3AF">N°15</div>En attente</div>
+          <div class="preview-stage"><div class="preview-stage-num" style="color:#059669">24</div>Vus aujourd'hui</div>
         </div>
       </div>
     </div>
@@ -534,26 +516,26 @@ footer{border-top:1px solid var(--card-border);width:100%}
   <div class="stats-inner">
     <div class="reveal">
       <div class="stat-badge-wrap">
-        <div class="stat-badge-ring"><div class="stat-badge-num stat-accent" data-count="100" data-suffix="+">0</div></div>
-        <div class="stat-lbl">Utilisateurs bêta inscrits</div>
+        <div class="stat-badge-ring"><div class="stat-badge-num stat-accent" data-count="500" data-suffix="+">0</div></div>
+        <div class="stat-lbl">Médecins inscrits</div>
       </div>
     </div>
     <div class="reveal delay-1">
       <div class="stat-badge-wrap">
-        <div class="stat-badge-ring green"><div class="stat-badge-num stat-accent" data-count="94" data-suffix="%">0</div></div>
-        <div class="stat-lbl">Marge brute</div>
+        <div class="stat-badge-ring green"><div class="stat-badge-num stat-accent" data-count="30">0</div></div>
+        <div class="stat-lbl">Patients gratuits pour toujours</div>
       </div>
     </div>
     <div class="reveal delay-2">
       <div class="stat-badge-wrap">
-        <div class="stat-badge-ring amber"><div class="stat-badge-num stat-accent" data-prefix="€" data-count="12">0</div></div>
-        <div class="stat-lbl">Plan Pro par mois</div>
+        <div class="stat-badge-ring amber"><div class="stat-badge-num stat-accent" data-count="48">0</div></div>
+        <div class="stat-lbl">Wilayas couvertes</div>
       </div>
     </div>
     <div class="reveal delay-3">
       <div class="stat-badge-wrap">
-        <div class="stat-badge-ring purple"><div class="stat-badge-num stat-accent" data-count="20" data-suffix="min">0</div></div>
-        <div class="stat-lbl">Économisés par nouveau client</div>
+        <div class="stat-badge-ring purple"><div class="stat-badge-num stat-accent" data-count="0" data-suffix=" DA">0</div></div>
+        <div class="stat-lbl">Pour commencer</div>
       </div>
     </div>
   </div>
@@ -562,9 +544,9 @@ footer{border-top:1px solid var(--card-border);width:100%}
 <!-- FEATURES -->
 <section class="features" id="features">
   <div class="reveal">
-    <div class="section-eyebrow">Tout ce qu'il vous faut</div>
-    <h2 class="section-title">Conçu pour les freelances français</h2>
-    <p class="section-sub">Chaque outil, chaque fonctionnalité — pensé pour les règles TVA françaises, la conformité RGPD et la façon dont les indépendants facturent leurs clients.</p>
+    <div class="section-eyebrow">Fonctionnalités</div>
+    <h2 class="section-title">Tout ce dont votre<br><span class="gradient-text">cabinet a besoin</span></h2>
+    <p class="section-sub">Pensé pour la réalité médicale algérienne — pas un outil générique traduit, un produit fait pour vous.</p>
   </div>
 
   <div class="cards-grid">
@@ -573,61 +555,61 @@ footer{border-top:1px solid var(--card-border);width:100%}
       <div class="flip-card-inner">
         <div class="flip-front">
           <div class="flip-icon fi-blue">
-            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </div>
-          <div class="flip-title">Facturation conforme TVA</div>
-          <div class="flip-desc">HT, TVA, TTC calculés automatiquement. Mentions légales françaises incluses. Export PDF. Relances de paiement. Générée dès la signature du contrat.</div>
+          <div class="flip-title">Dossier patient complet</div>
+          <div class="flip-desc">Groupe sanguin, antécédents, CNAS/CASNOS, numéro d'assuré. Tout en un clic depuis la fiche patient.</div>
           <div class="flip-hint">
             <svg viewBox="0 0 24 24" width="12" height="12"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
             Survolez pour en savoir plus
           </div>
         </div>
         <div class="flip-back">
-          <div class="flip-back-title">Ne faites plus jamais d'erreur de TVA</div>
-          <div class="flip-back-body">Choisissez 0 %, 5,5 %, 10 % ou 20 % — Prospeo calcule le HT, la TVA et le TTC automatiquement. Chaque facture inclut les mentions légales obligatoires. Envoyez par email en un clic.</div>
-          <a href="login.html" class="flip-back-cta">Essayer gratuitement →</a>
+          <div class="flip-back-title">Zéro papier perdu</div>
+          <div class="flip-back-body">Historique complet, ordonnances passées, type d'assurance — tout est là. Retrouvez un patient en 2 secondes par nom ou numéro CNAS.</div>
+          <a href="login.html" class="flip-back-cta">Créer un dossier →</a>
         </div>
       </div>
     </div>
 
     <div class="flip-card reveal delay-1" onclick="this.classList.toggle('flipped')">
+      <div class="flip-card-inner">
+        <div class="flip-front">
+          <div class="flip-icon fi-teal">
+            <svg viewBox="0 0 24 24" width="22" height="22"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h1v1H9zM9 13h1v1H9zM9 17h1v1H9zM13 9h1v1h-1zM13 13h1v1h-1zM17 9h1v1h-1z"/></svg>
+          </div>
+          <div class="flip-title">File d'attente sans chaos</div>
+          <div class="flip-desc">Un QR code à l'accueil. Le patient scanne, prend son numéro et attend sereinement. Fini les bousculades.</div>
+          <div class="flip-hint">
+            <svg viewBox="0 0 24 24" width="12" height="12"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+            Survolez pour en savoir plus
+          </div>
+        </div>
+        <div class="flip-back">
+          <div class="flip-back-title">L'ordre sans effort</div>
+          <div class="flip-back-body">Affichez votre QR à l'entrée. Les patients suivent leur tour en direct sur leur téléphone. Vous appelez le suivant d'un clic. L'écran TV se met à jour instantanément.</div>
+          <a href="login.html" class="flip-back-cta">Activer la file QR →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card reveal delay-2" onclick="this.classList.toggle('flipped')">
       <div class="flip-card-inner">
         <div class="flip-front">
           <div class="flip-icon fi-purple">
-            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <svg viewBox="0 0 24 24" width="22" height="22"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
-          <div class="flip-title">Smart Files + Signatures électroniques</div>
-          <div class="flip-desc">Un lien unique avec votre devis, contrat et facture. Le client lit, signe électroniquement et vous êtes payé — sans quitter la page.</div>
+          <div class="flip-title">Agenda intelligent</div>
+          <div class="flip-desc">Planifiez vos RDV, visualisez votre journée d'un coup d'œil. Vue jour, semaine, mois. Plus de double booking.</div>
           <div class="flip-hint">
             <svg viewBox="0 0 24 24" width="12" height="12"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
             Survolez pour en savoir plus
           </div>
         </div>
         <div class="flip-back">
-          <div class="flip-back-title">Du devis au paiement en un seul lien</div>
-          <div class="flip-back-body">Le client ouvre votre Smart File, lit le devis, signe le contrat. À la signature, la facture est créée et envoyée automatiquement. Valide juridiquement sous eIDAS.</div>
-          <a href="login.html" class="flip-back-cta">Créer un Smart File →</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="flip-card reveal delay-2" onclick="this.classList.toggle('flipped')">
-      <div class="flip-card-inner">
-        <div class="flip-front">
-          <div class="flip-icon fi-green">
-            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
-          </div>
-          <div class="flip-title">Nex — Conseiller IA business</div>
-          <div class="flip-desc">Interrogez votre pipeline, rédigez des emails clients, obtenez des conseils TVA, comprenez votre trésorerie. Nex connaît vos données en temps réel.</div>
-          <div class="flip-hint">
-            <svg viewBox="0 0 24 24" width="12" height="12"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
-            Survolez pour en savoir plus
-          </div>
-        </div>
-        <div class="flip-back">
-          <div class="flip-back-title">Votre conseiller business, toujours disponible</div>
-          <div class="flip-back-body">Demandez à Nex : "Qui relancer aujourd'hui ?" ou "Résume mon pipeline" ou "Aide-moi à tarifer ce projet". Nex voit vos vraies données — deals actifs, factures en retard, tâches — et donne des réponses concrètes.</div>
-          <a href="login.html" class="flip-back-cta">Parler à Nex →</a>
+          <div class="flip-back-title">Votre journée, claire dès le matin</div>
+          <div class="flip-back-body">Créez un RDV en 5 secondes depuis la fiche patient. Visualisez votre planning journalier, hebdomadaire ou mensuel. Gérez les annulations sans stress.</div>
+          <a href="login.html" class="flip-back-cta">Voir l'agenda →</a>
         </div>
       </div>
     </div>
@@ -635,20 +617,20 @@ footer{border-top:1px solid var(--card-border);width:100%}
     <div class="flip-card reveal delay-1" onclick="this.classList.toggle('flipped')">
       <div class="flip-card-inner">
         <div class="flip-front">
-          <div class="flip-icon fi-amber">
-            <svg viewBox="0 0 24 24" width="22" height="22"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <div class="flip-icon fi-green">
+            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           </div>
-          <div class="flip-title">Pipeline CRM</div>
-          <div class="flip-desc">Tableau Kanban avec votre cycle de vie complet. Demande → Devis envoyé → Contrat signé → Facture envoyée → Payé. Visualisez la valeur à chaque étape.</div>
+          <div class="flip-title">Ordonnances en 30 secondes</div>
+          <div class="flip-desc">Rédigez depuis le dossier patient. PDF prêt à imprimer ou partager instantanément. Historique complet par patient.</div>
           <div class="flip-hint">
             <svg viewBox="0 0 24 24" width="12" height="12"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
             Survolez pour en savoir plus
           </div>
         </div>
         <div class="flip-back">
-          <div class="flip-back-title">Votre activité en un coup d'œil</div>
-          <div class="flip-back-body">Chaque lead a une étape, une valeur et un historique. La barre de cycle de vie en haut de votre tableau de bord vous montre instantanément où se trouve votre argent. Déplacez les deals par glisser-déposer.</div>
-          <a href="login.html" class="flip-back-cta">Ouvrir mon pipeline →</a>
+          <div class="flip-back-title">Propre, rapide, archivé</div>
+          <div class="flip-back-body">Vos coordonnées et tampons ajoutés automatiquement. Médicaments, posologie, durée — tout structuré. Le PDF est généré en un clic, archivé dans le dossier patient.</div>
+          <a href="login.html" class="flip-back-cta">Créer une ordonnance →</a>
         </div>
       </div>
     </div>
@@ -656,20 +638,20 @@ footer{border-top:1px solid var(--card-border);width:100%}
     <div class="flip-card reveal delay-2" onclick="this.classList.toggle('flipped')">
       <div class="flip-card-inner">
         <div class="flip-front">
-          <div class="flip-icon fi-pink">
-            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <div class="flip-icon fi-amber">
+            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           </div>
-          <div class="flip-title">Portail client</div>
-          <div class="flip-desc">Partagez un lien personnalisé avec votre client. Il consulte ses factures, signe les contrats et suit l'avancement du projet — sans créer de compte.</div>
+          <div class="flip-title">Notes cliniques structurées</div>
+          <div class="flip-desc">Motif, diagnostic, traitement — chaque consultation enregistrée en quelques secondes, liée au dossier pour un suivi parfait.</div>
           <div class="flip-hint">
             <svg viewBox="0 0 24 24" width="12" height="12"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
             Survolez pour en savoir plus
           </div>
         </div>
         <div class="flip-back">
-          <div class="flip-back-title">Votre client n'a pas besoin de compte</div>
-          <div class="flip-back-body">Chaque client reçoit un lien sécurisé unique. Il l'ouvre dans n'importe quel navigateur, voit sa facture complète (HT, TVA, TTC), signe électroniquement et télécharge le PDF. Sans créer de compte.</div>
-          <a href="login.html" class="flip-back-cta">Voir le portail client →</a>
+          <div class="flip-back-title">Le suivi qui fait la différence</div>
+          <div class="flip-back-body">Rouvrez une fiche patient et voyez en 3 secondes tout son parcours — dates, diagnostics, traitements, ordonnances. Le bon suivi, sans effort.</div>
+          <a href="login.html" class="flip-back-cta">Voir une consultation →</a>
         </div>
       </div>
     </div>
@@ -677,20 +659,20 @@ footer{border-top:1px solid var(--card-border);width:100%}
     <div class="flip-card reveal delay-3" onclick="this.classList.toggle('flipped')">
       <div class="flip-card-inner">
         <div class="flip-front">
-          <div class="flip-icon fi-teal">
-            <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          <div class="flip-icon fi-pink">
+            <svg viewBox="0 0 24 24" width="22" height="22"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           </div>
-          <div class="flip-title">Automatisation des tâches</div>
-          <div class="flip-desc">Contrat signé → facture créée → relance envoyée. Automatisation en deux clics qui tourne pendant que vous dormez. Sans Zapier. Sans frais supplémentaires.</div>
+          <div class="flip-title">Statistiques de cabinet</div>
+          <div class="flip-desc">Consultations par mois, répartition CNAS/CASNOS, jours chargés. Des données réelles pour piloter votre activité.</div>
           <div class="flip-hint">
             <svg viewBox="0 0 24 24" width="12" height="12"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
             Survolez pour en savoir plus
           </div>
         </div>
         <div class="flip-back">
-          <div class="flip-back-title">Arrêtez de tout faire manuellement</div>
-          <div class="flip-back-body">Quand un Smart File est signé, Prospeo crée la facture et l'envoie au client automatiquement. Quand une facture est en retard de 7 jours, une relance part. Inclus dans le Pro — sans surcoût.</div>
-          <a href="login.html" class="flip-back-cta">Automatiser maintenant →</a>
+          <div class="flip-back-title">Connaître son cabinet, c'est le gérer</div>
+          <div class="flip-back-body">Visualisez vos tendances mensuelles, la répartition assurés/non assurés, vos pics d'activité. Prenez de meilleures décisions. Plan Pro.</div>
+          <a href="login.html" class="flip-back-cta">Voir les analytiques →</a>
         </div>
       </div>
     </div>
@@ -699,73 +681,153 @@ footer{border-top:1px solid var(--card-border);width:100%}
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="how" id="how">
+<section class="how" id="comment">
   <div class="how-inner">
     <div class="reveal" style="text-align:center">
-      <div class="section-eyebrow">Simple par conception</div>
-      <h2 class="section-title">De l'inscription à la première facture en 4 étapes</h2>
+      <div class="section-eyebrow">Mise en route</div>
+      <h2 class="section-title">Prêt en moins de 5 minutes</h2>
     </div>
     <div class="steps-row">
       <div class="step reveal">
         <div class="step-num">1</div>
         <div class="step-title">Créez votre compte</div>
-        <div class="step-desc">Inscrivez-vous avec votre email. Sans carte bancaire. En 30 secondes.</div>
+        <div class="step-desc">Email, spécialité, wilaya. Aucune carte bancaire. En moins d'une minute.</div>
       </div>
       <div class="step reveal delay-1">
         <div class="step-num">2</div>
-        <div class="step-title">Ajoutez votre premier client</div>
-        <div class="step-desc">Importez depuis CSV ou ajoutez manuellement. Votre pipeline est prêt instantanément.</div>
+        <div class="step-title">Importez vos patients</div>
+        <div class="step-desc">Ajoutez manuellement ou importez un fichier CSV. Vos dossiers sont prêts immédiatement.</div>
       </div>
       <div class="step reveal delay-2">
         <div class="step-num">3</div>
-        <div class="step-title">Créez un Smart File</div>
-        <div class="step-desc">Choisissez un modèle de contrat, ajoutez vos prestations et tarifs, générez le lien.</div>
+        <div class="step-title">Posez votre QR code</div>
+        <div class="step-desc">Imprimez le QR, affichez-le à l'accueil. C'est tout. La file démarre d'elle-même.</div>
       </div>
       <div class="step reveal delay-3">
         <div class="step-num">4</div>
-        <div class="step-title">Le client signe, vous êtes payé</div>
-        <div class="step-desc">Il signe électroniquement. La facture est créée automatiquement. C'est tout.</div>
+        <div class="step-title">Travaillez normalement</div>
+        <div class="step-desc">Consultez, prescrivez, archivez — Prospeo s'adapte à votre rythme, pas l'inverse.</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- AI SECTION -->
-<section class="ai-section">
-  <div class="ai-inner">
-    <div class="reveal">
-      <div class="section-eyebrow">Découvrez Nex</div>
-      <h2 class="section-title">Votre conseiller IA qui connaît vraiment votre activité</h2>
-      <p class="section-sub" style="margin-bottom:28px">Nex voit votre vrai pipeline, vos factures en retard, vos tâches du jour. Posez n'importe quelle question — et obtenez des réponses vraiment utiles.</p>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="pill">« Résume mon pipeline cette semaine »</div>
-        <div class="pill">« Qui dois-je relancer aujourd'hui ? »</div>
-        <div class="pill">« Comment facturer en auto-entrepreneur ? »</div>
-        <div class="pill">« Quel est mon taux de conversion ce mois ? »</div>
-      </div>
-    </div>
-    <div class="reveal delay-2">
-      <div class="ai-chat-demo">
-        <div class="ai-demo-head">
-          <div class="ai-demo-avatar">N</div>
-          <div>
-            <div class="ai-demo-name">Nex</div>
-            <div class="ai-demo-status">En ligne</div>
+<!-- QR QUEUE SPOTLIGHT -->
+<section class="qrs reveal-scale">
+  <!-- Ambient orbs -->
+  <div class="qrs-orb qrs-orb-1"></div>
+  <div class="qrs-orb qrs-orb-2"></div>
+  <div class="qrs-orb qrs-orb-3"></div>
+  <div class="qrs-grid"></div>
+
+  <div class="qrs-inner">
+    <!-- Header -->
+    <div class="qrs-eyebrow">Fonctionnalité phare</div>
+    <h2 class="qrs-title">Plus de chaos<br><span class="qrs-title-accent">en salle d'attente.</span></h2>
+    <p class="qrs-sub">Un QR code suffit. Le patient prend son numéro depuis son téléphone, suit sa position en direct — sans aucune application à installer.</p>
+
+    <!-- Live scene -->
+    <div class="qrs-scene">
+
+      <!-- TV display (left) -->
+      <div class="qrs-tv" id="qrs-tv">
+        <div class="qrs-tv-topbar">
+          <div class="qrs-tv-topbar-title">🏥 Salle d'attente · Dr. Benali</div>
+          <div class="qrs-tv-topbar-time" id="qrs-clock">09:34</div>
+        </div>
+        <div class="qrs-tv-body">
+          <div class="qrs-tv-called-label">Numéro appelé</div>
+          <div class="qrs-tv-num-wrap">
+            <div class="qrs-ring qrs-ring-1"></div>
+            <div class="qrs-ring qrs-ring-2"></div>
+            <div class="qrs-ring qrs-ring-3"></div>
+            <div class="qrs-tv-big-num" id="qrs-tv-num">12</div>
+          </div>
+          <div class="qrs-tv-patient-name" id="qrs-tv-name">Karim B. — Veuillez entrer</div>
+          <div class="qrs-tv-list" id="qrs-tv-list">
+            <div class="qrs-tv-row qrs-active" id="qrs-row-0">
+              <span class="qrs-tv-row-num">N°12</span>
+              <span class="qrs-tv-row-status">En cours</span>
+            </div>
+            <div class="qrs-tv-row" id="qrs-row-1">
+              <span class="qrs-tv-row-num">N°13</span>
+              <span class="qrs-tv-row-status">Prochain</span>
+            </div>
+            <div class="qrs-tv-row" id="qrs-row-2">
+              <span class="qrs-tv-row-num">N°14</span>
+              <span class="qrs-tv-row-status">En attente</span>
+            </div>
+            <div class="qrs-tv-row" id="qrs-row-3">
+              <span class="qrs-tv-row-num">N°15</span>
+              <span class="qrs-tv-row-status">En attente</span>
+            </div>
           </div>
         </div>
-        <div class="ai-demo-body">
-          <div class="ai-msg ai-msg-user">Résume mon pipeline</div>
-          <div class="ai-msg ai-msg-bot">Vous avez <strong>12 deals actifs</strong> pour un total de 24 800 €. Votre étape la plus forte est Demande avec 5 leads.<br><br>3 deals sont en "Devis envoyé" depuis plus de 10 jours — je relancerais Agence Martin, TechCorp et Studio Leo aujourd'hui. Votre taux de conversion ce mois est de <strong>68 %</strong>, au-dessus de votre moyenne sur 3 mois.</div>
-          <div class="ai-msg ai-msg-user">Rédige une relance pour Agence Martin</div>
-          <div class="ai-msg ai-msg-bot">Voici une relance que vous pouvez envoyer :<br><br><em>"Bonjour Sophie, je voulais faire un point sur notre proposition du 15 mars. Avez-vous eu l'occasion de la consulter ? Je suis disponible pour un appel cette semaine si vous souhaitez en discuter."</em></div>
-        </div>
-        <div class="ai-demo-input">
-          <input class="ai-demo-inp" placeholder="Posez une question à Nex..." readonly>
-          <button class="ai-demo-send" onclick="window.location.href='login.html'" aria-label="Send">
-            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
+      </div>
+
+      <!-- Phone (right) -->
+      <div class="qrs-phone">
+        <div class="qrs-phone-notch"></div>
+        <div class="qrs-phone-screen">
+          <div class="qrs-phone-header">
+            <div class="qrs-phone-header-txt">Dr. Benali · Cardiologue</div>
+            <div class="qrs-phone-header-name">Cabinet Kouba, Alger</div>
+          </div>
+          <div class="qrs-phone-ticket">
+            <div class="qrs-phone-ticket-label">Votre numéro</div>
+            <div class="qrs-phone-ticket-num" id="qrs-phone-num">15</div>
+            <div class="qrs-phone-ticket-name">Yasmine K.</div>
+          </div>
+          <div class="qrs-phone-pos-bar">
+            <div class="qrs-phone-pos-txt" id="qrs-phone-pos">3 patients avant vous</div>
+            <div class="qrs-phone-pos-sub" id="qrs-phone-current">En cours : N°12</div>
+            <div class="qrs-phone-progress">
+              <div class="qrs-phone-progress-fill" id="qrs-progress" style="width:75%"></div>
+            </div>
+          </div>
         </div>
       </div>
+
+    </div><!-- /scene -->
+
+    <!-- 4 feature bullets -->
+    <div class="qrs-bullets">
+      <div class="qrs-bullet">
+        <div class="qrs-bullet-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3" rx="1"/><rect x="18" y="14" width="3" height="3" rx="1"/><rect x="14" y="18" width="3" height="3" rx="1"/><rect x="18" y="18" width="3" height="3" rx="1"/></svg>
+        </div>
+        <div class="qrs-bullet-title">Scan &amp; c'est parti</div>
+        <div class="qrs-bullet-desc">Le patient scanne, entre son prénom, reçoit son numéro. 10 secondes maximum.</div>
+      </div>
+      <div class="qrs-bullet">
+        <div class="qrs-bullet-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="qrs-bullet-title">Mise à jour instantanée</div>
+        <div class="qrs-bullet-desc">TV et téléphones patients synchronisés en temps réel. Sans délai, sans rechargement.</div>
+      </div>
+      <div class="qrs-bullet">
+        <div class="qrs-bullet-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="qrs-bullet-title">Zéro friction</div>
+        <div class="qrs-bullet-desc">Aucune application, aucun compte. Le lien s'ouvre directement depuis l'appareil photo.</div>
+      </div>
+      <div class="qrs-bullet">
+        <div class="qrs-bullet-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </div>
+        <div class="qrs-bullet-title">Reset automatique</div>
+        <div class="qrs-bullet-desc">La file repart de N°1 chaque matin. Automatiquement. Rien à faire.</div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="qrs-cta-row">
+      <a href="login.html" class="qrs-cta-btn">
+        Activer la file d'attente QR
+        <svg viewBox="0 0 24 24" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
     </div>
   </div>
 </section>
@@ -774,40 +836,40 @@ footer{border-top:1px solid var(--card-border);width:100%}
 <section class="testimonials">
   <div class="test-inner">
     <div class="reveal" style="text-align:center">
-      <div class="section-eyebrow">Ils nous font confiance</div>
-      <h2 class="section-title">Ce qu'ils en disent</h2>
+      <div class="section-eyebrow">Témoignages</div>
+      <h2 class="section-title">Ils ont changé<br>leur façon de travailler</h2>
     </div>
     <div class="test-grid">
       <div class="test-card reveal">
         <div class="test-stars">★★★★★</div>
-        <div class="test-quote">« Enfin un CRM qui comprend la facturation française. HT/TVA/TTC calculés automatiquement — je n'ai plus jamais fait d'erreur de facturation depuis que j'ai changé. »</div>
+        <div class="test-quote">« Avant, les matins étaient stressants. Maintenant le QR gère la file tout seul. Mes patients attendent calmement, je travaille sereinement. »</div>
         <div class="test-author">
-          <div class="test-avatar" style="background:linear-gradient(135deg,#003399,#7C3AED)">ML</div>
+          <div class="test-avatar" style="background:linear-gradient(135deg,#003399,#1D4ED8)">MB</div>
           <div>
-            <div class="test-name">Marie L.</div>
-            <div class="test-role">Designer freelance · Paris</div>
+            <div class="test-name">Dr. Mohamed B.</div>
+            <div class="test-role">Médecin généraliste · Alger</div>
           </div>
         </div>
       </div>
       <div class="test-card reveal delay-1">
         <div class="test-stars">★★★★★</div>
-        <div class="test-quote">« Les Smart Files ont changé ma façon de travailler avec mes clients. J'envoie un lien, ils signent, la facture apparaît automatiquement. 2 heures économisées par nouveau client. »</div>
+        <div class="test-quote">« CNAS, CASNOS, non assuré — tout est dans le même endroit. Je retrouve n'importe quel dossier en deux secondes. J'aurais dû basculer bien plus tôt. »</div>
         <div class="test-author">
-          <div class="test-avatar" style="background:linear-gradient(135deg,#059669,#1D4ED8)">TR</div>
+          <div class="test-avatar" style="background:linear-gradient(135deg,#059669,#1D4ED8)">SK</div>
           <div>
-            <div class="test-name">Thomas R.</div>
-            <div class="test-role">Consultant · Lyon</div>
+            <div class="test-name">Dr. Sara K.</div>
+            <div class="test-role">Pédiatre · Oran</div>
           </div>
         </div>
       </div>
       <div class="test-card reveal delay-2">
         <div class="test-stars">★★★★★</div>
-        <div class="test-quote">« Mes données restent en France. Après les outils CRM américains, c'est le seul auquel je confie mes contrats clients. RGPD natif, pas rajouté après coup. »</div>
+        <div class="test-quote">« On est 4 médecins dans la clinique. Les dossiers partagés et les ordonnances PDF nous ont fait gagner facilement une heure par jour. »</div>
         <div class="test-author">
-          <div class="test-avatar" style="background:linear-gradient(135deg,#D97706,#DC2626)">SB</div>
+          <div class="test-avatar" style="background:linear-gradient(135deg,#7C3AED,#003399)">AH</div>
           <div>
-            <div class="test-name">Sophie B.</div>
-            <div class="test-role">Photographe · Bordeaux</div>
+            <div class="test-name">Dr. Ahmed H.</div>
+            <div class="test-role">Cardiologue · Constantine</div>
           </div>
         </div>
       </div>
@@ -816,41 +878,65 @@ footer{border-top:1px solid var(--card-border);width:100%}
 </section>
 
 <!-- PRICING -->
-<section class="pricing-section" id="pricing">
+<section class="pricing-section" id="tarifs">
   <div class="reveal">
-    <div class="section-eyebrow">Tarification simple</div>
-    <h2 class="section-title">Commencez gratuitement. Évoluez quand vous êtes prêt.</h2>
+    <div class="section-eyebrow">Tarifs</div>
+    <h2 class="section-title">Simple, honnête,<br>sans mauvaises surprises.</h2>
+  </div>
+  <div class="pricing-toggle reveal">
+    <button class="pricing-toggle-btn active" id="btn-monthly" onclick="setPricing('monthly')">Mensuel</button>
+    <button class="pricing-toggle-btn" id="btn-annual" onclick="setPricing('annual')">
+      Annuel <span class="pricing-save">−2 mois</span>
+    </button>
   </div>
   <div class="pricing-cards reveal">
+    <!-- FREE -->
     <div class="price-card">
       <div class="price-name">Gratuit</div>
-      <div class="price-val">€0</div>
+      <div class="price-val">0 <span class="price-val-sub">DA</span></div>
       <div class="price-per">pour toujours</div>
       <div class="price-features">
-        <div class="pf"><div class="pf-check"></div>Jusqu'à 10 leads</div>
-        <div class="pf"><div class="pf-check"></div>15 clients</div>
-        <div class="pf"><div class="pf-check"></div>3 factures par mois</div>
-        <div class="pf"><div class="pf-check"></div>20 tâches</div>
-        <div class="pf"><div class="pf-x"></div>Smart Files &amp; e-signatures</div>
-        <div class="pf"><div class="pf-x"></div>Conseiller IA Nex</div>
-        <div class="pf"><div class="pf-x"></div>Automatisation des tâches</div>
+        <div class="pf"><div class="pf-check"></div>Jusqu'à 30 patients</div>
+        <div class="pf"><div class="pf-check"></div>File d'attente QR</div>
+        <div class="pf"><div class="pf-check"></div>Agenda de base</div>
+        <div class="pf"><div class="pf-check"></div>Dossiers CNAS/CASNOS</div>
+        <div class="pf"><div class="pf-x"></div>Ordonnances PDF illimitées</div>
+        <div class="pf"><div class="pf-x"></div>Analytiques avancées</div>
+        <div class="pf"><div class="pf-x"></div>Support prioritaire</div>
       </div>
       <a href="login.html" class="price-btn pb-ghost">Commencer gratuitement</a>
     </div>
+    <!-- PRO MÉDECIN -->
     <div class="price-card featured">
-      <div class="price-name">Pro</div>
-      <div class="price-val">€12</div>
-      <div class="price-per">par mois · facturé mensuellement</div>
+      <div class="price-name">Pro Médecin</div>
+      <div class="price-val" id="price-pro">2 900 <span class="price-val-sub">DA</span></div>
+      <div class="price-per" id="per-pro">par mois · cabinet individuel</div>
       <div class="price-features">
-        <div class="pf"><div class="pf-check"></div>Leads, clients, factures illimités</div>
-        <div class="pf"><div class="pf-check"></div>Smart Files + e-signatures</div>
-        <div class="pf"><div class="pf-check"></div>Conseiller IA Nex</div>
-        <div class="pf"><div class="pf-check"></div>Automatisation des tâches</div>
-        <div class="pf"><div class="pf-check"></div>Portail factures client</div>
-        <div class="pf"><div class="pf-check"></div>Modèles de factures récurrentes</div>
-        <div class="pf"><div class="pf-check"></div>Analytiques &amp; prévisions CA</div>
+        <div class="pf"><div class="pf-check"></div>Patients illimités</div>
+        <div class="pf"><div class="pf-check"></div>Ordonnances PDF illimitées</div>
+        <div class="pf"><div class="pf-check"></div>Consultations &amp; historique complet</div>
+        <div class="pf"><div class="pf-check"></div>File d'attente QR avancée</div>
+        <div class="pf"><div class="pf-check"></div>Agenda complet avec rappels</div>
+        <div class="pf"><div class="pf-check"></div>Analytiques de cabinet</div>
+        <div class="pf"><div class="pf-check"></div>Support prioritaire</div>
       </div>
-      <a href="login.html" class="price-btn pb-primary">Démarrer Pro gratuitement →</a>
+      <a href="login.html" class="price-btn pb-primary">Démarrer Pro →</a>
+    </div>
+    <!-- PRO CLINIQUE -->
+    <div class="price-card">
+      <div class="price-name">Pro Clinique</div>
+      <div class="price-val" id="price-clinic">7 900 <span class="price-val-sub">DA</span></div>
+      <div class="price-per" id="per-clinic">par mois · plusieurs médecins</div>
+      <div class="price-features">
+        <div class="pf"><div class="pf-check"></div>Tout du plan Pro Médecin</div>
+        <div class="pf"><div class="pf-check"></div>Jusqu'à 10 médecins</div>
+        <div class="pf"><div class="pf-check"></div>Dossiers patients partagés</div>
+        <div class="pf"><div class="pf-check"></div>Files d'attente par médecin</div>
+        <div class="pf"><div class="pf-check"></div>Tableau de bord clinique</div>
+        <div class="pf"><div class="pf-check"></div>Analytiques multi-médecins</div>
+        <div class="pf"><div class="pf-check"></div>Onboarding dédié</div>
+      </div>
+      <a href="mailto:contact@prospeo.app?subject=Demande%20Pro%20Clinique" class="price-btn pb-contact">Contacter pour démo →</a>
     </div>
   </div>
 </section>
@@ -859,13 +945,13 @@ footer{border-top:1px solid var(--card-border);width:100%}
 <section class="final-cta">
   <div class="cta-bg"></div>
   <div class="reveal">
-    <h2 class="cta-title">Votre activité mérite<br>mieux que des tableurs</h2>
-    <p class="cta-sub">Rejoignez les freelances français qui gèrent toute leur activité depuis un seul endroit. Gratuit pour commencer. Sans carte bancaire.</p>
+    <h2 class="cta-title">Prêt à passer<br>à la vitesse supérieure ?</h2>
+    <p class="cta-sub">Rejoignez les médecins qui ont dit non au désordre. Gratuit pour commencer — aucune carte, aucun engagement.</p>
     <a href="login.html" class="btn-hero-primary" style="font-size:17px;padding:16px 36px">
-      <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><polyline points="13 2 13 9 20 9"/><polygon points="22 2 13 2 13 9 20 9 22 2"/><path d="M4 17h16M4 12h10M4 7h6"/></svg>
-      Commencer gratuitement
+      <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Démarrer gratuitement
     </a>
-    <div style="margin-top:20px;font-size:13px;color:var(--text4)">Conforme RGPD · Données en EU · Résiliation à tout moment</div>
+    <div style="margin-top:20px;font-size:13px;color:#9CA3AF">30 patients gratuits · Sans carte bancaire · Résiliable à tout moment</div>
   </div>
 </section>
 
@@ -878,7 +964,7 @@ footer{border-top:1px solid var(--card-border);width:100%}
       <a href="pricing.html" class="footer-link">Tarifs</a>
       <a href="login.html" class="footer-link">Connexion</a>
     </div>
-    <div class="footer-right">© 2026 Prospeo · Fait pour les freelances français</div>
+    <div class="footer-right">© 2026 Prospeo · CRM médical algérien</div>
   </div>
 </footer>
 
@@ -898,67 +984,6 @@ footer{border-top:1px solid var(--card-border);width:100%}
 </div>
 
 <script>
-// ── THEME SYSTEM ──────────────────────────────────────────────
-var _theme = localStorage.getItem('prospeo-theme') || 'dark';
-
-function applyTheme(t) {
-  _theme = t;
-  document.documentElement.setAttribute('data-theme', t);
-  var moon = document.getElementById('theme-icon-moon');
-  var sun  = document.getElementById('theme-icon-sun');
-  if (moon) moon.style.display = t === 'light' ? 'none' : 'block';
-  if (sun)  sun.style.display  = t === 'light' ? 'block' : 'none';
-  localStorage.setItem('prospeo-theme', t);
-}
-
-function toggleTheme() {
-  applyTheme(_theme === 'dark' ? 'light' : 'dark');
-  playClick();
-}
-
-applyTheme(_theme);
-
-// ── SOUND EFFECTS ─────────────────────────────────────────────
-var _audioCtx = null;
-var _soundPlayed = false;
-
-function getAudioCtx() {
-  if (!_audioCtx) {
-    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-  }
-  return _audioCtx;
-}
-
-function playTone(freq, type, duration, volume, delay) {
-  var ctx = getAudioCtx(); if (!ctx) return;
-  var osc = ctx.createOscillator();
-  var gain = ctx.createGain();
-  osc.connect(gain); gain.connect(ctx.destination);
-  osc.type = type || 'sine';
-  osc.frequency.setValueAtTime(freq, ctx.currentTime + (delay||0));
-  gain.gain.setValueAtTime(0, ctx.currentTime + (delay||0));
-  gain.gain.linearRampToValueAtTime(volume||0.08, ctx.currentTime + (delay||0) + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (delay||0) + duration);
-  osc.start(ctx.currentTime + (delay||0));
-  osc.stop(ctx.currentTime + (delay||0) + duration);
-}
-
-function playWelcomeSound() {
-  if (_soundPlayed) return; _soundPlayed = true;
-  playTone(523.25, 'sine', 0.5, 0.06, 0.0);
-  playTone(659.25, 'sine', 0.5, 0.05, 0.12);
-  playTone(783.99, 'sine', 0.6, 0.07, 0.24);
-  playTone(1046.5, 'sine', 0.4, 0.025, 0.3);
-}
-
-function playClick() {
-  playTone(880, 'sine', 0.12, 0.04, 0);
-  playTone(1108.73, 'sine', 0.1, 0.03, 0.05);
-}
-
-document.addEventListener('click',  function(){ playWelcomeSound(); }, { once: true });
-document.addEventListener('scroll', function(){ playWelcomeSound(); }, { once: true, passive: true });
-
 // ── NAV SCROLL ────────────────────────────────────────────────
 window.addEventListener('scroll', function(){
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
@@ -986,9 +1011,9 @@ var countObserver = new IntersectionObserver(function(entries){
       var p    = Math.min((now - start) / duration, 1);
       var ease = 1 - Math.pow(1 - p, 3);
       var val  = Math.round(ease * target);
-      el.textContent = prefix + val + (suffix ? ' ' + suffix : '');
+      el.textContent = prefix + val + (suffix ? suffix : '');
       if (p < 1) requestAnimationFrame(step);
-      else el.textContent = prefix + target + (suffix ? ' ' + suffix : '');
+      else el.textContent = prefix + target + (suffix ? suffix : '');
     }
     requestAnimationFrame(step);
     countObserver.unobserve(el);
@@ -996,21 +1021,114 @@ var countObserver = new IntersectionObserver(function(entries){
 }, { threshold: .5 });
 document.querySelectorAll('[data-count]').forEach(function(el){ countObserver.observe(el); });
 
-// ── AI DEMO TYPING ────────────────────────────────────────────
-var demoMsgs = ['Résume mon pipeline', 'Qui dois-je relancer ?', 'Rédige un email client', 'Comment facturer en auto-entrepreneur ?'];
-var demoIdx  = 0;
-var demoInp  = document.querySelector('.ai-demo-inp');
-function typeDemo() {
-  if (!demoInp) return;
-  var msg = demoMsgs[demoIdx++ % demoMsgs.length];
-  var i   = 0;
-  demoInp.value = '';
-  var iv = setInterval(function(){
-    if (i < msg.length) { demoInp.value += msg[i++]; }
-    else { clearInterval(iv); setTimeout(typeDemo, 2800); }
-  }, 60);
+// ── PRICING TOGGLE ────────────────────────────────────────────
+var _pricingMode = 'monthly';
+function setPricing(mode) {
+  _pricingMode = mode;
+  document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly');
+  document.getElementById('btn-annual').classList.toggle('active', mode === 'annual');
+
+  var proVal  = document.getElementById('price-pro');
+  var perPro  = document.getElementById('per-pro');
+  var clinVal = document.getElementById('price-clinic');
+  var perClin = document.getElementById('per-clinic');
+
+  if (mode === 'annual') {
+    proVal.innerHTML  = '2 400 <span class="price-val-sub">DA</span>';
+    perPro.textContent = 'par mois · facturé annuellement';
+    clinVal.innerHTML = '6 600 <span class="price-val-sub">DA</span>';
+    perClin.textContent = 'par mois · facturé annuellement';
+  } else {
+    proVal.innerHTML  = '2 900 <span class="price-val-sub">DA</span>';
+    perPro.textContent = 'par mois · cabinet individuel';
+    clinVal.innerHTML = '7 900 <span class="price-val-sub">DA</span>';
+    perClin.textContent = 'par mois · plusieurs médecins';
+  }
 }
-setTimeout(typeDemo, 1500);
+
+// ── QR QUEUE LIVE ANIMATION ───────────────────────────────────
+(function(){
+  var patients = [
+    {num:12, name:'Karim B.'},
+    {num:13, name:'Amira T.'},
+    {num:14, name:'Youcef M.'},
+    {num:15, name:'Yasmine K.'},
+    {num:16, name:'Riad S.'},
+    {num:17, name:'Nadia B.'}
+  ];
+  var idx = 0; // index of current patient being served
+
+  function pop(el){
+    el.classList.remove('qrs-pop');
+    void el.offsetWidth; // reflow
+    el.classList.add('qrs-pop');
+  }
+
+  function advance(){
+    idx = (idx + 1) % (patients.length - 2);
+    render();
+  }
+
+  function render(){
+    var cur   = patients[idx];
+    var next1 = patients[idx+1];
+    var next2 = patients[idx+2];
+    var next3 = patients[idx+3] || {num: patients[idx].num + 3, name:''};
+
+    // TV big number
+    var tvNum = document.getElementById('qrs-tv-num');
+    if(tvNum){ tvNum.textContent = cur.num; pop(tvNum); }
+    var tvName = document.getElementById('qrs-tv-name');
+    if(tvName) tvName.textContent = cur.name + ' — Veuillez entrer';
+
+    // TV rows
+    var rows = [
+      {el:'qrs-row-0', p:cur,   label:'En cours'},
+      {el:'qrs-row-1', p:next1, label:'Prochain'},
+      {el:'qrs-row-2', p:next2, label:'En attente'},
+      {el:'qrs-row-3', p:next3, label:'En attente'}
+    ];
+    rows.forEach(function(r, i){
+      var el = document.getElementById(r.el);
+      if(!el) return;
+      el.querySelector('.qrs-tv-row-num').textContent = 'N°' + r.p.num;
+      el.querySelector('.qrs-tv-row-status').textContent = r.label;
+      el.classList.toggle('qrs-active', i === 0);
+    });
+
+    // Phone: patient is 3 ahead of current
+    var phonePatient = patients[(idx + 3) % patients.length] || {num: cur.num + 3, name:'Yasmine K.'};
+    var ahead = 3 - (idx % 3); if(ahead < 1) ahead = 1;
+
+    var phoneNum = document.getElementById('qrs-phone-num');
+    if(phoneNum){ phoneNum.textContent = phonePatient.num; pop(phoneNum); }
+    var phonePos = document.getElementById('qrs-phone-pos');
+    if(phonePos) phonePos.textContent = ahead + ' patient' + (ahead>1?'s':'') + ' avant vous';
+    var phoneCur = document.getElementById('qrs-phone-current');
+    if(phoneCur) phoneCur.textContent = 'En cours : N°' + cur.num;
+    var fill = document.getElementById('qrs-progress');
+    if(fill){
+      var pct = Math.round(((phonePatient.num - cur.num - ahead) / phonePatient.num) * 100);
+      pct = Math.max(20, Math.min(95, pct || 70 + idx * 5));
+      fill.style.width = pct + '%';
+    }
+  }
+
+  // Live clock
+  function updateClock(){
+    var cl = document.getElementById('qrs-clock');
+    if(!cl) return;
+    var d = new Date();
+    var h = String(d.getHours()).padStart(2,'0');
+    var m = String(d.getMinutes()).padStart(2,'0');
+    cl.textContent = h + ':' + m;
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  // Auto-advance every 3.5s
+  setInterval(advance, 3500);
+})();
 
 // ── SMOOTH HASH SCROLL ────────────────────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(function(a){
@@ -1044,35 +1162,10 @@ function hidePWABanner() {
   b.classList.remove('show'); setTimeout(function(){ b.style.display = 'none'; }, 400);
 }
 function pwaInstall() {
-  if (_pwaPrompt) {
-    _pwaPrompt.prompt();
-    _pwaPrompt.userChoice.then(function(r){ if (r.outcome === 'accepted') pwaDismiss(); _pwaPrompt = null; });
-  }
+  if (_pwaPrompt) { _pwaPrompt.prompt(); _pwaPrompt.userChoice.then(function(){ hidePWABanner(); }); }
 }
 function pwaDismiss() {
-  hidePWABanner(); localStorage.setItem('pwa-dismissed', '1');
-}
-
-// iOS Safari hint
-var isIos   = /iphone|ipad|ipod/i.test(navigator.userAgent);
-var isInApp = window.navigator.standalone;
-if (isIos && !isInApp && !localStorage.getItem('pwa-dismissed') && !localStorage.getItem('pwa-installed')) {
-  setTimeout(function(){
-    var b = document.getElementById('pwa-banner'); if (!b) return;
-    b.querySelector('.pwa-banner-title').textContent = 'Install Prospeo';
-    b.querySelector('.pwa-banner-sub').textContent   = 'Tap Share → Add to Home Screen';
-    b.querySelector('.pwa-install-btn').style.display = 'none';
-    showPWABanner();
-  }, 1000);
-}
-
-// ── SERVICE WORKER ────────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('/prospeo/sw.js', { scope: '/prospeo/' })
-      .then(function(reg){ console.log('[SW] Registered, scope:', reg.scope); })
-      .catch(function(err){ console.warn('[SW] Registration failed:', err); });
-  });
+  localStorage.setItem('pwa-dismissed', '1'); hidePWABanner();
 }
 </script>
 </body>

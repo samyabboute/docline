@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Rejoindre la file d'attente</title>
+<meta name="description" content="Scannez le QR Code pour rejoindre la file d'attente du cabinet médical.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#003399;--brand2:#1D4ED8;--brand-light:#EEF2FF;
+  --bg:#F0F4FF;--surface:#FFFFFF;
+  --text:#0D1117;--text2:#374151;--text3:#6B7280;--text4:#9CA3AF;
+  --success:#059669;--success-bg:#ECFDF5;--success-border:#A7F3D0;
+  --warning:#D97706;--warning-bg:#FFFBEB;
+  --danger:#DC2626;
+  --border:#E5E7EB;
+  --r:16px;--rlg:24px;--rfull:999px;
+  --shadow:0 4px 24px rgba(0,51,153,.1);
+  --shadow-lg:0 16px 56px rgba(0,51,153,.15);
+  --ease:cubic-bezier(.25,.46,.45,.94);
+}
+html{-webkit-font-smoothing:antialiased;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 20px 40px}
+
+/* CARD */
+.card{background:var(--surface);border-radius:var(--rlg);box-shadow:var(--shadow-lg);width:100%;max-width:400px;overflow:hidden;animation:slideUp .5s var(--ease) both}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* HEADER */
+.card-header{background:linear-gradient(135deg,#003399,#1D4ED8);padding:28px 24px;text-align:center;color:#fff}
+.clinic-avatar{width:56px;height:56px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px}
+.clinic-name{font-size:18px;font-weight:700;margin-bottom:4px}
+.clinic-sub{font-size:13px;opacity:.75}
+
+/* STEP: NAME INPUT */
+.step{padding:28px 24px;display:flex;flex-direction:column;gap:20px}
+.step.hidden{display:none}
+.step-title{font-size:17px;font-weight:700;color:var(--text);text-align:center}
+.step-sub{font-size:14px;color:var(--text3);text-align:center;line-height:1.55}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:13px;font-weight:600;color:var(--text2)}
+.form-input{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--r);font-size:16px;font-family:inherit;color:var(--text);background:var(--surface);transition:border-color .2s;outline:none;-webkit-appearance:none}
+.form-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,51,153,.1)}
+.form-input::placeholder{color:var(--text4)}
+.btn-join{width:100%;padding:16px;background:var(--brand);color:#fff;border:none;border-radius:var(--rfull);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-join:hover:not(:disabled){background:var(--brand2);transform:translateY(-1px)}
+.btn-join:active:not(:disabled){transform:scale(.98)}
+.btn-join:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-join svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.btn-spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-join.loading .btn-spinner{display:block}
+.btn-join.loading .btn-text{display:none}
+
+/* STEP: CONFIRMATION */
+.confirm-num{font-size:96px;font-weight:900;line-height:1;background:linear-gradient(135deg,#003399,#1D4ED8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin:8px 0}
+.confirm-badge{display:inline-flex;align-items:center;gap:6px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--rfull);padding:6px 14px;font-size:13px;font-weight:600;color:var(--success);margin:0 auto;display:flex;justify-content:center}
+.confirm-badge::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--success);display:block}
+.info-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#F8FAFF;border-radius:var(--r);border:1px solid rgba(0,51,153,.08)}
+.info-row-label{font-size:13px;color:var(--text3)}
+.info-row-val{font-size:14px;font-weight:700;color:var(--text)}
+.info-row-val.highlight{color:var(--brand)}
+.wait-note{font-size:13px;color:var(--text3);text-align:center;line-height:1.6;background:var(--warning-bg);border:1px solid #FDE68A;border-radius:var(--r);padding:12px 16px}
+.wait-note strong{color:var(--warning);display:block;margin-bottom:2px}
+
+/* STATUS UPDATES */
+.status-card{padding:16px;border-radius:var(--r);text-align:center;animation:pulse-bg 2s ease-in-out infinite}
+.status-card.waiting{background:#EEF2FF;border:1px solid rgba(0,51,153,.15)}
+.status-card.next{background:#FFF7ED;border:1px solid #FED7AA;animation:pulse-bg-amber 1.5s ease-in-out infinite}
+.status-card.called{background:#ECFDF5;border:1px solid #A7F3D0;animation:none}
+@keyframes pulse-bg{0%,100%{background:#EEF2FF}50%{background:#E0E7FF}}
+@keyframes pulse-bg-amber{0%,100%{background:#FFF7ED}50%{background:#FEF3C7}}
+.status-icon{font-size:32px;margin-bottom:8px}
+.status-text{font-size:15px;font-weight:700;color:var(--text)}
+.status-sub{font-size:12px;color:var(--text3);margin-top:4px}
+.position-bar{margin-top:12px;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden}
+.position-fill{height:100%;background:linear-gradient(90deg,#003399,#1D4ED8);border-radius:3px;transition:width 1s var(--ease)}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:0 24px}
+
+/* FOOTER */
+.card-footer{padding:16px 24px;text-align:center;border-top:1px solid var(--border)}
+.footer-text{font-size:12px;color:var(--text4)}
+.footer-text a{color:var(--brand);text-decoration:none;font-weight:600}
+
+/* ERROR */
+.error-msg{background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--r);padding:12px 16px;font-size:13px;color:#B91C1C;text-align:center;display:none}
+.error-msg.show{display:block}
+</style>
+</head>
+<body>
+
+<div class="card" id="main-card">
+
+  <!-- HEADER -->
+  <div class="card-header" id="clinic-header">
+    <div class="clinic-avatar">🏥</div>
+    <div class="clinic-name" id="clinic-name">Cabinet médical</div>
+    <div class="clinic-sub" id="clinic-sub">File d'attente numérique</div>
+  </div>
+
+  <!-- STEP 1: ENTER NAME -->
+  <div class="step" id="step-name">
+    <div class="step-title">Prenez votre numéro</div>
+    <div class="step-sub">Entrez votre prénom et nous vous appellerons dans l'ordre. Restez à proximité.</div>
+
+    <div class="form-group">
+      <label class="form-label" for="input-name">Votre prénom</label>
+      <input class="form-input" type="text" id="input-name" placeholder="Ex: Mohamed" maxlength="50" autocomplete="given-name" inputmode="text">
+    </div>
+
+    <div class="error-msg" id="error-msg">Une erreur est survenue. Veuillez réessayer.</div>
+
+    <button class="btn-join" id="btn-join" onclick="joinQueue()">
+      <div class="btn-spinner"></div>
+      <span class="btn-text">Obtenir mon numéro</span>
+      <svg class="btn-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+  </div>
+
+  <!-- STEP 2: CONFIRMATION -->
+  <div class="step hidden" id="step-confirm">
+    <div class="step-title">Vous êtes dans la file</div>
+    <div class="confirm-num" id="confirm-num">--</div>
+    <div class="confirm-badge">Numéro confirmé</div>
+
+    <div class="info-row">
+      <span class="info-row-label">Patients avant vous</span>
+      <span class="info-row-val highlight" id="confirm-ahead">--</span>
+    </div>
+    <div class="info-row">
+      <span class="info-row-label">Attente estimée</span>
+      <span class="info-row-val" id="confirm-wait">--</span>
+    </div>
+    <div class="info-row">
+      <span class="info-row-label">Numéro en cours</span>
+      <span class="info-row-val" id="confirm-current">--</span>
+    </div>
+
+    <div class="status-card waiting" id="status-card">
+      <div class="status-icon" id="status-icon">⏳</div>
+      <div class="status-text" id="status-text">Votre tour approche</div>
+      <div class="status-sub" id="status-sub">Restez à proximité du cabinet</div>
+      <div class="position-bar">
+        <div class="position-fill" id="position-fill" style="width:10%"></div>
+      </div>
+    </div>
+
+    <div class="wait-note">
+      <strong>Restez à proximité</strong>
+      Si vous n'êtes pas présent quand votre numéro est appelé, il sera passé au suivant.
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <p class="footer-text">Propulsé par <a href="landing.html">Prospeo</a> · CRM médical algérien 🇩🇿</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _clinicId = null;
+var _myNumber = null;
+var _channel = null;
+
+// Parse clinic ID from URL ?c=CLINIC_ID
+(function init() {
+  var params = new URLSearchParams(window.location.search);
+  _clinicId = params.get('c');
+
+  if (!_clinicId) {
+    showError('QR Code invalide. Veuillez rescanner le code affiché au cabinet.');
+    document.getElementById('btn-join').disabled = true;
+    return;
+  }
+
+  // Load clinic info
+  loadClinicInfo();
+  // Load current queue state
+  loadQueueState();
+})();
+
+async function loadClinicInfo() {
+  try {
+    var { data } = await _supa.from('profiles')
+      .select('full_name, clinic_name')
+      .eq('id', _clinicId)
+      .single();
+    if (data) {
+      var name = data.clinic_name || data.full_name || 'Cabinet médical';
+      document.getElementById('clinic-name').textContent = name;
+    }
+  } catch(e) { /* silently fail */ }
+}
+
+async function loadQueueState() {
+  var today = new Date().toISOString().split('T')[0];
+  try {
+    var { data } = await _supa.from('queue_entries')
+      .select('number, status, room')
+      .eq('clinic_id', _clinicId)
+      .eq('queue_date', today)
+      .order('number', {ascending: true});
+
+    if (data) {
+      var current = data.find(function(e) { return e.status === 'current'; });
+      document.getElementById('confirm-current').textContent = current ? current.number : '--';
+    }
+  } catch(e) { /* silently fail */ }
+}
+
+async function joinQueue() {
+  if (!_clinicId) return;
+
+  var btn = document.getElementById('btn-join');
+  var nameInput = document.getElementById('input-name');
+  var name = nameInput.value.trim();
+
+  btn.classList.add('loading');
+  btn.disabled = true;
+  hideError();
+
+  try {
+    var today = new Date().toISOString().split('T')[0];
+
+    // Get last number in queue today
+    var { data: existing } = await _supa.from('queue_entries')
+      .select('number')
+      .eq('clinic_id', _clinicId)
+      .eq('queue_date', today)
+      .order('number', {ascending: false})
+      .limit(1);
+
+    var nextNum = existing && existing.length > 0 ? existing[0].number + 1 : 1;
+
+    // Insert new entry
+    var { data: entry, error } = await _supa.from('queue_entries')
+      .insert({
+        clinic_id: _clinicId,
+        number: nextNum,
+        patient_name: name || null,
+        status: 'waiting',
+        queue_date: today
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    _myNumber = nextNum;
+    showConfirmation(entry, existing ? existing.length : 0);
+    startRealtime();
+
+  } catch(e) {
+    showError('Impossible de rejoindre la file. Réessayez ou demandez au secrétariat.');
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function showConfirmation(entry, positionBefore) {
+  document.getElementById('step-name').classList.add('hidden');
+  document.getElementById('step-confirm').classList.remove('hidden');
+
+  document.getElementById('confirm-num').textContent = String(entry.number).padStart(2, '0');
+
+  var ahead = Math.max(0, positionBefore);
+  document.getElementById('confirm-ahead').textContent = ahead === 0 ? 'Vous êtes le prochain !' : ahead;
+  document.getElementById('confirm-wait').textContent = ahead === 0 ? 'Très bientôt' : '~' + (ahead * 15) + ' min';
+
+  // Progress bar (10% min so it's visible)
+  var fillPct = ahead === 0 ? 90 : Math.min(80, 10 + (1 / (ahead + 1)) * 70);
+  document.getElementById('position-fill').style.width = fillPct + '%';
+
+  updateStatus(ahead, null);
+}
+
+function updateStatus(ahead, room) {
+  var card = document.getElementById('status-card');
+  var icon = document.getElementById('status-icon');
+  var text = document.getElementById('status-text');
+  var sub  = document.getElementById('status-sub');
+
+  card.className = 'status-card';
+  if (ahead === 0) {
+    card.classList.add('called');
+    icon.textContent = '🔔';
+    text.textContent = 'C\'est votre tour !';
+    sub.textContent = room
+      ? 'Rendez-vous en ' + room + ' maintenant'
+      : 'Veuillez vous présenter au cabinet maintenant';
+    document.getElementById('position-fill').style.width = '100%';
+    // Try to vibrate
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  } else if (ahead === 1) {
+    card.classList.add('next');
+    icon.textContent = '⚡';
+    text.textContent = 'Vous êtes le prochain !';
+    sub.textContent = 'Préparez-vous, restez à proximité';
+  } else {
+    card.classList.add('waiting');
+    icon.textContent = '⏳';
+    text.textContent = 'En attente de votre tour';
+    sub.textContent = ahead + ' personne' + (ahead > 1 ? 's' : '') + ' avant vous';
+  }
+}
+
+function startRealtime() {
+  if (!_clinicId) return;
+  _channel = _supa.channel('queue-join-' + _clinicId + '-' + Date.now())
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'queue_entries',
+      filter: 'clinic_id=eq.' + _clinicId
+    }, function(payload) {
+      // Refresh queue position
+      refreshPosition();
+    })
+    .subscribe();
+}
+
+async function refreshPosition() {
+  if (!_myNumber || !_clinicId) return;
+  var today = new Date().toISOString().split('T')[0];
+  try {
+    var { data } = await _supa.from('queue_entries')
+      .select('number, status, room')
+      .eq('clinic_id', _clinicId)
+      .eq('queue_date', today)
+      .order('number', {ascending: true});
+
+    if (!data) return;
+
+    var current = data.find(function(e) { return e.status === 'current'; });
+    var currentNum = current ? current.number : 0;
+    document.getElementById('confirm-current').textContent = currentNum || '--';
+
+    var myEntry = data.find(function(e) { return e.number === _myNumber; });
+    if (!myEntry) return;
+
+    if (myEntry.status === 'done') {
+      // Already passed
+      document.getElementById('status-icon').textContent = '✅';
+      document.getElementById('status-text').textContent = 'Consultation terminée';
+      document.getElementById('status-sub').textContent = 'Merci de votre visite !';
+      document.getElementById('status-card').className = 'status-card called';
+      return;
+    }
+
+    // If I am the current patient, ahead = 0
+    if (myEntry.status === 'current') {
+      document.getElementById('confirm-ahead').textContent = 'Vous êtes le prochain !';
+      document.getElementById('confirm-wait').textContent = 'Très bientôt';
+      document.getElementById('position-fill').style.width = '90%';
+      updateStatus(0, myEntry.room || null);
+      return;
+    }
+
+    var ahead = data.filter(function(e) {
+      return (e.status === 'current' || e.status === 'waiting') && e.number < _myNumber;
+    }).length;
+
+    document.getElementById('confirm-ahead').textContent = ahead === 0 ? 'Vous êtes le prochain !' : ahead;
+    document.getElementById('confirm-wait').textContent = ahead === 0 ? 'Très bientôt' : '~' + (ahead * 15) + ' min';
+
+    var fillPct = ahead === 0 ? 90 : Math.min(80, 10 + (1 / (ahead + 1)) * 70);
+    document.getElementById('position-fill').style.width = fillPct + '%';
+    updateStatus(ahead, null);
+  } catch(e) { /* silently fail */ }
+}
+
+function showError(msg) {
+  var el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideError() {
+  document.getElementById('error-msg').classList.remove('show');
+}
+</script>
+</body>
+</html>

@@ -19,7 +19,7 @@
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
   :root {
     --brand:#003399;--brand-dark:#002280;--brand-light:#E6ECF9;--brand-glow:rgba(0,51,153,.14);--brand-border:rgba(0,51,153,.20);
-    --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(0,51,153,.14);--sidebar-border:rgba(255,255,255,.07);
+    --sidebar-bg:#FFFFFF;--sidebar-hover:rgba(0,51,153,.06);--sidebar-active:rgba(0,51,153,.09);--sidebar-border:#E5E7EB;
     --bg:#FAFBFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
     --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
     --border:#E4E7F0;--border-strong:#C8CCE0;
@@ -54,12 +54,12 @@
   .sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 16px;border-bottom:1px solid var(--sidebar-border);flex-shrink:0}
   .sidebar-logo-wrap{display:flex;align-items:center;gap:10px}
   .sidebar-plan-badge{font-size:.6875rem;font-weight:600;padding:2px 7px;border-radius:var(--r-full);letter-spacing:.3px}
-  .sidebar-plan-badge.free{background:rgba(255,255,255,.08);color:rgba(255,255,255,.45)}
-  .sidebar-plan-badge.pro{background:rgba(0,51,153,.20);color:#a5a7f5;border:1px solid rgba(0,51,153,.3)}
-  .sidebar-section{padding:20px 16px 6px;font-size:.6875rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.22)}
-  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;margin:1px 8px;border-radius:var(--r-md);color:rgba(255,255,255,.55);font-size:var(--text-sm);font-weight:500;cursor:pointer;transition:all var(--t-fast);border:none;background:transparent;text-decoration:none;width:calc(100% - 16px);text-align:left}
-  .nav-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.8)}
-  .nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600}
+  .sidebar-plan-badge.free{background:#F3F4F6;color:#6B7280}
+  .sidebar-plan-badge.pro{background:rgba(0,51,153,.1);color:#003399;border:1px solid rgba(0,51,153,.2)}
+  .sidebar-section{padding:20px 16px 6px;font-size:.6875rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;margin:1px 8px;border-radius:var(--r-md);color:#374151;font-size:var(--text-sm);font-weight:500;cursor:pointer;transition:all var(--t-fast);border:none;background:transparent;text-decoration:none;width:calc(100% - 16px);text-align:left}
+  .nav-item:hover{background:var(--sidebar-hover);color:#003399}
+  .nav-item.active{background:var(--sidebar-active);color:#003399;font-weight:600}
   .nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--brand);border-radius:0 var(--r-full) var(--r-full) 0}
   .nav-item{position:relative}
   .nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7;transition:opacity var(--t-fast)}
@@ -67,22 +67,22 @@
   .nav-lock{margin-left:auto;font-size:10px;opacity:.4}
   .sidebar-footer{margin-top:auto;border-top:1px solid var(--sidebar-border);padding:12px 8px;flex-shrink:0}
   .sidebar-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-md);cursor:pointer;transition:background var(--t-fast)}
-  .sidebar-user:hover{background:var(--sidebar-hover)}
-  .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--brand) 0%,#8B8FF5 100%);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.5px}
-  .user-name{font-size:.6875rem;font-weight:600;color:rgba(255,255,255,.8)}
-  .user-role{font-size:10px;color:rgba(255,255,255,.35);margin-top:1px}
-  .user-chevron{margin-left:auto;opacity:.3}
-  .user-chevron svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .sidebar-user:hover{background:var(--bg-subtle)}
+  .user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(0,51,153,.12);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:#003399;flex-shrink:0;letter-spacing:.5px}
+  .user-name{font-size:.6875rem;font-weight:600;color:#0D0F14}
+  .user-role{font-size:10px;color:#9CA3AF;margin-top:1px}
+  .user-chevron{margin-left:auto;opacity:.4}
+  .user-chevron svg{width:12px;height:12px;stroke:#374151;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   /* USAGE BAR */
-  .usage-bar-wrap{margin:12px 8px;padding:12px;background:rgba(255,255,255,.04);border-radius:var(--r-md);border:1px solid var(--sidebar-border)}
-  .usage-bar-label{font-size:10px;color:rgba(255,255,255,.35);margin-bottom:6px;display:flex;justify-content:space-between}
-  .usage-bar-label span{color:rgba(255,255,255,.55);font-weight:600}
-  .usage-bar-track{height:4px;background:rgba(255,255,255,.1);border-radius:var(--r-full);overflow:hidden}
+  .usage-bar-wrap{margin:12px 8px;padding:12px;background:#F8FAFF;border-radius:var(--r-md);border:1px solid #E5E7EB}
+  .usage-bar-label{font-size:10px;color:#9CA3AF;margin-bottom:6px;display:flex;justify-content:space-between}
+  .usage-bar-label span{color:#374151;font-weight:600}
+  .usage-bar-track{height:4px;background:#E5E7EB;border-radius:var(--r-full);overflow:hidden}
   .usage-bar-fill{height:100%;border-radius:var(--r-full);background:var(--brand);transition:width .5s ease}
   .usage-bar-fill.warn{background:var(--warning)}
   .usage-bar-fill.danger{background:var(--danger)}
-  .usage-upgrade-btn{display:block;text-align:center;margin-top:10px;font-size:10px;font-weight:700;color:var(--brand);background:rgba(0,51,153,.12);border-radius:var(--r-sm);padding:5px;text-decoration:none;transition:background var(--t-fast)}
-  .usage-upgrade-btn:hover{background:rgba(0,51,153,.2)}
+  .usage-upgrade-btn{display:block;text-align:center;margin-top:10px;font-size:10px;font-weight:700;color:#fff;background:#003399;border-radius:var(--r-sm);padding:5px;text-decoration:none;transition:background var(--t-fast)}
+  .usage-upgrade-btn:hover{background:#1D4ED8}
   /* TOPBAR */
   .topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:100}
   .topbar-title{font-size:var(--text-md);font-weight:700;color:var(--text-primary);flex-shrink:0}
@@ -734,7 +734,7 @@
     <div class="shell-page">
       <!-- Dashboard topbar action (injected into topbar by Shell) -->
       <div id="dash-action-bar" style="display:none">
-        <button class="btn btn-primary" id="new-lead-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nouveau lead</button>
+        <button class="btn btn-primary" id="new-lead-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nouveau patient</button>
       </div>
       <div id="loading">
         <!-- Skeleton KPIs -->
@@ -765,7 +765,7 @@
         <!-- Greeting + Focus -->
         <div class="dash-greeting">
           <div class="dash-greeting-name" id="greeting-name">Bonjour</div>
-          <div class="dash-greeting-sub" id="greeting-sub">Voici ce qui se passe dans votre activité aujourd'hui.</div>
+          <div class="dash-greeting-sub" id="greeting-sub">Voici l'état de votre cabinet médical aujourd'hui.</div>
         </div>
 
         <!-- Focus badge (dynamic) -->
@@ -781,19 +781,19 @@
         <div class="quick-actions">
           <button class="qa-btn qa-primary" onclick="openNewLead()">
             <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-            Nouveau client
+            Nouveau patient
           </button>
           <button class="qa-btn qa-ghost" onclick="openNewLead()">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nouveau deal
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Nouveau RDV
           </button>
           <a class="qa-btn qa-ghost" href="invoices.html">
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Créer une facture
           </a>
           <a class="qa-btn qa-ghost" href="proposals.html">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            Smart File
+            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>
+            Ordonnance
           </a>
         </div>
 
@@ -806,14 +806,14 @@
               <div class="dash-card-head">
                 <div class="dash-card-title">
                   <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                  Pipeline
+                  Suivi patients
                 </div>
                 <div style="display:flex;gap:6px;align-items:center">
                   <div class="tab-bar" style="padding:2px">
                     <button class="tab-btn active" id="vb" onclick="setView('board')">Kanban</button>
                     <button class="tab-btn" id="vl" onclick="setView('list')">Liste</button>
                   </div>
-                  <button class="btn btn-secondary btn-sm" onclick="openNewLead()">+ Lead</button>
+                  <button class="btn btn-secondary btn-sm" onclick="openNewLead()">+ Patient</button>
                 </div>
               </div>
               <div class="dash-card-body" style="padding-top:10px">
@@ -921,24 +921,24 @@
 <div class="overlay" id="nl-overlay">
   <div class="modal modal-lg">
     <div class="modal-head">
-      <div><div class="modal-title">Nouveau lead</div><div class="modal-subtitle">Ajouter un prospect à votre pipeline</div></div>
+      <div><div class="modal-title">Nouveau patient</div><div class="modal-subtitle">Ajouter un patient à votre registre</div></div>
       <button class="btn btn-ghost btn-icon" onclick="closeNL()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
-      <div class="field-row"><div class="field"><label>Prénom *</label><input id="nl-fn" type="text" placeholder="Jean"></div><div class="field"><label>Nom *</label><input id="nl-ln" type="text" placeholder="Dupont"></div></div>
-      <div class="field-row"><div class="field"><label>Entreprise</label><input id="nl-co" type="text" placeholder="Dupont Consulting"></div><div class="field"><label>Poste</label><input id="nl-jt" type="text" placeholder="CEO"></div></div>
-      <div class="field-row"><div class="field"><label>Email</label><input id="nl-em" type="email" placeholder="jean@entreprise.fr"></div><div class="field"><label>Téléphone</label><input id="nl-ph" type="tel" placeholder="+33 6 12 34 56 78"></div></div>
+      <div class="field-row"><div class="field"><label>Prénom *</label><input id="nl-fn" type="text" placeholder="Mohamed"></div><div class="field"><label>Nom *</label><input id="nl-ln" type="text" placeholder="Benali"></div></div>
+      <div class="field-row"><div class="field"><label>Date de naissance</label><input id="nl-co" type="text" placeholder="15/03/1985"></div><div class="field"><label>Groupe sanguin</label><input id="nl-jt" type="text" placeholder="O+, A-, B+…"></div></div>
+      <div class="field-row"><div class="field"><label>Email</label><input id="nl-em" type="email" placeholder="patient@email.com"></div><div class="field"><label>Téléphone</label><input id="nl-ph" type="tel" placeholder="0550 00 00 00"></div></div>
       <div class="field-row">
-        <div class="field"><label>Étape pipeline</label><select id="nl-st"><option value="new">Nouveau</option><option value="contacted">Contacté</option><option value="qualified">Qualifié</option><option value="proposal">Devis envoyé</option></select></div>
-        <div class="field"><label>Type de client</label><select id="nl-ty"><option value="company">Entreprise</option><option value="freelancer">Freelance</option><option value="individual">Particulier</option></select></div>
+        <div class="field"><label>Statut suivi</label><select id="nl-st"><option value="new">Nouveau patient</option><option value="contacted">En consultation</option><option value="qualified">Suivi requis</option><option value="proposal">Traitement</option></select></div>
+        <div class="field"><label>Couverture sociale</label><select id="nl-ty"><option value="company">CNAS assuré</option><option value="freelancer">CASNOS assuré</option><option value="individual">Non assuré</option></select></div>
       </div>
-      <div class="field-row"><div class="field"><label>Valeur du deal (€)</label><input id="nl-vl" type="number" placeholder="0" min="0"></div><div class="field"><label>Clôture prévue</label><input id="nl-cl" type="date"></div></div>
-      <div class="field-row"><div class="field"><label>Pays</label><input id="nl-cn" type="text" placeholder="France"></div><div class="field"><label>N° SIRET / SIREN</label><input id="nl-vat" type="text" placeholder="123 456 789 00010"></div></div>
-      <div class="field"><label>Notes</label><textarea id="nl-nt" rows="3" placeholder="Source, contexte, informations clés…"></textarea></div>
+      <div class="field-row"><div class="field"><label>Honoraires (DA)</label><input id="nl-vl" type="number" placeholder="2000" min="0"></div><div class="field"><label>Prochain RDV</label><input id="nl-cl" type="date"></div></div>
+      <div class="field-row"><div class="field"><label>Wilaya</label><input id="nl-cn" type="text" placeholder="Alger, Oran, Constantine…"></div><div class="field"><label>N° CNAS / CASNOS</label><input id="nl-vat" type="text" placeholder="123456789"></div></div>
+      <div class="field"><label>Antécédents / Notes</label><textarea id="nl-nt" rows="3" placeholder="Antécédents médicaux, allergies, notes importantes…"></textarea></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-secondary" onclick="closeNL()">Annuler</button>
-      <button class="btn btn-primary" id="save-lead-btn" onclick="saveLead()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Ajouter le lead</button>
+      <button class="btn btn-primary" id="save-lead-btn" onclick="saveLead()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Ajouter le patient</button>
     </div>
   </div>
 </div>
@@ -951,7 +951,7 @@ const _supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
 });
 
 function sanitize(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
-function formatEUR(n) { return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(n??0); }
+function formatEUR(n) { return new Intl.NumberFormat('fr-DZ',{style:'currency',currency:'DZD',maximumFractionDigits:0}).format(n??0); }
 function formatDate(s) { if(!s) return '—'; return new Date(s).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
 
 const DB = {
@@ -1139,12 +1139,12 @@ const Sidebar = {
 <script>
 let _leads=[],_view='board';
 const STAGE_META=[
-  {k:'new',        l:'Demande',          c:'#7C3AED', icon:'📬', desc:'Nouvelles demandes'},
-  {k:'contacted',  l:'Devis envoyé',     c:'#2E90FA', icon:'📄', desc:'En attente de réponse'},
-  {k:'qualified',  l:'Contrat signé',    c:'#F79009', icon:'✍️',  desc:'Projets en cours'},
-  {k:'proposal',   l:'Facture envoyée',  c:'#EE46BC', icon:'💳', desc:'En attente de paiement'},
-  {k:'won',        l:'Payé',             c:'#12B76A', icon:'✅', desc:'Terminé'},
-  {k:'lost',       l:'Archivé',          c:'#98A2B3', icon:'📁', desc:'Clôturé'}
+  {k:'new',        l:'Nouveau patient',  c:'#7C3AED', icon:'🏥', desc:'Nouveaux patients'},
+  {k:'contacted',  l:'En consultation',  c:'#2E90FA', icon:'🩺', desc:'Consultation en cours'},
+  {k:'qualified',  l:'Suivi requis',     c:'#F79009', icon:'📋', desc:'Patients à suivre'},
+  {k:'proposal',   l:'Traitement',       c:'#EE46BC', icon:'💊', desc:'Sous traitement'},
+  {k:'won',        l:'Guéri',            c:'#12B76A', icon:'✅', desc:'Rétablis'},
+  {k:'lost',       l:'Archivé',          c:'#98A2B3', icon:'📁', desc:'Dossiers clôturés'}
 ];
 const ACT_ICON={
   note:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',

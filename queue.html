@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>File d'attente — Prospeo</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script src="config.js"></script>
+<script src="shell.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<!-- QR Code library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.page-sub{font-size:13px;color:var(--text4);margin-top:2px}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:18px 20px;text-align:center}
+.stat-num{font-size:32px;font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px}
+.stat-num.green{color:var(--success)}
+.stat-num.amber{color:var(--warning)}
+.stat-lbl{font-size:12px;color:var(--text4);font-weight:500}
+
+/* ── MAIN GRID ── */
+.queue-grid{display:grid;grid-template-columns:1fr 360px;gap:20px}
+
+/* ── CURRENT SERVING CARD ── */
+.serving-card{background:linear-gradient(135deg,var(--brand) 0%,#1D4ED8 100%);border-radius:20px;padding:32px;color:#fff;text-align:center;margin-bottom:20px;position:relative;overflow:hidden}
+.serving-card::before{content:'';position:absolute;top:-40%;right:-10%;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none}
+.serving-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:12px}
+.serving-num{font-size:88px;font-weight:900;line-height:1;color:#fff;font-variant-numeric:tabular-nums;margin-bottom:12px}
+.serving-name{font-size:18px;font-weight:600;color:rgba(255,255,255,.9);margin-bottom:24px}
+.next-btn{background:#fff;color:var(--brand);border:none;border-radius:var(--rfull);padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:8px}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.next-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.skip-btn{background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:var(--rfull);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;margin-left:10px}
+.skip-btn:hover{background:rgba(255,255,255,.25)}
+
+/* ── QUEUE LIST ── */
+.queue-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden}
+.queue-card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.queue-card-title{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.queue-card-title svg{width:16px;height:16px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round}
+.queue-item{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--border);transition:background .15s}
+.queue-item:last-child{border-bottom:none}
+.queue-item:hover{background:var(--surface2)}
+.queue-item.current{background:rgba(0,51,153,.05);border-left:3px solid var(--brand)}
+.queue-item.done{opacity:.45}
+.q-num{width:36px;height:36px;border-radius:50%;background:var(--brand-light);color:var(--brand);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.q-num.done-num{background:var(--surface2);color:var(--text4)}
+.q-num.current-num{background:var(--brand);color:#fff}
+.q-info{flex:1;min-width:0}
+.q-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-time{font-size:11px;color:var(--text4);margin-top:1px}
+.q-status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:var(--rfull)}
+.q-status.waiting{background:rgba(247,144,9,.12);color:var(--warning)}
+.q-status.current{background:rgba(0,51,153,.1);color:var(--brand)}
+.q-status.done{background:var(--surface2);color:var(--text4)}
+.q-remove{width:26px;height:26px;border-radius:var(--r);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text4);transition:all .12s}
+.q-remove:hover{background:rgba(220,38,38,.1);color:#DC2626}
+.q-remove svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.queue-empty{padding:40px 20px;text-align:center;color:var(--text4);font-size:13px}
+.queue-empty-icon{font-size:32px;margin-bottom:8px}
+
+/* ── ADD PATIENT ── */
+.add-patient-form{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border);background:var(--surface2)}
+.add-patient-form input{flex:1;border:1.5px solid var(--border);border-radius:var(--r);padding:8px 12px;font-size:13px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s}
+.add-patient-form input:focus{border-color:var(--brand)}
+.add-btn{padding:8px 16px;background:var(--brand);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}
+.add-btn:hover{background:var(--brand2)}
+
+/* ── QR PANEL ── */
+.qr-panel{display:flex;flex-direction:column;gap:16px}
+.qr-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:24px;text-align:center}
+.qr-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.qr-sub{font-size:12px;color:var(--text4);margin-bottom:20px;line-height:1.5}
+#qr-code{display:flex;justify-content:center;margin-bottom:16px}
+#qr-code canvas,#qr-code img{border-radius:10px;border:6px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.qr-link{font-size:11px;color:var(--text4);word-break:break-all;background:var(--surface2);border-radius:var(--r);padding:8px 12px;margin-bottom:14px;text-align:left}
+.copy-btn{width:100%;padding:9px;background:var(--brand-light);color:var(--brand);border:1px solid var(--brand-border,rgba(0,51,153,.2));border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.copy-btn:hover{background:var(--brand);color:#fff}
+
+/* ── DISPLAY SCREEN CARD ── */
+.display-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:20px}
+.display-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.display-title svg{width:14px;height:14px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round}
+.display-preview{background:linear-gradient(135deg,#EEF2FF 0%,#E0E7FF 100%);border:1px solid rgba(0,51,153,.15);border-radius:12px;padding:24px;text-align:center}
+.dp-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF;margin-bottom:8px}
+.dp-num{font-size:56px;font-weight:900;color:#003399;line-height:1;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.dp-sub{font-size:13px;color:#6B7280}
+.open-display-btn{width:100%;margin-top:12px;padding:9px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none;display:block;text-align:center}
+.open-display-btn:hover{background:var(--brand-light);color:var(--brand);border-color:var(--brand-border,rgba(0,51,153,.2))}
+
+/* ── SETTINGS CARD ── */
+.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:20px}
+.settings-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:12px;font-weight:500;color:var(--text2)}
+.setting-sub{font-size:11px;color:var(--text4);margin-top:1px}
+.switch{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.switch-track{position:absolute;cursor:pointer;inset:0;background:var(--border);border-radius:10px;transition:.2s}
+.switch input:checked+.switch-track{background:var(--brand)}
+.switch-track::before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked+.switch-track::before{transform:translateX(16px)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1E3A5F;color:#fff;padding:10px 20px;border-radius:var(--rfull);font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:9999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:var(--success)}.toast.error{background:#DC2626}
+
+/* ── ROOM BADGE ── */
+.serving-room{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:var(--rfull);padding:5px 14px;font-size:13px;font-weight:600;color:#fff;margin-bottom:16px;backdrop-filter:blur(4px)}
+.serving-room svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.q-room{font-size:11px;font-weight:600;color:var(--brand);background:var(--brand-light);border-radius:var(--rfull);padding:2px 8px;white-space:nowrap}
+
+/* ── ROOM PICKER MODAL ── */
+.room-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:2000;padding:0;opacity:0;visibility:hidden;transition:all .2s}
+.room-modal-overlay.open{opacity:1;visibility:visible}
+.room-modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:20px 20px 32px;transform:translateY(100%);transition:transform .3s var(--ease)}
+.room-modal-overlay.open .room-modal{transform:translateY(0)}
+.room-modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.room-modal-title{font-size:16px;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px}
+.room-modal-sub{font-size:13px;color:var(--text4);text-align:center;margin-bottom:20px}
+.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+.room-btn{padding:14px 12px;border:2px solid var(--border);border-radius:var(--rlg);background:var(--surface);cursor:pointer;text-align:center;font-family:inherit;transition:all .15s;font-size:13px;font-weight:600;color:var(--text2)}
+.room-btn:hover{border-color:var(--brand);background:var(--brand-light);color:var(--brand)}
+.room-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;display:block;margin:0 auto 6px;opacity:.6}
+.room-btn-none{padding:12px;border:1.5px dashed var(--border);border-radius:var(--rlg);background:none;cursor:pointer;text-align:center;width:100%;font-family:inherit;font-size:13px;color:var(--text4);transition:all .15s}
+.room-btn-none:hover{border-color:var(--text3);color:var(--text2)}
+
+/* ── ROOMS MANAGER (settings) ── */
+.rooms-manager{margin-top:10px}
+.rooms-list-settings{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.room-setting-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--r);background:var(--surface2);border:1px solid var(--border)}
+.room-setting-name{flex:1;font-size:12px;font-weight:600;color:var(--text2)}
+.room-setting-del{width:22px;height:22px;border-radius:5px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text4);transition:all .12s}
+.room-setting-del:hover{background:rgba(220,38,38,.1);color:#DC2626}
+.room-setting-del svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.add-room-form{display:flex;gap:6px}
+.add-room-input{flex:1;border:1.5px solid var(--border);border-radius:var(--r);padding:6px 10px;font-size:12px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s}
+.add-room-input:focus{border-color:var(--brand)}
+.add-room-btn{padding:6px 12px;background:var(--brand-light);color:var(--brand);border:1px solid var(--brand-border);border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}
+.add-room-btn:hover{background:var(--brand);color:#fff}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .queue-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .serving-num{font-size:64px}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="shell-page">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">File d'attente</div>
+          <div class="page-sub">Les patients scannent le QR, prennent leur numéro et suivent leur tour en direct.</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="resetQueue()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rfull);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-family:inherit;transition:all .15s">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.7"/></svg>
+            Réinitialiser
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rfull);font-size:12px;font-weight:600;cursor:pointer;border:none;background:var(--brand);color:#fff;font-family:inherit;transition:all .15s">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Ajouter manuellement
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-current">—</div>
+          <div class="stat-lbl">Numéro en cours</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num amber" id="stat-waiting">0</div>
+          <div class="stat-lbl">En attente</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num green" id="stat-done">0</div>
+          <div class="stat-lbl">Consultés aujourd'hui</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-wait-time">—</div>
+          <div class="stat-lbl">Attente estimée</div>
+        </div>
+      </div>
+
+      <div class="queue-grid">
+        <!-- LEFT: Queue management -->
+        <div>
+          <!-- Currently serving -->
+          <div class="serving-card">
+            <div class="serving-label">Actuellement en consultation</div>
+            <div id="serving-room-wrap" style="display:none">
+              <div class="serving-room">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span id="serving-room-name">Salle</span>
+              </div>
+            </div>
+            <div class="serving-num" id="current-num">—</div>
+            <div class="serving-name" id="current-name">En attente du premier patient</div>
+            <div>
+              <button class="next-btn" onclick="promptCallNext()">
+                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                Appeler le suivant
+              </button>
+              <button class="skip-btn" onclick="skipCurrent()">Passer</button>
+            </div>
+          </div>
+
+          <!-- Queue list -->
+          <div class="queue-card">
+            <div class="queue-card-head">
+              <div class="queue-card-title">
+                <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                File d'attente du jour
+              </div>
+              <span id="queue-count" style="font-size:12px;color:var(--text4);font-weight:500">0 patients</span>
+            </div>
+            <div id="queue-list">
+              <div class="queue-empty">
+                <div class="queue-empty-icon">🏥</div>
+                <div style="font-weight:600;color:var(--text3);margin-bottom:4px">Aucun patient en attente</div>
+                <div>Les patients s'enregistrent en scannant le QR code à l'entrée.</div>
+              </div>
+            </div>
+            <div class="add-patient-form">
+              <input type="text" id="manual-name" placeholder="Nom du patient (enregistrement manuel)…" maxlength="80" onkeydown="if(event.key==='Enter')addManual()">
+              <button class="add-btn" onclick="addManual()">+ Ajouter</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: QR + Display + Settings -->
+        <div class="qr-panel">
+          <!-- QR Code -->
+          <div class="qr-card">
+            <div class="qr-title">QR Code d'enregistrement</div>
+            <div class="qr-sub">Affichez ce code à l'entrée du cabinet.<br>Les patients scannent pour rejoindre la file.</div>
+            <div id="qr-code"></div>
+            <div class="qr-link" id="qr-link-text">Génération du lien…</div>
+            <button class="copy-btn" onclick="copyQRLink()">Copier le lien patient</button>
+          </div>
+
+          <!-- Display screen preview -->
+          <div class="display-card">
+            <div class="display-title">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              Écran salle d'attente
+            </div>
+            <div class="display-preview">
+              <div class="dp-label">Numéro appelé</div>
+              <div class="dp-num" id="display-num">—</div>
+              <div class="dp-sub" id="display-sub">En attente…</div>
+            </div>
+            <a href="queue-display.html" target="_blank" class="open-display-btn">
+              Ouvrir l'écran d'affichage →
+            </a>
+          </div>
+
+          <!-- Settings -->
+          <div class="settings-card">
+            <div class="settings-title">Paramètres</div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Notification sonore</div>
+                <div class="setting-sub">Bip à chaque appel de patient</div>
+              </div>
+              <label class="switch"><input type="checkbox" id="opt-sound" checked><span class="switch-track"></span></label>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Auto-avancement</div>
+                <div class="setting-sub">Appel automatique toutes les 15 min</div>
+              </div>
+              <label class="switch"><input type="checkbox" id="opt-auto"><span class="switch-track"></span></label>
+            </div>
+            <div class="setting-row" style="border-bottom:none">
+              <div>
+                <div class="setting-label">Afficher le nom</div>
+                <div class="setting-sub">Afficher le nom sur l'écran public</div>
+              </div>
+              <label class="switch"><input type="checkbox" id="opt-name" checked><span class="switch-track"></span></label>
+            </div>
+          </div>
+
+          <!-- Rooms manager -->
+          <div class="settings-card" style="margin-top:0">
+            <div class="settings-title">
+              <svg style="width:14px;height:14px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;vertical-align:-2px;margin-right:5px" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Salles de consultation
+            </div>
+            <div class="rooms-manager">
+              <div class="rooms-list-settings" id="rooms-settings-list">
+                <div style="font-size:12px;color:var(--text4);padding:4px 0">Aucune salle configurée</div>
+              </div>
+              <div class="add-room-form">
+                <input class="add-room-input" id="new-room-input" type="text" placeholder="Salle 1, Cabinet A…" maxlength="40" onkeydown="if(event.key==='Enter')addRoom()">
+                <button class="add-room-btn" onclick="addRoom()">+ Ajouter</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Room picker modal -->
+<div class="room-modal-overlay" id="room-modal-overlay">
+  <div class="room-modal">
+    <div class="room-modal-handle"></div>
+    <div class="room-modal-title">Assigner une salle</div>
+    <div class="room-modal-sub" id="room-modal-sub">Vers quelle salle envoyer ce patient ?</div>
+    <div class="room-grid" id="room-grid">
+      <!-- rooms injected by JS -->
+    </div>
+    <button class="room-btn-none" onclick="callNext(null)">
+      Appeler sans salle assignée
+    </button>
+  </div>
+</div>
+
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _uid = null;
+var _queue = []; // [{id, num, name, status:'waiting'|'current'|'done', arrived_at, room}]
+var _currentNum = 0;
+var _todayKey = new Date().toISOString().slice(0,10);
+var _queueKey = '';
+var _clinicId = '';
+var _rooms = []; // [{id, name}] — loaded from localStorage + Supabase
+var _roomsKey = '';
+
+// ── INIT ─────────────────────────────────────────────────────────
+(async function init(){
+  var s = await _supa.auth.getSession();
+  if(!s.data.session){ window.location.href='login.html'; return; }
+  _uid = s.data.session.user.id;
+  _queueKey = 'medicrm-queue-'+_uid+'-'+_todayKey;
+  _roomsKey = 'medicrm-rooms-'+_uid;
+  _clinicId = _uid.slice(0,8); // Short clinic ID for QR
+
+  var user = s.data.session.user;
+  var meta = user.user_metadata || {};
+  var name = (meta.full_name || meta.name || '').trim();
+  var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().then(function(r){return r.data;}).catch(function(){return null;});
+  var isPro = sub && sub.plan==='pro' && sub.status==='active';
+
+  Shell.init({ page:'queue', title:'File d\'attente', isPro:isPro, userName:name, userEmail:user.email||'' });
+
+  loadRooms();
+  loadQueue();
+  generateQR();
+
+  // Real-time subscription for new patients joining via QR
+  _supa.channel('queue-'+_uid)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'queue_entries',filter:'clinic_id=eq.'+_uid},function(payload){
+      var entry = payload.new;
+      if(entry.queue_date===_todayKey){
+        _queue.push({id:entry.id,num:entry.number,name:entry.patient_name,status:'waiting',arrived_at:entry.created_at});
+        renderQueue();
+        updateStats();
+        toast('Nouveau patient : '+entry.patient_name+' (N°'+entry.number+')','success');
+        playBeep();
+      }
+    })
+    .subscribe();
+})();
+
+// ── LOAD QUEUE ────────────────────────────────────────────────────
+function loadQueue(){
+  // Load from localStorage for offline/demo support
+  var raw = localStorage.getItem(_queueKey);
+  if(raw){ try{ _queue=JSON.parse(raw); }catch(e){ _queue=[]; } }
+  // Also try Supabase
+  _supa.from('queue_entries')
+    .select('*')
+    .eq('clinic_id',_uid)
+    .eq('queue_date',_todayKey)
+    .order('number')
+    .then(function(r){
+      if(r.data&&r.data.length){
+        _queue = r.data.map(function(e){
+          return {id:e.id,num:e.number,name:e.patient_name,status:e.status||'waiting',arrived_at:e.created_at,room:e.room||null};
+        });
+        persistQueue();
+        renderQueue();
+        updateStats();
+      } else {
+        renderQueue();
+        updateStats();
+      }
+    });
+}
+
+function persistQueue(){
+  localStorage.setItem(_queueKey, JSON.stringify(_queue));
+}
+
+// ── RENDER QUEUE ──────────────────────────────────────────────────
+function renderQueue(){
+  var el = document.getElementById('queue-list');
+  var waiting = _queue.filter(function(p){return p.status==='waiting';});
+  var current = _queue.filter(function(p){return p.status==='current';});
+  var done    = _queue.filter(function(p){return p.status==='done';});
+
+  // Update current serving display
+  if(current.length){
+    var cur = current[0];
+    document.getElementById('current-num').textContent = cur.num;
+    document.getElementById('current-name').textContent = cur.name || 'Patient anonyme';
+    document.getElementById('display-num').textContent = cur.num;
+    document.getElementById('display-sub').textContent = (document.getElementById('opt-name').checked ? cur.name : '') || '';
+    document.getElementById('stat-current').textContent = cur.num;
+    // Room badge on serving card
+    if(cur.room){
+      document.getElementById('serving-room-name').textContent = cur.room;
+      document.getElementById('serving-room-wrap').style.display = 'block';
+    } else {
+      document.getElementById('serving-room-wrap').style.display = 'none';
+    }
+  } else {
+    document.getElementById('current-num').textContent = '—';
+    document.getElementById('current-name').textContent = waiting.length ? 'Prêt · '+waiting.length+' patient'+(waiting.length>1?'s':'')+' en attente' : 'En attente du premier patient';
+    document.getElementById('display-num').textContent = '—';
+    document.getElementById('display-sub').textContent = 'En attente…';
+    document.getElementById('stat-current').textContent = '—';
+    document.getElementById('serving-room-wrap').style.display = 'none';
+  }
+
+  var allVisible = current.concat(waiting).concat(done.slice(-3));
+  document.getElementById('queue-count').textContent = _queue.length+' patient'+((_queue.length>1)?'s':'');
+
+  if(!_queue.length){
+    el.innerHTML = '<div class="queue-empty"><div class="queue-empty-icon">🏥</div><div style="font-weight:600;color:var(--text3);margin-bottom:4px">Aucun patient en attente</div><div>Les patients s\'enregistrent en scannant le QR code à l\'entrée.</div></div>';
+    return;
+  }
+
+  el.innerHTML = allVisible.map(function(p){
+    var timeStr = p.arrived_at ? new Date(p.arrived_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+    var numClass = p.status==='current'?'current-num':(p.status==='done'?'done-num':'');
+    var statusLabel = p.status==='current'?'En cours':p.status==='done'?'Consulté':'En attente';
+    var statusClass = p.status==='current'?'current':p.status==='done'?'done':'waiting';
+    return '<div class="queue-item '+(p.status==='current'?'current':p.status==='done'?'done':'')+'">'+
+      '<div class="q-num '+numClass+'">'+p.num+'</div>'+
+      '<div class="q-info">'+
+        '<div class="q-name" style="display:flex;align-items:center;gap:6px">'+(p.name||'Patient anonyme')+(p.room?'<span class="q-room">'+p.room+'</span>':'')+'</div>'+
+        '<div class="q-time">Arrivée : '+timeStr+'</div>'+
+      '</div>'+
+      '<span class="q-status '+statusClass+'">'+statusLabel+'</span>'+
+      (p.status!=='done'?'<button class="q-remove" onclick="removeFromQueue(\''+p.id+'\')" title="Retirer"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>':'<div style="width:26px"></div>')+
+    '</div>';
+  }).join('');
+}
+
+// ── STATS ─────────────────────────────────────────────────────────
+function updateStats(){
+  var waiting = _queue.filter(function(p){return p.status==='waiting';}).length;
+  var done    = _queue.filter(function(p){return p.status==='done';}).length;
+  document.getElementById('stat-waiting').textContent = waiting;
+  document.getElementById('stat-done').textContent = done;
+  // Estimate wait time (avg 15 min per consultation)
+  var estMin = waiting * 15;
+  document.getElementById('stat-wait-time').textContent = estMin>0 ? (estMin>=60?(Math.floor(estMin/60)+'h'+(estMin%60?String(estMin%60).padStart(2,'0'):'')):(estMin+' min')) : '—';
+}
+
+// ── QUEUE ACTIONS ─────────────────────────────────────────────────
+function promptCallNext(){
+  var next = _queue.find(function(p){ return p.status==='waiting'; });
+  if(!next){ toast('File vide — tous les patients ont été consultés.'); return; }
+
+  if(_rooms.length === 0){
+    // No rooms configured — call directly
+    callNext(null);
+    return;
+  }
+
+  // Show room picker
+  var sub = document.getElementById('room-modal-sub');
+  sub.textContent = 'Patient N°'+next.num+(next.name?' — '+next.name:'')+'  ·  Choisissez la salle';
+  var grid = document.getElementById('room-grid');
+  grid.innerHTML = _rooms.map(function(r){
+    return '<button class="room-btn" onclick="callNext(\''+r.name.replace(/'/g,"\\'")+'\')" >'+
+      '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'+
+      r.name+
+    '</button>';
+  }).join('');
+  document.getElementById('room-modal-overlay').classList.add('open');
+}
+
+function callNext(room){
+  document.getElementById('room-modal-overlay').classList.remove('open');
+  // Mark current as done
+  _queue.forEach(function(p){ if(p.status==='current') p.status='done'; });
+  // Promote next waiting
+  var next = _queue.find(function(p){ return p.status==='waiting'; });
+  if(!next){ toast('File vide — tous les patients ont été consultés.'); persistQueue(); renderQueue(); updateStats(); return; }
+  next.status='current';
+  next.room = room || null;
+  persistQueue();
+  renderQueue();
+  updateStats();
+  playBeep();
+  var roomStr = room ? ' → '+room : '';
+  toast('N°'+next.num+roomStr+' — '+(next.name||'Patient'),'success');
+  syncToSupabase();
+}
+
+function skipCurrent(){
+  var cur = _queue.find(function(p){ return p.status==='current'; });
+  if(!cur){ toast('Aucun patient en cours.'); return; }
+  cur.status='waiting'; // Put back to end of waiting
+  var last = _queue.filter(function(p){return p.status==='waiting';}).pop();
+  // Move to end
+  _queue = _queue.filter(function(p){return p.id!==cur.id;}).concat([cur]);
+  persistQueue();
+  renderQueue();
+  updateStats();
+  toast('Patient passé — il reste en file.');
+}
+
+function addManual(){
+  var name = document.getElementById('manual-name').value.trim();
+  var nextNum = (_queue.length ? Math.max.apply(null,_queue.map(function(p){return p.num;})) : 0) + 1;
+  var entry = {id:'loc-'+Date.now(),num:nextNum,name:name||'Patient '+nextNum,status:'waiting',arrived_at:new Date().toISOString()};
+  _queue.push(entry);
+  document.getElementById('manual-name').value='';
+  persistQueue();
+  renderQueue();
+  updateStats();
+  toast('Patient ajouté : N°'+nextNum);
+  // Sync to Supabase
+  _supa.from('queue_entries').insert({clinic_id:_uid,number:nextNum,patient_name:entry.name,status:'waiting',queue_date:_todayKey}).then(function(r){
+    if(r.data&&r.data[0]) entry.id=r.data[0].id;
+  });
+}
+
+function removeFromQueue(id){
+  _queue = _queue.filter(function(p){ return p.id!==id; });
+  persistQueue();
+  renderQueue();
+  updateStats();
+  _supa.from('queue_entries').delete().eq('id',id);
+  toast('Patient retiré de la file.');
+}
+
+function resetQueue(){
+  if(!confirm('Réinitialiser toute la file d\'attente du jour ?')) return;
+  _queue = [];
+  persistQueue();
+  renderQueue();
+  updateStats();
+  _supa.from('queue_entries').delete().eq('clinic_id',_uid).eq('queue_date',_todayKey);
+  toast('File d\'attente réinitialisée.');
+}
+
+function syncToSupabase(){
+  _queue.forEach(function(p){
+    _supa.from('queue_entries').update({status:p.status, room:p.room||null}).eq('id',p.id).then(function(){});
+  });
+}
+
+// ── ROOMS ─────────────────────────────────────────────────────────
+function loadRooms(){
+  var raw = localStorage.getItem(_roomsKey);
+  if(raw){ try{ _rooms=JSON.parse(raw); }catch(e){ _rooms=[]; } }
+  // Sync from Supabase
+  _supa.from('clinic_rooms')
+    .select('*')
+    .eq('clinic_id',_uid)
+    .eq('active',true)
+    .order('sort_order')
+    .then(function(r){
+      if(r.data && r.data.length){
+        _rooms = r.data.map(function(rm){ return {id:rm.id, name:rm.name}; });
+        localStorage.setItem(_roomsKey, JSON.stringify(_rooms));
+      }
+      renderRoomsSettings();
+    });
+  renderRoomsSettings();
+}
+
+function renderRoomsSettings(){
+  var el = document.getElementById('rooms-settings-list');
+  if(!_rooms.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--text4);padding:4px 0">Aucune salle configurée</div>';
+    return;
+  }
+  el.innerHTML = _rooms.map(function(r, i){
+    return '<div class="room-setting-item">'+
+      '<span class="room-setting-name">'+r.name+'</span>'+
+      '<button class="room-setting-del" onclick="removeRoom('+i+')" title="Supprimer">'+
+        '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'+
+      '</button>'+
+    '</div>';
+  }).join('');
+}
+
+function addRoom(){
+  var name = document.getElementById('new-room-input').value.trim();
+  if(!name) return;
+  var room = {id:'local-'+Date.now(), name:name};
+  _rooms.push(room);
+  localStorage.setItem(_roomsKey, JSON.stringify(_rooms));
+  document.getElementById('new-room-input').value = '';
+  renderRoomsSettings();
+  // Save to Supabase
+  _supa.from('clinic_rooms').insert({clinic_id:_uid, name:name, active:true, sort_order:_rooms.length})
+    .then(function(r){
+      if(r.data && r.data[0]) room.id = r.data[0].id;
+    });
+  toast('Salle ajoutée : '+name,'success');
+}
+
+function removeRoom(idx){
+  var removed = _rooms.splice(idx, 1)[0];
+  localStorage.setItem(_roomsKey, JSON.stringify(_rooms));
+  renderRoomsSettings();
+  if(removed.id && !String(removed.id).startsWith('local-')){
+    _supa.from('clinic_rooms').delete().eq('id', removed.id);
+  }
+  toast('Salle supprimée.');
+}
+
+// Close room modal on overlay click
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('room-modal-overlay').addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('open');
+  });
+});
+
+// ── QR CODE ───────────────────────────────────────────────────────
+function generateQR(){
+  var baseUrl = window.location.origin + window.location.pathname.replace('queue.html','') + 'queue-join.html';
+  var qrUrl = baseUrl+'?clinic='+_clinicId+'&uid='+_uid;
+  document.getElementById('qr-link-text').textContent = qrUrl;
+  document.getElementById('qr-code').innerHTML = '';
+  try{
+    new QRCode(document.getElementById('qr-code'),{
+      text: qrUrl,
+      width: 180,
+      height: 180,
+      colorDark: '#003399',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  } catch(e) {
+    document.getElementById('qr-code').innerHTML='<div style="padding:20px;font-size:12px;color:var(--text4)">QR Code non disponible<br><small>'+qrUrl+'</small></div>';
+  }
+}
+
+function copyQRLink(){
+  var link = document.getElementById('qr-link-text').textContent;
+  navigator.clipboard.writeText(link).then(function(){
+    toast('Lien copié !','success');
+  }).catch(function(){
+    toast('Impossible de copier le lien.','error');
+  });
+}
+
+// ── SOUND ─────────────────────────────────────────────────────────
+function playBeep(){
+  if(!document.getElementById('opt-sound').checked) return;
+  try{
+    var ctx = new (window.AudioContext||window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime+0.4);
+  }catch(e){}
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function toast(msg,type){
+  var t = document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+(type||'')+' show';
+  setTimeout(function(){t.className='toast';},3000);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  // Room modal overlay close
+  var overlay = document.getElementById('room-modal-overlay');
+  if(overlay) overlay.addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>

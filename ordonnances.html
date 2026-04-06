@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ordonnances — Prospeo</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script src="config.js"></script>
+<script src="shell.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<style>
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.page-sub{font-size:13px;color:var(--text4);margin-top:2px}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:18px 20px;text-align:center}
+.stat-num{font-size:32px;font-weight:800;color:var(--brand);line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:12px;color:var(--text4);font-weight:500}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rfull);padding:7px 14px;transition:border-color .15s;flex:1;min-width:180px;max-width:320px}
+.search-box:focus-within{border-color:var(--brand)}
+.search-box svg{width:14px;height:14px;fill:none;stroke:var(--text4);stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.search-box input{border:none;background:none;outline:none;font-size:13px;color:var(--text);width:100%;font-family:inherit}
+.search-box input::placeholder{color:var(--text4)}
+.filter-chip{padding:7px 14px;border-radius:var(--rfull);font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text3);font-family:inherit;transition:all .12s;white-space:nowrap}
+.filter-chip:hover,.filter-chip.active{background:var(--brand-light);border-color:var(--brand);color:var(--brand)}
+.toolbar-spacer{flex:1}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--rfull);font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--brand);color:#fff;font-family:inherit;transition:all .15s}
+.btn-primary:hover{background:var(--brand2);transform:translateY(-1px)}
+.btn-primary svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+/* Ordonnance cards */
+.ord-list{display:flex;flex-direction:column;gap:10px}
+.ord-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;transition:box-shadow .15s,border-color .15s}
+.ord-card:hover{box-shadow:var(--shadow-md);border-color:var(--brand-border)}
+.ord-card-head{display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer}
+.ord-num{width:46px;height:46px;border-radius:10px;background:var(--brand);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+.ord-info{flex:1;min-width:0}
+.ord-patient{font-size:14px;font-weight:700;color:var(--text)}
+.ord-title{font-size:12px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ord-meta{display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap}
+.status-badge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:var(--rfull)}
+.status-draft{background:var(--surface2);color:var(--text3)}
+.status-ready{background:rgba(0,51,153,.1);color:var(--brand)}
+.status-sent{background:rgba(5,150,105,.1);color:var(--success)}
+.ord-date{font-size:11px;color:var(--text4)}
+.ord-actions{display:flex;gap:4px;flex-shrink:0}
+.btn-icon{width:32px;height:32px;border-radius:var(--r);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text4);transition:all .12s}
+.btn-icon:hover{background:var(--surface2);color:var(--text)}
+.btn-icon.danger:hover{background:rgba(220,38,38,.1);color:#DC2626}
+.btn-icon.print:hover{background:var(--brand-light);color:var(--brand)}
+.btn-icon svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* Expanded body */
+.ord-body{display:none;border-top:1px solid var(--border);padding:16px 18px}
+.ord-body.open{display:block}
+.meds-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.meds-table th{font-size:11px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.06em;padding:6px 10px;text-align:left;background:var(--surface2);border-bottom:1px solid var(--border)}
+.meds-table td{font-size:13px;color:var(--text2);padding:8px 10px;border-bottom:1px solid var(--border)}
+.meds-table tr:last-child td{border-bottom:none}
+.ord-instructions{background:rgba(0,51,153,.04);border:1px solid var(--brand-border);border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--text2);line-height:1.6;margin-top:10px;white-space:pre-wrap}
+
+/* Empty */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text4);background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:600;color:var(--text3);margin-bottom:6px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;opacity:0;visibility:hidden;transition:all .2s}
+.modal-overlay.open{opacity:1;visibility:visible}
+.modal{background:var(--surface);border-radius:20px;width:100%;max-width:580px;box-shadow:0 20px 60px rgba(0,0,0,.18);transform:translateY(16px);transition:transform .25s var(--ease);overflow:hidden;max-height:92vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-title{font-size:17px;font-weight:700;color:var(--text)}
+.modal-close{width:32px;height:32px;border-radius:var(--r);border:none;background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .12s}
+.modal-close:hover{background:var(--border)}
+.modal-close svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:12px 24px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--surface)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:600;color:var(--text2)}
+.form-input,.form-select,.form-textarea{border:1.5px solid var(--border);border-radius:var(--r);padding:9px 12px;font-size:13px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--brand)}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.form-section-title{font-size:11px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* Medications list in modal */
+.meds-builder{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.med-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center}
+.med-row input{border:1.5px solid var(--border);border-radius:var(--r);padding:8px 10px;font-size:12px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s;width:100%}
+.med-row input:focus{border-color:var(--brand)}
+.btn-del-med{width:28px;height:28px;border-radius:var(--r);border:none;background:rgba(220,38,38,.08);color:#DC2626;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+.btn-del-med:hover{background:rgba(220,38,38,.2)}
+.btn-del-med svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.btn-add-med{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:1.5px dashed var(--border);background:none;color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;width:100%;justify-content:center}
+.btn-add-med:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+.med-header{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;padding:0 0 4px;margin-bottom:2px}
+.med-header span{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.06em}
+
+.btn-ghost{padding:9px 18px;border-radius:var(--rfull);font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:none;color:var(--text3);font-family:inherit;transition:all .15s}
+.btn-ghost:hover{background:var(--surface2)}
+.btn-save{padding:9px 22px;border-radius:var(--rfull);font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--brand);color:#fff;font-family:inherit;transition:all .15s}
+.btn-save:hover{background:var(--brand2)}
+.btn-save:disabled{opacity:.5;cursor:not-allowed}
+
+/* Print styles */
+@media print {
+  body > *:not(#print-area){ display:none !important }
+  #print-area{ display:block !important }
+  .print-ord{ font-family:Arial,sans-serif; font-size:12pt; padding:20mm; max-width:180mm; margin:0 auto }
+  .print-header{ border-bottom:2px solid #003399; padding-bottom:10px; margin-bottom:16px }
+  .print-logo{ font-size:20pt; font-weight:bold; color:#003399 }
+  .print-clinic-info{ font-size:9pt; color:#555; margin-top:4px }
+  .print-patient{ background:#f0f4ff; border:1px solid #ccd6f6; border-radius:6px; padding:10px; margin-bottom:14px }
+  .print-meds table{ width:100%; border-collapse:collapse }
+  .print-meds th{ background:#003399; color:#fff; padding:6px 10px; font-size:9pt; text-align:left }
+  .print-meds td{ padding:7px 10px; border-bottom:1px solid #e5e7eb; font-size:10pt }
+  .print-footer{ margin-top:20px; border-top:1px solid #ccc; padding-top:10px; font-size:8pt; color:#888 }
+}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1E3A5F;color:#fff;padding:10px 20px;border-radius:var(--rfull);font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:9999;white-space:nowrap;max-width:90vw}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:var(--success)}.toast.error{background:#DC2626}
+
+@media(max-width:900px){.stats-row{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+  .med-row{grid-template-columns:1fr auto}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .search-box{max-width:100%}
+}
+</style>
+</head>
+<body>
+<div id="print-area" style="display:none"></div>
+
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="shell-page">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">Ordonnances</div>
+          <div class="page-sub">Rédigez, gérez et imprimez vos ordonnances médicales.</div>
+        </div>
+        <button class="btn-primary" onclick="openModal()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nouvelle ordonnance
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-total">—</div>
+          <div class="stat-lbl">Total ordonnances</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-month" style="color:var(--brand)">—</div>
+          <div class="stat-lbl">Ce mois-ci</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-ready" style="color:var(--success)">—</div>
+          <div class="stat-lbl">Finalisées</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-draft" style="color:var(--text4)">—</div>
+          <div class="stat-lbl">Brouillons</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="search-input" placeholder="Rechercher patient, médicament…" autocomplete="off" oninput="filterList()">
+        </div>
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">Toutes</button>
+        <button class="filter-chip" data-filter="ready" onclick="setFilter('ready',this)">Finalisées</button>
+        <button class="filter-chip" data-filter="draft" onclick="setFilter('draft',this)">Brouillons</button>
+        <div class="toolbar-spacer"></div>
+      </div>
+
+      <!-- List -->
+      <div class="ord-list" id="ord-list">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">Aucune ordonnance rédigée</div>
+          <div>Créez votre première ordonnance pour un patient.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Nouvelle ordonnance</div>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Patient + Date + Status -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Patient *</label>
+          <input class="form-input" id="f-patient" type="text" placeholder="Nom complet du patient" maxlength="100" list="patients-list">
+          <datalist id="patients-list"></datalist>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" id="f-date" type="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Titre / Objet</label>
+          <input class="form-input" id="f-title" type="text" placeholder="Consultation du jour, Renouvellement…" maxlength="150">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Statut</label>
+          <select class="form-select" id="f-status">
+            <option value="draft">Brouillon</option>
+            <option value="ready">Finalisée</option>
+            <option value="sent">Remise au patient</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Medications -->
+      <div class="form-section-title">Médicaments prescrits</div>
+      <div class="med-header">
+        <span>Médicament / DCI</span>
+        <span>Posologie</span>
+        <span style="opacity:0">×</span>
+      </div>
+      <div class="meds-builder" id="meds-builder">
+        <!-- rows injected by JS -->
+      </div>
+      <button class="btn-add-med" onclick="addMedRow()">
+        <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Ajouter un médicament
+      </button>
+
+      <!-- Instructions -->
+      <div class="form-section-title" style="margin-top:14px">Instructions au patient</div>
+      <div class="form-row full" style="margin-bottom:0">
+        <div class="form-group">
+          <textarea class="form-textarea" id="f-instructions" placeholder="Repos, régime, consignes particulières, durée du traitement…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn-save" id="btn-save" onclick="saveOrd()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _uid = null;
+var _ords = [];
+var _patients = [];
+var _editId = null;
+var _activeFilter = 'all';
+var _searchQ = '';
+var _clinicProfile = null;
+
+var MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+(async function init() {
+  var s = await _supa.auth.getSession();
+  if (!s.data.session) { window.location.href = 'login.html'; return; }
+  _uid = s.data.session.user.id;
+  var user = s.data.session.user;
+  var meta = user.user_metadata || {};
+  var name = (meta.full_name || meta.name || '').trim();
+  var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().then(function(r){return r.data;}).catch(function(){return null;});
+  var isPro = sub && (sub.plan==='pro'||sub.plan==='clinic') && sub.status==='active';
+  Shell.init({ page:'ordonnances', title:'Ordonnances', isPro:isPro, userName:name, userEmail:user.email||'' });
+
+  document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+
+  // Load clinic profile for printing
+  _supa.from('profiles').select('*').eq('id',_uid).single().then(function(r){ _clinicProfile = r.data; });
+
+  loadPatients();
+  loadOrds();
+  addMedRow();
+})();
+
+async function loadPatients() {
+  var { data } = await _supa.from('clients').select('id,first_name,last_name').eq('user_id',_uid).order('last_name');
+  _patients = data || [];
+  var dl = document.getElementById('patients-list');
+  dl.innerHTML = _patients.map(function(p){
+    return '<option value="'+esc(p.first_name+' '+p.last_name)+'">';
+  }).join('');
+}
+
+async function loadOrds() {
+  var { data, error } = await _supa.from('proposals')
+    .select('*')
+    .eq('user_id', _uid)
+    .order('created_at', { ascending: false });
+  if (error) { toast('Erreur de chargement','error'); return; }
+  _ords = data || [];
+  updateStats();
+  renderList();
+}
+
+function updateStats() {
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+  var thisMonth = _ords.filter(function(o){ return o.created_at && o.created_at.slice(0,10) >= monthStart; });
+  var ready = _ords.filter(function(o){ return o.status === 'ready' || o.status === 'sent'; });
+  var drafts = _ords.filter(function(o){ return o.status === 'draft'; });
+  document.getElementById('stat-total').textContent = _ords.length;
+  document.getElementById('stat-month').textContent = thisMonth.length;
+  document.getElementById('stat-ready').textContent = ready.length;
+  document.getElementById('stat-draft').textContent = drafts.length;
+}
+
+function setFilter(f, btn) {
+  _activeFilter = f;
+  document.querySelectorAll('.filter-chip[data-filter]').forEach(function(c){ c.classList.remove('active'); });
+  btn.classList.add('active');
+  renderList();
+}
+
+function filterList() {
+  _searchQ = document.getElementById('search-input').value.toLowerCase();
+  renderList();
+}
+
+function renderList() {
+  var filtered = _ords.filter(function(o) {
+    if (_activeFilter === 'ready' && o.status !== 'ready' && o.status !== 'sent') return false;
+    if (_activeFilter === 'draft' && o.status !== 'draft') return false;
+    if (_searchQ) {
+      var meds = '';
+      if (o.line_items) {
+        try {
+          var items = typeof o.line_items === 'string' ? JSON.parse(o.line_items) : o.line_items;
+          meds = items.map(function(m){ return (m.name||m.description||''); }).join(' ');
+        } catch(e) {}
+      }
+      var hay = ((o.client_name||'')+(o.project_title||'')+meds).toLowerCase();
+      if (!hay.includes(_searchQ)) return false;
+    }
+    return true;
+  });
+
+  var el = document.getElementById('ord-list');
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">'+
+      (_ords.length ? 'Aucun résultat' : 'Aucune ordonnance rédigée')+
+      '</div><div>'+
+      (_ords.length ? 'Ajustez la recherche ou les filtres.' : 'Créez votre première ordonnance pour un patient.')+
+      '</div></div>';
+    return;
+  }
+
+  var ordNum = _ords.length;
+  el.innerHTML = filtered.map(function(o) {
+    var idx = _ords.findIndex(function(x){return x.id===o.id;});
+    var num = String(_ords.length - idx).padStart(3,'0');
+    var d = o.created_at ? new Date(o.created_at) : null;
+    var dateStr = d ? d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear() : '';
+    var statusLabel = {draft:'Brouillon',ready:'Finalisée',sent:'Remise',signed:'Signée',paid:'Clôturée'}[o.status]||o.status;
+    var statusClass = {draft:'status-draft',ready:'status-ready',sent:'status-sent'}[o.status]||'status-draft';
+
+    // Parse medications
+    var meds = [];
+    try { meds = typeof o.line_items === 'string' ? JSON.parse(o.line_items) : (o.line_items||[]); } catch(e){}
+    var medPreview = meds.slice(0,3).map(function(m){ return m.name||m.description||''; }).filter(Boolean).join(', ');
+    if (meds.length > 3) medPreview += ' +' + (meds.length-3) + ' autres';
+
+    return '<div class="ord-card">' +
+      '<div class="ord-card-head" onclick="toggleDetail(\''+o.id+'\')">' +
+        '<div class="ord-num">'+num+'</div>' +
+        '<div class="ord-info">' +
+          '<div class="ord-patient">'+esc(o.client_name||'Patient inconnu')+'</div>' +
+          '<div class="ord-title">'+(o.project_title ? esc(o.project_title) : (medPreview ? esc(medPreview) : '<span style="color:var(--text4);font-style:italic">Sans titre</span>'))+'</div>' +
+          '<div class="ord-meta">' +
+            '<span class="status-badge '+statusClass+'">'+statusLabel+'</span>' +
+            '<span class="ord-date">'+dateStr+'</span>' +
+            (meds.length ? '<span class="ord-date">· '+meds.length+' médicament'+(meds.length>1?'s':'')+'</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="ord-actions" onclick="event.stopPropagation()">' +
+          '<button class="btn-icon print" onclick="printOrd(\''+o.id+'\')" title="Imprimer">' +
+            '<svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>' +
+          '</button>' +
+          '<button class="btn-icon" onclick="openModal(\''+o.id+'\')" title="Modifier">' +
+            '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+          '</button>' +
+          '<button class="btn-icon danger" onclick="deleteOrd(\''+o.id+'\')" title="Supprimer">' +
+            '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ord-body" id="ob-'+o.id+'">' +
+        (meds.length ?
+          '<table class="meds-table">' +
+          '<thead><tr><th>Médicament</th><th>Posologie</th></tr></thead>' +
+          '<tbody>' + meds.map(function(m){
+            return '<tr><td>'+esc(m.name||m.description||'—')+'</td><td>'+esc(m.quantity||m.posologie||'—')+'</td></tr>';
+          }).join('') + '</tbody></table>' : '') +
+        (o.description ? '<div class="ord-instructions">'+esc(o.description)+'</div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleDetail(id) {
+  var body = document.getElementById('ob-'+id);
+  if (body) body.classList.toggle('open');
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────
+function openModal(id) {
+  _editId = id || null;
+  document.getElementById('modal-title').textContent = id ? 'Modifier l\'ordonnance' : 'Nouvelle ordonnance';
+  var o = id ? _ords.find(function(x){return x.id===id;}) : null;
+  document.getElementById('f-patient').value = o ? (o.client_name||'') : '';
+  document.getElementById('f-date').value = o && o.due_date ? o.due_date : new Date().toISOString().slice(0,10);
+  document.getElementById('f-title').value = o ? (o.project_title||'') : '';
+  document.getElementById('f-status').value = o ? (o.status||'draft') : 'draft';
+  document.getElementById('f-instructions').value = o ? (o.description||'') : '';
+
+  // Build med rows
+  var builder = document.getElementById('meds-builder');
+  builder.innerHTML = '';
+  var meds = [];
+  if (o && o.line_items) {
+    try { meds = typeof o.line_items === 'string' ? JSON.parse(o.line_items) : (o.line_items||[]); } catch(e){}
+  }
+  if (meds.length) {
+    meds.forEach(function(m){ addMedRow(m.name||m.description||'', m.quantity||m.posologie||''); });
+  } else {
+    addMedRow();
+  }
+
+  document.getElementById('btn-save').disabled = false;
+  document.getElementById('btn-save').textContent = 'Enregistrer';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('f-patient').focus(); }, 200);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  _editId = null;
+}
+
+function addMedRow(name, posologie) {
+  var builder = document.getElementById('meds-builder');
+  var row = document.createElement('div');
+  row.className = 'med-row';
+  row.innerHTML =
+    '<input type="text" placeholder="Amoxicilline 500mg…" value="'+esc(name||'')+'" maxlength="120">' +
+    '<input type="text" placeholder="1 cp × 3/j — 7 jours" value="'+esc(posologie||'')+'" maxlength="120">' +
+    '<button class="btn-del-med" onclick="this.parentNode.remove()" title="Supprimer">' +
+      '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+    '</button>';
+  builder.appendChild(row);
+}
+
+function getMeds() {
+  var rows = document.querySelectorAll('#meds-builder .med-row');
+  var meds = [];
+  rows.forEach(function(row) {
+    var inputs = row.querySelectorAll('input');
+    var name = inputs[0] ? inputs[0].value.trim() : '';
+    var posologie = inputs[1] ? inputs[1].value.trim() : '';
+    if (name) meds.push({ name: name, quantity: posologie });
+  });
+  return meds;
+}
+
+async function saveOrd() {
+  var patient = document.getElementById('f-patient').value.trim();
+  if (!patient) { toast('Nom du patient requis.','error'); return; }
+
+  var btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+  var meds = getMeds();
+
+  var payload = {
+    user_id: _uid,
+    client_name: patient,
+    client_email: patient.toLowerCase().replace(/\s+/g,'.')+'@patient.dz',
+    project_title: document.getElementById('f-title').value.trim() || 'Ordonnance',
+    project_type: 'ordonnance',
+    description: document.getElementById('f-instructions').value.trim() || null,
+    line_items: meds,
+    status: document.getElementById('f-status').value,
+    due_date: document.getElementById('f-date').value || null,
+    share_token: _editId
+      ? (_ords.find(function(o){return o.id===_editId;})||{}).share_token
+      : Math.random().toString(36).slice(2) + Date.now().toString(36),
+  };
+
+  var error;
+  if (_editId) {
+    var res = await _supa.from('proposals').update(payload).eq('id', _editId);
+    error = res.error;
+  } else {
+    var res = await _supa.from('proposals').insert(payload);
+    error = res.error;
+  }
+
+  btn.disabled = false; btn.textContent = 'Enregistrer';
+  if (error) { toast('Erreur : '+error.message,'error'); return; }
+  toast(_editId ? 'Ordonnance mise à jour.' : 'Ordonnance créée.','success');
+  closeModal();
+  loadOrds();
+}
+
+async function deleteOrd(id) {
+  var o = _ords.find(function(x){return x.id===id;});
+  if (!confirm('Supprimer l\'ordonnance de '+(o?o.client_name:'ce patient')+' ?')) return;
+  var { error } = await _supa.from('proposals').delete().eq('id', id);
+  if (error) { toast('Erreur','error'); return; }
+  toast('Ordonnance supprimée.');
+  loadOrds();
+}
+
+// ── PRINT ─────────────────────────────────────────────────────────
+function printOrd(id) {
+  var o = _ords.find(function(x){return x.id===id;});
+  if (!o) return;
+
+  var meds = [];
+  try { meds = typeof o.line_items === 'string' ? JSON.parse(o.line_items) : (o.line_items||[]); } catch(e){}
+
+  var clinic = _clinicProfile || {};
+  var clinicName = clinic.clinic_name || 'Cabinet médical';
+  var doctorName = 'Dr. ' + (clinic.first_name||'') + ' ' + (clinic.last_name||'');
+  var speciality = clinic.speciality || '';
+  var address = [clinic.address, clinic.wilaya].filter(Boolean).join(', ');
+  var phone = clinic.phone || '';
+  var d = o.due_date ? new Date(o.due_date+'T00:00:00') : new Date(o.created_at);
+  var dateStr = d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();
+
+  var html =
+    '<div class="print-ord">' +
+    '<div class="print-header">' +
+      '<div class="print-logo">'+esc(clinicName)+'</div>' +
+      '<div class="print-clinic-info">'+esc(doctorName)+(speciality?' — '+esc(speciality):'')+'</div>' +
+      (address ? '<div class="print-clinic-info">'+esc(address)+'</div>' : '') +
+      (phone ? '<div class="print-clinic-info">Tél : '+esc(phone)+'</div>' : '') +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">' +
+      '<div style="font-size:16pt;font-weight:bold;color:#003399">ORDONNANCE</div>' +
+      '<div style="font-size:9pt;color:#555">Le '+dateStr+'</div>' +
+    '</div>' +
+    '<div class="print-patient">' +
+      '<div style="font-size:9pt;color:#555;margin-bottom:3px">Patient</div>' +
+      '<div style="font-size:12pt;font-weight:bold">'+esc(o.client_name||'')+'</div>' +
+    '</div>' +
+    (o.project_title && o.project_title !== 'Ordonnance' ? '<div style="margin-bottom:12px;font-size:10pt;color:#374151"><strong>Objet :</strong> '+esc(o.project_title)+'</div>' : '') +
+    (meds.length ?
+      '<div class="print-meds">' +
+        '<table><thead><tr><th>Médicament / DCI</th><th>Posologie</th></tr></thead><tbody>' +
+        meds.map(function(m,i){
+          return '<tr><td><strong>'+(i+1)+'.</strong> '+esc(m.name||m.description||'')+'</td><td>'+esc(m.quantity||m.posologie||'')+'</td></tr>';
+        }).join('') +
+        '</tbody></table></div>' : '') +
+    (o.description ? '<div style="margin-top:14px;padding:10px;background:#f9f9f9;border:1px solid #ddd;border-radius:6px;font-size:10pt;"><strong>Instructions :</strong><br>'+esc(o.description)+'</div>' : '') +
+    '<div style="margin-top:40px;display:flex;justify-content:flex-end">' +
+      '<div style="text-align:center">' +
+        '<div style="height:50px;border-bottom:1px solid #ccc;width:160px;margin-bottom:6px"></div>' +
+        '<div style="font-size:8pt;color:#888">Signature et cachet du médecin</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="print-footer">Généré par Prospeo — CRM médical algérien 🇩🇿</div>' +
+    '</div>';
+
+  document.getElementById('print-area').innerHTML = html;
+  document.getElementById('print-area').style.display = 'block';
+  window.print();
+  document.getElementById('print-area').style.display = 'none';
+  document.getElementById('print-area').innerHTML = '';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast '+(type||'')+' show';
+  setTimeout(function(){ t.className = 'toast'; }, 3500);
+}
+</script>
+</body>
+</html>

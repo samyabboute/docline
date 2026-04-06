@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tarifs — Prospeo</title>
-<meta name="description" content="Tarification simple et transparente pour freelances. Commencez gratuitement, passez en Pro quand vous êtes prêt.">
+<meta name="description" content="Tarification en DA pour médecins et cliniques d'Algérie. Commencez gratuitement, passez en Pro quand vous êtes prêt.">
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,11 +36,12 @@
 html{-webkit-font-smoothing:antialiased}
 body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;animation:fadeIn .35s var(--ease)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── NAV ── */
+/* NAV */
 nav{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:50}
 .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.4px}
-.nav-logo img{height:22px;width:auto}
+.nav-logo-mark{width:28px;height:28px;background:var(--brand);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff}
 .nav-right{display:flex;align-items:center;gap:8px}
 .nav-back{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--rfull);font-size:13px;font-weight:600;color:var(--text3);text-decoration:none;border:1px solid var(--border);background:var(--surface);transition:all var(--t) var(--ease)}
 .nav-back:hover{color:var(--brand);border-color:var(--brand);background:var(--brand-light)}
@@ -49,89 +50,77 @@ nav{height:56px;display:flex;align-items:center;justify-content:space-between;pa
 .theme-btn:hover{background:var(--surface2);color:var(--text)}
 .theme-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 
-/* ── HERO ── */
-.hero{text-align:center;padding:64px 24px 48px;max-width:640px;margin:0 auto}
+/* HERO */
+.hero{text-align:center;padding:64px 24px 48px;max-width:700px;margin:0 auto}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);color:var(--brand);font-size:12px;font-weight:700;padding:5px 14px;border-radius:var(--rfull);margin-bottom:20px;letter-spacing:.02em}
 .hero-badge svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
-h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spacing:-.8px;line-height:1.15;margin-bottom:12px}
+h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spacing:-.8px;line-height:1.15;margin-bottom:12px}
 .hero-sub{font-size:16px;color:var(--text3);line-height:1.6;margin-bottom:32px}
 
-/* ── BILLING TOGGLE ── */
+/* BILLING TOGGLE */
 .billing-toggle{display:inline-flex;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rfull);padding:4px;gap:2px;position:relative;margin-bottom:48px}
 .bt-btn{padding:8px 20px;border-radius:var(--rfull);border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all var(--t) var(--ease);color:var(--text3);background:transparent}
 .bt-btn.active{background:var(--surface);color:var(--brand);box-shadow:var(--shadow-md)}
 .bt-save{display:inline-flex;align-items:center;gap:4px;background:#ECFDF5;color:#059669;border:1px solid #A7F3D0;font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--rfull);margin-left:4px;vertical-align:middle;transition:opacity var(--t)}
 .bt-save.hidden{opacity:0;pointer-events:none}
 
-/* ── PLANS GRID ── */
-.plans{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:800px;margin:0 auto;padding:0 24px 80px}
+/* PLANS GRID — 3 columns */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1000px;margin:0 auto;padding:0 24px 80px}
 
-/* ── PLAN CARD ── */
+/* PLAN CARD */
 .plan{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rlg);padding:32px;position:relative;transition:box-shadow var(--t) var(--ease),transform var(--t) var(--ease);display:flex;flex-direction:column}
 .plan:hover{box-shadow:var(--shadow-lg)}
 .plan.pro{border-color:var(--brand);box-shadow:var(--shadow-brand)}
 .plan.pro:hover{box-shadow:0 16px 48px rgba(0,51,153,.28);transform:translateY(-2px)}
-
-/* Popular badge */
 .plan-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:4px 18px;border-radius:var(--rfull);white-space:nowrap;letter-spacing:.04em;box-shadow:0 2px 8px rgba(0,51,153,.3)}
-
-/* Plan header */
 .plan-name{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
 .plan-price-row{display:flex;align-items:flex-end;gap:4px;margin-bottom:6px}
-.plan-price{font-size:42px;font-weight:800;color:var(--text);letter-spacing:-1.5px;line-height:1}
-.plan-price-suffix{font-size:14px;font-weight:500;color:var(--text4);margin-bottom:6px}
+.plan-price{font-size:36px;font-weight:800;color:var(--text);letter-spacing:-1.5px;line-height:1}
+.plan-price-suffix{font-size:13px;font-weight:500;color:var(--text4);margin-bottom:6px}
 .plan-price-yearly{font-size:12px;color:var(--text4);margin-bottom:16px;min-height:18px}
-.plan-desc{font-size:14px;color:var(--text3);line-height:1.55;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border)}
-
-/* Features list */
-.features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px;flex:1}
-.features li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--text2);line-height:1.45}
-.features li svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;stroke-width:2.5;stroke-linecap:round}
+.plan-desc{font-size:13px;color:var(--text3);line-height:1.55;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.features{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:24px;flex:1}
+.features li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.45}
+.features li svg{width:15px;height:15px;flex-shrink:0;margin-top:1px;stroke-width:2.5;stroke-linecap:round}
 .feat-yes svg{stroke:var(--success)}
 .feat-no{color:var(--text4)}
 .feat-no svg{stroke:var(--text4)}
-
-/* CTA button */
-.plan-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px 20px;border-radius:var(--r);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all var(--t) var(--ease);text-decoration:none;position:relative;overflow:hidden}
+.plan-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px 20px;border-radius:var(--r);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all var(--t) var(--ease);text-decoration:none;position:relative;overflow:hidden}
 .plan-btn:active{transform:scale(.98)}
 .plan-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 .btn-free{background:var(--surface2);color:var(--text2);border:1.5px solid var(--border)}
 .btn-free:hover:not(:disabled){background:var(--brand-light);color:var(--brand);border-color:var(--brand)}
 .btn-pro{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
 .btn-pro:hover:not(:disabled){background:var(--brand-dark);box-shadow:0 8px 28px rgba(0,51,153,.36);transform:translateY(-1px)}
+.btn-clinic{background:var(--surface2);color:var(--text2);border:1.5px solid var(--border)}
+.btn-clinic:hover:not(:disabled){background:var(--surface);border-color:var(--brand);color:var(--brand)}
 .plan-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
-
-/* Spinner inside button */
 .btn-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
 .plan-btn.loading .btn-spinner{display:block}
 .plan-btn.loading .btn-label{display:none}
-
-/* Trust line */
-.plan-trust{text-align:center;margin-top:12px;font-size:12px;color:var(--text4);display:flex;align-items:center;justify-content:center;gap:5px}
+.plan-trust{text-align:center;margin-top:10px;font-size:11px;color:var(--text4);display:flex;align-items:center;justify-content:center;gap:5px}
 .plan-trust svg{width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 
-/* ── TRUST BAR ── */
+/* TRUST BAR */
 .trust-bar{display:flex;align-items:center;justify-content:center;gap:28px;padding:24px;border-top:1px solid var(--border);flex-wrap:wrap;margin-top:auto}
 .trust-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text4)}
 .trust-item svg{width:14px;height:14px;fill:none;stroke:var(--text4);stroke-width:2;stroke-linecap:round;flex-shrink:0}
 
-/* ── ERROR MSG ── */
-.msg{padding:12px 16px;border-radius:var(--r);font-size:13px;font-weight:500;display:none;align-items:center;gap:8px;max-width:800px;margin:0 auto 16px;margin-left:24px;margin-right:24px}
+/* ERROR MSG */
+.msg{padding:12px 16px;border-radius:var(--r);font-size:13px;font-weight:500;display:none;align-items:center;gap:8px;max-width:1000px;margin:0 auto 16px;margin-left:24px;margin-right:24px}
 .msg.show{display:flex}
 .msg-err{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
 
-/* ── RESPONSIVE ── */
-@media(max-width:640px){
-  .plans{grid-template-columns:1fr;padding:0 16px 80px}
+/* RESPONSIVE */
+@media(max-width:840px){
+  .plans{grid-template-columns:1fr;max-width:420px;padding:0 16px 80px}
   .plan.pro{order:-1}
-  h1{font-size:26px}
-  .hero{padding:40px 16px 32px}
-  .billing-toggle{margin-bottom:32px}
 }
-@media(max-width:400px){
+@media(max-width:480px){
+  h1{font-size:24px}
+  .hero{padding:40px 16px 32px}
   .plan{padding:24px 20px}
-  .plan-price{font-size:36px}
+  .plan-price{font-size:32px}
 }
 </style>
 <link rel="manifest" href="manifest.json">
@@ -142,11 +131,14 @@ h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spaci
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo"><img src="prospeo-logo.svg" alt="Prospeo"></a>
+  <a href="landing.html" class="nav-logo">
+    <div class="nav-logo-mark">P</div>
+    Prospeo
+  </a>
   <div class="nav-right">
     <button class="theme-btn" id="theme-btn" title="Changer le thème" onclick="toggleTheme()">
       <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      <svg class="icon-sun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
     </button>
     <a href="app.html" class="nav-back">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
@@ -157,13 +149,12 @@ h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spaci
 
 <div class="hero anim-fade-up">
   <div class="hero-badge">
-    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-    Tarification simple et transparente
+    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72"/></svg>
+    Tarifs en dinars algériens · Sans frais cachés
   </div>
-  <h1>Développez votre activité freelance</h1>
-  <p class="hero-sub">Commencez gratuitement avec l'essentiel. Passez en Pro quand vous êtes prêt à évoluer — sans engagement, résiliable à tout moment.</p>
+  <h1>Des tarifs adaptés aux médecins algériens</h1>
+  <p class="hero-sub">Commencez gratuitement sans carte bancaire. Passez en Pro quand vous êtes prêt — résiliable à tout moment.</p>
 
-  <!-- Billing toggle -->
   <div class="billing-toggle">
     <button class="bt-btn active" id="bt-monthly" onclick="setBilling('monthly')">Mensuel</button>
     <button class="bt-btn" id="bt-yearly" onclick="setBilling('yearly')">
@@ -173,81 +164,102 @@ h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spaci
   </div>
 </div>
 
-<!-- Error message -->
 <div class="msg msg-err" id="msg-err">
   <svg viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
   <span id="msg-err-text"></span>
 </div>
 
-<!-- Plans -->
 <div class="plans">
 
-  <!-- FREE -->
+  <!-- GRATUIT -->
   <div class="plan anim-fade-up delay-100">
     <div class="plan-name">Gratuit</div>
     <div class="plan-price-row">
-      <div class="plan-price">€0</div>
-      <div class="plan-price-suffix">/mois</div>
+      <div class="plan-price">0 DA</div>
     </div>
-    <div class="plan-price-yearly">&nbsp;</div>
-    <p class="plan-desc">Tout ce qu'il faut pour démarrer et décrocher vos premiers clients.</p>
+    <div class="plan-price-yearly">Pour toujours</div>
+    <p class="plan-desc">Pour démarrer et découvrir l'outil sans aucun engagement.</p>
     <ul class="features">
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Jusqu'à 10 leads</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Pipeline CRM</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Gestion des clients</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Agenda &amp; tâches</li>
-      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Facturation TVA (HT/TVA/TTC)</li>
-      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Smart Files &amp; contrats</li>
-      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Assistant IA business</li>
-      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Envoi d'emails</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Jusqu'à 30 patients</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Dossiers patients (CNAS/CASNOS)</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Agenda &amp; rendez-vous</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>5 ordonnances / mois</li>
+      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>File d'attente QR Code</li>
+      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Facturation &amp; reçus DA</li>
+      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Consultations récurrentes</li>
+      <li class="feat-no"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Support prioritaire</li>
     </ul>
     <button class="plan-btn btn-free" onclick="window.location.href='app.html'">
-      <span class="btn-label">Continuer avec le plan Gratuit</span>
+      <span class="btn-label">Continuer avec Gratuit</span>
     </button>
   </div>
 
-  <!-- PRO -->
+  <!-- PRO MÉDECIN -->
   <div class="plan pro anim-fade-up delay-200">
     <div class="plan-badge">Le plus populaire</div>
-    <div class="plan-name">Pro</div>
+    <div class="plan-name">Pro Médecin</div>
     <div class="plan-price-row">
-      <div class="plan-price" id="pro-price">€12</div>
+      <div class="plan-price" id="pro-price">2 900 DA</div>
       <div class="plan-price-suffix" id="pro-suffix">/mois</div>
     </div>
     <div class="plan-price-yearly" id="pro-yearly">&nbsp;</div>
-    <p class="plan-desc">Illimité sur tout. Facturez, signez des contrats, développez votre activité.</p>
+    <p class="plan-desc">Tout illimité pour le médecin qui veut un cabinet 100 % numérique.</p>
     <ul class="features">
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Leads &amp; clients illimités</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Facturation TVA (HT/TVA/TTC)</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Export PDF des factures</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Smart Files &amp; e-signatures</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Factures récurrentes</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Assistant IA business</li>
-      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Envoi d'emails via Resend</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Patients illimités</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Ordonnances illimitées</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>File d'attente QR Code</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Facturation &amp; reçus en DA</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Consultations récurrentes</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Rappels automatiques patients</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Export PDF dossiers</li>
       <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Support prioritaire</li>
     </ul>
     <button class="plan-btn btn-pro" id="btn-upgrade" onclick="upgradePro()">
       <div class="btn-spinner"></div>
-      <span class="btn-label">Passer en Pro</span>
+      <span class="btn-label">Passer en Pro Médecin</span>
       <svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
     </button>
     <div class="plan-trust">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Sécurisé par Stripe · Résiliable à tout moment
+      Sécurisé · Résiliable à tout moment
     </div>
+  </div>
+
+  <!-- PRO CLINIQUE -->
+  <div class="plan anim-fade-up delay-300">
+    <div class="plan-name">Pro Clinique</div>
+    <div class="plan-price-row">
+      <div class="plan-price" id="clinic-price">7 900 DA</div>
+      <div class="plan-price-suffix" id="clinic-suffix">/mois</div>
+    </div>
+    <div class="plan-price-yearly" id="clinic-yearly">&nbsp;</div>
+    <p class="plan-desc">Pour les polycliniques et cabinets de groupe jusqu'à 5 médecins.</p>
+    <ul class="features">
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Tout du plan Pro Médecin</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Jusqu'à 5 médecins</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Files d'attente multiples</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Tableau de bord clinique</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Rapports &amp; statistiques</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Gestion des droits accès</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Support téléphonique dédié</li>
+      <li class="feat-yes"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Formation &amp; onboarding inclus</li>
+    </ul>
+    <button class="plan-btn btn-clinic" onclick="contactClinic()">
+      <span class="btn-label">Contacter l'équipe</span>
+      <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12"/></svg>
+    </button>
   </div>
 
 </div>
 
-<!-- Trust bar -->
 <div class="trust-bar">
   <div class="trust-item">
     <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Hébergé en EU
+    Données sécurisées
   </div>
   <div class="trust-item">
-    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Conforme RGPD
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    Adapté à l'Algérie 🇩🇿
   </div>
   <div class="trust-item">
     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -255,7 +267,7 @@ h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spaci
   </div>
   <div class="trust-item">
     <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-    Paiements Stripe
+    Tarifs en DA
   </div>
 </div>
 
@@ -263,7 +275,7 @@ h1{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--text);letter-spaci
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _billing = 'monthly';
 
-// ── THEME ──────────────────────────────────────────────────────
+// THEME
 (function(){
   var t = localStorage.getItem('prospeo-theme');
   if (!t && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
@@ -279,11 +291,10 @@ function toggleTheme() {
   applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
 }
 
-// ── AUTH GUARD ───────────────────────────────���─────────────────
+// AUTH GUARD
 (async function(){
   var s = await _supa.auth.getSession();
   if (!s.data.session) { window.location.href = 'login.html'; return; }
-  // If already Pro, show "Manage subscription" instead
   var { data: sub } = await _supa.from('subscriptions').select('plan,status').eq('user_id', s.data.session.user.id).single();
   if (sub && sub.plan !== 'free' && sub.status === 'active') {
     var btn = document.getElementById('btn-upgrade');
@@ -292,7 +303,7 @@ function toggleTheme() {
   }
 })();
 
-// ── BILLING TOGGLE ─────────────────────────────────────────────
+// BILLING TOGGLE
 function setBilling(mode) {
   _billing = mode;
   document.getElementById('bt-monthly').classList.toggle('active', mode === 'monthly');
@@ -301,22 +312,26 @@ function setBilling(mode) {
   save.classList.toggle('hidden', mode === 'monthly');
 
   if (mode === 'yearly') {
-    document.getElementById('pro-price').textContent = '€10';
+    document.getElementById('pro-price').textContent = '2 400 DA';
     document.getElementById('pro-suffix').textContent = '/mois';
-    document.getElementById('pro-yearly').textContent = 'Facturé 120 €/an · Économisez 24 €';
+    document.getElementById('pro-yearly').textContent = 'Facturé 29 000 DA/an · 2 mois offerts';
+    document.getElementById('clinic-price').textContent = '6 600 DA';
+    document.getElementById('clinic-suffix').textContent = '/mois';
+    document.getElementById('clinic-yearly').textContent = 'Facturé 79 000 DA/an · 2 mois offerts';
   } else {
-    document.getElementById('pro-price').textContent = '€12';
+    document.getElementById('pro-price').textContent = '2 900 DA';
     document.getElementById('pro-suffix').textContent = '/mois';
     document.getElementById('pro-yearly').innerHTML = '&nbsp;';
+    document.getElementById('clinic-price').textContent = '7 900 DA';
+    document.getElementById('clinic-suffix').textContent = '/mois';
+    document.getElementById('clinic-yearly').innerHTML = '&nbsp;';
   }
 }
 
-// ── UPGRADE ───────────────────────────────���────────────────────
+// UPGRADE
 async function upgradePro() {
   var btn = document.getElementById('btn-upgrade');
-
-  // Manage subscription if already Pro
-  if (btn.querySelector('.btn-label').textContent.includes('Manage')) {
+  if (btn.querySelector('.btn-label').textContent.includes('Gérer')) {
     window.location.href = 'https://billing.stripe.com/p/login/test_placeholder';
     return;
   }
@@ -326,7 +341,7 @@ async function upgradePro() {
     : PROSPEO_CONFIG.STRIPE_PRICE_PRO_MONTHLY;
 
   if (!priceId || priceId.startsWith('price_REPLACE')) {
-    showError('Stripe n\'est pas encore configuré. Contactez hello@prospeo.app pour passer en Pro — activation sous 24h.');
+    showError('Le paiement en ligne sera disponible prochainement. Contactez-nous pour activer Pro sous 24h.');
     return;
   }
 
@@ -338,50 +353,33 @@ async function upgradePro() {
     var { data: { session } } = await _supa.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
 
-    var res = await fetch(EDGE_BASE + '/create-checkout', {
+    var resp = await fetch(PROSPEO_CONFIG.NETLIFY_BASE + '/.netlify/functions/create-checkout', {
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + session.access_token,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        price_id:    priceId,
-        success_url: APP_URL + '/app.html?upgrade=success',
-        cancel_url:  APP_URL + '/pricing.html',
-      }),
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ priceId: priceId, userId: session.user.id })
     });
-
-    var data = await res.json();
-    if (!res.ok || !data.url) throw new Error(data.error || 'Impossible de créer la session de paiement.');
-    window.location.href = data.url;
-
-  } catch (e) {
-    showError(e.message || 'Une erreur est survenue. Veuillez réessayer.');
+    var data = await resp.json();
+    if (data.url) { window.location.href = data.url; }
+    else { throw new Error(data.error || 'Erreur lors du paiement'); }
+  } catch(e) {
+    showError(e.message || 'Une erreur est survenue. Réessayez.');
     btn.classList.remove('loading');
     btn.disabled = false;
   }
 }
 
+function contactClinic() {
+  window.location.href = 'mailto:contact@prospeo.app?subject=Plan%20Pro%20Clinique&body=Bonjour%2C%20je%20souhaite%20plus%20d%27informations%20sur%20le%20plan%20Pro%20Clinique.';
+}
+
 function showError(msg) {
+  var el = document.getElementById('msg-err');
   document.getElementById('msg-err-text').textContent = msg;
-  document.getElementById('msg-err').classList.add('show');
+  el.classList.add('show');
 }
 function hideError() {
   document.getElementById('msg-err').classList.remove('show');
 }
-
-// ── SUCCESS TOAST ──────────────���───────────────────────────────
-(function(){
-  if (window.location.search.includes('upgrade=success')) {
-    var d = document.createElement('div');
-    d.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:12px 24px;border-radius:999px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:fadeIn .3s ease';
-    d.textContent = '🎉 Bienvenue en Pro ! Votre compte a été mis à niveau.';
-    document.body.appendChild(d);
-    setTimeout(function(){ d.remove(); }, 5000);
-    window.history.replaceState({}, '', 'pricing.html');
-  }
-})();
 </script>
-<script src="prospeo-animations.js"></script>
 </body>
 </html>
