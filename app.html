@@ -1432,7 +1432,7 @@ function updateNexContext(leads, invoices, tasks){
     var prompts=[
       'Résume mon pipeline',
       'Qui relancer aujourd\'hui ?',
-      'Que faire avec mes '+overdue.length+' facture'+(overdue.length!==1?'s':''')+' en retard ?',
+      'Que faire avec mes '+overdue.length+' facture'+(overdue.length!==1?'s':'')+' en retard ?',
       'Aide-moi à rédiger une relance client'
     ].filter(function(p){return !p.includes('0 facture');});
     promptsEl.innerHTML='<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:500">Demander à Nex :</div>'+
@@ -2623,7 +2623,7 @@ function renderLifecycleBar(leads) {
 function filterStage(stage) {
   var filtered = _leads.filter(function(l) { return l.stage === stage; });
   renderPipeline(filtered);
-  Toast.info('', 'Affichage des leads « ' + STAGE_META.find(function(s){return s.k===stage;}).l + » uniquement. Cliquez sur l\'en-tête du pipeline pour réinitialiser.');
+  Toast.info('', 'Affichage des leads « ' + STAGE_META.find(function(s){return s.k===stage;}).l + ' » uniquement. Cliquez sur l\'en-tête du pipeline pour réinitialiser.');
 }
 </script>
 </div>
