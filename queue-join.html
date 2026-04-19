@@ -2,93 +2,282 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Rejoindre la file d'attente</title>
-<meta name="description" content="Scannez le QR Code pour rejoindre la file d'attente du cabinet médical.">
+<meta name="description" content="Scannez le QR Code pour rejoindre la file d'attente de votre cabinet médical.">
+<meta name="theme-color" content="#2563EB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --brand:#003399;--brand2:#1D4ED8;--brand-light:#EEF2FF;
-  --bg:#F0F4FF;--surface:#FFFFFF;
+  --brand:#2563EB;--brand2:#1D4ED8;--brand-dark:#1E3A8A;
+  --ok:#059669;--ok-bg:#ECFDF5;--ok-border:#A7F3D0;
+  --warn:#EA580C;--warn-bg:#FFF7ED;--warn-border:#FED7AA;
+  --danger:#DC2626;--danger-bg:#FEF2F2;--danger-border:#FECACA;
+  --bg:#F0F4FF;--surface:#fff;
   --text:#0D1117;--text2:#374151;--text3:#6B7280;--text4:#9CA3AF;
-  --success:#059669;--success-bg:#ECFDF5;--success-border:#A7F3D0;
-  --warning:#D97706;--warning-bg:#FFFBEB;
-  --danger:#DC2626;
   --border:#E5E7EB;
-  --r:16px;--rlg:24px;--rfull:999px;
-  --shadow:0 4px 24px rgba(0,51,153,.1);
-  --shadow-lg:0 16px 56px rgba(0,51,153,.15);
+  --r:16px;--rfull:999px;
   --ease:cubic-bezier(.25,.46,.45,.94);
+  /* dynamic accent per priority */
+  --acc:#2563EB;--acc2:#1D4ED8;--acc-rgb:37,99,235;
 }
-html{-webkit-font-smoothing:antialiased;height:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 20px 40px}
 
-/* CARD */
-.card{background:var(--surface);border-radius:var(--rlg);box-shadow:var(--shadow-lg);width:100%;max-width:400px;overflow:hidden;animation:slideUp .5s var(--ease) both}
-@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+html{-webkit-font-smoothing:antialiased;height:100%;overscroll-behavior:none}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100dvh;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;padding:16px 16px 40px;
+}
 
-/* HEADER */
-.card-header{background:linear-gradient(135deg,#003399,#1D4ED8);padding:28px 24px;text-align:center;color:#fff}
-.clinic-avatar{width:56px;height:56px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px}
-.clinic-name{font-size:18px;font-weight:700;margin-bottom:4px}
-.clinic-sub{font-size:13px;opacity:.75}
+/* ── CARD ─────────────────────────────────────────── */
+.card{
+  background:var(--surface);
+  border-radius:24px;
+  box-shadow:0 20px 60px rgba(37,99,235,.15);
+  width:100%;max-width:420px;
+  overflow:hidden;
+  animation:slideUp .45s var(--ease) both;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 
-/* STEP: NAME INPUT */
-.step{padding:28px 24px;display:flex;flex-direction:column;gap:20px}
+/* ── HEADER ───────────────────────────────────────── */
+.card-header{
+  background:linear-gradient(150deg,var(--acc) 0%,var(--acc2) 100%);
+  padding:28px 24px 22px;text-align:center;color:#fff;
+  transition:background .5s var(--ease);
+  position:relative;overflow:hidden;
+}
+.card-header::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.18) 0%,transparent 60%);
+  pointer-events:none;
+}
+.clinic-avatar{
+  width:60px;height:60px;
+  background:rgba(255,255,255,.2);backdrop-filter:blur(4px);
+  border-radius:50%;border:2px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;font-size:26px;
+}
+.clinic-name{font-size:19px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+.clinic-sub{font-size:13px;opacity:.75;font-weight:400}
+.header-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.18);backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:var(--rfull);padding:5px 12px;
+  font-size:12px;font-weight:600;margin-top:12px;
+}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:pulse-dot 1.8s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+
+/* ── STEPS CONTAINER ─────────────────────────────── */
+.steps-wrap{position:relative;overflow:hidden}
+.step{padding:24px;display:flex;flex-direction:column;gap:18px}
 .step.hidden{display:none}
-.step-title{font-size:17px;font-weight:700;color:var(--text);text-align:center}
-.step-sub{font-size:14px;color:var(--text3);text-align:center;line-height:1.55}
+.step-enter{animation:stepIn .35s var(--ease) both}
+@keyframes stepIn{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
+
+.step-title{font-size:18px;font-weight:800;color:var(--text);text-align:center;letter-spacing:-.3px}
+.step-sub{font-size:14px;color:var(--text3);text-align:center;line-height:1.6}
+
+/* ── PROGRESS DOTS ────────────────────────────────── */
+.progress-dots{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s var(--ease)}
+.dot.active{width:22px;border-radius:4px;background:var(--acc)}
+.dot.done{background:var(--ok)}
+
+/* ── NAME INPUT (step 1) ──────────────────────────── */
+.name-icon{font-size:40px;text-align:center;line-height:1}
 .form-group{display:flex;flex-direction:column;gap:6px}
 .form-label{font-size:13px;font-weight:600;color:var(--text2)}
-.form-input{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--r);font-size:16px;font-family:inherit;color:var(--text);background:var(--surface);transition:border-color .2s;outline:none;-webkit-appearance:none}
-.form-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,51,153,.1)}
+.form-input{
+  width:100%;padding:15px 16px;
+  border:2px solid var(--border);border-radius:var(--r);
+  font-size:17px;font-family:inherit;color:var(--text);
+  background:var(--surface);
+  transition:border-color .2s,box-shadow .2s;
+  outline:none;-webkit-appearance:none;
+}
+.form-input:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(var(--acc-rgb),.1)}
 .form-input::placeholder{color:var(--text4)}
-.btn-join{width:100%;padding:16px;background:var(--brand);color:#fff;border:none;border-radius:var(--rfull);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-join:hover:not(:disabled){background:var(--brand2);transform:translateY(-1px)}
-.btn-join:active:not(:disabled){transform:scale(.98)}
-.btn-join:disabled{opacity:.55;cursor:not-allowed;transform:none}
-.btn-join svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.form-hint{font-size:12px;color:var(--text4);text-align:center}
+
+/* ── BTN PRIMARY ──────────────────────────────────── */
+.btn{
+  width:100%;padding:16px;
+  background:var(--acc);color:#fff;
+  border:none;border-radius:var(--rfull);
+  font-size:16px;font-weight:700;cursor:pointer;
+  font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active:not(:disabled){transform:scale(.97);opacity:.9}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
-.btn-join.loading .btn-spinner{display:block}
-.btn-join.loading .btn-text{display:none}
+.btn.loading .btn-spinner{display:block}
+.btn.loading .btn-label{display:none}
+.btn.loading .btn-icon{display:none}
+.btn-icon{font-size:18px;transition:transform .2s}
 
-/* STEP: CONFIRMATION */
-.confirm-num{font-size:96px;font-weight:900;line-height:1;background:linear-gradient(135deg,#003399,#1D4ED8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin:8px 0}
-.confirm-badge{display:inline-flex;align-items:center;gap:6px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--rfull);padding:6px 14px;font-size:13px;font-weight:600;color:var(--success);margin:0 auto;display:flex;justify-content:center}
-.confirm-badge::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--success);display:block}
-.info-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#F8FAFF;border-radius:var(--r);border:1px solid rgba(0,51,153,.08)}
-.info-row-label{font-size:13px;color:var(--text3)}
+.btn-ghost{
+  width:100%;padding:12px;
+  background:none;color:var(--text3);
+  border:2px solid var(--border);border-radius:var(--rfull);
+  font-size:14px;font-weight:600;cursor:pointer;
+  font-family:inherit;
+  transition:all .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-ghost:active{background:#F8FAFF;border-color:var(--acc);color:var(--acc)}
+
+/* ── PRIORITY SELECTOR (step 2) ──────────────────── */
+.priority-intro{
+  background:#F8FAFF;border-radius:var(--r);
+  padding:14px 16px;border-left:3px solid var(--acc);
+  font-size:13px;color:var(--text2);line-height:1.6;
+}
+.priority-intro strong{color:var(--acc)}
+.priority-grid{display:flex;flex-direction:column;gap:10px}
+.priority-option{
+  display:flex;align-items:center;gap:14px;
+  padding:16px;
+  border:2px solid var(--border);border-radius:var(--r);
+  cursor:pointer;
+  transition:all .2s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  position:relative;overflow:hidden;
+}
+.priority-option::before{
+  content:'';position:absolute;inset:0;opacity:0;
+  transition:opacity .2s;pointer-events:none;
+}
+.priority-option:active{transform:scale(.98)}
+.priority-option.selected{border-width:2.5px;transform:scale(1.01)}
+.priority-option[data-p="normale"].selected{border-color:#2563EB;background:#EFF6FF}
+.priority-option[data-p="normale"].selected::before{background:#2563EB;opacity:.04}
+.priority-option[data-p="urgente"].selected{border-color:#EA580C;background:#FFF7ED}
+.priority-option[data-p="urgente"].selected::before{background:#EA580C;opacity:.04}
+.priority-option[data-p="critique"].selected{border-color:#DC2626;background:#FEF2F2}
+.priority-option[data-p="critique"].selected::before{background:#DC2626;opacity:.04}
+
+.prio-icon{font-size:28px;flex-shrink:0;width:40px;text-align:center}
+.prio-info{flex:1}
+.prio-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
+.prio-desc{font-size:12px;color:var(--text3);line-height:1.45}
+.prio-check{
+  width:22px;height:22px;border-radius:50%;
+  border:2px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-size:12px;
+}
+.priority-option[data-p="normale"].selected .prio-check{background:#2563EB;border-color:#2563EB;color:#fff}
+.priority-option[data-p="urgente"].selected .prio-check{background:#EA580C;border-color:#EA580C;color:#fff}
+.priority-option[data-p="critique"].selected .prio-check{background:#DC2626;border-color:#DC2626;color:#fff}
+
+/* ── CONFIRMATION (step 3) ────────────────────────── */
+.confirm-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.confirm-label{font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+.confirm-num{
+  font-size:clamp(88px,24vw,120px);font-weight:900;
+  line-height:1;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:numBump .5s var(--ease) both;
+  letter-spacing:-4px;
+}
+@keyframes numBump{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+.confirm-badge{
+  display:flex;align-items:center;gap:6px;
+  border-radius:var(--rfull);padding:7px 16px;
+  font-size:13px;font-weight:700;
+  border:1.5px solid;
+}
+.confirm-badge.normale{background:var(--ok-bg);border-color:var(--ok-border);color:var(--ok)}
+.confirm-badge.urgente{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn)}
+.confirm-badge.critique{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
+
+.info-rows{width:100%;display:flex;flex-direction:column;gap:8px}
+.info-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 15px;background:#F8FAFF;
+  border-radius:12px;border:1px solid rgba(37,99,235,.07);
+}
+.info-row-label{font-size:13px;color:var(--text3);display:flex;align-items:center;gap:7px}
+.info-row-label span{font-size:15px}
 .info-row-val{font-size:14px;font-weight:700;color:var(--text)}
-.info-row-val.highlight{color:var(--brand)}
-.wait-note{font-size:13px;color:var(--text3);text-align:center;line-height:1.6;background:var(--warning-bg);border:1px solid #FDE68A;border-radius:var(--r);padding:12px 16px}
-.wait-note strong{color:var(--warning);display:block;margin-bottom:2px}
+.info-row-val.accent{color:var(--acc)}
+.info-row-val.orange{color:var(--warn)}
+.info-row-val.red{color:var(--danger)}
 
-/* STATUS UPDATES */
-.status-card{padding:16px;border-radius:var(--r);text-align:center;animation:pulse-bg 2s ease-in-out infinite}
-.status-card.waiting{background:#EEF2FF;border:1px solid rgba(0,51,153,.15)}
-.status-card.next{background:#FFF7ED;border:1px solid #FED7AA;animation:pulse-bg-amber 1.5s ease-in-out infinite}
-.status-card.called{background:#ECFDF5;border:1px solid #A7F3D0;animation:none}
-@keyframes pulse-bg{0%,100%{background:#EEF2FF}50%{background:#E0E7FF}}
-@keyframes pulse-bg-amber{0%,100%{background:#FFF7ED}50%{background:#FEF3C7}}
-.status-icon{font-size:32px;margin-bottom:8px}
-.status-text{font-size:15px;font-weight:700;color:var(--text)}
-.status-sub{font-size:12px;color:var(--text3);margin-top:4px}
-.position-bar{margin-top:12px;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden}
-.position-fill{height:100%;background:linear-gradient(90deg,#003399,#1D4ED8);border-radius:3px;transition:width 1s var(--ease)}
+/* ── STATUS CARD ──────────────────────────────────── */
+.status-card{
+  width:100%;border-radius:var(--r);
+  padding:18px;text-align:center;
+  border:1.5px solid;
+  transition:all .4s var(--ease);
+}
+.status-card.waiting{background:#EFF6FF;border-color:rgba(37,99,235,.2);animation:pulseBg 2.5s ease-in-out infinite}
+.status-card.imminent{background:#FFF7ED;border-color:rgba(234,88,12,.25);animation:pulseAmber 1.8s ease-in-out infinite}
+.status-card.called{background:#ECFDF5;border-color:rgba(5,150,105,.25);animation:none}
+.status-card.done{background:#F8FAFF;border-color:var(--border);animation:none}
+@keyframes pulseBg{0%,100%{background:#EFF6FF}50%{background:#DBEAFE}}
+@keyframes pulseAmber{0%,100%{background:#FFF7ED}50%{background:#FEF3C7}}
 
-/* DIVIDER */
-.divider{height:1px;background:var(--border);margin:0 24px}
+.status-emoji{font-size:36px;margin-bottom:8px;display:block;line-height:1}
+.status-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px}
+.status-sub{font-size:13px;color:var(--text3);line-height:1.55}
+.status-progress{margin-top:12px;height:5px;background:#E5E7EB;border-radius:3px;overflow:hidden}
+.status-fill{height:100%;border-radius:3px;transition:width 1.2s var(--ease);background:linear-gradient(90deg,var(--acc),var(--acc2))}
 
-/* FOOTER */
-.card-footer{padding:16px 24px;text-align:center;border-top:1px solid var(--border)}
+.info-note{
+  display:flex;align-items:flex-start;gap:10px;
+  background:#FFFBEB;border:1px solid #FDE68A;
+  border-radius:var(--r);padding:13px 15px;
+}
+.info-note-icon{font-size:18px;flex-shrink:0;line-height:1;margin-top:1px}
+.info-note-text{font-size:13px;color:#92400E;line-height:1.6}
+.info-note-text strong{display:block;font-weight:700;margin-bottom:1px;color:#78350F}
+
+/* ── ERROR ────────────────────────────────────────── */
+.error-box{
+  background:var(--danger-bg);border:1.5px solid var(--danger-border);
+  border-radius:var(--r);padding:13px 16px;
+  font-size:13px;color:#B91C1C;text-align:center;display:none;
+}
+.error-box.show{display:block}
+
+/* ── FOOTER ───────────────────────────────────────── */
+.card-footer{
+  padding:14px 24px;text-align:center;
+  border-top:1px solid var(--border);
+}
 .footer-text{font-size:12px;color:var(--text4)}
-.footer-text a{color:var(--brand);text-decoration:none;font-weight:600}
+.footer-text a{color:var(--acc);text-decoration:none;font-weight:600}
 
-/* ERROR */
-.error-msg{background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--r);padding:12px 16px;font-size:13px;color:#B91C1C;text-align:center;display:none}
-.error-msg.show{display:block}
+/* ── INVALID STATE ────────────────────────────────── */
+.invalid-state{
+  display:flex;flex-direction:column;align-items:center;
+  gap:16px;padding:40px 24px;text-align:center;
+}
+.invalid-icon{font-size:56px}
+.invalid-title{font-size:17px;font-weight:800;color:var(--text)}
+.invalid-sub{font-size:14px;color:var(--text3);line-height:1.6}
+
+/* ── GLOBAL ACCENT TRANSITIONS ────────────────────── */
+.card-header,.status-fill,.btn,.form-input:focus,.confirm-num,.dot.active{
+  transition:background .4s var(--ease),border-color .4s,color .4s;
+}
 </style>
 </head>
 <body>
@@ -97,138 +286,319 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
 
   <!-- HEADER -->
   <div class="card-header" id="clinic-header">
-    <div class="clinic-avatar">🏥</div>
+    <div class="clinic-avatar" id="clinic-avatar">🏥</div>
     <div class="clinic-name" id="clinic-name">Cabinet médical</div>
     <div class="clinic-sub" id="clinic-sub">File d'attente numérique</div>
+    <div class="header-badge">
+      <div class="pulse-dot"></div>
+      File en temps réel
+    </div>
   </div>
 
-  <!-- STEP 1: ENTER NAME -->
+  <!-- PROGRESS DOTS -->
+  <div class="progress-dots" id="progress-dots">
+    <div class="dot active" id="dot-1"></div>
+    <div class="dot" id="dot-2"></div>
+    <div class="dot" id="dot-3"></div>
+  </div>
+
+  <!-- STEP 1: NAME -->
   <div class="step" id="step-name">
-    <div class="step-title">Prenez votre numéro</div>
-    <div class="step-sub">Entrez votre prénom et nous vous appellerons dans l'ordre. Restez à proximité.</div>
+    <div class="name-icon">👋</div>
+    <div>
+      <div class="step-title">Bonjour !</div>
+      <div class="step-sub" style="margin-top:6px">Entrez votre prénom pour prendre votre numéro dans la file d'attente.</div>
+    </div>
 
     <div class="form-group">
       <label class="form-label" for="input-name">Votre prénom</label>
-      <input class="form-input" type="text" id="input-name" placeholder="Ex: Mohamed" maxlength="50" autocomplete="given-name" inputmode="text">
+      <input
+        class="form-input" type="text" id="input-name"
+        placeholder="Ex: Mohamed" maxlength="50"
+        autocomplete="given-name" inputmode="text"
+        onkeydown="if(event.key==='Enter')goToStep2()"
+      >
     </div>
 
-    <div class="error-msg" id="error-msg">Une erreur est survenue. Veuillez réessayer.</div>
+    <div class="error-box" id="error-step1">Veuillez entrer votre prénom pour continuer.</div>
 
-    <button class="btn-join" id="btn-join" onclick="joinQueue()">
-      <div class="btn-spinner"></div>
-      <span class="btn-text">Obtenir mon numéro</span>
-      <svg class="btn-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    <button class="btn" id="btn-step1" onclick="goToStep2()">
+      <span class="btn-label">Continuer</span>
+      <span class="btn-icon">→</span>
     </button>
+
+    <div class="form-hint">Votre numéro sera visible sur l'écran de la salle d'attente</div>
   </div>
 
-  <!-- STEP 2: CONFIRMATION -->
-  <div class="step hidden" id="step-confirm">
-    <div class="step-title">Vous êtes dans la file</div>
-    <div class="confirm-num" id="confirm-num">--</div>
-    <div class="confirm-badge">Numéro confirmé</div>
-
-    <div class="info-row">
-      <span class="info-row-label">Patients avant vous</span>
-      <span class="info-row-val highlight" id="confirm-ahead">--</span>
-    </div>
-    <div class="info-row">
-      <span class="info-row-label">Attente estimée</span>
-      <span class="info-row-val" id="confirm-wait">--</span>
-    </div>
-    <div class="info-row">
-      <span class="info-row-label">Numéro en cours</span>
-      <span class="info-row-val" id="confirm-current">--</span>
+  <!-- STEP 2: PRIORITY -->
+  <div class="step hidden" id="step-priority">
+    <div>
+      <div class="step-title">Motif de votre visite</div>
+      <div class="step-sub" style="margin-top:6px">Sélectionnez le niveau correspondant à votre situation.</div>
     </div>
 
-    <div class="status-card waiting" id="status-card">
-      <div class="status-icon" id="status-icon">⏳</div>
-      <div class="status-text" id="status-text">Votre tour approche</div>
-      <div class="status-sub" id="status-sub">Restez à proximité du cabinet</div>
-      <div class="position-bar">
-        <div class="position-fill" id="position-fill" style="width:10%"></div>
+    <div class="priority-intro">
+      En cas d'urgence vitale, <strong>appelez le 14 (SAMU)</strong> ou rendez-vous aux urgences de l'hôpital le plus proche.
+    </div>
+
+    <div class="priority-grid">
+      <div class="priority-option selected" data-p="normale" onclick="selectPriority('normale')">
+        <div class="prio-icon">🟢</div>
+        <div class="prio-info">
+          <div class="prio-title">Consultation normale</div>
+          <div class="prio-desc">Rendez-vous planifié, suivi régulier ou renouvellement d'ordonnance</div>
+        </div>
+        <div class="prio-check" id="check-normale">✓</div>
+      </div>
+      <div class="priority-option" data-p="urgente" onclick="selectPriority('urgente')">
+        <div class="prio-icon">🟠</div>
+        <div class="prio-info">
+          <div class="prio-title">Gêne importante</div>
+          <div class="prio-desc">Douleur, fièvre élevée, malaise — nécessite une prise en charge rapide</div>
+        </div>
+        <div class="prio-check" id="check-urgente"></div>
+      </div>
+      <div class="priority-option" data-p="critique" onclick="selectPriority('critique')">
+        <div class="prio-icon">🔴</div>
+        <div class="prio-info">
+          <div class="prio-title">Urgence médicale</div>
+          <div class="prio-desc">Douleur très intense, difficultés respiratoires, perte de connaissance</div>
+        </div>
+        <div class="prio-check" id="check-critique"></div>
       </div>
     </div>
 
-    <div class="wait-note">
-      <strong>Restez à proximité</strong>
-      Si vous n'êtes pas présent quand votre numéro est appelé, il sera passé au suivant.
+    <div class="error-box" id="error-step2"></div>
+
+    <button class="btn" id="btn-step2" onclick="joinQueue()">
+      <div class="btn-spinner"></div>
+      <span class="btn-label">Prendre mon numéro</span>
+      <span class="btn-icon">🎫</span>
+    </button>
+    <button class="btn-ghost" onclick="backToStep1()">← Modifier mon prénom</button>
+  </div>
+
+  <!-- STEP 3: CONFIRMATION -->
+  <div class="step hidden" id="step-confirm">
+    <div class="confirm-wrap">
+      <div class="confirm-label">Votre numéro</div>
+      <div class="confirm-num" id="confirm-num">--</div>
+      <div class="confirm-badge normale" id="confirm-badge">✓ Enregistré</div>
+    </div>
+
+    <div class="info-rows">
+      <div class="info-row">
+        <div class="info-row-label"><span>🔢</span> Numéro en cours</div>
+        <div class="info-row-val accent" id="info-current">--</div>
+      </div>
+      <div class="info-row">
+        <div class="info-row-label"><span>👥</span> Patients avant vous</div>
+        <div class="info-row-val" id="info-ahead">--</div>
+      </div>
+      <div class="info-row">
+        <div class="info-row-label"><span>⏱</span> Attente estimée</div>
+        <div class="info-row-val" id="info-wait">--</div>
+      </div>
+    </div>
+
+    <div class="status-card waiting" id="status-card">
+      <div class="status-emoji" id="status-emoji">⏳</div>
+      <div class="status-title" id="status-title">Votre tour approche</div>
+      <div class="status-sub" id="status-sub">Restez à proximité du cabinet</div>
+      <div class="status-progress">
+        <div class="status-fill" id="status-fill" style="width:8%"></div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <div class="info-note-icon">⚠️</div>
+      <div class="info-note-text">
+        <strong>Restez à proximité</strong>
+        Si vous n'êtes pas présent lorsque votre numéro est appelé, votre tour sera passé.
+      </div>
+    </div>
+  </div>
+
+  <!-- INVALID QR -->
+  <div class="step hidden" id="step-invalid">
+    <div class="invalid-state">
+      <div class="invalid-icon">❌</div>
+      <div class="invalid-title">QR Code invalide</div>
+      <div class="invalid-sub">Ce lien ne correspond à aucun cabinet médical. Veuillez scanner à nouveau le QR Code affiché dans la salle d'attente.</div>
     </div>
   </div>
 
   <div class="card-footer">
-    <p class="footer-text">Propulsé par <a href="landing.html">Prospeo</a> · CRM médical algérien 🇩🇿</p>
+    <p class="footer-text">Propulsé par <a href="landing.html">Prospeo</a> · Gestion de cabinet 🇩🇿</p>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
-var _clinicId = null;
-var _myNumber = null;
-var _channel = null;
+// ── GLOBALS ──────────────────────────────────────────────────────────
+var _supa      = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _clinicId  = null;
+var _myNumber  = null;
+var _myPriority = 'normale';
+var _channel   = null;
+var _audioCtx  = null;
 
-// Parse clinic ID from URL ?c=CLINIC_ID
+var PRIORITY_META = {
+  normale : { label:'Consultation normale', badge:'✓ Enregistré',   cls:'normale', acc:'#2563EB', acc2:'#1D4ED8', rgb:'37,99,235',   emoji:'🟢' },
+  urgente : { label:'Gêne importante',      badge:'⚡ Urgence signalée', cls:'urgente', acc:'#EA580C', acc2:'#C2410C', rgb:'234,88,12',  emoji:'🟠' },
+  critique: { label:'Urgence médicale',     badge:'🚨 URGENCE',         cls:'critique', acc:'#DC2626', acc2:'#B91C1C', rgb:'220,38,38', emoji:'🔴' },
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────
 (function init() {
   var params = new URLSearchParams(window.location.search);
-  _clinicId = params.get('c');
+  _clinicId = params.get('c') || params.get('clinic');
 
   if (!_clinicId) {
-    showError('QR Code invalide. Veuillez rescanner le code affiché au cabinet.');
-    document.getElementById('btn-join').disabled = true;
+    showAllSteps('invalid');
+    document.getElementById('progress-dots').style.display = 'none';
     return;
   }
-
-  // Load clinic info
   loadClinicInfo();
-  // Load current queue state
-  loadQueueState();
 })();
 
 async function loadClinicInfo() {
   try {
     var { data } = await _supa.from('profiles')
-      .select('full_name, clinic_name')
+      .select('full_name, clinic_name, specialty')
       .eq('id', _clinicId)
       .single();
     if (data) {
       var name = data.clinic_name || data.full_name || 'Cabinet médical';
       document.getElementById('clinic-name').textContent = name;
+      if (data.specialty) {
+        document.getElementById('clinic-sub').textContent = data.specialty;
+      }
     }
-  } catch(e) { /* silently fail */ }
+  } catch(e) { /* silently fail — clinic header stays generic */ }
 }
 
-async function loadQueueState() {
-  var today = new Date().toISOString().split('T')[0];
-  try {
-    var { data } = await _supa.from('queue_entries')
-      .select('number, status, room')
-      .eq('clinic_id', _clinicId)
-      .eq('queue_date', today)
-      .order('number', {ascending: true});
-
-    if (data) {
-      var current = data.find(function(e) { return e.status === 'current'; });
-      document.getElementById('confirm-current').textContent = current ? current.number : '--';
-    }
-  } catch(e) { /* silently fail */ }
+// ── AUDIO ─────────────────────────────────────────────────────────────
+function getAudio() {
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return _audioCtx;
+}
+function playTick() {
+  var ctx = getAudio(); if (!ctx) return;
+  var o = ctx.createOscillator(), g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.frequency.value = 880; o.type = 'sine';
+  g.gain.setValueAtTime(.07, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .08);
+  o.start(); o.stop(ctx.currentTime + .08);
+}
+function playSuccess() {
+  var ctx = getAudio(); if (!ctx) return;
+  [[523,.0],[659,.12],[784,.24]].forEach(function(p) {
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = p[0]; o.type = 'sine';
+    var t = ctx.currentTime + p[1];
+    g.gain.setValueAtTime(.08, t);
+    g.gain.exponentialRampToValueAtTime(.001, t + .2);
+    o.start(t); o.stop(t + .2);
+  });
+}
+function playCallAlert() {
+  var ctx = getAudio(); if (!ctx) return;
+  [0,.18,.36].forEach(function(delay) {
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 660; o.type = 'square';
+    var t = ctx.currentTime + delay;
+    g.gain.setValueAtTime(.06, t);
+    g.gain.exponentialRampToValueAtTime(.001, t + .15);
+    o.start(t); o.stop(t + .15);
+  });
 }
 
+// ── ACCENT ────────────────────────────────────────────────────────────
+function setAccent(priority) {
+  var m = PRIORITY_META[priority] || PRIORITY_META.normale;
+  document.documentElement.style.setProperty('--acc',  m.acc);
+  document.documentElement.style.setProperty('--acc2', m.acc2);
+  document.documentElement.style.setProperty('--acc-rgb', m.rgb);
+}
+
+// ── STEP NAV ─────────────────────────────────────────────────────────
+function showAllSteps(which) {
+  ['name','priority','confirm','invalid'].forEach(function(s) {
+    var el = document.getElementById('step-' + s);
+    el.classList.add('hidden');
+    el.classList.remove('step-enter');
+  });
+  var target = document.getElementById('step-' + which);
+  target.classList.remove('hidden');
+  requestAnimationFrame(function() { target.classList.add('step-enter'); });
+}
+
+function updateDots(active) {
+  ['dot-1','dot-2','dot-3'].forEach(function(id, i) {
+    var d = document.getElementById(id);
+    d.className = 'dot';
+    if (i + 1 < active) d.classList.add('done');
+    else if (i + 1 === active) d.classList.add('active');
+  });
+}
+
+function goToStep2() {
+  var name = document.getElementById('input-name').value.trim();
+  if (!name) {
+    document.getElementById('error-step1').classList.add('show');
+    document.getElementById('input-name').focus();
+    playTick();
+    return;
+  }
+  document.getElementById('error-step1').classList.remove('show');
+  showAllSteps('priority');
+  updateDots(2);
+  playTick();
+}
+
+function backToStep1() {
+  showAllSteps('name');
+  updateDots(1);
+}
+
+function selectPriority(p) {
+  _myPriority = p;
+  document.querySelectorAll('.priority-option').forEach(function(opt) {
+    opt.classList.remove('selected');
+    var chk = opt.querySelector('.prio-check');
+    chk.textContent = '';
+  });
+  var opt = document.querySelector('[data-p="' + p + '"]');
+  opt.classList.add('selected');
+  opt.querySelector('.prio-check').textContent = '✓';
+  setAccent(p);
+  playTick();
+  // Scroll option into view on mobile
+  opt.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// ── JOIN QUEUE ────────────────────────────────────────────────────────
 async function joinQueue() {
   if (!_clinicId) return;
+  var name = document.getElementById('input-name').value.trim();
+  if (!name) { backToStep1(); return; }
 
-  var btn = document.getElementById('btn-join');
-  var nameInput = document.getElementById('input-name');
-  var name = nameInput.value.trim();
-
+  var btn = document.getElementById('btn-step2');
   btn.classList.add('loading');
   btn.disabled = true;
-  hideError();
+  document.getElementById('error-step2').classList.remove('show');
 
   try {
     var today = new Date().toISOString().split('T')[0];
 
-    // Get last number in queue today
+    // Get next number
     var { data: existing } = await _supa.from('queue_entries')
       .select('number')
       .eq('clinic_id', _clinicId)
@@ -236,16 +606,17 @@ async function joinQueue() {
       .order('number', {ascending: false})
       .limit(1);
 
-    var nextNum = existing && existing.length > 0 ? existing[0].number + 1 : 1;
+    var nextNum = (existing && existing.length > 0) ? existing[0].number + 1 : 1;
 
-    // Insert new entry
+    // Insert
     var { data: entry, error } = await _supa.from('queue_entries')
       .insert({
-        clinic_id: _clinicId,
-        number: nextNum,
-        patient_name: name || null,
-        status: 'waiting',
-        queue_date: today
+        clinic_id:    _clinicId,
+        number:       nextNum,
+        patient_name: name,
+        status:       'waiting',
+        priority:     _myPriority,
+        queue_date:   today
       })
       .select()
       .single();
@@ -253,75 +624,107 @@ async function joinQueue() {
     if (error) throw error;
 
     _myNumber = nextNum;
+    playSuccess();
     showConfirmation(entry, existing ? existing.length : 0);
     startRealtime();
 
   } catch(e) {
-    showError('Impossible de rejoindre la file. Réessayez ou demandez au secrétariat.');
+    console.error(e);
+    var errEl = document.getElementById('error-step2');
+    errEl.textContent = 'Impossible de rejoindre la file. Réessayez ou demandez au secrétariat.';
+    errEl.classList.add('show');
     btn.classList.remove('loading');
     btn.disabled = false;
   }
 }
 
-function showConfirmation(entry, positionBefore) {
-  document.getElementById('step-name').classList.add('hidden');
-  document.getElementById('step-confirm').classList.remove('hidden');
+// ── SHOW CONFIRMATION ─────────────────────────────────────────────────
+async function showConfirmation(entry, positionBefore) {
+  setAccent(_myPriority);
+  showAllSteps('confirm');
+  updateDots(3);
 
-  document.getElementById('confirm-num').textContent = String(entry.number).padStart(2, '0');
+  var numEl = document.getElementById('confirm-num');
+  numEl.textContent = String(entry.number).padStart(2, '0');
 
-  var ahead = Math.max(0, positionBefore);
-  document.getElementById('confirm-ahead').textContent = ahead === 0 ? 'Vous êtes le prochain !' : ahead;
-  document.getElementById('confirm-wait').textContent = ahead === 0 ? 'Très bientôt' : '~' + (ahead * 15) + ' min';
+  var meta = PRIORITY_META[_myPriority] || PRIORITY_META.normale;
+  var badge = document.getElementById('confirm-badge');
+  badge.className = 'confirm-badge ' + meta.cls;
+  badge.textContent = meta.emoji + ' ' + meta.badge;
 
-  // Progress bar (10% min so it's visible)
-  var fillPct = ahead === 0 ? 90 : Math.min(80, 10 + (1 / (ahead + 1)) * 70);
-  document.getElementById('position-fill').style.width = fillPct + '%';
+  // Fetch current number
+  var today = new Date().toISOString().split('T')[0];
+  try {
+    var { data: qdata } = await _supa.from('queue_entries')
+      .select('number,status')
+      .eq('clinic_id', _clinicId)
+      .eq('queue_date', today)
+      .order('number', {ascending: true});
 
-  updateStatus(ahead, null);
-}
+    var current = (qdata || []).find(function(e) { return e.status === 'current'; });
+    document.getElementById('info-current').textContent = current ? String(current.number).padStart(2,'0') : '--';
 
-function updateStatus(ahead, room) {
-  var card = document.getElementById('status-card');
-  var icon = document.getElementById('status-icon');
-  var text = document.getElementById('status-text');
-  var sub  = document.getElementById('status-sub');
-
-  card.className = 'status-card';
-  if (ahead === 0) {
-    card.classList.add('called');
-    icon.textContent = '🔔';
-    text.textContent = 'C\'est votre tour !';
-    sub.textContent = room
-      ? 'Rendez-vous en ' + room + ' maintenant'
-      : 'Veuillez vous présenter au cabinet maintenant';
-    document.getElementById('position-fill').style.width = '100%';
-    // Try to vibrate
-    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-  } else if (ahead === 1) {
-    card.classList.add('next');
-    icon.textContent = '⚡';
-    text.textContent = 'Vous êtes le prochain !';
-    sub.textContent = 'Préparez-vous, restez à proximité';
-  } else {
-    card.classList.add('waiting');
-    icon.textContent = '⏳';
-    text.textContent = 'En attente de votre tour';
-    sub.textContent = ahead + ' personne' + (ahead > 1 ? 's' : '') + ' avant vous';
+    var ahead = Math.max(0, positionBefore);
+    renderAhead(ahead);
+    updateStatusCard(ahead, null);
+  } catch(e) {
+    renderAhead(Math.max(0, positionBefore));
   }
 }
 
+function renderAhead(ahead) {
+  document.getElementById('info-ahead').textContent  = ahead === 0 ? 'Vous êtes le suivant !' : ahead;
+  document.getElementById('info-wait').textContent   = ahead === 0 ? 'Très bientôt' : '~' + (ahead * 15) + ' min';
+  var pct = ahead === 0 ? 92 : Math.max(8, Math.min(75, 8 + (1 / (ahead + 1)) * 67));
+  document.getElementById('status-fill').style.width = pct + '%';
+}
+
+// ── STATUS CARD ────────────────────────────────────────────────────────
+function updateStatusCard(ahead, room) {
+  var card  = document.getElementById('status-card');
+  var emoji = document.getElementById('status-emoji');
+  var title = document.getElementById('status-title');
+  var sub   = document.getElementById('status-sub');
+
+  card.className = 'status-card';
+
+  if (ahead === -1) { // done
+    card.classList.add('done');
+    emoji.textContent = '✅';
+    title.textContent = 'Consultation terminée';
+    sub.textContent   = 'Merci de votre visite. Bonne santé !';
+    document.getElementById('status-fill').style.width = '100%';
+  } else if (ahead === 0) {
+    card.classList.add('called');
+    emoji.textContent = '🔔';
+    title.textContent = 'C\'est votre tour !';
+    sub.textContent   = room ? 'Rendez-vous en ' + room + ' maintenant' : 'Veuillez vous présenter au cabinet';
+    document.getElementById('status-fill').style.width = '100%';
+    if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+    playCallAlert();
+  } else if (ahead === 1) {
+    card.classList.add('imminent');
+    emoji.textContent = '⚡';
+    title.textContent = 'Vous êtes le suivant !';
+    sub.textContent   = 'Préparez-vous, restez juste devant la porte';
+  } else {
+    card.classList.add('waiting');
+    emoji.textContent = '⏳';
+    title.textContent = 'En attente de votre tour';
+    sub.textContent   = ahead + ' personne' + (ahead > 1 ? 's' : '') + ' avant vous';
+  }
+}
+
+// ── REALTIME ───────────────────────────────────────────────────────────
 function startRealtime() {
   if (!_clinicId) return;
-  _channel = _supa.channel('queue-join-' + _clinicId + '-' + Date.now())
+  _channel = _supa.channel('qj-' + _clinicId + '-' + Date.now())
     .on('postgres_changes', {
-      event: 'UPDATE',
+      event: '*',
       schema: 'public',
       table: 'queue_entries',
       filter: 'clinic_id=eq.' + _clinicId
-    }, function(payload) {
-      // Refresh queue position
-      refreshPosition();
-    })
+    }, function() { refreshPosition(); })
     .subscribe();
 }
 
@@ -330,7 +733,7 @@ async function refreshPosition() {
   var today = new Date().toISOString().split('T')[0];
   try {
     var { data } = await _supa.from('queue_entries')
-      .select('number, status, room')
+      .select('number,status,room,priority')
       .eq('clinic_id', _clinicId)
       .eq('queue_date', today)
       .order('number', {ascending: true});
@@ -338,27 +741,22 @@ async function refreshPosition() {
     if (!data) return;
 
     var current = data.find(function(e) { return e.status === 'current'; });
-    var currentNum = current ? current.number : 0;
-    document.getElementById('confirm-current').textContent = currentNum || '--';
+    document.getElementById('info-current').textContent = current
+      ? String(current.number).padStart(2,'0') : '--';
 
     var myEntry = data.find(function(e) { return e.number === _myNumber; });
     if (!myEntry) return;
 
     if (myEntry.status === 'done') {
-      // Already passed
-      document.getElementById('status-icon').textContent = '✅';
-      document.getElementById('status-text').textContent = 'Consultation terminée';
-      document.getElementById('status-sub').textContent = 'Merci de votre visite !';
-      document.getElementById('status-card').className = 'status-card called';
+      renderAhead(0);
+      updateStatusCard(-1, null);
+      document.getElementById('status-fill').style.width = '100%';
       return;
     }
 
-    // If I am the current patient, ahead = 0
     if (myEntry.status === 'current') {
-      document.getElementById('confirm-ahead').textContent = 'Vous êtes le prochain !';
-      document.getElementById('confirm-wait').textContent = 'Très bientôt';
-      document.getElementById('position-fill').style.width = '90%';
-      updateStatus(0, myEntry.room || null);
+      renderAhead(0);
+      updateStatusCard(0, myEntry.room || null);
       return;
     }
 
@@ -366,23 +764,14 @@ async function refreshPosition() {
       return (e.status === 'current' || e.status === 'waiting') && e.number < _myNumber;
     }).length;
 
-    document.getElementById('confirm-ahead').textContent = ahead === 0 ? 'Vous êtes le prochain !' : ahead;
-    document.getElementById('confirm-wait').textContent = ahead === 0 ? 'Très bientôt' : '~' + (ahead * 15) + ' min';
+    renderAhead(ahead);
+    updateStatusCard(ahead, null);
 
-    var fillPct = ahead === 0 ? 90 : Math.min(80, 10 + (1 / (ahead + 1)) * 70);
-    document.getElementById('position-fill').style.width = fillPct + '%';
-    updateStatus(ahead, null);
   } catch(e) { /* silently fail */ }
 }
 
-function showError(msg) {
-  var el = document.getElementById('error-msg');
-  el.textContent = msg;
-  el.classList.add('show');
-}
-function hideError() {
-  document.getElementById('error-msg').classList.remove('show');
-}
+// ── UNLOCK AUDIO on first touch ────────────────────────────────────────
+document.addEventListener('touchstart', function() { getAudio(); }, {once: true, passive: true});
 </script>
 </body>
 </html>

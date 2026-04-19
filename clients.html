@@ -10,109 +10,166 @@
 <script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
-/* ── PAGE-SPECIFIC STYLES ── */
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+/* ── PAGE HEADER ───────────────────────────────────── */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
 .page-title-row{display:flex;align-items:center;gap:10px}
-.page-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.3px}
-.page-count{font-size:13px;color:var(--text4);background:var(--surface2);padding:2px 10px;border-radius:var(--rfull);font-weight:500}
+.page-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px}
+.page-count{font-size:12px;color:var(--text4);background:var(--surface2);padding:3px 10px;border-radius:var(--rfull);font-weight:600}
+.header-actions{display:flex;gap:8px;align-items:center}
 
-.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
-.filter-btn{font-size:12px;font-weight:500;padding:5px 14px;border-radius:var(--rfull);border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;font-family:inherit;transition:all .15s}
-.filter-btn:hover,.filter-btn.active{background:var(--brand-light);border-color:var(--brand-border);color:var(--brand)}
-.view-toggle{display:flex;background:var(--surface2);border-radius:var(--r);padding:2px;margin-left:auto}
-.view-btn{padding:5px 10px;border-radius:6px;border:none;background:none;cursor:pointer;color:var(--text4);font-family:inherit;transition:all .15s}
+/* ── KPI STRIP ──────────────────────────────────────── */
+.kpi-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.kpi-pill{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;transition:box-shadow .15s}
+.kpi-pill:hover{box-shadow:var(--shadow-md)}
+.kpi-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.kpi-val{font-size:20px;font-weight:800;color:var(--text);line-height:1}
+.kpi-lbl{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── FILTER BAR ─────────────────────────────────────── */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{font-size:12px;font-weight:600;padding:6px 14px;border-radius:var(--rfull);border:1.5px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.filter-btn:hover{background:var(--brand-light);border-color:var(--brand-border);color:var(--brand)}
+.filter-btn.active{background:var(--brand-light);border-color:var(--brand);color:var(--brand)}
+.filter-spacer{flex:1}
+.view-toggle{display:flex;background:var(--surface2);border-radius:var(--r);padding:2px;gap:1px}
+.view-btn{padding:6px 10px;border-radius:6px;border:none;background:none;cursor:pointer;color:var(--text4);font-family:inherit;transition:all .15s}
 .view-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;display:block}
 .view-btn.active{background:var(--surface);color:var(--brand);box-shadow:var(--shadow)}
 
-.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.client-list{display:flex;flex-direction:column;gap:8px}
-.client-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:18px;cursor:pointer;transition:all .18s var(--ease);position:relative}
-.client-card:hover{border-color:var(--brand-border);box-shadow:var(--shadow-md);transform:translateY(-1px)}
-.cc-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin-bottom:12px}
-.cc-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
-.cc-company{font-size:12px;color:var(--text3);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cc-meta{display:flex;gap:8px;flex-wrap:wrap}
-.cc-tag{font-size:11px;color:var(--text4);display:flex;align-items:center;gap:3px}
-.cc-tag svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2}
-.cc-actions{display:flex;gap:4px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
-.cc-action{flex:1;font-size:11px;font-weight:500;text-align:center;padding:5px;border-radius:6px;border:none;background:var(--surface2);color:var(--text3);cursor:pointer;transition:all .12s;font-family:inherit}
-.cc-action:hover{background:var(--brand-light);color:var(--brand)}
+/* ── PATIENT GRID ───────────────────────────────────── */
+.patient-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.patient-list{display:flex;flex-direction:column;gap:8px}
 
-/* List view */
-.client-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:12px 16px;display:grid;grid-template-columns:40px 1fr auto auto;gap:12px;align-items:center;cursor:pointer;transition:all .15s}
-.client-row:hover{border-color:var(--brand-border);box-shadow:var(--shadow);transform:translateX(2px)}
-.cr-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
-.cr-name{font-size:13px;font-weight:600;color:var(--text)}
-.cr-sub{font-size:11px;color:var(--text3)}
-.cr-email{font-size:12px;color:var(--text3)}
-.cr-actions-row{display:flex;gap:4px}
-.row-btn{font-size:11px;padding:5px 10px;border-radius:var(--r);border:none;background:var(--surface2);color:var(--text3);cursor:pointer;font-family:inherit;transition:all .12s}
-.row-btn:hover{background:var(--brand-light);color:var(--brand)}
+/* GRID CARD */
+.patient-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:18px;padding:20px;cursor:pointer;
+  transition:all .2s var(--ease);position:relative;overflow:hidden;
+  animation:cardIn .3s var(--ease) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.patient-card:hover{border-color:var(--brand-border);box-shadow:0 8px 28px rgba(0,51,153,.12);transform:translateY(-2px)}
+.patient-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--brand),#60A5FA);opacity:0;transition:opacity .2s}
+.patient-card:hover::before{opacity:1}
 
-.empty-state{text-align:center;padding:72px 24px;color:var(--text4);animation:fadeInUp .4s var(--ease)}
-@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.empty-icon-wrap{width:64px;height:64px;background:var(--surface2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px}
-.empty-title{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:6px}
-.empty-sub{font-size:13px;line-height:1.6;margin-bottom:20px;max-width:320px;margin-left:auto;margin-right:auto}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.pc-avatar{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0;letter-spacing:-.5px}
+.pc-badges{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.ins-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:var(--rfull);white-space:nowrap}
+.ins-cnas{background:#DBEAFE;color:#1D4ED8}
+.ins-casnos{background:#D1FAE5;color:#065F46}
+.ins-none{background:var(--surface2);color:var(--text3)}
+.blood-badge{font-size:11px;font-weight:800;padding:2px 7px;border-radius:5px;background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
 
-/* Skeleton */
-.skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.skeleton-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:18px}
+.pc-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-sub{font-size:12px;color:var(--text3);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.pc-tag{font-size:11px;color:var(--text4);display:flex;align-items:center;gap:4px;white-space:nowrap}
+.pc-tag svg{width:11px;height:11px;flex-shrink:0}
+.chronic-chip{font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--rfull);background:#FEF9C3;color:#92400E;border:1px solid #FDE68A}
+
+.pc-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-top:12px;border-top:1px solid var(--border)}
+.pc-action{font-size:12px;font-weight:600;text-align:center;padding:7px 4px;border-radius:8px;border:none;background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .14s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;text-decoration:none}
+.pc-action:hover{background:var(--brand-light);color:var(--brand)}
+.pc-action svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+/* LIST ROW */
+.patient-row{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:14px;padding:12px 16px;
+  display:grid;grid-template-columns:44px 1fr auto auto;gap:12px;
+  align-items:center;cursor:pointer;transition:all .16s;
+  animation:cardIn .25s var(--ease) both;
+}
+.patient-row:hover{border-color:var(--brand-border);box-shadow:var(--shadow);transform:translateX(3px)}
+.pr-avatar{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.pr-name{font-size:13px;font-weight:700;color:var(--text)}
+.pr-sub{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px;margin-top:2px}
+.pr-right{display:flex;gap:6px;align-items:center}
+.pr-tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:var(--rfull)}
+
+/* ── EMPTY / SKELETON ───────────────────────────────── */
+.empty-state{text-align:center;padding:64px 24px;color:var(--text4);animation:fadeInUp .35s var(--ease)}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.empty-ico{width:72px;height:72px;background:var(--surface2);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px}
+.empty-title{font-size:17px;font-weight:800;color:var(--text2);margin-bottom:6px}
+.empty-sub{font-size:14px;line-height:1.65;margin-bottom:24px;max-width:320px;margin-left:auto;margin-right:auto}
+
+.skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.skeleton-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px}
 .sk{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;border-radius:6px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.sk-avatar{width:44px;height:44px;border-radius:12px;margin-bottom:12px}
-.sk-line{height:12px;margin-bottom:8px}.sk-line.w60{width:60%}.sk-line.w40{width:40%}.sk-line.w80{width:80%}
+.sk-avatar{width:48px;height:48px;border-radius:14px;margin-bottom:14px}
+.sk-line{height:11px;margin-bottom:8px}.sk-line.w80{width:80%}.sk-line.w60{width:60%}.sk-line.w40{width:40%}
 
-/* Delete confirm row */
-.delete-confirm{display:none;background:var(--danger-bg,#FEF2F2);border:1px solid rgba(220,38,38,.18);border-radius:var(--r);padding:12px 14px;margin-top:16px;font-size:13px;color:#B91C1C;align-items:center;gap:10px;flex-wrap:wrap}
+/* ── MODAL ──────────────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.18);transform:translateY(10px) scale(.98);transition:transform .22s var(--ease)}
+.modal-overlay.open .modal{transform:none}
+.modal-header{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.modal-close{width:32px;height:32px;border-radius:50%;border:none;background:var(--surface2);color:var(--text3);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .14s}
+.modal-close:hover{background:var(--border);color:var(--text)}
+.modal-section{padding:0 24px;margin-top:18px}
+.modal-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.modal-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row.full{grid-template-columns:1fr}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.fg input,.fg select,.fg textarea{
+  padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r);
+  font-size:14px;color:var(--text);background:var(--surface);font-family:inherit;
+  outline:none;transition:border-color .15s,box-shadow .15s;
+  -webkit-appearance:none;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,51,153,.09)}
+.fg textarea{resize:vertical;min-height:72px}
+.modal-footer{padding:16px 24px 22px;display:flex;gap:8px;justify-content:flex-end;margin-top:18px;border-top:1px solid var(--border)}
+
+/* delete confirm */
+.delete-confirm{display:none;background:#FEF2F2;border:1.5px solid rgba(220,38,38,.18);border-radius:var(--r);padding:12px 14px;margin:12px 24px 0;font-size:13px;color:#B91C1C;align-items:center;gap:10px;flex-wrap:wrap}
 .delete-confirm.show{display:flex}
 .delete-confirm strong{flex:1}
 .delete-confirm-btns{display:flex;gap:6px}
-.dc-cancel{padding:5px 12px;border-radius:var(--rfull);border:1px solid rgba(220,38,38,.25);background:transparent;color:#B91C1C;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.dc-cancel{padding:5px 12px;border-radius:var(--rfull);border:1px solid rgba(220,38,38,.3);background:transparent;color:#B91C1C;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 .dc-confirm{padding:5px 12px;border-radius:var(--rfull);border:none;background:#DC2626;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 
-/* Button loading state */
+/* ── BUTTONS ────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--rfull);font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .15s;text-decoration:none;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(0,51,153,.2)}
+.btn-primary:hover{background:var(--brand2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,51,153,.28)}
+.btn-ghost{background:var(--surface);border:1.5px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{background:var(--surface2)}
+.btn-danger{background:#DC2626;color:#fff}
+.btn-danger:hover{background:#B91C1C}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
 .btn.loading{pointer-events:none;opacity:.7}
 .btn-spinner-sm{width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn.loading .btn-spinner-sm{display:inline-block}
 .btn.loading .btn-label-txt{display:none}
 
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px;transform:translateY(8px) scale(.98);transition:transform .2s var(--ease)}
-.modal-overlay.open .modal{transform:none}
-.modal-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:18px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.form-row.full{grid-template-columns:1fr}
-.fg{display:flex;flex-direction:column;gap:5px}
-.fg label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
-.fg input,.fg select,.fg textarea{padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:14px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--brand)}
-.fg textarea{resize:vertical;min-height:70px}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
-
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rfull);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s;text-decoration:none;white-space:nowrap}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--brand);color:#fff;box-shadow:0 2px 6px rgba(0,51,153,.18)}
-.btn-primary:hover{background:var(--brand2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,51,153,.25)}
-.btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
-.btn-ghost:hover{background:var(--surface2)}
-.btn-danger{background:var(--danger);color:#fff}
-.btn-sm{padding:5px 12px;font-size:12px}
-.btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
-
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1E3A5F;color:#fff;padding:10px 20px;border-radius:var(--rfull);font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:9999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+/* ── TOAST ──────────────────────────────────────────── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1E3A5F;color:#fff;padding:11px 22px;border-radius:var(--rfull);font-size:13px;font-weight:600;opacity:0;transition:all .28s var(--ease);z-index:9999;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.22)}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.success{background:var(--success)}.toast.error{background:var(--danger)}
 
 @media(max-width:768px){
-  .shell-page{padding-bottom:72px}
-  .client-grid{grid-template-columns:1fr}
+  .shell-page{padding-bottom:80px}
+  .patient-grid{grid-template-columns:1fr}
+  .kpi-strip{grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .kpi-pill{padding:10px 12px}
+  .kpi-ico{width:32px;height:32px;font-size:15px}
+  .kpi-val{font-size:17px}
   .form-row{grid-template-columns:1fr}
   .page-header{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){
+  .kpi-strip{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -126,30 +183,46 @@
 
       <div class="page-header">
         <div class="page-title-row">
-          <h1 class="page-title">Patients</h1>
-          <span class="page-count" id="client-count">(0)</span>
+          <h1 class="page-title">👥 Patients</h1>
+          <span class="page-count" id="client-count">0</span>
         </div>
-        <div style="display:flex;gap:8px">
-          <a href="import.html" class="btn btn-ghost btn-sm">
-            <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-            Importer
-          </a>
-          <button class="btn btn-primary" onclick="openModal()">
+        <div class="header-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openModal()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nouveau patient
           </button>
         </div>
       </div>
 
+      <!-- KPI STRIP -->
+      <div class="kpi-strip" id="kpi-strip">
+        <div class="kpi-pill">
+          <div class="kpi-ico" style="background:#EFF6FF">👥</div>
+          <div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-lbl">Total patients</div></div>
+        </div>
+        <div class="kpi-pill">
+          <div class="kpi-ico" style="background:#FEF9C3">♾️</div>
+          <div><div class="kpi-val" id="kpi-chronic">—</div><div class="kpi-lbl">Chroniques</div></div>
+        </div>
+        <div class="kpi-pill">
+          <div class="kpi-ico" style="background:#DBEAFE">🏥</div>
+          <div><div class="kpi-val" id="kpi-insured">—</div><div class="kpi-lbl">Assurés CNAS/CASNOS</div></div>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
       <div class="filter-bar">
         <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Tous</button>
-        <button class="filter-btn" data-filter="company" onclick="setFilter('company',this)">CNAS assuré</button>
+        <button class="filter-btn" data-filter="company" onclick="setFilter('company',this)">CNAS</button>
+        <button class="filter-btn" data-filter="freelancer" onclick="setFilter('freelancer',this)">CASNOS</button>
         <button class="filter-btn" data-filter="individual" onclick="setFilter('individual',this)">Non assuré</button>
+        <button class="filter-btn" data-filter="chronic" onclick="setFilter('chronic',this)">♾️ Chroniques</button>
+        <div class="filter-spacer"></div>
         <div class="view-toggle">
           <button class="view-btn active" id="vg" onclick="setView('grid')" title="Grille">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
           </button>
-          <button class="view-btn" id="vl" onclick="setView('list')" title="List">
+          <button class="view-btn" id="vl" onclick="setView('list')" title="Liste">
             <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
           </button>
         </div>
@@ -160,39 +233,73 @@
   </main>
 </div>
 
-<!-- Add/Edit Modal -->
+<!-- MODAL: Add / Edit patient -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
-    <div class="modal-title" id="modal-title">Ajouter un patient</div>
-    <div class="form-row">
-      <div class="fg"><label>Prénom *</label><input id="f-first" placeholder="Mohamed" maxlength="80"></div>
-      <div class="fg"><label>Nom *</label><input id="f-last" placeholder="Benali" maxlength="80"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Nouveau patient</div>
+      <button class="modal-close" onclick="document.getElementById('modal-overlay').classList.remove('open')">✕</button>
     </div>
-    <div class="form-row">
-      <div class="fg"><label>Email</label><input id="f-email" type="email" placeholder="patient@email.com" maxlength="200"></div>
-      <div class="fg"><label>Téléphone</label><input id="f-phone" placeholder="0550 00 00 00" maxlength="40"></div>
-    </div>
-    <div class="form-row full">
-      <div class="fg"><label>Médecin traitant</label><input id="f-company" placeholder="Dr. Kaci — Médecine générale" maxlength="120"></div>
-    </div>
-    <div class="form-row">
-      <div class="fg"><label>Couverture sociale</label>
-        <select id="f-type">
-          <option value="individual">Non assuré</option>
-          <option value="company">CNAS assuré</option>
-          <option value="freelancer">CASNOS assuré</option>
-        </select>
+
+    <!-- Identity -->
+    <div class="modal-section">
+      <div class="modal-section-title">Identité</div>
+      <div class="form-row">
+        <div class="fg"><label>Prénom *</label><input id="f-first" placeholder="Mohamed" maxlength="80"></div>
+        <div class="fg"><label>Nom *</label><input id="f-last" placeholder="Benali" maxlength="80"></div>
       </div>
-      <div class="fg"><label>Wilaya</label><input id="f-city" placeholder="Alger, Oran, Constantine…" maxlength="80"></div>
+      <div class="form-row">
+        <div class="fg"><label>Date de naissance</label><input id="f-city" type="text" placeholder="Ex: 15/04/1985" maxlength="12"></div>
+        <div class="fg"><label>Groupe sanguin</label>
+          <select id="f-vat">
+            <option value="">— Inconnu —</option>
+            <option>O+</option><option>O−</option>
+            <option>A+</option><option>A−</option>
+            <option>B+</option><option>B−</option>
+            <option>AB+</option><option>AB−</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <div class="form-row">
-      <div class="fg"><label>N° CNAS / CASNOS</label><input id="f-siret" placeholder="123456789" maxlength="20"></div>
-      <div class="fg"><label>Groupe sanguin</label><input id="f-vat" placeholder="O+, A-, B+, AB-…" maxlength="5"></div>
+
+    <!-- Contact -->
+    <div class="modal-section">
+      <div class="modal-section-title">Contact</div>
+      <div class="form-row">
+        <div class="fg"><label>Téléphone</label><input id="f-phone" placeholder="0550 00 00 00" maxlength="20" inputmode="tel"></div>
+        <div class="fg"><label>Email</label><input id="f-email" type="email" placeholder="patient@email.com" maxlength="200"></div>
+      </div>
     </div>
-    <div class="form-row full">
-      <div class="fg"><label>Antécédents / Allergies</label><textarea id="f-notes" placeholder="Antécédents médicaux, allergies, traitements en cours…" maxlength="1000"></textarea></div>
+
+    <!-- Couverture sociale -->
+    <div class="modal-section">
+      <div class="modal-section-title">Couverture sociale</div>
+      <div class="form-row">
+        <div class="fg"><label>Type</label>
+          <select id="f-type">
+            <option value="individual">Non assuré</option>
+            <option value="company">CNAS (salarié)</option>
+            <option value="freelancer">CASNOS (indépendant)</option>
+          </select>
+        </div>
+        <div class="fg"><label>N° CNAS / CASNOS</label><input id="f-siret" placeholder="123 456 789" maxlength="30" inputmode="numeric"></div>
+      </div>
+      <div class="form-row full">
+        <div class="fg"><label>Médecin traitant</label><input id="f-company" placeholder="Dr. Kaci — Médecine générale" maxlength="120"></div>
+      </div>
     </div>
-    <!-- Custom delete confirm (replaces native confirm()) -->
+
+    <!-- Antécédents -->
+    <div class="modal-section">
+      <div class="modal-section-title">Antécédents médicaux</div>
+      <div class="form-row full">
+        <div class="fg"><label>Antécédents, allergies, traitements en cours</label>
+          <textarea id="f-notes" placeholder="Diabète type 2, allergie pénicilline, traitement chronique Metformine…" maxlength="1500"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete confirm -->
     <div class="delete-confirm" id="delete-confirm">
       <strong>Supprimer ce patient définitivement ?</strong>
       <div class="delete-confirm-btns">
@@ -200,7 +307,8 @@
         <button class="dc-confirm" onclick="confirmDelete()">Oui, supprimer</button>
       </div>
     </div>
-    <div class="modal-actions">
+
+    <div class="modal-footer">
       <button class="btn btn-ghost" onclick="document.getElementById('modal-overlay').classList.remove('open')">Annuler</button>
       <button id="btn-delete" class="btn btn-danger btn-sm" style="display:none" onclick="askDelete()">Supprimer</button>
       <button class="btn btn-primary" id="btn-save" onclick="saveClient()">
@@ -216,14 +324,19 @@
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _clients = [], _uid = null, _view = 'grid', _filter = 'all', _editId = null;
-var COLORS = ['#EEF2FF','#ECFDF5','#FEF3C7','#FEF2F2','#F5F3FF','#E0F2FE'];
-var TEXT_COLORS = ['#003399','#059669','#D97706','#DC2626','#7C3AED','#0284C7'];
+
+var AVATAR_PALETTES = [
+  {bg:'#DBEAFE',color:'#1D4ED8'},{bg:'#D1FAE5',color:'#065F46'},
+  {bg:'#FEF9C3',color:'#92400E'},{bg:'#FCE7F3',color:'#9D174D'},
+  {bg:'#EDE9FE',color:'#5B21B6'},{bg:'#E0F2FE',color:'#0369A1'},
+  {bg:'#FFE4E6',color:'#9F1239'},{bg:'#D1FAE5',color:'#14532D'},
+];
 
 function sanitize(s) { var d = document.createElement('div'); d.textContent = String(s||''); return d.innerHTML; }
 function toast(msg, type) {
   var t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast ' + (type||'') + ' show';
-  setTimeout(function() { t.className = 'toast'; }, 3000);
+  t.textContent = msg; t.className = 'toast '+(type||'')+' show';
+  setTimeout(function(){ t.className='toast'; }, 3200);
 }
 
 (async function init() {
@@ -232,24 +345,21 @@ function toast(msg, type) {
     if (!session.data.session) { window.location.href = 'login.html'; return; }
     _uid = session.data.session.user.id;
     var user = session.data.session.user;
-
-    // Init shell
     var meta = user.user_metadata || {};
     var name = (meta.full_name || meta.name || '').trim();
-    var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id', _uid).single().then(function(r){return r.data;}).catch(function(){return null;});
-    var isPro = sub && sub.plan === 'pro' && sub.status === 'active';
-
+    var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single()
+      .then(function(r){return r.data;}).catch(function(){return null;});
+    var isPro = sub && sub.plan==='pro' && sub.status==='active';
     Shell.init({
-      page: 'clients', title: 'Patients',
-      isPro: isPro, userName: name, userEmail: user.email || '',
-      onSearch: function(q) { renderClients(q); }
+      page:'clients', title:'Patients',
+      isPro:isPro, userName:name, userEmail:user.email||'',
+      onSearch:function(q){ renderClients(q); }
     });
-
     showSkeleton();
     await loadClients();
   } catch(e) {
-    console.error('[Clients init]', e);
-    toast('Échec du chargement. Veuillez rafraîchir.', 'error');
+    console.error('[Patients init]', e);
+    toast('Échec du chargement', 'error');
   }
 })();
 
@@ -257,105 +367,140 @@ function showSkeleton() {
   var el = document.getElementById('clients-container');
   el.className = 'skeleton-grid';
   el.innerHTML = [1,2,3,4,5,6].map(function(){
-    return '<div class="skeleton-card">' +
-      '<div class="sk sk-avatar"></div>' +
-      '<div class="sk sk-line w80"></div>' +
-      '<div class="sk sk-line w60"></div>' +
-      '<div class="sk sk-line w40" style="margin-top:16px"></div>' +
+    return '<div class="skeleton-card">'+
+      '<div class="sk sk-avatar"></div>'+
+      '<div class="sk sk-line w80"></div>'+
+      '<div class="sk sk-line w60"></div>'+
+      '<div class="sk sk-line w40" style="margin-top:14px"></div>'+
     '</div>';
   }).join('');
 }
 
 async function loadClients() {
   try {
-    var { data, error } = await _supa.from('clients').select('*').eq('user_id', _uid).order('created_at', { ascending: false });
+    var { data, error } = await _supa.from('clients').select('*').eq('user_id',_uid).order('created_at',{ascending:false});
     if (error) throw error;
     _clients = data || [];
+    updateKpis();
     renderClients();
   } catch(e) {
-    console.error('[loadClients]', e);
     document.getElementById('clients-container').innerHTML =
-      '<div class="empty-state">' +
-        '<div class="empty-icon-wrap">⚠️</div>' +
-        '<div class="empty-title">Impossible de charger les patients</div>' +
-        '<div class="empty-sub">' + sanitize(e.message) + '</div>' +
+      '<div class="empty-state">'+
+        '<div class="empty-ico">⚠️</div>'+
+        '<div class="empty-title">Impossible de charger les patients</div>'+
+        '<div class="empty-sub">'+sanitize(e.message)+'</div>'+
       '</div>';
   }
 }
 
+function updateKpis() {
+  document.getElementById('kpi-total').textContent = _clients.length;
+  var chronic = _clients.filter(function(c){ return c.notes && /chronique|diab|hypert|asthm/i.test(c.notes); }).length;
+  var insured = _clients.filter(function(c){ return c.type==='company'||c.type==='freelancer'; }).length;
+  document.getElementById('kpi-chronic').textContent = chronic;
+  document.getElementById('kpi-insured').textContent = insured;
+}
+
 function getFiltered(search) {
   var list = _clients;
-  if (_filter !== 'all') list = list.filter(function(c) { return c.type === _filter; });
+  if (_filter==='chronic') {
+    list = list.filter(function(c){ return c.notes && /chronique|diab|hypert|asthm/i.test(c.notes); });
+  } else if (_filter!=='all') {
+    list = list.filter(function(c){ return c.type===_filter; });
+  }
   if (search) {
     var q = search.toLowerCase();
-    list = list.filter(function(c) {
-      return ((c.first_name||'') + ' ' + (c.last_name||'') + ' ' + (c.company||'') + ' ' + (c.email||'')).toLowerCase().includes(q);
+    list = list.filter(function(c){
+      return ((c.first_name||'')+' '+(c.last_name||'')+' '+(c.phone||'')+' '+(c.email||'')+' '+(c.company||'')).toLowerCase().includes(q);
     });
   }
   return list;
 }
 
+function insBadge(type) {
+  if (type==='company')    return '<span class="ins-badge ins-cnas">CNAS</span>';
+  if (type==='freelancer') return '<span class="ins-badge ins-casnos">CASNOS</span>';
+  return '<span class="ins-badge ins-none">Non assuré</span>';
+}
+function bloodBadge(b) {
+  return b ? '<span class="blood-badge">'+sanitize(b)+'</span>' : '';
+}
+function avatarPalette(i) { return AVATAR_PALETTES[i % AVATAR_PALETTES.length]; }
+
 function renderClients(search) {
   var filtered = getFiltered(search);
   var el = document.getElementById('clients-container');
-  var countEl = document.getElementById('client-count');
-  if (countEl) countEl.textContent = '(' + filtered.length + ')';
+  document.getElementById('client-count').textContent = filtered.length;
 
   if (!filtered.length) {
-    var noClients = !_clients.length;
+    var none = !_clients.length;
     el.className = '';
-    el.innerHTML = '<div class="empty-state">' +
-      '<div class="empty-icon-wrap">' + (noClients ? '👥' : '🔍') + '</div>' +
-      '<div class="empty-title">' + (noClients ? 'Aucun patient encore' : 'Aucun résultat') + '</div>' +
-      '<div class="empty-sub">' + (noClients ? 'Créez votre premier dossier patient pour commencer.' : 'Modifiez votre recherche ou le filtre actif.') + '</div>' +
-      (noClients ? '<button class="btn btn-primary" onclick="openModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter le premier patient</button>' : '') +
-      '</div>';
+    el.innerHTML = '<div class="empty-state">'+
+      '<div class="empty-ico">'+(none?'👥':'🔍')+'</div>'+
+      '<div class="empty-title">'+(none?'Aucun patient encore':'Aucun résultat')+'</div>'+
+      '<div class="empty-sub">'+(none?'Créez votre premier dossier patient pour commencer.':'Modifiez votre recherche ou le filtre actif.')+'</div>'+
+      (none?'<button class="btn btn-primary" onclick="openModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Premier patient</button>':'')+
+    '</div>';
     return;
   }
 
-  if (_view === 'list') {
-    el.className = 'client-list';
-  // Event delegation for row clicks
-  el.onclick = function(e) {
-    var row = e.target.closest('.client-row');
-    if (row && !e.target.closest('.cc-action,.row-btn,a')) openModal(row.dataset.id);
-  };
-    el.innerHTML = filtered.map(function(c, i) {
-      var ci = i % COLORS.length;
-      var ini = ((c.first_name||'')[0]||'') + ((c.last_name||'')[0]||'');
-      return '<div class="client-row" data-id="' + c.id + '">' +
-        '<div class="cr-avatar" style="background:' + COLORS[ci] + ';color:' + TEXT_COLORS[ci] + '">' + sanitize(ini.toUpperCase()) + '</div>' +
-        '<div><div class="cr-name">' + sanitize((c.first_name||'') + ' ' + (c.last_name||'')) + '</div>' +
-          '<div class="cr-sub">' + (c.company ? sanitize(c.company) : '') + '</div></div>' +
-        '<div class="cr-email">' + sanitize(c.email||'—') + '</div>' +
-        '<div class="cr-actions-row">' +
-          (c.email ? '<a href="mailto:' + c.email + '" class="row-btn" onclick="event.stopPropagation()">Email</a>' : '') +
-          '<button class="row-btn" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">Modifier</button>' +
-        '</div>' +
+  if (_view==='list') {
+    el.className = 'patient-list';
+    el.onclick = function(e){
+      var row = e.target.closest('.patient-row');
+      if (row && !e.target.closest('.pc-action,.pr-btn,a')) openModal(row.dataset.id);
+    };
+    el.innerHTML = filtered.map(function(c,i){
+      var p = avatarPalette(i);
+      var ini = ((c.first_name||'')[0]||'').toUpperCase()+((c.last_name||'')[0]||'').toUpperCase();
+      var isChron = c.notes && /chronique|diab|hypert|asthm/i.test(c.notes);
+      return '<div class="patient-row" data-id="'+c.id+'">'+
+        '<div class="pr-avatar" style="background:'+p.bg+';color:'+p.color+'">'+sanitize(ini)+'</div>'+
+        '<div>'+
+          '<div class="pr-name">'+sanitize((c.first_name||'')+' '+(c.last_name||''))+'</div>'+
+          '<div class="pr-sub">'+
+            (c.phone?'<span>📞 '+sanitize(c.phone)+'</span>':'')+
+            (isChron?'<span class="chronic-chip">Chronique</span>':'')+
+          '</div>'+
+        '</div>'+
+        '<div>'+insBadge(c.type)+'</div>'+
+        '<div class="pr-right">'+
+          (c.vat_number?bloodBadge(c.vat_number):'')+
+          '<button class="btn btn-ghost btn-sm" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">Modifier</button>'+
+        '</div>'+
       '</div>';
     }).join('');
   } else {
-    el.className = 'client-grid';
-  el.onclick = function(e) {
-    var card = e.target.closest('.client-card');
-    if (card && !e.target.closest('.cc-action,a')) openModal(card.dataset.id);
-  };
-    el.innerHTML = filtered.map(function(c, i) {
-      var ci = i % COLORS.length;
-      var ini = ((c.first_name||'')[0]||'') + ((c.last_name||'')[0]||'');
-      return '<div class="client-card" data-id="' + c.id + '">' +
-        '<div class="cc-avatar" style="background:' + COLORS[ci] + ';color:' + TEXT_COLORS[ci] + '">' + sanitize(ini.toUpperCase()) + '</div>' +
-        '<div class="cc-name">' + sanitize((c.first_name||'') + ' ' + (c.last_name||'')) + '</div>' +
-        (c.company ? '<div class="cc-company">' + sanitize(c.company) + '</div>' : '<div class="cc-company" style="color:var(--text4)">Patient</div>') +
-        '<div class="cc-meta">' +
-          (c.email ? '<span class="cc-tag"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' + sanitize(c.email) + '</span>' : '') +
-          (c.phone ? '<span class="cc-tag"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.94 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' + sanitize(c.phone) + '</span>' : '') +
-        '</div>' +
-        '<div class="cc-actions">' +
-          (c.email ? '<a class="cc-action" href="mailto:'+sanitize(c.email)+'" onclick="event.stopPropagation()">Email</a>' : '') +
-          '<button class="cc-action" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">Modifier</button>' +
-          '<button class="cc-action" data-cid="'+c.id+'" data-cname="'+sanitize((c.first_name||'')+' '+(c.last_name||'')).trim()+'" onclick="event.stopPropagation();newInvoice(this.dataset.cid,this.dataset.cname)">Facture</button>' +
-        '</div>' +
+    el.className = 'patient-grid';
+    el.onclick = function(e){
+      var card = e.target.closest('.patient-card');
+      if (card && !e.target.closest('.pc-action,a')) openModal(card.dataset.id);
+    };
+    el.innerHTML = filtered.map(function(c,i){
+      var p = avatarPalette(i);
+      var ini = ((c.first_name||'')[0]||'').toUpperCase()+((c.last_name||'')[0]||'').toUpperCase();
+      var isChron = c.notes && /chronique|diab|hypert|asthm/i.test(c.notes);
+      return '<div class="patient-card" data-id="'+c.id+'">'+
+        '<div class="pc-top">'+
+          '<div class="pc-avatar" style="background:'+p.bg+';color:'+p.color+'">'+sanitize(ini)+'</div>'+
+          '<div class="pc-badges">'+insBadge(c.type)+(c.vat_number?bloodBadge(c.vat_number):'')+'</div>'+
+        '</div>'+
+        '<div class="pc-name">'+sanitize((c.first_name||'')+' '+(c.last_name||''))+'</div>'+
+        '<div class="pc-sub">'+sanitize(c.company||'Patient')+'</div>'+
+        '<div class="pc-meta">'+
+          (c.phone?'<span class="pc-tag"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.94 2h3a2 2 0 0 1 2 1.72c.18.96.45 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.25 1.85.52 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+sanitize(c.phone)+'</span>':'')+
+          (isChron?'<span class="chronic-chip">♾️ Chronique</span>':'')+
+        '</div>'+
+        '<div class="pc-actions">'+
+          '<button class="pc-action" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">'+
+            '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'+
+            'Modifier'+
+          '</button>'+
+          '<a class="pc-action" href="consultations.html?patient='+encodeURIComponent(((c.first_name||'')+' '+(c.last_name||'')).trim())+'" onclick="event.stopPropagation()">'+
+            '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>'+
+            'Consultation'+
+          '</a>'+
+        '</div>'+
       '</div>';
     }).join('');
   }
@@ -367,7 +512,6 @@ function setFilter(f, el) {
   el.classList.add('active');
   renderClients();
 }
-
 function setView(v) {
   _view = v;
   document.getElementById('vg').classList.toggle('active', v==='grid');
@@ -375,86 +519,81 @@ function setView(v) {
   renderClients();
 }
 
-function askDelete() {
-  document.getElementById('delete-confirm').classList.add('show');
-  document.getElementById('btn-delete').style.display = 'none';
-}
-function cancelDelete() {
-  document.getElementById('delete-confirm').classList.remove('show');
-  document.getElementById('btn-delete').style.display = 'inline-flex';
-}
-function confirmDelete() { deleteClient(); }
-
 function openModal(id) {
   _editId = id || null;
   document.getElementById('delete-confirm').classList.remove('show');
-  var title = document.getElementById('modal-title');
   var del = document.getElementById('btn-delete');
   if (id) {
-    var c = _clients.find(function(x){ return x.id === id; });
+    var c = _clients.find(function(x){ return x.id===id; });
     if (!c) return;
-    document.getElementById('f-first').value = c.first_name || '';
-    document.getElementById('f-last').value = c.last_name || '';
-    document.getElementById('f-email').value = c.email || '';
-    document.getElementById('f-phone').value = c.phone || '';
-    document.getElementById('f-company').value = c.company || '';
-    document.getElementById('f-type').value = c.type || 'individual';
-    document.getElementById('f-city').value = c.city || '';
-    document.getElementById('f-notes').value = c.notes || '';
-    title.textContent = 'Modifier le patient';
+    document.getElementById('f-first').value  = c.first_name || '';
+    document.getElementById('f-last').value   = c.last_name  || '';
+    document.getElementById('f-email').value  = c.email      || '';
+    document.getElementById('f-phone').value  = c.phone      || '';
+    document.getElementById('f-company').value = c.company   || '';
+    document.getElementById('f-type').value   = c.type       || 'individual';
+    document.getElementById('f-city').value   = c.city       || '';
+    document.getElementById('f-siret').value  = c.siret      || '';
+    document.getElementById('f-vat').value    = c.vat_number || '';
+    document.getElementById('f-notes').value  = c.notes      || '';
+    document.getElementById('modal-title').textContent = 'Modifier le dossier';
     del.style.display = 'inline-flex';
   } else {
-    ['f-first','f-last','f-email','f-phone','f-company','f-city','f-notes'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    ['f-first','f-last','f-email','f-phone','f-company','f-city','f-siret','f-notes'].forEach(function(fid){
+      var el=document.getElementById(fid); if(el) el.value='';
+    });
     document.getElementById('f-type').value = 'individual';
-    title.textContent = 'Ajouter un patient';
+    document.getElementById('f-vat').value  = '';
+    document.getElementById('modal-title').textContent = 'Nouveau patient';
     del.style.display = 'none';
   }
   document.getElementById('modal-overlay').classList.add('open');
   document.getElementById('f-first').focus();
 }
-
 function closeModal(e) {
-  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  if (e && e.target!==document.getElementById('modal-overlay')) return;
   document.getElementById('modal-overlay').classList.remove('open');
 }
+function askDelete()    { document.getElementById('delete-confirm').classList.add('show'); document.getElementById('btn-delete').style.display='none'; }
+function cancelDelete() { document.getElementById('delete-confirm').classList.remove('show'); document.getElementById('btn-delete').style.display='inline-flex'; }
+function confirmDelete(){ deleteClient(); }
 
 async function saveClient() {
   var first = document.getElementById('f-first').value.trim();
-  var last = document.getElementById('f-last').value.trim();
-  if (!first && !last) { toast('Veuillez saisir au moins un prénom ou un nom.', 'error'); return; }
+  var last  = document.getElementById('f-last').value.trim();
+  if (!first && !last) { toast('Veuillez saisir un prénom ou un nom.','error'); return; }
   var email = document.getElementById('f-email').value.trim();
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Veuillez saisir une adresse email valide.', 'error'); return; }
-
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Adresse email invalide.','error'); return; }
   var btn = document.getElementById('btn-save');
   btn.classList.add('loading');
-
   var payload = {
-    user_id: _uid,
+    user_id:    _uid,
     first_name: first,
-    last_name: last,
-    email: email || null,
-    phone: document.getElementById('f-phone').value.trim() || null,
-    company: document.getElementById('f-company').value.trim() || null,
-    type: document.getElementById('f-type').value || 'individual',
-    city: document.getElementById('f-city').value.trim() || null,
-    notes: document.getElementById('f-notes').value.trim() || null,
+    last_name:  last,
+    email:      email || null,
+    phone:      document.getElementById('f-phone').value.trim() || null,
+    company:    document.getElementById('f-company').value.trim() || null,
+    type:       document.getElementById('f-type').value || 'individual',
+    city:       document.getElementById('f-city').value.trim() || null,
+    siret:      document.getElementById('f-siret').value.trim() || null,
+    vat_number: document.getElementById('f-vat').value || null,
+    notes:      document.getElementById('f-notes').value.trim() || null,
     updated_at: new Date().toISOString()
   };
-
   try {
     var op;
     if (_editId) {
-      op = await _supa.from('clients').update(payload).eq('id', _editId).eq('user_id', _uid);
+      op = await _supa.from('clients').update(payload).eq('id',_editId).eq('user_id',_uid);
     } else {
       payload.created_at = new Date().toISOString();
       op = await _supa.from('clients').insert(payload);
     }
     if (op.error) throw op.error;
-    toast(_editId ? 'Client mis à jour.' : 'Client ajouté.', 'success');
+    toast(_editId?'Dossier mis à jour.':'Patient ajouté.','success');
     document.getElementById('modal-overlay').classList.remove('open');
     await loadClients();
   } catch(e) {
-    toast('Échec de l\'enregistrement : ' + sanitize(e.message), 'error');
+    toast('Erreur : '+sanitize(e.message),'error');
   } finally {
     btn.classList.remove('loading');
   }
@@ -463,23 +602,19 @@ async function saveClient() {
 async function deleteClient() {
   if (!_editId) return;
   try {
-    var { error } = await _supa.from('clients').delete().eq('id', _editId).eq('user_id', _uid);
+    var { error } = await _supa.from('clients').delete().eq('id',_editId).eq('user_id',_uid);
     if (error) throw error;
-    toast('Client supprimé.', 'success');
+    toast('Patient supprimé.','success');
     document.getElementById('modal-overlay').classList.remove('open');
     await loadClients();
   } catch(e) {
-    toast('Échec de la suppression : ' + sanitize(e.message), 'error');
+    toast('Suppression échouée : '+sanitize(e.message),'error');
     cancelDelete();
   }
 }
 
-function newInvoice(clientId, name) {
-  window.location.href = 'invoices.html?client=' + encodeURIComponent(clientId) + '&name=' + encodeURIComponent(name);
-}
-
-window.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') document.getElementById('modal-overlay').classList.remove('open');
+window.addEventListener('keydown',function(e){
+  if(e.key==='Escape') document.getElementById('modal-overlay').classList.remove('open');
 });
 </script>
 </body>
