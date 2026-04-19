@@ -11,16 +11,16 @@ var Shell = (function() {
   var NAV = [
     {href:'app.html',    key:'dashboard', label:'Tableau de bord',
       icon:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>'},
+    {href:'queue.html',  key:'queue',     label:"File d'attente", featured:true,
+      icon:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'},
     {href:'clients.html',key:'clients',   label:'Patients',
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'},
-    {href:'calendar.html',key:'calendar', label:'Agenda & RDV',
-      icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'},
     {href:'consultations.html',key:'consultations',label:'Consultations',
       icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'},
+    {href:'calendar.html',key:'calendar', label:'Agenda',
+      icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'},
     {href:'ordonnances.html',key:'ordonnances',label:'Ordonnances',
       icon:'<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/>'},
-    {href:'queue.html',key:'queue',label:"File d'attente",
-      icon:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'},
     {href:'staff.html',key:'staff',label:'Personnel',
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><line x1="19" y1="8" x2="23" y2="8"/>'},
     {href:'labo.html',key:'labo',label:'Laboratoire',
@@ -72,6 +72,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
 .sb-item.active{background:var(--brand-light);color:var(--brand);font-weight:600}
 .sb-item.active svg{opacity:1;stroke:var(--brand)}
 .sb-item.locked{opacity:.5;cursor:not-allowed}
+.sb-item.featured{background:linear-gradient(90deg,rgba(0,51,153,.08),rgba(0,51,153,.04));border-left:3px solid var(--brand);font-weight:700;color:var(--brand)}
+.sb-item.featured svg{opacity:1;stroke:var(--brand)}
+.sb-item.featured:hover{background:linear-gradient(90deg,rgba(0,51,153,.14),rgba(0,51,153,.07))}
+.sb-item.featured.active{background:var(--brand);color:#fff;border-left-color:transparent}
+.sb-item.featured.active svg{stroke:#fff}
 .sb-divider{height:1px;background:var(--border);margin:8px 0}
 .sb-usage{padding:10px 14px;margin-top:auto}
 .sb-usage-label{font-size:11px;color:var(--text3);margin-bottom:5px;display:flex;justify-content:space-between}
@@ -181,7 +186,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
     // Sidebar HTML
     var navHTML = NAV.map(function(n) {
       var active = n.key === page ? ' active' : '';
-      return '<a href="'+n.href+'" class="sb-item'+active+'" data-key="'+n.key+'">' +
+      var featured = n.featured ? ' featured' : '';
+      return '<a href="'+n.href+'" class="sb-item'+featured+active+'" data-key="'+n.key+'">' +
         '<svg viewBox="0 0 24 24">'+n.icon+'</svg><span>'+n.label+'</span></a>';
     }).join('');
 
