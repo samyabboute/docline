@@ -940,7 +940,7 @@ async function deleteRoom(id) {
 
 // ── QR CODE ───────────────────────────────────────────────────
 function generateQR() {
-  var joinUrl = APP_URL + '/src/pages/queue-join.html?c=' + _uid;
+  var joinUrl = APP_URL + '/queue-join.html?c=' + _uid;
   document.getElementById('qr-link-text').textContent = joinUrl;
   document.getElementById('qr-code').innerHTML = '';
   try {
