@@ -10,6 +10,15 @@
 <script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
+/* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
+:root{
+  --text2:var(--text-2); --text3:var(--text-3); --text4:var(--text-4);
+  --surface2:var(--surface-hover);
+  --brand-light:var(--brand-subtle);
+  --brand2:var(--brand-hover);
+  --shadow:var(--shadow-sm);
+}
+
 /* ── PAGE HEADER ───────────────────────────────────── */
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
 .page-title-row{display:flex;align-items:center;gap:10px}
@@ -352,7 +361,7 @@ function toast(msg, type) {
     var isPro = sub && sub.plan==='pro' && sub.status==='active';
     Shell.init({
       page:'clients', title:'Patients',
-      isPro:isPro, userName:name, userEmail:user.email||'',
+      isPro:isPro, plan:sub?.plan||'free', userName:name, userEmail:user.email||'',
       onSearch:function(q){ renderClients(q); }
     });
     showSkeleton();

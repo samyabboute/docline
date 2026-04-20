@@ -9,6 +9,15 @@
 <script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
+/* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
+:root{
+  --text2:var(--text-2); --text3:var(--text-3); --text4:var(--text-4);
+  --surface2:var(--surface-hover);
+  --brand-light:var(--brand-subtle);
+  --brand2:var(--brand-hover);
+  --shadow:var(--shadow-sm);
+}
+
 /* ── HEADER ────────────────────────────────────────── */
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
 .page-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px}
@@ -269,7 +278,7 @@ function generateCode() {
   var name = (meta.full_name || meta.name || '').trim();
   var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().then(function(r){return r.data;}).catch(function(){return null;});
   var isPro = sub && (sub.plan==='pro'||sub.plan==='clinic') && sub.status==='active';
-  Shell.init({ page:'labo', title:'Laboratoire', isPro:isPro, userName:name, userEmail:user.email||'' });
+  Shell.init({ page:'labo', title:'Laboratoire', isPro:isPro, plan:sub?.plan||'free', userName:name, userEmail:user.email||'' });
   loadResults();
 })();
 

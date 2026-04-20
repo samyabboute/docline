@@ -341,7 +341,6 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="shortcut icon" href="favicon.svg">
   <link rel="apple-touch-icon" href="favicon.svg">
-  <link rel="stylesheet" href="prospeo-animations.css">
   <script src="config.js"></script>
 </head>
 <body>
@@ -387,6 +386,57 @@
             </table>
           </div>
         </div>
+
+        <!-- PAYMENT REQUESTS -->
+        <div class="card" style="margin-top:24px">
+          <div class="card-header">
+            <div class="section-title">Demandes de paiement en attente</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadPaymentRequests()">↻ Actualiser</button>
+          </div>
+          <div id="pr-loading" style="padding:32px;text-align:center;color:var(--text-muted);font-size:var(--text-sm)">Chargement…</div>
+          <div class="table-wrap" id="pr-table-wrap" style="display:none">
+            <table class="data-table">
+              <thead><tr>
+                <th>Utilisateur</th><th>Plan</th><th>Méthode</th><th>Montant</th><th>Référence</th><th>Date</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="pr-tbl"></tbody>
+            </table>
+          </div>
+          <div id="pr-empty" style="display:none;padding:40px;text-align:center;color:var(--text-muted);font-size:var(--text-sm)">Aucune demande en attente 🎉</div>
+        </div>
+
+        <!-- MANUAL ACTIVATION -->
+        <div class="card" style="margin-top:24px;margin-bottom:32px">
+          <div class="card-header">
+            <div class="section-title">Activer un plan manuellement</div>
+          </div>
+          <div style="padding:20px 24px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px">
+              <div>
+                <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);display:block;margin-bottom:5px">Email utilisateur</label>
+                <input type="email" id="act-email" placeholder="docteur@exemple.dz" style="width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:var(--text-sm);font-family:inherit;outline:none;background:var(--bg-raised);color:var(--text-primary);transition:border-color var(--t-fast)" onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor='var(--border)'">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);display:block;margin-bottom:5px">Plan</label>
+                <select id="act-plan" style="width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:var(--text-sm);font-family:inherit;outline:none;background:var(--bg-raised);color:var(--text-primary)">
+                  <option value="pro">Pro Médecin</option>
+                  <option value="enterprise">Pro Clinique</option>
+                  <option value="free">Gratuit</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);display:block;margin-bottom:5px">Durée (mois)</label>
+                <input type="number" id="act-months" value="1" min="1" max="24" style="width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:var(--text-sm);font-family:inherit;outline:none;background:var(--bg-raised);color:var(--text-primary)" onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor='var(--border)'">
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="act-btn" onclick="activatePlanManual()">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Activer le plan
+            </button>
+            <span id="act-msg" style="margin-left:12px;font-size:var(--text-sm);display:none"></span>
+          </div>
+        </div>
+
       </div>
     </div>
   </main>
@@ -540,6 +590,7 @@ let _users=[], _subs=[], _filtered=[], _selectedUser=null;
   const s = await AdminAuth.requireAdmin(); if(!s) return;
   AdminSidebar.init('users');
   await load();
+  loadPaymentRequests();
   document.getElementById('plan-filter').addEventListener('click',e=>{
     const p=e.target.closest('.filter-pill'); if(!p) return;
     document.querySelectorAll('.filter-pill').forEach(x=>x.classList.remove('active'));
@@ -680,6 +731,147 @@ function exportCSV(){
 document.getElementById('user-modal').addEventListener('click',e=>{if(e.target.id==='user-modal')closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
+// ── PAYMENT REQUESTS ──────────────────────────────────────────────
+
+let _payRequests = [];
+
+async function loadPaymentRequests() {
+  document.getElementById('pr-loading').style.display = 'block';
+  document.getElementById('pr-table-wrap').style.display = 'none';
+  document.getElementById('pr-empty').style.display = 'none';
+
+  const { data, error } = await _supa
+    .from('payment_requests')
+    .select('*')
+    .eq('status', 'pending')
+    .in('method', ['virement', 'cash'])
+    .order('created_at', { ascending: false });
+
+  if (error) { Toast.error('Erreur', error.message); return; }
+  _payRequests = data || [];
+
+  document.getElementById('pr-loading').style.display = 'none';
+  if (!_payRequests.length) {
+    document.getElementById('pr-empty').style.display = 'block';
+  } else {
+    document.getElementById('pr-table-wrap').style.display = 'block';
+    renderPaymentRequests();
+  }
+}
+
+function renderPaymentRequests() {
+  const PLAN_LABELS = { pro: 'Pro Médecin', enterprise: 'Pro Clinique' };
+  const METHOD_LABELS = { virement: '🏦 Virement', cash: '💵 Cash' };
+  const AMOUNTS = { pro: { monthly: '2 900 DA', yearly: '29 000 DA' }, enterprise: { monthly: '7 900 DA', yearly: '79 000 DA' } };
+
+  document.getElementById('pr-tbl').innerHTML = _payRequests.map(pr => `
+    <tr class="table-row-hover">
+      <td>
+        <div style="font-weight:600;font-size:var(--text-sm)">${sanitize(pr.user_email || '—')}</div>
+        <div style="font-size:.6875rem;color:var(--text-muted);font-family:'DM Mono',monospace">${pr.user_id.slice(0,12)}…</div>
+      </td>
+      <td>
+        <span class="badge badge-brand" style="font-size:10px">${sanitize(PLAN_LABELS[pr.plan] || pr.plan)}</span>
+        <div style="font-size:.6875rem;color:var(--text-muted);margin-top:3px">${sanitize(pr.billing === 'yearly' ? 'Annuel' : 'Mensuel')}</div>
+      </td>
+      <td style="font-size:var(--text-sm)">${METHOD_LABELS[pr.method] || pr.method}</td>
+      <td style="font-weight:700;font-size:var(--text-sm)">${(AMOUNTS[pr.plan] && AMOUNTS[pr.plan][pr.billing]) || pr.amount + ' DA'}</td>
+      <td style="max-width:180px">
+        <div style="font-size:.6875rem;font-family:'DM Mono',monospace;color:var(--text-primary);word-break:break-all">${sanitize(pr.reference || '—')}</div>
+        ${pr.notes ? `<div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">${sanitize(pr.notes)}</div>` : ''}
+      </td>
+      <td style="font-size:.6875rem;color:var(--text-muted)">${formatDate(pr.created_at)}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-sm" style="background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)" onclick="approvePayRequest('${pr.id}','${pr.user_id}','${pr.plan}','${pr.billing}')">✓ Approuver</button>
+          <button class="btn btn-sm btn-danger" onclick="rejectPayRequest('${pr.id}')">✗ Rejeter</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function approvePayRequest(requestId, userId, plan, billing) {
+  if (!confirm('Activer le plan ' + plan + ' pour cet utilisateur ?')) return;
+  const session = AdminAuth._session;
+  if (!session) return;
+
+  try {
+    const resp = await fetch(SUPA_URL + '/functions/v1/activate-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ target_user_id: userId, plan, billing, request_id: requestId })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Erreur activation');
+    Toast.success('Plan activé', 'Expiration : ' + formatDate(data.expires_at));
+    loadPaymentRequests();
+  } catch(e) {
+    Toast.error('Erreur', e.message);
+  }
+}
+
+async function rejectPayRequest(requestId) {
+  if (!confirm('Rejeter cette demande de paiement ?')) return;
+  const { error } = await _supa.from('payment_requests')
+    .update({ status: 'rejected', updated_at: new Date().toISOString() })
+    .eq('id', requestId);
+  if (error) { Toast.error('Erreur', error.message); return; }
+  Toast.info('Demande rejetée', '');
+  loadPaymentRequests();
+}
+
+// ── MANUAL ACTIVATION ─────────────────────────────────────────────
+
+async function activatePlanManual() {
+  const email  = document.getElementById('act-email').value.trim();
+  const plan   = document.getElementById('act-plan').value;
+  const months = parseInt(document.getElementById('act-months').value) || 1;
+  if (!email) { showActMsg('Veuillez saisir un email.', false); return; }
+
+  const btn = document.getElementById('act-btn');
+  btn.disabled = true;
+  hideActMsg();
+
+  try {
+    // Find user_id by email via profiles table
+    const { data: profiles, error: pErr } = await _supa
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .limit(1);
+    if (pErr) throw pErr;
+    if (!profiles || !profiles.length) throw new Error('Utilisateur introuvable : ' + email);
+
+    const userId = profiles[0].id;
+    const session = AdminAuth._session;
+
+    const resp = await fetch(SUPA_URL + '/functions/v1/activate-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ target_user_id: userId, plan, billing: months >= 12 ? 'yearly' : 'monthly', months })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Erreur activation');
+    showActMsg('Plan ' + plan + ' activé jusqu\'au ' + formatDate(data.expires_at), true);
+    await load();
+  } catch(e) {
+    showActMsg(e.message, false);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function showActMsg(msg, ok) {
+  const el = document.getElementById('act-msg');
+  el.textContent = msg;
+  el.style.display = 'inline';
+  el.style.color = ok ? 'var(--success)' : 'var(--danger)';
+}
+function hideActMsg() {
+  document.getElementById('act-msg').style.display = 'none';
+}
+
   // Global error handler - catches unhandled async errors
   window.addEventListener('unhandledrejection', function(e) {
     console.error('[Prospeo] Unhandled error:', e.reason);
@@ -688,47 +880,4 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
   });
 </script>
 
-<script src="prospeo-animations.js">
-// ── ADMIN PRO UPGRADE ─────────────────────────────────────────
-async function toggleUserPlan(userId, currentPlan) {
-  var newPlan = currentPlan === 'pro' ? 'free' : 'pro';
-  var action = newPlan === 'pro' ? 'upgrade to Pro' : 'downgrade to Free';
-  if (!confirm('Are you sure you want to ' + action + ' this user?')) return;
-  try {
-    // Upsert subscription record
-    var {error} = await _supa.from('subscriptions').upsert({
-      user_id: userId,
-      plan: newPlan,
-      status: 'active',
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'user_id' });
-    if (error) throw error;
-    showToast(newPlan === 'pro' ? '✅ User upgraded to Pro' : 'User downgraded to Free');
-    // Log it
-    await _supa.from('audit_log').insert({
-      user_id: userId,
-      event: 'admin.plan_change',
-      metadata: { new_plan: newPlan, changed_by: 'admin' }
-    });
-    // Refresh user list
-    setTimeout(function(){ window.location.reload(); }, 800);
-  } catch(e) {
-    showToast('Failed: ' + (e.message || 'unknown error'), true);
-  }
-}
-
-function showToast(msg, isError) {
-  var t = document.getElementById('admin-toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'admin-toast';
-    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;color:#fff;z-index:9999;transition:opacity .25s';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.background = isError ? '#DC2626' : '#059669';
-  t.style.opacity = '1';
-  setTimeout(function(){ t.style.opacity = '0'; }, 3000);
-}
-</script>
 </body></html>

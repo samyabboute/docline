@@ -111,6 +111,53 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 .msg.show{display:flex}
 .msg-err{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
 
+/* PAYMENT MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.pay-modal{background:var(--surface);border-radius:var(--rlg);width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.18);transform:translateY(20px) scale(.97);transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.overlay.open .pay-modal{transform:none}
+.pm-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 0}
+.pm-title{font-size:17px;font-weight:800;letter-spacing:-.4px}
+.pm-close{width:32px;height:32px;border-radius:var(--r);border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all var(--t)}
+.pm-close:hover{background:var(--surface2);color:var(--text)}
+.pm-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.pm-body{padding:20px 24px 24px}
+.pm-summary{background:var(--brand-light);border:1.5px solid rgba(0,51,153,.15);border-radius:var(--r);padding:14px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.pm-summary-label{font-size:13px;color:var(--brand);font-weight:600}
+.pm-summary-price{font-size:20px;font-weight:800;color:var(--brand);letter-spacing:-.5px}
+.pm-methods-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px}
+.pm-method{border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all var(--t);display:flex;align-items:flex-start;gap:12px}
+.pm-method:hover{border-color:var(--brand);background:var(--brand-light)}
+.pm-method.selected{border-color:var(--brand);background:var(--brand-light)}
+.pm-method-radio{width:18px;height:18px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all var(--t)}
+.pm-method.selected .pm-method-radio{border-color:var(--brand);background:var(--brand)}
+.pm-method.selected .pm-method-radio::after{content:'';width:7px;height:7px;border-radius:50%;background:#fff}
+.pm-method-info{flex:1}
+.pm-method-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.pm-method-name .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:var(--rfull)}
+.badge-auto{background:#ECFDF5;color:#059669;border:1px solid #A7F3D0}
+.badge-manual{background:#FEF3C7;color:#92400E;border:1px solid #FDE68A}
+.pm-method-desc{font-size:12px;color:var(--text3);line-height:1.5}
+.pm-form{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.pm-field{margin-bottom:12px}
+.pm-field label{display:block;font-size:12px;font-weight:700;color:var(--text2);margin-bottom:5px}
+.pm-field input,.pm-field textarea,.pm-field select{width:100%;border:1.5px solid var(--border);border-radius:var(--r);padding:10px 13px;font-family:inherit;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color var(--t)}
+.pm-field input:focus,.pm-field textarea:focus,.pm-field select:focus{border-color:var(--brand)}
+.pm-field textarea{resize:vertical;min-height:80px}
+.pm-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--r);font-family:inherit;font-size:15px;font-weight:700;background:var(--brand);color:#fff;border:none;cursor:pointer;transition:all var(--t);margin-top:16px}
+.pm-submit:hover:not(:disabled){background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,51,153,.3)}
+.pm-submit:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.pm-submit .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.pm-submit.loading .spin{display:block}
+.pm-submit.loading .lbl{display:none}
+.pm-info-box{background:#FFF7ED;border:1px solid #FED7AA;border-radius:var(--r);padding:12px 14px;font-size:12px;color:#9A3412;line-height:1.55;margin-top:12px}
+.pm-rib-box{background:var(--surface2);border:1.5px dashed var(--border);border-radius:var(--r);padding:14px 16px;font-size:13px;margin-bottom:12px}
+.pm-rib-box strong{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:8px}
+.pm-rib-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pm-rib-row:last-child{border:none}
+.pm-rib-row span:first-child{color:var(--text3)}
+.pm-rib-row span:last-child{font-weight:700;font-family:monospace}
+
 /* RESPONSIVE */
 @media(max-width:840px){
   .plans{grid-template-columns:1fr;max-width:420px;padding:0 16px 80px}
@@ -126,7 +173,6 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#003399">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="prospeo-animations.css">
 </head>
 <body>
 
@@ -271,9 +317,104 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
   </div>
 </div>
 
+<!-- PAYMENT MODAL -->
+<div class="overlay" id="pay-overlay" onclick="if(event.target===this)closePayModal()">
+  <div class="pay-modal">
+    <div class="pm-head">
+      <div class="pm-title">Choisir le mode de paiement</div>
+      <button class="pm-close" onclick="closePayModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="pm-body">
+      <div class="pm-summary">
+        <div class="pm-summary-label" id="pm-plan-label">Plan Pro Médecin · Mensuel</div>
+        <div class="pm-summary-price" id="pm-amount">2 900 DA</div>
+      </div>
+
+      <div class="pm-methods-label">Mode de paiement</div>
+
+      <div class="pm-method selected" id="method-edahabia" onclick="selectMethod('edahabia')">
+        <div class="pm-method-radio"></div>
+        <div class="pm-method-info">
+          <div class="pm-method-name">💳 CIB / EDAHABIA <span class="badge badge-auto">Activation auto</span></div>
+          <div class="pm-method-desc">Paiement en ligne sécurisé via Slick-Pay. Votre plan est activé instantanément après paiement.</div>
+        </div>
+      </div>
+
+      <div class="pm-method" id="method-virement" onclick="selectMethod('virement')">
+        <div class="pm-method-radio"></div>
+        <div class="pm-method-info">
+          <div class="pm-method-name">🏦 Virement bancaire <span class="badge badge-manual">Sous 24h</span></div>
+          <div class="pm-method-desc">Virement vers notre CCP ou compte BNA. Envoyez-nous votre numéro de virement pour activation.</div>
+        </div>
+      </div>
+
+      <div class="pm-method" id="method-cash" onclick="selectMethod('cash')">
+        <div class="pm-method-radio"></div>
+        <div class="pm-method-info">
+          <div class="pm-method-name">💵 Espèces / Dahabia <span class="badge badge-manual">Sur RDV</span></div>
+          <div class="pm-method-desc">Paiement en main propre ou dépôt sur Dahabia. Contactez-nous pour convenir d'un rendez-vous.</div>
+        </div>
+      </div>
+
+      <!-- EDAHABIA: no form, just confirm button -->
+      <div id="form-edahabia" class="pm-form">
+        <p style="font-size:13px;color:var(--text3);line-height:1.55">Vous allez être redirigé vers la plateforme sécurisée <strong>Slick-Pay</strong> pour saisir vos informations bancaires. Aucun numéro de carte n'est conservé sur nos serveurs.</p>
+        <button class="pm-submit" id="btn-edahabia" onclick="payEdahabia()">
+          <div class="spin"></div>
+          <span class="lbl">Payer en ligne →</span>
+        </button>
+      </div>
+
+      <!-- VIREMENT FORM -->
+      <div id="form-virement" class="pm-form" style="display:none">
+        <div class="pm-rib-box">
+          <strong>Coordonnées bancaires</strong>
+          <div class="pm-rib-row"><span>Titulaire</span><span>ABBOUTE SAMY</span></div>
+          <div class="pm-rib-row"><span>Banque</span><span>BNA — Alger Centre</span></div>
+          <div class="pm-rib-row"><span>RIB</span><span>002 00001 0000000000 00</span></div>
+          <div class="pm-rib-row"><span>CCP</span><span>1234567 / Clé 00</span></div>
+        </div>
+        <div class="pm-field">
+          <label>N° de virement ou référence reçu</label>
+          <input type="text" id="virement-ref" placeholder="Ex : VIR-20240419-1234">
+        </div>
+        <div class="pm-field">
+          <label>Notes (optionnel)</label>
+          <textarea id="virement-notes" placeholder="Date du virement, agence, etc."></textarea>
+        </div>
+        <div class="pm-info-box">Après validation de votre virement (généralement sous 24h), votre plan sera activé et vous recevrez une confirmation.</div>
+        <button class="pm-submit" id="btn-virement" onclick="submitManual('virement')">
+          <div class="spin"></div>
+          <span class="lbl">Envoyer la référence</span>
+        </button>
+      </div>
+
+      <!-- CASH FORM -->
+      <div id="form-cash" class="pm-form" style="display:none">
+        <div class="pm-field">
+          <label>Wilaya / Ville</label>
+          <input type="text" id="cash-city" placeholder="Ex : Alger, Oran, Constantine…">
+        </div>
+        <div class="pm-field">
+          <label>Notes (disponibilités, contact)</label>
+          <textarea id="cash-notes" placeholder="Décrivez vos disponibilités ou laissez un numéro de téléphone…"></textarea>
+        </div>
+        <div class="pm-info-box">Notre équipe vous contactera pour convenir d'un rendez-vous de paiement. Votre plan sera activé dès réception.</div>
+        <button class="pm-submit" id="btn-cash" onclick="submitManual('cash')">
+          <div class="spin"></div>
+          <span class="lbl">Envoyer la demande</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _billing = 'monthly';
+var _selectedMethod = 'edahabia';
+var _pendingPlan = null;
 
 // THEME
 (function(){
@@ -328,49 +469,94 @@ function setBilling(mode) {
   }
 }
 
-// UPGRADE
-async function upgradePro() {
-  var btn = document.getElementById('btn-upgrade');
-  if (btn.querySelector('.btn-label').textContent.includes('Gérer')) {
-    window.location.href = 'https://billing.stripe.com/p/login/test_placeholder';
-    return;
-  }
+// OPEN PAYMENT MODAL
+var PLAN_PRICES = {
+  pro:        { monthly: '2 900 DA', yearly: '29 000 DA' },
+  enterprise: { monthly: '7 900 DA', yearly: '79 000 DA' },
+};
+var PLAN_LABELS = { pro: 'Pro Médecin', enterprise: 'Pro Clinique' };
 
-  var priceId = _billing === 'yearly'
-    ? PROSPEO_CONFIG.STRIPE_PRICE_PRO_YEARLY
-    : PROSPEO_CONFIG.STRIPE_PRICE_PRO_MONTHLY;
+function openPayModal(plan) {
+  _pendingPlan = plan;
+  var billingLabel = _billing === 'yearly' ? 'Annuel' : 'Mensuel';
+  var price = PLAN_PRICES[plan][_billing];
+  document.getElementById('pm-plan-label').textContent = PLAN_LABELS[plan] + ' · ' + billingLabel;
+  document.getElementById('pm-amount').textContent = price;
+  selectMethod('edahabia');
+  document.getElementById('pay-overlay').classList.add('open');
+}
 
-  if (!priceId || priceId.startsWith('price_REPLACE')) {
-    showError('Le paiement en ligne sera disponible prochainement. Contactez-nous pour activer Pro sous 24h.');
-    return;
-  }
+function closePayModal() {
+  document.getElementById('pay-overlay').classList.remove('open');
+}
 
-  btn.classList.add('loading');
-  btn.disabled = true;
+function selectMethod(method) {
+  _selectedMethod = method;
+  ['edahabia','virement','cash'].forEach(function(m) {
+    document.getElementById('method-' + m).classList.toggle('selected', m === method);
+    document.getElementById('form-' + m).style.display = m === method ? 'block' : 'none';
+  });
+}
+
+// EDAHABIA — Slick-Pay checkout
+async function payEdahabia() {
+  var btn = document.getElementById('btn-edahabia');
+  btn.classList.add('loading'); btn.disabled = true;
   hideError();
-
   try {
     var { data: { session } } = await _supa.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
-
-    var resp = await fetch(PROSPEO_CONFIG.NETLIFY_BASE + '/.netlify/functions/create-checkout', {
+    var resp = await fetch(SUPA_URL + '/functions/v1/slickpay-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-      body: JSON.stringify({ priceId: priceId, userId: session.user.id })
+      body: JSON.stringify({ plan: _pendingPlan, billing: _billing })
     });
     var data = await resp.json();
     if (data.url) { window.location.href = data.url; }
-    else { throw new Error(data.error || 'Erreur lors du paiement'); }
+    else { throw new Error(data.error || 'Erreur passerelle de paiement'); }
   } catch(e) {
     showError(e.message || 'Une erreur est survenue. Réessayez.');
-    btn.classList.remove('loading');
-    btn.disabled = false;
+    btn.classList.remove('loading'); btn.disabled = false;
   }
 }
 
-function contactClinic() {
-  window.location.href = 'mailto:contact@prospeo.app?subject=Plan%20Pro%20Clinique&body=Bonjour%2C%20je%20souhaite%20plus%20d%27informations%20sur%20le%20plan%20Pro%20Clinique.';
+// VIREMENT / CASH — store request, notify admin
+async function submitManual(method) {
+  var btn = document.getElementById('btn-' + method);
+  var ref   = method === 'virement' ? (document.getElementById('virement-ref').value.trim()) : (document.getElementById('cash-city').value.trim());
+  var notes = method === 'virement' ? (document.getElementById('virement-notes').value.trim()) : (document.getElementById('cash-notes').value.trim());
+  if (!ref) { showError('Veuillez remplir le champ obligatoire.'); return; }
+
+  btn.classList.add('loading'); btn.disabled = true;
+  hideError();
+  try {
+    var { data: { session } } = await _supa.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    var AMOUNTS_INT = { pro: { monthly: 2900, yearly: 29000 }, enterprise: { monthly: 7900, yearly: 79000 } };
+    var { error } = await _supa.from('payment_requests').insert({
+      user_id:    session.user.id,
+      user_email: session.user.email,
+      plan:       _pendingPlan,
+      billing:    _billing,
+      amount:     AMOUNTS_INT[_pendingPlan][_billing],
+      method:     method,
+      status:     'pending',
+      reference:  ref,
+      notes:      notes || null,
+    });
+    if (error) throw error;
+    closePayModal();
+    window.location.href = 'payment-return.html?status=pending&plan=' + _pendingPlan + '&billing=' + _billing;
+  } catch(e) {
+    showError(e.message || 'Une erreur est survenue. Réessayez.');
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
 }
+
+function upgradePro()    { openPayModal('pro'); }
+function contactClinic() { openPayModal('enterprise'); }
+
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePayModal(); });
 
 function showError(msg) {
   var el = document.getElementById('msg-err');

@@ -716,10 +716,14 @@ document.addEventListener('keydown',function(e){
 
     var u=s.data.session.user;
     var meta=u.user_metadata||{};
+    var subR=await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id',_uid).single().catch(function(){return{data:null};});
+    var sub=subR.data;
+    var isPro=sub&&sub.plan!=='free'&&sub.status==='active'&&(!sub.expires_at||new Date(sub.expires_at)>new Date());
     Shell.init({
       page:'calendar',
       title:'Agenda',
-      isPro: meta.plan==='pro'||meta.plan==='enterprise',
+      isPro: isPro,
+      plan: sub?.plan||'free',
       userName: meta.full_name||meta.name||u.email,
       userEmail: u.email,
     });
