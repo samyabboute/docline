@@ -721,7 +721,7 @@ function renderTrendChart(approved) {
         var isCurrent = m.key===monthKey(now);
         return '<div class="trend-bar-wrap">'
           +'<div style="font-size:9px;font-weight:700;color:var(--text-muted);text-align:center;margin-bottom:4px">'+(m.total?fmtDZD(m.total).replace(' DA',''):'—')+'</div>'
-          +'<div class="trend-bar" style="height:'+pct+'px;background:'+(isCurrent?'var(--brand)':'var(--brand-light)');background:'+(isCurrent?'var(--brand)':'rgba(0,51,153,.35)')+'"></div>'
+          +'<div class="trend-bar" style="height:'+pct+'px;background:'+(isCurrent?'var(--brand)':'rgba(0,51,153,.35)')+'"></div>'
           +'<div style="font-size:.625rem;font-weight:600;color:'+(isCurrent?'var(--brand)':'var(--text-faint)')+';text-align:center;margin-top:6px;white-space:nowrap">'+m.label+'</div>'
           +'</div>';
       }).join('')
