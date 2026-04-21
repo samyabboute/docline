@@ -10,6 +10,8 @@ var Shell = (function () {
 
   // ── NAV ───────────────────────────────────────────────────────
   var NAV = [
+    // ── Section: Clinique
+    { section: 'Clinique' },
     { href:'app.html',           key:'dashboard',    label:'Tableau de bord',
       icon:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>' },
     { href:'queue.html',         key:'queue',        label:"File d'attente", featured:true,
@@ -26,6 +28,12 @@ var Shell = (function () {
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/>' },
     { href:'labo.html',          key:'labo',         label:'Laboratoire',
       icon:'<path d="M6 2v6l-2 4v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8l-2-4V2"/><line x1="6" y1="10" x2="14" y2="10"/>' },
+    // ── Section: Rendez-vous en ligne
+    { section: 'Rendez-vous' },
+    { href:'mes-rdv.html',       key:'mes-rdv',      label:'Mes Rendez-vous',
+      icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/>' },
+    { href:'profil-public.html', key:'profil-public',label:'Profil public',
+      icon:'<rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/>' },
   ];
 
   // ── CSS ───────────────────────────────────────────────────────
@@ -339,6 +347,7 @@ button{font-family:inherit;cursor:pointer}
 
     // ── Sidebar nav
     var navHTML = NAV.map(function (n) {
+      if (n.section) return '<div class="sb-section">' + n.section + '</div>';
       var cls = 'sb-item' + (n.featured ? ' featured' : '') + (n.key === page ? ' active' : '');
       return '<a href="' + n.href + '" class="' + cls + '" data-key="' + n.key + '">'
         + '<svg viewBox="0 0 24 24">' + n.icon + '</svg>'
@@ -367,7 +376,6 @@ button{font-family:inherit;cursor:pointer}
       +   '<span class="sb-plan ' + plan + '">' + plan.toUpperCase() + '</span>'
       + '</div>'
       + '<nav class="sb-nav">'
-      +   '<div class="sb-section">Clinique</div>'
       +   navHTML
       + '</nav>'
       + usageHTML
@@ -401,10 +409,11 @@ button{font-family:inherit;cursor:pointer}
       +   '<button class="tb-avatar-btn" id="tb-avatar">' + initials + '</button>'
       + '</div>';
 
-    // ── Mobile nav (first 5 items)
+    // ── Mobile nav (first 5 real nav items, skip section headers)
+    var mobileNavItems = NAV.filter(function(n){ return !n.section; }).slice(0, 5);
     var mobileNav =
         '<nav class="shell-mobile-nav"><div class="smn-row">'
-      + NAV.slice(0, 5).map(function (n) {
+      + mobileNavItems.map(function (n) {
           return '<a href="' + n.href + '" class="smn-item' + (n.key === page ? ' active' : '') + '">'
             + '<svg viewBox="0 0 24 24">' + n.icon + '</svg>'
             + '<span>' + n.label.split(' ')[0] + '</span>'

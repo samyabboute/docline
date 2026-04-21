@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mes Rendez-vous · Prospeo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="shell.js"></script>
+  <style>
+    /* ── CSS aliases for shell vars ─────────────────────────── */
+    :root{
+      --text2:var(--text-2);--text3:var(--text-3);--text4:var(--text-4);
+      --surface2:var(--surface-hover);--r8:var(--r);--r6:var(--r-sm);--r12:var(--r-lg);
+    }
+
+    /* ── Page layout ─────────────────────────────────────────── */
+    .page{padding:28px 24px;max-width:1200px}
+
+    /* ── Header ──────────────────────────────────────────────── */
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+    .page-header h1{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px;margin-bottom:3px}
+    .page-header p{font-size:13px;color:var(--text-3)}
+    .header-actions{display:flex;gap:10px;align-items:center;flex-shrink:0}
+    .btn-outline{
+      display:inline-flex;align-items:center;gap:7px;
+      padding:8px 16px;border-radius:var(--r);font-size:13px;font-weight:600;
+      border:1.5px solid var(--border-strong);background:var(--surface);color:var(--text-2);
+      cursor:pointer;font-family:inherit;transition:all var(--t);text-decoration:none;
+    }
+    .btn-outline:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-subtle)}
+    .btn-outline svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    /* ── KPI cards ───────────────────────────────────────────── */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+    .kpi-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r-lg);padding:18px 20px;
+    }
+    .kpi-label{font-size:11px;font-weight:700;color:var(--text-4);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+    .kpi-value{font-size:28px;font-weight:800;letter-spacing:-.8px;line-height:1}
+    .kpi-sub{font-size:11px;color:var(--text-3);margin-top:5px}
+    .kpi-pending .kpi-value{color:var(--warning)}
+    .kpi-confirmed .kpi-value{color:var(--success)}
+    .kpi-today .kpi-value{color:var(--brand)}
+    .kpi-total .kpi-value{color:var(--text)}
+
+    /* ── Search + filter bar ─────────────────────────────────── */
+    .toolbar{
+      display:flex;align-items:center;gap:10px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r-lg);padding:10px 14px;
+      margin-bottom:16px;flex-wrap:wrap;
+    }
+    .tb-inp{
+      display:flex;align-items:center;gap:8px;
+      background:var(--bg);border:1px solid var(--border);
+      border-radius:var(--r);padding:7px 12px;flex:1;min-width:180px;
+      transition:border-color var(--t);
+    }
+    .tb-inp:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px rgba(0,51,153,.07)}
+    .tb-inp svg{width:13px;height:13px;fill:none;stroke:var(--text-4);stroke-width:2;stroke-linecap:round;flex-shrink:0}
+    .tb-inp input{border:none;background:none;outline:none;font-size:13px;color:var(--text);width:100%;font-family:inherit}
+    .tb-inp input::placeholder{color:var(--text-4);font-size:12px}
+
+    .filter-tabs{display:flex;gap:4px;flex-wrap:wrap}
+    .filter-tab{
+      padding:5px 14px;border-radius:var(--rfull);font-size:12px;font-weight:600;
+      border:1.5px solid var(--border);background:var(--surface);color:var(--text-3);
+      cursor:pointer;font-family:inherit;transition:all var(--t) var(--ease);
+    }
+    .filter-tab:hover{border-color:var(--brand);color:var(--brand)}
+    .filter-tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .filter-count{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:700;
+      background:rgba(255,255,255,.25);margin-left:5px;
+    }
+    .filter-tab:not(.active) .filter-count{background:var(--border);color:var(--text-3)}
+
+    /* ── Date filter ──────────────────────────────────────────── */
+    .date-sel{
+      padding:6px 12px;border-radius:var(--r);font-size:13px;font-weight:500;
+      border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);
+      cursor:pointer;font-family:inherit;outline:none;
+      transition:border-color var(--t);
+    }
+    .date-sel:focus{border-color:var(--brand)}
+
+    /* ── RDV list ─────────────────────────────────────────────── */
+    .rdv-list{display:flex;flex-direction:column;gap:10px}
+
+    .rdv-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r-lg);padding:18px 20px;
+      display:grid;grid-template-columns:auto 1fr auto;
+      align-items:center;gap:16px;
+      transition:box-shadow var(--t),border-color var(--t);
+    }
+    .rdv-card:hover{box-shadow:var(--shadow-sm);border-color:var(--border-strong)}
+    .rdv-card.status-pending{border-left:3px solid var(--warning)}
+    .rdv-card.status-confirmed{border-left:3px solid var(--success)}
+    .rdv-card.status-cancelled{border-left:3px solid var(--text-4);opacity:.7}
+    .rdv-card.status-completed{border-left:3px solid var(--brand)}
+
+    /* date block */
+    .rdv-date-block{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      width:52px;height:52px;border-radius:var(--r);
+      background:var(--brand-subtle);flex-shrink:0;
+    }
+    .rdv-date-block .day{font-size:20px;font-weight:800;color:var(--brand);line-height:1}
+    .rdv-date-block .mon{font-size:10px;font-weight:700;color:var(--brand);letter-spacing:.05em;text-transform:uppercase}
+    .rdv-card.status-cancelled .rdv-date-block{background:var(--surface-hover)}
+    .rdv-card.status-cancelled .rdv-date-block .day,
+    .rdv-card.status-cancelled .rdv-date-block .mon{color:var(--text-4)}
+
+    /* patient info */
+    .rdv-info{min-width:0}
+    .rdv-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+    .rdv-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .rdv-meta-item{
+      display:flex;align-items:center;gap:4px;
+      font-size:12px;color:var(--text-3);
+    }
+    .rdv-meta-item svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+    .rdv-notes{
+      margin-top:8px;font-size:12px;color:var(--text-3);
+      padding:6px 10px;background:var(--bg);border-radius:var(--r-sm);
+      border:1px solid var(--border);max-width:480px;
+    }
+
+    /* status badge */
+    .status-badge{
+      display:inline-flex;align-items:center;gap:5px;
+      padding:3px 10px;border-radius:var(--rfull);font-size:11px;font-weight:700;
+      letter-spacing:.03em;text-transform:uppercase;flex-shrink:0;
+    }
+    .status-badge::before{content:'';width:6px;height:6px;border-radius:50%;display:block}
+    .status-badge.pending{background:rgba(217,119,6,.1);color:var(--warning)}
+    .status-badge.pending::before{background:var(--warning)}
+    .status-badge.confirmed{background:rgba(5,150,105,.1);color:var(--success)}
+    .status-badge.confirmed::before{background:var(--success)}
+    .status-badge.cancelled{background:var(--surface-hover);color:var(--text-4)}
+    .status-badge.cancelled::before{background:var(--text-4)}
+    .status-badge.completed{background:rgba(0,51,153,.1);color:var(--brand)}
+    .status-badge.completed::before{background:var(--brand)}
+
+    /* actions */
+    .rdv-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;flex-direction:column;align-items:flex-end}
+    .action-btn{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:600;
+      border:1.5px solid;cursor:pointer;font-family:inherit;transition:all var(--t);
+    }
+    .action-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .btn-confirm{background:rgba(5,150,105,.08);border-color:rgba(5,150,105,.3);color:var(--success)}
+    .btn-confirm:hover{background:var(--success);color:#fff;border-color:var(--success)}
+    .btn-cancel{background:rgba(220,38,38,.06);border-color:rgba(220,38,38,.25);color:var(--danger)}
+    .btn-cancel:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+    .btn-complete{background:rgba(0,51,153,.08);border-color:rgba(0,51,153,.25);color:var(--brand)}
+    .btn-complete:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+    /* ── Empty state ─────────────────────────────────────────── */
+    .empty-state{
+      background:var(--surface);border:1px dashed var(--border-strong);
+      border-radius:var(--r-lg);padding:60px 24px;text-align:center;
+    }
+    .empty-icon{
+      width:56px;height:56px;border-radius:16px;
+      background:var(--brand-subtle);display:flex;align-items:center;justify-content:center;
+      margin:0 auto 16px;
+    }
+    .empty-icon svg{width:26px;height:26px;fill:none;stroke:var(--brand);stroke-width:1.5;stroke-linecap:round}
+    .empty-state h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
+    .empty-state p{font-size:13px;color:var(--text-3);max-width:300px;margin:0 auto 20px}
+
+    /* ── Loading skeleton ─────────────────────────────────────── */
+    .skeleton{
+      background:linear-gradient(90deg,var(--border) 25%,var(--surface-hover) 50%,var(--border) 75%);
+      background-size:200% 100%;
+      animation:shimmer 1.4s infinite;
+      border-radius:var(--r);height:80px;
+    }
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* ── Profile prompt banner ────────────────────────────────── */
+    .banner{
+      display:flex;align-items:center;gap:14px;
+      background:linear-gradient(135deg,rgba(0,51,153,.05) 0%,rgba(0,51,153,.08) 100%);
+      border:1px solid rgba(0,51,153,.18);border-radius:var(--r-lg);
+      padding:16px 20px;margin-bottom:24px;
+    }
+    .banner-icon{
+      width:40px;height:40px;border-radius:10px;background:var(--brand);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .banner-icon svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+    .banner-body{flex:1;min-width:0}
+    .banner-body strong{font-size:13px;font-weight:700;color:var(--brand);display:block;margin-bottom:2px}
+    .banner-body p{font-size:12px;color:var(--text-3)}
+    .banner-btn{
+      padding:8px 18px;border-radius:var(--r);background:var(--brand);color:#fff;
+      font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;
+      text-decoration:none;display:inline-block;white-space:nowrap;
+      transition:background var(--t);
+    }
+    .banner-btn:hover{background:var(--brand-hover)}
+
+    /* ── Modal ────────────────────────────────────────────────── */
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(10,12,20,.45);
+      backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+      z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;
+    }
+    .modal-overlay.open{display:flex}
+    .modal{
+      background:var(--surface);border-radius:var(--r-lg);
+      width:100%;max-width:460px;
+      box-shadow:0 20px 60px rgba(0,0,0,.18);
+      animation:modalIn .18s var(--ease) both;
+    }
+    @keyframes modalIn{from{transform:scale(.96) translateY(8px);opacity:0}to{transform:none;opacity:1}}
+    .modal-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:20px 24px 16px;border-bottom:1px solid var(--border);
+    }
+    .modal-head h3{font-size:16px;font-weight:700;color:var(--text)}
+    .modal-close{
+      width:30px;height:30px;border-radius:var(--r-sm);border:none;background:none;
+      display:flex;align-items:center;justify-content:center;
+      color:var(--text-4);cursor:pointer;transition:background var(--t),color var(--t);
+    }
+    .modal-close:hover{background:var(--surface-hover);color:var(--text)}
+    .modal-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+    .modal-body{padding:20px 24px}
+    .modal-field{margin-bottom:14px}
+    .modal-field label{font-size:12px;font-weight:600;color:var(--text-3);display:block;margin-bottom:5px}
+    .modal-field .val{font-size:14px;font-weight:500;color:var(--text)}
+    .modal-field textarea{
+      width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r);
+      font-size:13px;font-family:inherit;color:var(--text);background:var(--bg);
+      resize:vertical;min-height:80px;outline:none;transition:border-color var(--t);
+    }
+    .modal-field textarea:focus{border-color:var(--brand);background:var(--surface)}
+    .modal-foot{
+      display:flex;gap:10px;justify-content:flex-end;
+      padding:16px 24px 20px;border-top:1px solid var(--border);
+    }
+    .modal-foot button{
+      padding:9px 20px;border-radius:var(--r);font-size:13px;font-weight:700;
+      cursor:pointer;font-family:inherit;border:none;transition:background var(--t),opacity var(--t);
+    }
+    .modal-btn-sec{background:var(--surface-hover);color:var(--text-2)}
+    .modal-btn-sec:hover{background:var(--border)}
+    .modal-btn-conf{background:var(--success);color:#fff}
+    .modal-btn-conf:hover{opacity:.88}
+    .modal-btn-canc{background:var(--danger);color:#fff}
+    .modal-btn-canc:hover{opacity:.88}
+
+    /* ── Toast ───────────────────────────────────────────────── */
+    .toast{
+      position:fixed;bottom:28px;right:24px;z-index:2000;
+      display:flex;align-items:center;gap:10px;
+      padding:12px 18px;border-radius:var(--r);
+      background:var(--text);color:#fff;font-size:13px;font-weight:600;
+      box-shadow:var(--shadow-md);
+      transform:translateY(80px);opacity:0;
+      transition:transform .25s var(--ease),opacity .25s;pointer-events:none;
+    }
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.ok{background:var(--success)}
+    .toast.err{background:var(--danger)}
+    .toast svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media(max-width:768px){
+      .kpi-row{grid-template-columns:1fr 1fr}
+      .rdv-card{grid-template-columns:auto 1fr;grid-template-rows:auto auto}
+      .rdv-actions{flex-direction:row;grid-column:1/-1;justify-content:flex-start}
+      .page{padding:14px 14px 80px}
+      .page-header{flex-direction:column;gap:10px}
+    }
+    @media(max-width:480px){
+      .kpi-row{grid-template-columns:1fr 1fr}
+      .kpi-value{font-size:22px}
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="sb-overlay" id="shell-overlay"></div>
+
+  <header class="shell-topbar" id="shell-topbar"></header>
+
+  <main class="shell-main">
+    <div class="page" id="page-content" style="display:none">
+
+      <!-- Profile activation banner (shown only if not public) -->
+      <div class="banner" id="profile-banner" style="display:none">
+        <div class="banner-icon">
+          <svg viewBox="0 0 24 24"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        </div>
+        <div class="banner-body">
+          <strong>Rendez-vous en ligne désactivés</strong>
+          <p>Activez votre profil public pour que les patients puissent vous trouver et réserver.</p>
+        </div>
+        <a href="profil-public.html" class="banner-btn">Activer mon profil →</a>
+      </div>
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div>
+          <h1>Mes Rendez-vous</h1>
+          <p>Gérez les demandes de rendez-vous de vos patients</p>
+        </div>
+        <div class="header-actions">
+          <a href="profil-public.html" class="btn-outline">
+            <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/></svg>
+            Modifier profil
+          </a>
+          <a id="btn-view-public" href="find-doctor.html" class="btn-outline" target="_blank" style="display:none">
+            <svg viewBox="0 0 24 24"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            Ma fiche publique
+          </a>
+        </div>
+      </div>
+
+      <!-- KPI row -->
+      <div class="kpi-row">
+        <div class="kpi-card kpi-pending">
+          <div class="kpi-label">En attente</div>
+          <div class="kpi-value" id="kpi-pending">—</div>
+          <div class="kpi-sub">demandes à traiter</div>
+        </div>
+        <div class="kpi-card kpi-confirmed">
+          <div class="kpi-label">Confirmés</div>
+          <div class="kpi-value" id="kpi-confirmed">—</div>
+          <div class="kpi-sub">prochains RDV</div>
+        </div>
+        <div class="kpi-card kpi-today">
+          <div class="kpi-label">Aujourd'hui</div>
+          <div class="kpi-value" id="kpi-today">—</div>
+          <div class="kpi-sub">rendez-vous ce jour</div>
+        </div>
+        <div class="kpi-card kpi-total">
+          <div class="kpi-label">Total</div>
+          <div class="kpi-value" id="kpi-total">—</div>
+          <div class="kpi-sub">tous les rendez-vous</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="tb-inp">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="search-input" placeholder="Rechercher par nom ou téléphone…" autocomplete="off"/>
+        </div>
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-status="all">Tous <span class="filter-count" id="cnt-all">0</span></button>
+          <button class="filter-tab" data-status="pending">En attente <span class="filter-count" id="cnt-pending">0</span></button>
+          <button class="filter-tab" data-status="confirmed">Confirmés <span class="filter-count" id="cnt-confirmed">0</span></button>
+          <button class="filter-tab" data-status="completed">Terminés <span class="filter-count" id="cnt-completed">0</span></button>
+          <button class="filter-tab" data-status="cancelled">Annulés <span class="filter-count" id="cnt-cancelled">0</span></button>
+        </div>
+        <select class="date-sel" id="date-filter">
+          <option value="all">Toutes les dates</option>
+          <option value="today">Aujourd'hui</option>
+          <option value="week">Cette semaine</option>
+          <option value="month">Ce mois</option>
+          <option value="upcoming">À venir</option>
+        </select>
+      </div>
+
+      <!-- RDV list -->
+      <div class="rdv-list" id="rdv-list">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+<!-- Detail / action modal -->
+<div class="modal-overlay" id="rdv-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">Détail du rendez-vous</h3>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg">OK</span>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ── Config ──────────────────────────────────────────────────── */
+var _sb = supabase.createClient(PROSPEO_CONFIG.SUPA_URL, PROSPEO_CONFIG.SUPA_KEY);
+var _uid = null;
+var _allRdv = [];
+var _currentFilter = 'all';
+var _currentSearch = '';
+var _currentDate   = 'all';
+var _toastTimer = null;
+var _modalRdv = null;
+
+/* ── Auth guard ──────────────────────────────────────────────── */
+_sb.auth.getSession().then(function(r){
+  var sess = r && r.data && r.data.session;
+  if(!sess){ window.location.href = 'login.html'; return; }
+  _uid = sess.user.id;
+  var email = sess.user.email || '';
+  var meta  = sess.user.user_metadata || {};
+  var name  = meta.full_name || meta.name || '';
+
+  /* Shell */
+  Shell.init({
+    page:'mes-rdv',
+    title:'Mes Rendez-vous',
+    isPro: false,
+    userName: name,
+    userEmail: email
+  });
+
+  document.getElementById('page-content').style.display = 'block';
+  loadProfile();
+  loadRdv();
+});
+
+/* ── Load profile (check is_public) ─────────────────────────── */
+function loadProfile(){
+  _sb.from('profiles').select('is_public,accepts_rdv,full_name').eq('id',_uid).single()
+    .then(function(r){
+      if(r && r.data){
+        var banner = document.getElementById('profile-banner');
+        var btnPub = document.getElementById('btn-view-public');
+        if(!r.data.is_public || !r.data.accepts_rdv){
+          if(banner) banner.style.display = 'flex';
+          if(btnPub) btnPub.style.display = 'none';
+        } else {
+          if(btnPub) btnPub.style.display = '';
+        }
+      }
+    });
+}
+
+/* ── Load RDV ────────────────────────────────────────────────── */
+function loadRdv(){
+  _sb.from('appointments')
+    .select('*')
+    .eq('doctor_id', _uid)
+    .order('requested_date', { ascending: false })
+    .then(function(r){
+      _allRdv = (r && r.data) ? r.data : [];
+      updateKPIs();
+      updateCounts();
+      renderList();
+    });
+}
+
+/* ── KPIs ────────────────────────────────────────────────────── */
+function updateKPIs(){
+  var today = todayStr();
+  var pending   = _allRdv.filter(function(x){ return x.status==='pending'; }).length;
+  var confirmed = _allRdv.filter(function(x){ return x.status==='confirmed'; }).length;
+  var todayN    = _allRdv.filter(function(x){ return x.requested_date===today && x.status!=='cancelled'; }).length;
+  var total     = _allRdv.length;
+
+  document.getElementById('kpi-pending').textContent   = pending;
+  document.getElementById('kpi-confirmed').textContent = confirmed;
+  document.getElementById('kpi-today').textContent     = todayN;
+  document.getElementById('kpi-total').textContent     = total;
+}
+
+/* ── Filter counts ───────────────────────────────────────────── */
+function updateCounts(){
+  document.getElementById('cnt-all').textContent       = _allRdv.length;
+  document.getElementById('cnt-pending').textContent   = _allRdv.filter(function(x){ return x.status==='pending'; }).length;
+  document.getElementById('cnt-confirmed').textContent = _allRdv.filter(function(x){ return x.status==='confirmed'; }).length;
+  document.getElementById('cnt-completed').textContent = _allRdv.filter(function(x){ return x.status==='completed'; }).length;
+  document.getElementById('cnt-cancelled').textContent = _allRdv.filter(function(x){ return x.status==='cancelled'; }).length;
+}
+
+/* ── Render list ─────────────────────────────────────────────── */
+function renderList(){
+  var today = todayStr();
+  var now   = new Date();
+  var data  = _allRdv.filter(function(x){
+    /* status filter */
+    if(_currentFilter !== 'all' && x.status !== _currentFilter) return false;
+    /* date filter */
+    if(_currentDate === 'today'    && x.requested_date !== today) return false;
+    if(_currentDate === 'upcoming' && x.requested_date < today) return false;
+    if(_currentDate === 'week'){
+      var d = new Date(x.requested_date + 'T00:00:00');
+      var diff = Math.round((d - now)/(1000*86400));
+      if(diff < -1 || diff > 7) return false;
+    }
+    if(_currentDate === 'month'){
+      var d2 = new Date(x.requested_date + 'T00:00:00');
+      if(d2.getMonth()!==now.getMonth() || d2.getFullYear()!==now.getFullYear()) return false;
+    }
+    /* search */
+    if(_currentSearch){
+      var q = _currentSearch.toLowerCase();
+      var hay = ((x.patient_name||'') + ' ' + (x.patient_phone||'')).toLowerCase();
+      if(hay.indexOf(q) === -1) return false;
+    }
+    return true;
+  });
+
+  var el = document.getElementById('rdv-list');
+  if(!data.length){
+    el.innerHTML = '<div class="empty-state">'
+      +'<div class="empty-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg></div>'
+      +'<h3>Aucun rendez-vous trouvé</h3>'
+      +'<p>'
+      + (_allRdv.length === 0
+          ? 'Votre profil public recevra les premières demandes de patients.'
+          : 'Aucun résultat pour les filtres sélectionnés.')
+      +'</p>'
+      + (_allRdv.length === 0
+          ? '<a href="profil-public.html" class="banner-btn">Configurer mon profil →</a>'
+          : '')
+      +'</div>';
+    return;
+  }
+
+  el.innerHTML = data.map(function(rdv){ return cardHTML(rdv); }).join('');
+}
+
+/* ── Card HTML ───────────────────────────────────────────────── */
+var MONTHS = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+var STATUS_LABELS = { pending:'En attente', confirmed:'Confirmé', cancelled:'Annulé', completed:'Terminé' };
+
+function cardHTML(rdv){
+  var d = new Date(rdv.requested_date + 'T00:00:00');
+  var day = d.getDate();
+  var mon = MONTHS[d.getMonth()];
+  var st  = rdv.status || 'pending';
+
+  var actions = '';
+  if(st === 'pending'){
+    actions = '<div style="display:flex;gap:6px">'
+      +'<button class="action-btn btn-confirm" onclick="openModal(\''+rdv.id+'\')">'
+      +'<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Confirmer</button>'
+      +'<button class="action-btn btn-cancel" onclick="quickCancel(\''+rdv.id+'\')">'
+      +'<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Refuser</button>'
+      +'</div>';
+  } else if(st === 'confirmed'){
+    actions = '<div style="display:flex;gap:6px">'
+      +'<button class="action-btn btn-complete" onclick="markComplete(\''+rdv.id+'\')">'
+      +'<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Terminé</button>'
+      +'<button class="action-btn btn-cancel" onclick="quickCancel(\''+rdv.id+'\')">'
+      +'<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Annuler</button>'
+      +'</div>';
+  } else {
+    actions = '<button class="action-btn btn-outline" onclick="openModal(\''+rdv.id+'\',true)" style="border-color:var(--border);color:var(--text-3);background:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--r-sm);border:1.5px solid var(--border)">'
+      +'<svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Détails</button>';
+  }
+
+  return '<div class="rdv-card status-'+st+'" id="card-'+rdv.id+'">'
+    +'<div class="rdv-date-block"><div class="day">'+day+'</div><div class="mon">'+mon+'</div></div>'
+    +'<div class="rdv-info">'
+    +  '<div class="rdv-name">'+esc(rdv.patient_name)+'</div>'
+    +  '<div class="rdv-meta">'
+    +    (rdv.requested_time ? '<span class="rdv-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+esc(rdv.requested_time)+'</span>' : '')
+    +    (rdv.patient_phone  ? '<span class="rdv-meta-item"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 21.72 16.92z"/></svg>'+esc(rdv.patient_phone)+'</span>' : '')
+    +    (rdv.patient_email  ? '<span class="rdv-meta-item"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'+esc(rdv.patient_email)+'</span>' : '')
+    +    '<span class="status-badge '+st+'">'+STATUS_LABELS[st]+'</span>'
+    +  '</div>'
+    +  (rdv.notes ? '<div class="rdv-notes">'+esc(rdv.notes)+'</div>' : '')
+    +'</div>'
+    +'<div class="rdv-actions">'+actions+'</div>'
+    +'</div>';
+}
+
+/* ── Quick cancel ────────────────────────────────────────────── */
+function quickCancel(id){
+  if(!confirm('Annuler ce rendez-vous ?')) return;
+  updateStatus(id, 'cancelled');
+}
+window.quickCancel = quickCancel;
+
+/* ── Mark complete ───────────────────────────────────────────── */
+function markComplete(id){
+  if(!confirm('Marquer ce RDV comme terminé ?')) return;
+  updateStatus(id, 'completed');
+}
+window.markComplete = markComplete;
+
+/* ── Update status ───────────────────────────────────────────── */
+function updateStatus(id, newStatus, cb){
+  _sb.from('appointments').update({ status: newStatus, updated_at: new Date().toISOString() })
+    .eq('id', id).eq('doctor_id', _uid)
+    .then(function(r){
+      if(r && r.error){
+        showToast('Erreur : ' + r.error.message, 'err'); return;
+      }
+      /* update local data */
+      _allRdv = _allRdv.map(function(x){ return x.id===id ? Object.assign({},x,{status:newStatus}) : x; });
+      updateKPIs();
+      updateCounts();
+      renderList();
+      var labels = { confirmed:'RDV confirmé ✓', cancelled:'RDV annulé', completed:'RDV terminé ✓' };
+      showToast(labels[newStatus] || 'Mis à jour', 'ok');
+      if(cb) cb();
+    });
+}
+
+/* ── Open modal ──────────────────────────────────────────────── */
+function openModal(id, readOnly){
+  _modalRdv = _allRdv.find(function(x){ return x.id===id; });
+  if(!_modalRdv) return;
+  var rdv = _modalRdv;
+  var st  = rdv.status || 'pending';
+  var d   = new Date(rdv.requested_date + 'T00:00:00');
+
+  document.getElementById('modal-title').textContent = 'Rendez-vous — ' + rdv.patient_name;
+
+  var body = '<div class="modal-field"><label>Patient</label><div class="val">'+esc(rdv.patient_name)+'</div></div>'
+    +'<div class="modal-field"><label>Téléphone</label><div class="val">'+esc(rdv.patient_phone)+'</div></div>'
+    +(rdv.patient_email ? '<div class="modal-field"><label>Email</label><div class="val">'+esc(rdv.patient_email)+'</div></div>' : '')
+    +'<div class="modal-field"><label>Date demandée</label><div class="val">'+d.toLocaleDateString('fr-DZ',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+      +(rdv.requested_time ? ' à '+rdv.requested_time : '')+'</div></div>'
+    +'<div class="modal-field"><label>Statut</label><div><span class="status-badge '+st+'">'+STATUS_LABELS[st]+'</span></div></div>'
+    +(rdv.notes ? '<div class="modal-field"><label>Message du patient</label><div class="val">'+esc(rdv.notes)+'</div></div>' : '');
+
+  if(!readOnly && st === 'pending'){
+    body += '<div class="modal-field"><label>Note interne (optionnel)</label>'
+      +'<textarea id="modal-note" placeholder="Remarque pour ce RDV…"></textarea></div>';
+  }
+
+  document.getElementById('modal-body').innerHTML = body;
+
+  var foot = '<button class="modal-btn-sec" onclick="closeModal()">Fermer</button>';
+  if(!readOnly){
+    if(st === 'pending'){
+      foot += '<button class="modal-btn-conf" onclick="confirmFromModal()">Confirmer le RDV</button>';
+      foot += '<button class="modal-btn-canc" onclick="cancelFromModal()">Refuser</button>';
+    } else if(st === 'confirmed'){
+      foot += '<button class="modal-btn-conf" onclick="completeFromModal()">Marquer terminé</button>';
+      foot += '<button class="modal-btn-canc" onclick="cancelFromModal()">Annuler</button>';
+    }
+  }
+  document.getElementById('modal-foot').innerHTML = foot;
+
+  document.getElementById('rdv-modal').classList.add('open');
+}
+window.openModal = openModal;
+
+function closeModal(){
+  document.getElementById('rdv-modal').classList.remove('open');
+  _modalRdv = null;
+}
+window.closeModal = closeModal;
+
+function confirmFromModal(){
+  if(!_modalRdv) return;
+  updateStatus(_modalRdv.id, 'confirmed', closeModal);
+}
+window.confirmFromModal = confirmFromModal;
+
+function cancelFromModal(){
+  if(!_modalRdv) return;
+  updateStatus(_modalRdv.id, 'cancelled', closeModal);
+}
+window.cancelFromModal = cancelFromModal;
+
+function completeFromModal(){
+  if(!_modalRdv) return;
+  updateStatus(_modalRdv.id, 'completed', closeModal);
+}
+window.completeFromModal = completeFromModal;
+
+/* ── Filter tabs ─────────────────────────────────────────────── */
+document.getElementById('filter-tabs').addEventListener('click', function(e){
+  var btn = e.target.closest('.filter-tab');
+  if(!btn) return;
+  document.querySelectorAll('.filter-tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  _currentFilter = btn.dataset.status || 'all';
+  renderList();
+});
+
+/* ── Search ──────────────────────────────────────────────────── */
+var _searchTimer;
+document.getElementById('search-input').addEventListener('input', function(e){
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(function(){
+    _currentSearch = e.target.value.trim();
+    renderList();
+  }, 220);
+});
+
+/* ── Date filter ─────────────────────────────────────────────── */
+document.getElementById('date-filter').addEventListener('change', function(e){
+  _currentDate = e.target.value;
+  renderList();
+});
+
+/* ── Close modal on overlay click ────────────────────────────── */
+document.getElementById('rdv-modal').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+
+/* ── Toast ───────────────────────────────────────────────────── */
+function showToast(msg, type){
+  var el   = document.getElementById('toast');
+  var msgEl= document.getElementById('toast-msg');
+  el.className = 'toast ' + (type||'ok');
+  msgEl.textContent = msg;
+  clearTimeout(_toastTimer);
+  el.classList.add('show');
+  _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 3200);
+}
+
+/* ── Helpers ─────────────────────────────────────────────────── */
+function todayStr(){
+  var d = new Date();
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var dd= String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+dd;
+}
+
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+})();
+</script>
+</body>
+</html>

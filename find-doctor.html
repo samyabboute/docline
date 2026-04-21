@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Trouver un médecin en Algérie — Prospeo</title>
+<meta name="description" content="Trouvez et prenez rendez-vous avec les meilleurs médecins en Algérie. Recherchez par spécialité, wilaya ou nom.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{
+  --brand:#003399;--brand-dark:#002280;--brand-mid:#1A4FCC;--brand-light:#E6ECF9;--brand-glow:rgba(0,51,153,.12);
+  --bg:#F8FAFF;--bg-raised:#fff;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
+  --text-1:#0D0F14;--text-2:#3A4060;--text-3:#6B7280;--text-4:#9CA3AF;
+  --border:#E4E7F0;--border-strong:#C8CCE0;
+  --success:#12B76A;--success-bg:#ECFDF5;
+  --warning:#F79009;--warning-bg:#FFFAEB;
+  --danger:#F04438;--danger-bg:#FEF3F2;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --shadow-sm:0 1px 3px rgba(13,15,20,.08),0 1px 2px rgba(13,15,20,.05);
+  --shadow-md:0 4px 12px rgba(13,15,20,.1),0 2px 4px rgba(13,15,20,.05);
+  --shadow-lg:0 12px 32px rgba(13,15,20,.12),0 4px 8px rgba(13,15,20,.06);
+  --shadow-brand:0 4px 20px rgba(0,51,153,.3);
+  --t:200ms cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
+
+/* ── HEADER ── */
+.header{background:var(--bg-raised);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm)}
+.header-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:16px}
+.header-logo{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:800;color:var(--brand)}
+.header-logo svg{width:32px;height:32px}
+.header-tagline{font-size:.75rem;color:var(--text-3);font-weight:400;border-left:1px solid var(--border);padding-left:12px;display:none}
+@media(min-width:640px){.header-tagline{display:block}}
+.header-nav{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;padding:9px 18px;font-size:.8125rem;transition:all var(--t);white-space:nowrap;line-height:1}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
+.btn-primary:hover{background:var(--brand-dark)}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg-subtle);color:var(--text-1)}
+.btn-sm{padding:6px 14px;font-size:.75rem}
+.btn:active{transform:scale(.98)}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#001F80 0%,#003399 45%,#0044CC 100%);padding:64px 24px 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.hero-inner{max-width:860px;margin:0 auto;text-align:center;position:relative;z-index:1}
+.hero-flag{font-size:2rem;margin-bottom:12px}
+.hero-title{font-size:clamp(1.75rem,5vw,3rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px;letter-spacing:-.5px}
+.hero-title span{color:#7BA7FF}
+.hero-sub{font-size:clamp(.875rem,2vw,1.0625rem);color:rgba(255,255,255,.7);margin-bottom:40px;line-height:1.6;max-width:560px;margin-left:auto;margin-right:auto}
+.search-box{background:#fff;border-radius:var(--r-xl);padding:6px;display:flex;gap:4px;box-shadow:0 8px 32px rgba(0,0,20,.25);max-width:760px;margin:0 auto 40px;flex-wrap:wrap}
+.search-field{flex:1;min-width:150px;display:flex;align-items:center;gap:8px;padding:10px 14px;border-right:1px solid var(--border)}
+.search-field:last-of-type{border-right:none}
+.search-field svg{width:16px;height:16px;stroke:var(--text-3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.search-field select,.search-field input{background:transparent;border:none;outline:none;font-size:.875rem;color:var(--text-1);width:100%;font-family:'Sora',sans-serif}
+.search-field select option{color:var(--text-1)}
+.search-submit{background:var(--brand);color:#fff;border:none;border-radius:var(--r-lg);padding:12px 28px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;cursor:pointer;transition:all var(--t);display:flex;align-items:center;gap:8px;white-space:nowrap;width:100%}
+.search-submit:hover{background:var(--brand-dark)}
+@media(min-width:640px){.search-submit{width:auto}}
+.hero-stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-val{font-size:1.5rem;font-weight:800;color:#fff}
+.hero-stat-lbl{font-size:.75rem;color:rgba(255,255,255,.55);margin-top:2px}
+
+/* ── SPECIALTY PILLS ── */
+.pills-section{background:var(--bg-raised);border-bottom:1px solid var(--border);padding:16px 24px;position:sticky;top:60px;z-index:90;box-shadow:var(--shadow-sm)}
+.pills-inner{max-width:1200px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.pills-inner::-webkit-scrollbar{display:none}
+.pill{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r-full);font-size:.8125rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--bg-raised);color:var(--text-2);transition:all var(--t);white-space:nowrap}
+.pill:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+.pill.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.pill-icon{font-size:14px}
+
+/* ── MAIN ── */
+.main{max-width:1200px;margin:0 auto;padding:32px 24px}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.results-count{font-size:.9375rem;font-weight:700;color:var(--text-1)}
+.results-count span{color:var(--brand)}
+.sort-select{border:1.5px solid var(--border);border-radius:var(--r-md);padding:7px 12px;font-size:.8125rem;font-family:'Sora',sans-serif;background:var(--bg-raised);color:var(--text-2);outline:none;cursor:pointer}
+
+/* ── DOCTOR CARDS ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+.doctor-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow-sm);transition:all var(--t);cursor:default}
+.doctor-card:hover{box-shadow:var(--shadow-md);border-color:var(--brand-light);transform:translateY(-2px)}
+.card-top{display:flex;gap:16px;align-items:flex-start}
+.doctor-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:800;color:#fff;flex-shrink:0;position:relative}
+.avatar-badge{position:absolute;bottom:1px;right:1px;width:14px;height:14px;border-radius:50%;background:var(--success);border:2px solid #fff}
+.doctor-info{flex:1;min-width:0}
+.doctor-name{font-size:1rem;font-weight:700;color:var(--text-1);margin-bottom:4px}
+.doctor-specialty{display:inline-flex;align-items:center;gap:4px;background:var(--brand-light);color:var(--brand);padding:3px 10px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700;letter-spacing:.3px;margin-bottom:8px}
+.doctor-meta{display:flex;flex-direction:column;gap:4px}
+.meta-row{display:flex;align-items:center;gap:6px;font-size:.8125rem;color:var(--text-3)}
+.meta-row svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.card-divider{height:1px;background:var(--border)}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-price{display:flex;flex-direction:column}
+.card-price-val{font-size:1.125rem;font-weight:800;color:var(--text-1)}
+.card-price-lbl{font-size:.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-4)}
+.card-rdv-btn{background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);padding:10px 20px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;cursor:pointer;transition:all var(--t);white-space:nowrap}
+.card-rdv-btn:hover{background:var(--brand-dark);transform:scale(1.02)}
+.card-rdv-btn:disabled{background:var(--bg-subtle);color:var(--text-4);cursor:not-allowed;transform:none}
+.card-languages{display:flex;gap:4px;flex-wrap:wrap}
+.lang-tag{background:var(--bg-subtle);color:var(--text-3);padding:2px 8px;border-radius:var(--r-full);font-size:.625rem;font-weight:600}
+
+/* ── EMPTY & LOADING ── */
+.state-box{text-align:center;padding:80px 24px}
+.state-emoji{font-size:3rem;margin-bottom:16px}
+.state-title{font-size:1.125rem;font-weight:700;color:var(--text-1);margin-bottom:8px}
+.state-sub{font-size:.875rem;color:var(--text-3);max-width:320px;margin:0 auto}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── MODAL ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(13,15,20,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity var(--t)}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg-raised);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);width:100%;max-width:500px;max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform var(--t)}
+.modal-backdrop.open .modal{transform:none}
+.modal-head{padding:24px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.modal-doctor-info{display:flex;align-items:center;gap:14px}
+.modal-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.125rem;font-weight:800;color:#fff;flex-shrink:0}
+.modal-title{font-size:1rem;font-weight:800;color:var(--text-1)}
+.modal-sub{font-size:.75rem;color:var(--text-3);margin-top:2px}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text-3);padding:4px;border-radius:var(--r-sm);flex-shrink:0;transition:all var(--t)}
+.modal-close:hover{background:var(--bg-subtle);color:var(--text-1)}
+.modal-close svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.modal-body{padding:20px 24px 24px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px 12px;font-size:.875rem;font-family:'Sora',sans-serif;background:var(--bg-raised);color:var(--text-1);outline:none;transition:border-color var(--t)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow)}
+.field textarea{resize:vertical;min-height:80px}
+.field-hint{font-size:.6875rem;color:var(--text-4);margin-top:4px}
+.form-submit{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);padding:13px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;cursor:pointer;transition:all var(--t);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.form-submit:hover{background:var(--brand-dark)}
+.form-submit:disabled{opacity:.6;cursor:not-allowed}
+.modal-success{text-align:center;padding:32px 24px}
+.modal-success-icon{font-size:3.5rem;margin-bottom:16px}
+.modal-success-title{font-size:1.125rem;font-weight:800;color:var(--text-1);margin-bottom:8px}
+.modal-success-sub{font-size:.875rem;color:var(--text-3);line-height:1.6}
+
+/* ── TRUST BAR ── */
+.trust-bar{background:var(--brand);padding:12px 24px;text-align:center}
+.trust-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.85);font-size:.8125rem;font-weight:500}
+.trust-item svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* ── FOOTER ── */
+.footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-4);font-size:.75rem;margin-top:60px}
+.footer strong{color:var(--text-3)}
+
+@media(max-width:640px){
+  .hero{padding:40px 16px 56px}
+  .search-box{flex-direction:column;padding:12px}
+  .search-field{border-right:none;border-bottom:1px solid var(--border);padding:8px 4px}
+  .search-field:last-of-type{border-bottom:none}
+  .search-submit{width:100%;justify-content:center}
+  .hero-stats{gap:20px}
+  .cards-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .main{padding:20px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <a href="find-doctor.html" class="header-logo">
+      <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#003399"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
+      Prospeo
+    </a>
+    <span class="header-tagline">Santé connectée en Algérie 🇩🇿</span>
+    <nav class="header-nav">
+      <a href="login.html" class="btn btn-ghost btn-sm">Espace médecin →</a>
+    </nav>
+  </div>
+</header>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Gratuit pour les patients</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Médecins vérifiés</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>RDV confirmé sous 24h</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-flag">🇩🇿</div>
+    <h1 class="hero-title">Trouvez votre médecin<br><span>où que vous soyez en Algérie</span></h1>
+    <p class="hero-sub">Consultez les meilleurs spécialistes près de chez vous. Prenez rendez-vous en ligne, gratuitement et sans inscription.</p>
+
+    <div class="search-box">
+      <div class="search-field">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <select id="s-specialty">
+          <option value="">Toutes les spécialités</option>
+          <option>Médecine générale</option>
+          <option>Cardiologie</option>
+          <option>Dermatologie</option>
+          <option>Endocrinologie</option>
+          <option>Gastro-entérologie</option>
+          <option>Gynécologie-Obstétrique</option>
+          <option>Infectiologie</option>
+          <option>Médecine interne</option>
+          <option>Néphrologie</option>
+          <option>Neurologie</option>
+          <option>Oncologie</option>
+          <option>Ophtalmologie</option>
+          <option>ORL</option>
+          <option>Orthopédie</option>
+          <option>Pédiatrie</option>
+          <option>Pneumologie</option>
+          <option>Psychiatrie</option>
+          <option>Radiologie</option>
+          <option>Rhumatologie</option>
+          <option>Urologie</option>
+          <option>Chirurgie générale</option>
+          <option>Chirurgie dentaire</option>
+          <option>Médecine du travail</option>
+          <option>Médecine d'urgence</option>
+          <option>Anesthésie-Réanimation</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <select id="s-wilaya">
+          <option value="">Toutes les wilayas</option>
+          <option>Adrar</option><option>Chlef</option><option>Laghouat</option><option>Oum El Bouaghi</option>
+          <option>Batna</option><option>Béjaïa</option><option>Biskra</option><option>Béchar</option>
+          <option>Blida</option><option>Bouira</option><option>Tamanrasset</option><option>Tébessa</option>
+          <option>Tlemcen</option><option>Tiaret</option><option>Tizi Ouzou</option><option>Alger</option>
+          <option>Djelfa</option><option>Jijel</option><option>Sétif</option><option>Saïda</option>
+          <option>Skikda</option><option>Sidi Bel Abbès</option><option>Annaba</option><option>Guelma</option>
+          <option>Constantine</option><option>Médéa</option><option>Mostaganem</option><option>M'Sila</option>
+          <option>Mascara</option><option>Ouargla</option><option>Oran</option><option>El Bayadh</option>
+          <option>Illizi</option><option>Bordj Bou Arreridj</option><option>Boumerdès</option><option>El Tarf</option>
+          <option>Tindouf</option><option>Tissemsilt</option><option>El Oued</option><option>Khenchela</option>
+          <option>Souk Ahras</option><option>Tipaza</option><option>Mila</option><option>Aïn Defla</option>
+          <option>Naâma</option><option>Aïn Témouchent</option><option>Ghardaïa</option><option>Relizane</option>
+          <option>El M'Ghair</option><option>El Meniaa</option><option>Ouled Djellal</option>
+          <option>Touggourt</option><option>Timimoun</option><option>Djanet</option>
+          <option>In Salah</option><option>In Guezzam</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="s-name" placeholder="Nom du médecin…">
+      </div>
+      <button class="search-submit" onclick="doSearch()">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Rechercher
+      </button>
+    </div>
+
+    <div class="hero-stats" id="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val" id="stat-docs">—</div><div class="hero-stat-lbl">Médecins inscrits</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" id="stat-wilayas">—</div><div class="hero-stat-lbl">Wilayas couvertes</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">Gratuit</div><div class="hero-stat-lbl">Pour les patients</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SPECIALTY PILLS -->
+<div class="pills-section">
+  <div class="pills-inner" id="pills">
+    <button class="pill active" data-sp="" onclick="setPill(this,'')"><span class="pill-icon">🏥</span> Tous</button>
+    <button class="pill" data-sp="Médecine générale" onclick="setPill(this,'Médecine générale')"><span class="pill-icon">🩺</span> Médecine générale</button>
+    <button class="pill" data-sp="Cardiologie" onclick="setPill(this,'Cardiologie')"><span class="pill-icon">❤️</span> Cardiologie</button>
+    <button class="pill" data-sp="Pédiatrie" onclick="setPill(this,'Pédiatrie')"><span class="pill-icon">👶</span> Pédiatrie</button>
+    <button class="pill" data-sp="Gynécologie-Obstétrique" onclick="setPill(this,'Gynécologie-Obstétrique')"><span class="pill-icon">🤱</span> Gynécologie</button>
+    <button class="pill" data-sp="Dermatologie" onclick="setPill(this,'Dermatologie')"><span class="pill-icon">🧴</span> Dermatologie</button>
+    <button class="pill" data-sp="Ophtalmologie" onclick="setPill(this,'Ophtalmologie')"><span class="pill-icon">👁️</span> Ophtalmologie</button>
+    <button class="pill" data-sp="Neurologie" onclick="setPill(this,'Neurologie')"><span class="pill-icon">🧠</span> Neurologie</button>
+    <button class="pill" data-sp="Orthopédie" onclick="setPill(this,'Orthopédie')"><span class="pill-icon">🦴</span> Orthopédie</button>
+    <button class="pill" data-sp="ORL" onclick="setPill(this,'ORL')"><span class="pill-icon">👂</span> ORL</button>
+    <button class="pill" data-sp="Psychiatrie" onclick="setPill(this,'Psychiatrie')"><span class="pill-icon">🧘</span> Psychiatrie</button>
+    <button class="pill" data-sp="Chirurgie dentaire" onclick="setPill(this,'Chirurgie dentaire')"><span class="pill-icon">🦷</span> Dentaire</button>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-backdrop" id="modal" onclick="handleBackdrop(event)">
+  <div class="modal" id="modal-content">
+    <div id="modal-form-view">
+      <div class="modal-head">
+        <div class="modal-doctor-info">
+          <div class="modal-avatar" id="m-avatar"></div>
+          <div>
+            <div class="modal-title" id="m-name">—</div>
+            <div class="modal-sub" id="m-spec">—</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="field">
+            <label>Votre prénom et nom *</label>
+            <input type="text" id="p-name" placeholder="Ahmed Benali">
+          </div>
+          <div class="field">
+            <label>Téléphone *</label>
+            <input type="tel" id="p-phone" placeholder="0555 123 456">
+          </div>
+        </div>
+        <div class="field">
+          <label>Email (optionnel)</label>
+          <input type="email" id="p-email" placeholder="votre@email.com">
+          <div class="field-hint">Pour recevoir la confirmation par email</div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Date souhaitée *</label>
+            <input type="date" id="p-date">
+          </div>
+          <div class="field">
+            <label>Heure préférée</label>
+            <select id="p-time">
+              <option value="">Pas de préférence</option>
+              <option>08:00 – 09:00</option><option>09:00 – 10:00</option>
+              <option>10:00 – 11:00</option><option>11:00 – 12:00</option>
+              <option>14:00 – 15:00</option><option>15:00 – 16:00</option>
+              <option>16:00 – 17:00</option><option>17:00 – 18:00</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Motif de consultation</label>
+          <textarea id="p-notes" placeholder="Décrivez brièvement votre motif de consultation (optionnel)…"></textarea>
+        </div>
+        <button class="form-submit" id="submit-btn" onclick="submitBooking()">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Confirmer la demande de RDV
+        </button>
+        <div id="form-error" style="display:none;margin-top:10px;padding:10px;background:var(--danger-bg,#FEF3F2);color:var(--danger,#F04438);border-radius:8px;font-size:.8125rem;border:1px solid rgba(240,68,56,.2)"></div>
+      </div>
+    </div>
+    <div id="modal-success-view" style="display:none">
+      <div class="modal-success">
+        <div class="modal-success-icon">✅</div>
+        <div class="modal-success-title">Demande envoyée !</div>
+        <div class="modal-success-sub">Votre demande de rendez-vous a bien été transmise au Dr. <strong id="m-name-success"></strong>.<br><br>Le médecin vous contactera dans les <strong>24 heures</strong> pour confirmer votre rendez-vous.</div>
+        <button class="btn btn-ghost" onclick="closeModal()" style="margin-top:20px">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="results-header" id="results-header" style="display:none">
+    <div class="results-count"><span id="result-count">0</span> médecin(s) trouvé(s)</div>
+    <select class="sort-select" onchange="sortResults(this.value)">
+      <option value="name">Trier : Nom A→Z</option>
+      <option value="price_asc">Prix croissant</option>
+      <option value="price_desc">Prix décroissant</option>
+    </select>
+  </div>
+
+  <!-- Loading -->
+  <div id="state-loading" class="state-box">
+    <div class="spinner"></div>
+    <div style="color:var(--text-3);font-size:.875rem">Chargement des médecins…</div>
+  </div>
+
+  <!-- Empty -->
+  <div id="state-empty" class="state-box" style="display:none">
+    <div class="state-emoji">🔍</div>
+    <div class="state-title">Aucun médecin trouvé</div>
+    <div class="state-sub">Essayez avec d'autres critères de recherche ou une autre wilaya.</div>
+    <button class="btn btn-ghost" onclick="resetSearch()" style="margin-top:20px">Réinitialiser la recherche</button>
+  </div>
+
+  <!-- No public profiles yet -->
+  <div id="state-coming" class="state-box" style="display:none">
+    <div class="state-emoji">🏥</div>
+    <div class="state-title">Les médecins arrivent bientôt !</div>
+    <div class="state-sub">Les médecins de votre région rejoignent Prospeo. Revenez dans quelques jours ou <a href="login.html" style="color:var(--brand);font-weight:600">inscrivez votre cabinet</a>.</div>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards-grid" id="cards-grid"></div>
+</main>
+
+<footer class="footer">
+  <strong>Prospeo</strong> — Santé connectée en Algérie 🇩🇿<br>
+  <span>Pour les médecins : <a href="login.html" style="color:var(--brand)">Créez votre profil gratuitement →</a></span>
+</footer>
+
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _allDoctors = [];
+var _filtered   = [];
+var _bookingDoc = null;
+
+// ── AVATAR COLOR ──────────────────────────────────────────────
+var COLORS = ['#003399','#0D6EFD','#7C3AED','#059669','#DC2626','#D97706','#0891B2','#C026D3'];
+function avatarColor(name) { var h=0; for(var i=0;i<(name||'').length;i++) h=name.charCodeAt(i)+(h<<5)-h; return COLORS[Math.abs(h)%COLORS.length]; }
+function initials(name) { return (name||'?').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join(''); }
+
+// ── LOAD DOCTORS ──────────────────────────────────────────────
+(async function(){
+  try {
+    var { data, error } = await _supa.from('profiles')
+      .select('id,full_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url')
+      .eq('is_public', true)
+      .order('full_name');
+
+    if (error) throw error;
+
+    _allDoctors = (data || []);
+
+    // Hero stats
+    var wilayas = [...new Set(_allDoctors.map(function(d){return d.wilaya;}).filter(Boolean))];
+    document.getElementById('stat-docs').textContent = _allDoctors.length;
+    document.getElementById('stat-wilayas').textContent = wilayas.length;
+
+    document.getElementById('state-loading').style.display = 'none';
+
+    if (!_allDoctors.length) {
+      document.getElementById('state-coming').style.display = 'block';
+      return;
+    }
+
+    renderCards(_allDoctors);
+  } catch(e) {
+    document.getElementById('state-loading').style.display = 'none';
+    document.getElementById('state-coming').style.display = 'block';
+    console.error('Erreur chargement médecins:', e);
+  }
+})();
+
+// ── SEARCH ───────────────────────────────────────────────────
+function doSearch() {
+  var sp   = document.getElementById('s-specialty').value.trim().toLowerCase();
+  var wil  = document.getElementById('s-wilaya').value.trim().toLowerCase();
+  var name = document.getElementById('s-name').value.trim().toLowerCase();
+
+  // Sync pills
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.classList.toggle('active', p.dataset.sp.toLowerCase()===sp);
+  });
+
+  _filtered = _allDoctors.filter(function(d){
+    var okSp  = !sp  || (d.specialty||'').toLowerCase().includes(sp);
+    var okWil = !wil || (d.wilaya||'').toLowerCase().includes(wil);
+    var okN   = !name|| (d.full_name||'').toLowerCase().includes(name);
+    return okSp && okWil && okN;
+  });
+
+  if (!_filtered.length) {
+    document.getElementById('cards-grid').innerHTML = '';
+    document.getElementById('results-header').style.display = 'none';
+    document.getElementById('state-empty').style.display = 'block';
+  } else {
+    document.getElementById('state-empty').style.display = 'none';
+    renderCards(_filtered);
+  }
+}
+
+function setPill(btn, sp) {
+  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('s-specialty').value = sp;
+  doSearch();
+}
+
+function resetSearch() {
+  document.getElementById('s-specialty').value = '';
+  document.getElementById('s-wilaya').value = '';
+  document.getElementById('s-name').value = '';
+  document.querySelectorAll('.pill').forEach(function(p){ p.classList.toggle('active', p.dataset.sp===''); });
+  document.getElementById('state-empty').style.display = 'none';
+  renderCards(_allDoctors);
+}
+
+function sortResults(by) {
+  var docs = _filtered.length ? _filtered : _allDoctors;
+  if (by==='name') docs.sort(function(a,b){return(a.full_name||'').localeCompare(b.full_name||'');});
+  else if (by==='price_asc') docs.sort(function(a,b){return(a.consultation_price||0)-(b.consultation_price||0);});
+  else if (by==='price_desc') docs.sort(function(a,b){return(b.consultation_price||0)-(a.consultation_price||0);});
+  renderCards(docs);
+}
+
+// ── RENDER CARDS ─────────────────────────────────────────────
+function renderCards(docs) {
+  document.getElementById('state-loading').style.display = 'none';
+  document.getElementById('state-coming').style.display = 'none';
+  document.getElementById('results-header').style.display = 'flex';
+  document.getElementById('result-count').textContent = docs.length;
+
+  var grid = document.getElementById('cards-grid');
+  grid.innerHTML = docs.map(function(d){
+    var name   = d.full_name || 'Dr. Inconnu';
+    var color  = avatarColor(name);
+    var inits  = initials(name);
+    var price  = d.consultation_price ? new Intl.NumberFormat('fr-DZ').format(d.consultation_price)+' DA' : 'Sur demande';
+    var langs  = (d.languages||['Arabe']).map(function(l){return '<span class="lang-tag">'+l+'</span>';}).join('');
+    var rdvBtn = d.accepts_rdv
+      ? '<button class="card-rdv-btn" onclick="openModal('+JSON.stringify(d.id)+')">📅 Prendre RDV</button>'
+      : '<button class="card-rdv-btn" disabled>📞 Appel uniquement</button>';
+
+    return '<div class="doctor-card">'
+      +'<div class="card-top">'
+      +'<div class="doctor-avatar" style="background:'+color+'">'+inits+'<div class="avatar-badge"></div></div>'
+      +'<div class="doctor-info">'
+      +'<div class="doctor-name">Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name)+'</div>'
+      +'<div class="doctor-specialty">🏥 '+(d.specialty||'Médecin')+'</div>'
+      +'<div class="doctor-meta">'
+      +(d.wilaya?'<div class="meta-row"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+(d.city?d.city+', ':'')+d.wilaya+'</div>':'')
+      +(d.address?'<div class="meta-row"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'+d.address+'</div>':'')
+      +'</div></div></div>'
+      +(d.bio?'<div style="font-size:.75rem;color:var(--text-3);line-height:1.5;border-left:3px solid var(--brand-light);padding-left:10px">'+d.bio.substring(0,120)+(d.bio.length>120?'…':'')+'</div>':'')
+      +'<div class="card-divider"></div>'
+      +'<div class="card-bottom">'
+      +'<div><div class="card-price"><div class="card-price-val">'+price+'</div><div class="card-price-lbl">Consultation</div></div>'
+      +(langs?'<div class="card-languages" style="margin-top:6px">'+langs+'</div>':'')+'</div>'
+      +rdvBtn
+      +'</div></div>';
+  }).join('');
+
+  // Store reference for modal lookup
+  window._docsMap = {};
+  docs.forEach(function(d){ window._docsMap[d.id] = d; });
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+function openModal(docId) {
+  var d = window._docsMap && window._docsMap[docId];
+  if (!d) { var found = _allDoctors.find(function(x){return x.id===docId;}); d = found; }
+  if (!d) return;
+  _bookingDoc = d;
+
+  var name  = d.full_name || 'Médecin';
+  var color = avatarColor(name);
+  var inits = initials(name);
+
+  document.getElementById('m-avatar').style.background = color;
+  document.getElementById('m-avatar').textContent = inits;
+  document.getElementById('m-name').textContent = 'Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name);
+  document.getElementById('m-spec').textContent = (d.specialty||'')+(d.wilaya?' · '+d.wilaya:'');
+  document.getElementById('m-name-success').textContent = name;
+
+  // Reset form
+  ['p-name','p-phone','p-email','p-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('p-date').value = '';
+  document.getElementById('p-time').value = '';
+  document.getElementById('form-error').style.display = 'none';
+  document.getElementById('modal-form-view').style.display = 'block';
+  document.getElementById('modal-success-view').style.display = 'none';
+
+  // Min date = tomorrow
+  var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  document.getElementById('p-date').min = tomorrow.toISOString().split('T')[0];
+
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleBackdrop(e) { if(e.target===e.currentTarget) closeModal(); }
+
+async function submitBooking() {
+  var name  = document.getElementById('p-name').value.trim();
+  var phone = document.getElementById('p-phone').value.trim();
+  var email = document.getElementById('p-email').value.trim();
+  var date  = document.getElementById('p-date').value;
+  var time  = document.getElementById('p-time').value;
+  var notes = document.getElementById('p-notes').value.trim();
+  var errEl = document.getElementById('form-error');
+
+  errEl.style.display = 'none';
+
+  if (!name) { errEl.textContent = 'Veuillez saisir votre nom.'; errEl.style.display='block'; return; }
+  if (!phone) { errEl.textContent = 'Veuillez saisir votre numéro de téléphone.'; errEl.style.display='block'; return; }
+  if (!date) { errEl.textContent = 'Veuillez choisir une date souhaitée.'; errEl.style.display='block'; return; }
+
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Envoi en cours…';
+
+  try {
+    var { error } = await _supa.from('appointments').insert({
+      doctor_id:      _bookingDoc.id,
+      patient_name:   name,
+      patient_phone:  phone,
+      patient_email:  email || null,
+      requested_date: date,
+      requested_time: time || null,
+      notes:          notes || null,
+      status:         'pending',
+    });
+    if (error) throw error;
+
+    document.getElementById('modal-form-view').style.display = 'none';
+    document.getElementById('modal-success-view').style.display = 'block';
+  } catch(e) {
+    errEl.textContent = 'Erreur : ' + (e.message||'Réessayez dans quelques instants.');
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirmer la demande de RDV';
+  }
+}
+
+// Enter key on search
+document.getElementById('s-name').addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
+</script>
+</body>
+</html>

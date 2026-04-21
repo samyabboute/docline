@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mon profil public — Prospeo</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="shell.js"></script>
+<style>
+:root{
+  --text2:var(--text-2);--text3:var(--text-3);--text4:var(--text-4);
+  --surface2:var(--surface-hover);--brand-light:var(--brand-subtle);--shadow:var(--shadow-sm);
+}
+.profile-grid{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-sm,0 1px 3px rgba(0,0,0,.08))}
+.card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:.9375rem;font-weight:700;color:var(--text-1,#0D0F14);display:flex;align-items:center;gap:8px}
+.card-body{padding:24px}
+.field{margin-bottom:20px}
+.field label{display:block;font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.875rem;font-family:'Sora',sans-serif;background:var(--surface);color:var(--text-1,#0D0F14);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand,#003399);box-shadow:0 0 0 3px rgba(0,51,153,.1)}
+.field textarea{resize:vertical;min-height:100px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.toggle-card{background:linear-gradient(135deg,rgba(0,51,153,.06),rgba(0,51,153,.02));border:1.5px solid rgba(0,51,153,.2);border-radius:14px;padding:20px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.toggle-row:last-child{margin-bottom:0}
+.toggle-label{font-size:.875rem;font-weight:600;color:var(--text-1,#0D0F14)}
+.toggle-sub{font-size:.75rem;color:var(--text-3);margin-top:2px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:24px;cursor:pointer;transition:.2s}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked+.toggle-slider{background:var(--brand,#003399)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(20px)}
+.preview-card{border:1px solid var(--border);border-radius:14px;padding:20px;background:var(--surface)}
+.preview-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:12px;background:#003399}
+.preview-name{font-size:1rem;font-weight:700;margin-bottom:4px}
+.preview-spec{display:inline-flex;align-items:center;gap:4px;background:#E6ECF9;color:#003399;padding:3px 10px;border-radius:999px;font-size:.6875rem;font-weight:700;margin-bottom:10px}
+.preview-meta{font-size:.75rem;color:var(--text-3);display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:10px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;padding:10px 20px;font-size:.8125rem;transition:all .15s;line-height:1}
+.btn-primary{background:var(--brand,#003399);color:#fff;box-shadow:0 4px 14px rgba(0,51,153,.28)}
+.btn-primary:hover{background:#002280}
+.btn-secondary{background:var(--bg-subtle,#F2F4FA);color:var(--text-2,#4A5068);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg-hover,#EEF0F8)}
+.btn-success-solid{background:#12B76A;color:#fff}
+.spinner-sm{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast-msg{position:fixed;bottom:24px;right:24px;background:#0D0F14;color:#fff;border-radius:10px;padding:12px 18px;font-size:.8125rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:999;animation:toastIn .25s ease both;display:none}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(max-width:900px){.profile-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="toast-msg" id="toast"></div>
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _uid, _profile;
+
+(async function(){
+  var { data: { session } } = await _supa.auth.getSession();
+  if (!session) { window.location.href='login.html'; return; }
+  _uid = session.user.id;
+
+  var subR = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().catch(function(){return{data:null};});
+  var sub = subR.data;
+  var isPro = sub && sub.plan!=='free' && sub.status==='active';
+
+  var meta = session.user.user_metadata||{};
+  Shell.init({ page:'profil-public', title:'Mon profil public', isPro:isPro, plan:sub?.plan||'free',
+    userName:meta.full_name||meta.name||session.user.email, userEmail:session.user.email });
+
+  // Load profile
+  var { data: prof } = await _supa.from('profiles').select('*').eq('id',_uid).single();
+  _profile = prof || {};
+  populateForm(_profile);
+  updatePreview();
+})();
+
+function populateForm(p) {
+  setVal('f-name', p.full_name||'');
+  setVal('f-specialty', p.specialty||'');
+  setVal('f-wilaya', p.wilaya||'');
+  setVal('f-city', p.city||'');
+  setVal('f-address', p.address||'');
+  setVal('f-phone', p.phone_public||'');
+  setVal('f-price', p.consultation_price||'');
+  setVal('f-bio', p.bio||'');
+  document.getElementById('t-public').checked = !!p.is_public;
+  document.getElementById('t-rdv').checked = !!p.accepts_rdv;
+  updatePreview();
+}
+
+function setVal(id, val) { var el=document.getElementById(id); if(el) el.value=val; }
+function getVal(id) { var el=document.getElementById(id); return el?el.value.trim():''; }
+
+function updatePreview() {
+  var name = getVal('f-name')||'Votre nom';
+  var spec = getVal('f-specialty')||'Spécialité';
+  var wilaya = getVal('f-wilaya');
+  var city = getVal('f-city');
+  var price = getVal('f-price');
+  var bio = getVal('f-bio');
+
+  var colors=['#003399','#0D6EFD','#7C3AED','#059669','#DC2626'];
+  var color = colors[name.length%colors.length];
+  var inits = name.split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');
+
+  document.getElementById('prev-avatar').style.background = color;
+  document.getElementById('prev-avatar').textContent = inits;
+  document.getElementById('prev-name').textContent = 'Dr. '+name;
+  document.getElementById('prev-spec').textContent = '🏥 '+spec;
+  document.getElementById('prev-location').textContent = (city?city+', ':'')+wilaya;
+  document.getElementById('prev-price').textContent = price?new Intl.NumberFormat('fr-DZ').format(price)+' DA':'Sur demande';
+  document.getElementById('prev-bio').textContent = bio?bio.substring(0,100)+(bio.length>100?'…':''):'';
+}
+
+async function saveProfile() {
+  var btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner-sm"></div> Enregistrement…';
+
+  var updates = {
+    full_name: getVal('f-name'),
+    specialty: getVal('f-specialty'),
+    wilaya: getVal('f-wilaya'),
+    city: getVal('f-city'),
+    address: getVal('f-address'),
+    phone_public: getVal('f-phone'),
+    consultation_price: parseInt(getVal('f-price'))||0,
+    bio: getVal('f-bio'),
+    is_public: document.getElementById('t-public').checked,
+    accepts_rdv: document.getElementById('t-rdv').checked,
+    updated_at: new Date().toISOString(),
+  };
+
+  var { error } = await _supa.from('profiles').update(updates).eq('id', _uid);
+  btn.disabled = false;
+  btn.innerHTML = '✅ Enregistré';
+
+  if (error) {
+    showToast('❌ Erreur : '+error.message);
+    btn.textContent = 'Enregistrer';
+  } else {
+    showToast('✅ Profil mis à jour !');
+    setTimeout(function(){ btn.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Enregistrer le profil'; }, 2000);
+  }
+}
+
+function showToast(msg) {
+  var t=document.getElementById('toast'); t.textContent=msg; t.style.display='block';
+  setTimeout(function(){ t.style.display='none'; }, 3000);
+}
+</script>
+
+<main id="shell-main" style="padding:24px;max-width:1000px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-size:1.25rem;font-weight:800;margin-bottom:4px">Mon profil public</h1>
+      <p style="font-size:.875rem;color:var(--text-3)">Ce profil est visible par les patients sur la page de recherche de médecins.</p>
+    </div>
+    <div style="display:flex;gap:10px">
+      <a href="find-doctor.html" target="_blank" class="btn btn-secondary">👁️ Voir ma fiche</a>
+      <button class="btn btn-primary" id="save-btn" onclick="saveProfile()">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Enregistrer le profil
+      </button>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+    <!-- LEFT: Form -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+      <!-- Visibilité -->
+      <div class="toggle-card">
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">🌐 Profil visible publiquement</div>
+            <div class="toggle-sub">Les patients peuvent me trouver sur find-doctor.html</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="t-public" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">📅 Accepter les demandes de RDV en ligne</div>
+            <div class="toggle-sub">Les patients pourront envoyer une demande de RDV</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="t-rdv" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+
+      <!-- Informations professionnelles -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👨‍⚕️ Informations professionnelles</div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label>Nom complet *</label>
+            <input type="text" id="f-name" placeholder="Dr. Prénom Nom" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Spécialité *</label>
+            <select id="f-specialty" onchange="updatePreview()">
+              <option value="">Choisir une spécialité</option>
+              <option>Médecine générale</option>
+              <option>Cardiologie</option>
+              <option>Dermatologie</option>
+              <option>Endocrinologie</option>
+              <option>Gastro-entérologie</option>
+              <option>Gynécologie-Obstétrique</option>
+              <option>Infectiologie</option>
+              <option>Médecine interne</option>
+              <option>Néphrologie</option>
+              <option>Neurologie</option>
+              <option>Oncologie</option>
+              <option>Ophtalmologie</option>
+              <option>ORL</option>
+              <option>Orthopédie</option>
+              <option>Pédiatrie</option>
+              <option>Pneumologie</option>
+              <option>Psychiatrie</option>
+              <option>Radiologie</option>
+              <option>Rhumatologie</option>
+              <option>Urologie</option>
+              <option>Chirurgie générale</option>
+              <option>Chirurgie dentaire</option>
+              <option>Médecine du travail</option>
+              <option>Médecine d'urgence</option>
+              <option>Anesthésie-Réanimation</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Biographie courte</label>
+            <textarea id="f-bio" placeholder="Ex : Cardiologue avec 15 ans d'expérience, spécialisé dans les maladies coronariennes…" oninput="updatePreview()"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Localisation -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📍 Localisation du cabinet</div>
+        </div>
+        <div class="card-body">
+          <div class="field-row">
+            <div class="field">
+              <label>Wilaya *</label>
+              <select id="f-wilaya" onchange="updatePreview()">
+                <option value="">Choisir une wilaya</option>
+                <option>Adrar</option><option>Chlef</option><option>Laghouat</option><option>Oum El Bouaghi</option>
+                <option>Batna</option><option>Béjaïa</option><option>Biskra</option><option>Béchar</option>
+                <option>Blida</option><option>Bouira</option><option>Tamanrasset</option><option>Tébessa</option>
+                <option>Tlemcen</option><option>Tiaret</option><option>Tizi Ouzou</option><option>Alger</option>
+                <option>Djelfa</option><option>Jijel</option><option>Sétif</option><option>Saïda</option>
+                <option>Skikda</option><option>Sidi Bel Abbès</option><option>Annaba</option><option>Guelma</option>
+                <option>Constantine</option><option>Médéa</option><option>Mostaganem</option><option>M'Sila</option>
+                <option>Mascara</option><option>Ouargla</option><option>Oran</option><option>El Bayadh</option>
+                <option>Bordj Bou Arreridj</option><option>Boumerdès</option><option>El Tarf</option>
+                <option>Tissemsilt</option><option>El Oued</option><option>Khenchela</option>
+                <option>Souk Ahras</option><option>Tipaza</option><option>Mila</option><option>Aïn Defla</option>
+                <option>Naâma</option><option>Aïn Témouchent</option><option>Ghardaïa</option><option>Relizane</option>
+                <option>Touggourt</option><option>Timimoun</option><option>In Salah</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Ville / Commune</label>
+              <input type="text" id="f-city" placeholder="Ex : Hydra" oninput="updatePreview()">
+            </div>
+          </div>
+          <div class="field">
+            <label>Adresse du cabinet</label>
+            <input type="text" id="f-address" placeholder="Ex : 12 Rue Hassiba Ben Bouali, Alger">
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact & Tarifs -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">💰 Contact & Tarifs</div>
+        </div>
+        <div class="card-body">
+          <div class="field-row">
+            <div class="field">
+              <label>Téléphone public</label>
+              <input type="tel" id="f-phone" placeholder="0555 123 456">
+            </div>
+            <div class="field">
+              <label>Tarif consultation (DA)</label>
+              <input type="number" id="f-price" placeholder="Ex : 2000" oninput="updatePreview()">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Preview + RDV stats -->
+    <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:80px">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👁️ Aperçu de votre fiche</div>
+        </div>
+        <div class="card-body">
+          <div class="preview-card">
+            <div class="preview-avatar" id="prev-avatar">DR</div>
+            <div class="preview-name" id="prev-name">Dr. Votre Nom</div>
+            <div class="preview-spec" id="prev-spec">🏥 Spécialité</div>
+            <div class="preview-meta">
+              <span>📍 <span id="prev-location">Ville, Wilaya</span></span>
+              <span>💰 <span id="prev-price">Sur demande</span></span>
+            </div>
+            <div style="font-size:.75rem;color:var(--text-3);line-height:1.5;margin-bottom:14px" id="prev-bio"></div>
+            <button style="width:100%;background:#003399;color:#fff;border:none;border-radius:8px;padding:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;cursor:default">📅 Prendre RDV</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(18,183,106,.06);border:1px solid rgba(18,183,106,.2);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:1.5rem;font-weight:800;color:#12B76A" id="rdv-count">—</div>
+        <div style="font-size:.75rem;color:var(--text-3);margin-top:2px">Demandes de RDV reçues</div>
+        <a href="mes-rdv.html" style="display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:.75rem;font-weight:600;color:#003399">Gérer mes RDV →</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// Load RDV count
+(async function(){
+  if (!_uid) return;
+  var { count } = await _supa.from('appointments').select('id',{count:'exact'}).eq('doctor_id',_uid);
+  document.getElementById('rdv-count').textContent = count||0;
+})();
+</script>
+</body>
+</html>
