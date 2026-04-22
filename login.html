@@ -279,10 +279,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-heig
   <main class="right">
     <div class="form-wrap">
 
-      <a href="find-doctor.html" class="back-link">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-        Retour à la plateforme
-      </a>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:32px;flex-wrap:wrap">
+        <a href="find-doctor.html" class="back-link" style="margin-bottom:0">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Plateforme patients
+        </a>
+        <a href="landing.html" class="back-link" style="margin-bottom:0;margin-left:auto">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          En savoir plus
+        </a>
+      </div>
 
       <div class="auth-card">
 
@@ -387,7 +393,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-heig
 </div>
 
 <script>
-var _supa = supabase.createClient(PROSPEO_CONFIG.SUPA_URL, PROSPEO_CONFIG.SUPA_KEY);
+// Fallback de sécurité — protection contre le cache CDN (config.js peut être servi en retard)
+if (typeof getRedirectUrl !== 'function') {
+  var _admins = (typeof PROSPEO_CONFIG !== 'undefined' ? (PROSPEO_CONFIG.ADMIN_EMAILS || []) : []).map(function(e){return e.toLowerCase();});
+  function getRedirectUrl(email) {
+    return _admins.indexOf((email||'').toLowerCase()) !== -1 ? 'admin.html' : 'app.html';
+  }
+}
+var _supa = supabase.createClient(
+  (typeof PROSPEO_CONFIG !== 'undefined' ? PROSPEO_CONFIG.SUPA_URL : '') || '',
+  (typeof PROSPEO_CONFIG !== 'undefined' ? PROSPEO_CONFIG.SUPA_KEY : '') || ''
+);
 
 var _fails = 0, _lockUntil = 0;
 function isLocked(){ return Date.now() < _lockUntil; }
