@@ -155,9 +155,69 @@ button,input,select,textarea{font-family:inherit}
 .trust-item{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.85);font-size:.8125rem;font-weight:500}
 .trust-item svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
 
+/* ── PRO SECTION ── */
+.pro-section{background:linear-gradient(135deg,#001F80 0%,#003399 50%,#0044CC 100%);padding:72px 24px;position:relative;overflow:hidden;margin-top:72px}
+.pro-section::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='40' cy='40' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.pro-inner{max-width:1080px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+@media(max-width:768px){.pro-inner{grid-template-columns:1fr;gap:40px;text-align:center}}
+.pro-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-full);padding:5px 14px;font-size:.75rem;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.05em;text-transform:uppercase;margin-bottom:16px}
+.pro-title{font-size:clamp(1.5rem,3.5vw,2.25rem);font-weight:800;color:#fff;line-height:1.25;margin-bottom:14px;letter-spacing:-.4px}
+.pro-title span{color:#7BA7FF}
+.pro-desc{font-size:.9375rem;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:28px;max-width:440px}
+@media(max-width:768px){.pro-desc{margin-left:auto;margin-right:auto}}
+.pro-ctas{display:flex;gap:12px;flex-wrap:wrap}
+@media(max-width:768px){.pro-ctas{justify-content:center}}
+.btn-pro-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#fff;color:var(--brand);
+  border:none;border-radius:var(--r-md);
+  padding:13px 26px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
+  cursor:pointer;text-decoration:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+  transition:all var(--t);
+}
+.btn-pro-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.3)}
+.btn-pro-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:transparent;color:rgba(255,255,255,.85);
+  border:1.5px solid rgba(255,255,255,.3);border-radius:var(--r-md);
+  padding:12px 24px;font-family:'Sora',sans-serif;font-weight:600;font-size:.875rem;
+  cursor:pointer;text-decoration:none;transition:all var(--t);
+}
+.btn-pro-secondary:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.08)}
+
+.pro-features{display:flex;flex-direction:column;gap:14px}
+.pro-feat{
+  display:flex;align-items:flex-start;gap:14px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--r-lg);padding:18px 20px;
+  transition:background var(--t);
+}
+.pro-feat:hover{background:rgba(255,255,255,.11)}
+.pro-feat-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.pro-feat-icon svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pro-feat-body strong{font-size:.9375rem;font-weight:700;color:#fff;display:block;margin-bottom:3px}
+.pro-feat-body p{font-size:.8125rem;color:rgba(255,255,255,.6);line-height:1.5}
+
 /* ── FOOTER ── */
-.footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-4);font-size:.75rem;margin-top:60px}
-.footer strong{color:var(--text-3)}
+.footer{background:var(--bg-raised);border-top:1px solid var(--border);padding:40px 24px 28px;margin-top:0}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:32px}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr;gap:24px}}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
+.footer-brand .logo{display:flex;align-items:center;gap:8px;font-size:1rem;font-weight:800;color:var(--brand);margin-bottom:10px}
+.footer-brand .logo svg{width:28px;height:28px}
+.footer-brand p{font-size:.8125rem;color:var(--text-3);line-height:1.6;max-width:240px}
+.footer-col h4{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-4);margin-bottom:12px}
+.footer-col a{display:block;font-size:.8125rem;color:var(--text-3);margin-bottom:8px;text-decoration:none;transition:color var(--t)}
+.footer-col a:hover{color:var(--brand)}
+.footer-bottom{border-top:1px solid var(--border);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-bottom p{font-size:.75rem;color:var(--text-4)}
+.footer-bottom a{color:var(--brand);text-decoration:none;font-weight:600}
 
 @media(max-width:640px){
   .hero{padding:40px 16px 56px}
@@ -183,7 +243,11 @@ button,input,select,textarea{font-family:inherit}
     </a>
     <span class="header-tagline">Santé connectée en Algérie 🇩🇿</span>
     <nav class="header-nav">
-      <a href="login.html" class="btn btn-ghost btn-sm">Espace médecin →</a>
+      <a href="login.html" class="btn btn-ghost btn-sm" style="display:none" id="nav-login">Se connecter</a>
+      <a href="login.html" class="btn btn-primary btn-sm" style="gap:6px">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Espace Praticiens
+      </a>
     </nav>
   </div>
 </header>
@@ -399,13 +463,105 @@ button,input,select,textarea{font-family:inherit}
   <div class="cards-grid" id="cards-grid"></div>
 </main>
 
+<!-- ══ SECTION PRATICIENS (B2B CTA) ══════════════════════════ -->
+<section class="pro-section">
+  <div class="pro-inner">
+
+    <!-- Left: copy -->
+    <div>
+      <div class="pro-tag">
+        <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Espace Praticiens
+      </div>
+      <h2 class="pro-title">Vous êtes <span>professionnel de santé</span> ?</h2>
+      <p class="pro-desc">Rejoignez Prospeo et accédez à une suite complète d'outils cliniques — gestion des patients, agenda, ordonnances, rendez-vous en ligne — conçus pour les médecins algériens.</p>
+      <div class="pro-ctas">
+        <a href="login.html" class="btn-pro-primary">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:var(--brand);stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Créer mon espace pro gratuit
+        </a>
+        <a href="login.html" class="btn-pro-secondary">
+          En savoir plus →
+        </a>
+      </div>
+    </div>
+
+    <!-- Right: feature cards -->
+    <div class="pro-features">
+      <div class="pro-feat">
+        <div class="pro-feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="pro-feat-body">
+          <strong>Patientèle en ligne</strong>
+          <p>Les patients vous trouvent, vous contactent et réservent en quelques clics via votre fiche publique.</p>
+        </div>
+      </div>
+      <div class="pro-feat">
+        <div class="pro-feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+        </div>
+        <div class="pro-feat-body">
+          <strong>Agenda & Rendez-vous</strong>
+          <p>Confirmez, gérez et suivez vos RDV depuis un tableau de bord intuitif. Zéro appel manqué.</p>
+        </div>
+      </div>
+      <div class="pro-feat">
+        <div class="pro-feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="pro-feat-body">
+          <strong>Dossiers & Ordonnances</strong>
+          <p>Consultations, prescriptions, historique patient — tout centralisé, sécurisé et accessible.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════ -->
 <footer class="footer">
-  <strong>Prospeo</strong> — Santé connectée en Algérie 🇩🇿<br>
-  <span>Pour les médecins : <a href="login.html" style="color:var(--brand)">Créez votre profil gratuitement →</a></span>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#003399"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
+          Prospeo
+        </div>
+        <p>La plateforme de santé connectée qui rapproche patients et praticiens en Algérie.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Pour les patients</h4>
+        <a href="find-doctor.html">Trouver un médecin</a>
+        <a href="find-doctor.html">Prendre RDV</a>
+        <a href="find-doctor.html">Spécialités</a>
+        <a href="find-doctor.html">Wilayas</a>
+      </div>
+      <div class="footer-col">
+        <h4>Espace Praticiens</h4>
+        <a href="login.html">Créer un compte</a>
+        <a href="login.html">Se connecter</a>
+        <a href="pricing.html">Tarifs</a>
+        <a href="login.html">Fonctionnalités</a>
+      </div>
+      <div class="footer-col">
+        <h4>Légal</h4>
+        <a href="#">Confidentialité</a>
+        <a href="#">CGU</a>
+        <a href="#">Mentions légales</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 <strong style="color:var(--text-3)">Prospeo</strong> — Santé connectée en Algérie 🇩🇿</p>
+      <a href="login.html">Portail Praticiens →</a>
+    </div>
+  </div>
 </footer>
 
 <script>
-var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _supa = supabase.createClient(PROSPEO_CONFIG.SUPA_URL, PROSPEO_CONFIG.SUPA_KEY);
 var _allDoctors = [];
 var _filtered   = [];
 var _bookingDoc = null;
