@@ -345,32 +345,47 @@ var _uid, _toastTimer;
 
 /* ── Auth ──────────────────────────────────────────────────── */
 (async function(){
-  var r = await _supa.auth.getSession();
-  var session = r && r.data && r.data.session;
-  if (!session) { window.location.href = 'login.html?return=profil-public.html'; return; }
-  _uid = session.user.id;
+  try {
+    var r = await _supa.auth.getSession();
+    var session = r && r.data && r.data.session;
+    if (!session) { window.location.href = 'login.html?return=profil-public.html'; return; }
+    _uid = session.user.id;
 
-  var subR = await _supa.from('subscriptions').select('plan,status').eq('user_id', _uid).single().catch(function(){ return { data: null }; });
-  var sub  = subR && subR.data;
-  var isPro = sub && sub.plan !== 'free' && sub.status === 'active';
-  var meta  = session.user.user_metadata || {};
+    var subR = await _supa.from('subscriptions').select('plan,status').eq('user_id', _uid).maybeSingle();
+    var sub  = subR && subR.data;
+    var isPro = sub && sub.plan !== 'free' && sub.status === 'active';
+    var meta  = session.user.user_metadata || {};
 
-  Shell.init({
-    page: 'profil-public',
-    title: 'Mon profil public',
-    isPro: isPro,
-    plan: (sub && sub.plan) || 'free',
-    userName: meta.full_name || meta.name || session.user.email,
-    userEmail: session.user.email
-  });
+    if (typeof Shell !== 'undefined') {
+      Shell.init({
+        page: 'profil-public',
+        title: 'Mon profil public',
+        isPro: isPro,
+        plan: (sub && sub.plan) || 'free',
+        userName: meta.full_name || meta.name || session.user.email,
+        userEmail: session.user.email
+      });
+    }
 
-  var { data: prof } = await _supa.from('profiles').select('*').eq('id', _uid).single();
-  populateForm(prof || {});
-  document.getElementById('page-wrap').style.display = 'block';
+    var profRes = await _supa.from('profiles').select('*').eq('id', _uid).maybeSingle();
+    populateForm((profRes && profRes.data) || {});
+    document.getElementById('page-wrap').style.display = 'block';
 
-  /* RDV count */
-  _supa.from('appointments').select('id', { count: 'exact' }).eq('doctor_id', _uid)
-    .then(function(res){ document.getElementById('rdv-count').textContent = (res && res.count) || 0; });
+    /* RDV count */
+    _supa.from('appointments').select('id', { count: 'exact', head: true }).eq('doctor_id', _uid)
+      .then(function(res){ var el = document.getElementById('rdv-count'); if(el) el.textContent = (res && res.count) || 0; });
+
+  } catch(e) {
+    console.error('[profil-public] Erreur critique:', e);
+    // Afficher l'erreur à l'écran plutôt qu'une page blanche
+    document.body.innerHTML = '<div style="font-family:sans-serif;padding:40px;max-width:600px;margin:60px auto;background:#fff;border:1px solid #E5E7EB;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.06)">'
+      + '<div style="font-size:2rem;margin-bottom:12px">⚠️</div>'
+      + '<h2 style="font-size:1.1rem;font-weight:700;color:#0C0E14;margin-bottom:8px">Impossible de charger le profil</h2>'
+      + '<p style="color:#6B7280;font-size:.875rem;margin-bottom:20px">' + (e && e.message ? e.message : 'Erreur inattendue') + '</p>'
+      + '<a href="login.html" style="display:inline-flex;align-items:center;gap:6px;background:#003399;color:#fff;padding:9px 18px;border-radius:8px;font-size:.875rem;font-weight:600;text-decoration:none">↩ Retour à la connexion</a>'
+      + '<a href="app.html" style="display:inline-flex;align-items:center;gap:6px;background:#F2F4FA;color:#4A5068;padding:9px 18px;border-radius:8px;font-size:.875rem;font-weight:600;text-decoration:none;margin-left:8px">Tableau de bord</a>'
+      + '</div>';
+  }
 })();
 
 /* ── Populate ───────────────────────────────────────────────── */
