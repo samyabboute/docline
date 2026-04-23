@@ -347,7 +347,7 @@ var _uid, _toastTimer;
 (async function(){
   var r = await _supa.auth.getSession();
   var session = r && r.data && r.data.session;
-  if (!session) { window.location.href = 'login.html'; return; }
+  if (!session) { window.location.href = 'login.html?return=profil-public.html'; return; }
   _uid = session.user.id;
 
   var subR = await _supa.from('subscriptions').select('plan,status').eq('user_id', _uid).single().catch(function(){ return { data: null }; });
@@ -441,7 +441,7 @@ window.saveProfile = async function() {
     updated_at:         new Date().toISOString(),
   };
 
-  var { error } = await _supa.from('profiles').update(payload).eq('id', _uid);
+  var { error } = await _supa.from('profiles').upsert({ ...payload, id: _uid }, { onConflict: 'id' });
 
   btn.disabled       = false;
   spin.style.display = 'none';

@@ -417,6 +417,15 @@ if (typeof getRedirectUrl !== 'function') {
     return _admins.indexOf((email||'').toLowerCase()) !== -1 ? 'admin.html' : 'app.html';
   }
 }
+// Support ?return=page.html pour retourner sur la page d'origine après login
+var _returnUrl = (function(){
+  var p = new URLSearchParams(window.location.search).get('return');
+  return (p && /^[a-z0-9_-]+\.html$/.test(p)) ? p : null;
+})();
+var _origGetRedirectUrl = getRedirectUrl;
+getRedirectUrl = function(email) {
+  return _returnUrl || _origGetRedirectUrl(email);
+};
 var _supa = supabase.createClient(
   (typeof DOCLINE_CONFIG !== 'undefined' ? DOCLINE_CONFIG.SUPA_URL : '') || '',
   (typeof DOCLINE_CONFIG !== 'undefined' ? DOCLINE_CONFIG.SUPA_KEY : '') || ''
