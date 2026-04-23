@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Trouver un médecin en Algérie — Prospeo</title>
+<title>Trouver un médecin en Algérie — Docline</title>
 <meta name="description" content="Trouvez et prenez rendez-vous avec les meilleurs médecins en Algérie. Recherchez par spécialité, wilaya ou nom.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -239,7 +239,7 @@ button,input,select,textarea{font-family:inherit}
   <div class="header-inner">
     <a href="find-doctor.html" class="header-logo">
       <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#003399"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
-      Prospeo
+      Docline
     </a>
     <span class="header-tagline">Santé connectée en Algérie </span>
     <nav class="header-nav">
@@ -456,7 +456,7 @@ button,input,select,textarea{font-family:inherit}
   <div id="state-coming" class="state-box" style="display:none">
     <div class="state-emoji"><svg viewBox="0 0 24 24" style="width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
     <div class="state-title">Les médecins arrivent bientôt !</div>
-    <div class="state-sub">Les médecins de votre région rejoignent Prospeo. Revenez dans quelques jours ou <a href="login.html" style="color:var(--brand);font-weight:600">inscrivez votre cabinet</a>.</div>
+    <div class="state-sub">Les médecins de votre région rejoignent Docline. Revenez dans quelques jours ou <a href="login.html" style="color:var(--brand);font-weight:600">inscrivez votre cabinet</a>.</div>
   </div>
 
   <!-- Cards -->
@@ -474,7 +474,7 @@ button,input,select,textarea{font-family:inherit}
         Espace Praticiens
       </div>
       <h2 class="pro-title">Vous êtes <span>professionnel de santé</span> ?</h2>
-      <p class="pro-desc">Rejoignez Prospeo et accédez à une suite complète d'outils cliniques — gestion des patients, agenda, ordonnances, rendez-vous en ligne — conçus pour les médecins algériens.</p>
+      <p class="pro-desc">Rejoignez Docline et accédez à une suite complète d'outils cliniques — gestion des patients, agenda, ordonnances, rendez-vous en ligne — conçus pour les médecins algériens.</p>
       <div class="pro-ctas">
         <a href="login.html" class="btn-pro-primary">
           <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:var(--brand);stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -527,7 +527,7 @@ button,input,select,textarea{font-family:inherit}
       <div class="footer-brand">
         <div class="logo">
           <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#003399"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
-          Prospeo
+          Docline
         </div>
         <p>La plateforme de santé connectée qui rapproche patients et praticiens en Algérie.</p>
       </div>
@@ -554,14 +554,14 @@ button,input,select,textarea{font-family:inherit}
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 <strong style="color:var(--text-3)">Prospeo</strong> — Santé connectée en Algérie </p>
+      <p>© 2026 <strong style="color:var(--text-3)">Docline</strong> — Santé connectée en Algérie </p>
       <a href="login.html">Portail Praticiens →</a>
     </div>
   </div>
 </footer>
 
 <script>
-var _supa = supabase.createClient(PROSPEO_CONFIG.SUPA_URL, PROSPEO_CONFIG.SUPA_KEY);
+var _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
 var _allDoctors = [];
 var _filtered   = [];
 var _bookingDoc = null;

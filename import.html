@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Import Clients — Prospeo</title>
+<title>Import Clients — Docline</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js"></script>
 <script src="shell.js"></script>
@@ -114,7 +114,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <div class="content">
   <div class="page-title">Import your clients</div>
-  <div class="page-sub">Upload a CSV or Excel file from any tool you're currently using. Prospeo automatically detects your column names and maps them to the right fields — no manual configuration.</div>
+  <div class="page-sub">Upload a CSV or Excel file from any tool you're currently using. Docline automatically detects your column names and maps them to the right fields — no manual configuration.</div>
 
   <!-- Source tool selector -->
   <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Where are you importing from?</div>
@@ -200,7 +200,7 @@ var _parsedData = [];
 var _headers = [];
 var _selectedTool = 'other';
 
-// Prospeo target fields
+// Docline target fields
 var TARGET_FIELDS = [
   {key:'first_name', label:'First name', required:true},
   {key:'last_name', label:'Last name', required:true},
@@ -240,7 +240,7 @@ function sanitize(s) {
   _uid = s.data.session.user.id;
 
   // Theme sync
-  var theme = localStorage.getItem('prospeo-theme') || 'dark';
+  var theme = localStorage.getItem('docline-theme') || 'dark';
   document.documentElement.setAttribute('data-theme', theme);
 
   // Drag and drop
@@ -413,7 +413,7 @@ async function startImport() {
   document.getElementById('success-title').textContent = imported + ' clients imported successfully!';
   document.getElementById('success-sub').textContent = 
     (skipped > 0 ? skipped + ' rows were skipped (duplicates or missing name). ' : '') +
-    'Your clients are now in Prospeo.';
+    'Your clients are now in Docline.';
   fill.style.width = '100%';
 }
 

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tarifs — Prospeo</title>
+<title>Tarifs — Docline</title>
 <meta name="description" content="Tarification en DA pour médecins et cliniques d'Algérie. Commencez gratuitement, passez en Pro quand vous êtes prêt.">
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -179,7 +179,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 <nav>
   <a href="landing.html" class="nav-logo">
     <div class="nav-logo-mark">P</div>
-    Prospeo
+    Docline
   </a>
   <div class="nav-right">
     <button class="theme-btn" id="theme-btn" title="Changer le thème" onclick="toggleTheme()">
@@ -418,13 +418,13 @@ var _pendingPlan = null;
 
 // THEME
 (function(){
-  var t = localStorage.getItem('prospeo-theme');
+  var t = localStorage.getItem('docline-theme');
   if (!t && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
   if (t) applyTheme(t);
 })();
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
-  localStorage.setItem('prospeo-theme', t);
+  localStorage.setItem('docline-theme', t);
   document.querySelector('.icon-moon').style.display = t === 'dark' ? 'none' : 'block';
   document.querySelector('.icon-sun').style.display  = t === 'dark' ? 'block' : 'none';
 }

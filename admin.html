@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
-<title>Dashboard Fondateur — Prospeo</title>
+<title>Dashboard Fondateur — Docline</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -596,7 +596,7 @@ var _subsFilter = 'all';
   var { data: { session } } = await _supa.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
   var email = (session.user.email || '').toLowerCase();
-  var admins = (PROSPEO_CONFIG.ADMIN_EMAILS || []).map(function(e){ return e.toLowerCase(); });
+  var admins = (DOCLINE_CONFIG.ADMIN_EMAILS || []).map(function(e){ return e.toLowerCase(); });
   if (!admins.includes(email)) { window.location.href = 'app.html'; return; }
   _session = session;
   renderSidebar('overview');

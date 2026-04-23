@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Analytics — Prospeo Admin</title>
+<title>Analytics — Docline Admin</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="prospeo-animations.css">
+<link rel="stylesheet" href="docline-animations.css">
   <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
@@ -61,7 +61,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body>
 <div class="topbar">
-  <div class="topbar-logo"><img src="prospeo-logo.svg" alt="Prospeo" style="height:22px;width:auto"></div>
+  <div class="topbar-logo"><img src="docline-logo.svg" alt="Docline" style="height:22px;width:auto"></div>
   <a class="back-link" href="admin.html">&#8592; Admin Dashboard</a>
 </div>
 <div class="content">
@@ -136,7 +136,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 
 </div>
-<script src="prospeo-animations.js"></script>
+<script src="docline-animations.js"></script>
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 function sanitize(s){var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}

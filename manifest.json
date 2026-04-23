@@ -1,6 +1,6 @@
-{
-  "name": "Prospeo \u2014 CRM for Freelancers",
-  "short_name": "Prospeo",
+﻿{
+  "name": "Docline \u2014 CRM for Freelancers",
+  "short_name": "Docline",
   "description": "CRM, invoicing, and e-signatures for European freelancers",
   "start_url": "/prospeo/app.html",
   "scope": "/prospeo/",

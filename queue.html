@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>File d'attente — Prospeo</title>
+<title>File d'attente — Docline</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js"></script>
 <script src="shell.js"></script>
@@ -490,13 +490,13 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════
-   PROSPEO — QUEUE MANAGEMENT v2
+   DOCLINE — QUEUE MANAGEMENT v2
    Fonctionnalités : priorités, sons Web Audio, animations,
    temps réel Supabase, salles, QR code
 ═══════════════════════════════════════════════════════════ */
 
-var _supaUrl = (typeof PROSPEO_CONFIG !== 'undefined' && PROSPEO_CONFIG.supabaseUrl) ? PROSPEO_CONFIG.supabaseUrl : (typeof SUPA_URL !== 'undefined' ? SUPA_URL : '');
-var _supaKey = (typeof PROSPEO_CONFIG !== 'undefined' && PROSPEO_CONFIG.supabaseAnonKey) ? PROSPEO_CONFIG.supabaseAnonKey : (typeof SUPA_KEY !== 'undefined' ? SUPA_KEY : '');
+var _supaUrl = (typeof DOCLINE_CONFIG !== 'undefined' && DOCLINE_CONFIG.supabaseUrl) ? DOCLINE_CONFIG.supabaseUrl : (typeof SUPA_URL !== 'undefined' ? SUPA_URL : '');
+var _supaKey = (typeof DOCLINE_CONFIG !== 'undefined' && DOCLINE_CONFIG.supabaseAnonKey) ? DOCLINE_CONFIG.supabaseAnonKey : (typeof SUPA_KEY !== 'undefined' ? SUPA_KEY : '');
 var _supa = supabase.createClient(_supaUrl, _supaKey);
 var _uid = null;
 var _queue = [];

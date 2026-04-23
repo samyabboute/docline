@@ -1,7 +1,7 @@
-// Prospeo Service Worker v5 — production ready
+﻿// Docline Service Worker v5 — production ready
 'use strict';
-var CACHE_NAME = 'prospeo-v5';
-var STATIC_CACHE = 'prospeo-static-v5';
+var CACHE_NAME = 'docline-v5';
+var STATIC_CACHE = 'docline-static-v5';
 var OFFLINE_PAGE = '/prospeo/app.html';
 
 // Core assets to precache for offline

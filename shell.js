@@ -1,5 +1,5 @@
-/**
- * Prospeo Shell v2 — sidebar + topbar partagés
+﻿/**
+ * Docline Shell v2 — sidebar + topbar partagés
  * Usage: Shell.init({ page: 'queue', title: 'File d\'attente', isPro, userName, userEmail })
  */
 var Shell = (function () {
@@ -372,7 +372,7 @@ button{font-family:inherit;cursor:pointer}
     var sidebar =
         '<div class="sb-head">'
       +   LOGO
-      +   '<span class="sb-wordmark">Prospeo</span>'
+      +   '<span class="sb-wordmark">Docline</span>'
       +   '<span class="sb-plan ' + plan + '">' + plan.toUpperCase() + '</span>'
       + '</div>'
       + '<nav class="sb-nav">'

@@ -1,8 +1,8 @@
-// Prospeo i18n — FR / EN / DE
+﻿// Docline i18n — FR / EN / DE
 // Usage: i18n.t('key') — returns string in current language
 // i18n.setLang('fr') — switches language and re-renders
 var i18n = (function() {
-  var _lang = localStorage.getItem('prospeo-lang') || 'en';
+  var _lang = localStorage.getItem('docline-lang') || 'en';
 
   var _strings = {
     en: {
@@ -67,7 +67,7 @@ var i18n = (function() {
       dash_create_invoice: 'Create invoice', dash_smart_file: 'Smart File',
       // AI
       nex_placeholder: 'Ask Nex anything...',
-      nex_welcome: 'Hi, I am Nex — your Prospeo business advisor. I can help you with:\n\n- EU invoicing rules (TVA, reverse charge)\n- French freelance taxation\n- Pricing strategy and client negotiation\n- Cash flow and business strategy\n\nWhat can I help you with today?',
+      nex_welcome: 'Hi, I am Nex — your Docline business advisor. I can help you with:\n\n- EU invoicing rules (TVA, reverse charge)\n- French freelance taxation\n- Pricing strategy and client negotiation\n- Cash flow and business strategy\n\nWhat can I help you with today?',
       // Import
       import_title: 'Import your clients',
       import_sub: 'Upload a CSV or Excel file from your current tool. We\'ll detect the columns automatically.',
@@ -122,7 +122,7 @@ var i18n = (function() {
       dash_new_client: 'Nouveau client', dash_new_deal: 'Nouveau deal',
       dash_create_invoice: 'Créer une facture', dash_smart_file: 'Smart File',
       nex_placeholder: 'Demandez à Nex...',
-      nex_welcome: 'Bonjour, je suis Nex — votre conseiller Prospeo. Je peux vous aider avec :\n\n- Règles de facturation EU (TVA, autoliquidation)\n- Fiscalité des freelances français (auto-entrepreneur, SAS...)\n- Stratégie de prix et négociation client\n- Trésorerie et stratégie business\n\nQue puis-je faire pour vous ?',
+      nex_welcome: 'Bonjour, je suis Nex — votre conseiller Docline. Je peux vous aider avec :\n\n- Règles de facturation EU (TVA, autoliquidation)\n- Fiscalité des freelances français (auto-entrepreneur, SAS...)\n- Stratégie de prix et négociation client\n- Trésorerie et stratégie business\n\nQue puis-je faire pour vous ?',
       import_title: 'Importez vos clients',
       import_sub: 'Téléchargez un fichier CSV ou Excel depuis votre outil actuel. Nous détecterons les colonnes automatiquement.',
       import_btn: 'Choisir un fichier',
@@ -176,7 +176,7 @@ var i18n = (function() {
       dash_new_client: 'Neuer Kunde', dash_new_deal: 'Neuer Deal',
       dash_create_invoice: 'Rechnung erstellen', dash_smart_file: 'Smart File',
       nex_placeholder: 'Fragen Sie Nex...',
-      nex_welcome: 'Hallo, ich bin Nex — Ihr Prospeo-Berater. Ich kann Ihnen helfen mit:\n\n- EU-Rechnungsregeln (MwSt., Reverse Charge)\n- Deutscher Freelancer-Steuer (Freiberufler, Kleinunternehmer)\n- Preisstrategie und Kundenverhandlung\n- Cashflow und Business-Strategie\n\nWie kann ich Ihnen heute helfen?',
+      nex_welcome: 'Hallo, ich bin Nex — Ihr Docline-Berater. Ich kann Ihnen helfen mit:\n\n- EU-Rechnungsregeln (MwSt., Reverse Charge)\n- Deutscher Freelancer-Steuer (Freiberufler, Kleinunternehmer)\n- Preisstrategie und Kundenverhandlung\n- Cashflow und Business-Strategie\n\nWie kann ich Ihnen heute helfen?',
       import_title: 'Kunden importieren',
       import_sub: 'Laden Sie eine CSV- oder Excel-Datei von Ihrem aktuellen Tool hoch. Wir erkennen die Spalten automatisch.',
       import_btn: 'Datei auswählen',
@@ -193,7 +193,7 @@ var i18n = (function() {
   function setLang(lang) {
     if (!_strings[lang]) return;
     _lang = lang;
-    localStorage.setItem('prospeo-lang', lang);
+    localStorage.setItem('docline-lang', lang);
     // Re-render page if renderI18n function exists
     if (typeof renderI18n === 'function') renderI18n();
     // Update lang buttons

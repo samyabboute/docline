@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Connexion — Prospeo</title>
-<meta name="description" content="Connectez-vous à votre espace Prospeo — Gestion de cabinet médical pour l'Algérie.">
+<title>Connexion — Docline</title>
+<meta name="description" content="Connectez-vous à votre espace Docline — Gestion de cabinet médical pour l'Algérie.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#003399">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Prospeo">
+<meta name="apple-mobile-web-app-title" content="Docline">
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -412,14 +412,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-heig
 <script>
 // Fallback de sécurité — protection contre le cache CDN (config.js peut être servi en retard)
 if (typeof getRedirectUrl !== 'function') {
-  var _admins = (typeof PROSPEO_CONFIG !== 'undefined' ? (PROSPEO_CONFIG.ADMIN_EMAILS || []) : []).map(function(e){return e.toLowerCase();});
+  var _admins = (typeof DOCLINE_CONFIG !== 'undefined' ? (DOCLINE_CONFIG.ADMIN_EMAILS || []) : []).map(function(e){return e.toLowerCase();});
   function getRedirectUrl(email) {
     return _admins.indexOf((email||'').toLowerCase()) !== -1 ? 'admin.html' : 'app.html';
   }
 }
 var _supa = supabase.createClient(
-  (typeof PROSPEO_CONFIG !== 'undefined' ? PROSPEO_CONFIG.SUPA_URL : '') || '',
-  (typeof PROSPEO_CONFIG !== 'undefined' ? PROSPEO_CONFIG.SUPA_KEY : '') || ''
+  (typeof DOCLINE_CONFIG !== 'undefined' ? DOCLINE_CONFIG.SUPA_URL : '') || '',
+  (typeof DOCLINE_CONFIG !== 'undefined' ? DOCLINE_CONFIG.SUPA_KEY : '') || ''
 );
 
 var _fails = 0, _lockUntil = 0;
@@ -531,7 +531,7 @@ async function register(){
     var parts = name.split(' ');
     var r = await _supa.auth.signUp({
       email, password:pw,
-      options:{ data:{ full_name:name, first_name:parts[0]||name, last_name:parts.slice(1).join(' ')||'' }, emailRedirectTo: PROSPEO_CONFIG.APP_URL + '/login.html' }
+      options:{ data:{ full_name:name, first_name:parts[0]||name, last_name:parts.slice(1).join(' ')||'' }, emailRedirectTo: DOCLINE_CONFIG.APP_URL + '/login.html' }
     });
     if(r.error) throw r.error;
     showMsg('ok','Compte créé ! Vérifiez votre email pour confirmer votre inscription.');
@@ -551,7 +551,7 @@ async function forgotPw(e){
   var email = (document.getElementById('li-email').value || '').trim();
   if(!email){ showMsg('err','Saisissez votre email ci-dessus puis cliquez Oublié.'); return; }
   try{
-    await _supa.auth.resetPasswordForEmail(email, { redirectTo: PROSPEO_CONFIG.APP_URL + '/login.html' });
+    await _supa.auth.resetPasswordForEmail(email, { redirectTo: DOCLINE_CONFIG.APP_URL + '/login.html' });
     showMsg('ok','Email de réinitialisation envoyé. Vérifiez votre boîte mail.');
   }catch(e){ showMsg('err','Impossible d\'envoyer l\'email. Réessayez.'); }
 }
