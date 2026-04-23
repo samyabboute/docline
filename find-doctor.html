@@ -116,10 +116,10 @@ button,input,select,textarea{font-family:inherit}
   border:1px solid rgba(255,255,255,.16);border-radius:var(--r-2xl);
   padding:8px;display:flex;gap:0;flex-wrap:wrap;
   box-shadow:0 24px 64px rgba(0,0,20,.4),inset 0 1px 0 rgba(255,255,255,.1);
-  max-width:820px;margin:0 auto 48px}
+  max-width:860px;margin:0 auto 48px}
 
-.sf{flex:1;min-width:160px;display:flex;align-items:center;gap:10px;
-  padding:12px 18px;border-right:1px solid rgba(255,255,255,.1)}
+.sf{flex:1;min-width:140px;display:flex;align-items:center;gap:10px;
+  padding:14px 18px;border-right:1px solid rgba(255,255,255,.1);position:relative}
 .sf:last-of-type{border-right:none}
 .sf-icon{flex-shrink:0;opacity:.55}
 .sf-icon svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
@@ -129,6 +129,9 @@ button,input,select,textarea{font-family:inherit}
 .sf select::placeholder,.sf input::placeholder{color:rgba(255,255,255,.4)}
 .sf select{color:rgba(255,255,255,.85)}
 .sf select option[value=""]{color:var(--text-3)}
+/* City field hidden by default */
+.sf-city{display:none}
+.sf-city.visible{display:flex}
 
 .search-btn{background:linear-gradient(135deg,var(--teal) 0%,#00D4AA 100%);
   color:#fff;border:none;border-radius:var(--r-xl);padding:14px 32px;
@@ -148,6 +151,18 @@ button,input,select,textarea{font-family:inherit}
 .hero-stat-val{font-size:1.75rem;font-weight:800;color:#fff;letter-spacing:-.02em}
 .hero-stat-lbl{font-size:.6875rem;color:rgba(255,255,255,.45);margin-top:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
 @media(max-width:480px){.hero-stat{padding:0 20px}.hero-stat-val{font-size:1.375rem}}
+
+/* ── FEATURED badge ────────────────────────────────────────── */
+.featured-badge{
+  position:absolute;top:14px;right:16px;
+  display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(135deg,#F59E0B,#FBBF24);
+  color:#fff;font-size:.6rem;font-weight:800;padding:3px 8px;
+  border-radius:var(--r-full);letter-spacing:.04em;text-transform:uppercase;
+  box-shadow:0 2px 8px rgba(245,158,11,.35);pointer-events:none}
+.featured-badge svg{width:9px;height:9px;fill:currentColor;stroke:none}
+.doctor-card.is-featured{border-color:rgba(245,158,11,.25)}
+.doctor-card.is-featured::before{background:linear-gradient(90deg,#F59E0B,#FBBF24)}
 
 /* ── SPECIALTY SECTION ─────────────────────────────────────── */
 .spec-section{background:var(--bg-raised);border-bottom:1px solid var(--border);padding:28px 24px 20px}
@@ -551,7 +566,7 @@ button,input,select,textarea{font-family:inherit}
       </div>
       <div class="sf">
         <div class="sf-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <select id="s-wilaya">
+        <select id="s-wilaya" onchange="onWilayaChange(this.value)">
           <option value="">Toutes les wilayas</option>
           <option>Adrar</option><option>Chlef</option><option>Laghouat</option><option>Oum El Bouaghi</option>
           <option>Batna</option><option>Béjaïa</option><option>Biskra</option><option>Béchar</option>
@@ -568,6 +583,13 @@ button,input,select,textarea{font-family:inherit}
           <option>El M'Ghair</option><option>El Meniaa</option><option>Ouled Djellal</option>
           <option>Touggourt</option><option>Timimoun</option><option>Djanet</option>
           <option>In Salah</option><option>In Guezzam</option>
+        </select>
+      </div>
+      <!-- Ville dynamique — apparaît quand une wilaya est sélectionnée -->
+      <div class="sf sf-city" id="sf-city">
+        <div class="sf-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <select id="s-city" onchange="doSearch()">
+          <option value="">Toutes les villes</option>
         </select>
       </div>
       <div class="sf">
@@ -918,10 +940,64 @@ var _allDoctors = [];
 var _filtered   = [];
 var _bookingDoc = null;
 
+/* ── Wilaya → Villes mapping ─────────────────────────────── */
+var WILAYA_CITIES = {
+  'Tizi Ouzou':['Tizi Ouzou','Azazga','Fréha','Draâ Ben Khedda','Tigzirt','Boghni','Larbaa Nath Irathen','Ain El Hammam','Makouda','Ouaguenoun','Iferhounène','Bouzeguène','Aïn Zaouïa','Timizart','Tizi Rached','Azeffoun','Iflissen','Ouadhias','Tizi Ghennif'],
+  'Alger':['Alger Centre','Bab El Oued','El Harrach','Kouba','Birmandreis','Chéraga','Hydra','Birkhadem','Dar El Beïda','Bab Ezzouar','Rouiba','Réghaïa','El Biar','Bordj El Bahri','Hussein Dey','Ain Taya','Draria','Staouéli','Zeralda'],
+  'Oran':['Oran','Es Senia','Bir El Djir','Arzew','Ain El Turck','Boutlélis','Oued Tlélat','Gdyel','Sidi Chami'],
+  'Constantine':['Constantine','El Khroub','Hamma Bouziane','Ain Smara','Didouche Mourad','Zighoud Youcef','Ibn Ziad'],
+  'Béjaïa':['Béjaïa','Akbou','Amizour','Kherrata','Sidi Aïch','Tichy','El Kseur','Aokas','Souk El Tenine','Tazmalt'],
+  'Blida':['Blida','Boufarik','Larbaa','Meftah','Bouinan','Chiffa','Bougara','Soumaa','Ben Khellil'],
+  'Sétif':['Sétif','El Eulma','Ain Oulmane','Guelta Zerga','Bougaa','Aïn Arnat','Bir El Arch'],
+  'Annaba':['Annaba','El Hadjar','Drean','El Bouni','Berrahal','Chetaïbi'],
+  'Batna':['Batna','Aïn Touta','Barika','Tazoult','Timgad','Arris','Merouana'],
+  'Boumerdès':['Boumerdès','Boudouaou','Khemis El Khechna','Thénia','Corso','Zemmouri','Bordj Menaïel'],
+  'Bouira':['Bouira','Lakhdaria','Sour El Ghozlane','Ain Bessem','Kadiria','Bordj Okhriss'],
+  'Tlemcen':['Tlemcen','Maghnia','Ghazaouet','Remchi','Sebdou','Bensekrane','Nedroma'],
+  'Tipaza':['Tipaza','Koléa','Bou Ismaïl','Hadjout','Cherchell','Aïn Tagourait','Boudouaou El Bahri'],
+  'Médéa':['Médéa','Berrouaghia','Ksar El Boukhari','Tablat','Chelalet El Adhaoura'],
+  'Mostaganem':['Mostaganem','Aïn Tédelès','Sidi Ali','Mazagran','Mesra'],
+  'Skikda':['Skikda','Azzaba','El Harrouch','Collo','Tamalous','Ben Azzouz'],
+  'Jijel':['Jijel','El Milia','Taher','Chekfa','Sidi Maarouf'],
+  'Guelma':['Guelma','Bouchegouf','Oued Zenati','Ain Makhlouf','Heliopolis'],
+  'Mascara':['Mascara','Sig','Mohammadia','Tighennif','Oued El Abtal'],
+  'Tiaret':['Tiaret','Ksar Chellala','Sougueur','Frenda','Mehdia'],
+  'Sidi Bel Abbès':['Sidi Bel Abbès','Telagh','Ras El Ma','Sfisef','Mostefa Ben Brahim'],
+  'M\'Sila':['M\'Sila','Bou Saâda','Sidi Aïssa','Aïn El Melh','Magra'],
+  'Ouargla':['Ouargla','Hassi Messaoud','Rouissat','Ain Beida','Sidi Khouiled'],
+  'Ghardaïa':['Ghardaïa','Berriane','El Menia','Metlili','Guerrara'],
+  'Biskra':['Biskra','Tolga','Sidi Okba','El Kantara','Zeribet El Oued'],
+  'Oum El Bouaghi':['Oum El Bouaghi','Aïn Beïda','Aïn Fakroun','Meskiana'],
+  'Souk Ahras':['Souk Ahras','Sedrata','Taoura','Mechroha'],
+  'El Oued':['El Oued','Guemar','Robbah','Debila','Hassi Khalifa'],
+  'Laghouat':['Laghouat','Aflou','Aïn Mahdi','Hassi R\'Mel'],
+  'Relizane':['Relizane','Djidiouia','Mazouna','Oued Rhiou'],
+  'Naâma':['Naâma','Mecheria','Aïn Sefra','Sfissifa'],
+  'Khenchela':['Khenchela','Aïn Touta','Babar','Chechar'],
+  'Illizi':['Illizi','Djanet','In Amenas'],
+};
+
 /* ── Nav scroll effect ────────────────────────────────────── */
 window.addEventListener('scroll', function(){
   document.getElementById('topnav').classList.toggle('scrolled', window.scrollY > 60);
 }, {passive:true});
+
+/* ── Wilaya → Villes dynamique ───────────────────────────── */
+function onWilayaChange(wilaya) {
+  var cityField = document.getElementById('sf-city');
+  var citySelect = document.getElementById('s-city');
+  var cities = wilaya ? (WILAYA_CITIES[wilaya] || []) : [];
+
+  if (cities.length) {
+    citySelect.innerHTML = '<option value="">Toutes les villes</option>'
+      + cities.map(function(c){ return '<option value="'+c+'">'+c+'</option>'; }).join('');
+    cityField.classList.add('visible');
+  } else {
+    citySelect.innerHTML = '<option value="">Toutes les villes</option>';
+    cityField.classList.remove('visible');
+  }
+  doSearch();
+}
 
 /* ── Skeleton loading cards ──────────────────────────────── */
 (function buildSkeleton(){
@@ -974,8 +1050,10 @@ function renderStars(rating){
 (async function(){
   try {
     var { data, error } = await _supa.from('profiles')
-      .select('id,full_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url')
-      .eq('is_public', true)
+      .select('id,full_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured')
+      .not('full_name','is',null)
+      .not('specialty','is',null)
+      .order('featured', { ascending: false, nullsFirst: false })
       .order('full_name');
     if (error) throw error;
     _allDoctors = data || [];
@@ -996,15 +1074,19 @@ function renderStars(rating){
 function doSearch(){
   var sp   = document.getElementById('s-specialty').value.trim().toLowerCase();
   var wil  = document.getElementById('s-wilaya').value.trim().toLowerCase();
+  var city = document.getElementById('s-city').value.trim().toLowerCase();
   var name = document.getElementById('s-name').value.trim().toLowerCase();
   document.querySelectorAll('.pill').forEach(function(p){
     p.classList.toggle('active', p.dataset.sp.toLowerCase()===sp);
   });
   _filtered = _allDoctors.filter(function(d){
-    return (!sp||(d.specialty||'').toLowerCase().includes(sp))
-        && (!wil||(d.wilaya||'').toLowerCase().includes(wil))
-        && (!name||(d.full_name||'').toLowerCase().includes(name));
+    return (!sp  || (d.specialty||'').toLowerCase().includes(sp))
+        && (!wil  || (d.wilaya||'').toLowerCase().includes(wil))
+        && (!city || (d.city||'').toLowerCase().includes(city))
+        && (!name || (d.full_name||'').toLowerCase().includes(name));
   });
+  // Featured toujours en premier
+  _filtered.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0); });
   if(!_filtered.length){
     document.getElementById('cards-grid').innerHTML='';
     document.getElementById('results-header').style.display='none';
@@ -1025,7 +1107,9 @@ function setPill(btn, sp){
 function resetSearch(){
   document.getElementById('s-specialty').value='';
   document.getElementById('s-wilaya').value='';
+  document.getElementById('s-city').value='';
   document.getElementById('s-name').value='';
+  document.getElementById('sf-city').classList.remove('visible');
   document.querySelectorAll('.pill').forEach(function(p){p.classList.toggle('active',p.dataset.sp==='');});
   document.getElementById('state-empty').style.display='none';
   renderCards(_allDoctors);
@@ -1073,8 +1157,12 @@ function renderCards(docs){
         +'Appel uniquement</button>';
 
     var displayName = name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name;
+    var featuredBadge = d.featured
+      ? '<div class="featured-badge"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>En vedette</div>'
+      : '';
+    var cardClass = 'doctor-card' + (d.featured ? ' is-featured' : '');
 
-    return '<div class="doctor-card" style="animation-delay:'+i*.04+'s">'
+    return '<div class="'+cardClass+'" style="animation-delay:'+i*.04+'s;position:relative">'
       +'<div class="card-top">'
       +'<div class="doctor-avatar" style="background:'+grad+'">'
       +inits
@@ -1084,6 +1172,7 @@ function renderCards(docs){
       +'<div class="card-name-row">'
       +'<div class="doctor-name">Dr. '+displayName+'</div>'
       +'<span class="verified-badge"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Vérifié</span>'
+      +(d.featured?'<span class="featured-badge" style="position:static;margin-left:2px"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>En vedette</span>':'')
       +'</div>'
       +'<div class="doctor-specialty">'+( d.specialty||'Médecin')+'</div>'
       +'<div class="doctor-meta">'
