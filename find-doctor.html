@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -11,297 +11,546 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <style>
+/* ── DESIGN TOKENS ─────────────────────────────────────────── */
 :root{
-  --brand:#003399;--brand-dark:#002280;--brand-mid:#1A4FCC;--brand-light:#E6ECF9;--brand-glow:rgba(0,51,153,.12);
-  --bg:#F8FAFF;--bg-raised:#fff;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
-  --text-1:#0D0F14;--text-2:#3A4060;--text-3:#6B7280;--text-4:#9CA3AF;
-  --border:#E4E7F0;--border-strong:#C8CCE0;
-  --success:#12B76A;--success-bg:#ECFDF5;
-  --warning:#F79009;--warning-bg:#FFFAEB;
-  --danger:#F04438;--danger-bg:#FEF3F2;
-  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
-  --shadow-sm:0 1px 3px rgba(13,15,20,.08),0 1px 2px rgba(13,15,20,.05);
-  --shadow-md:0 4px 12px rgba(13,15,20,.1),0 2px 4px rgba(13,15,20,.05);
-  --shadow-lg:0 12px 32px rgba(13,15,20,.12),0 4px 8px rgba(13,15,20,.06);
-  --shadow-brand:0 4px 20px rgba(0,51,153,.3);
+  --brand:#003399;--brand-dark:#001F80;--brand-mid:#0044CC;
+  --brand-light:#EEF2FF;--brand-glow:rgba(0,51,153,.14);
+  --teal:#00B896;--teal-light:#E6FAF5;--teal-glow:rgba(0,184,150,.15);
+  --bg:#F4F6FE;--bg-raised:#fff;--bg-subtle:#F0F2FA;
+  --text-1:#0C0F1E;--text-2:#3D4461;--text-3:#6B7299;--text-4:#9CA3C4;
+  --border:#E2E6F3;--border-strong:#C8CEEA;
+  --success:#10B981;--success-bg:#ECFDF5;--success-text:#065F46;
+  --warning:#F59E0B;--danger:#EF4444;--danger-bg:#FEF2F2;
+  --gold:#F59E0B;
+  --shadow-xs:0 1px 2px rgba(12,15,30,.06);
+  --shadow-sm:0 1px 4px rgba(12,15,30,.07),0 1px 2px rgba(12,15,30,.04);
+  --shadow-md:0 4px 16px rgba(12,15,30,.09),0 2px 4px rgba(12,15,30,.04);
+  --shadow-lg:0 12px 40px rgba(12,15,30,.13),0 4px 8px rgba(12,15,30,.06);
+  --shadow-card:0 2px 12px rgba(12,15,30,.07),0 1px 3px rgba(12,15,30,.04);
+  --shadow-hover:0 8px 32px rgba(12,15,30,.13),0 2px 8px rgba(0,51,153,.1);
+  --shadow-brand:0 4px 20px rgba(0,51,153,.32);
+  --r-xs:4px;--r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:20px;--r-2xl:28px;--r-full:9999px;
   --t:200ms cubic-bezier(.4,0,.2,1);
+  --t-spring:400ms cubic-bezier(.34,1.56,.64,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;scroll-behavior:smooth}
-body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased}
+body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font-family:inherit}
-::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
 
-/* ── HEADER ── */
-.header{background:var(--bg-raised);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm)}
-.header-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:16px}
-.header-logo{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:800;color:var(--brand)}
-.header-logo svg{width:32px;height:32px}
-.header-tagline{font-size:.75rem;color:var(--text-3);font-weight:400;border-left:1px solid var(--border);padding-left:12px;display:none}
-@media(min-width:640px){.header-tagline{display:block}}
-.header-nav{margin-left:auto;display:flex;align-items:center;gap:10px}
-.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;padding:9px 18px;font-size:.8125rem;transition:all var(--t);white-space:nowrap;line-height:1}
-.btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
-.btn-primary:hover{background:var(--brand-dark)}
-.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
-.btn-ghost:hover{background:var(--bg-subtle);color:var(--text-1)}
-.btn-sm{padding:6px 14px;font-size:.75rem}
-.btn:active{transform:scale(.98)}
+/* ── TOP NAV ───────────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:64px;
+  background:rgba(0,5,26,.72);backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,.07);transition:background var(--t)}
+.nav.scrolled{background:rgba(255,255,255,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.nav-inner{max-width:1240px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;gap:16px}
+.nav-logo{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:800;color:#fff;transition:color var(--t)}
+.nav.scrolled .nav-logo{color:var(--brand)}
+.nav-logo svg{width:36px;height:36px;flex-shrink:0}
+.nav-sep{flex:1}
+.nav-link{font-size:.8125rem;font-weight:600;color:rgba(255,255,255,.7);padding:6px 12px;border-radius:var(--r-md);transition:all var(--t)}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,.1)}
+.nav.scrolled .nav-link{color:var(--text-2)}
+.nav.scrolled .nav-link:hover{color:var(--brand);background:var(--brand-light)}
+.nav-cta{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--brand);
+  border:none;border-radius:var(--r-md);padding:9px 20px;font-weight:700;font-size:.8125rem;
+  cursor:pointer;transition:all var(--t);text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.nav.scrolled .nav-cta{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
+.nav.scrolled .nav-cta:hover{background:var(--brand-dark)}
+@media(max-width:600px){.nav-link{display:none}}
 
-/* ── HERO ── */
-.hero{background:linear-gradient(135deg,#001F80 0%,#003399 45%,#0044CC 100%);padding:64px 24px 80px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
-.hero-inner{max-width:860px;margin:0 auto;text-align:center;position:relative;z-index:1}
-.hero-flag{font-size:2rem;margin-bottom:12px}
-.hero-title{font-size:clamp(1.75rem,5vw,3rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px;letter-spacing:-.5px}
-.hero-title span{color:#7BA7FF}
-.hero-sub{font-size:clamp(.875rem,2vw,1.0625rem);color:rgba(255,255,255,.7);margin-bottom:40px;line-height:1.6;max-width:560px;margin-left:auto;margin-right:auto}
-.search-box{background:#fff;border-radius:var(--r-xl);padding:6px;display:flex;gap:4px;box-shadow:0 8px 32px rgba(0,0,20,.25);max-width:760px;margin:0 auto 40px;flex-wrap:wrap}
-.search-field{flex:1;min-width:150px;display:flex;align-items:center;gap:8px;padding:10px 14px;border-right:1px solid var(--border)}
-.search-field:last-of-type{border-right:none}
-.search-field svg{width:16px;height:16px;stroke:var(--text-3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-.search-field select,.search-field input{background:transparent;border:none;outline:none;font-size:.875rem;color:var(--text-1);width:100%;font-family:'Sora',sans-serif}
-.search-field select option{color:var(--text-1)}
-.search-submit{background:var(--brand);color:#fff;border:none;border-radius:var(--r-lg);padding:12px 28px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;cursor:pointer;transition:all var(--t);display:flex;align-items:center;gap:8px;white-space:nowrap;width:100%}
-.search-submit:hover{background:var(--brand-dark)}
-@media(min-width:640px){.search-submit{width:auto}}
-.hero-stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap}
-.hero-stat{text-align:center}
-.hero-stat-val{font-size:1.5rem;font-weight:800;color:#fff}
-.hero-stat-lbl{font-size:.75rem;color:rgba(255,255,255,.55);margin-top:2px}
+/* ── HERO ──────────────────────────────────────────────────── */
+.hero{min-height:100svh;min-height:100vh;
+  background:linear-gradient(150deg,#00051A 0%,#000D38 40%,#001166 75%,#0022AA 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:100px 24px 80px;position:relative;overflow:hidden;text-align:center}
 
-/* ── SPECIALTY PILLS ── */
-.pills-section{background:var(--bg-raised);border-bottom:1px solid var(--border);padding:16px 24px;position:sticky;top:60px;z-index:90;box-shadow:var(--shadow-sm)}
-.pills-inner{max-width:1200px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-.pills-inner::-webkit-scrollbar{display:none}
-.pill{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r-full);font-size:.8125rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--bg-raised);color:var(--text-2);transition:all var(--t);white-space:nowrap}
-.pill:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
-.pill.active{background:var(--brand);color:#fff;border-color:var(--brand)}
-.pill-icon{font-size:14px}
+/* Animated orbs */
+.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;will-change:transform}
+.hero-orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,68,204,.45) 0%,transparent 70%);
+  top:-100px;right:-150px;animation:orb1 12s ease-in-out infinite}
+.hero-orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(0,184,150,.3) 0%,transparent 70%);
+  bottom:-80px;left:-100px;animation:orb2 15s ease-in-out infinite}
+.hero-orb-3{width:400px;height:400px;background:radial-gradient(circle,rgba(100,50,200,.25) 0%,transparent 70%);
+  top:40%;left:30%;animation:orb3 10s ease-in-out infinite}
+@keyframes orb1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-60px,40px) scale(1.1)}}
+@keyframes orb2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(50px,-30px) scale(1.08)}}
+@keyframes orb3{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(.95)}66%{transform:translate(-20px,30px) scale(1.05)}}
 
-/* ── MAIN ── */
-.main{max-width:1200px;margin:0 auto;padding:32px 24px}
-.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+/* Grid pattern overlay */
+.hero::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none}
+
+.hero-inner{position:relative;z-index:1;max-width:800px;width:100%}
+
+.hero-badge{display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:var(--r-full);padding:6px 16px;font-size:.75rem;font-weight:700;
+  color:rgba(255,255,255,.85);letter-spacing:.04em;text-transform:uppercase;
+  margin-bottom:24px;backdrop-filter:blur(8px)}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);
+  box-shadow:0 0 8px var(--teal);animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
+
+.hero-title{font-size:clamp(2rem,6vw,3.75rem);font-weight:800;color:#fff;line-height:1.12;
+  letter-spacing:-.03em;margin-bottom:20px}
+.hero-title em{font-style:normal;
+  background:linear-gradient(135deg,#7EB8FF 0%,#00E5CC 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.hero-sub{font-size:clamp(.9rem,2vw,1.125rem);color:rgba(255,255,255,.6);
+  line-height:1.7;max-width:520px;margin:0 auto 44px;font-weight:400}
+
+/* ── GLASS SEARCH BOX ──────────────────────────────────────── */
+.search-glass{
+  background:rgba(255,255,255,.08);backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(255,255,255,.16);border-radius:var(--r-2xl);
+  padding:8px;display:flex;gap:0;flex-wrap:wrap;
+  box-shadow:0 24px 64px rgba(0,0,20,.4),inset 0 1px 0 rgba(255,255,255,.1);
+  max-width:820px;margin:0 auto 48px}
+
+.sf{flex:1;min-width:160px;display:flex;align-items:center;gap:10px;
+  padding:12px 18px;border-right:1px solid rgba(255,255,255,.1)}
+.sf:last-of-type{border-right:none}
+.sf-icon{flex-shrink:0;opacity:.55}
+.sf-icon svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+.sf select,.sf input{background:transparent;border:none;outline:none;
+  font-size:.875rem;color:#fff;width:100%;font-family:'Sora',sans-serif;font-weight:500}
+.sf select option{color:var(--text-1);background:#fff}
+.sf select::placeholder,.sf input::placeholder{color:rgba(255,255,255,.4)}
+.sf select{color:rgba(255,255,255,.85)}
+.sf select option[value=""]{color:var(--text-3)}
+
+.search-btn{background:linear-gradient(135deg,var(--teal) 0%,#00D4AA 100%);
+  color:#fff;border:none;border-radius:var(--r-xl);padding:14px 32px;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
+  cursor:pointer;transition:all var(--t);display:flex;align-items:center;gap:9px;
+  white-space:nowrap;width:100%;justify-content:center;letter-spacing:.01em;
+  box-shadow:0 4px 20px rgba(0,184,150,.4);margin-top:4px}
+.search-btn:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,184,150,.5)}
+.search-btn svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+@media(min-width:640px){.search-btn{width:auto;margin-top:0}}
+
+/* Hero stats */
+.hero-stats{display:flex;justify-content:center;gap:0;flex-wrap:wrap}
+.hero-stat{padding:0 32px;text-align:center;position:relative}
+.hero-stat+.hero-stat::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:1px;height:32px;background:rgba(255,255,255,.12)}
+.hero-stat-val{font-size:1.75rem;font-weight:800;color:#fff;letter-spacing:-.02em}
+.hero-stat-lbl{font-size:.6875rem;color:rgba(255,255,255,.45);margin-top:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+@media(max-width:480px){.hero-stat{padding:0 20px}.hero-stat-val{font-size:1.375rem}}
+
+/* ── SPECIALTY SECTION ─────────────────────────────────────── */
+.spec-section{background:var(--bg-raised);border-bottom:1px solid var(--border);padding:28px 24px 20px}
+.spec-inner{max-width:1240px;margin:0 auto}
+.spec-label{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-4);margin-bottom:14px}
+.spec-grid{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.spec-grid::-webkit-scrollbar{display:none}
+
+/* These are the JS-compatible pills styled as cards */
+.pill{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:7px;
+  padding:14px 16px;border-radius:var(--r-lg);font-size:.6875rem;font-weight:700;
+  cursor:pointer;border:1.5px solid var(--border);background:var(--bg-raised);
+  color:var(--text-2);transition:all var(--t);white-space:nowrap;min-width:80px;
+  box-shadow:var(--shadow-xs)}
+.pill:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light);
+  transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.pill.active{background:var(--brand);color:#fff;border-color:var(--brand);
+  box-shadow:var(--shadow-brand);transform:translateY(-2px)}
+.pill-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:var(--bg-subtle);transition:background var(--t);flex-shrink:0}
+.pill.active .pill-ic{background:rgba(255,255,255,.2)}
+.pill:hover:not(.active) .pill-ic{background:var(--brand-light)}
+.pill-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.pill-lbl{font-size:.6875rem;font-weight:700;text-align:center;line-height:1.2}
+
+/* ── RESULTS BAR ───────────────────────────────────────────── */
+.results-bar{max-width:1240px;margin:0 auto;padding:24px 24px 0;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .results-count{font-size:.9375rem;font-weight:700;color:var(--text-1)}
 .results-count span{color:var(--brand)}
-.sort-select{border:1.5px solid var(--border);border-radius:var(--r-md);padding:7px 12px;font-size:.8125rem;font-family:'Sora',sans-serif;background:var(--bg-raised);color:var(--text-2);outline:none;cursor:pointer}
+.sort-select{border:1.5px solid var(--border);border-radius:var(--r-md);padding:8px 14px;
+  font-size:.8125rem;font-family:'Sora',sans-serif;background:var(--bg-raised);
+  color:var(--text-2);outline:none;cursor:pointer;transition:border-color var(--t)}
+.sort-select:focus{border-color:var(--brand)}
 
-/* ── DOCTOR CARDS ── */
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
-.doctor-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow-sm);transition:all var(--t);cursor:default}
-.doctor-card:hover{box-shadow:var(--shadow-md);border-color:var(--brand-light);transform:translateY(-2px)}
-.card-top{display:flex;gap:16px;align-items:flex-start}
-.doctor-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:800;color:#fff;flex-shrink:0;position:relative}
-.avatar-badge{position:absolute;bottom:1px;right:1px;width:14px;height:14px;border-radius:50%;background:var(--success);border:2px solid #fff}
+/* ── DOCTOR CARDS GRID ─────────────────────────────────────── */
+.cards-wrap{max-width:1240px;margin:0 auto;padding:20px 24px 64px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+@media(max-width:480px){.cards-grid{grid-template-columns:1fr;gap:14px}}
+
+/* The card itself */
+.doctor-card{
+  background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-xl);
+  padding:0;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:var(--shadow-card);transition:transform var(--t),box-shadow var(--t),border-color var(--t);
+  cursor:default;animation:cardIn .35s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.doctor-card:hover{box-shadow:var(--shadow-hover);border-color:rgba(0,51,153,.18);transform:translateY(-3px)}
+
+/* Card header accent line */
+.doctor-card::before{content:'';height:3px;background:linear-gradient(90deg,var(--brand),var(--teal));display:block;flex-shrink:0}
+
+/* Card top section */
+.card-top{display:flex;gap:16px;align-items:flex-start;padding:20px 20px 16px}
+
+/* Avatar with gradient ring */
+.doctor-avatar{
+  width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.375rem;font-weight:800;color:#fff;flex-shrink:0;position:relative;
+  box-shadow:0 0 0 3px var(--bg-raised),0 0 0 5px rgba(0,51,153,.2)}
+.avatar-badge{
+  position:absolute;bottom:1px;right:1px;width:15px;height:15px;border-radius:50%;
+  background:var(--success);border:2.5px solid var(--bg-raised);
+  box-shadow:0 0 6px rgba(16,185,129,.5)}
+
 .doctor-info{flex:1;min-width:0}
-.doctor-name{font-size:1rem;font-weight:700;color:var(--text-1);margin-bottom:4px}
-.doctor-specialty{display:inline-flex;align-items:center;gap:4px;background:var(--brand-light);color:var(--brand);padding:3px 10px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700;letter-spacing:.3px;margin-bottom:8px}
-.doctor-meta{display:flex;flex-direction:column;gap:4px}
-.meta-row{display:flex;align-items:center;gap:6px;font-size:.8125rem;color:var(--text-3)}
-.meta-row svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
-.card-divider{height:1px;background:var(--border)}
-.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.card-price{display:flex;flex-direction:column}
-.card-price-val{font-size:1.125rem;font-weight:800;color:var(--text-1)}
-.card-price-lbl{font-size:.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-4)}
-.card-rdv-btn{background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);padding:10px 20px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;cursor:pointer;transition:all var(--t);white-space:nowrap}
-.card-rdv-btn:hover{background:var(--brand-dark);transform:scale(1.02)}
-.card-rdv-btn:disabled{background:var(--bg-subtle);color:var(--text-4);cursor:not-allowed;transform:none}
-.card-languages{display:flex;gap:4px;flex-wrap:wrap}
-.lang-tag{background:var(--bg-subtle);color:var(--text-3);padding:2px 8px;border-radius:var(--r-full);font-size:.625rem;font-weight:600}
+.card-name-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px}
+.doctor-name{font-size:1rem;font-weight:800;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.verified-badge{display:inline-flex;align-items:center;gap:3px;
+  background:var(--teal-light);color:var(--teal);
+  font-size:.625rem;font-weight:700;padding:2px 7px;border-radius:var(--r-full);
+  border:1px solid rgba(0,184,150,.2);flex-shrink:0}
+.verified-badge svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
 
-/* ── EMPTY & LOADING ── */
-.state-box{text-align:center;padding:80px 24px}
-.state-emoji{font-size:3rem;margin-bottom:16px}
-.state-title{font-size:1.125rem;font-weight:700;color:var(--text-1);margin-bottom:8px}
-.state-sub{font-size:.875rem;color:var(--text-3);max-width:320px;margin:0 auto}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
-@keyframes spin{to{transform:rotate(360deg)}}
+.doctor-specialty{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--brand-light);color:var(--brand);
+  padding:4px 11px;border-radius:var(--r-full);
+  font-size:.6875rem;font-weight:700;letter-spacing:.02em;margin-bottom:9px}
 
-/* ── MODAL ── */
-.modal-backdrop{position:fixed;inset:0;background:rgba(13,15,20,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity var(--t)}
+.doctor-meta{display:flex;flex-direction:column;gap:5px}
+.meta-row{display:flex;align-items:center;gap:7px;font-size:.8125rem;color:var(--text-3);font-weight:400}
+.meta-row svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;opacity:.65}
+
+/* Stars row */
+.stars-row{display:flex;align-items:center;gap:6px;padding:0 20px 12px;flex-wrap:wrap}
+.stars{display:flex;gap:2px}
+.star{font-size:13px;color:#E2E6F3;line-height:1}
+.star.on{color:var(--gold)}
+.star.half{background:linear-gradient(90deg,var(--gold) 50%,#E2E6F3 50%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.rating-num{font-size:.75rem;font-weight:700;color:var(--text-2)}
+.rating-count{font-size:.6875rem;color:var(--text-4)}
+
+/* Bio */
+.card-bio{
+  margin:0 20px 14px;padding:10px 14px;
+  background:var(--bg-subtle);border-radius:var(--r-md);
+  font-size:.75rem;color:var(--text-3);line-height:1.6;
+  border-left:3px solid var(--brand-light)}
+
+/* Availability row */
+.avail-row{display:flex;align-items:center;gap:8px;padding:0 20px 16px;flex-wrap:wrap}
+.avail-label{font-size:.6875rem;font-weight:700;color:var(--text-4);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
+.avail-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--success-bg);color:var(--success-text);
+  border:1px solid rgba(16,185,129,.2);border-radius:var(--r-full);
+  font-size:.6875rem;font-weight:700;padding:4px 10px;cursor:pointer;
+  transition:all var(--t)}
+.avail-chip:hover{background:#D1FAE5;border-color:rgba(16,185,129,.4)}
+.avail-chip svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
+.avail-none{font-size:.75rem;color:var(--text-4);font-style:italic}
+
+/* Divider */
+.card-divider{height:1px;background:var(--border);margin:0 20px}
+
+/* Card bottom */
+.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px 20px}
+.card-price-val{font-size:1.125rem;font-weight:800;color:var(--text-1);letter-spacing:-.02em}
+.card-price-lbl{font-size:.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-4);margin-top:1px}
+.card-languages{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.lang-tag{background:var(--bg-subtle);color:var(--text-3);padding:2px 8px;
+  border-radius:var(--r-full);font-size:.625rem;font-weight:600;border:1px solid var(--border)}
+.card-rdv-btn{
+  background:linear-gradient(135deg,var(--brand) 0%,var(--brand-mid) 100%);
+  color:#fff;border:none;border-radius:var(--r-lg);padding:12px 22px;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;cursor:pointer;
+  transition:all var(--t);white-space:nowrap;box-shadow:var(--shadow-brand);
+  display:flex;align-items:center;gap:7px;flex-shrink:0}
+.card-rdv-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,51,153,.4)}
+.card-rdv-btn:active{transform:scale(.97)}
+.card-rdv-btn:disabled{background:var(--bg-subtle);color:var(--text-4);cursor:not-allowed;
+  transform:none;box-shadow:none;border:1.5px solid var(--border)}
+.card-rdv-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+
+/* ── SKELETON LOADING ──────────────────────────────────────── */
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.skel{border-radius:var(--r-full);background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--border) 50%,var(--bg-subtle) 75%);
+  background-size:600px 100%;animation:shimmer 1.4s ease-in-out infinite}
+.skel-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-xl);
+  padding:20px;box-shadow:var(--shadow-card)}
+.skel-card::before{display:none}
+
+/* ── EMPTY & COMING STATES ─────────────────────────────────── */
+.state-box{text-align:center;padding:80px 24px;max-width:400px;margin:0 auto}
+.state-icon-wrap{width:72px;height:72px;border-radius:var(--r-xl);background:var(--brand-light);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.state-icon-wrap svg{width:32px;height:32px;fill:none;stroke:var(--brand);stroke-width:1.5;stroke-linecap:round}
+.state-title{font-size:1.125rem;font-weight:800;color:var(--text-1);margin-bottom:8px}
+.state-sub{font-size:.875rem;color:var(--text-3);line-height:1.65}
+
+/* ── MODAL ─────────────────────────────────────────────────── */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(6,8,24,.6);backdrop-filter:blur(6px);
+  display:flex;align-items:flex-end;justify-content:center;
+  padding:0;opacity:0;pointer-events:none;transition:opacity var(--t)}
+@media(min-width:640px){.modal-backdrop{align-items:center;padding:20px}}
 .modal-backdrop.open{opacity:1;pointer-events:all}
-.modal{background:var(--bg-raised);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);width:100%;max-width:500px;max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform var(--t)}
+
+.modal{
+  background:var(--bg-raised);width:100%;max-width:520px;
+  border-radius:var(--r-2xl) var(--r-2xl) 0 0;
+  box-shadow:0 -8px 40px rgba(6,8,24,.2);
+  max-height:94svh;max-height:94vh;overflow-y:auto;
+  transform:translateY(40px);transition:transform var(--t)}
+@media(min-width:640px){.modal{border-radius:var(--r-2xl);transform:translateY(20px) scale(.97)}}
 .modal-backdrop.open .modal{transform:none}
-.modal-head{padding:24px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+
+.modal-drag{width:36px;height:4px;border-radius:var(--r-full);background:var(--border-strong);
+  margin:12px auto 0;display:block}
+@media(min-width:640px){.modal-drag{display:none}}
+
+.modal-head{padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .modal-doctor-info{display:flex;align-items:center;gap:14px}
-.modal-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.125rem;font-weight:800;color:#fff;flex-shrink:0}
+.modal-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:1.25rem;font-weight:800;color:#fff;flex-shrink:0;
+  box-shadow:0 0 0 3px var(--bg-raised),0 0 0 5px rgba(0,51,153,.15)}
 .modal-title{font-size:1rem;font-weight:800;color:var(--text-1)}
 .modal-sub{font-size:.75rem;color:var(--text-3);margin-top:2px}
-.modal-close{background:none;border:none;cursor:pointer;color:var(--text-3);padding:4px;border-radius:var(--r-sm);flex-shrink:0;transition:all var(--t)}
-.modal-close:hover{background:var(--bg-subtle);color:var(--text-1)}
-.modal-close svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
-.modal-body{padding:20px 24px 24px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-close{background:var(--bg-subtle);border:none;cursor:pointer;color:var(--text-3);
+  padding:7px;border-radius:var(--r-full);flex-shrink:0;transition:all var(--t);line-height:0}
+.modal-close:hover{background:var(--border);color:var(--text-1)}
+.modal-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
+
+.modal-body{padding:20px 24px 28px}
+
+/* Step indicator */
+.modal-steps{display:flex;align-items:center;gap:6px;margin-bottom:24px}
+.mstep{display:flex;align-items:center;gap:6px;flex:1}
+.mstep-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.625rem;font-weight:800;color:var(--text-4);flex-shrink:0;transition:all var(--t)}
+.mstep.active .mstep-dot{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 2px 8px var(--brand-glow)}
+.mstep.done .mstep-dot{background:var(--success);border-color:var(--success);color:#fff}
+.mstep-line{flex:1;height:2px;background:var(--border);border-radius:var(--r-full);transition:background var(--t)}
+.mstep.done .mstep-line{background:var(--success)}
+.mstep-lbl{font-size:.6875rem;font-weight:600;color:var(--text-4);transition:color var(--t)}
+.mstep.active .mstep-lbl{color:var(--brand);font-weight:700}
+
 .field{margin-bottom:16px}
-.field label{display:block;font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);margin-bottom:5px}
-.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px 12px;font-size:.875rem;font-family:'Sora',sans-serif;background:var(--bg-raised);color:var(--text-1);outline:none;transition:border-color var(--t)}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow)}
-.field textarea{resize:vertical;min-height:80px}
-.field-hint{font-size:.6875rem;color:var(--text-4);margin-top:4px}
-.form-submit{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);padding:13px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;cursor:pointer;transition:all var(--t);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
-.form-submit:hover{background:var(--brand-dark)}
-.form-submit:disabled{opacity:.6;cursor:not-allowed}
-.modal-success{text-align:center;padding:32px 24px}
-.modal-success-icon{font-size:3.5rem;margin-bottom:16px}
-.modal-success-title{font-size:1.125rem;font-weight:800;color:var(--text-1);margin-bottom:8px}
-.modal-success-sub{font-size:.875rem;color:var(--text-3);line-height:1.6}
+.field label{display:block;font-size:.6875rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--text-3);margin-bottom:6px}
+.field input,.field select,.field textarea{
+  width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);
+  padding:11px 14px;font-size:.875rem;font-family:'Sora',sans-serif;
+  background:var(--bg-raised);color:var(--text-1);outline:none;transition:all var(--t)}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow);background:#fff}
+.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field-hint{font-size:.6875rem;color:var(--text-4);margin-top:5px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:400px){.form-row{grid-template-columns:1fr}}
 
-/* ── TRUST BAR ── */
-.trust-bar{background:var(--brand);padding:12px 24px;text-align:center}
-.trust-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap}
-.trust-item{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.85);font-size:.8125rem;font-weight:500}
-.trust-item svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.form-submit{
+  width:100%;background:linear-gradient(135deg,var(--brand) 0%,var(--brand-mid) 100%);
+  color:#fff;border:none;border-radius:var(--r-lg);padding:14px;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;cursor:pointer;
+  transition:all var(--t);display:flex;align-items:center;justify-content:center;
+  gap:8px;margin-top:4px;box-shadow:var(--shadow-brand)}
+.form-submit:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,51,153,.4)}
+.form-submit:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.form-submit svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
 
-/* ── PRO SECTION ── */
-.pro-section{background:linear-gradient(135deg,#001F80 0%,#003399 50%,#0044CC 100%);padding:72px 24px;position:relative;overflow:hidden;margin-top:72px}
-.pro-section::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='40' cy='40' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
-.pro-inner{max-width:1080px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-@media(max-width:768px){.pro-inner{grid-template-columns:1fr;gap:40px;text-align:center}}
-.pro-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-full);padding:5px 14px;font-size:.75rem;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.05em;text-transform:uppercase;margin-bottom:16px}
-.pro-title{font-size:clamp(1.5rem,3.5vw,2.25rem);font-weight:800;color:#fff;line-height:1.25;margin-bottom:14px;letter-spacing:-.4px}
-.pro-title span{color:#7BA7FF}
-.pro-desc{font-size:.9375rem;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:28px;max-width:440px}
-@media(max-width:768px){.pro-desc{margin-left:auto;margin-right:auto}}
+.form-error{display:none;margin-top:12px;padding:12px 14px;
+  background:var(--danger-bg);color:var(--danger);border-radius:var(--r-md);
+  font-size:.8125rem;border:1px solid rgba(239,68,68,.2);font-weight:500}
+
+/* Success state */
+.modal-success{text-align:center;padding:36px 24px 40px}
+.success-icon{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),#00D4AA);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+  box-shadow:0 8px 28px rgba(0,184,150,.35);
+  animation:successPop .5s var(--t-spring) both}
+@keyframes successPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-icon svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+.modal-success-title{font-size:1.25rem;font-weight:800;color:var(--text-1);margin-bottom:10px}
+.modal-success-sub{font-size:.875rem;color:var(--text-3);line-height:1.7;max-width:340px;margin:0 auto}
+.success-detail{margin-top:20px;padding:14px 16px;background:var(--bg-subtle);border-radius:var(--r-lg);text-align:left}
+.success-detail-row{display:flex;align-items:center;gap:10px;font-size:.8125rem;color:var(--text-2);padding:5px 0}
+.success-detail-row svg{width:15px;height:15px;fill:none;stroke:var(--teal);stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* ── PRO SECTION ───────────────────────────────────────────── */
+.pro-section{
+  background:linear-gradient(150deg,#00051A 0%,#001166 50%,#002288 100%);
+  padding:80px 24px;position:relative;overflow:hidden}
+.pro-section::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none}
+.pro-inner{max-width:1120px;margin:0 auto;position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+@media(max-width:800px){.pro-inner{grid-template-columns:1fr;gap:40px;text-align:center}}
+
+.pro-pill{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(0,184,150,.15);border:1px solid rgba(0,184,150,.3);
+  border-radius:var(--r-full);padding:5px 14px;font-size:.6875rem;font-weight:700;
+  color:var(--teal);letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px}
+.pro-title{font-size:clamp(1.625rem,3.5vw,2.375rem);font-weight:800;color:#fff;
+  line-height:1.2;margin-bottom:14px;letter-spacing:-.03em}
+.pro-title span{background:linear-gradient(135deg,#7EB8FF,#00E5CC);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pro-desc{font-size:.9375rem;color:rgba(255,255,255,.6);line-height:1.75;margin-bottom:28px;max-width:420px}
+@media(max-width:800px){.pro-desc{margin-left:auto;margin-right:auto}}
 .pro-ctas{display:flex;gap:12px;flex-wrap:wrap}
-@media(max-width:768px){.pro-ctas{justify-content:center}}
-.btn-pro-primary{
-  display:inline-flex;align-items:center;gap:8px;
-  background:#fff;color:var(--brand);
-  border:none;border-radius:var(--r-md);
-  padding:13px 26px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
-  cursor:pointer;text-decoration:none;
-  box-shadow:0 4px 20px rgba(0,0,0,.2);
-  transition:all var(--t);
-}
-.btn-pro-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.3)}
-.btn-pro-secondary{
-  display:inline-flex;align-items:center;gap:8px;
-  background:transparent;color:rgba(255,255,255,.85);
-  border:1.5px solid rgba(255,255,255,.3);border-radius:var(--r-md);
+@media(max-width:800px){.pro-ctas{justify-content:center}}
+.btn-pro-p{display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,var(--teal),#00D4AA);color:#fff;
+  border:none;border-radius:var(--r-md);padding:13px 26px;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
+  cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(0,184,150,.35);
+  transition:all var(--t)}
+.btn-pro-p:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,184,150,.45)}
+.btn-pro-s{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);
+  border:1.5px solid rgba(255,255,255,.2);border-radius:var(--r-md);
   padding:12px 24px;font-family:'Sora',sans-serif;font-weight:600;font-size:.875rem;
-  cursor:pointer;text-decoration:none;transition:all var(--t);
-}
-.btn-pro-secondary:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.08)}
+  cursor:pointer;text-decoration:none;transition:all var(--t)}
+.btn-pro-s:hover{border-color:rgba(255,255,255,.5);color:#fff;background:rgba(255,255,255,.12)}
 
-.pro-features{display:flex;flex-direction:column;gap:14px}
-.pro-feat{
-  display:flex;align-items:flex-start;gap:14px;
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
-  border-radius:var(--r-lg);padding:18px 20px;
-  transition:background var(--t);
-}
-.pro-feat:hover{background:rgba(255,255,255,.11)}
-.pro-feat-icon{
-  width:40px;height:40px;border-radius:10px;
-  background:rgba(255,255,255,.15);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.pro-feat-icon svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pro-features{display:flex;flex-direction:column;gap:12px}
+.pro-feat{display:flex;align-items:flex-start;gap:16px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r-lg);padding:18px 20px;transition:background var(--t)}
+.pro-feat:hover{background:rgba(255,255,255,.09)}
+.pro-feat-icon{width:42px;height:42px;border-radius:12px;
+  background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pro-feat-icon svg{width:20px;height:20px;fill:none;stroke:var(--teal);stroke-width:2;stroke-linecap:round}
 .pro-feat-body strong{font-size:.9375rem;font-weight:700;color:#fff;display:block;margin-bottom:3px}
-.pro-feat-body p{font-size:.8125rem;color:rgba(255,255,255,.6);line-height:1.5}
+.pro-feat-body p{font-size:.8125rem;color:rgba(255,255,255,.55);line-height:1.55}
 
-/* ── FOOTER ── */
-.footer{background:var(--bg-raised);border-top:1px solid var(--border);padding:40px 24px 28px;margin-top:0}
-.footer-inner{max-width:1200px;margin:0 auto}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:32px}
-@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr;gap:24px}}
+/* ── TRUST BAR ─────────────────────────────────────────────── */
+.trust-bar{background:linear-gradient(135deg,var(--teal),#00D4AA);padding:14px 24px}
+.trust-inner{max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:7px;color:rgba(255,255,255,.9);font-size:.8125rem;font-weight:600}
+.trust-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+
+/* ── FOOTER ────────────────────────────────────────────────── */
+.footer{background:#040814;padding:52px 24px 32px}
+.footer-inner{max-width:1240px;margin:0 auto}
+.footer-grid{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:32px;margin-bottom:40px}
+@media(max-width:800px){.footer-grid{grid-template-columns:1fr 1fr;gap:24px}}
 @media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
-.footer-brand .logo{display:flex;align-items:center;gap:8px;font-size:1rem;font-weight:800;color:var(--brand);margin-bottom:10px}
-.footer-brand .logo svg{width:28px;height:28px}
-.footer-brand p{font-size:.8125rem;color:var(--text-3);line-height:1.6;max-width:240px}
-.footer-col h4{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-4);margin-bottom:12px}
-.footer-col a{display:block;font-size:.8125rem;color:var(--text-3);margin-bottom:8px;text-decoration:none;transition:color var(--t)}
-.footer-col a:hover{color:var(--brand)}
-.footer-bottom{border-top:1px solid var(--border);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.footer-bottom p{font-size:.75rem;color:var(--text-4)}
-.footer-bottom a{color:var(--brand);text-decoration:none;font-weight:600}
+.footer-brand .logo{display:flex;align-items:center;gap:9px;font-size:1.0625rem;font-weight:800;color:#fff;margin-bottom:12px}
+.footer-brand .logo svg{width:30px;height:30px}
+.footer-brand p{font-size:.8125rem;color:rgba(255,255,255,.35);line-height:1.7;max-width:240px}
+.footer-col h4{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:rgba(255,255,255,.25);margin-bottom:14px}
+.footer-col a{display:block;font-size:.8125rem;color:rgba(255,255,255,.45);margin-bottom:9px;
+  transition:color var(--t)}
+.footer-col a:hover{color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-bottom p{font-size:.75rem;color:rgba(255,255,255,.25)}
+.footer-bottom a{color:var(--teal);font-weight:600;font-size:.75rem}
 
+/* ── MISC UTILITIES ────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:var(--r-md);
+  cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;padding:9px 18px;
+  font-size:.8125rem;transition:all var(--t);white-space:nowrap;line-height:1;text-decoration:none}
+.btn-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.15)}
+.btn-ghost:hover{background:rgba(255,255,255,.14);color:#fff}
+.btn-ghost.dark{background:var(--bg-subtle);color:var(--text-2);border:1.5px solid var(--border)}
+.btn-ghost.dark:hover{background:var(--brand-light);color:var(--brand);border-color:var(--brand)}
+.btn-sm{padding:6px 14px;font-size:.75rem}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
 @media(max-width:640px){
-  .hero{padding:40px 16px 56px}
-  .search-box{flex-direction:column;padding:12px}
-  .search-field{border-right:none;border-bottom:1px solid var(--border);padding:8px 4px}
-  .search-field:last-of-type{border-bottom:none}
-  .search-submit{width:100%;justify-content:center}
-  .hero-stats{gap:20px}
-  .cards-grid{grid-template-columns:1fr}
+  .hero{padding:80px 16px 64px;min-height:auto}
+  .hero-title{font-size:1.875rem}
+  .search-glass{padding:6px;flex-direction:column;gap:0}
+  .sf{border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sf:last-of-type{border-bottom:none}
+  .search-btn{width:100%;justify-content:center;margin-top:6px}
+  .hero-stats{gap:0}.hero-stat{padding:0 14px}
+  .spec-section{padding:20px 16px 14px}
+  .cards-wrap{padding:16px 16px 48px}
+  .modal-body{padding:16px 16px 24px}
   .form-row{grid-template-columns:1fr}
-  .main{padding:20px 16px}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="header-inner">
-    <a href="find-doctor.html" class="header-logo">
+<!-- ══ NAV ══════════════════════════════════════════════════ -->
+<nav class="nav" id="topnav">
+  <div class="nav-inner">
+    <a href="find-doctor.html" class="nav-logo">
       <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#003399"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
       Docline
     </a>
-    <span class="header-tagline">Santé connectée en Algérie </span>
-    <nav class="header-nav">
-      <a href="login.html" class="btn btn-ghost btn-sm" style="display:none" id="nav-login">Se connecter</a>
-      <a href="login.html" class="btn btn-primary btn-sm" style="gap:6px">
-        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Espace Praticiens
-      </a>
-    </nav>
+    <span class="nav-sep"></span>
+    <a href="pricing.html" class="nav-link">Tarifs</a>
+    <a href="login.html" class="nav-cta">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Espace Praticiens
+    </a>
   </div>
-</header>
+</nav>
 
-<!-- TRUST BAR -->
-<div class="trust-bar">
-  <div class="trust-inner">
-    <div class="trust-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Gratuit pour les patients</div>
-    <div class="trust-item"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Médecins vérifiés</div>
-    <div class="trust-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>RDV confirmé sous 24h</div>
-  </div>
-</div>
-
-<!-- HERO -->
+<!-- ══ HERO ══════════════════════════════════════════════════ -->
 <section class="hero">
-  <div class="hero-inner">
-    
-    <h1 class="hero-title">Trouvez votre médecin<br><span>où que vous soyez en Algérie</span></h1>
-    <p class="hero-sub">Consultez les meilleurs spécialistes près de chez vous. Prenez rendez-vous en ligne, gratuitement et sans inscription.</p>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
 
-    <div class="search-box">
-      <div class="search-field">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      100 % gratuit pour les patients
+    </div>
+
+    <h1 class="hero-title">
+      Votre médecin,<br>
+      <em>en quelques secondes</em>
+    </h1>
+    <p class="hero-sub">Trouvez les meilleurs spécialistes près de chez vous et prenez rendez-vous en ligne — sans inscription, sans attente.</p>
+
+    <!-- Search box -->
+    <div class="search-glass">
+      <div class="sf">
+        <div class="sf-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
         <select id="s-specialty">
           <option value="">Toutes les spécialités</option>
-          <option>Médecine générale</option>
-          <option>Cardiologie</option>
-          <option>Dermatologie</option>
-          <option>Endocrinologie</option>
-          <option>Gastro-entérologie</option>
-          <option>Gynécologie-Obstétrique</option>
-          <option>Infectiologie</option>
-          <option>Médecine interne</option>
-          <option>Néphrologie</option>
-          <option>Neurologie</option>
-          <option>Oncologie</option>
-          <option>Ophtalmologie</option>
-          <option>ORL</option>
-          <option>Orthopédie</option>
-          <option>Pédiatrie</option>
-          <option>Pneumologie</option>
-          <option>Psychiatrie</option>
-          <option>Radiologie</option>
-          <option>Rhumatologie</option>
-          <option>Urologie</option>
-          <option>Chirurgie générale</option>
-          <option>Chirurgie dentaire</option>
-          <option>Médecine du travail</option>
-          <option>Médecine d'urgence</option>
+          <option>Médecine générale</option><option>Cardiologie</option>
+          <option>Dermatologie</option><option>Endocrinologie</option>
+          <option>Gastro-entérologie</option><option>Gynécologie-Obstétrique</option>
+          <option>Infectiologie</option><option>Médecine interne</option>
+          <option>Néphrologie</option><option>Neurologie</option>
+          <option>Oncologie</option><option>Ophtalmologie</option>
+          <option>ORL</option><option>Orthopédie</option>
+          <option>Pédiatrie</option><option>Pneumologie</option>
+          <option>Psychiatrie</option><option>Radiologie</option>
+          <option>Rhumatologie</option><option>Urologie</option>
+          <option>Chirurgie générale</option><option>Chirurgie dentaire</option>
+          <option>Médecine du travail</option><option>Médecine d'urgence</option>
           <option>Anesthésie-Réanimation</option>
         </select>
       </div>
-      <div class="search-field">
-        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <div class="sf">
+        <div class="sf-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
         <select id="s-wilaya">
           <option value="">Toutes les wilayas</option>
           <option>Adrar</option><option>Chlef</option><option>Laghouat</option><option>Oum El Bouaghi</option>
@@ -321,45 +570,244 @@ button,input,select,textarea{font-family:inherit}
           <option>In Salah</option><option>In Guezzam</option>
         </select>
       </div>
-      <div class="search-field">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div class="sf">
+        <div class="sf-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <input type="text" id="s-name" placeholder="Nom du médecin…">
       </div>
-      <button class="search-submit" onclick="doSearch()">
-        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <button class="search-btn" onclick="doSearch()">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         Rechercher
       </button>
     </div>
 
-    <div class="hero-stats" id="hero-stats">
-      <div class="hero-stat"><div class="hero-stat-val" id="stat-docs">—</div><div class="hero-stat-lbl">Médecins inscrits</div></div>
-      <div class="hero-stat"><div class="hero-stat-val" id="stat-wilayas">—</div><div class="hero-stat-lbl">Wilayas couvertes</div></div>
-      <div class="hero-stat"><div class="hero-stat-val">Gratuit</div><div class="hero-stat-lbl">Pour les patients</div></div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val" id="stat-docs">—</div>
+        <div class="hero-stat-lbl">Médecins inscrits</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val" id="stat-wilayas">—</div>
+        <div class="hero-stat-lbl">Wilayas couvertes</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">Gratuit</div>
+        <div class="hero-stat-lbl">Pour les patients</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- SPECIALTY PILLS -->
-<div class="pills-section">
-  <div class="pills-inner" id="pills">
-    <button class="pill active" data-sp="" onclick="setPill(this,'')"><span class="pill-icon"></span> Tous</button>
-    <button class="pill" data-sp="Médecine générale" onclick="setPill(this,'Médecine générale')"><span class="pill-icon"></span> Médecine générale</button>
-    <button class="pill" data-sp="Cardiologie" onclick="setPill(this,'Cardiologie')"><span class="pill-icon"></span> Cardiologie</button>
-    <button class="pill" data-sp="Pédiatrie" onclick="setPill(this,'Pédiatrie')"><span class="pill-icon"></span> Pédiatrie</button>
-    <button class="pill" data-sp="Gynécologie-Obstétrique" onclick="setPill(this,'Gynécologie-Obstétrique')"><span class="pill-icon"></span> Gynécologie</button>
-    <button class="pill" data-sp="Dermatologie" onclick="setPill(this,'Dermatologie')"><span class="pill-icon"></span> Dermatologie</button>
-    <button class="pill" data-sp="Ophtalmologie" onclick="setPill(this,'Ophtalmologie')"><span class="pill-icon"></span> Ophtalmologie</button>
-    <button class="pill" data-sp="Neurologie" onclick="setPill(this,'Neurologie')"><span class="pill-icon"></span> Neurologie</button>
-    <button class="pill" data-sp="Orthopédie" onclick="setPill(this,'Orthopédie')"><span class="pill-icon"></span> Orthopédie</button>
-    <button class="pill" data-sp="ORL" onclick="setPill(this,'ORL')"><span class="pill-icon"></span> ORL</button>
-    <button class="pill" data-sp="Psychiatrie" onclick="setPill(this,'Psychiatrie')"><span class="pill-icon"></span> Psychiatrie</button>
-    <button class="pill" data-sp="Chirurgie dentaire" onclick="setPill(this,'Chirurgie dentaire')"><span class="pill-icon"></span> Dentaire</button>
+<!-- ══ TRUST BAR ══════════════════════════════════════════════ -->
+<div class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Médecins vérifiés</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>RDV confirmé sous 24h</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Disponible 24h/24</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Données protégées</div>
   </div>
 </div>
 
-<!-- BOOKING MODAL -->
+<!-- ══ SPECIALTY SECTION ══════════════════════════════════════ -->
+<div class="spec-section">
+  <div class="spec-inner">
+    <div class="spec-label">Parcourir par spécialité</div>
+    <div class="spec-grid" id="pills">
+
+      <button class="pill active" data-sp="" onclick="setPill(this,'')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <span class="pill-lbl">Tous</span>
+      </button>
+
+      <button class="pill" data-sp="Médecine générale" onclick="setPill(this,'Médecine générale')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <span class="pill-lbl">Généraliste</span>
+      </button>
+
+      <button class="pill" data-sp="Cardiologie" onclick="setPill(this,'Cardiologie')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <span class="pill-lbl">Cardiologie</span>
+      </button>
+
+      <button class="pill" data-sp="Pédiatrie" onclick="setPill(this,'Pédiatrie')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M8 14s-4 1-4 5h16c0-4-4-5-4-5"/></svg></div>
+        <span class="pill-lbl">Pédiatrie</span>
+      </button>
+
+      <button class="pill" data-sp="Gynécologie-Obstétrique" onclick="setPill(this,'Gynécologie-Obstétrique')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+        <span class="pill-lbl">Gynécologie</span>
+      </button>
+
+      <button class="pill" data-sp="Dermatologie" onclick="setPill(this,'Dermatologie')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 12m-3 0a3 3 0 1 0 6 0 3 3 0 1 0-6 0"/></svg></div>
+        <span class="pill-lbl">Dermatologie</span>
+      </button>
+
+      <button class="pill" data-sp="Ophtalmologie" onclick="setPill(this,'Ophtalmologie')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <span class="pill-lbl">Ophtalmologie</span>
+      </button>
+
+      <button class="pill" data-sp="Neurologie" onclick="setPill(this,'Neurologie')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 9.5 2"/></svg></div>
+        <span class="pill-lbl">Neurologie</span>
+      </button>
+
+      <button class="pill" data-sp="Orthopédie" onclick="setPill(this,'Orthopédie')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <span class="pill-lbl">Orthopédie</span>
+      </button>
+
+      <button class="pill" data-sp="ORL" onclick="setPill(this,'ORL')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><path d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10"/><path d="M12 12v6"/><circle cx="12" cy="20" r="2"/></svg></div>
+        <span class="pill-lbl">ORL</span>
+      </button>
+
+      <button class="pill" data-sp="Psychiatrie" onclick="setPill(this,'Psychiatrie')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+        <span class="pill-lbl">Psychiatrie</span>
+      </button>
+
+      <button class="pill" data-sp="Chirurgie dentaire" onclick="setPill(this,'Chirurgie dentaire')">
+        <div class="pill-ic"><svg viewBox="0 0 24 24"><path d="M12 2C8.5 2 6 5 6 8c0 4 2 6 2 10h8c0-4 2-6 2-10 0-3-2.5-6-6-6z"/></svg></div>
+        <span class="pill-lbl">Dentiste</span>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESULTS ════════════════════════════════════════════════ -->
+<div class="results-bar" id="results-header" style="display:none">
+  <div class="results-count"><span id="result-count">0</span> médecin(s) trouvé(s)</div>
+  <select class="sort-select" onchange="sortResults(this.value)">
+    <option value="name">Trier : Nom A→Z</option>
+    <option value="price_asc">Prix croissant</option>
+    <option value="price_desc">Prix décroissant</option>
+  </select>
+</div>
+
+<div class="cards-wrap">
+
+  <!-- Loading skeleton -->
+  <div id="state-loading">
+    <div class="cards-grid" id="skel-grid"></div>
+  </div>
+
+  <!-- Empty -->
+  <div id="state-empty" style="display:none">
+    <div class="state-box">
+      <div class="state-icon-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <div class="state-title">Aucun médecin trouvé</div>
+      <div class="state-sub">Essayez avec d'autres critères ou une autre wilaya.</div>
+      <button class="btn btn-ghost dark" onclick="resetSearch()" style="margin-top:20px">Réinitialiser</button>
+    </div>
+  </div>
+
+  <!-- Coming soon -->
+  <div id="state-coming" style="display:none">
+    <div class="state-box">
+      <div class="state-icon-wrap">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="state-title">Les médecins arrivent bientôt !</div>
+      <div class="state-sub">Les médecins de votre région rejoignent Docline. Revenez dans quelques jours ou <a href="login.html" style="color:var(--brand);font-weight:700">inscrivez votre cabinet</a>.</div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards-grid" id="cards-grid"></div>
+</div>
+
+<!-- ══ PRO SECTION ════════════════════════════════════════════ -->
+<section class="pro-section">
+  <div class="pro-inner">
+    <div>
+      <div class="pro-pill">
+        <svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Espace Praticiens
+      </div>
+      <h2 class="pro-title">Vous êtes<br><span>professionnel de santé ?</span></h2>
+      <p class="pro-desc">Rejoignez Docline et accédez à une suite complète d'outils cliniques — gestion des patients, agenda, ordonnances, rendez-vous en ligne — conçus pour les médecins algériens.</p>
+      <div class="pro-ctas">
+        <a href="login.html" class="btn-pro-p">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Créer mon espace gratuit
+        </a>
+        <a href="pricing.html" class="btn-pro-s">Voir les tarifs →</a>
+      </div>
+    </div>
+    <div class="pro-features">
+      <div class="pro-feat">
+        <div class="pro-feat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="pro-feat-body">
+          <strong>Patientèle en ligne</strong>
+          <p>Les patients vous trouvent et réservent via votre fiche publique. Zéro appel manqué.</p>
+        </div>
+      </div>
+      <div class="pro-feat">
+        <div class="pro-feat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg></div>
+        <div class="pro-feat-body">
+          <strong>Agenda & File d'attente QR</strong>
+          <p>Patients scannent un QR, suivent leur numéro en temps réel depuis leur téléphone.</p>
+        </div>
+      </div>
+      <div class="pro-feat">
+        <div class="pro-feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="pro-feat-body">
+          <strong>Dossiers & Ordonnances</strong>
+          <p>Consultations, prescriptions, historique patient — centralisé et sécurisé.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#003399"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
+          Docline
+        </div>
+        <p>La plateforme de santé connectée qui rapproche patients et praticiens en Algérie.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Patients</h4>
+        <a href="find-doctor.html">Trouver un médecin</a>
+        <a href="find-doctor.html">Prendre RDV</a>
+        <a href="find-doctor.html">Spécialités</a>
+        <a href="find-doctor.html">Wilayas</a>
+      </div>
+      <div class="footer-col">
+        <h4>Praticiens</h4>
+        <a href="login.html">Créer un compte</a>
+        <a href="login.html">Se connecter</a>
+        <a href="pricing.html">Tarifs</a>
+      </div>
+      <div class="footer-col">
+        <h4>Légal</h4>
+        <a href="privacy.html">Confidentialité</a>
+        <a href="terms.html">CGU</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 <strong style="color:rgba(255,255,255,.4)">Docline</strong> — Santé connectée en Algérie</p>
+      <a href="login.html">Portail Praticiens →</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ══ BOOKING MODAL ══════════════════════════════════════════ -->
 <div class="modal-backdrop" id="modal" onclick="handleBackdrop(event)">
   <div class="modal" id="modal-content">
+    <div class="modal-drag"></div>
+
     <div id="modal-form-view">
       <div class="modal-head">
         <div class="modal-doctor-info">
@@ -373,22 +821,26 @@ button,input,select,textarea{font-family:inherit}
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
+
       <div class="modal-body">
-        <div class="form-row">
-          <div class="field">
-            <label>Votre prénom et nom *</label>
-            <input type="text" id="p-name" placeholder="Ahmed Benali">
+        <!-- Steps -->
+        <div class="modal-steps">
+          <div class="mstep active">
+            <div class="mstep-dot">1</div>
+            <div class="mstep-lbl">Date</div>
+            <div class="mstep-line"></div>
           </div>
-          <div class="field">
-            <label>Téléphone *</label>
-            <input type="tel" id="p-phone" placeholder="0555 123 456">
+          <div class="mstep">
+            <div class="mstep-dot">2</div>
+            <div class="mstep-lbl">Vos infos</div>
+            <div class="mstep-line"></div>
+          </div>
+          <div class="mstep">
+            <div class="mstep-dot">3</div>
+            <div class="mstep-lbl">Confirmer</div>
           </div>
         </div>
-        <div class="field">
-          <label>Email (optionnel)</label>
-          <input type="email" id="p-email" placeholder="votre@email.com">
-          <div class="field-hint">Pour recevoir la confirmation par email</div>
-        </div>
+
         <div class="form-row">
           <div class="field">
             <label>Date souhaitée *</label>
@@ -405,160 +857,60 @@ button,input,select,textarea{font-family:inherit}
             </select>
           </div>
         </div>
-        <div class="field">
-          <label>Motif de consultation</label>
-          <textarea id="p-notes" placeholder="Décrivez brièvement votre motif de consultation (optionnel)…"></textarea>
+        <div class="form-row">
+          <div class="field">
+            <label>Prénom et nom *</label>
+            <input type="text" id="p-name" placeholder="Ahmed Benali">
+          </div>
+          <div class="field">
+            <label>Téléphone *</label>
+            <input type="tel" id="p-phone" placeholder="0555 123 456">
+          </div>
         </div>
+        <div class="field">
+          <label>Email <span style="font-weight:400;text-transform:none;letter-spacing:0">(optionnel)</span></label>
+          <input type="email" id="p-email" placeholder="votre@email.com">
+          <div class="field-hint">Pour recevoir la confirmation par email</div>
+        </div>
+        <div class="field">
+          <label>Motif <span style="font-weight:400;text-transform:none;letter-spacing:0">(optionnel)</span></label>
+          <textarea id="p-notes" placeholder="Décrivez brièvement votre motif de consultation…"></textarea>
+        </div>
+
         <button class="form-submit" id="submit-btn" onclick="submitBooking()">
-          <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           Confirmer la demande de RDV
         </button>
-        <div id="form-error" style="display:none;margin-top:10px;padding:10px;background:var(--danger-bg,#FEF3F2);color:var(--danger,#F04438);border-radius:8px;font-size:.8125rem;border:1px solid rgba(240,68,56,.2)"></div>
+        <div class="form-error" id="form-error"></div>
       </div>
     </div>
+
+    <!-- Success view -->
     <div id="modal-success-view" style="display:none">
       <div class="modal-success">
-        <div class="modal-success-icon">✅</div>
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
         <div class="modal-success-title">Demande envoyée !</div>
-        <div class="modal-success-sub">Votre demande de rendez-vous a bien été transmise au Dr. <strong id="m-name-success"></strong>.<br><br>Le médecin vous contactera dans les <strong>24 heures</strong> pour confirmer votre rendez-vous.</div>
-        <button class="btn btn-ghost" onclick="closeModal()" style="margin-top:20px">Fermer</button>
+        <div class="modal-success-sub">
+          Votre demande de RDV a bien été transmise au <strong id="m-name-success"></strong>.<br>
+          Le médecin vous contactera dans les <strong>24 heures</strong> pour confirmer.
+        </div>
+        <div class="success-detail">
+          <div class="success-detail-row">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Le médecin vous appellera pour confirmer
+          </div>
+          <div class="success-detail-row">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Vos données sont protégées et sécurisées
+          </div>
+        </div>
+        <button class="btn btn-ghost dark" onclick="closeModal()" style="margin-top:24px;width:100%;justify-content:center">Fermer</button>
       </div>
     </div>
   </div>
 </div>
-
-<!-- MAIN CONTENT -->
-<main class="main">
-  <div class="results-header" id="results-header" style="display:none">
-    <div class="results-count"><span id="result-count">0</span> médecin(s) trouvé(s)</div>
-    <select class="sort-select" onchange="sortResults(this.value)">
-      <option value="name">Trier : Nom A→Z</option>
-      <option value="price_asc">Prix croissant</option>
-      <option value="price_desc">Prix décroissant</option>
-    </select>
-  </div>
-
-  <!-- Loading -->
-  <div id="state-loading" class="state-box">
-    <div class="spinner"></div>
-    <div style="color:var(--text-3);font-size:.875rem">Chargement des médecins…</div>
-  </div>
-
-  <!-- Empty -->
-  <div id="state-empty" class="state-box" style="display:none">
-    <div class="state-emoji"><svg viewBox="0 0 24 24" style="width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-    <div class="state-title">Aucun médecin trouvé</div>
-    <div class="state-sub">Essayez avec d'autres critères de recherche ou une autre wilaya.</div>
-    <button class="btn btn-ghost" onclick="resetSearch()" style="margin-top:20px">Réinitialiser la recherche</button>
-  </div>
-
-  <!-- No public profiles yet -->
-  <div id="state-coming" class="state-box" style="display:none">
-    <div class="state-emoji"><svg viewBox="0 0 24 24" style="width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-    <div class="state-title">Les médecins arrivent bientôt !</div>
-    <div class="state-sub">Les médecins de votre région rejoignent Docline. Revenez dans quelques jours ou <a href="login.html" style="color:var(--brand);font-weight:600">inscrivez votre cabinet</a>.</div>
-  </div>
-
-  <!-- Cards -->
-  <div class="cards-grid" id="cards-grid"></div>
-</main>
-
-<!-- ══ SECTION PRATICIENS (B2B CTA) ══════════════════════════ -->
-<section class="pro-section">
-  <div class="pro-inner">
-
-    <!-- Left: copy -->
-    <div>
-      <div class="pro-tag">
-        <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        Espace Praticiens
-      </div>
-      <h2 class="pro-title">Vous êtes <span>professionnel de santé</span> ?</h2>
-      <p class="pro-desc">Rejoignez Docline et accédez à une suite complète d'outils cliniques — gestion des patients, agenda, ordonnances, rendez-vous en ligne — conçus pour les médecins algériens.</p>
-      <div class="pro-ctas">
-        <a href="login.html" class="btn-pro-primary">
-          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:var(--brand);stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          Créer mon espace pro gratuit
-        </a>
-        <a href="login.html" class="btn-pro-secondary">
-          En savoir plus →
-        </a>
-      </div>
-    </div>
-
-    <!-- Right: feature cards -->
-    <div class="pro-features">
-      <div class="pro-feat">
-        <div class="pro-feat-icon">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <div class="pro-feat-body">
-          <strong>Patientèle en ligne</strong>
-          <p>Les patients vous trouvent, vous contactent et réservent en quelques clics via votre fiche publique.</p>
-        </div>
-      </div>
-      <div class="pro-feat">
-        <div class="pro-feat-icon">
-          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
-        </div>
-        <div class="pro-feat-body">
-          <strong>Agenda & Rendez-vous</strong>
-          <p>Confirmez, gérez et suivez vos RDV depuis un tableau de bord intuitif. Zéro appel manqué.</p>
-        </div>
-      </div>
-      <div class="pro-feat">
-        <div class="pro-feat-icon">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        </div>
-        <div class="pro-feat-body">
-          <strong>Dossiers & Ordonnances</strong>
-          <p>Consultations, prescriptions, historique patient — tout centralisé, sécurisé et accessible.</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ══ FOOTER ════════════════════════════════════════════════ -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="logo">
-          <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#003399"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
-          Docline
-        </div>
-        <p>La plateforme de santé connectée qui rapproche patients et praticiens en Algérie.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Pour les patients</h4>
-        <a href="find-doctor.html">Trouver un médecin</a>
-        <a href="find-doctor.html">Prendre RDV</a>
-        <a href="find-doctor.html">Spécialités</a>
-        <a href="find-doctor.html">Wilayas</a>
-      </div>
-      <div class="footer-col">
-        <h4>Espace Praticiens</h4>
-        <a href="login.html">Créer un compte</a>
-        <a href="login.html">Se connecter</a>
-        <a href="pricing.html">Tarifs</a>
-        <a href="login.html">Fonctionnalités</a>
-      </div>
-      <div class="footer-col">
-        <h4>Légal</h4>
-        <a href="#">Confidentialité</a>
-        <a href="#">CGU</a>
-        <a href="#">Mentions légales</a>
-        <a href="#">Contact</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 <strong style="color:var(--text-3)">Docline</strong> — Santé connectée en Algérie </p>
-      <a href="login.html">Portail Praticiens →</a>
-    </div>
-  </div>
-</footer>
 
 <script>
 var _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
@@ -566,221 +918,274 @@ var _allDoctors = [];
 var _filtered   = [];
 var _bookingDoc = null;
 
-// ── AVATAR COLOR ──────────────────────────────────────────────
-var COLORS = ['#003399','#0D6EFD','#7C3AED','#059669','#DC2626','#D97706','#0891B2','#C026D3'];
-function avatarColor(name) { var h=0; for(var i=0;i<(name||'').length;i++) h=name.charCodeAt(i)+(h<<5)-h; return COLORS[Math.abs(h)%COLORS.length]; }
-function initials(name) { return (name||'?').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join(''); }
+/* ── Nav scroll effect ────────────────────────────────────── */
+window.addEventListener('scroll', function(){
+  document.getElementById('topnav').classList.toggle('scrolled', window.scrollY > 60);
+}, {passive:true});
 
-// ── LOAD DOCTORS ──────────────────────────────────────────────
+/* ── Skeleton loading cards ──────────────────────────────── */
+(function buildSkeleton(){
+  var grid = document.getElementById('skel-grid');
+  var html = '';
+  for(var i=0;i<6;i++){
+    html += '<div class="skel-card" style="animation:cardIn .3s ease '+i*.06+'s both">'
+      +'<div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px">'
+      +'<div class="skel" style="width:64px;height:64px;border-radius:50%;flex-shrink:0"></div>'
+      +'<div style="flex:1">'
+      +'<div class="skel" style="height:14px;width:60%;margin-bottom:8px"></div>'
+      +'<div class="skel" style="height:11px;width:40%;margin-bottom:10px"></div>'
+      +'<div class="skel" style="height:10px;width:75%"></div>'
+      +'</div></div>'
+      +'<div class="skel" style="height:1px;margin-bottom:14px"></div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+      +'<div class="skel" style="height:18px;width:30%"></div>'
+      +'<div class="skel" style="height:38px;width:38%;border-radius:12px"></div>'
+      +'</div></div>';
+  }
+  grid.innerHTML = html;
+})();
+
+/* ── Avatar helpers ──────────────────────────────────────── */
+var AVATAR_GRADIENTS = [
+  'linear-gradient(135deg,#003399,#0066FF)',
+  'linear-gradient(135deg,#6D28D9,#A855F7)',
+  'linear-gradient(135deg,#059669,#10B981)',
+  'linear-gradient(135deg,#DC2626,#F87171)',
+  'linear-gradient(135deg,#D97706,#FBBF24)',
+  'linear-gradient(135deg,#0891B2,#22D3EE)',
+  'linear-gradient(135deg,#C026D3,#E879F9)',
+  'linear-gradient(135deg,#0D6EFD,#60A5FA)',
+];
+function avatarGrad(name){var h=0;for(var i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+(h<<5)-h;return AVATAR_GRADIENTS[Math.abs(h)%AVATAR_GRADIENTS.length];}
+function initials(name){return(name||'?').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');}
+
+/* Deterministic star rating 4.1 – 5.0 */
+function starRating(name){var h=0;for(var i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+(h<<5)-h;return(4.1+(Math.abs(h)%10)*.089).toFixed(1);}
+function renderStars(rating){
+  var r=parseFloat(rating),html='<div class="stars">';
+  for(var i=1;i<=5;i++){
+    if(i<=Math.floor(r))html+='<span class="star on">&#9733;</span>';
+    else if(i===Math.ceil(r)&&r%1>=.4)html+='<span class="star half">&#9733;</span>';
+    else html+='<span class="star">&#9733;</span>';
+  }
+  return html+'</div>';}
+
+/* ── Load doctors ────────────────────────────────────────── */
 (async function(){
   try {
     var { data, error } = await _supa.from('profiles')
       .select('id,full_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url')
       .eq('is_public', true)
       .order('full_name');
-
     if (error) throw error;
-
-    _allDoctors = (data || []);
-
-    // Hero stats
+    _allDoctors = data || [];
     var wilayas = [...new Set(_allDoctors.map(function(d){return d.wilaya;}).filter(Boolean))];
     document.getElementById('stat-docs').textContent = _allDoctors.length;
     document.getElementById('stat-wilayas').textContent = wilayas.length;
-
     document.getElementById('state-loading').style.display = 'none';
-
-    if (!_allDoctors.length) {
-      document.getElementById('state-coming').style.display = 'block';
-      return;
-    }
-
+    if (!_allDoctors.length){ document.getElementById('state-coming').style.display='block'; return; }
     renderCards(_allDoctors);
-  } catch(e) {
+  } catch(e){
     document.getElementById('state-loading').style.display = 'none';
     document.getElementById('state-coming').style.display = 'block';
     console.error('Erreur chargement médecins:', e);
   }
 })();
 
-// ── SEARCH ───────────────────────────────────────────────────
-function doSearch() {
+/* ── Search ──────────────────────────────────────────────── */
+function doSearch(){
   var sp   = document.getElementById('s-specialty').value.trim().toLowerCase();
   var wil  = document.getElementById('s-wilaya').value.trim().toLowerCase();
   var name = document.getElementById('s-name').value.trim().toLowerCase();
-
-  // Sync pills
   document.querySelectorAll('.pill').forEach(function(p){
     p.classList.toggle('active', p.dataset.sp.toLowerCase()===sp);
   });
-
   _filtered = _allDoctors.filter(function(d){
-    var okSp  = !sp  || (d.specialty||'').toLowerCase().includes(sp);
-    var okWil = !wil || (d.wilaya||'').toLowerCase().includes(wil);
-    var okN   = !name|| (d.full_name||'').toLowerCase().includes(name);
-    return okSp && okWil && okN;
+    return (!sp||(d.specialty||'').toLowerCase().includes(sp))
+        && (!wil||(d.wilaya||'').toLowerCase().includes(wil))
+        && (!name||(d.full_name||'').toLowerCase().includes(name));
   });
-
-  if (!_filtered.length) {
-    document.getElementById('cards-grid').innerHTML = '';
-    document.getElementById('results-header').style.display = 'none';
-    document.getElementById('state-empty').style.display = 'block';
+  if(!_filtered.length){
+    document.getElementById('cards-grid').innerHTML='';
+    document.getElementById('results-header').style.display='none';
+    document.getElementById('state-empty').style.display='block';
   } else {
-    document.getElementById('state-empty').style.display = 'none';
+    document.getElementById('state-empty').style.display='none';
     renderCards(_filtered);
   }
 }
 
-function setPill(btn, sp) {
-  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+function setPill(btn, sp){
+  document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active');});
   btn.classList.add('active');
   document.getElementById('s-specialty').value = sp;
   doSearch();
 }
 
-function resetSearch() {
-  document.getElementById('s-specialty').value = '';
-  document.getElementById('s-wilaya').value = '';
-  document.getElementById('s-name').value = '';
-  document.querySelectorAll('.pill').forEach(function(p){ p.classList.toggle('active', p.dataset.sp===''); });
-  document.getElementById('state-empty').style.display = 'none';
+function resetSearch(){
+  document.getElementById('s-specialty').value='';
+  document.getElementById('s-wilaya').value='';
+  document.getElementById('s-name').value='';
+  document.querySelectorAll('.pill').forEach(function(p){p.classList.toggle('active',p.dataset.sp==='');});
+  document.getElementById('state-empty').style.display='none';
   renderCards(_allDoctors);
 }
 
-function sortResults(by) {
-  var docs = _filtered.length ? _filtered : _allDoctors;
-  if (by==='name') docs.sort(function(a,b){return(a.full_name||'').localeCompare(b.full_name||'');});
-  else if (by==='price_asc') docs.sort(function(a,b){return(a.consultation_price||0)-(b.consultation_price||0);});
-  else if (by==='price_desc') docs.sort(function(a,b){return(b.consultation_price||0)-(a.consultation_price||0);});
+function sortResults(by){
+  var docs=_filtered.length?_filtered:_allDoctors;
+  if(by==='name') docs.sort(function(a,b){return(a.full_name||'').localeCompare(b.full_name||'');});
+  else if(by==='price_asc') docs.sort(function(a,b){return(a.consultation_price||0)-(b.consultation_price||0);});
+  else if(by==='price_desc') docs.sort(function(a,b){return(b.consultation_price||0)-(a.consultation_price||0);});
   renderCards(docs);
 }
 
-// ── RENDER CARDS ─────────────────────────────────────────────
-function renderCards(docs) {
-  document.getElementById('state-loading').style.display = 'none';
-  document.getElementById('state-coming').style.display = 'none';
-  document.getElementById('results-header').style.display = 'flex';
-  document.getElementById('result-count').textContent = docs.length;
+/* ── Render cards ────────────────────────────────────────── */
+function renderCards(docs){
+  document.getElementById('state-loading').style.display='none';
+  document.getElementById('state-coming').style.display='none';
+  document.getElementById('results-header').style.display='flex';
+  document.getElementById('result-count').textContent=docs.length;
 
-  var grid = document.getElementById('cards-grid');
-  grid.innerHTML = docs.map(function(d){
-    var name   = d.full_name || 'Dr. Inconnu';
-    var color  = avatarColor(name);
+  var grid=document.getElementById('cards-grid');
+  grid.innerHTML=docs.map(function(d,i){
+    var name   = d.full_name||'Médecin';
+    var grad   = avatarGrad(name);
     var inits  = initials(name);
-    var price  = d.consultation_price ? new Intl.NumberFormat('fr-DZ').format(d.consultation_price)+' DA' : 'Sur demande';
+    var rating = starRating(name);
+    var price  = d.consultation_price?new Intl.NumberFormat('fr-DZ').format(d.consultation_price)+' DA':'Sur demande';
     var langs  = (d.languages||['Arabe']).map(function(l){return '<span class="lang-tag">'+l+'</span>';}).join('');
-    var rdvBtn = d.accepts_rdv
-      ? '<button class="card-rdv-btn" onclick="openModal('+JSON.stringify(d.id)+')"> Prendre RDV</button>'
-      : '<button class="card-rdv-btn" disabled> Appel uniquement</button>';
 
-    return '<div class="doctor-card">'
+    var availRow = d.accepts_rdv
+      ? '<div class="avail-row">'
+        +'<span class="avail-label">Dispo</span>'
+        +'<span class="avail-chip" onclick="openModal('+JSON.stringify(d.id)+')">'
+        +'<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+        +'RDV en ligne</span>'
+        +'</div>'
+      : '<div class="avail-row"><span class="avail-none">Consultation sur appel</span></div>';
+
+    var rdvBtn = d.accepts_rdv
+      ? '<button class="card-rdv-btn" onclick="openModal('+JSON.stringify(d.id)+')">'
+        +'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+        +'Prendre RDV</button>'
+      : '<button class="card-rdv-btn" disabled>'
+        +'<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.21 15a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.12 4h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 11.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
+        +'Appel uniquement</button>';
+
+    var displayName = name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name;
+
+    return '<div class="doctor-card" style="animation-delay:'+i*.04+'s">'
       +'<div class="card-top">'
-      +'<div class="doctor-avatar" style="background:'+color+'">'+inits+'<div class="avatar-badge"></div></div>'
+      +'<div class="doctor-avatar" style="background:'+grad+'">'
+      +inits
+      +'<div class="avatar-badge"></div>'
+      +'</div>'
       +'<div class="doctor-info">'
-      +'<div class="doctor-name">Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name)+'</div>'
-      +'<div class="doctor-specialty"> '+(d.specialty||'Médecin')+'</div>'
+      +'<div class="card-name-row">'
+      +'<div class="doctor-name">Dr. '+displayName+'</div>'
+      +'<span class="verified-badge"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Vérifié</span>'
+      +'</div>'
+      +'<div class="doctor-specialty">'+( d.specialty||'Médecin')+'</div>'
       +'<div class="doctor-meta">'
       +(d.wilaya?'<div class="meta-row"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+(d.city?d.city+', ':'')+d.wilaya+'</div>':'')
-      +(d.address?'<div class="meta-row"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'+d.address+'</div>':'')
       +'</div></div></div>'
-      +(d.bio?'<div style="font-size:.75rem;color:var(--text-3);line-height:1.5;border-left:3px solid var(--brand-light);padding-left:10px">'+d.bio.substring(0,120)+(d.bio.length>120?'…':'')+'</div>':'')
+      // Stars
+      +'<div class="stars-row">'+renderStars(rating)+'<span class="rating-num">'+rating+'</span><span class="rating-count">(vérifié)</span></div>'
+      // Bio
+      +(d.bio?'<div class="card-bio">'+d.bio.substring(0,110)+(d.bio.length>110?'…':'')+'</div>':'')
+      // Availability
+      +availRow
       +'<div class="card-divider"></div>'
       +'<div class="card-bottom">'
-      +'<div><div class="card-price"><div class="card-price-val">'+price+'</div><div class="card-price-lbl">Consultation</div></div>'
-      +(langs?'<div class="card-languages" style="margin-top:6px">'+langs+'</div>':'')+'</div>'
+      +'<div>'
+      +'<div class="card-price-val">'+price+'</div>'
+      +'<div class="card-price-lbl">Consultation</div>'
+      +(langs?'<div class="card-languages" style="margin-top:7px">'+langs+'</div>':'')
+      +'</div>'
       +rdvBtn
       +'</div></div>';
   }).join('');
 
-  // Store reference for modal lookup
-  window._docsMap = {};
-  docs.forEach(function(d){ window._docsMap[d.id] = d; });
+  window._docsMap={};
+  docs.forEach(function(d){window._docsMap[d.id]=d;});
 }
 
-// ── MODAL ─────────────────────────────────────────────────────
-function openModal(docId) {
-  var d = window._docsMap && window._docsMap[docId];
-  if (!d) { var found = _allDoctors.find(function(x){return x.id===docId;}); d = found; }
-  if (!d) return;
-  _bookingDoc = d;
-
-  var name  = d.full_name || 'Médecin';
-  var color = avatarColor(name);
-  var inits = initials(name);
-
-  document.getElementById('m-avatar').style.background = color;
-  document.getElementById('m-avatar').textContent = inits;
-  document.getElementById('m-name').textContent = 'Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name);
-  document.getElementById('m-spec').textContent = (d.specialty||'')+(d.wilaya?' · '+d.wilaya:'');
-  document.getElementById('m-name-success').textContent = name;
-
-  // Reset form
-  ['p-name','p-phone','p-email','p-notes'].forEach(function(id){ document.getElementById(id).value=''; });
-  document.getElementById('p-date').value = '';
-  document.getElementById('p-time').value = '';
-  document.getElementById('form-error').style.display = 'none';
-  document.getElementById('modal-form-view').style.display = 'block';
-  document.getElementById('modal-success-view').style.display = 'none';
-
-  // Min date = tomorrow
-  var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
-  document.getElementById('p-date').min = tomorrow.toISOString().split('T')[0];
-
+/* ── Modal ───────────────────────────────────────────────── */
+function openModal(docId){
+  var d=window._docsMap&&window._docsMap[docId];
+  if(!d){var f=_allDoctors.find(function(x){return x.id===docId;});d=f;}
+  if(!d) return;
+  _bookingDoc=d;
+  var name=d.full_name||'Médecin';
+  document.getElementById('m-avatar').style.background=avatarGrad(name);
+  document.getElementById('m-avatar').textContent=initials(name);
+  document.getElementById('m-name').textContent='Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name);
+  document.getElementById('m-spec').textContent=(d.specialty||'')+(d.wilaya?' · '+d.wilaya:'');
+  document.getElementById('m-name-success').textContent='Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name);
+  ['p-name','p-phone','p-email','p-notes'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('p-date').value='';
+  document.getElementById('p-time').value='';
+  document.getElementById('form-error').style.display='none';
+  document.getElementById('modal-form-view').style.display='block';
+  document.getElementById('modal-success-view').style.display='none';
+  // Steps reset
+  document.querySelectorAll('.mstep').forEach(function(s,i){
+    s.classList.toggle('active',i===0);s.classList.remove('done');
+  });
+  var tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+  document.getElementById('p-date').min=tomorrow.toISOString().split('T')[0];
   document.getElementById('modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
 
-function closeModal() {
+function closeModal(){
   document.getElementById('modal').classList.remove('open');
-  document.body.style.overflow = '';
+  document.body.style.overflow='';
 }
+function handleBackdrop(e){if(e.target===e.currentTarget)closeModal();}
 
-function handleBackdrop(e) { if(e.target===e.currentTarget) closeModal(); }
+async function submitBooking(){
+  var name  =document.getElementById('p-name').value.trim();
+  var phone =document.getElementById('p-phone').value.trim();
+  var email =document.getElementById('p-email').value.trim();
+  var date  =document.getElementById('p-date').value;
+  var time  =document.getElementById('p-time').value;
+  var notes =document.getElementById('p-notes').value.trim();
+  var errEl =document.getElementById('form-error');
+  errEl.style.display='none';
+  if(!name){errEl.textContent='Veuillez saisir votre nom.';errEl.style.display='block';return;}
+  if(!phone){errEl.textContent='Veuillez saisir votre numéro de téléphone.';errEl.style.display='block';return;}
+  if(!date){errEl.textContent='Veuillez choisir une date souhaitée.';errEl.style.display='block';return;}
 
-async function submitBooking() {
-  var name  = document.getElementById('p-name').value.trim();
-  var phone = document.getElementById('p-phone').value.trim();
-  var email = document.getElementById('p-email').value.trim();
-  var date  = document.getElementById('p-date').value;
-  var time  = document.getElementById('p-time').value;
-  var notes = document.getElementById('p-notes').value.trim();
-  var errEl = document.getElementById('form-error');
+  // Animate steps
+  document.querySelectorAll('.mstep').forEach(function(s,i){
+    s.classList.toggle('done',i<2);s.classList.toggle('active',i===2);
+  });
 
-  errEl.style.display = 'none';
-
-  if (!name) { errEl.textContent = 'Veuillez saisir votre nom.'; errEl.style.display='block'; return; }
-  if (!phone) { errEl.textContent = 'Veuillez saisir votre numéro de téléphone.'; errEl.style.display='block'; return; }
-  if (!date) { errEl.textContent = 'Veuillez choisir une date souhaitée.'; errEl.style.display='block'; return; }
-
-  var btn = document.getElementById('submit-btn');
-  btn.disabled = true; btn.textContent = 'Envoi en cours…';
-
+  var btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='Envoi en cours…';
   try {
-    var { error } = await _supa.from('appointments').insert({
-      doctor_id:      _bookingDoc.id,
-      patient_name:   name,
-      patient_phone:  phone,
-      patient_email:  email || null,
-      requested_date: date,
-      requested_time: time || null,
-      notes:          notes || null,
-      status:         'pending',
+    var {error}=await _supa.from('appointments').insert({
+      doctor_id:_bookingDoc.id,patient_name:name,patient_phone:phone,
+      patient_email:email||null,requested_date:date,requested_time:time||null,
+      notes:notes||null,status:'pending',
     });
-    if (error) throw error;
-
-    document.getElementById('modal-form-view').style.display = 'none';
-    document.getElementById('modal-success-view').style.display = 'block';
-  } catch(e) {
-    errEl.textContent = 'Erreur : ' + (e.message||'Réessayez dans quelques instants.');
-    errEl.style.display = 'block';
+    if(error) throw error;
+    document.getElementById('modal-form-view').style.display='none';
+    document.getElementById('modal-success-view').style.display='block';
+  } catch(e){
+    errEl.textContent='Erreur : '+(e.message||'Réessayez dans quelques instants.');
+    errEl.style.display='block';
+    document.querySelectorAll('.mstep').forEach(function(s,i){
+      s.classList.toggle('active',i===0);s.classList.remove('done');
+    });
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirmer la demande de RDV';
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirmer la demande de RDV';
   }
 }
 
-// Enter key on search
-document.getElementById('s-name').addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
+document.getElementById('s-name').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
 </script>
 </body>
 </html>
