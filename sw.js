@@ -2,22 +2,22 @@
 'use strict';
 var CACHE_NAME = 'docline-v5';
 var STATIC_CACHE = 'docline-static-v5';
-var OFFLINE_PAGE = '/prospeo/app.html';
+var OFFLINE_PAGE = '/docline/app.html';
 
 // Core assets to precache for offline
 var PRECACHE_URLS = [
-  '/prospeo/app.html',
-  '/prospeo/login.html',
-  '/prospeo/index.html',
-  '/prospeo/clients.html',
-  '/prospeo/invoices.html',
-  '/prospeo/calendar.html',
-  '/prospeo/proposals.html',
-  '/prospeo/shell.js',
-  '/prospeo/config.js',
-  '/prospeo/manifest.json',
-  '/prospeo/icon-192.png',
-  '/prospeo/icon-512.png',
+  '/docline/app.html',
+  '/docline/login.html',
+  '/docline/index.html',
+  '/docline/clients.html',
+  '/docline/invoices.html',
+  '/docline/calendar.html',
+  '/docline/proposals.html',
+  '/docline/shell.js',
+  '/docline/config.js',
+  '/docline/manifest.json',
+  '/docline/icon-192.png',
+  '/docline/icon-512.png',
 ];
 
 // ── INSTALL ──────────────────────────────────────────────────

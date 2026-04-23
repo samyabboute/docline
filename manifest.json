@@ -2,8 +2,8 @@
   "name": "Docline \u2014 CRM for Freelancers",
   "short_name": "Docline",
   "description": "CRM, invoicing, and e-signatures for European freelancers",
-  "start_url": "/prospeo/app.html",
-  "scope": "/prospeo/",
+  "start_url": "/docline/app.html",
+  "scope": "/docline/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#003399",
@@ -42,12 +42,12 @@
   "shortcuts": [
     {
       "name": "New Invoice",
-      "url": "/prospeo/invoices.html?new=1",
+      "url": "/docline/invoices.html?new=1",
       "description": "Create a new invoice"
     },
     {
       "name": "New Client",
-      "url": "/prospeo/clients.html?new=1",
+      "url": "/docline/clients.html?new=1",
       "description": "Add a new client"
     }
   ]
