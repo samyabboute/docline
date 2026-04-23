@@ -495,7 +495,9 @@
    temps réel Supabase, salles, QR code
 ═══════════════════════════════════════════════════════════ */
 
-var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _supaUrl = (typeof PROSPEO_CONFIG !== 'undefined' && PROSPEO_CONFIG.supabaseUrl) ? PROSPEO_CONFIG.supabaseUrl : (typeof SUPA_URL !== 'undefined' ? SUPA_URL : '');
+var _supaKey = (typeof PROSPEO_CONFIG !== 'undefined' && PROSPEO_CONFIG.supabaseAnonKey) ? PROSPEO_CONFIG.supabaseAnonKey : (typeof SUPA_KEY !== 'undefined' ? SUPA_KEY : '');
+var _supa = supabase.createClient(_supaUrl, _supaKey);
 var _uid = null;
 var _queue = [];
 var _rooms = [];
@@ -868,7 +870,7 @@ function renderQueue() {
   listEl.innerHTML = all.map(function(p, i) {
     var timeStr = p.arrived_at ? new Date(p.arrived_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
     var prioTag = '<span class="priority-tag ' + p.priority + '">' +
-      (p.priority==='critique'p.priority.toUpperCase() + '</span>';
+      p.priority.toUpperCase() + '</span>';
     var roomTag = p.room ? '<span class="room-tag">' + esc(p.room) + '</span>' : '';
     var statusLabel = p.status==='current'?'En consultation':p.status==='done'?'Consulté ✓':'En attente';
     var itemClass = 'q-item ' + p.status + ' prio-' + p.priority;
@@ -945,7 +947,8 @@ async function deleteRoom(id) {
 
 // ── QR CODE ───────────────────────────────────────────────────
 function generateQR() {
-  var joinUrl = APP_URL + '/queue-join.html?c=' + _uid;
+  var _appBase = (typeof APP_URL !== 'undefined' && APP_URL) ? APP_URL : (window.location.origin + window.location.pathname.replace(/[^/]*$/, '').replace(/\/$/, ''));
+  var joinUrl = _appBase + '/queue-join.html?c=' + _uid;
   document.getElementById('qr-link-text').textContent = joinUrl;
   document.getElementById('qr-code').innerHTML = '';
   try {
