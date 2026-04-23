@@ -341,7 +341,7 @@
 'use strict';
 
 var _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
-var _uid, _toastTimer;
+var _uid, _email, _toastTimer;
 
 /* ── Auth ──────────────────────────────────────────────────── */
 (async function(){
@@ -349,7 +349,8 @@ var _uid, _toastTimer;
     var r = await _supa.auth.getSession();
     var session = r && r.data && r.data.session;
     if (!session) { window.location.href = 'login.html?return=profil-public.html'; return; }
-    _uid = session.user.id;
+    _uid   = session.user.id;
+    _email = session.user.email;
 
     var subR = await _supa.from('subscriptions').select('plan,status').eq('user_id', _uid).maybeSingle();
     var sub  = subR && subR.data;
@@ -443,14 +444,15 @@ window.saveProfile = async function() {
   spin.style.display = 'block';
 
   var payload = {
+    email:              _email,
     full_name:          getVal('f-name'),
-    specialty:          getVal('f-specialty'),
-    wilaya:             getVal('f-wilaya'),
-    city:               getVal('f-city'),
-    address:            getVal('f-address'),
-    phone_public:       getVal('f-phone'),
+    specialty:          getVal('f-specialty') || null,
+    wilaya:             getVal('f-wilaya')    || null,
+    city:               getVal('f-city')      || null,
+    address:            getVal('f-address')   || null,
+    phone_public:       getVal('f-phone')     || null,
     consultation_price: parseInt(getVal('f-price')) || 0,
-    bio:                getVal('f-bio'),
+    bio:                getVal('f-bio')       || null,
     is_public:          document.getElementById('t-public').checked,
     accepts_rdv:        document.getElementById('t-rdv').checked,
     updated_at:         new Date().toISOString(),
