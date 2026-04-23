@@ -192,7 +192,7 @@
 
       <div class="page-header">
         <div class="page-title-row">
-          <h1 class="page-title">👥 Patients</h1>
+          <h1 class="page-title">Patients</h1>
           <span class="page-count" id="client-count">0</span>
         </div>
         <div class="header-actions">
@@ -206,15 +206,15 @@
       <!-- KPI STRIP -->
       <div class="kpi-strip" id="kpi-strip">
         <div class="kpi-pill">
-          <div class="kpi-ico" style="background:#EFF6FF">👥</div>
+          <div class="kpi-ico" style="background:#EFF6FF"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#1D4ED8;stroke-width:2;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-lbl">Total patients</div></div>
         </div>
         <div class="kpi-pill">
-          <div class="kpi-ico" style="background:#FEF9C3">♾️</div>
+          <div class="kpi-ico" style="background:#FEF9C3"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#92400E;stroke-width:2;stroke-linecap:round"><path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4zm0 0c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z"/></svg></div>
           <div><div class="kpi-val" id="kpi-chronic">—</div><div class="kpi-lbl">Chroniques</div></div>
         </div>
         <div class="kpi-pill">
-          <div class="kpi-ico" style="background:#DBEAFE">🏥</div>
+          <div class="kpi-ico" style="background:#DBEAFE"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#1D4ED8;stroke-width:2;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
           <div><div class="kpi-val" id="kpi-insured">—</div><div class="kpi-lbl">Assurés CNAS/CASNOS</div></div>
         </div>
       </div>
@@ -225,7 +225,7 @@
         <button class="filter-btn" data-filter="company" onclick="setFilter('company',this)">CNAS</button>
         <button class="filter-btn" data-filter="freelancer" onclick="setFilter('freelancer',this)">CASNOS</button>
         <button class="filter-btn" data-filter="individual" onclick="setFilter('individual',this)">Non assuré</button>
-        <button class="filter-btn" data-filter="chronic" onclick="setFilter('chronic',this)">♾️ Chroniques</button>
+        <button class="filter-btn" data-filter="chronic" onclick="setFilter('chronic',this)">Chroniques</button>
         <div class="filter-spacer"></div>
         <div class="view-toggle">
           <button class="view-btn active" id="vg" onclick="setView('grid')" title="Grille">
@@ -395,7 +395,7 @@ async function loadClients() {
   } catch(e) {
     document.getElementById('clients-container').innerHTML =
       '<div class="empty-state">'+
-        '<div class="empty-ico">⚠️</div>'+
+        '<div class="empty-ico">️</div>'+
         '<div class="empty-title">Impossible de charger les patients</div>'+
         '<div class="empty-sub">'+sanitize(e.message)+'</div>'+
       '</div>';
@@ -445,7 +445,7 @@ function renderClients(search) {
     var none = !_clients.length;
     el.className = '';
     el.innerHTML = '<div class="empty-state">'+
-      '<div class="empty-ico">'+(none?'👥':'🔍')+'</div>'+
+      '<div class="empty-ico">'+(none?'':'')+'</div>'+
       '<div class="empty-title">'+(none?'Aucun patient encore':'Aucun résultat')+'</div>'+
       '<div class="empty-sub">'+(none?'Créez votre premier dossier patient pour commencer.':'Modifiez votre recherche ou le filtre actif.')+'</div>'+
       (none?'<button class="btn btn-primary" onclick="openModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Premier patient</button>':'')+
@@ -468,7 +468,7 @@ function renderClients(search) {
         '<div>'+
           '<div class="pr-name">'+sanitize((c.first_name||'')+' '+(c.last_name||''))+'</div>'+
           '<div class="pr-sub">'+
-            (c.phone?'<span>📞 '+sanitize(c.phone)+'</span>':'')+
+            (c.phone?'<span> '+sanitize(c.phone)+'</span>':'')+
             (isChron?'<span class="chronic-chip">Chronique</span>':'')+
           '</div>'+
         '</div>'+
@@ -498,7 +498,7 @@ function renderClients(search) {
         '<div class="pc-sub">'+sanitize(c.company||'Patient')+'</div>'+
         '<div class="pc-meta">'+
           (c.phone?'<span class="pc-tag"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.94 2h3a2 2 0 0 1 2 1.72c.18.96.45 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.25 1.85.52 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+sanitize(c.phone)+'</span>':'')+
-          (isChron?'<span class="chronic-chip">♾️ Chronique</span>':'')+
+          (isChron?'<span class="chronic-chip"> Chronique</span>':'')+
         '</div>'+
         '<div class="pc-actions">'+
           '<button class="pc-action" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">'+

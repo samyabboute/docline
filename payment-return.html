@@ -99,7 +99,7 @@ function renderSuccess() {
   spawnConfetti();
 
   document.getElementById('main-content').innerHTML = `
-    <div class="icon-wrap success">✅</div>
+    <div class="icon-wrap success"><svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:none;stroke:#059669;stroke-width:2.5;stroke-linecap:round"><polyline points="20 6 9 17 4 12"/></svg></div>
     <h1>Paiement confirmé !</h1>
     <p class="subtitle">Votre abonnement a été activé automatiquement. Bon retour dans Prospeo !</p>
     <div class="detail-box">
@@ -129,7 +129,7 @@ function renderPending() {
   var billingLabel = BILLING_LABELS[billing] || billing || '—';
 
   document.getElementById('main-content').innerHTML = `
-    <div class="icon-wrap" style="background:#FEF3C7;border:2px solid #FDE68A;font-size:36px">⏳</div>
+    <div class="icon-wrap" style="background:#FEF3C7;border:2px solid #FDE68A;font-size:0"><svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:none;stroke:#D97706;stroke-width:2.5;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
     <h1>Demande en attente</h1>
     <p class="subtitle">Votre demande a bien été reçue. Elle sera traitée sous 24h ouvrées.</p>
     <div class="pending-notice">
@@ -153,7 +153,7 @@ function renderPending() {
 
 function renderError() {
   document.getElementById('main-content').innerHTML = `
-    <div class="icon-wrap error">❌</div>
+    <div class="icon-wrap error"><svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:none;stroke:#DC2626;stroke-width:2.5;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
     <h1>Paiement échoué</h1>
     <p class="subtitle">Le paiement n'a pas pu être traité. Aucun montant n'a été débité. Vous pouvez réessayer.</p>
     <a href="pricing.html" class="btn-primary">Réessayer</a>

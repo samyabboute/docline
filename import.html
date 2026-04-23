@@ -119,20 +119,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Source tool selector -->
   <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Where are you importing from?</div>
   <div class="tool-grid" id="tool-grid">
-    <div class="tool-card" data-tool="hubspot" onclick="selectTool(this)"><div class="tool-icon">🟠</div><div class="tool-name">HubSpot</div></div>
-    <div class="tool-card" data-tool="excel" onclick="selectTool(this)"><div class="tool-icon">🟢</div><div class="tool-name">Excel</div></div>
-    <div class="tool-card" data-tool="sheets" onclick="selectTool(this)"><div class="tool-icon">📊</div><div class="tool-name">Google Sheets</div></div>
-    <div class="tool-card" data-tool="notion" onclick="selectTool(this)"><div class="tool-icon">⚫</div><div class="tool-name">Notion</div></div>
-    <div class="tool-card" data-tool="airtable" onclick="selectTool(this)"><div class="tool-icon">🔵</div><div class="tool-name">Airtable</div></div>
-    <div class="tool-card" data-tool="pipedrive" onclick="selectTool(this)"><div class="tool-icon">🟣</div><div class="tool-name">Pipedrive</div></div>
-    <div class="tool-card" data-tool="salesforce" onclick="selectTool(this)"><div class="tool-icon">☁️</div><div class="tool-name">Salesforce</div></div>
-    <div class="tool-card selected" data-tool="other" onclick="selectTool(this)"><div class="tool-icon">📄</div><div class="tool-name">Other / CSV</div></div>
+    <div class="tool-card" data-tool="hubspot" onclick="selectTool(this)"><div class="tool-icon"></div><div class="tool-name">HubSpot</div></div>
+    <div class="tool-card" data-tool="excel" onclick="selectTool(this)"><div class="tool-icon"></div><div class="tool-name">Excel</div></div>
+    <div class="tool-card" data-tool="sheets" onclick="selectTool(this)"><div class="tool-icon"></div><div class="tool-name">Google Sheets</div></div>
+    <div class="tool-card" data-tool="notion" onclick="selectTool(this)"><div class="tool-icon"></div><div class="tool-name">Notion</div></div>
+    <div class="tool-card" data-tool="airtable" onclick="selectTool(this)"><div class="tool-icon"></div><div class="tool-name">Airtable</div></div>
+    <div class="tool-card" data-tool="pipedrive" onclick="selectTool(this)"><div class="tool-icon"></div><div class="tool-name">Pipedrive</div></div>
+    <div class="tool-card" data-tool="salesforce" onclick="selectTool(this)"><div class="tool-icon">️</div><div class="tool-name">Salesforce</div></div>
+    <div class="tool-card selected" data-tool="other" onclick="selectTool(this)"><div class="tool-icon"></div><div class="tool-name">Other / CSV</div></div>
   </div>
 
   <!-- Drop zone -->
   <div class="drop-zone" id="drop-zone">
     <input type="file" accept=".csv,.xlsx,.xls" id="file-input" onchange="handleFile(this.files[0])">
-    <div class="dz-icon">📂</div>
+    <div class="dz-icon"></div>
     <div class="dz-title">Drop your file here or click to browse</div>
     <div class="dz-sub">We'll detect column names and map them automatically</div>
     <div class="dz-formats">
@@ -171,7 +171,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <!-- Success -->
   <div class="success-box" id="success-box">
-    <div class="success-icon">🎉</div>
+    <div class="success-icon"></div>
     <div class="success-title" id="success-title">Import complete!</div>
     <div class="success-sub" id="success-sub"></div>
     <div style="margin-top:16px;display:flex;gap:10px;justify-content:center">

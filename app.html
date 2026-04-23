@@ -286,13 +286,13 @@ button{font-family:inherit;cursor:pointer}
 
         <!-- GREETING -->
         <div class="greeting">
-          <div class="greeting-line" id="greeting-text">Bonjour 👋</div>
+          <div class="greeting-line" id="greeting-text">Bonjour</div>
           <div class="greeting-sub" id="greeting-date"></div>
         </div>
 
         <!-- UPGRADE BANNER (free only) -->
         <div class="upgrade-banner" id="upgrade-banner" style="display:none">
-          <div class="upgrade-banner-icon">⚡</div>
+          <div class="upgrade-banner-icon" style="display:flex;align-items:center;color:inherit"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
           <div class="upgrade-banner-text">
             <div class="upgrade-banner-title">Passez en Pro — File d'attente QR illimitée</div>
             <div class="upgrade-banner-sub">Patients illimités, ordonnances, rappels automatiques. À partir de 2 900 DA/mois.</div>
@@ -466,7 +466,7 @@ function renderGreeting() {
   var h = new Date().getHours();
   var salut = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
   var prenom = _name ? _name.split(' ')[0] : 'Docteur';
-  document.getElementById('greeting-text').textContent = salut + ', Dr. ' + prenom + ' 👋';
+  document.getElementById('greeting-text').textContent = salut + ', Dr. ' + prenom + '.';
   var jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
   var mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   var d = new Date();

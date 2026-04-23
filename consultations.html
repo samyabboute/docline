@@ -161,7 +161,7 @@
 
       <div class="page-header">
         <div>
-          <div class="page-title">🩺 Consultations</div>
+          <div class="page-title">Consultations</div>
           <div class="page-sub">Historique médical complet — diagnostics, prescriptions, suivis chroniques</div>
         </div>
         <button class="btn-primary" onclick="openModal()">
@@ -172,19 +172,19 @@
 
       <div class="kpi-row">
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#EFF6FF">🩺</div>
+          <div class="kpi-ico" style="background:#EFF6FF"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#1D4ED8;stroke-width:2;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
           <div><div class="kpi-val" id="stat-total">—</div><div class="kpi-lbl">Total consultations</div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#DBEAFE">📅</div>
+          <div class="kpi-ico" style="background:#DBEAFE"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#1D4ED8;stroke-width:2;stroke-linecap:round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <div><div class="kpi-val" id="stat-month" style="color:var(--brand)">—</div><div class="kpi-lbl">Ce mois-ci</div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#EDE9FE">♾️</div>
+          <div class="kpi-ico" style="background:#EDE9FE">&infin;</div>
           <div><div class="kpi-val" id="stat-chronic" style="color:#7C3AED">—</div><div class="kpi-lbl">Patients chroniques</div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#FEF9C3">⏰</div>
+          <div class="kpi-ico" style="background:#FEF9C3"></div>
           <div><div class="kpi-val" id="stat-followup" style="color:#B45309">—</div><div class="kpi-lbl">Suivis à venir</div></div>
         </div>
       </div>
@@ -195,14 +195,14 @@
           <input type="search" id="search-input" placeholder="Patient, motif, diagnostic…" autocomplete="off" oninput="filterList()">
         </div>
         <button class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">Toutes</button>
-        <button class="filter-chip" data-filter="chronic" onclick="setFilter('chronic',this)">♾️ Chroniques</button>
-        <button class="filter-chip" data-filter="followup" onclick="setFilter('followup',this)">⏰ À suivre</button>
+        <button class="filter-chip" data-filter="chronic" onclick="setFilter('chronic',this)">&infin; Chroniques</button>
+        <button class="filter-chip" data-filter="followup" onclick="setFilter('followup',this)"> À suivre</button>
         <div class="toolbar-spacer"></div>
       </div>
 
       <div class="consult-list" id="consult-list">
         <div class="empty-state">
-          <div class="empty-ico">🩺</div>
+          <div class="empty-ico"><svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
           <div class="empty-title">Aucune consultation enregistrée</div>
           <div class="empty-sub">Commencez à documenter vos consultations pour un suivi médical optimal.</div>
         </div>
@@ -367,7 +367,7 @@ function renderList() {
   var el = document.getElementById('consult-list');
   if (!filtered.length) {
     el.innerHTML = '<div class="empty-state">'+
-      '<div class="empty-ico">'+(_consults.length?'🔍':'🩺')+'</div>'+
+      '<div class="empty-ico">'+(_consults.length?'Filtrer':'Médical')+'</div>'+
       '<div class="empty-title">'+(_consults.length?'Aucun résultat':'Aucune consultation enregistrée')+'</div>'+
       '<div class="empty-sub">'+(_consults.length?'Ajustez la recherche ou les filtres.':'Commencez à documenter vos consultations.')+'</div>'+
     '</div>';
@@ -388,9 +388,9 @@ function renderList() {
           '<div class="ci-name">'+esc(c.patient_name)+'</div>'+
           '<div class="ci-motif">'+(c.motif?esc(c.motif):'<em style="color:var(--text4)">Motif non renseigné</em>')+'</div>'+
           '<div class="ci-badges">'+
-            (c.is_chronic?'<span class="badge badge-chronic">♾️ '+(c.chronic_label||'Chronique')+'</span>':'')+
-            (overdue?'<span class="badge badge-overdue">⚠️ Suivi en retard</span>':'')+
-            (upcoming&&!overdue?'<span class="badge badge-followup">⏰ RDV : '+fmtDate(c.follow_up_date)+'</span>':'')+
+            (c.is_chronic?'<span class="badge badge-chronic">&infin; '+(c.chronic_label||'Chronique')+'</span>':'')+
+            (overdue?'<span class="badge badge-overdue"><span style="color:#D97706">!</span> Suivi en retard</span>':'')+
+            (upcoming&&!overdue?'<span class="badge badge-followup"> RDV : '+fmtDate(c.follow_up_date)+'</span>':'')+
           '</div>'+
         '</div>'+
         '<div class="consult-actions" onclick="event.stopPropagation()">'+
@@ -407,9 +407,9 @@ function renderList() {
       '</div>'+
       '<div class="consult-body" id="cb-'+c.id+'">'+
         '<div class="detail-grid">'+
-          (c.diagnostic?'<div class="detail-block full"><div class="detail-label">🔬 Diagnostic</div><div class="detail-val">'+esc(c.diagnostic)+'</div></div>':'')+
-          (c.prescription?'<div class="detail-block full"><div class="detail-label">💊 Prescription / Traitement</div><div class="detail-val">'+esc(c.prescription)+'</div></div>':'')+
-          (c.notes?'<div class="detail-block full"><div class="detail-label">📝 Notes cliniques</div><div class="detail-val">'+esc(c.notes)+'</div></div>':'')+
+          (c.diagnostic?'<div class="detail-block full"><div class="detail-label">Diagnostic</div><div class="detail-val">'+esc(c.diagnostic)+'</div></div>':'')+
+          (c.prescription?'<div class="detail-block full"><div class="detail-label">Prescription / Traitement</div><div class="detail-val">'+esc(c.prescription)+'</div></div>':'')+
+          (c.notes?'<div class="detail-block full"><div class="detail-label">Notes cliniques</div><div class="detail-val">'+esc(c.notes)+'</div></div>':'')+
         '</div>'+
         (c.follow_up_date?'<div class="followup-banner"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div class="followup-row-text">Prochain RDV : <strong>'+fmtDate(c.follow_up_date)+'</strong>'+(c.follow_up_notes?' — '+esc(c.follow_up_notes):'')+'</div></div>':'')+
       '</div>'+

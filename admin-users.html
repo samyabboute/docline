@@ -357,8 +357,8 @@
       <input type="search" id="srch" placeholder="Search by email or name…" oninput="filterUsers(this.value)">
     </div>
     <div class="topbar-actions">
-      <button class="btn btn-secondary btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
-      <button class="btn btn-secondary btn-sm" onclick="load()">↻ Refresh</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportCSV()"> Export CSV</button>
+      <button class="btn btn-secondary btn-sm" onclick="load()"> Refresh</button>
     </div>
   </header>
   <main class="main">
@@ -392,7 +392,7 @@
         <div class="card" style="margin-top:24px">
           <div class="card-header">
             <div class="section-title">Demandes de paiement en attente</div>
-            <button class="btn btn-secondary btn-sm" onclick="loadPaymentRequests()">↻ Actualiser</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadPaymentRequests()"> Actualiser</button>
           </div>
           <div id="pr-loading" style="padding:32px;text-align:center;color:var(--text-muted);font-size:var(--text-sm)">Chargement…</div>
           <div class="table-wrap" id="pr-table-wrap" style="display:none">
@@ -403,7 +403,7 @@
               <tbody id="pr-tbl"></tbody>
             </table>
           </div>
-          <div id="pr-empty" style="display:none;padding:40px;text-align:center;color:var(--text-muted);font-size:var(--text-sm)">Aucune demande en attente 🎉</div>
+          <div id="pr-empty" style="display:none;padding:40px;text-align:center;color:var(--text-muted);font-size:var(--text-sm)">Aucune demande en attente </div>
         </div>
 
         <!-- MANUAL ACTIVATION -->
@@ -664,7 +664,7 @@ function renderTable(){
       <td><span class="badge ${isPro?'badge-brand':isCan?'badge-danger':'badge-neutral'}">${isPro?'PRO':isCan?'CANCELED':'FREE'}</span></td>
       <td><span class="status-dot ${u.onboarded_at?'active':'inactive'}"></span> ${u.onboarded_at?'Active':'Pending'}</td>
       <td style="font-size:.6875rem;color:var(--text-muted)">${formatDate(u.created_at)}</td>
-      <td style="font-size:.6875rem;color:var(--text-muted)">${u.onboarded_at?'✓':'—'}</td>
+      <td style="font-size:.6875rem;color:var(--text-muted)">${u.onboarded_at?'&#10003;':'—'}</td>
       <td style="font-size:.6875rem;font-family:'DM Mono',monospace;color:var(--text-muted)">${s?.stripe_customer_id?s.stripe_customer_id.slice(0,14)+'…':'—'}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewUser('${u.id}')">View</button></td>
     </tr>`;
@@ -761,7 +761,7 @@ async function loadPaymentRequests() {
 
 function renderPaymentRequests() {
   const PLAN_LABELS = { pro: 'Pro Médecin', enterprise: 'Pro Clinique' };
-  const METHOD_LABELS = { virement: '🏦 Virement', cash: '💵 Cash' };
+  const METHOD_LABELS = { virement: ' Virement', cash: ' Cash' };
   const AMOUNTS = { pro: { monthly: '2 900 DA', yearly: '29 000 DA' }, enterprise: { monthly: '7 900 DA', yearly: '79 000 DA' } };
 
   document.getElementById('pr-tbl').innerHTML = _payRequests.map(pr => `
@@ -783,8 +783,8 @@ function renderPaymentRequests() {
       <td style="font-size:.6875rem;color:var(--text-muted)">${formatDate(pr.created_at)}</td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-sm" style="background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)" onclick="approvePayRequest('${pr.id}','${pr.user_id}','${pr.plan}','${pr.billing}')">✓ Approuver</button>
-          <button class="btn btn-sm btn-danger" onclick="rejectPayRequest('${pr.id}')">✗ Rejeter</button>
+          <button class="btn btn-sm" style="background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)" onclick="approvePayRequest('${pr.id}','${pr.user_id}','${pr.plan}','${pr.billing}')">&#10003; Approuver</button>
+          <button class="btn btn-sm btn-danger" onclick="rejectPayRequest('${pr.id}')">&#10007; Rejeter</button>
         </div>
       </td>
     </tr>

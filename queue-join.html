@@ -286,7 +286,7 @@ body{
 
   <!-- HEADER -->
   <div class="card-header" id="clinic-header">
-    <div class="clinic-avatar" id="clinic-avatar">🏥</div>
+    <div class="clinic-avatar" id="clinic-avatar"><svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:none;stroke:#003399;stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
     <div class="clinic-name" id="clinic-name">Cabinet médical</div>
     <div class="clinic-sub" id="clinic-sub">File d'attente numérique</div>
     <div class="header-badge">
@@ -304,7 +304,7 @@ body{
 
   <!-- STEP 1: NAME -->
   <div class="step" id="step-name">
-    <div class="name-icon">👋</div>
+    <div class="name-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div>
       <div class="step-title">Bonjour !</div>
       <div class="step-sub" style="margin-top:6px">Entrez votre prénom pour prendre votre numéro dans la file d'attente.</div>
@@ -343,7 +343,7 @@ body{
 
     <div class="priority-grid">
       <div class="priority-option selected" data-p="normale" onclick="selectPriority('normale')">
-        <div class="prio-icon">🟢</div>
+        <div class="prio-icon"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#059669"></span></div>
         <div class="prio-info">
           <div class="prio-title">Consultation normale</div>
           <div class="prio-desc">Rendez-vous planifié, suivi régulier ou renouvellement d'ordonnance</div>
@@ -351,7 +351,7 @@ body{
         <div class="prio-check" id="check-normale">✓</div>
       </div>
       <div class="priority-option" data-p="urgente" onclick="selectPriority('urgente')">
-        <div class="prio-icon">🟠</div>
+        <div class="prio-icon"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#EA580C"></span></div>
         <div class="prio-info">
           <div class="prio-title">Gêne importante</div>
           <div class="prio-desc">Douleur, fièvre élevée, malaise — nécessite une prise en charge rapide</div>
@@ -359,7 +359,7 @@ body{
         <div class="prio-check" id="check-urgente"></div>
       </div>
       <div class="priority-option" data-p="critique" onclick="selectPriority('critique')">
-        <div class="prio-icon">🔴</div>
+        <div class="prio-icon"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#DC2626"></span></div>
         <div class="prio-info">
           <div class="prio-title">Urgence médicale</div>
           <div class="prio-desc">Douleur très intense, difficultés respiratoires, perte de connaissance</div>
@@ -373,7 +373,7 @@ body{
     <button class="btn" id="btn-step2" onclick="joinQueue()">
       <div class="btn-spinner"></div>
       <span class="btn-label">Prendre mon numéro</span>
-      <span class="btn-icon">🎫</span>
+      <span class="btn-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
     </button>
     <button class="btn-ghost" onclick="backToStep1()">← Modifier mon prénom</button>
   </div>
@@ -388,21 +388,21 @@ body{
 
     <div class="info-rows">
       <div class="info-row">
-        <div class="info-row-label"><span>🔢</span> Numéro en cours</div>
+        <div class="info-row-label"><span>#</span> Numéro en cours</div>
         <div class="info-row-val accent" id="info-current">--</div>
       </div>
       <div class="info-row">
-        <div class="info-row-label"><span>👥</span> Patients avant vous</div>
+        <div class="info-row-label"> Patients avant vous</div>
         <div class="info-row-val" id="info-ahead">--</div>
       </div>
       <div class="info-row">
-        <div class="info-row-label"><span>⏱</span> Attente estimée</div>
+        <div class="info-row-label"><span></span> Attente estimée</div>
         <div class="info-row-val" id="info-wait">--</div>
       </div>
     </div>
 
     <div class="status-card waiting" id="status-card">
-      <div class="status-emoji" id="status-emoji">⏳</div>
+      <div class="status-emoji" id="status-emoji"></div>
       <div class="status-title" id="status-title">Votre tour approche</div>
       <div class="status-sub" id="status-sub">Restez à proximité du cabinet</div>
       <div class="status-progress">
@@ -411,7 +411,7 @@ body{
     </div>
 
     <div class="info-note">
-      <div class="info-note-icon">⚠️</div>
+      <div class="info-note-icon"></div>
       <div class="info-note-text">
         <strong>Restez à proximité</strong>
         Si vous n'êtes pas présent lorsque votre numéro est appelé, votre tour sera passé.
@@ -422,14 +422,14 @@ body{
   <!-- INVALID QR -->
   <div class="step hidden" id="step-invalid">
     <div class="invalid-state">
-      <div class="invalid-icon">❌</div>
+      <div class="invalid-icon"><span style="color:#DC2626">&#10007;</span></div>
       <div class="invalid-title">QR Code invalide</div>
       <div class="invalid-sub">Ce lien ne correspond à aucun cabinet médical. Veuillez scanner à nouveau le QR Code affiché dans la salle d'attente.</div>
     </div>
   </div>
 
   <div class="card-footer">
-    <p class="footer-text">Propulsé par <a href="landing.html">Prospeo</a> · Gestion de cabinet 🇩🇿</p>
+    <p class="footer-text">Propulsé par <a href="landing.html">Prospeo</a> · Gestion de cabinet</p>
   </div>
 </div>
 
@@ -445,9 +445,9 @@ var _channel   = null;
 var _audioCtx  = null;
 
 var PRIORITY_META = {
-  normale : { label:'Consultation normale', badge:'✓ Enregistré',   cls:'normale', acc:'#2563EB', acc2:'#1D4ED8', rgb:'37,99,235',   emoji:'🟢' },
-  urgente : { label:'Gêne importante',      badge:'⚡ Urgence signalée', cls:'urgente', acc:'#EA580C', acc2:'#C2410C', rgb:'234,88,12',  emoji:'🟠' },
-  critique: { label:'Urgence médicale',     badge:'🚨 URGENCE',         cls:'critique', acc:'#DC2626', acc2:'#B91C1C', rgb:'220,38,38', emoji:'🔴' },
+  normale : { label:'Consultation normale', badge:'✓ Enregistré',   cls:'normale', acc:'#2563EB', acc2:'#1D4ED8', rgb:'37,99,235',   emoji:'' },
+  urgente : { label:'Gêne importante',      badge:' Urgence signalée', cls:'urgente', acc:'#EA580C', acc2:'#C2410C', rgb:'234,88,12',  emoji:'' },
+  critique: { label:'Urgence médicale',     badge:'URGENCE',         cls:'critique', acc:'#DC2626', acc2:'#B91C1C', rgb:'220,38,38', emoji:'' },
 };
 
 // ── INIT ──────────────────────────────────────────────────────────────
@@ -690,13 +690,13 @@ function updateStatusCard(ahead, room) {
 
   if (ahead === -1) { // done
     card.classList.add('done');
-    emoji.textContent = '✅';
+    emoji.textContent = '<span style="color:#059669">&#10003;</span>';
     title.textContent = 'Consultation terminée';
     sub.textContent   = 'Merci de votre visite. Bonne santé !';
     document.getElementById('status-fill').style.width = '100%';
   } else if (ahead === 0) {
     card.classList.add('called');
-    emoji.textContent = '🔔';
+    emoji.textContent = '';
     title.textContent = 'C\'est votre tour !';
     sub.textContent   = room ? 'Rendez-vous en ' + room + ' maintenant' : 'Veuillez vous présenter au cabinet';
     document.getElementById('status-fill').style.width = '100%';
@@ -704,12 +704,12 @@ function updateStatusCard(ahead, room) {
     playCallAlert();
   } else if (ahead === 1) {
     card.classList.add('imminent');
-    emoji.textContent = '⚡';
+    emoji.textContent = '';
     title.textContent = 'Vous êtes le suivant !';
     sub.textContent   = 'Préparez-vous, restez juste devant la porte';
   } else {
     card.classList.add('waiting');
-    emoji.textContent = '⏳';
+    emoji.textContent = '';
     title.textContent = 'En attente de votre tour';
     sub.textContent   = ahead + ' personne' + (ahead > 1 ? 's' : '') + ' avant vous';
   }

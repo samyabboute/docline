@@ -327,7 +327,7 @@ ul,ol{list-style:none}
       </div>
     </div>
     <div style="padding:0 24px 20px;margin-top:4px">
-      <div style="font-size:.6875rem;color:var(--text-muted)">⚠️ La suspension bloque l'accès immédiatement. L'annulation retire le plan payant.</div>
+      <div style="font-size:.6875rem;color:var(--text-muted)">La suspension bloque l'accès immédiatement. L'annulation retire le plan payant.</div>
     </div>
   </div>
 </div>
@@ -342,7 +342,7 @@ ul,ol{list-style:none}
     <button class="hamburger" id="hamburger">
       <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-    <div class="topbar-title">Vue d'ensemble 🇩🇿</div>
+    <div class="topbar-title">Vue d'ensemble</div>
     <div class="topbar-actions">
       <span style="font-size:.6875rem;color:var(--text-muted)" id="last-updated"></span>
       <button class="btn btn-secondary btn-sm" onclick="loadAll()">
@@ -573,7 +573,7 @@ function renderSidebar(active) {
     +'</div>'
     +'<div style="margin:12px 8px;padding:12px;background:rgba(247,144,9,.08);border-radius:var(--r-md);border:1px solid rgba(247,144,9,.15)">'
     +'<div style="font-size:10px;font-weight:700;color:rgba(247,144,9,.8);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Accès Fondateur</div>'
-    +'<div style="font-size:10px;color:rgba(255,255,255,.35)">Données en temps réel 🇩🇿</div></div>'
+    +'<div style="font-size:10px;color:rgba(255,255,255,.35)">Données en temps réel </div></div>'
     +'<div style="padding:8px 8px 0;margin-top:4px"><div class="sidebar-section">Application</div>'
     +'<a href="queue.html" class="admin-nav-item" style="color:rgba(255,255,255,.4)">'
     +'<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Ouvrir l\'app</a></div>'
@@ -658,12 +658,12 @@ function renderKPIs(profiles, subs, requests) {
   else palert.style.display='none';
 
   document.getElementById('kpi-grid').innerHTML = [
-    ['kpi-brand',   '👨‍⚕️', 'Médecins inscrits',    profiles.length,      '+'+newThisWeek.length+' cette semaine',             'up'],
-    ['kpi-success', '✅', 'Abonnés actifs',         activeSubs.length,    Math.round((activeSubs.length/(profiles.length||1))*100)+'% de conversion', 'neutral'],
-    ['kpi-warning', '💰', 'CA ce mois',             fmtDZD(monthRevenue), 'Paiements approuvés',                                 'neutral'],
-    ['kpi-info',    '📈', 'CA total all-time',       fmtDZD(totalRevenue), activeSubs.length+' abonnés actifs',                  'up'],
-    ['kpi-danger',  '⏳', 'Demandes en attente',    pending.length,       pending.length?'Action requise ':'Tout est traité',    pending.length?'warn':'neutral'],
-    ['kpi-purple',  '⚠️', 'Expirent bientôt',       expiringSoon.length,  suspendedSubs.length+' compte(s) suspendu(s)',        expiringSoon.length?'warn':'neutral'],
+    ['kpi-brand',   '‍️', 'Médecins inscrits',    profiles.length,      '+'+newThisWeek.length+' cette semaine',             'up'],
+    ['kpi-success', '<span style="color:#059669">&#10003;</span>', 'Abonnés actifs',         activeSubs.length,    Math.round((activeSubs.length/(profiles.length||1))*100)+'% de conversion', 'neutral'],
+    ['kpi-warning', '', 'CA ce mois',             fmtDZD(monthRevenue), 'Paiements approuvés',                                 'neutral'],
+    ['kpi-info',    '', 'CA total all-time',       fmtDZD(totalRevenue), activeSubs.length+' abonnés actifs',                  'up'],
+    ['kpi-danger',  '', 'Demandes en attente',    pending.length,       pending.length?'Action requise ':'Tout est traité',    pending.length?'warn':'neutral'],
+    ['kpi-purple',  '<span style="color:#D97706">!</span>', 'Expirent bientôt',       expiringSoon.length,  suspendedSubs.length+' compte(s) suspendu(s)',        expiringSoon.length?'warn':'neutral'],
   ].map(function(k){
     return '<div class="kpi '+k[0]+'">'
       +'<div class="kpi-icon">'+k[1]+'</div>'
@@ -737,7 +737,7 @@ function renderRevenueBreakdown(approved, startOfMonth) {
   };
   var total = byMethod.edahabia+byMethod.virement+byMethod.cash || 1;
   document.getElementById('revenue-breakdown').innerHTML =
-    [['💳 EDAHABIA', byMethod.edahabia,'var(--brand)'],['🏦 Virement',byMethod.virement,'var(--success)'],['💵 Cash',byMethod.cash,'var(--warning)']]
+    [[' EDAHABIA', byMethod.edahabia,'var(--brand)'],[' Virement',byMethod.virement,'var(--success)'],[' Cash',byMethod.cash,'var(--warning)']]
     .map(function(r){
       var pct = Math.round((r[1]/total)*100);
       return '<div class="plan-bar-row"><div class="plan-bar-label">'+r[0]+'</div>'
@@ -779,10 +779,10 @@ function renderPendingRequests(pending) {
   var el = document.getElementById('pending-requests-list');
   document.getElementById('pending-list-count').textContent = pending.length ? pending.length+' en attente' : '';
   if (!pending.length) {
-    el.innerHTML='<div style="padding:32px;text-align:center;color:var(--text-muted);font-size:.8125rem">Aucune demande en attente 🎉</div>'; return;
+    el.innerHTML='<div style="padding:32px;text-align:center;color:var(--text-muted);font-size:.8125rem">Aucune demande en attente </div>'; return;
   }
   var PLAN={pro:'Pro Médecin',enterprise:'Pro Clinique'};
-  var METHOD={virement:'🏦 Virement',cash:'💵 Cash',edahabia:'💳 EDAHABIA'};
+  var METHOD={virement:' Virement',cash:' Cash',edahabia:' EDAHABIA'};
   el.innerHTML = pending.slice(0,6).map(function(r){
     return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border)">'
       +'<div style="flex:1;min-width:0">'
@@ -792,8 +792,8 @@ function renderPendingRequests(pending) {
       +(r.reference?' · <code style="font-size:.6875rem">'+san(r.reference)+'</code>':'')
       +'</div></div>'
       +'<div style="display:flex;gap:6px;flex-shrink:0">'
-      +'<button class="btn btn-success btn-sm" title="Approuver" onclick="quickApprove(\''+r.id+'\',\''+r.user_id+'\',\''+r.plan+'\',\''+r.billing+'\')">✓</button>'
-      +'<button class="btn btn-danger btn-sm" title="Rejeter" onclick="quickReject(\''+r.id+'\')">✗</button>'
+      +'<button class="btn btn-success btn-sm" title="Approuver" onclick="quickApprove(\''+r.id+'\',\''+r.user_id+'\',\''+r.plan+'\',\''+r.billing+'\')">&#10003;</button>'
+      +'<button class="btn btn-danger btn-sm" title="Rejeter" onclick="quickReject(\''+r.id+'\')">&#10007;</button>'
       +'</div></div>';
   }).join('');
   if (pending.length>6) el.innerHTML+='<div style="padding:10px 20px;text-align:center"><span style="font-size:.75rem;color:var(--text-muted)">+'+(pending.length-6)+' autres — voir tous les médecins</span></div>';
@@ -883,8 +883,8 @@ function renderSubsTable(subs, profiles, statusFilter, searchQ) {
     else statusBadge = '<span class="badge badge-neutral">'+san(s.status||'—')+'</span>';
 
     var expiryCell = '';
-    if (expired) expiryCell = '<span style="color:var(--danger);font-weight:700">'+fmtDate(s.expires_at)+' ❌</span>';
-    else if (expiring) expiryCell = '<span style="color:var(--warning);font-weight:700">'+fmtDate(s.expires_at)+' ⚠️</span>';
+    if (expired) expiryCell = '<span style="color:var(--danger);font-weight:700">'+fmtDate(s.expires_at)+' <span style="color:#DC2626">&#10007;</span></span>';
+    else if (expiring) expiryCell = '<span style="color:var(--warning);font-weight:700">'+fmtDate(s.expires_at)+' <span style="color:#D97706">!</span></span>';
     else expiryCell = '<span style="color:var(--text-muted)">'+fmtDate(s.expires_at)+'</span>';
 
     // Quick actions
@@ -1078,7 +1078,7 @@ async function activatePlan() {
     });
     var data = await resp.json();
     if (!resp.ok) throw new Error(data.error||'Erreur activation');
-    showActMsg('✅ Plan '+plan+' activé jusqu\'au '+fmtDate(data.expires_at), true);
+    showActMsg('<span style="color:#059669">&#10003;</span> Plan '+plan+' activé jusqu\'au '+fmtDate(data.expires_at), true);
     document.getElementById('act-email').value='';
     Toast.success('Abonnement activé !', email+' — '+plan);
     await loadAll();

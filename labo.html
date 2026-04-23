@@ -165,7 +165,7 @@
 
       <div class="page-header">
         <div>
-          <div class="page-title">🔬 Résultats de laboratoire</div>
+          <div class="page-title">Résultats de laboratoire</div>
           <div class="page-sub">Partagez les résultats avec vos patients via un code sécurisé</div>
         </div>
         <button class="btn-primary" onclick="openModal()">
@@ -184,26 +184,26 @@
 
       <div class="kpi-row">
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#EFF6FF">🔬</div>
+          <div class="kpi-ico" style="background:#EFF6FF"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#1D4ED8;stroke-width:2;stroke-linecap:round"><path d="M9 3h6v10l3.5 6H5.5L9 13V3z"/><line x1="6" y1="14" x2="18" y2="14"/></svg></div>
           <div><div class="kpi-val" id="stat-total">—</div><div class="kpi-lbl">Total résultats</div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#ECFDF5">✅</div>
+          <div class="kpi-ico" style="background:#ECFDF5"><span style="color:#059669">&#10003;</span></div>
           <div><div class="kpi-val" id="stat-active" style="color:#059669">—</div><div class="kpi-lbl">Actifs (&lt; 7j)</div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#FEF9C3">⚠️</div>
+          <div class="kpi-ico" style="background:#FEF9C3"><span style="color:#D97706">!</span></div>
           <div><div class="kpi-val" id="stat-expiring" style="color:#B45309">—</div><div class="kpi-lbl">Expire dans 24h</div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:var(--surface2)">🗑️</div>
+          <div class="kpi-ico" style="background:var(--surface2)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#6B7280;stroke-width:2;stroke-linecap:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
           <div><div class="kpi-val" id="stat-expired">—</div><div class="kpi-lbl">Expirés</div></div>
         </div>
       </div>
 
       <div class="results-list" id="results-list">
         <div class="empty-state">
-          <div class="empty-ico">🔬</div>
+          <div class="empty-ico"><svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M9 3h6v10l3.5 6H5.5L9 13V3z"/><line x1="6" y1="14" x2="18" y2="14"/></svg></div>
           <div class="empty-title">Aucun résultat partagé</div>
           <div class="empty-sub">Déposez les résultats d'un patient pour générer un lien d'accès sécurisé.</div>
         </div>
@@ -305,7 +305,7 @@ function updateStats() {
 function renderResults() {
   var list = document.getElementById('results-list');
   if (!_results.length) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-ico">🔬</div><div class="empty-title">Aucun résultat partagé</div><div class="empty-sub">Déposez les résultats d\'un patient pour générer un lien d\'accès sécurisé.</div></div>';
+    list.innerHTML = '<div class="empty-state"><div class="empty-ico"><svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M9 3h6v10l3.5 6H5.5L9 13V3z"/><line x1="6" y1="14" x2="18" y2="14"/></svg></div><div class="empty-title">Aucun résultat partagé</div><div class="empty-sub">Déposez les résultats d\'un patient pour générer un lien d\'accès sécurisé.</div></div>';
     return;
   }
   var now = new Date();
@@ -317,18 +317,18 @@ function renderResults() {
     var diffD = Math.floor(diffMs / 86400000);
     var expiryLabel, expiryClass;
     if (isExpired) { expiryLabel='Expiré'; expiryClass='expiry-expired'; }
-    else if (diffD < 1) { expiryLabel='⚠️ Expire dans '+diffH+'h'; expiryClass='expiry-warn'; }
+    else if (diffD < 1) { expiryLabel='<span style="color:#D97706">!</span> Expire dans '+diffH+'h'; expiryClass='expiry-warn'; }
     else { expiryLabel='Expire dans '+diffD+'j'; expiryClass='expiry-ok'; }
     var createdDate = new Date(r.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
     var cardCls = 'result-card'+(isExpired?' expired':(diffD<1&&!isExpired?' expiring-soon':''));
     return '<div class="'+cardCls+'">'+
       '<div class="result-icon'+(isExpired?' expired-icon':'')+'">'+
-        (isExpired?'🗑️':'📄')+
+        (isExpired?'':'')+
       '</div>'+
       '<div class="result-info">'+
         '<div class="result-title">'+esc(r.title)+'</div>'+
         '<div class="result-patient">'+
-          '<span>👤 '+esc(r.patient_name)+'</span>'+
+          '<span>'+esc(r.patient_name)+'</span>'+
           '<span style="color:var(--border)">·</span>'+
           '<span>'+createdDate+'</span>'+
         '</div>'+
@@ -399,7 +399,7 @@ function copyLink(code) {
   var baseUrl = window.location.origin + window.location.pathname.replace('labo.html','') + 'results-view.html';
   var url = baseUrl + '?code=' + code;
   navigator.clipboard.writeText(url).then(function(){
-    toast('🔗 Lien copié !','success');
+    toast('Lien copié !','success');
   }).catch(function(){
     var el = document.createElement('textarea');
     el.value = url; document.body.appendChild(el); el.select();

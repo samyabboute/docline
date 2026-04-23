@@ -143,7 +143,7 @@
 
       <div class="page-header">
         <div>
-          <div class="page-title">🧑‍⚕️ Personnel</div>
+          <div class="page-title"> Personnel</div>
           <div class="page-sub">Gérez les membres de votre équipe médicale et administrative</div>
         </div>
         <button class="btn-primary" onclick="openModal()">
@@ -154,19 +154,19 @@
 
       <div class="kpi-row">
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#EFF6FF">👥</div>
+          <div class="kpi-ico" style="background:#EFF6FF"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#1D4ED8;stroke-width:2;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <div><div class="kpi-val" id="stat-total">—</div><div class="kpi-lbl">Total personnel</div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#ECFDF5">✅</div>
+          <div class="kpi-ico" style="background:#ECFDF5"><span style="color:#059669">&#10003;</span></div>
           <div><div class="kpi-val" id="stat-active" style="color:#059669">—</div><div class="kpi-lbl">Actifs</div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#EDE9FE">🗂️</div>
+          <div class="kpi-ico" style="background:#EDE9FE"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#7C3AED;stroke-width:2;stroke-linecap:round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
           <div><div class="kpi-val" id="stat-secretaires" style="color:#7C3AED">—</div><div class="kpi-lbl">Secrétaires</div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-ico" style="background:#ECFDF5">🩺</div>
+          <div class="kpi-ico" style="background:#ECFDF5"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#059669;stroke-width:2;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
           <div><div class="kpi-val" id="stat-infirmiers" style="color:#059669">—</div><div class="kpi-lbl">Infirmiers / Assistants</div></div>
         </div>
       </div>
@@ -183,7 +183,7 @@
 
       <div class="staff-grid" id="staff-grid">
         <div class="empty-state">
-          <div class="empty-icon">👥</div>
+          <div class="empty-icon"><svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
           <div class="empty-title">Aucun membre du personnel</div>
           <div>Ajoutez votre équipe pour une meilleure organisation du cabinet.</div>
         </div>
@@ -209,11 +209,11 @@
       <div class="form-row full" style="margin-bottom:12px">
         <div class="form-group"><label class="form-label">Rôle *</label>
           <select class="form-select" id="f-role">
-            <option value="secretaire">🗂️ Secrétaire médicale</option>
-            <option value="infirmier">💉 Infirmier / Infirmière</option>
-            <option value="medecin_assistant">🩺 Médecin assistant</option>
-            <option value="technicien_labo">🔬 Technicien de laboratoire</option>
-            <option value="autre">👤 Autre</option>
+            <option value="secretaire">Secrétaire médicale</option>
+            <option value="infirmier">Infirmier / Infirmière</option>
+            <option value="medecin_assistant">Médecin assistant</option>
+            <option value="technicien_labo">Technicien de laboratoire</option>
+            <option value="autre">Autre</option>
           </select>
         </div>
       </div>
@@ -238,7 +238,7 @@
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _uid = null, _staff = [], _editId = null, _filterRole = 'all', _showInactive = false;
 var ROLE_LABELS = { secretaire:'Secrétaire', infirmier:'Infirmier(e)', medecin_assistant:'Médecin assistant', technicien_labo:'Technicien labo', autre:'Autre' };
-var ROLE_ICONS  = { secretaire:'🗂️', infirmier:'💉', medecin_assistant:'🩺', technicien_labo:'🔬', autre:'👤' };
+var ROLE_ICONS  = { secretaire:'Sec', infirmier:'Inf', medecin_assistant:'Med', technicien_labo:'Lab', autre:'Aut' };
 var AVATAR_COLORS = [
   {bg:'#DBEAFE',color:'#1D4ED8'},{bg:'#D1FAE5',color:'#065F46'},
   {bg:'#EDE9FE',color:'#5B21B6'},{bg:'#FEF9C3',color:'#92400E'},
@@ -284,14 +284,14 @@ function renderStaff() {
     return true;
   });
   if (!filtered.length) {
-    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">'+(_filterRole!=='all'?'Aucun membre dans cette catégorie':'Aucun membre du personnel')+'</div><div>'+(_staff.length===0?'Ajoutez votre équipe pour une meilleure organisation.':'Ajustez les filtres pour voir plus de résultats.')+'</div></div>';
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="empty-title">'+(_filterRole!=='all'?'Aucun membre dans cette catégorie':'Aucun membre du personnel')+'</div><div>'+(_staff.length===0?'Ajoutez votre équipe pour une meilleure organisation.':'Ajustez les filtres pour voir plus de résultats.')+'</div></div>';
     return;
   }
   grid.innerHTML = filtered.map(function(s, i) {
     var pal = AVATAR_COLORS[i % AVATAR_COLORS.length];
     var ini = ((s.first_name||'')[0]||'').toUpperCase() + ((s.last_name||'')[0]||'').toUpperCase();
     var roleLabel = ROLE_LABELS[s.role] || 'Autre';
-    var roleIcon  = ROLE_ICONS[s.role] || '👤';
+    var roleIcon  = ROLE_ICONS[s.role] || '';
     return '<div class="staff-card'+(s.active?'':' inactive')+'">'+
       '<div class="staff-header">'+
         '<div class="staff-avatar" style="background:'+pal.bg+';color:'+pal.color+'">'+esc(ini)+'</div>'+
