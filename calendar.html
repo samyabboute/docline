@@ -571,7 +571,7 @@ async function toggleTask(e,id){
   task.completed=!task.completed;
   renderTasks(); updateKPIs();
   try{
-    await _supa.from('events').update({completed:task.completed,updated_at:new Date().toISOString()}).eq('id',id);
+    await _supa.from('calendar_tasks').update({completed:task.completed,updated_at:new Date().toISOString()}).eq('id',id);
     toast(task.completed?'<span style="color:#059669">&#10003;</span> Tâche terminée':' Tâche rouverte');
     renderCalendar();
     if(_selectedDate) renderDayPanel(_selectedDate);
@@ -588,7 +588,7 @@ async function quickAdd(){
   var title=input.value.trim();
   if(!title)return;
   try{
-    var {data,error}=await _supa.from('events').insert({
+    var {data,error}=await _supa.from('calendar_tasks').insert({
       user_id:_uid,title:title,due_date:_selectedDate||_today.toISOString().slice(0,10),
       priority:'medium',type:'task',notes:null,completed:false,
       event_date:_selectedDate||_today.toISOString().slice(0,10)
@@ -647,7 +647,7 @@ async function saveTask(){
 
   try{
     if(_editingId){
-      var {error}=await _supa.from('events').update({
+      var {error}=await _supa.from('calendar_tasks').update({
         title,due_date:due,priority,type,notes,patient_name,updated_at:new Date().toISOString()
       }).eq('id',_editingId);
       if(error)throw error;
@@ -655,7 +655,7 @@ async function saveTask(){
       if(idx>=0) Object.assign(_tasks[idx],{title,due_date:due,priority,type,notes,patient_name});
       toast('<span style="color:#059669">&#10003;</span> Tâche mise à jour');
     } else {
-      var {data,error}=await _supa.from('events').insert({
+      var {data,error}=await _supa.from('calendar_tasks').insert({
         user_id:_uid,title,due_date:due,priority,type,notes,patient_name,completed:false,
         event_date:due||_today.toISOString().slice(0,10)
       }).select().single();
@@ -675,7 +675,7 @@ async function deleteTask(){
   if(!_editingId)return;
   if(!confirm('Supprimer cette tâche ?'))return;
   try{
-    var {error}=await _supa.from('events').delete().eq('id',_editingId);
+    var {error}=await _supa.from('calendar_tasks').delete().eq('id',_editingId);
     if(error)throw error;
     _tasks=_tasks.filter(function(t){return t.id!==_editingId;});
     closeModal();
@@ -701,12 +701,30 @@ document.addEventListener('keydown',function(e){
     if(!s.data.session){window.location.href='login.html';return;}
     _uid=s.data.session.user.id;
 
+    var u=s.data.session.user;
+    var meta=u.user_metadata||{};
+
+    // ── Shell init en PREMIER (avant toute requête data) ──────
+    var subR=await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id',_uid).maybeSingle();
+    var sub=subR&&subR.data;
+    var isPro=sub&&sub.plan!=='free'&&sub.status==='active'&&(!sub.expires_at||new Date(sub.expires_at)>new Date());
+    Shell.init({
+      page:'calendar',
+      title:'Agenda',
+      isPro: isPro,
+      plan: (sub&&sub.plan)||'free',
+      userName: meta.full_name||meta.name||u.email,
+      userEmail: u.email,
+    });
+
+    // ── Initialisation du calendrier ──────────────────────────
     var todayStr=_today.toISOString().slice(0,10);
     _selectedDate=todayStr;
     document.getElementById('selected-date-label').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     document.getElementById('task-due-input').value=todayStr;
 
-    var {data,error}=await _supa.from('events').select('*').eq('user_id',_uid).order('due_date',{ascending:true});
+    // ── Chargement des tâches ─────────────────────────────────
+    var {data,error}=await _supa.from('calendar_tasks').select('*').eq('user_id',_uid).order('due_date',{ascending:true});
     if(error)throw error;
     _tasks=data||[];
     renderCalendar();
@@ -714,21 +732,8 @@ document.addEventListener('keydown',function(e){
     updateKPIs();
     renderDayPanel(todayStr);
 
-    var u=s.data.session.user;
-    var meta=u.user_metadata||{};
-    var subR=await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id',_uid).single().catch(function(){return{data:null};});
-    var sub=subR.data;
-    var isPro=sub&&sub.plan!=='free'&&sub.status==='active'&&(!sub.expires_at||new Date(sub.expires_at)>new Date());
-    Shell.init({
-      page:'calendar',
-      title:'Agenda',
-      isPro: isPro,
-      plan: sub?.plan||'free',
-      userName: meta.full_name||meta.name||u.email,
-      userEmail: u.email,
-    });
   }catch(err){
-    document.getElementById('task-list').innerHTML='<div class="empty-tasks">Impossible de charger. Veuillez rafraîchir.</div>';
+    document.getElementById('task-list').innerHTML='<div class="empty-tasks">Impossible de charger les tâches.<br>Veuillez rafraîchir la page.</div>';
     renderCalendar();
     console.error('[Calendar]',err);
   }
