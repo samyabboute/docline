@@ -12,7 +12,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --brand:#003399;--brand-dark:#002277;--brand-light:#E8EEFF;--brand-glow:rgba(0,51,153,.14);
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#EDE8FF;--brand-glow:rgba(59,23,114,.14);
   --bg:#F4F7FF;--surface:#FFFFFF;--surface2:#F0F3FA;
   --text:#0D1117;--text2:#374151;--text3:#6B7280;--text4:#9CA3AF;
   --border:#E4E8F0;--border-strong:#C8CEDE;
@@ -22,14 +22,15 @@
   --shadow:0 1px 4px rgba(0,0,0,.06);
   --shadow-md:0 4px 16px rgba(0,0,0,.08);
   --shadow-lg:0 12px 32px rgba(0,0,0,.1);
-  --shadow-brand:0 6px 24px rgba(0,51,153,.22);
+  --shadow-brand:0 6px 24px rgba(59,23,114,.22);
+  --brand-accent:#23A7EA;
   --ease:cubic-bezier(.25,.46,.45,.94);--t:.2s;
 }
 [data-theme="dark"]{
   --bg:#0D1117;--surface:#111827;--surface2:#1F2937;
   --text:#F9FAFB;--text2:#D1D5DB;--text3:#9CA3AF;--text4:#6B7280;
   --border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.16);
-  --brand-light:rgba(0,51,153,.2);--brand-glow:rgba(0,51,153,.2);
+  --brand-light:rgba(59,23,114,.2);--brand-glow:rgba(59,23,114,.2);
   --shadow:0 1px 4px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
   --shadow-lg:0 12px 32px rgba(0,0,0,.5);
 }
@@ -41,7 +42,7 @@ body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--te
 /* NAV */
 nav{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:50}
 .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.4px}
-.nav-logo-mark{width:28px;height:28px;background:var(--brand);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff}
+.nav-logo-mark{width:28px;height:28px;background:linear-gradient(135deg,#3B1772,#23A7EA);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;overflow:hidden}
 .nav-right{display:flex;align-items:center;gap:8px}
 .nav-back{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--rfull);font-size:13px;font-weight:600;color:var(--text3);text-decoration:none;border:1px solid var(--border);background:var(--surface);transition:all var(--t) var(--ease)}
 .nav-back:hover{color:var(--brand);border-color:var(--brand);background:var(--brand-light)}
@@ -71,8 +72,8 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 .plan{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rlg);padding:32px;position:relative;transition:box-shadow var(--t) var(--ease),transform var(--t) var(--ease);display:flex;flex-direction:column}
 .plan:hover{box-shadow:var(--shadow-lg)}
 .plan.pro{border-color:var(--brand);box-shadow:var(--shadow-brand)}
-.plan.pro:hover{box-shadow:0 16px 48px rgba(0,51,153,.28);transform:translateY(-2px)}
-.plan-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:4px 18px;border-radius:var(--rfull);white-space:nowrap;letter-spacing:.04em;box-shadow:0 2px 8px rgba(0,51,153,.3)}
+.plan.pro:hover{box-shadow:0 16px 48px rgba(59,23,114,.28);transform:translateY(-2px)}
+.plan-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:4px 18px;border-radius:var(--rfull);white-space:nowrap;letter-spacing:.04em;box-shadow:0 2px 8px rgba(59,23,114,.3)}
 .plan-name{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
 .plan-price-row{display:flex;align-items:flex-end;gap:4px;margin-bottom:6px}
 .plan-price{font-size:36px;font-weight:800;color:var(--text);letter-spacing:-1.5px;line-height:1}
@@ -91,7 +92,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 .btn-free{background:var(--surface2);color:var(--text2);border:1.5px solid var(--border)}
 .btn-free:hover:not(:disabled){background:var(--brand-light);color:var(--brand);border-color:var(--brand)}
 .btn-pro{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
-.btn-pro:hover:not(:disabled){background:var(--brand-dark);box-shadow:0 8px 28px rgba(0,51,153,.36);transform:translateY(-1px)}
+.btn-pro:hover:not(:disabled){background:var(--brand-dark);box-shadow:0 8px 28px rgba(59,23,114,.36);transform:translateY(-1px)}
 .btn-clinic{background:var(--surface2);color:var(--text2);border:1.5px solid var(--border)}
 .btn-clinic:hover:not(:disabled){background:var(--surface);border-color:var(--brand);color:var(--brand)}
 .plan-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
@@ -122,7 +123,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 .pm-close:hover{background:var(--surface2);color:var(--text)}
 .pm-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .pm-body{padding:20px 24px 24px}
-.pm-summary{background:var(--brand-light);border:1.5px solid rgba(0,51,153,.15);border-radius:var(--r);padding:14px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.pm-summary{background:var(--brand-light);border:1.5px solid rgba(59,23,114,.15);border-radius:var(--r);padding:14px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
 .pm-summary-label{font-size:13px;color:var(--brand);font-weight:600}
 .pm-summary-price{font-size:20px;font-weight:800;color:var(--brand);letter-spacing:-.5px}
 .pm-methods-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px}
@@ -145,7 +146,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 .pm-field input:focus,.pm-field textarea:focus,.pm-field select:focus{border-color:var(--brand)}
 .pm-field textarea{resize:vertical;min-height:80px}
 .pm-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--r);font-family:inherit;font-size:15px;font-weight:700;background:var(--brand);color:#fff;border:none;cursor:pointer;transition:all var(--t);margin-top:16px}
-.pm-submit:hover:not(:disabled){background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,51,153,.3)}
+.pm-submit:hover:not(:disabled){background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,23,114,.3)}
 .pm-submit:disabled{opacity:.55;cursor:not-allowed;transform:none}
 .pm-submit .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
 .pm-submit.loading .spin{display:block}
@@ -171,14 +172,14 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 }
 </style>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#003399">
+<meta name="theme-color" content="#3B1772">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>
 
 <nav>
   <a href="landing.html" class="nav-logo">
-    <div class="nav-logo-mark">P</div>
+    <div class="nav-logo-mark"><img src="favicon.svg" width="22" height="22" alt="" style="display:block"></div>
     Docline
   </a>
   <div class="nav-right">
@@ -335,16 +336,16 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
       <div class="pm-method selected" id="method-cib" onclick="selectMethod('cib')">
         <div class="pm-method-radio"></div>
         <div class="pm-method-info">
-          <div class="pm-method-name">CIB <span class="badge badge-manual">Sous 24h</span></div>
-          <div class="pm-method-desc">Payez via votre banque (CIB) puis envoyez-nous la référence de la transaction reçue par SMS.</div>
+          <div class="pm-method-name">CIB <span class="badge badge-auto">Instantané</span></div>
+          <div class="pm-method-desc">Paiement en ligne sécurisé par carte CIB via Chargily Pay. Activation immédiate.</div>
         </div>
       </div>
 
       <div class="pm-method" id="method-edahabia" onclick="selectMethod('edahabia')">
         <div class="pm-method-radio"></div>
         <div class="pm-method-info">
-          <div class="pm-method-name">EDAHABIA <span class="badge badge-manual">Sous 24h</span></div>
-          <div class="pm-method-desc">Effectuez un virement depuis votre compte Edahabia (Algérie Poste) puis envoyez-nous votre RIP.</div>
+          <div class="pm-method-name">EDAHABIA <span class="badge badge-auto">Instantané</span></div>
+          <div class="pm-method-desc">Paiement en ligne depuis Baridi Mob ou Algérie Poste via Chargily Pay. Activation immédiate.</div>
         </div>
       </div>
 
@@ -364,41 +365,27 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
         </div>
       </div>
 
-      <!-- CIB FORM -->
+      <!-- CIB FORM — Chargily Pay en ligne -->
       <div id="form-cib" class="pm-form">
-        <div class="pm-info-box" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;margin-bottom:12px">
-          Effectuez votre paiement sur le portail de votre banque (montant exact ci-dessus) puis renseignez ci-dessous la référence de transaction reçue par SMS ou email.
+        <div class="pm-info-box" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;margin-bottom:16px">
+          <strong style="display:block;margin-bottom:4px;font-size:12px">Paiement 100% en ligne</strong>
+          Vous serez redirigé vers <strong>Chargily Pay</strong>, la plateforme de paiement sécurisée algérienne. Votre abonnement est activé <strong>immédiatement</strong> après confirmation.
         </div>
-        <div class="pm-field">
-          <label>Référence de transaction *</label>
-          <input type="text" id="cib-ref" placeholder="Ex : TXN-20240419-XXXX">
-        </div>
-        <div class="pm-field">
-          <label>Notes (optionnel)</label>
-          <textarea id="cib-notes" placeholder="Banque utilisée, date, etc."></textarea>
-        </div>
-        <button class="pm-submit" id="btn-cib" onclick="submitManual('cib')">
+        <button class="pm-submit" id="btn-cib" onclick="chargilyPay('cib')">
           <div class="spin"></div>
-          <span class="lbl">Confirmer le paiement CIB</span>
+          <span class="lbl">Payer <span id="cib-amount-label"></span> par CIB &rarr;</span>
         </button>
       </div>
 
-      <!-- EDAHABIA FORM -->
+      <!-- EDAHABIA FORM — Chargily Pay en ligne -->
       <div id="form-edahabia" class="pm-form" style="display:none">
-        <div class="pm-info-box" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;margin-bottom:12px">
-          Effectuez un virement depuis votre application Baridi Mob ou espace Algérie Poste vers notre compte (montant exact ci-dessus), puis renseignez votre RIP Edahabia ci-dessous.
+        <div class="pm-info-box" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;margin-bottom:16px">
+          <strong style="display:block;margin-bottom:4px;font-size:12px">Paiement 100% en ligne</strong>
+          Vous serez redirigé vers <strong>Chargily Pay</strong> pour payer depuis votre compte Edahabia (Baridi Mob ou Algérie Poste). Activation <strong>immédiate</strong>.
         </div>
-        <div class="pm-field">
-          <label>N° RIP Edahabia *</label>
-          <input type="text" id="edahabia-ref" placeholder="Ex : 00799999 0000000000 00">
-        </div>
-        <div class="pm-field">
-          <label>Notes (optionnel)</label>
-          <textarea id="edahabia-notes" placeholder="Date du virement, etc."></textarea>
-        </div>
-        <button class="pm-submit" id="btn-edahabia" onclick="submitManual('edahabia')">
+        <button class="pm-submit" id="btn-edahabia" onclick="chargilyPay('edahabia')">
           <div class="spin"></div>
-          <span class="lbl">Confirmer le paiement Edahabia</span>
+          <span class="lbl">Payer <span id="edahabia-amount-label"></span> par Edahabia &rarr;</span>
         </button>
       </div>
 
@@ -519,6 +506,9 @@ function openPayModal(plan) {
   var price = PLAN_PRICES[plan][_billing];
   document.getElementById('pm-plan-label').textContent = PLAN_LABELS[plan] + ' · ' + billingLabel;
   document.getElementById('pm-amount').textContent = price;
+  // Mettre à jour les labels de montant dans les boutons Chargily
+  document.getElementById('cib-amount-label').textContent = price;
+  document.getElementById('edahabia-amount-label').textContent = price;
   selectMethod('cib');
   document.getElementById('pay-overlay').classList.add('open');
 }
@@ -535,15 +525,47 @@ function selectMethod(method) {
   });
 }
 
-// CIB / EDAHABIA / VIREMENT / CASH — store request in payment_requests
-var _REF_FIELD = { cib:'cib-ref', edahabia:'edahabia-ref', virement:'virement-ref', cash:'cash-city' };
-var _NOTE_FIELD = { cib:'cib-notes', edahabia:'edahabia-notes', virement:'virement-notes', cash:'cash-notes' };
+// ── Chargily Pay (CIB / EDAHABIA) ────────────────────────────
+// Crée une session via Edge Function, redirige vers Chargily
+async function chargilyPay(method) {
+  var btn = document.getElementById('btn-' + method);
+  btn.classList.add('loading'); btn.disabled = true;
+  hideError();
+  try {
+    var { data: { session } } = await _supa.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+
+    var { data, error } = await _supa.functions.invoke('chargily-checkout', {
+      body: { plan: _pendingPlan, billing: _billing, method: method },
+    });
+
+    if (error) throw error;
+    if (!data || !data.url) throw new Error('URL de paiement manquante');
+
+    // Redirection vers la page Chargily
+    window.location.href = data.url;
+  } catch(e) {
+    var msg = e.message || 'Une erreur est survenue. Réessayez.';
+    // Si la fonction Edge n'est pas déployée, proposer le mode manuel
+    if (msg.includes('Failed to fetch') || msg.includes('404') || msg.includes('non configurée')) {
+      showError('Paiement en ligne temporairement indisponible. Utilisez Virement ou Espèces en attendant.');
+    } else {
+      showError(msg);
+    }
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
+}
+
+// ── Virement bancaire / Espèces — enregistrement manuel ──────
+var _REF_FIELD  = { virement:'virement-ref', cash:'cash-city' };
+var _NOTE_FIELD = { virement:'virement-notes', cash:'cash-notes' };
 
 async function submitManual(method) {
   var btn = document.getElementById('btn-' + method);
-  var ref   = document.getElementById(_REF_FIELD[method]).value.trim();
-  var notes = document.getElementById(_NOTE_FIELD[method]).value.trim();
-  if (!ref) { showError('Veuillez remplir le champ obligatoire.'); return; }
+  var ref   = (_REF_FIELD[method]  ? document.getElementById(_REF_FIELD[method]).value.trim()  : '');
+  var notes = (_NOTE_FIELD[method] ? document.getElementById(_NOTE_FIELD[method]).value.trim() : '');
+  if (method !== 'cash' && !ref) { showError('Veuillez remplir le champ obligatoire.'); return; }
+  if (method === 'cash' && !notes) { showError('Veuillez indiquer vos disponibilités.'); return; }
 
   btn.classList.add('loading'); btn.disabled = true;
   hideError();
@@ -559,7 +581,7 @@ async function submitManual(method) {
       amount:     AMOUNTS_INT[_pendingPlan][_billing],
       method:     method,
       status:     'pending',
-      reference:  ref,
+      reference:  ref || null,
       notes:      notes || null,
     });
     if (error) throw error;
