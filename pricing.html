@@ -332,11 +332,19 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 
       <div class="pm-methods-label">Mode de paiement</div>
 
-      <div class="pm-method selected" id="method-edahabia" onclick="selectMethod('edahabia')">
+      <div class="pm-method selected" id="method-cib" onclick="selectMethod('cib')">
         <div class="pm-method-radio"></div>
         <div class="pm-method-info">
-          <div class="pm-method-name">CIB / EDAHABIA <span class="badge badge-auto">Activation auto</span></div>
-          <div class="pm-method-desc">Paiement en ligne sécurisé via Slick-Pay. Votre plan est activé instantanément après paiement.</div>
+          <div class="pm-method-name">CIB <span class="badge badge-manual">Sous 24h</span></div>
+          <div class="pm-method-desc">Payez via votre banque (CIB) puis envoyez-nous la référence de la transaction reçue par SMS.</div>
+        </div>
+      </div>
+
+      <div class="pm-method" id="method-edahabia" onclick="selectMethod('edahabia')">
+        <div class="pm-method-radio"></div>
+        <div class="pm-method-info">
+          <div class="pm-method-name">EDAHABIA <span class="badge badge-manual">Sous 24h</span></div>
+          <div class="pm-method-desc">Effectuez un virement depuis votre compte Edahabia (Algérie Poste) puis envoyez-nous votre RIP.</div>
         </div>
       </div>
 
@@ -351,17 +359,46 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
       <div class="pm-method" id="method-cash" onclick="selectMethod('cash')">
         <div class="pm-method-radio"></div>
         <div class="pm-method-info">
-          <div class="pm-method-name">Espèces / Dahabia <span class="badge badge-manual">Sur RDV</span></div>
-          <div class="pm-method-desc">Paiement en main propre ou dépôt sur Dahabia. Contactez-nous pour convenir d'un rendez-vous.</div>
+          <div class="pm-method-name">Espèces <span class="badge badge-manual">Sur RDV</span></div>
+          <div class="pm-method-desc">Paiement en main propre. Contactez-nous pour convenir d'un rendez-vous de paiement.</div>
         </div>
       </div>
 
-      <!-- EDAHABIA: no form, just confirm button -->
-      <div id="form-edahabia" class="pm-form">
-        <p style="font-size:13px;color:var(--text3);line-height:1.55">Vous allez être redirigé vers la plateforme sécurisée <strong>Slick-Pay</strong> pour saisir vos informations bancaires. Aucun numéro de carte n'est conservé sur nos serveurs.</p>
-        <button class="pm-submit" id="btn-edahabia" onclick="payEdahabia()">
+      <!-- CIB FORM -->
+      <div id="form-cib" class="pm-form">
+        <div class="pm-info-box" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;margin-bottom:12px">
+          Effectuez votre paiement sur le portail de votre banque (montant exact ci-dessus) puis renseignez ci-dessous la référence de transaction reçue par SMS ou email.
+        </div>
+        <div class="pm-field">
+          <label>Référence de transaction *</label>
+          <input type="text" id="cib-ref" placeholder="Ex : TXN-20240419-XXXX">
+        </div>
+        <div class="pm-field">
+          <label>Notes (optionnel)</label>
+          <textarea id="cib-notes" placeholder="Banque utilisée, date, etc."></textarea>
+        </div>
+        <button class="pm-submit" id="btn-cib" onclick="submitManual('cib')">
           <div class="spin"></div>
-          <span class="lbl">Payer en ligne →</span>
+          <span class="lbl">Confirmer le paiement CIB</span>
+        </button>
+      </div>
+
+      <!-- EDAHABIA FORM -->
+      <div id="form-edahabia" class="pm-form" style="display:none">
+        <div class="pm-info-box" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;margin-bottom:12px">
+          Effectuez un virement depuis votre application Baridi Mob ou espace Algérie Poste vers notre compte (montant exact ci-dessus), puis renseignez votre RIP Edahabia ci-dessous.
+        </div>
+        <div class="pm-field">
+          <label>N° RIP Edahabia *</label>
+          <input type="text" id="edahabia-ref" placeholder="Ex : 00799999 0000000000 00">
+        </div>
+        <div class="pm-field">
+          <label>Notes (optionnel)</label>
+          <textarea id="edahabia-notes" placeholder="Date du virement, etc."></textarea>
+        </div>
+        <button class="pm-submit" id="btn-edahabia" onclick="submitManual('edahabia')">
+          <div class="spin"></div>
+          <span class="lbl">Confirmer le paiement Edahabia</span>
         </button>
       </div>
 
@@ -413,7 +450,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _billing = 'monthly';
-var _selectedMethod = 'edahabia';
+var _selectedMethod = 'cib';
 var _pendingPlan = null;
 
 // THEME
@@ -482,7 +519,7 @@ function openPayModal(plan) {
   var price = PLAN_PRICES[plan][_billing];
   document.getElementById('pm-plan-label').textContent = PLAN_LABELS[plan] + ' · ' + billingLabel;
   document.getElementById('pm-amount').textContent = price;
-  selectMethod('edahabia');
+  selectMethod('cib');
   document.getElementById('pay-overlay').classList.add('open');
 }
 
@@ -492,39 +529,20 @@ function closePayModal() {
 
 function selectMethod(method) {
   _selectedMethod = method;
-  ['edahabia','virement','cash'].forEach(function(m) {
+  ['cib','edahabia','virement','cash'].forEach(function(m) {
     document.getElementById('method-' + m).classList.toggle('selected', m === method);
     document.getElementById('form-' + m).style.display = m === method ? 'block' : 'none';
   });
 }
 
-// EDAHABIA — Slick-Pay checkout
-async function payEdahabia() {
-  var btn = document.getElementById('btn-edahabia');
-  btn.classList.add('loading'); btn.disabled = true;
-  hideError();
-  try {
-    var { data: { session } } = await _supa.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
-    var resp = await fetch(SUPA_URL + '/functions/v1/slickpay-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-      body: JSON.stringify({ plan: _pendingPlan, billing: _billing })
-    });
-    var data = await resp.json();
-    if (data.url) { window.location.href = data.url; }
-    else { throw new Error(data.error || 'Erreur passerelle de paiement'); }
-  } catch(e) {
-    showError(e.message || 'Une erreur est survenue. Réessayez.');
-    btn.classList.remove('loading'); btn.disabled = false;
-  }
-}
+// CIB / EDAHABIA / VIREMENT / CASH — store request in payment_requests
+var _REF_FIELD = { cib:'cib-ref', edahabia:'edahabia-ref', virement:'virement-ref', cash:'cash-city' };
+var _NOTE_FIELD = { cib:'cib-notes', edahabia:'edahabia-notes', virement:'virement-notes', cash:'cash-notes' };
 
-// VIREMENT / CASH — store request, notify admin
 async function submitManual(method) {
   var btn = document.getElementById('btn-' + method);
-  var ref   = method === 'virement' ? (document.getElementById('virement-ref').value.trim()) : (document.getElementById('cash-city').value.trim());
-  var notes = method === 'virement' ? (document.getElementById('virement-notes').value.trim()) : (document.getElementById('cash-notes').value.trim());
+  var ref   = document.getElementById(_REF_FIELD[method]).value.trim();
+  var notes = document.getElementById(_NOTE_FIELD[method]).value.trim();
   if (!ref) { showError('Veuillez remplir le champ obligatoire.'); return; }
 
   btn.classList.add('loading'); btn.disabled = true;
