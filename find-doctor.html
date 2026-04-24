@@ -469,11 +469,46 @@ button,input,select,textarea{font-family:inherit}
 .success-detail-row{display:flex;align-items:center;gap:10px;font-size:.8125rem;color:var(--text-2);padding:5px 0}
 .success-detail-row svg{width:15px;height:15px;fill:none;stroke:var(--teal);stroke-width:2;stroke-linecap:round;flex-shrink:0}
 
+/* ── TYPEWRITER CURSOR ─────────────────────────────────────── */
+.tw-cursor{
+  color:var(--brand);font-weight:300;
+  animation:blink-caret .72s step-end infinite}
+@keyframes blink-caret{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── PWA INSTALL BANNER ────────────────────────────────────── */
+#pwa-banner{
+  position:fixed;bottom:0;left:0;right:0;z-index:300;
+  background:#fff;border-top:1.5px solid var(--border);
+  box-shadow:0 -4px 24px rgba(12,16,37,.10);
+  padding:12px 20px;
+  transform:translateY(100%);
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+#pwa-banner.visible{transform:translateY(0)}
+.pwa-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.pwa-icon{font-size:1.5rem;flex-shrink:0;line-height:1}
+.pwa-text{flex:1;min-width:0}
+.pwa-text strong{display:block;font-size:.875rem;font-weight:700;color:var(--text-1);line-height:1.3}
+.pwa-text span{font-size:.75rem;color:var(--text-3)}
+.pwa-install-btn{
+  background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);
+  padding:9px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;
+  cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:var(--shadow-brand);
+  transition:all var(--t)}
+.pwa-install-btn:hover{background:var(--brand-dark);transform:translateY(-1px)}
+.pwa-dismiss{
+  background:none;border:none;cursor:pointer;color:var(--text-4);
+  padding:6px;font-size:1.125rem;flex-shrink:0;border-radius:var(--r-full);
+  line-height:1;transition:all var(--t)}
+.pwa-dismiss:hover{color:var(--text-1);background:var(--bg-subtle)}
+
 /* ── RESPONSIVE ────────────────────────────────────────────── */
 @media(max-width:640px){
   .hero{padding:88px 16px 56px}
   .hero-title{font-size:1.875rem}
   .hero-stats{gap:20px}
+  .search-card{padding:6px}
+  .sf{min-width:unset;flex:none;width:100%}
+  .search-btn{border-radius:var(--r-lg);padding:14px}
   .spec-section{padding:22px 16px 18px}
   .cards-wrap{padding:16px 16px 48px}
   .modal-body{padding:16px 16px 24px}
@@ -484,6 +519,19 @@ button,input,select,textarea{font-family:inherit}
 </style>
 </head>
 <body>
+
+<!-- ══ PWA INSTALL BANNER ════════════════════════════════════ -->
+<div id="pwa-banner" role="complementary" aria-label="Installer l'application">
+  <div class="pwa-inner">
+    <span class="pwa-icon">📱</span>
+    <div class="pwa-text">
+      <strong>Installer Docline</strong>
+      <span>Accédez à vos médecins depuis votre écran d'accueil</span>
+    </div>
+    <button class="pwa-install-btn" onclick="installPWA()">Installer</button>
+    <button class="pwa-dismiss" onclick="dismissPWA()" title="Fermer">✕</button>
+  </div>
+</div>
 
 <!-- ══ NAV ══════════════════════════════════════════════════ -->
 <nav class="nav" id="topnav">
@@ -520,7 +568,7 @@ button,input,select,textarea{font-family:inherit}
 
       <h1 class="hero-title">
         Trouvez votre médecin<br>
-        <span>en Algérie</span>
+        <span id="tw-text">en Algérie</span><span class="tw-cursor" aria-hidden="true">|</span>
       </h1>
       <p class="hero-sub">Prenez rendez-vous en ligne avec les meilleurs spécialistes, sans attente.</p>
 
@@ -583,7 +631,7 @@ button,input,select,textarea{font-family:inherit}
           <div class="sf-icon">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
-          <input type="text" id="s-name" placeholder="Nom du médecin…">
+          <input type="text" id="s-name" placeholder="Nom du médecin…" autocomplete="off">
         </div>
         <button class="search-btn" onclick="doSearch()">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1405,6 +1453,114 @@ async function submitBooking(){
 }
 
 document.getElementById('s-name').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
+
+/* ── Typewriter hero animation ───────────────────────────── */
+(function(){
+  var phrases = [
+    'en Algérie','à Tizi-Ouzou','Dentiste','à Azazga',
+    'Cardiologue','à Fréha','Pédiatre','à Alger',
+    'Dermatologue','à Béjaïa','Ophtalmologue','en Algérie'
+  ];
+  var el      = document.getElementById('tw-text');
+  var idx     = 0;
+  var charIdx = phrases[0].length; // start fully written
+  var phase   = 'pause';           // pause | erase | gap | type
+  var delay   = 2200;              // first pause on initial text
+
+  function tick(){
+    switch(phase){
+      case 'pause':
+        phase = 'erase';
+        setTimeout(tick, delay);
+        return;
+
+      case 'erase':
+        charIdx--;
+        el.textContent = phrases[idx].substring(0, charIdx);
+        if(charIdx === 0){
+          idx = (idx + 1) % phrases.length;
+          phase = 'gap';
+          setTimeout(tick, 320);
+        } else {
+          setTimeout(tick, 38);
+        }
+        return;
+
+      case 'gap':
+        phase = 'type';
+        setTimeout(tick, 50);
+        return;
+
+      case 'type':
+        charIdx++;
+        el.textContent = phrases[idx].substring(0, charIdx);
+        if(charIdx === phrases[idx].length){
+          phase = 'pause';
+          delay = idx === phrases.length - 1 ? 3000 : 1900;
+          setTimeout(tick, delay);
+        } else {
+          setTimeout(tick, 68);
+        }
+        return;
+    }
+  }
+
+  setTimeout(tick, 2500); // initial pause before first erase
+})();
+
+/* ── Animated search placeholder ────────────────────────── */
+(function(){
+  var hints = [
+    'Nom du médecin…',
+    'Dr. Boudjemaa…',
+    'Cardiologue Tizi Ouzou…',
+    'Pédiatre à Azazga…',
+    'Dr. Amrani…',
+    'Dermatologue…',
+    'Médecin généraliste…',
+    'Dr. Aït Ouali…',
+  ];
+  var el  = document.getElementById('s-name');
+  var idx = 0;
+  setInterval(function(){
+    if(document.activeElement === el) return; // don't change while typing
+    idx = (idx + 1) % hints.length;
+    el.setAttribute('placeholder', hints[idx]);
+  }, 2600);
+})();
+
+/* ── PWA install prompt ──────────────────────────────────── */
+var _deferredInstall = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredInstall = e;
+  if(localStorage.getItem('pwa-dismissed')) return;
+  setTimeout(function(){
+    var banner = document.getElementById('pwa-banner');
+    banner.style.display = 'block';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ banner.classList.add('visible'); });
+    });
+  }, 3500);
+});
+
+function installPWA(){
+  if(!_deferredInstall) return;
+  _deferredInstall.prompt();
+  _deferredInstall.userChoice.then(function(result){
+    _deferredInstall = null;
+    var banner = document.getElementById('pwa-banner');
+    banner.classList.remove('visible');
+    setTimeout(function(){ banner.style.display='none'; }, 420);
+  });
+}
+
+function dismissPWA(){
+  localStorage.setItem('pwa-dismissed','1');
+  var banner = document.getElementById('pwa-banner');
+  banner.classList.remove('visible');
+  setTimeout(function(){ banner.style.display='none'; }, 420);
+}
 </script>
 </body>
 </html>
