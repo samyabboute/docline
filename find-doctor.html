@@ -501,24 +501,151 @@ button,input,select,textarea{font-family:inherit}
   line-height:1;transition:all var(--t)}
 .pwa-dismiss:hover{color:var(--text-1);background:var(--bg-subtle)}
 
+/* ── MOBILE HERO FLOATERS ──────────────────────────────────── */
+.hero-floaters{
+  display:none;
+  position:relative;margin-top:28px;height:148px;
+  pointer-events:none;user-select:none}
+@media(max-width:959px){.hero-floaters{display:block}}
+.hf{
+  position:absolute;
+  background:#fff;border:1px solid var(--border);border-radius:var(--r-xl);
+  box-shadow:var(--shadow-md);
+  display:inline-flex;align-items:center;gap:10px;
+  padding:10px 14px}
+.hf-1{left:0;top:0;animation:hfl 4s ease-in-out infinite}
+.hf-2{right:4px;top:24px;animation:hfl2 4.8s ease-in-out infinite .8s}
+.hf-3{left:12px;bottom:0;animation:hfl 5.2s ease-in-out infinite 1.6s}
+@keyframes hfl{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes hfl2{0%,100%{transform:translateY(0) rotate(2deg)}50%{transform:translateY(-7px) rotate(2deg)}}
+.hf-av{width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.625rem;font-weight:800;color:#fff;flex-shrink:0}
+.hf-nm{font-size:.75rem;font-weight:700;color:var(--text-1);line-height:1.2}
+.hf-sp{font-size:.625rem;color:var(--text-3);margin-top:2px}
+.hf-st{font-size:.625rem;color:#F59E0B;letter-spacing:1px;margin-top:1px}
+.hf-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:8px 13px;border-radius:var(--r-full);
+  font-size:.6875rem;font-weight:700;white-space:nowrap}
+.hf-pill-ok{background:var(--success-bg);color:var(--success-text);border:1px solid rgba(16,185,129,.2)}
+.hf-pill-live{background:var(--brand-light);color:var(--brand);border:1px solid rgba(0,51,153,.15)}
+.hf-live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(16,185,129,.4);animation:pulse-dot 2s ease-in-out infinite}
+
+/* ── STICKY BOTTOM SEARCH BAR (mobile only) ────────────────── */
+#sticky-bar{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:260;
+  padding:10px 16px 22px;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  box-shadow:0 -6px 32px rgba(12,16,37,.12);
+  transform:translateY(110%);
+  transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
+#sticky-bar.show{transform:translateY(0)}
+@media(max-width:640px){#sticky-bar{display:block}}
+.sbar-inner{display:flex;gap:8px;align-items:center;max-width:480px;margin:0 auto}
+.sbar-select{
+  flex:1;padding:10px 32px 10px 14px;
+  border:1.5px solid var(--border);border-radius:var(--r-full);
+  font-family:'Sora',sans-serif;font-size:.8125rem;color:var(--text-2);
+  background:#fff;outline:none;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239CA3C4' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:13px;
+  transition:border-color var(--t)}
+.sbar-select:focus{border-color:var(--brand)}
+.sbar-btn{
+  background:var(--brand);color:#fff;border:none;border-radius:var(--r-full);
+  padding:10px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:.875rem;
+  cursor:pointer;box-shadow:var(--shadow-brand);
+  transition:all var(--t);flex-shrink:0;
+  display:flex;align-items:center;gap:6px}
+.sbar-btn svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+.sbar-btn:active{transform:scale(.93)!important}
+
+/* ── SCROLL REVEAL ─────────────────────────────────────────── */
+.sr{opacity:0;transform:translateY(18px);
+    transition:opacity .5s ease,transform .5s ease}
+.sr.in{opacity:1;transform:none}
+.sr.d1{transition-delay:.07s}.sr.d2{transition-delay:.14s}.sr.d3{transition-delay:.21s}
+
+/* ── TOUCH ACTIVE STATES ───────────────────────────────────── */
+@media(hover:none){
+  .card-rdv-btn:active,.search-btn:active,.sbar-btn:active,.nav-cta:active{
+    transform:scale(.93)!important;transition:transform .08s!important}
+  .pill:active{transform:scale(.91)!important;transition:transform .08s!important}
+  .doctor-card:active{transform:scale(.985);box-shadow:var(--shadow-md);
+    transition:transform .1s,box-shadow .1s}
+}
+
+/* ── SPECIALTY PILLS: scroll fade hint ─────────────────────── */
+@media(max-width:899px){
+  .spec-inner{position:relative}
+  .spec-inner::after{
+    content:'';position:absolute;right:-24px;top:0;bottom:0;width:64px;
+    background:linear-gradient(to left,#fff 35%,transparent);
+    pointer-events:none;z-index:2}}
+
 /* ── RESPONSIVE ────────────────────────────────────────────── */
 @media(max-width:640px){
-  .hero{padding:88px 16px 56px}
-  .hero-title{font-size:1.875rem}
-  .hero-stats{gap:20px}
-  .search-card{padding:6px}
+  .hero{
+    padding:80px 16px 44px;
+    background:linear-gradient(160deg,#E4ECFF 0%,#EEF4FF 40%,#F8FAFF 100%)}
+  .hero-title{font-size:1.875rem;letter-spacing:-.04em}
+  .hero-badge{font-size:.6875rem;padding:5px 12px;margin-bottom:16px}
+  .hero-sub{font-size:.875rem;line-height:1.65;margin-bottom:22px}
+  .search-card{
+    padding:6px;border-radius:var(--r-xl);
+    box-shadow:0 8px 40px rgba(0,51,153,.14);
+    border-color:rgba(0,51,153,.14)}
   .sf{min-width:unset;flex:none;width:100%}
-  .search-btn{border-radius:var(--r-lg);padding:14px}
+  .search-btn{border-radius:var(--r-lg);padding:14px;font-size:.9375rem}
+  .hero-stats{gap:14px;margin-top:18px}
+  .hero-stat-val{font-size:1.25rem}
   .spec-section{padding:22px 16px 18px}
-  .cards-wrap{padding:16px 16px 48px}
+  .cards-wrap{padding:16px 16px 88px}
   .modal-body{padding:16px 16px 24px}
   .form-row{grid-template-columns:1fr}
   .how-section{padding:48px 16px}
+  .how-steps{gap:14px}
+  .how-step{
+    background:#fff;border:1px solid var(--border);
+    border-radius:var(--r-xl);padding:20px 18px;
+    box-shadow:var(--shadow-xs);
+    flex-direction:row;align-items:flex-start;gap:16px;text-align:left}
+  .how-step-icon{display:none}
+  .how-num{width:44px;height:44px;font-size:1.125rem;flex-shrink:0;margin:0}
   .pro-section{padding:48px 16px}
+}
+@media(max-width:400px){
+  .hero-title{font-size:1.625rem}
+  .hero-stats{flex-wrap:wrap;gap:8px 20px}
 }
 </style>
 </head>
 <body>
+
+<!-- ══ STICKY BOTTOM SEARCH (mobile ≤640px) ══════════════════ -->
+<div id="sticky-bar" aria-label="Recherche rapide">
+  <div class="sbar-inner">
+    <select class="sbar-select" id="sbar-spec">
+      <option value="">🔍 Toutes les spécialités</option>
+      <option>Médecine générale</option><option>Cardiologie</option>
+      <option>Dermatologie</option><option>Gynécologie-Obstétrique</option>
+      <option>Neurologie</option><option>Ophtalmologie</option>
+      <option>ORL</option><option>Orthopédie</option>
+      <option>Pédiatrie</option><option>Psychiatrie</option>
+      <option>Chirurgie dentaire</option><option>Pneumologie</option>
+    </select>
+    <button class="sbar-btn" onclick="sbarSearch()">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Chercher
+    </button>
+  </div>
+</div>
 
 <!-- ══ PWA INSTALL BANNER ════════════════════════════════════ -->
 <div id="pwa-banner" role="complementary" aria-label="Installer l'application">
@@ -637,6 +764,30 @@ button,input,select,textarea{font-family:inherit}
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           Rechercher
         </button>
+      </div>
+
+      <!-- Mobile floating doctor preview cards (desktop: hidden) -->
+      <div class="hero-floaters" aria-hidden="true">
+        <div class="hf hf-1">
+          <div class="hf-av" style="background:linear-gradient(135deg,#003399,#0066FF)">MA</div>
+          <div>
+            <div class="hf-nm">Dr. Amrani</div>
+            <div class="hf-sp">Cardiologue · Tizi Ouzou</div>
+            <div class="hf-st">★★★★★ 4.9</div>
+          </div>
+        </div>
+        <div class="hf hf-2">
+          <span class="hf-pill hf-pill-ok">
+            <span class="hf-live-dot"></span>
+            RDV disponible aujourd'hui
+          </span>
+        </div>
+        <div class="hf hf-3">
+          <span class="hf-pill hf-pill-live">
+            <svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            124 médecins inscrits
+          </span>
+        </div>
       </div>
 
       <!-- Stats -->
@@ -1453,6 +1604,65 @@ async function submitBooking(){
 }
 
 document.getElementById('s-name').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
+
+/* ── Sticky bottom bar ───────────────────────────────────── */
+(function(){
+  var bar  = document.getElementById('sticky-bar');
+  var hero = document.querySelector('.hero');
+  if(!bar || !hero) return;
+  var visible = false;
+  function check(){
+    var shouldShow = hero.getBoundingClientRect().bottom < 0;
+    if(shouldShow !== visible){
+      visible = shouldShow;
+      bar.classList.toggle('show', visible);
+    }
+  }
+  window.addEventListener('scroll', check, {passive:true});
+  check();
+})();
+
+function sbarSearch(){
+  var sp = document.getElementById('sbar-spec').value;
+  if(sp) document.getElementById('s-specialty').value = sp;
+  doSearch();
+  var target = document.querySelector('.cards-wrap');
+  if(target) window.scrollTo({top: target.offsetTop - 72, behavior:'smooth'});
+}
+
+/* ── Scroll reveal on cards & steps ─────────────────────── */
+(function(){
+  if(!window.IntersectionObserver) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); }
+    });
+  }, {threshold:.1, rootMargin:'0px 0px -40px 0px'});
+
+  // Apply to doctor cards as they load via renderCards()
+  window._srObserver = obs;
+
+  // Static elements
+  document.querySelectorAll('.how-step,.pro-feat').forEach(function(el,i){
+    el.classList.add('sr');
+    if(i%3===1) el.classList.add('d1');
+    if(i%3===2) el.classList.add('d2');
+    obs.observe(el);
+  });
+})();
+
+// Patch renderCards to apply scroll reveal on injected cards
+var _origRenderCards = renderCards;
+renderCards = function(docs){
+  _origRenderCards(docs);
+  if(!window._srObserver) return;
+  document.querySelectorAll('.doctor-card:not(.sr-done)').forEach(function(el,i){
+    el.classList.add('sr','sr-done');
+    if(i%3===1) el.classList.add('d1');
+    if(i%3===2) el.classList.add('d2');
+    window._srObserver.observe(el);
+  });
+};
 
 /* ── Typewriter hero animation ───────────────────────────── */
 (function(){
