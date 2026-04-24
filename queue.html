@@ -50,7 +50,7 @@
 .queue-layout{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
 
 /* ── SERVING CARD ── */
-.serving-card{border-radius:20px;padding:28px 32px;color:#fff;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;background:linear-gradient(135deg,#003399 0%,#1D4ED8 60%,#0EA5E9 100%);box-shadow:0 8px 32px rgba(0,51,153,.25)}
+.serving-card{border-radius:20px;padding:28px 32px;color:#fff;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;background:linear-gradient(135deg,#3B1772 0%,#1D4ED8 60%,#0EA5E9 100%);box-shadow:0 8px 32px rgba(59,23,114,.25)}
 .serving-card::before{content:'';position:absolute;top:-60%;right:-15%;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
 .serving-card::after{content:'';position:absolute;bottom:-40%;left:-10%;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
 .serving-card.priority-urgente{background:linear-gradient(135deg,#C2410C 0%,#EA580C 60%,#F97316 100%);box-shadow:0 8px 32px rgba(234,88,12,.3)}
@@ -77,7 +77,7 @@
 
 /* ── PULSE ANIMATION (when serving) ── */
 .serving-card.active-pulse{animation:card-pulse 3s ease-in-out infinite}
-@keyframes card-pulse{0%,100%{box-shadow:0 8px 32px rgba(0,51,153,.25)}50%{box-shadow:0 8px 48px rgba(0,51,153,.45)}}
+@keyframes card-pulse{0%,100%{box-shadow:0 8px 32px rgba(59,23,114,.25)}50%{box-shadow:0 8px 48px rgba(59,23,114,.45)}}
 .serving-card.priority-urgente.active-pulse{animation:card-pulse-orange 3s ease-in-out infinite}
 @keyframes card-pulse-orange{0%,100%{box-shadow:0 8px 32px rgba(234,88,12,.3)}50%{box-shadow:0 8px 48px rgba(234,88,12,.55)}}
 .serving-card.priority-critique.active-pulse{animation:card-pulse-red 2s ease-in-out infinite}
@@ -89,7 +89,7 @@
 .add-panel-title svg{width:15px;height:15px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;opacity:.8}
 .add-row{display:flex;gap:8px;margin-bottom:12px}
 .add-input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
-.add-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,51,153,.08)}
+.add-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.08)}
 .priority-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
 .prio-btn{border:2px solid var(--border);border-radius:10px;padding:8px 4px;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;background:var(--surface)}
 .prio-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
@@ -104,7 +104,7 @@
 .add-notes{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;resize:none;transition:border-color .15s;display:none}
 .add-notes:focus{border-color:var(--brand)}
 .btn-add-patient{width:100%;padding:11px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-add-patient:hover{background:#1D4ED8;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,51,153,.3)}
+.btn-add-patient:hover{background:#1D4ED8;transform:translateY(-1px);box-shadow:0 4px 16px rgba(59,23,114,.3)}
 .btn-add-patient:active{transform:scale(.98)}
 .btn-add-patient svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
 
@@ -122,7 +122,7 @@
 .q-item{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);transition:background .15s,transform .2s;position:relative}
 .q-item:last-child{border-bottom:none}
 .q-item:hover{background:var(--surface2)}
-.q-item.current{background:linear-gradient(90deg,rgba(0,51,153,.04),transparent);border-left:3px solid var(--brand)}
+.q-item.current{background:linear-gradient(90deg,rgba(59,23,114,.04),transparent);border-left:3px solid var(--brand)}
 .q-item.done{opacity:.5}
 .q-item.new-entry{animation:slide-in .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes slide-in{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
@@ -149,7 +149,7 @@
 .priority-tag.critique{background:var(--p-critique-bg);color:var(--p-critique);border:1px solid var(--p-critique-border);animation:tag-pulse 2s ease-in-out infinite}
 @keyframes tag-pulse{0%,100%{opacity:1}50%{opacity:.65}}
 
-.room-tag{font-size:10px;font-weight:600;background:rgba(0,51,153,.08);color:var(--brand);border-radius:99px;padding:2px 8px}
+.room-tag{font-size:10px;font-weight:600;background:rgba(59,23,114,.08);color:var(--brand);border-radius:99px;padding:2px 8px}
 
 .q-actions{display:flex;gap:4px;flex-shrink:0}
 .q-action-btn{width:28px;height:28px;border-radius:8px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text4);transition:all .12s}
@@ -952,7 +952,7 @@ function generateQR() {
   document.getElementById('qr-link-text').textContent = joinUrl;
   document.getElementById('qr-code').innerHTML = '';
   try {
-    new QRCode(document.getElementById('qr-code'), { text:joinUrl, width:160, height:160, colorDark:'#003399', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M });
+    new QRCode(document.getElementById('qr-code'), { text:joinUrl, width:160, height:160, colorDark:'#3B1772', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M });
   } catch(e) {}
 }
 

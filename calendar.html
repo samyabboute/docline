@@ -42,7 +42,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 
 .btn{padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:#003399;color:#fff;box-shadow:0 1px 4px rgba(0,51,153,.25)}.btn-primary:hover{background:#002277}
+.btn-primary{background:#3B1772;color:#fff;box-shadow:0 1px 4px rgba(59,23,114,.25)}.btn-primary:hover{background:#2D1259}
 .btn-ghost{background:#fff;border:1px solid #E5E7EB;color:#374151}.btn-ghost:hover{background:#F9FAFB}
 .btn-sm{padding:6px 12px;font-size:12px}
 .btn-danger{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}.btn-danger:hover{background:#FEE2E2}
@@ -57,7 +57,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cal-month-title{font-size:17px;font-weight:800;color:#0D1117;letter-spacing:-.3px}
 .cal-nav{display:flex;gap:6px;align-items:center}
 .cal-nav-btn{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;color:#374151;transition:all .15s;display:flex;align-items:center;justify-content:center}
-.cal-nav-btn:hover{background:#EEF2FF;border-color:#C7D2FE;color:#003399}
+.cal-nav-btn:hover{background:#EEF2FF;border-color:#C7D2FE;color:#3B1772}
 .cal-today-btn{padding:0 12px;width:auto;font-size:12px;font-weight:600}
 .cal-grid{padding:16px 18px 18px}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px}
@@ -65,15 +65,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cal-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .cal-cell{min-height:76px;border-radius:10px;padding:5px;cursor:pointer;transition:all .12s;position:relative;border:1.5px solid transparent}
 .cal-cell:hover{background:#F8FAFF;border-color:#E5E7EB}
-.cal-cell.today{background:#EEF2FF;border-color:#003399}
+.cal-cell.today{background:#EEF2FF;border-color:#3B1772}
 .cal-cell.other-month{opacity:.45}
-.cal-cell.selected{border-color:#003399;background:#EEF2FF}
-.cal-cell.today.selected{border-color:#003399;background:#EEF2FF}
+.cal-cell.selected{border-color:#3B1772;background:#EEF2FF}
+.cal-cell.today.selected{border-color:#3B1772;background:#EEF2FF}
 .cal-cell-num{font-size:12px;font-weight:700;color:#374151;line-height:1;margin-bottom:3px}
-.cal-cell.today .cal-cell-num{background:#003399;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
-.cal-cell.selected:not(.today) .cal-cell-num{color:#003399}
+.cal-cell.today .cal-cell-num{background:#3B1772;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+.cal-cell.selected:not(.today) .cal-cell-num{color:#3B1772}
 .event-dot{font-size:9px;padding:2px 5px;border-radius:5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;line-height:1.3}
-.ev-consultation{background:#EEF2FF;color:#003399}
+.ev-consultation{background:#EEF2FF;color:#3B1772}
 .ev-suivi{background:#ECFDF5;color:#065F46}
 .ev-rappel{background:#FEF3C7;color:#92400E}
 .ev-reunion{background:#F5F3FF;color:#6D28D9}
@@ -90,7 +90,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .filter-chips{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid #F3F4F6;overflow-x:auto;scrollbar-width:none}
 .filter-chips::-webkit-scrollbar{display:none}
 .chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:#F3F4F6;color:#6B7280;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.chip.active{background:#EEF2FF;color:#003399}
+.chip.active{background:#EEF2FF;color:#3B1772}
 
 /* Task list */
 .task-list{max-height:420px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#E5E7EB transparent}
@@ -98,13 +98,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .task-item:hover{background:#F8FAFF}
 .task-item:last-child{border-bottom:none}
 .task-check{width:18px;height:18px;border-radius:5px;border:2px solid #D1D5DB;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;font-size:10px}
-.task-check.done{background:#003399;border-color:#003399;color:#fff}
+.task-check.done{background:#3B1772;border-color:#3B1772;color:#fff}
 .task-body{flex:1;min-width:0}
 .task-title{font-size:13px;font-weight:600;color:#0D1117;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .task-title.done{text-decoration:line-through;color:#9CA3AF;font-weight:400}
 .task-meta{font-size:11px;color:#9CA3AF;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .task-type-badge{font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600}
-.tb-consultation{background:#EEF2FF;color:#003399}
+.tb-consultation{background:#EEF2FF;color:#3B1772}
 .tb-suivi{background:#ECFDF5;color:#065F46}
 .tb-rappel{background:#FEF3C7;color:#92400E}
 .tb-reunion{background:#F5F3FF;color:#6D28D9}
@@ -120,9 +120,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .quick-add{padding:14px 16px;border-top:1px solid #F3F4F6;background:#FAFBFF}
 .quick-row{display:flex;gap:8px}
 .quick-input{flex:1;padding:8px 12px;border:1px solid #E5E7EB;border-radius:10px;font-size:13px;color:#0D1117;font-family:inherit;transition:border-color .15s;background:#fff}
-.quick-input:focus{outline:none;border-color:#003399;box-shadow:0 0 0 3px rgba(0,51,153,.08)}
-.quick-btn{padding:8px 14px;border-radius:10px;background:#003399;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
-.quick-btn:hover{background:#002277}
+.quick-input:focus{outline:none;border-color:#3B1772;box-shadow:0 0 0 3px rgba(59,23,114,.08)}
+.quick-btn{padding:8px 14px;border-radius:10px;background:#3B1772;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
+.quick-btn:hover{background:#2D1259}
 
 /* Empty / loading */
 .empty-tasks{text-align:center;padding:36px 16px;color:#9CA3AF;font-size:13px}
@@ -132,7 +132,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── Day panel ── */
 .day-panel{background:#fff;border:1px solid #E5E7EB;border-radius:18px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .day-head{padding:16px 18px;border-bottom:1px solid #F3F4F6;background:linear-gradient(135deg,#EEF2FF 0%,#F5F3FF 100%)}
-.day-head-date{font-size:16px;font-weight:800;color:#003399;letter-spacing:-.3px}
+.day-head-date{font-size:16px;font-weight:800;color:#3B1772;letter-spacing:-.3px}
 .day-head-sub{font-size:12px;color:#6B7280;margin-top:2px}
 .day-events{max-height:240px;overflow-y:auto;padding:8px 0}
 .day-event-item{display:flex;gap:10px;align-items:flex-start;padding:10px 16px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s}
@@ -157,7 +157,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .form-group{margin-bottom:14px}
 .form-label{font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;display:block}
 .form-input{width:100%;padding:9px 12px;border:1px solid #E5E7EB;border-radius:10px;font-size:14px;color:#0D1117;font-family:inherit;transition:border-color .15s;background:#fff}
-.form-input:focus{outline:none;border-color:#003399;box-shadow:0 0 0 3px rgba(0,51,153,.08)}
+.form-input:focus{outline:none;border-color:#3B1772;box-shadow:0 0 0 3px rgba(59,23,114,.08)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-actions{display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:8px}
 .form-actions-right{display:flex;gap:8px}
@@ -171,10 +171,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid #E5E7EB;z-index:500;padding:0 4px}
 .bottom-nav-row{display:flex;height:100%;align-items:stretch}
 .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:#9CA3AF;border:none;background:none;cursor:pointer;font-family:inherit;padding:6px 2px;-webkit-tap-highlight-color:transparent;transition:color .12s;position:relative}
-.bn-item.active{color:#003399}
+.bn-item.active{color:#3B1772}
 .bn-item svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .bn-item span{font-size:9px;font-weight:600;letter-spacing:.01em;line-height:1}
-.bn-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:#003399;border-radius:0 0 2px 2px}
+.bn-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:#3B1772;border-radius:0 0 2px 2px}
 @media(max-width:768px){.bottom-nav{display:flex}body{padding-bottom:68px}}
 </style>
 </head>
@@ -375,7 +375,7 @@ var TYPE_LABEL = {
   task:         'Tâche'
 };
 var TYPE_BAR_COLOR = {
-  consultation: '#003399',
+  consultation: '#3B1772',
   suivi:        '#059669',
   rappel:       '#D97706',
   reunion:      '#7C3AED',

@@ -11,8 +11,8 @@
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--brand:#003399;--brand-light:#EEF2FF;--bg:#F8FAFF;--white:#fff;--text:#0D1117;--text2:#374151;--text3:#6B7280;--text4:#9CA3AF;--border:#E5E7EB;--success:#059669;--danger:#DC2626;--warning:#D97706;--r:12px;--rlg:16px;--rfull:999px;--ease:cubic-bezier(.25,.46,.45,.94)}
-[data-theme=dark]{--bg:#0D1117;--white:#111827;--text:#F9FAFB;--text2:#D1D5DB;--text3:#9CA3AF;--text4:#6B7280;--border:rgba(255,255,255,.1);--brand-light:rgba(0,51,153,.15)}
+:root{--brand:#3B1772;--brand-light:#EDE8FF;--bg:#F8FAFF;--white:#fff;--text:#0D1117;--text2:#374151;--text3:#6B7280;--text4:#9CA3AF;--border:#E5E7EB;--success:#059669;--danger:#DC2626;--warning:#D97706;--r:12px;--rlg:16px;--rfull:999px;--ease:cubic-bezier(.25,.46,.45,.94)}
+[data-theme=dark]{--bg:#0D1117;--white:#111827;--text:#F9FAFB;--text2:#D1D5DB;--text3:#9CA3AF;--text4:#6B7280;--border:rgba(255,255,255,.1);--brand-light:rgba(59,23,114,.15)}
 html{-webkit-font-smoothing:antialiased}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
@@ -29,7 +29,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* Tool selector */
 .tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:28px}
 .tool-card{border:1.5px solid var(--border);border-radius:var(--r);padding:14px 10px;text-align:center;cursor:pointer;transition:all .15s;background:var(--white)}
-.tool-card:hover{border-color:rgba(0,51,153,.3);background:var(--brand-light)}
+.tool-card:hover{border-color:rgba(59,23,114,.3);background:var(--brand-light)}
 .tool-card.selected{border-color:var(--brand);background:var(--brand-light)}
 .tool-icon{font-size:26px;margin-bottom:6px}
 .tool-name{font-size:12px;font-weight:600;color:var(--text2)}

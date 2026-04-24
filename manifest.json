@@ -1,16 +1,17 @@
-﻿{
-  "name": "Docline \u2014 CRM for Freelancers",
+{
+  "name": "Docline — Gestion cabinet médical",
   "short_name": "Docline",
-  "description": "CRM, invoicing, and e-signatures for European freelancers",
+  "description": "Logiciel de gestion de cabinet médical pour les médecins algériens",
   "start_url": "/docline/app.html",
   "scope": "/docline/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#003399",
-  "background_color": "#003399",
-  "lang": "en",
+  "theme_color": "#3B1772",
+  "background_color": "#3B1772",
+  "lang": "fr",
   "categories": [
-    "business",
+    "medical",
+    "health",
     "productivity"
   ],
   "icons": [
@@ -36,19 +37,25 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ],
   "screenshots": [],
   "shortcuts": [
     {
-      "name": "New Invoice",
-      "url": "/docline/invoices.html?new=1",
-      "description": "Create a new invoice"
+      "name": "File d'attente",
+      "url": "/docline/queue.html",
+      "description": "Gérer la file d'attente"
     },
     {
-      "name": "New Client",
+      "name": "Nouveau patient",
       "url": "/docline/clients.html?new=1",
-      "description": "Add a new client"
+      "description": "Ajouter un nouveau patient"
     }
   ]
 }

@@ -12,8 +12,8 @@
   ============================================================ */
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
   :root {
-    --brand:#003399;--brand-dark:#002280;--brand-light:#E6ECF9;--brand-glow:rgba(0,51,153,.14);--brand-border:rgba(0,51,153,.20);
-    --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(0,51,153,.14);--sidebar-border:rgba(255,255,255,.07);
+    --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;--brand-glow:rgba(59,23,114,.14);--brand-border:rgba(59,23,114,.20);
+    --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(59,23,114,.14);--sidebar-border:rgba(255,255,255,.07);
     --bg:#FAFBFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
     --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
     --border:#E4E7F0;--border-strong:#C8CCE0;
@@ -27,7 +27,7 @@
     --shadow-md:0 4px 8px rgba(13,15,20,.08),0 2px 4px rgba(13,15,20,.04);
     --shadow-lg:0 12px 24px rgba(13,15,20,.1),0 4px 8px rgba(13,15,20,.06);
     --shadow-xl:0 24px 48px rgba(13,15,20,.14),0 8px 16px rgba(13,15,20,.08);
-    --shadow-brand:0 4px 14px rgba(0,51,153,.28);
+    --shadow-brand:0 4px 14px rgba(59,23,114,.28);
     --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);--t-slow:320ms cubic-bezier(.4,0,.2,1);
     --text-xs:.6875rem;--text-sm:.8125rem;--text-base:.9375rem;--text-md:1.0625rem;--text-lg:1.25rem;--text-xl:1.5rem;--text-2xl:1.875rem;
   }
@@ -49,7 +49,7 @@
   .sidebar-logo-wrap{display:flex;align-items:center;gap:10px}
   .sidebar-plan-badge{font-size:.6875rem;font-weight:600;padding:2px 7px;border-radius:var(--r-full);letter-spacing:.3px}
   .sidebar-plan-badge.free{background:rgba(255,255,255,.08);color:rgba(255,255,255,.45)}
-  .sidebar-plan-badge.pro{background:rgba(0,51,153,.20);color:#a5a7f5;border:1px solid rgba(0,51,153,.3)}
+  .sidebar-plan-badge.pro{background:rgba(59,23,114,.20);color:#a5a7f5;border:1px solid rgba(59,23,114,.3)}
   .sidebar-section{padding:20px 16px 6px;font-size:.6875rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.22)}
   .nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;margin:1px 8px;border-radius:var(--r-md);color:rgba(255,255,255,.55);font-size:var(--text-sm);font-weight:500;cursor:pointer;transition:all var(--t-fast);border:none;background:transparent;text-decoration:none;width:calc(100% - 16px);text-align:left}
   .nav-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.8)}
@@ -75,8 +75,8 @@
   .usage-bar-fill{height:100%;border-radius:var(--r-full);background:var(--brand);transition:width .5s ease}
   .usage-bar-fill.warn{background:var(--warning)}
   .usage-bar-fill.danger{background:var(--danger)}
-  .usage-upgrade-btn{display:block;text-align:center;margin-top:10px;font-size:10px;font-weight:700;color:var(--brand);background:rgba(0,51,153,.12);border-radius:var(--r-sm);padding:5px;text-decoration:none;transition:background var(--t-fast)}
-  .usage-upgrade-btn:hover{background:rgba(0,51,153,.2)}
+  .usage-upgrade-btn{display:block;text-align:center;margin-top:10px;font-size:10px;font-weight:700;color:var(--brand);background:rgba(59,23,114,.12);border-radius:var(--r-sm);padding:5px;text-decoration:none;transition:background var(--t-fast)}
+  .usage-upgrade-btn:hover{background:rgba(59,23,114,.2)}
   /* TOPBAR */
   .topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:100}
   .topbar-title{font-size:var(--text-md);font-weight:700;color:var(--text-primary);flex-shrink:0}
@@ -98,7 +98,7 @@
   .btn:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
   .btn:active:not(:disabled){transform:scale(.98)}
   .btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
-  .btn-primary:hover:not(:disabled){background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,51,153,.36)}
+  .btn-primary:hover:not(:disabled){background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,23,114,.36)}
   .btn-secondary{background:var(--bg-raised);color:var(--text-secondary);border:1.5px solid var(--border);box-shadow:var(--shadow-xs)}
   .btn-secondary:hover:not(:disabled){background:var(--bg-subtle);border-color:var(--border-strong);color:var(--text-primary)}
   .btn-ghost{background:transparent;color:var(--text-secondary)}
@@ -107,8 +107,8 @@
   .btn-danger:hover:not(:disabled){background:var(--danger);color:#fff}
   .btn-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
   .btn-success:hover:not(:disabled){background:var(--success);color:#fff}
-  .btn-pro{background:linear-gradient(135deg,#003399 0%,#8B8FF5 100%);color:#fff;box-shadow:0 4px 14px rgba(0,51,153,.32)}
-  .btn-pro:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,51,153,.44)}
+  .btn-pro{background:linear-gradient(135deg,#3B1772 0%,#8B8FF5 100%);color:#fff;box-shadow:0 4px 14px rgba(59,23,114,.32)}
+  .btn-pro:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,23,114,.44)}
   .btn-sm{padding:6px 12px;font-size:.6875rem;border-radius:var(--r-sm)}
   .btn-lg{padding:12px 24px;font-size:var(--text-base)}
   .btn-full{width:100%}
@@ -551,7 +551,7 @@ const AdminSidebar = {
     <div class="chart-bar-wrap" style="height:100px">${months.map(m=>`
       <div style="flex:1;display:flex;flex-direction:column;align-items:center">
         <div style="font-size:9px;color:var(--text-faint);margin-bottom:4px">${formatEUR(m.mrr)}</div>
-        <div class="chart-bar" style="width:100%;height:${Math.max(8,Math.round((m.mrr/maxMRR)*64))}px;background:linear-gradient(180deg,var(--brand) 0%,rgba(0,51,153,.5) 100%)" title="${m.label}: ${formatEUR(m.mrr)}"></div>
+        <div class="chart-bar" style="width:100%;height:${Math.max(8,Math.round((m.mrr/maxMRR)*64))}px;background:linear-gradient(180deg,var(--brand) 0%,rgba(59,23,114,.5) 100%)" title="${m.label}: ${formatEUR(m.mrr)}"></div>
         <div class="chart-bar-label">${m.label}</div>
       </div>`).join('')}</div>`;
 

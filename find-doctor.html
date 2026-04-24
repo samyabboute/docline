@@ -13,8 +13,8 @@
 <style>
 /* ── DESIGN TOKENS ─────────────────────────────────────────── */
 :root{
-  --brand:#003399;--brand-dark:#001F80;--brand-mid:#0044CC;
-  --brand-light:#EEF2FF;--brand-glow:rgba(0,51,153,.14);
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-mid:#0044CC;
+  --brand-light:#EDE8FF;--brand-glow:rgba(59,23,114,.14);
   --teal:#00B4D8;--teal-light:#E0F7FC;--teal-glow:rgba(0,180,216,.15);
   --bg:#F7F9FF;--surface:#FFFFFF;--bg-subtle:#F0F4FF;
   --text-1:#0C1025;--text-2:#3D4461;--text-3:#6B7299;--text-4:#9CA3C4;
@@ -27,8 +27,8 @@
   --shadow-md:0 4px 16px rgba(12,16,37,.08),0 2px 4px rgba(12,16,37,.04);
   --shadow-lg:0 12px 40px rgba(12,16,37,.10),0 4px 8px rgba(12,16,37,.05);
   --shadow-card:0 2px 12px rgba(12,16,37,.06),0 1px 3px rgba(12,16,37,.04);
-  --shadow-hover:0 8px 32px rgba(12,16,37,.11),0 2px 8px rgba(0,51,153,.08);
-  --shadow-brand:0 4px 20px rgba(0,51,153,.28);
+  --shadow-hover:0 8px 32px rgba(12,16,37,.11),0 2px 8px rgba(59,23,114,.08);
+  --shadow-brand:0 4px 20px rgba(59,23,114,.28);
   --r-xs:4px;--r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:20px;--r-2xl:28px;--r-full:9999px;
   --t:200ms cubic-bezier(.4,0,.2,1);
   --t-spring:400ms cubic-bezier(.34,1.56,.64,1);
@@ -60,7 +60,7 @@ button,input,select,textarea{font-family:inherit}
   border:none;border-radius:var(--r-md);padding:9px 20px;
   font-weight:700;font-size:.8125rem;cursor:pointer;
   transition:all var(--t);text-decoration:none;box-shadow:var(--shadow-brand)}
-.nav-cta:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,51,153,.36)}
+.nav-cta:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
 @media(max-width:600px){.nav-link{display:none}}
 
 /* ── HERO (LIGHT — Doctolib style) ─────────────────────────── */
@@ -71,7 +71,7 @@ button,input,select,textarea{font-family:inherit}
 .hero::before{
   content:'';position:absolute;top:-120px;right:-80px;
   width:520px;height:520px;border-radius:50%;
-  background:radial-gradient(circle,rgba(0,51,153,.06) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(59,23,114,.06) 0%,transparent 70%);
   pointer-events:none}
 .hero::after{
   content:'';position:absolute;bottom:-60px;left:-60px;
@@ -87,7 +87,7 @@ button,input,select,textarea{font-family:inherit}
 .hero-left{}
 .hero-badge{
   display:inline-flex;align-items:center;gap:7px;
-  background:var(--brand-light);border:1px solid rgba(0,51,153,.15);
+  background:var(--brand-light);border:1px solid rgba(59,23,114,.15);
   border-radius:var(--r-full);padding:6px 14px;
   font-size:.75rem;font-weight:700;color:var(--brand);
   letter-spacing:.04em;text-transform:uppercase;margin-bottom:22px}
@@ -130,7 +130,7 @@ button,input,select,textarea{font-family:inherit}
   cursor:pointer;transition:all var(--t);display:flex;align-items:center;gap:9px;
   white-space:nowrap;width:100%;justify-content:center;margin-top:4px;
   box-shadow:var(--shadow-brand)}
-.search-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,51,153,.36)}
+.search-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
 .search-btn svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 @media(min-width:640px){.search-btn{width:auto;margin-top:0}}
 @media(max-width:640px){
@@ -172,7 +172,7 @@ button,input,select,textarea{font-family:inherit}
 .pill-lbl{font-size:.6875rem;font-weight:700;text-align:center;line-height:1.2}
 
 /* Specialty pill colour theming */
-.pill[data-color="blue"]{--pc:#003399;--pc-bg:#EEF2FF}
+.pill[data-color="blue"]{--pc:#3B1772;--pc-bg:#EEF2FF}
 .pill[data-color="red"]{--pc:#DC2626;--pc-bg:#FEF2F2}
 .pill[data-color="orange"]{--pc:#D97706;--pc-bg:#FFFBEB}
 .pill[data-color="purple"]{--pc:#7C3AED;--pc-bg:#F5F3FF}
@@ -211,7 +211,7 @@ button,input,select,textarea{font-family:inherit}
   box-shadow:var(--shadow-card);transition:transform var(--t),box-shadow var(--t),border-color var(--t);
   animation:cardIn .35s ease both}
 @keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.doctor-card:hover{box-shadow:var(--shadow-hover);border-color:rgba(0,51,153,.14);transform:translateY(-3px)}
+.doctor-card:hover{box-shadow:var(--shadow-hover);border-color:rgba(59,23,114,.14);transform:translateY(-3px)}
 .doctor-card::before{content:'';height:3px;background:linear-gradient(90deg,var(--brand),var(--teal));display:block;flex-shrink:0}
 .doctor-card.is-featured{border-color:rgba(245,158,11,.22)}
 .doctor-card.is-featured::before{background:linear-gradient(90deg,#F59E0B,#FBBF24)}
@@ -222,7 +222,7 @@ button,input,select,textarea{font-family:inherit}
   width:64px;height:64px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-size:1.375rem;font-weight:800;color:#fff;flex-shrink:0;position:relative;
-  box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(0,51,153,.15)}
+  box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(59,23,114,.15)}
 .avatar-badge{
   position:absolute;bottom:1px;right:1px;width:15px;height:15px;border-radius:50%;
   background:var(--success);border:2.5px solid #fff;box-shadow:0 0 6px rgba(16,185,129,.4)}
@@ -283,7 +283,7 @@ button,input,select,textarea{font-family:inherit}
   padding:12px 22px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;
   cursor:pointer;transition:all var(--t);white-space:nowrap;box-shadow:var(--shadow-brand);
   display:flex;align-items:center;gap:7px;flex-shrink:0}
-.card-rdv-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,51,153,.36)}
+.card-rdv-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
 .card-rdv-btn:active{transform:scale(.97)}
 .card-rdv-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
 
@@ -330,11 +330,11 @@ button,input,select,textarea{font-family:inherit}
 .pro-section{background:var(--bg);padding:72px 24px}
 .pro-inner{max-width:1120px;margin:0 auto;
   background:linear-gradient(135deg,#EEF2FF 0%,#E0F7FA 100%);
-  border:1px solid rgba(0,51,153,.12);border-radius:var(--r-2xl);
+  border:1px solid rgba(59,23,114,.12);border-radius:var(--r-2xl);
   padding:56px 64px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
 @media(max-width:800px){.pro-inner{grid-template-columns:1fr;gap:36px;padding:36px 24px;text-align:center}}
 .pro-pill{display:inline-flex;align-items:center;gap:6px;
-  background:rgba(0,51,153,.08);border:1px solid rgba(0,51,153,.18);
+  background:rgba(59,23,114,.08);border:1px solid rgba(59,23,114,.18);
   border-radius:var(--r-full);padding:5px 14px;font-size:.6875rem;font-weight:700;
   color:var(--brand);letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px}
 .pro-title{font-size:clamp(1.625rem,3.5vw,2.25rem);font-weight:800;color:var(--text-1);
@@ -348,16 +348,16 @@ button,input,select,textarea{font-family:inherit}
   background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);
   padding:13px 26px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
   cursor:pointer;text-decoration:none;box-shadow:var(--shadow-brand);transition:all var(--t)}
-.btn-pro-p:hover{background:var(--brand-dark);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,51,153,.36)}
+.btn-pro-p:hover{background:var(--brand-dark);transform:translateY(-2px);box-shadow:0 8px 32px rgba(59,23,114,.36)}
 .btn-pro-s{display:inline-flex;align-items:center;gap:8px;
-  background:rgba(0,51,153,.07);color:var(--brand);
-  border:1.5px solid rgba(0,51,153,.18);border-radius:var(--r-md);
+  background:rgba(59,23,114,.07);color:var(--brand);
+  border:1.5px solid rgba(59,23,114,.18);border-radius:var(--r-md);
   padding:12px 24px;font-family:'Sora',sans-serif;font-weight:600;font-size:.875rem;
   cursor:pointer;text-decoration:none;transition:all var(--t)}
 .btn-pro-s:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
 .pro-features{display:flex;flex-direction:column;gap:14px}
 .pro-feat{display:flex;align-items:flex-start;gap:16px;
-  background:#fff;border:1px solid rgba(0,51,153,.1);
+  background:#fff;border:1px solid rgba(59,23,114,.1);
   border-radius:var(--r-lg);padding:18px 20px;transition:box-shadow var(--t)}
 .pro-feat:hover{box-shadow:var(--shadow-sm)}
 .pro-feat-icon{width:42px;height:42px;border-radius:12px;
@@ -406,7 +406,7 @@ button,input,select,textarea{font-family:inherit}
 .modal-doctor-info{display:flex;align-items:center;gap:14px}
 .modal-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;
   justify-content:center;font-size:1.25rem;font-weight:800;color:#fff;flex-shrink:0;
-  box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(0,51,153,.12)}
+  box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(59,23,114,.12)}
 .modal-title{font-size:1rem;font-weight:800;color:var(--text-1)}
 .modal-sub{font-size:.75rem;color:var(--text-3);margin-top:2px}
 .modal-phone{font-size:.75rem;color:var(--teal);font-weight:600;margin-top:3px}
@@ -446,7 +446,7 @@ button,input,select,textarea{font-family:inherit}
   padding:14px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
   cursor:pointer;transition:all var(--t);display:flex;align-items:center;
   justify-content:center;gap:8px;margin-top:4px;box-shadow:var(--shadow-brand)}
-.form-submit:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,51,153,.36)}
+.form-submit:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
 .form-submit:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
 .form-submit svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
 .form-error{display:none;margin-top:12px;padding:12px 14px;
@@ -459,7 +459,7 @@ button,input,select,textarea{font-family:inherit}
   width:72px;height:72px;border-radius:50%;
   background:linear-gradient(135deg,var(--brand),var(--teal));
   display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
-  box-shadow:0 8px 28px rgba(0,51,153,.25);
+  box-shadow:0 8px 28px rgba(59,23,114,.25);
   animation:successPop .5s var(--t-spring) both}
 @keyframes successPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 .success-icon svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
@@ -529,7 +529,7 @@ button,input,select,textarea{font-family:inherit}
   padding:8px 13px;border-radius:var(--r-full);
   font-size:.6875rem;font-weight:700;white-space:nowrap}
 .hf-pill-ok{background:var(--success-bg);color:var(--success-text);border:1px solid rgba(16,185,129,.2)}
-.hf-pill-live{background:var(--brand-light);color:var(--brand);border:1px solid rgba(0,51,153,.15)}
+.hf-pill-live{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
 .hf-live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0;
   box-shadow:0 0 0 0 rgba(16,185,129,.4);animation:pulse-dot 2s ease-in-out infinite}
 
@@ -599,8 +599,8 @@ button,input,select,textarea{font-family:inherit}
   .hero-sub{font-size:.875rem;line-height:1.65;margin-bottom:22px}
   .search-card{
     padding:6px;border-radius:var(--r-xl);
-    box-shadow:0 8px 40px rgba(0,51,153,.14);
-    border-color:rgba(0,51,153,.14)}
+    box-shadow:0 8px 40px rgba(59,23,114,.14);
+    border-color:rgba(59,23,114,.14)}
   .sf{min-width:unset;flex:none;width:100%}
   .search-btn{border-radius:var(--r-lg);padding:14px;font-size:.9375rem}
   .hero-stats{gap:14px;margin-top:18px}
@@ -665,7 +665,7 @@ button,input,select,textarea{font-family:inherit}
   <div class="nav-inner">
     <a href="find-doctor.html" class="nav-logo">
       <svg viewBox="0 0 40 40" fill="none">
-        <rect width="40" height="40" rx="10" fill="#003399"/>
+        <rect width="40" height="40" rx="10" fill="#3B1772"/>
         <path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
       </svg>
       Docline
@@ -769,7 +769,7 @@ button,input,select,textarea{font-family:inherit}
       <!-- Mobile floating doctor preview cards (desktop: hidden) -->
       <div class="hero-floaters" aria-hidden="true">
         <div class="hf hf-1">
-          <div class="hf-av" style="background:linear-gradient(135deg,#003399,#0066FF)">MA</div>
+          <div class="hf-av" style="background:linear-gradient(135deg,#3B1772,#23A7EA)">MA</div>
           <div>
             <div class="hf-nm">Dr. Amrani</div>
             <div class="hf-sp">Cardiologue · Tizi Ouzou</div>
@@ -809,22 +809,22 @@ button,input,select,textarea{font-family:inherit}
 
     <!-- Right: SVG Medical Illustration -->
     <div class="hero-right">
-      <svg viewBox="0 0 420 480" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:420px;height:auto;filter:drop-shadow(0 12px 40px rgba(0,51,153,.10))">
+      <svg viewBox="0 0 420 480" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:420px;height:auto;filter:drop-shadow(0 12px 40px rgba(59,23,114,.10))">
         <!-- Background circle -->
         <circle cx="210" cy="240" r="185" fill="#EEF2FF"/>
         <!-- Doctor coat body -->
-        <rect x="130" y="240" width="160" height="180" rx="20" fill="#fff" stroke="#003399" stroke-width="2.5"/>
+        <rect x="130" y="240" width="160" height="180" rx="20" fill="#fff" stroke="#3B1772" stroke-width="2.5"/>
         <!-- Coat lapels -->
-        <path d="M175 240 L210 300 L245 240" stroke="#003399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M175 240 L210 300 L245 240" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         <!-- Coat collar -->
-        <path d="M175 240 L185 200 L210 210 L235 200 L245 240" stroke="#003399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="#f0f4ff"/>
+        <path d="M175 240 L185 200 L210 210 L235 200 L245 240" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="#f0f4ff"/>
         <!-- Pocket -->
-        <rect x="148" y="290" width="36" height="28" rx="4" fill="#EEF2FF" stroke="#003399" stroke-width="1.5"/>
+        <rect x="148" y="290" width="36" height="28" rx="4" fill="#EEF2FF" stroke="#3B1772" stroke-width="1.5"/>
         <!-- Pocket pen -->
-        <line x1="158" y1="290" x2="158" y2="305" stroke="#003399" stroke-width="2" stroke-linecap="round"/>
+        <line x1="158" y1="290" x2="158" y2="305" stroke="#3B1772" stroke-width="2" stroke-linecap="round"/>
         <line x1="166" y1="290" x2="166" y2="305" stroke="#00B4D8" stroke-width="2" stroke-linecap="round"/>
         <!-- Doctor head -->
-        <circle cx="210" cy="165" r="52" fill="#FFD5B0" stroke="#003399" stroke-width="2"/>
+        <circle cx="210" cy="165" r="52" fill="#FFD5B0" stroke="#3B1772" stroke-width="2"/>
         <!-- Hair -->
         <path d="M158 155 Q160 110 210 113 Q260 110 262 155 Q255 135 210 135 Q165 135 158 155z" fill="#1a1a2e"/>
         <!-- Eyes -->
@@ -835,31 +835,31 @@ button,input,select,textarea{font-family:inherit}
         <!-- Smile -->
         <path d="M196 176 Q210 186 224 176" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round" fill="none"/>
         <!-- Ears -->
-        <ellipse cx="158" cy="165" rx="8" ry="11" fill="#FFD5B0" stroke="#003399" stroke-width="1.5"/>
-        <ellipse cx="262" cy="165" rx="8" ry="11" fill="#FFD5B0" stroke="#003399" stroke-width="1.5"/>
+        <ellipse cx="158" cy="165" rx="8" ry="11" fill="#FFD5B0" stroke="#3B1772" stroke-width="1.5"/>
+        <ellipse cx="262" cy="165" rx="8" ry="11" fill="#FFD5B0" stroke="#3B1772" stroke-width="1.5"/>
         <!-- Stethoscope on neck -->
-        <path d="M185 212 Q180 230 175 245 Q168 265 178 278 Q188 292 205 292 Q222 292 232 278 Q242 265 235 245 Q230 230 225 212" stroke="#003399" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M185 212 Q180 230 175 245 Q168 265 178 278 Q188 292 205 292 Q222 292 232 278 Q242 265 235 245 Q230 230 225 212" stroke="#3B1772" stroke-width="3" stroke-linecap="round" fill="none"/>
         <!-- Stethoscope earpiece left -->
-        <path d="M185 212 L178 200 L175 190" stroke="#003399" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="174" cy="188" r="5" fill="#00B4D8" stroke="#003399" stroke-width="1.5"/>
+        <path d="M185 212 L178 200 L175 190" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="174" cy="188" r="5" fill="#00B4D8" stroke="#3B1772" stroke-width="1.5"/>
         <!-- Stethoscope earpiece right -->
-        <path d="M225 212 L232 200 L235 190" stroke="#003399" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="236" cy="188" r="5" fill="#00B4D8" stroke="#003399" stroke-width="1.5"/>
+        <path d="M225 212 L232 200 L235 190" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="236" cy="188" r="5" fill="#00B4D8" stroke="#3B1772" stroke-width="1.5"/>
         <!-- Stethoscope chest piece -->
-        <circle cx="205" cy="293" r="12" fill="#003399"/>
+        <circle cx="205" cy="293" r="12" fill="#3B1772"/>
         <circle cx="205" cy="293" r="7" fill="#00B4D8"/>
         <!-- Arms -->
-        <rect x="90" y="245" width="44" height="100" rx="20" fill="#fff" stroke="#003399" stroke-width="2.5"/>
-        <rect x="286" y="245" width="44" height="100" rx="20" fill="#fff" stroke="#003399" stroke-width="2.5"/>
+        <rect x="90" y="245" width="44" height="100" rx="20" fill="#fff" stroke="#3B1772" stroke-width="2.5"/>
+        <rect x="286" y="245" width="44" height="100" rx="20" fill="#fff" stroke="#3B1772" stroke-width="2.5"/>
         <!-- Hands -->
-        <ellipse cx="112" cy="348" rx="18" ry="14" fill="#FFD5B0" stroke="#003399" stroke-width="1.5"/>
-        <ellipse cx="308" cy="348" rx="18" ry="14" fill="#FFD5B0" stroke="#003399" stroke-width="1.5"/>
+        <ellipse cx="112" cy="348" rx="18" ry="14" fill="#FFD5B0" stroke="#3B1772" stroke-width="1.5"/>
+        <ellipse cx="308" cy="348" rx="18" ry="14" fill="#FFD5B0" stroke="#3B1772" stroke-width="1.5"/>
 
         <!-- Floating calendar card (top right) -->
         <g transform="translate(295, 90)">
-          <rect width="105" height="90" rx="14" fill="#fff" stroke="#003399" stroke-width="1.5" filter="url(#cardShadow)"/>
-          <rect width="105" height="26" rx="14" fill="#003399"/>
-          <rect y="16" width="105" height="10" fill="#003399"/>
+          <rect width="105" height="90" rx="14" fill="#fff" stroke="#3B1772" stroke-width="1.5" filter="url(#cardShadow)"/>
+          <rect width="105" height="26" rx="14" fill="#3B1772"/>
+          <rect y="16" width="105" height="10" fill="#3B1772"/>
           <text x="52" y="18" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" font-weight="700" fill="#fff">Janvier 2026</text>
           <!-- Calendar grid dots -->
           <circle cx="20" cy="46" r="3" fill="#E2E6F3"/>
@@ -869,7 +869,7 @@ button,input,select,textarea{font-family:inherit}
           <circle cx="84" cy="46" r="3" fill="#E2E6F3"/>
           <circle cx="20" cy="60" r="3" fill="#E2E6F3"/>
           <circle cx="36" cy="60" r="3" fill="#E2E6F3"/>
-          <circle cx="52" cy="60" r="4" fill="#003399"/>
+          <circle cx="52" cy="60" r="4" fill="#3B1772"/>
           <circle cx="68" cy="60" r="3" fill="#E2E6F3"/>
           <circle cx="84" cy="60" r="3" fill="#E2E6F3"/>
           <circle cx="20" cy="74" r="3" fill="#E2E6F3"/>
@@ -880,9 +880,9 @@ button,input,select,textarea{font-family:inherit}
 
         <!-- Floating checkmark badge (bottom left) -->
         <g transform="translate(20, 310)">
-          <rect width="88" height="54" rx="14" fill="#fff" stroke="#003399" stroke-width="1.5"/>
+          <rect width="88" height="54" rx="14" fill="#fff" stroke="#3B1772" stroke-width="1.5"/>
           <circle cx="28" cy="27" r="14" fill="#EEF2FF"/>
-          <polyline points="21,27 26,33 35,20" stroke="#003399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <polyline points="21,27 26,33 35,20" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           <rect x="50" y="14" width="28" height="7" rx="3" fill="#E2E6F3"/>
           <rect x="50" y="26" width="20" height="7" rx="3" fill="#EEF2FF"/>
           <rect x="50" y="38" width="24" height="7" rx="3" fill="#EEF2FF"/>
@@ -890,13 +890,13 @@ button,input,select,textarea{font-family:inherit}
 
         <!-- Small medical cross badge -->
         <g transform="translate(340, 200)">
-          <circle cx="22" cy="22" r="22" fill="#003399"/>
+          <circle cx="22" cy="22" r="22" fill="#3B1772"/>
           <rect x="15" y="10" width="14" height="24" rx="4" fill="#fff"/>
           <rect x="10" y="15" width="24" height="14" rx="4" fill="#fff"/>
         </g>
 
         <!-- Dashed connecting lines (decorative) -->
-        <line x1="340" y1="145" x2="310" y2="180" stroke="#003399" stroke-width="1.5" stroke-dasharray="4,4" opacity=".3"/>
+        <line x1="340" y1="145" x2="310" y2="180" stroke="#3B1772" stroke-width="1.5" stroke-dasharray="4,4" opacity=".3"/>
         <line x1="108" y1="310" x2="130" y2="290" stroke="#00B4D8" stroke-width="1.5" stroke-dasharray="4,4" opacity=".3"/>
 
         <defs>
@@ -1127,7 +1127,7 @@ button,input,select,textarea{font-family:inherit}
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo">
-          <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#003399"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#3B1772"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
           Docline
         </div>
         <p>La plateforme de santé connectée qui rapproche patients et praticiens en Algérie.</p>
@@ -1358,7 +1358,7 @@ function onWilayaChange(wilaya) {
 
 /* ── Avatar helpers ──────────────────────────────────────── */
 var AVATAR_GRADIENTS = [
-  'linear-gradient(135deg,#003399,#0066FF)',
+  'linear-gradient(135deg,#3B1772,#23A7EA)',
   'linear-gradient(135deg,#6D28D9,#A855F7)',
   'linear-gradient(135deg,#059669,#10B981)',
   'linear-gradient(135deg,#DC2626,#F87171)',

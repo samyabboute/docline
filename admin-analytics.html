@@ -12,7 +12,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--brand:#003399;--brand-light:#EEF2FF;--bg:#F8FAFF;--white:#fff;--text:#0D1117;--text2:#6B7280;--border:#E5E7EB;--success:#059669;--warning:#D97706;--danger:#DC2626;--r:12px;--ease:cubic-bezier(.25,.46,.45,.94)}
+:root{--brand:#3B1772;--brand-light:#EDE8FF;--bg:#F8FAFF;--white:#fff;--text:#0D1117;--text2:#6B7280;--border:#E5E7EB;--success:#059669;--warning:#D97706;--danger:#DC2626;--r:12px;--ease:cubic-bezier(.25,.46,.45,.94)}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;animation:fadeIn .3s var(--ease)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .topbar{background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:100}
@@ -194,14 +194,14 @@ function fmt(n){return new Intl.NumberFormat('fr-FR').format(n);}
 
   new Chart(document.getElementById('signups-chart').getContext('2d'),{
     type:'line',
-    data:{labels:signupLabels,datasets:[{label:'Signups',data:signupData,borderColor:'#003399',backgroundColor:'rgba(0,51,153,.08)',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:4,fill:true}]},
+    data:{labels:signupLabels,datasets:[{label:'Signups',data:signupData,borderColor:'#3B1772',backgroundColor:'rgba(59,23,114,.08)',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:4,fill:true}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{stepSize:1,font:{size:10}}}}}
   });
 
   // ── PLANS CHART ───────────────────────────────────────────
   new Chart(document.getElementById('plans-chart').getContext('2d'),{
     type:'doughnut',
-    data:{labels:['Free','Pro'],datasets:[{data:[freeUsers||0,proUsers||0],backgroundColor:['#E5E7EB','#003399'],borderWidth:0,hoverOffset:6}]},
+    data:{labels:['Free','Pro'],datasets:[{data:[freeUsers||0,proUsers||0],backgroundColor:['#E5E7EB','#3B1772'],borderWidth:0,hoverOffset:6}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{position:'bottom',labels:{font:{size:12},padding:16}}}}
   });
 

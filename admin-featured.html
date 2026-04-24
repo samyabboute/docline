@@ -12,10 +12,10 @@
 <script src="config.js"></script>
 <style>
 :root{
-  --brand:#003399;--brand-dark:#002280;--brand-light:#E6ECF9;--brand-glow:rgba(0,51,153,.14);
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;--brand-glow:rgba(59,23,114,.14);
   --gold:#F59E0B;--gold-bg:#FFFBEB;--gold-border:rgba(245,158,11,.25);
   --teal:#00B896;--teal-bg:#E6FAF5;--teal-border:rgba(0,184,150,.2);
-  --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(0,51,153,.14);--sidebar-border:rgba(255,255,255,.07);
+  --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(59,23,114,.14);--sidebar-border:rgba(255,255,255,.07);
   --bg:#FAFBFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
   --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
   --border:#E4E7F0;--border-strong:#C8CCE0;
@@ -25,7 +25,7 @@
   --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
   --shadow-sm:0 1px 3px rgba(13,15,20,.08),0 1px 2px rgba(13,15,20,.05);
   --shadow-md:0 4px 8px rgba(13,15,20,.08),0 2px 4px rgba(13,15,20,.04);
-  --shadow-brand:0 4px 14px rgba(0,51,153,.28);
+  --shadow-brand:0 4px 14px rgba(59,23,114,.28);
   --t:200ms cubic-bezier(.4,0,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -340,7 +340,7 @@ function renderSidebar() {
   var el = document.getElementById('admin-sidebar');
   el.innerHTML = '<div class="sidebar-head">'
     +'<div style="display:flex;align-items:center;gap:10px">'
-    +'<svg viewBox="0 0 40 40" fill="none" style="width:28px;height:28px;flex-shrink:0"><rect width="40" height="40" rx="10" fill="#003399"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>'
+    +'<svg viewBox="0 0 40 40" fill="none" style="width:28px;height:28px;flex-shrink:0"><rect width="40" height="40" rx="10" fill="#3B1772"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>'
     +'<span style="font-size:.9375rem;font-weight:800;color:#fff">Docline</span>'
     +'<span style="background:rgba(245,158,11,.2);color:#F59E0B;border:1px solid rgba(245,158,11,.3);font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px">ADMIN</span>'
     +'</div></div>'
@@ -436,7 +436,7 @@ function filterTable() {
 }
 
 /* ── RENDER ──────────────────────────────────────────────── */
-var GRADS = ['linear-gradient(135deg,#003399,#0066FF)','linear-gradient(135deg,#6D28D9,#A855F7)','linear-gradient(135deg,#059669,#10B981)','linear-gradient(135deg,#DC2626,#F87171)','linear-gradient(135deg,#D97706,#FBBF24)','linear-gradient(135deg,#0891B2,#22D3EE)'];
+var GRADS = ['linear-gradient(135deg,#3B1772,#0066FF)','linear-gradient(135deg,#6D28D9,#A855F7)','linear-gradient(135deg,#059669,#10B981)','linear-gradient(135deg,#DC2626,#F87171)','linear-gradient(135deg,#D97706,#FBBF24)','linear-gradient(135deg,#0891B2,#22D3EE)'];
 function avatarGrad(name){var h=0;for(var i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+(h<<5)-h;return GRADS[Math.abs(h)%GRADS.length];}
 function initials(n){return(n||'?').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');}
 

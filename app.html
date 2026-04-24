@@ -6,7 +6,7 @@
 <title>Tableau de bord — Docline</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#003399">
+<meta name="theme-color" content="#3B1772">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="config.js"></script>
@@ -15,7 +15,7 @@
 <style>
 /* ── PAGE STYLES (complètent shell.js) ─────────────────── */
 :root{
-  --brand:#003399;--brand-light:#EEF2FF;--brand-border:rgba(0,51,153,.12);
+  --brand:#3B1772;--brand-light:#EDE8FF;--brand-border:rgba(59,23,114,.12);
   --bg:#F7F8FC;--surface:#fff;--surface-2:#F3F4F8;
   --text:#0C0E14;--text-2:#3D4251;--text-3:#7B8194;--text-4:#B0B7CC;
   --border:#E8EAF0;
@@ -221,7 +221,7 @@ button{font-family:inherit;cursor:pointer}
   color:var(--text);background:var(--surface);outline:none;
   transition:border-color var(--t);
 }
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,51,153,.08)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.08)}
 .field textarea{resize:vertical;min-height:72px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .modal-foot{display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
@@ -550,7 +550,7 @@ function renderAgenda(events) {
     var d = new Date(e.start_date);
     var hh = d.getHours().toString().padStart(2,'0');
     var mm = d.getMinutes().toString().padStart(2,'0');
-    var TYPE_COLORS = { consultation:'#003399', suivi:'#059669', rappel:'#D97706', reunion:'#7C3AED', task:'#6B7280' };
+    var TYPE_COLORS = { consultation:'#3B1772', suivi:'#059669', rappel:'#D97706', reunion:'#7C3AED', task:'#6B7280' };
     var color = TYPE_COLORS[e.event_type] || '#6B7280';
     var statusCls = { pending:'status-waiting', done:'status-done', confirmed:'status-confirmed' }[e.status] || 'status-confirmed';
     var statusLbl = { pending:'En attente', done:'Terminé', confirmed:'Confirmé' }[e.status] || 'Confirmé';

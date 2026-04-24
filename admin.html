@@ -13,8 +13,8 @@
 <script src="config.js"></script>
 <style>
 :root {
-  --brand:#003399;--brand-dark:#002280;--brand-light:#E6ECF9;--brand-glow:rgba(0,51,153,.14);
-  --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(0,51,153,.14);--sidebar-border:rgba(255,255,255,.07);
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;--brand-glow:rgba(59,23,114,.14);
+  --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(59,23,114,.14);--sidebar-border:rgba(255,255,255,.07);
   --bg:#FAFBFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
   --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
   --border:#E4E7F0;--border-strong:#C8CCE0;
@@ -28,7 +28,7 @@
   --shadow-sm:0 1px 3px rgba(13,15,20,.08),0 1px 2px rgba(13,15,20,.05);
   --shadow-md:0 4px 8px rgba(13,15,20,.08),0 2px 4px rgba(13,15,20,.04);
   --shadow-lg:0 12px 24px rgba(13,15,20,.1),0 4px 8px rgba(13,15,20,.06);
-  --shadow-brand:0 4px 14px rgba(0,51,153,.28);
+  --shadow-brand:0 4px 14px rgba(59,23,114,.28);
   --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -130,7 +130,7 @@ ul,ol{list-style:none}
 
 /* BADGE */
 .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:var(--r-full);font-size:10px;font-weight:700;letter-spacing:.3px}
-.badge-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(0,51,153,.15)}
+.badge-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
 .badge-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
 .badge-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
 .badge-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
@@ -146,7 +146,7 @@ ul,ol{list-style:none}
 .trow:hover td{background:var(--bg-hover)}
 
 /* ACTIVATE PANEL */
-.activate-panel{background:linear-gradient(135deg,rgba(0,51,153,.06) 0%,rgba(0,51,153,.02) 100%);border:1.5px solid rgba(0,51,153,.2);border-radius:var(--r-lg);padding:24px;margin-bottom:24px}
+.activate-panel{background:linear-gradient(135deg,rgba(59,23,114,.06) 0%,rgba(59,23,114,.02) 100%);border:1.5px solid rgba(59,23,114,.2);border-radius:var(--r-lg);padding:24px;margin-bottom:24px}
 .activate-panel-title{font-size:1rem;font-weight:800;color:var(--text-primary);margin-bottom:4px;display:flex;align-items:center;gap:10px}
 .activate-panel-sub{font-size:.8125rem;color:var(--text-muted);margin-bottom:20px}
 .activate-grid{display:grid;grid-template-columns:1fr 150px 120px 120px 100px auto;gap:12px;align-items:end}
@@ -722,7 +722,7 @@ function renderTrendChart(approved) {
         var isCurrent = m.key===monthKey(now);
         return '<div class="trend-bar-wrap">'
           +'<div style="font-size:9px;font-weight:700;color:var(--text-muted);text-align:center;margin-bottom:4px">'+(m.total?fmtDZD(m.total).replace(' DA',''):'—')+'</div>'
-          +'<div class="trend-bar" style="height:'+pct+'px;background:'+(isCurrent?'var(--brand)':'rgba(0,51,153,.35)')+'"></div>'
+          +'<div class="trend-bar" style="height:'+pct+'px;background:'+(isCurrent?'var(--brand)':'rgba(59,23,114,.35)')+'"></div>'
           +'<div style="font-size:.625rem;font-weight:600;color:'+(isCurrent?'var(--brand)':'var(--text-faint)')+';text-align:center;margin-top:6px;white-space:nowrap">'+m.label+'</div>'
           +'</div>';
       }).join('')
