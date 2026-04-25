@@ -106,37 +106,51 @@ button,input,select,textarea{font-family:inherit}
 /* Search box — white card */
 .search-card{
   background:#fff;border:1.5px solid var(--border);border-radius:var(--r-2xl);
-  box-shadow:var(--shadow-md);padding:8px;
-  display:flex;flex-wrap:wrap;gap:0}
-.sf{flex:1;min-width:150px;display:flex;align-items:center;gap:10px;
-  padding:12px 16px;border-right:1px solid var(--border);position:relative}
-.sf:last-of-type{border-right:none}
+  box-shadow:var(--shadow-md);padding:6px 6px 6px 0;
+  display:flex;align-items:stretch;flex-wrap:nowrap;gap:0;overflow:visible}
+.sf{flex:1;min-width:0;display:flex;align-items:center;gap:10px;
+  padding:11px 16px;border-right:1px solid var(--border);position:relative}
 .sf-icon{flex-shrink:0;color:var(--text-4)}
-.sf-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+.sf-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;display:block}
 .sf select,.sf input{
   background:transparent;border:none;outline:none;
-  font-size:.875rem;color:var(--text-1);width:100%;
+  font-size:.875rem;color:var(--text-1);width:100%;min-width:0;
   font-family:'Sora',sans-serif;font-weight:500}
 .sf select option{color:var(--text-1);background:#fff}
 .sf select{color:var(--text-2)}
 .sf select:invalid,.sf select option[value=""]{color:var(--text-3)}
 .sf input::placeholder{color:var(--text-4)}
-.sf-city{display:none}
-.sf-city.visible{display:flex}
+
+/* Geo button inside ville field */
+.geo-btn{background:none;border:none;cursor:pointer;color:var(--text-4);
+  padding:4px;border-radius:var(--r-md);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:color var(--t),background var(--t)}
+.geo-btn:hover{color:var(--brand);background:var(--brand-light)}
+.geo-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.geo-btn.spinning svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 .search-btn{
   background:var(--brand);color:#fff;border:none;border-radius:var(--r-xl);
-  padding:12px 28px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
-  cursor:pointer;transition:all var(--t);display:flex;align-items:center;gap:9px;
-  white-space:nowrap;width:100%;justify-content:center;margin-top:4px;
+  padding:11px 24px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9rem;
+  cursor:pointer;transition:all var(--t);display:flex;align-items:center;gap:8px;
+  white-space:nowrap;flex-shrink:0;margin:0 0 0 6px;align-self:center;
   box-shadow:var(--shadow-brand)}
 .search-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
-.search-btn svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-@media(min-width:640px){.search-btn{width:auto;margin-top:0}}
-@media(max-width:640px){
-  .search-card{flex-direction:column}
-  .sf{border-right:none;border-bottom:1px solid var(--border)}
+.search-btn svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* Sub-row: RDV toggle */
+.search-sub{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+
+@media(max-width:680px){
+  .search-card{flex-wrap:wrap;padding:0}
+  .sf{flex:1 1 45%;min-width:140px;border-right:none;border-bottom:1px solid var(--border);padding:12px 14px}
   .sf:last-of-type{border-bottom:none}
+  .search-btn{width:100%;justify-content:center;margin:0;border-radius:var(--r-xl);
+    padding:14px;font-size:.9375rem;border-top-left-radius:0;border-top-right-radius:0}
+  .search-sub{margin-top:8px}
 }
 
 /* Hero stats */
@@ -601,9 +615,7 @@ button,input,select,textarea{font-family:inherit}
     padding:6px;border-radius:var(--r-xl);
     box-shadow:0 8px 40px rgba(59,23,114,.14);
     border-color:rgba(59,23,114,.14)}
-  .sf{min-width:unset;flex:none;width:100%}
-  .sf-name-wrap{width:100%;border-left:none;border-top:1.5px solid var(--border)}
-  .rdv-toggle{width:100%;justify-content:center;border-radius:var(--r-lg)}
+  .sf{flex:1 1 100%}
   .search-btn{border-radius:var(--r-lg);padding:14px;font-size:.9375rem}
   .hero-stats{gap:14px;margin-top:18px}
   .hero-stat-val{font-size:1.25rem}
@@ -628,14 +640,8 @@ button,input,select,textarea{font-family:inherit}
 }
 
 /* ── AUTOCOMPLETE ──────────────────────────────────────────── */
-.sf-name-wrap{position:relative;flex:1;display:flex;align-items:center;
-  gap:10px;min-width:160px;padding:10px 16px;
-  border-top:1.5px solid var(--border);background:#fff}
-@media(min-width:641px){.sf-name-wrap{border-top:none;border-left:1.5px solid var(--border)}}
-.sf-name-wrap .sf-icon{flex-shrink:0;width:18px;height:18px;color:var(--text-4);display:flex}
-.sf-name-wrap input{flex:1;border:none;outline:none;font-family:'Sora',sans-serif;
-  font-size:.9rem;background:transparent;color:var(--text-1)}
-.sf-name-wrap input::placeholder{color:var(--text-4)}
+.sf-name-wrap{position:relative;flex:1.4;min-width:0;display:flex;align-items:center;
+  gap:10px;padding:11px 16px;border-right:none;background:#fff}
 .ac-drop{position:absolute;top:calc(100% + 6px);left:0;right:0;
   background:#fff;border:1.5px solid rgba(59,23,114,.18);border-radius:var(--r-lg);
   box-shadow:0 16px 48px rgba(12,16,37,.16);z-index:400;overflow:hidden;
@@ -652,14 +658,15 @@ button,input,select,textarea{font-family:inherit}
 .ac-sub{font-size:.6875rem;color:var(--text-4);margin-top:1px}
 
 /* ── RDV TOGGLE ─────────────────────────────────────────────── */
-.rdv-toggle{display:flex;align-items:center;gap:7px;padding:10px 15px;
-  border-radius:var(--r-lg);border:1.5px solid var(--border);background:#fff;
+.rdv-toggle{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;
+  border-radius:var(--r-full);border:1.5px solid var(--border);background:#fff;
   font-family:'Sora',sans-serif;font-size:.8125rem;font-weight:600;color:var(--text-3);
   cursor:pointer;transition:all var(--t);white-space:nowrap;flex-shrink:0}
 .rdv-toggle:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
 .rdv-toggle.on{background:#ECFDF5;border-color:#6EE7B7;color:#059669}
 .rdv-dot{width:8px;height:8px;border-radius:50%;background:#D1D5DB;flex-shrink:0;transition:background var(--t)}
 .rdv-toggle.on .rdv-dot{background:#059669;animation:avPulse 1.8s ease infinite}
+.search-hint{font-size:.75rem;color:var(--text-4)}
 
 /* ── FILTER CHIPS ────────────────────────────────────────────── */
 .chips-bar{max-width:1240px;margin:0 auto;padding:14px 24px 2px;
@@ -781,55 +788,36 @@ button,input,select,textarea{font-family:inherit}
             <option>Anesthésie-Réanimation</option>
           </select>
         </div>
+        <!-- Ville (recherche city + wilaya) -->
         <div class="sf">
           <div class="sf-icon">
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
-          <select id="s-wilaya" onchange="onWilayaChange(this.value)">
-            <option value="">Toutes les wilayas</option>
-            <option>Adrar</option><option>Chlef</option><option>Laghouat</option><option>Oum El Bouaghi</option>
-            <option>Batna</option><option>Béjaïa</option><option>Biskra</option><option>Béchar</option>
-            <option>Blida</option><option>Bouira</option><option>Tamanrasset</option><option>Tébessa</option>
-            <option>Tlemcen</option><option>Tiaret</option><option>Tizi Ouzou</option><option>Alger</option>
-            <option>Djelfa</option><option>Jijel</option><option>Sétif</option><option>Saïda</option>
-            <option>Skikda</option><option>Sidi Bel Abbès</option><option>Annaba</option><option>Guelma</option>
-            <option>Constantine</option><option>Médéa</option><option>Mostaganem</option><option>M'Sila</option>
-            <option>Mascara</option><option>Ouargla</option><option>Oran</option><option>El Bayadh</option>
-            <option>Illizi</option><option>Bordj Bou Arreridj</option><option>Boumerdès</option><option>El Tarf</option>
-            <option>Tindouf</option><option>Tissemsilt</option><option>El Oued</option><option>Khenchela</option>
-            <option>Souk Ahras</option><option>Tipaza</option><option>Mila</option><option>Aïn Defla</option>
-            <option>Naâma</option><option>Aïn Témouchent</option><option>Ghardaïa</option><option>Relizane</option>
-            <option>El M'Ghair</option><option>El Meniaa</option><option>Ouled Djellal</option>
-            <option>Touggourt</option><option>Timimoun</option><option>Djanet</option>
-            <option>In Salah</option><option>In Guezzam</option>
-          </select>
+          <input type="text" id="s-ville" placeholder="Ville, wilaya…" autocomplete="off">
+          <button class="geo-btn" id="geo-btn" onclick="geoSearch()" title="Utiliser ma position">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 2" opacity=".4"/></svg>
+          </button>
         </div>
-        <!-- Dynamic city field -->
-        <div class="sf sf-city" id="sf-city">
-          <div class="sf-icon">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </div>
-          <select id="s-city" onchange="doSearch()">
-            <option value="">Toutes les villes</option>
-          </select>
-        </div>
-        <!-- Name field with autocomplete -->
+        <!-- Nom + autocomplete -->
         <div class="sf-name-wrap" id="sf-name-wrap">
-          <div class="sf-icon" style="width:18px;height:18px;flex-shrink:0;color:var(--text-4)">
-            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <div class="sf-icon" style="flex-shrink:0;color:var(--text-4)">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
-          <input type="text" id="s-name" placeholder="Nom du médecin…" autocomplete="off" style="flex:1;border:none;outline:none;font-family:'Sora',sans-serif;font-size:.9rem;background:transparent;color:var(--text-1)">
+          <input type="text" id="s-name" placeholder="Nom du médecin…" autocomplete="off" style="flex:1;border:none;outline:none;font-family:'Sora',sans-serif;font-size:.875rem;background:transparent;color:var(--text-1)">
           <div class="ac-drop" id="ac-drop"></div>
         </div>
-        <!-- RDV toggle -->
-        <button class="rdv-toggle" id="rdv-toggle" onclick="toggleRdv()">
-          <span class="rdv-dot"></span>
-          Accepte RDV
-        </button>
         <button class="search-btn" onclick="doSearch()">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           Rechercher
         </button>
+      </div>
+      <!-- Sub-row: toggle RDV -->
+      <div class="search-sub">
+        <button class="rdv-toggle" id="rdv-toggle" onclick="toggleRdv()">
+          <span class="rdv-dot"></span>
+          Disponible pour RDV
+        </button>
+        <span class="search-hint">Les résultats se mettent à jour en temps réel</span>
       </div>
 
       <!-- Mobile floating doctor preview cards (desktop: hidden) -->
@@ -1492,20 +1480,36 @@ function toggleRdv(){
   doSearch();
 }
 
+/* ── Géolocalisation ─────────────────────────────────────── */
+function geoSearch(){
+  if(!navigator.geolocation){ return; }
+  var btn = document.getElementById('geo-btn');
+  btn.classList.add('spinning');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    fetch('https://nominatim.openstreetmap.org/reverse?lat='+pos.coords.latitude+'&lon='+pos.coords.longitude+'&format=json&accept-language=fr', {headers:{'Accept-Language':'fr'}})
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var addr = data.address || {};
+        var city = addr.city || addr.town || addr.suburb || addr.village || addr.county || '';
+        if(city){ document.getElementById('s-ville').value = city; doSearch(); }
+        btn.classList.remove('spinning');
+      })
+      .catch(function(){ btn.classList.remove('spinning'); });
+  }, function(){ btn.classList.remove('spinning'); }, {timeout:8000});
+}
+
 /* ── Active filter chips ─────────────────────────────────── */
 function renderChips(){
   var bar = document.getElementById('chips-bar');
   var chips = [];
   var sp  = document.getElementById('s-specialty').value.trim();
-  var wil = document.getElementById('s-wilaya').value.trim();
-  var cit = document.getElementById('s-city').value.trim();
+  var vil = document.getElementById('s-ville').value.trim();
   var nm  = document.getElementById('s-name').value.trim();
-  if(sp)  chips.push({label:'🩺 '+sp,   clear:function(){document.getElementById('s-specialty').value='';doSearch();}});
-  if(wil) chips.push({label:'📍 '+wil,  clear:function(){document.getElementById('s-wilaya').value='';document.getElementById('sf-city').classList.remove('visible');doSearch();}});
-  if(cit) chips.push({label:'🏙 '+cit,  clear:function(){document.getElementById('s-city').value='';doSearch();}});
-  if(nm)  chips.push({label:'👨‍⚕️ '+nm, clear:function(){document.getElementById('s-name').value='';doSearch();}});
-  if(_rdvOnly) chips.push({label:'✅ Accepte RDV', clear:function(){_rdvOnly=false;document.getElementById('rdv-toggle').classList.remove('on');doSearch();}});
-  if(!chips.length){bar.innerHTML='';return;}
+  if(sp)  chips.push({label:'🩺 '+sp,  clear:function(){document.getElementById('s-specialty').value='';doSearch();}});
+  if(vil) chips.push({label:'📍 '+vil, clear:function(){document.getElementById('s-ville').value='';doSearch();}});
+  if(nm)  chips.push({label:'🔍 '+nm,  clear:function(){document.getElementById('s-name').value='';doSearch();}});
+  if(_rdvOnly) chips.push({label:'✅ Disponible RDV', clear:function(){_rdvOnly=false;document.getElementById('rdv-toggle').classList.remove('on');doSearch();}});
+  if(!chips.length){ bar.innerHTML=''; return; }
   bar.innerHTML = chips.map(function(c,i){
     return '<span class="f-chip" id="chip-'+i+'">'
       +c.label
@@ -1522,16 +1526,18 @@ function renderChips(){
 /* ── Search ──────────────────────────────────────────────── */
 function doSearch(){
   var sp   = document.getElementById('s-specialty').value.trim().toLowerCase();
-  var wil  = document.getElementById('s-wilaya').value.trim().toLowerCase();
-  var city = document.getElementById('s-city').value.trim().toLowerCase();
+  var vil  = document.getElementById('s-ville').value.trim().toLowerCase();
   var name = document.getElementById('s-name').value.trim().toLowerCase();
   document.querySelectorAll('.pill').forEach(function(p){
     p.classList.toggle('active', p.dataset.sp.toLowerCase()===sp);
   });
   _filtered = _allDoctors.filter(function(d){
-    return (!sp   || (d.specialty||'').toLowerCase().includes(sp))
-        && (!wil  || (d.wilaya||'').toLowerCase().includes(wil))
-        && (!city || (d.city||'').toLowerCase().includes(city))
+    var locMatch = !vil
+      || (d.city||'').toLowerCase().includes(vil)
+      || (d.wilaya||'').toLowerCase().includes(vil)
+      || (d.address||'').toLowerCase().includes(vil);
+    return (!sp || (d.specialty||'').toLowerCase().includes(sp))
+        && locMatch
         && (!name || (d.full_name||'').toLowerCase().includes(name))
         && (!_rdvOnly || d.accepts_rdv);
   });
@@ -1592,10 +1598,8 @@ function setPill(btn, sp){
 
 function resetSearch(){
   document.getElementById('s-specialty').value='';
-  document.getElementById('s-wilaya').value='';
-  document.getElementById('s-city').value='';
+  document.getElementById('s-ville').value='';
   document.getElementById('s-name').value='';
-  document.getElementById('sf-city').classList.remove('visible');
   _rdvOnly = false;
   document.getElementById('rdv-toggle').classList.remove('on');
   document.getElementById('ac-drop').classList.remove('open');
@@ -1761,8 +1765,13 @@ async function submitBooking(){
 
 /* ── Live search listeners ───────────────────────────────── */
 (function(){
-  // Specialty & wilaya already trigger doSearch via onchange/setPill
-  // Add live oninput to name field
+  // Ville — live search + debounce
+  document.getElementById('s-ville').addEventListener('input', _doSearchLive);
+
+  // Specialty select — live on change
+  document.getElementById('s-specialty').addEventListener('change', doSearch);
+
+  // Nom — autocomplete + live search
   var sName = document.getElementById('s-name');
   sName.addEventListener('input', function(){
     acShow(this.value);
@@ -1779,11 +1788,6 @@ async function submitBooking(){
   document.addEventListener('click', function(e){
     if(!document.getElementById('sf-name-wrap').contains(e.target)) acClose();
   });
-
-  // Specialty select — live on change
-  document.getElementById('s-specialty').addEventListener('change', doSearch);
-  // Wilaya select already has onchange=onWilayaChange which calls doSearch
-  // City select already has onchange=doSearch
 })();
 
 /* ── Sticky bottom bar ───────────────────────────────────── */
