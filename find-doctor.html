@@ -1206,8 +1206,7 @@ button,input,select,textarea{font-family:inherit}
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo">
-          <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#3B1772"/><path d="M13 20h14M20 13v14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
-          Docline
+          <img src="docline-logo.svg" alt="Docline" style="height:26px;width:auto;filter:brightness(0) invert(1);opacity:.92">
         </div>
         <p>La plateforme de santé connectée qui rapproche patients et praticiens en Algérie.</p>
       </div>
@@ -1954,7 +1953,6 @@ var _deferredInstall = null;
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault();
   _deferredInstall = e;
-  if(localStorage.getItem('pwa-dismissed')) return;
   setTimeout(function(){
     var banner = document.getElementById('pwa-banner');
     banner.style.display = 'block';
@@ -1967,7 +1965,7 @@ window.addEventListener('beforeinstallprompt', function(e){
 function installPWA(){
   if(!_deferredInstall) return;
   _deferredInstall.prompt();
-  _deferredInstall.userChoice.then(function(result){
+  _deferredInstall.userChoice.then(function(){
     _deferredInstall = null;
     var banner = document.getElementById('pwa-banner');
     banner.classList.remove('visible');
@@ -1976,7 +1974,6 @@ function installPWA(){
 }
 
 function dismissPWA(){
-  localStorage.setItem('pwa-dismissed','1');
   var banner = document.getElementById('pwa-banner');
   banner.classList.remove('visible');
   setTimeout(function(){ banner.style.display='none'; }, 420);
