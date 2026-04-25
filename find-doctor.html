@@ -602,6 +602,8 @@ button,input,select,textarea{font-family:inherit}
     box-shadow:0 8px 40px rgba(59,23,114,.14);
     border-color:rgba(59,23,114,.14)}
   .sf{min-width:unset;flex:none;width:100%}
+  .sf-name-wrap{width:100%;border-left:none;border-top:1.5px solid var(--border)}
+  .rdv-toggle{width:100%;justify-content:center;border-radius:var(--r-lg)}
   .search-btn{border-radius:var(--r-lg);padding:14px;font-size:.9375rem}
   .hero-stats{gap:14px;margin-top:18px}
   .hero-stat-val{font-size:1.25rem}
@@ -624,6 +626,67 @@ button,input,select,textarea{font-family:inherit}
   .hero-title{font-size:1.625rem}
   .hero-stats{flex-wrap:wrap;gap:8px 20px}
 }
+
+/* ── AUTOCOMPLETE ──────────────────────────────────────────── */
+.sf-name-wrap{position:relative;flex:1;display:flex;align-items:center;
+  gap:10px;min-width:160px;padding:10px 16px;
+  border-top:1.5px solid var(--border);background:#fff}
+@media(min-width:641px){.sf-name-wrap{border-top:none;border-left:1.5px solid var(--border)}}
+.sf-name-wrap .sf-icon{flex-shrink:0;width:18px;height:18px;color:var(--text-4);display:flex}
+.sf-name-wrap input{flex:1;border:none;outline:none;font-family:'Sora',sans-serif;
+  font-size:.9rem;background:transparent;color:var(--text-1)}
+.sf-name-wrap input::placeholder{color:var(--text-4)}
+.ac-drop{position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:#fff;border:1.5px solid rgba(59,23,114,.18);border-radius:var(--r-lg);
+  box-shadow:0 16px 48px rgba(12,16,37,.16);z-index:400;overflow:hidden;
+  display:none;max-height:280px;overflow-y:auto}
+.ac-drop.open{display:block;animation:acIn .15s ease}
+@keyframes acIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.ac-item{display:flex;align-items:center;gap:10px;padding:9px 14px;
+  cursor:pointer;font-size:.8125rem;color:var(--text-2);transition:background var(--t);border:none;width:100%;background:none;text-align:left}
+.ac-item:hover,.ac-item.ac-focused{background:var(--brand-light)}
+.ac-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.625rem;font-weight:800;color:#fff;flex-shrink:0}
+.ac-info{flex:1;min-width:0}
+.ac-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-1)}
+.ac-sub{font-size:.6875rem;color:var(--text-4);margin-top:1px}
+
+/* ── RDV TOGGLE ─────────────────────────────────────────────── */
+.rdv-toggle{display:flex;align-items:center;gap:7px;padding:10px 15px;
+  border-radius:var(--r-lg);border:1.5px solid var(--border);background:#fff;
+  font-family:'Sora',sans-serif;font-size:.8125rem;font-weight:600;color:var(--text-3);
+  cursor:pointer;transition:all var(--t);white-space:nowrap;flex-shrink:0}
+.rdv-toggle:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+.rdv-toggle.on{background:#ECFDF5;border-color:#6EE7B7;color:#059669}
+.rdv-dot{width:8px;height:8px;border-radius:50%;background:#D1D5DB;flex-shrink:0;transition:background var(--t)}
+.rdv-toggle.on .rdv-dot{background:#059669;animation:avPulse 1.8s ease infinite}
+
+/* ── FILTER CHIPS ────────────────────────────────────────────── */
+.chips-bar{max-width:1240px;margin:0 auto;padding:14px 24px 2px;
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:0}
+.chips-bar:empty{display:none}
+.f-chip{display:inline-flex;align-items:center;gap:5px;
+  background:var(--brand-light);color:var(--brand);
+  border:1px solid rgba(59,23,114,.2);border-radius:var(--r-full);
+  padding:4px 10px 4px 12px;font-size:.75rem;font-weight:700;
+  animation:chipIn .18s ease both}
+@keyframes chipIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.chip-x{background:rgba(59,23,114,.12);border:none;cursor:pointer;color:var(--brand);
+  width:16px;height:16px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:900;line-height:1;transition:all var(--t)}
+.chip-x:hover{background:var(--brand);color:#fff}
+.chip-clear{background:none;border:none;cursor:pointer;color:var(--text-4);
+  font-size:.75rem;font-weight:600;padding:4px 8px;border-radius:var(--r-full);
+  font-family:'Sora',sans-serif;transition:all var(--t)}
+.chip-clear:hover{color:#DC2626;background:#FEF2F2}
+
+/* ── CARD DISPONIBILITÉ BADGE ────────────────────────────────── */
+.avail-badge{display:inline-flex;align-items:center;gap:5px;
+  background:#ECFDF5;color:#059669;border:1px solid #A7F3D0;
+  border-radius:var(--r-full);font-size:.6875rem;font-weight:700;padding:2px 9px}
+.avail-dot{width:6px;height:6px;border-radius:50%;background:#059669;
+  flex-shrink:0;animation:avPulse 1.8s ease infinite}
+@keyframes avPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
 </style>
 </head>
 <body>
@@ -750,12 +813,19 @@ button,input,select,textarea{font-family:inherit}
             <option value="">Toutes les villes</option>
           </select>
         </div>
-        <div class="sf">
-          <div class="sf-icon">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <!-- Name field with autocomplete -->
+        <div class="sf-name-wrap" id="sf-name-wrap">
+          <div class="sf-icon" style="width:18px;height:18px;flex-shrink:0;color:var(--text-4)">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
-          <input type="text" id="s-name" placeholder="Nom du médecin…" autocomplete="off">
+          <input type="text" id="s-name" placeholder="Nom du médecin…" autocomplete="off" style="flex:1;border:none;outline:none;font-family:'Sora',sans-serif;font-size:.9rem;background:transparent;color:var(--text-1)">
+          <div class="ac-drop" id="ac-drop"></div>
         </div>
+        <!-- RDV toggle -->
+        <button class="rdv-toggle" id="rdv-toggle" onclick="toggleRdv()">
+          <span class="rdv-dot"></span>
+          Accepte RDV
+        </button>
         <button class="search-btn" onclick="doSearch()">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           Rechercher
@@ -904,6 +974,9 @@ button,input,select,textarea{font-family:inherit}
     </div>
   </div>
 </section>
+
+<!-- ══ ACTIVE FILTER CHIPS ════════════════════════════════════ -->
+<div class="chips-bar" id="chips-bar"></div>
 
 <!-- ══ SPECIALTY SECTION ══════════════════════════════════════ -->
 <div class="spec-section">
@@ -1401,6 +1474,51 @@ function renderStars(rating){
   }
 })();
 
+/* ── State ───────────────────────────────────────────────── */
+var _rdvOnly = false;
+var _acIndex = -1;
+
+/* ── Debounce ────────────────────────────────────────────── */
+function debounce(fn, ms){
+  var t;
+  return function(){var a=arguments;clearTimeout(t);t=setTimeout(function(){fn.apply(null,a);},ms);};
+}
+
+/* ── RDV toggle ──────────────────────────────────────────── */
+function toggleRdv(){
+  _rdvOnly = !_rdvOnly;
+  var btn = document.getElementById('rdv-toggle');
+  btn.classList.toggle('on', _rdvOnly);
+  doSearch();
+}
+
+/* ── Active filter chips ─────────────────────────────────── */
+function renderChips(){
+  var bar = document.getElementById('chips-bar');
+  var chips = [];
+  var sp  = document.getElementById('s-specialty').value.trim();
+  var wil = document.getElementById('s-wilaya').value.trim();
+  var cit = document.getElementById('s-city').value.trim();
+  var nm  = document.getElementById('s-name').value.trim();
+  if(sp)  chips.push({label:'🩺 '+sp,   clear:function(){document.getElementById('s-specialty').value='';doSearch();}});
+  if(wil) chips.push({label:'📍 '+wil,  clear:function(){document.getElementById('s-wilaya').value='';document.getElementById('sf-city').classList.remove('visible');doSearch();}});
+  if(cit) chips.push({label:'🏙 '+cit,  clear:function(){document.getElementById('s-city').value='';doSearch();}});
+  if(nm)  chips.push({label:'👨‍⚕️ '+nm, clear:function(){document.getElementById('s-name').value='';doSearch();}});
+  if(_rdvOnly) chips.push({label:'✅ Accepte RDV', clear:function(){_rdvOnly=false;document.getElementById('rdv-toggle').classList.remove('on');doSearch();}});
+  if(!chips.length){bar.innerHTML='';return;}
+  bar.innerHTML = chips.map(function(c,i){
+    return '<span class="f-chip" id="chip-'+i+'">'
+      +c.label
+      +'<button class="chip-x" aria-label="Supprimer">×</button>'
+      +'</span>';
+  }).join('')
+  +(chips.length>1?'<button class="chip-clear" onclick="resetSearch()">Tout effacer</button>':'');
+  chips.forEach(function(c,i){
+    var x = bar.querySelector('#chip-'+i+' .chip-x');
+    if(x) x.addEventListener('click', c.clear);
+  });
+}
+
 /* ── Search ──────────────────────────────────────────────── */
 function doSearch(){
   var sp   = document.getElementById('s-specialty').value.trim().toLowerCase();
@@ -1411,13 +1529,14 @@ function doSearch(){
     p.classList.toggle('active', p.dataset.sp.toLowerCase()===sp);
   });
   _filtered = _allDoctors.filter(function(d){
-    return (!sp  || (d.specialty||'').toLowerCase().includes(sp))
+    return (!sp   || (d.specialty||'').toLowerCase().includes(sp))
         && (!wil  || (d.wilaya||'').toLowerCase().includes(wil))
         && (!city || (d.city||'').toLowerCase().includes(city))
-        && (!name || (d.full_name||'').toLowerCase().includes(name));
+        && (!name || (d.full_name||'').toLowerCase().includes(name))
+        && (!_rdvOnly || d.accepts_rdv);
   });
-  // Featured toujours en premier
   _filtered.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0); });
+  renderChips();
   if(!_filtered.length){
     document.getElementById('cards-grid').innerHTML='';
     document.getElementById('results-header').style.display='none';
@@ -1427,6 +1546,42 @@ function doSearch(){
     renderCards(_filtered);
   }
 }
+
+var _doSearchLive = debounce(doSearch, 280);
+
+/* ── Autocomplete ────────────────────────────────────────── */
+function acShow(val){
+  var drop = document.getElementById('ac-drop');
+  if(!val || val.length < 2 || !_allDoctors.length){ drop.classList.remove('open'); return; }
+  var q = val.toLowerCase();
+  var matches = _allDoctors.filter(function(d){
+    return (d.full_name||'').toLowerCase().includes(q);
+  }).slice(0,6);
+  if(!matches.length){ drop.classList.remove('open'); return; }
+  _acIndex = -1;
+  drop.innerHTML = matches.map(function(d,i){
+    var nm = d.full_name||'Médecin';
+    var grad = avatarGrad(nm);
+    var inits = initials(nm);
+    var hi = nm.replace(new RegExp('('+val.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark style="background:var(--brand-light);color:var(--brand);border-radius:2px">$1</mark>');
+    return '<button class="ac-item" data-idx="'+i+'" onclick="acPick(\''+d.id+'\')">'
+      +'<div class="ac-av" style="background:'+grad+'">'+inits+'</div>'
+      +'<div class="ac-info"><div class="ac-name">Dr. '+hi+'</div>'
+      +'<div class="ac-sub">'+(d.specialty||'')+(d.wilaya?' · '+d.wilaya:'')+'</div></div>'
+      +'</button>';
+  }).join('');
+  drop.classList.add('open');
+}
+
+function acPick(docId){
+  var d = _allDoctors.find(function(x){return x.id===docId;});
+  if(!d) return;
+  document.getElementById('s-name').value = d.full_name;
+  document.getElementById('ac-drop').classList.remove('open');
+  doSearch();
+}
+
+function acClose(){ document.getElementById('ac-drop').classList.remove('open'); }
 
 function setPill(btn, sp){
   document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active');});
@@ -1441,8 +1596,12 @@ function resetSearch(){
   document.getElementById('s-city').value='';
   document.getElementById('s-name').value='';
   document.getElementById('sf-city').classList.remove('visible');
+  _rdvOnly = false;
+  document.getElementById('rdv-toggle').classList.remove('on');
+  document.getElementById('ac-drop').classList.remove('open');
   document.querySelectorAll('.pill').forEach(function(p){p.classList.toggle('active',p.dataset.sp==='');});
   document.getElementById('state-empty').style.display='none';
+  document.getElementById('chips-bar').innerHTML='';
   renderCards(_allDoctors);
 }
 
@@ -1500,9 +1659,10 @@ function renderCards(docs){
       +'<div>'
       +'<div class="card-price-val">'+price+'</div>'
       +'<div class="card-price-lbl">Consultation</div>'
-      +(langs?'<div class="card-languages" style="margin-top:7px">'+langs+'</div>':'')
+      +(d.accepts_rdv?'<div class="avail-badge" style="margin-top:6px"><span class="avail-dot"></span>Disponible</div>':'')
+      +(langs?'<div class="card-languages" style="margin-top:5px">'+langs+'</div>':'')
       +'</div>'
-      // RDV button — always active, always clickable
+      // RDV button
       +'<button class="card-rdv-btn" onclick="openModal(\''+d.id+'\')">'
       +'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
       +'Prendre RDV</button>'
@@ -1599,7 +1759,32 @@ async function submitBooking(){
   }
 }
 
-document.getElementById('s-name').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
+/* ── Live search listeners ───────────────────────────────── */
+(function(){
+  // Specialty & wilaya already trigger doSearch via onchange/setPill
+  // Add live oninput to name field
+  var sName = document.getElementById('s-name');
+  sName.addEventListener('input', function(){
+    acShow(this.value);
+    _doSearchLive();
+  });
+  sName.addEventListener('keydown', function(e){
+    var drop = document.getElementById('ac-drop');
+    var items = drop.querySelectorAll('.ac-item');
+    if(e.key==='ArrowDown'){e.preventDefault();_acIndex=Math.min(_acIndex+1,items.length-1);items.forEach(function(el,i){el.classList.toggle('ac-focused',i===_acIndex);});}
+    else if(e.key==='ArrowUp'){e.preventDefault();_acIndex=Math.max(_acIndex-1,0);items.forEach(function(el,i){el.classList.toggle('ac-focused',i===_acIndex);});}
+    else if(e.key==='Enter'){if(_acIndex>=0&&items[_acIndex]){items[_acIndex].click();}else{acClose();doSearch();}}
+    else if(e.key==='Escape'){acClose();}
+  });
+  document.addEventListener('click', function(e){
+    if(!document.getElementById('sf-name-wrap').contains(e.target)) acClose();
+  });
+
+  // Specialty select — live on change
+  document.getElementById('s-specialty').addEventListener('change', doSearch);
+  // Wilaya select already has onchange=onWilayaChange which calls doSearch
+  // City select already has onchange=doSearch
+})();
 
 /* ── Sticky bottom bar ───────────────────────────────────── */
 (function(){
