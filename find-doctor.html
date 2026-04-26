@@ -893,7 +893,6 @@ button,input,select,textarea{font-family:inherit}
 <!-- ══ PWA INSTALL BANNER ════════════════════════════════════ -->
 <div id="pwa-banner" role="complementary" aria-label="Installer l'application">
   <div class="pwa-inner">
-    <span class="pwa-icon">📱</span>
     <div class="pwa-text">
       <strong>Installer Docline</strong>
       <span>Accédez à vos médecins depuis votre écran d'accueil</span>
@@ -2380,7 +2379,7 @@ window.addEventListener('beforeinstallprompt', function(e){
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){ banner.classList.add('visible'); });
     });
-  }, 3500);
+  }, 1500);
 });
 
 function installPWA(){
