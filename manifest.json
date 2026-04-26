@@ -1,9 +1,9 @@
 {
-  "name": "Docline — Gestion cabinet médical",
+  "name": "Docline — Trouvez votre médecin",
   "short_name": "Docline",
-  "description": "Logiciel de gestion de cabinet médical pour les médecins algériens",
-  "start_url": "/docline/app.html",
-  "scope": "/docline/",
+  "description": "Trouvez et prenez rendez-vous avec les meilleurs médecins en Algérie",
+  "start_url": "find-doctor.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#3B1772",
@@ -11,8 +11,7 @@
   "lang": "fr",
   "categories": [
     "medical",
-    "health",
-    "productivity"
+    "health"
   ],
   "icons": [
     {
@@ -45,17 +44,5 @@
       "purpose": "any"
     }
   ],
-  "screenshots": [],
-  "shortcuts": [
-    {
-      "name": "File d'attente",
-      "url": "/docline/queue.html",
-      "description": "Gérer la file d'attente"
-    },
-    {
-      "name": "Nouveau patient",
-      "url": "/docline/clients.html?new=1",
-      "description": "Ajouter un nouveau patient"
-    }
-  ]
+  "screenshots": []
 }

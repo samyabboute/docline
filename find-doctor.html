@@ -6,6 +6,12 @@
 <title>Trouver un médecin en Algérie — Docline</title>
 <meta name="description" content="Trouvez et prenez rendez-vous avec les meilleurs médecins en Algérie. Recherchez par spécialité, wilaya ou nom.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3B1772">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Docline">
+<link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
@@ -2392,6 +2398,15 @@ function dismissPWA(){
   var banner = document.getElementById('pwa-banner');
   banner.classList.remove('visible');
   setTimeout(function(){ banner.style.display='none'; }, 420);
+}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js')
+      .then(function(reg){ console.log('[SW] registered', reg.scope); })
+      .catch(function(err){ console.warn('[SW] registration failed', err); });
+  });
 }
 </script>
 </body>

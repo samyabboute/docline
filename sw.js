@@ -1,11 +1,12 @@
-﻿// Docline Service Worker v5 — production ready
+﻿// Docline Service Worker v6 — production ready
 'use strict';
-var CACHE_NAME = 'docline-v5';
-var STATIC_CACHE = 'docline-static-v5';
-var OFFLINE_PAGE = '/docline/app.html';
+var CACHE_NAME = 'docline-v6';
+var STATIC_CACHE = 'docline-static-v6';
+var OFFLINE_PAGE = '/docline/find-doctor.html';
 
 // Core assets to precache for offline
 var PRECACHE_URLS = [
+  '/docline/find-doctor.html',
   '/docline/app.html',
   '/docline/login.html',
   '/docline/index.html',
