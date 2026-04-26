@@ -644,23 +644,44 @@ button,input,select,textarea{font-family:inherit}
   .hero-stats{flex-wrap:wrap;gap:8px 20px}
 }
 
-/* ── AUTOCOMPLETE ──────────────────────────────────────────── */
-.sf-name-wrap{position:relative;flex:1.4;min-width:0;display:flex;align-items:center;
-  gap:10px;padding:11px 16px;border-right:none;background:#fff}
-.ac-drop{position:absolute;top:calc(100% + 6px);left:0;right:0;
-  background:#fff;border:1.5px solid rgba(59,23,114,.18);border-radius:var(--r-lg);
-  box-shadow:0 16px 48px rgba(12,16,37,.16);z-index:400;overflow:hidden;
-  display:none;max-height:280px;overflow-y:auto}
-.ac-drop.open{display:block;animation:acIn .15s ease}
-@keyframes acIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-.ac-item{display:flex;align-items:center;gap:10px;padding:9px 14px;
-  cursor:pointer;font-size:.8125rem;color:var(--text-2);transition:background var(--t);border:none;width:100%;background:none;text-align:left}
-.ac-item:hover,.ac-item.ac-focused{background:var(--brand-light)}
-.ac-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+/* ── SMART SEARCH DROPDOWN ─────────────────────────────────── */
+.search-card{position:relative}
+.sf-smart{flex:1.5;min-width:0}
+.sf-clear{background:rgba(107,114,128,.15);border:none;cursor:pointer;color:var(--text-3);
+  width:20px;height:20px;border-radius:50%;display:none;align-items:center;
+  justify-content:center;font-size:14px;line-height:1;flex-shrink:0;transition:all var(--t)}
+.sf-clear.show{display:flex}
+.sf-clear:hover{background:var(--brand);color:#fff}
+
+.smart-drop{
+  position:absolute;top:calc(100% + 10px);left:0;right:0;
+  background:#fff;border:1.5px solid rgba(59,23,114,.1);border-radius:20px;
+  box-shadow:0 24px 64px rgba(12,16,37,.18);z-index:600;
+  overflow:hidden;max-height:400px;overflow-y:auto;display:none}
+.smart-drop.open{display:block;animation:dropIn .15s cubic-bezier(.2,.8,.4,1)}
+@keyframes dropIn{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+.drop-cat{font-size:.625rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--text-4);padding:14px 18px 6px;user-select:none}
+.drop-item{display:flex;align-items:center;gap:12px;padding:9px 18px;
+  cursor:pointer;border:none;width:100%;text-align:left;background:none;
+  font-family:'Sora',sans-serif;transition:background .1s}
+.drop-item:hover,.drop-item.focused{background:var(--bg-subtle)}
+.drop-item-icon{width:38px;height:38px;border-radius:11px;background:var(--brand-light);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .1s}
+.drop-item:hover .drop-item-icon,.drop-item.focused .drop-item-icon{background:rgba(59,23,114,.15)}
+.drop-item-icon svg{width:18px;height:18px;fill:none;stroke:var(--brand);
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.drop-item-label{flex:1;font-size:.875rem;font-weight:600;color:var(--text-1);min-width:0}
+.drop-item-label mark{background:rgba(59,23,114,.12);color:var(--brand);
+  border-radius:3px;padding:0 2px;font-weight:800}
+.drop-item-sub{font-size:.6875rem;color:var(--text-4);margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drop-item-arr{width:15px;height:15px;fill:none;stroke:var(--text-4);
+  stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.drop-doc-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
   justify-content:center;font-size:.625rem;font-weight:800;color:#fff;flex-shrink:0}
-.ac-info{flex:1;min-width:0}
-.ac-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-1)}
-.ac-sub{font-size:.6875rem;color:var(--text-4);margin-top:1px}
+.drop-divider{height:1px;background:var(--border);margin:6px 18px}
+.drop-empty{padding:28px 18px;text-align:center;font-size:.875rem;color:var(--text-4)}
 
 /* ── RDV TOGGLE ─────────────────────────────────────────────── */
 .rdv-toggle{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;
@@ -783,26 +804,14 @@ button,input,select,textarea{font-family:inherit}
 
       <!-- Search box -->
       <div class="search-card">
-        <div class="sf">
+        <!-- Champ unifié : médecin + spécialité -->
+        <div class="sf sf-smart" id="sf-smart">
           <div class="sf-icon">
-            <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           </div>
-          <select id="s-specialty">
-            <option value="">Toutes les spécialités</option>
-            <option>Médecine générale</option><option>Cardiologie</option>
-            <option>Dermatologie</option><option>Endocrinologie</option>
-            <option>Gastro-entérologie</option><option>Gynécologie-Obstétrique</option>
-            <option>Infectiologie</option><option>Médecine interne</option>
-            <option>Néphrologie</option><option>Neurologie</option>
-            <option>Oncologie</option><option>Ophtalmologie</option>
-            <option>ORL</option><option>Orthopédie</option>
-            <option>Pédiatrie</option><option>Pneumologie</option>
-            <option>Psychiatrie</option><option>Radiologie</option>
-            <option>Rhumatologie</option><option>Urologie</option>
-            <option>Chirurgie générale</option><option>Chirurgie dentaire</option>
-            <option>Médecine du travail</option><option>Médecine d'urgence</option>
-            <option>Anesthésie-Réanimation</option>
-          </select>
+          <input type="text" id="s-smart" placeholder="Médecin, spécialité…" autocomplete="off"
+            style="flex:1;border:none;outline:none;font-family:'Sora',sans-serif;font-size:.875rem;background:transparent;color:var(--text-1);min-width:0">
+          <button class="sf-clear" id="sf-clear" title="Effacer">×</button>
         </div>
         <!-- Ville (recherche city + wilaya) -->
         <div class="sf">
@@ -814,18 +823,12 @@ button,input,select,textarea{font-family:inherit}
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 2" opacity=".4"/></svg>
           </button>
         </div>
-        <!-- Nom + autocomplete -->
-        <div class="sf-name-wrap" id="sf-name-wrap">
-          <div class="sf-icon" style="flex-shrink:0;color:var(--text-4)">
-            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <input type="text" id="s-name" placeholder="Nom du médecin…" autocomplete="off" style="flex:1;border:none;outline:none;font-family:'Sora',sans-serif;font-size:.875rem;background:transparent;color:var(--text-1)">
-          <div class="ac-drop" id="ac-drop"></div>
-        </div>
         <button class="search-btn" onclick="doSearch()">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           Rechercher
         </button>
+        <!-- Dropdown pleine largeur -->
+        <div class="smart-drop" id="smart-drop"></div>
       </div>
       <!-- Sub-row: toggle RDV -->
       <div class="search-sub">
@@ -1483,9 +1486,39 @@ function renderStars(rating){
   }
 })();
 
+/* ── Specialty icons ─────────────────────────────────────── */
+var SPEC_ICONS = {
+  'Médecine générale':       '<path d="M3 2a1 1 0 0 0-1 1v5a7 7 0 0 0 14 0V3a1 1 0 0 0-1-1"/><path d="M7 12v1a5 5 0 0 0 10 0v-1"/><circle cx="19" cy="9" r="2"/>',
+  'Cardiologie':             '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><polyline points="3.5 11 7 11 9.5 7 13 15 15.5 11 18.5 11"/>',
+  'Pédiatrie':               '<circle cx="12" cy="8" r="5"/><path d="M8.56 13.9A9 9 0 0 0 3 21h18a9 9 0 0 0-5.56-7.1"/><path d="M10 8h4M12 6v4"/>',
+  'Gynécologie-Obstétrique': '<circle cx="12" cy="7" r="5"/><path d="M12 12v10M9 19h6"/>',
+  'Dermatologie':            '<path d="M17 10c0 4.97-2.24 9-5 9s-5-4.03-5-9a5 5 0 0 1 10 0Z"/><path d="M12 1v4"/><path d="M4.22 4.22 7.05 7.05M19.78 4.22l-2.83 2.83"/>',
+  'Ophtalmologie':           '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  'ORL':                     '<path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 0 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 0 0 4 0"/>',
+  'Orthopédie':              '<path d="M18 20h-4l-4-4-2 2H4M6 4h4l4 4 2-2h4M4 20l4-4M16 4l4 4"/>',
+  'Neurologie':              '<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>',
+  'Psychiatrie':             '<circle cx="12" cy="10" r="8"/><path d="M9 10h.01M15 10h.01M9.5 14.5s.833 1 2.5 1 2.5-1 2.5-1"/><path d="M12 18v4M9 22h6"/>',
+  'Chirurgie dentaire':      '<path d="M12 5.5c-1-2-3-3.5-5-3.5A5 5 0 0 0 2 7c0 6 7 14 10 14s10-8 10-14a5 5 0 0 0-5-5c-2 0-4 1.5-5 3.5z"/><path d="M12 5.5v6"/>',
+  'Pneumologie':             '<path d="M12 2v6"/><path d="M5 8a4 4 0 0 0-1 7.8V20a2 2 0 0 0 4 0v-1.2A4 4 0 0 0 9 11V8H5z"/><path d="M19 8a4 4 0 0 1 1 7.8V20a2 2 0 0 1-4 0v-1.2A4 4 0 0 1 15 11V8h4z"/>',
+  'Gastro-entérologie':      '<path d="M18 6a6 6 0 0 0-12 0c0 4 2 7 2 10h8c0-3 2-6 2-10z"/><path d="M9 22h6M12 16v6"/>',
+  'Endocrinologie':          '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M8.5 8.5l1 1M15.5 15.5l1 1M8.5 15.5l1-1M15.5 8.5l1-1"/>',
+  'Urologie':                '<path d="M7 2a5 5 0 0 0-5 5v3a5 5 0 0 0 3 4.58V21a1 1 0 0 0 2 0v-6.42A5 5 0 0 0 10 10V7a5 5 0 0 0-3-4.58"/><path d="M14 10a2 2 0 0 0 4 0V7a2 2 0 0 0-4 0v3z"/><path d="M16 14v7"/>',
+  'Rhumatologie':            '<circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M6 15A9 9 0 0 1 15 6"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+  'Oncologie':               '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+  'Infectiologie':           '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  'Radiologie':              '<rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><path d="M12 6h.01M9 6h.01M15 6h.01"/>',
+  'Néphrologie':             '<path d="M12 2C9.79 2 8 5.58 8 10c0 2.21.45 4.21 1.17 5.71C7.88 16.83 7 18.33 7 20a2 2 0 0 0 4 0v-3a1 1 0 0 1 2 0v3a2 2 0 0 0 4 0c0-1.67-.88-3.17-2.17-4.29C15.55 14.21 16 12.21 16 10c0-4.42-1.79-8-4-8z"/>',
+  'Médecine interne':        '<rect x="3" y="2" width="7" height="9" rx="1"/><rect x="14" y="2" width="7" height="5" rx="1"/><rect x="14" y="11" width="7" height="9" rx="1"/><rect x="3" y="15" width="7" height="5" rx="1"/>',
+  'Chirurgie générale':      '<path d="m14.5 12.5-8 8a2.12 2.12 0 0 1-3-3l8-8"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/>',
+  'Médecine du travail':     '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>',
+  "Médecine d'urgence":      '<path d="M8 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-2"/><path d="M8 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2H8z"/><path d="M9 14h6M12 11v6"/>',
+  'Anesthésie-Réanimation':  '<path d="m18 2 4 4-14 14H4v-4L18 2z"/><path d="m14 6 4 4"/><circle cx="5" cy="19" r="2"/>',
+};
+var SPECIALTIES = Object.keys(SPEC_ICONS);
+
 /* ── State ───────────────────────────────────────────────── */
-var _rdvOnly = false;
-var _acIndex = -1;
+var _rdvOnly  = false;
+var _dropIdx  = -1;
 
 /* ── Debounce ────────────────────────────────────────────── */
 function debounce(fn, ms){
@@ -1519,26 +1552,110 @@ function geoSearch(){
   }, function(){ btn.classList.remove('spinning'); }, {timeout:8000});
 }
 
+/* ── Smart dropdown helpers ──────────────────────────────── */
+function escAttr(s){ return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function hiLight(text, q){
+  if(!q) return text;
+  return text.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),
+    '<mark>$1</mark>');
+}
+
+function renderSpecRow(name, q){
+  var icon = SPEC_ICONS[name] || '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>';
+  return '<button class="drop-item" onclick="pickSpec(\''+escAttr(name)+'\')">'
+    +'<div class="drop-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+icon+'</svg></div>'
+    +'<div style="flex:1;min-width:0;text-align:left"><div class="drop-item-label">'+hiLight(name,q)+'</div></div>'
+    +'<svg class="drop-item-arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>'
+    +'</button>';
+}
+
+function renderDocRow(d, q){
+  var nm = d.full_name||'Médecin';
+  var disp = 'Dr. '+(nm.startsWith('Dr')?nm.replace(/^Dr\.?\s*/i,''):nm);
+  return '<button class="drop-item" onclick="pickDoc(\''+escAttr(d.id)+'\')">'
+    +'<div class="drop-doc-av" style="background:'+avatarGrad(nm)+';flex-shrink:0">'+initials(nm)+'</div>'
+    +'<div style="flex:1;min-width:0;text-align:left"><div class="drop-item-label">'+hiLight(disp,q)+'</div>'
+    +'<div class="drop-item-sub">'+(d.specialty||'')+(d.wilaya?' · '+d.wilaya:'')+'</div></div>'
+    +'<svg class="drop-item-arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>'
+    +'</button>';
+}
+
+function smartDrop(val){
+  var drop = document.getElementById('smart-drop');
+  var q = (val||'').trim();
+  var html = '';
+  _dropIdx = -1;
+
+  if(!q){
+    // Popular specialties
+    var popular = ['Médecine générale','Cardiologie','Pédiatrie','Gynécologie-Obstétrique',
+      'Ophtalmologie','Dermatologie','Neurologie','Chirurgie dentaire'];
+    html += '<div class="drop-cat">Spécialités populaires</div>';
+    html += popular.map(function(n){ return renderSpecRow(n,''); }).join('');
+  } else {
+    var ql = q.toLowerCase();
+    var specs = SPECIALTIES.filter(function(n){ return n.toLowerCase().includes(ql); });
+    var docs  = _allDoctors.filter(function(d){ return (d.full_name||'').toLowerCase().includes(ql); }).slice(0,4);
+    if(specs.length){
+      html += '<div class="drop-cat">Spécialités</div>';
+      html += specs.slice(0,7).map(function(n){ return renderSpecRow(n,q); }).join('');
+    }
+    if(specs.length && docs.length) html += '<div class="drop-divider"></div>';
+    if(docs.length){
+      html += '<div class="drop-cat">Médecins</div>';
+      html += docs.map(function(d){ return renderDocRow(d,q); }).join('');
+    }
+    if(!specs.length && !docs.length){
+      html = '<div class="drop-empty">Aucun résultat pour « '+q+' »</div>';
+    }
+  }
+  drop.innerHTML = html;
+  drop.classList.add('open');
+}
+
+function smartClose(){
+  document.getElementById('smart-drop').classList.remove('open');
+  _dropIdx = -1;
+}
+
+function clearSmart(){
+  document.getElementById('s-smart').value = '';
+  document.getElementById('sf-clear').classList.remove('show');
+  smartClose();
+  doSearch();
+}
+
+function pickSpec(name){
+  document.getElementById('s-smart').value = name;
+  document.getElementById('sf-clear').classList.add('show');
+  smartClose();
+  doSearch();
+}
+
+function pickDoc(id){
+  var d = _allDoctors.find(function(x){return x.id===id;});
+  if(!d) return;
+  var nm = d.full_name||'';
+  document.getElementById('s-smart').value = nm;
+  document.getElementById('sf-clear').classList.add('show');
+  smartClose();
+  doSearch();
+}
+
 /* ── Active filter chips ─────────────────────────────────── */
 function renderChips(){
-  var bar = document.getElementById('chips-bar');
+  var bar  = document.getElementById('chips-bar');
   var chips = [];
-  var sp  = document.getElementById('s-specialty').value.trim();
-  var vil = document.getElementById('s-ville').value.trim();
-  var nm  = document.getElementById('s-name').value.trim();
-  if(sp)  chips.push({label:sp,  icon:'M22 12h-4l-3 9L9 3l-3 9H2', clear:function(){document.getElementById('s-specialty').value='';doSearch();}});
-  if(vil) chips.push({label:vil, icon:'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z', clear:function(){document.getElementById('s-ville').value='';doSearch();}});
-  if(nm)  chips.push({label:nm,  icon:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', clear:function(){document.getElementById('s-name').value='';doSearch();}});
-  if(_rdvOnly) chips.push({label:'Disponible RDV', icon:'M3 4h13M3 8h9m-9 4h9m5-4v12m0 0-4-4m4 4 4-4', clear:function(){_rdvOnly=false;document.getElementById('rdv-toggle').classList.remove('on');doSearch();}});
+  var smart = document.getElementById('s-smart').value.trim();
+  var vil   = document.getElementById('s-ville').value.trim();
+  if(smart) chips.push({label:smart, clear:function(){clearSmart();}});
+  if(vil)   chips.push({label:'📍 '+vil, clear:function(){document.getElementById('s-ville').value='';doSearch();}});
+  if(_rdvOnly) chips.push({label:'Disponible RDV', clear:function(){_rdvOnly=false;document.getElementById('rdv-toggle').classList.remove('on');doSearch();}});
   if(!chips.length){ bar.innerHTML=''; return; }
   bar.innerHTML = chips.map(function(c,i){
-    return '<span class="f-chip" id="chip-'+i+'">'
-      +'<svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;flex-shrink:0"><path d="'+c.icon+'"/></svg>'
-      +c.label
-      +'<button class="chip-x" aria-label="Supprimer">×</button>'
-      +'</span>';
-  }).join('')
-  +(chips.length>1?'<button class="chip-clear" onclick="resetSearch()">Tout effacer</button>':'');
+    return '<span class="f-chip" id="chip-'+i+'">'+c.label
+      +'<button class="chip-x" aria-label="Supprimer">×</button></span>';
+  }).join('')+(chips.length>1?'<button class="chip-clear" onclick="resetSearch()">Tout effacer</button>':'');
   chips.forEach(function(c,i){
     var x = bar.querySelector('#chip-'+i+' .chip-x');
     if(x) x.addEventListener('click', c.clear);
@@ -1547,21 +1664,18 @@ function renderChips(){
 
 /* ── Search ──────────────────────────────────────────────── */
 function doSearch(){
-  var sp   = document.getElementById('s-specialty').value.trim().toLowerCase();
-  var vil  = document.getElementById('s-ville').value.trim().toLowerCase();
-  var name = document.getElementById('s-name').value.trim().toLowerCase();
+  var smart = document.getElementById('s-smart').value.trim().toLowerCase();
+  var vil   = document.getElementById('s-ville').value.trim().toLowerCase();
   document.querySelectorAll('.pill').forEach(function(p){
-    p.classList.toggle('active', p.dataset.sp.toLowerCase()===sp);
+    p.classList.toggle('active', smart ? p.dataset.sp.toLowerCase()===smart : p.dataset.sp==='');
   });
   _filtered = _allDoctors.filter(function(d){
-    var locMatch = !vil
-      || (d.city||'').toLowerCase().includes(vil)
-      || (d.wilaya||'').toLowerCase().includes(vil)
-      || (d.address||'').toLowerCase().includes(vil);
-    return (!sp || (d.specialty||'').toLowerCase().includes(sp))
-        && locMatch
-        && (!name || (d.full_name||'').toLowerCase().includes(name))
-        && (!_rdvOnly || d.accepts_rdv);
+    var specOk = !smart || (d.specialty||'').toLowerCase().includes(smart);
+    var nameOk = !smart || (d.full_name||'').toLowerCase().includes(smart);
+    var locOk  = !vil   || (d.city||'').toLowerCase().includes(vil)
+                        || (d.wilaya||'').toLowerCase().includes(vil)
+                        || (d.address||'').toLowerCase().includes(vil);
+    return (specOk||nameOk) && locOk && (!_rdvOnly || d.accepts_rdv);
   });
   _filtered.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0); });
   renderChips();
@@ -1577,54 +1691,23 @@ function doSearch(){
 
 var _doSearchLive = debounce(doSearch, 280);
 
-/* ── Autocomplete ────────────────────────────────────────── */
-function acShow(val){
-  var drop = document.getElementById('ac-drop');
-  if(!val || val.length < 2 || !_allDoctors.length){ drop.classList.remove('open'); return; }
-  var q = val.toLowerCase();
-  var matches = _allDoctors.filter(function(d){
-    return (d.full_name||'').toLowerCase().includes(q);
-  }).slice(0,6);
-  if(!matches.length){ drop.classList.remove('open'); return; }
-  _acIndex = -1;
-  drop.innerHTML = matches.map(function(d,i){
-    var nm = d.full_name||'Médecin';
-    var grad = avatarGrad(nm);
-    var inits = initials(nm);
-    var hi = nm.replace(new RegExp('('+val.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark style="background:var(--brand-light);color:var(--brand);border-radius:2px">$1</mark>');
-    return '<button class="ac-item" data-idx="'+i+'" onclick="acPick(\''+d.id+'\')">'
-      +'<div class="ac-av" style="background:'+grad+'">'+inits+'</div>'
-      +'<div class="ac-info"><div class="ac-name">Dr. '+hi+'</div>'
-      +'<div class="ac-sub">'+(d.specialty||'')+(d.wilaya?' · '+d.wilaya:'')+'</div></div>'
-      +'</button>';
-  }).join('');
-  drop.classList.add('open');
-}
-
-function acPick(docId){
-  var d = _allDoctors.find(function(x){return x.id===docId;});
-  if(!d) return;
-  document.getElementById('s-name').value = d.full_name;
-  document.getElementById('ac-drop').classList.remove('open');
-  doSearch();
-}
-
-function acClose(){ document.getElementById('ac-drop').classList.remove('open'); }
 
 function setPill(btn, sp){
   document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active');});
   btn.classList.add('active');
-  document.getElementById('s-specialty').value = sp;
+  document.getElementById('s-smart').value = sp;
+  document.getElementById('sf-clear').classList.toggle('show', !!sp);
+  smartClose();
   doSearch();
 }
 
 function resetSearch(){
-  document.getElementById('s-specialty').value='';
+  document.getElementById('s-smart').value='';
   document.getElementById('s-ville').value='';
-  document.getElementById('s-name').value='';
+  document.getElementById('sf-clear').classList.remove('show');
   _rdvOnly = false;
   document.getElementById('rdv-toggle').classList.remove('on');
-  document.getElementById('ac-drop').classList.remove('open');
+  smartClose();
   document.querySelectorAll('.pill').forEach(function(p){p.classList.toggle('active',p.dataset.sp==='');});
   document.getElementById('state-empty').style.display='none';
   document.getElementById('chips-bar').innerHTML='';
@@ -1787,28 +1870,39 @@ async function submitBooking(){
 
 /* ── Live search listeners ───────────────────────────────── */
 (function(){
-  // Ville — live search + debounce
+  // Ville
   document.getElementById('s-ville').addEventListener('input', _doSearchLive);
 
-  // Specialty select — live on change
-  document.getElementById('s-specialty').addEventListener('change', doSearch);
-
-  // Nom — autocomplete + live search
-  var sName = document.getElementById('s-name');
-  sName.addEventListener('input', function(){
-    acShow(this.value);
+  // Smart field
+  var inp = document.getElementById('s-smart');
+  inp.addEventListener('focus', function(){ smartDrop(this.value); });
+  inp.addEventListener('input', function(){
+    var v = this.value;
+    document.getElementById('sf-clear').classList.toggle('show', !!v.trim());
+    smartDrop(v);
     _doSearchLive();
   });
-  sName.addEventListener('keydown', function(e){
-    var drop = document.getElementById('ac-drop');
-    var items = drop.querySelectorAll('.ac-item');
-    if(e.key==='ArrowDown'){e.preventDefault();_acIndex=Math.min(_acIndex+1,items.length-1);items.forEach(function(el,i){el.classList.toggle('ac-focused',i===_acIndex);});}
-    else if(e.key==='ArrowUp'){e.preventDefault();_acIndex=Math.max(_acIndex-1,0);items.forEach(function(el,i){el.classList.toggle('ac-focused',i===_acIndex);});}
-    else if(e.key==='Enter'){if(_acIndex>=0&&items[_acIndex]){items[_acIndex].click();}else{acClose();doSearch();}}
-    else if(e.key==='Escape'){acClose();}
+  inp.addEventListener('keydown', function(e){
+    var drop = document.getElementById('smart-drop');
+    var items = drop.querySelectorAll('.drop-item');
+    if(e.key==='ArrowDown'){
+      e.preventDefault();
+      _dropIdx = Math.min(_dropIdx+1, items.length-1);
+      items.forEach(function(el,i){ el.classList.toggle('focused', i===_dropIdx); });
+    } else if(e.key==='ArrowUp'){
+      e.preventDefault();
+      _dropIdx = Math.max(_dropIdx-1, 0);
+      items.forEach(function(el,i){ el.classList.toggle('focused', i===_dropIdx); });
+    } else if(e.key==='Enter'){
+      if(_dropIdx>=0 && items[_dropIdx]){ items[_dropIdx].click(); }
+      else { smartClose(); doSearch(); }
+    } else if(e.key==='Escape'){ smartClose(); }
   });
+
+  // Close on outside click
   document.addEventListener('click', function(e){
-    if(!document.getElementById('sf-name-wrap').contains(e.target)) acClose();
+    var card = document.querySelector('.search-card');
+    if(card && !card.contains(e.target)) smartClose();
   });
 })();
 
@@ -1832,8 +1926,12 @@ async function submitBooking(){
 function sbarSearch(){
   var sp  = document.getElementById('sbar-spec').value;
   var vil = document.getElementById('sbar-ville').value.trim();
-  if(sp)  document.getElementById('s-specialty').value = sp;
+  if(sp){
+    document.getElementById('s-smart').value = sp;
+    document.getElementById('sf-clear').classList.add('show');
+  }
   if(vil) document.getElementById('s-ville').value = vil;
+  smartClose();
   doSearch();
   var target = document.querySelector('.cards-wrap');
   if(target) window.scrollTo({top: target.offsetTop - 72, behavior:'smooth'});
@@ -1930,19 +2028,19 @@ renderCards = function(docs){
 /* ── Animated search placeholder ────────────────────────── */
 (function(){
   var hints = [
-    'Nom du médecin…',
+    'Médecin, spécialité…',
+    'Cardiologie…',
     'Dr. Boudjemaa…',
-    'Cardiologue Tizi Ouzou…',
-    'Pédiatre à Azazga…',
+    'Pédiatre…',
     'Dr. Amrani…',
-    'Dermatologue…',
+    'Ophtalmologue…',
     'Médecin généraliste…',
-    'Dr. Aït Ouali…',
+    'Neurologie…',
   ];
-  var el  = document.getElementById('s-name');
+  var el  = document.getElementById('s-smart');
   var idx = 0;
   setInterval(function(){
-    if(document.activeElement === el) return; // don't change while typing
+    if(document.activeElement === el) return;
     idx = (idx + 1) % hints.length;
     el.setAttribute('placeholder', hints[idx]);
   }, 2600);
