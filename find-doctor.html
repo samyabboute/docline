@@ -50,7 +50,7 @@ button,input,select,textarea{font-family:inherit}
 .nav.scrolled{box-shadow:0 2px 16px rgba(12,16,37,.09)}
 .nav-inner{max-width:1240px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;gap:16px}
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-logo img{display:block;height:34px;width:auto}
+.nav-logo svg{display:block;height:34px;width:auto}
 .nav-sep{flex:1}
 .nav-link{font-size:.8125rem;font-weight:600;color:var(--text-2);padding:6px 12px;border-radius:var(--r-md);transition:all var(--t)}
 .nav-link:hover{color:var(--brand);background:var(--brand-light)}
@@ -86,13 +86,8 @@ button,input,select,textarea{font-family:inherit}
 
 .hero-left{}
 .hero-badge{
-  display:inline-flex;align-items:center;gap:7px;
-  background:var(--brand-light);border:1px solid rgba(59,23,114,.15);
-  border-radius:var(--r-full);padding:6px 14px;
-  font-size:.75rem;font-weight:700;color:var(--brand);
-  letter-spacing:.04em;text-transform:uppercase;margin-bottom:22px}
-.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);
-  box-shadow:0 0 0 0 rgba(0,180,216,.4);animation:pulse-dot 2s ease-in-out infinite}
+  display:inline-flex;align-items:center;
+  margin-bottom:24px}
 @keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(0,180,216,.4)}50%{box-shadow:0 0 0 5px rgba(0,180,216,.0)}}
 
 .hero-title{
@@ -154,7 +149,7 @@ button,input,select,textarea{font-family:inherit}
 }
 
 /* Hero stats */
-.hero-stats{display:flex;gap:32px;margin-top:28px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:32px;margin-top:28px;flex-wrap:wrap;justify-content:center}
 .hero-stat-val{font-size:1.5rem;font-weight:800;color:var(--brand);letter-spacing:-.02em}
 .hero-stat-lbl{font-size:.6875rem;font-weight:600;color:var(--text-3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
 
@@ -387,8 +382,8 @@ button,input,select,textarea{font-family:inherit}
 .footer-grid{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:32px;margin-bottom:40px}
 @media(max-width:800px){.footer-grid{grid-template-columns:1fr 1fr;gap:24px}}
 @media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
-.footer-brand .logo{display:flex;align-items:center;gap:9px;font-size:1.0625rem;font-weight:800;color:#fff;margin-bottom:12px}
-.footer-brand .logo svg{width:30px;height:30px}
+.footer-brand .logo{display:flex;align-items:center;margin-bottom:16px}
+.footer-brand .logo svg{height:40px;width:auto}
 .footer-brand p{font-size:.8125rem;color:rgba(255,255,255,.35);line-height:1.7;max-width:240px}
 .footer-col h4{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
   color:rgba(255,255,255,.25);margin-bottom:14px}
@@ -431,16 +426,82 @@ button,input,select,textarea{font-family:inherit}
 .modal-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
 .modal-body{padding:20px 24px 28px}
 
-/* Steps */
-.modal-steps{display:flex;align-items:center;gap:6px;margin-bottom:24px}
-.mstep{display:flex;align-items:center;gap:6px;flex:1}
-.mstep-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.625rem;font-weight:800;color:var(--text-4);flex-shrink:0;transition:all var(--t)}
-.mstep.active .mstep-dot{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 2px 8px var(--brand-glow)}
-.mstep.done .mstep-dot{background:var(--success);border-color:var(--success);color:#fff}
-.mstep-line{flex:1;height:2px;background:var(--border);border-radius:var(--r-full);transition:background var(--t)}
-.mstep.done .mstep-line{background:var(--success)}
-.mstep-lbl{font-size:.6875rem;font-weight:600;color:var(--text-4);transition:color var(--t)}
-.mstep.active .mstep-lbl{color:var(--brand);font-weight:700}
+/* ── RDV MODAL REDESIGN ──────────────────────────────────────── */
+.rdv-modal-banner{
+  background:linear-gradient(135deg,var(--brand) 0%,#5B21B6 100%);
+  padding:18px 20px 16px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.rdv-modal-doc{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.rdv-modal-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.8125rem;font-weight:800;color:#fff;flex-shrink:0;
+  border:2px solid rgba(255,255,255,.3);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.rdv-modal-name{font-size:.9375rem;font-weight:800;color:#fff;line-height:1.2}
+.rdv-modal-spec-txt{font-size:.75rem;color:rgba(255,255,255,.65);margin-top:2px}
+.rdv-modal-headline{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.14);border-radius:var(--r-full);
+  padding:5px 12px;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.85)}
+.rdv-modal-headline svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+.rdv-block{padding:18px 22px;border-bottom:1px solid var(--border)}
+.rdv-block:last-child{border-bottom:none;padding-bottom:24px}
+.rdv-block-hd{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+.rdv-step-num{width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;
+  font-size:.625rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rdv-step-num.done{background:var(--success)}
+.rdv-block-title{font-size:.875rem;font-weight:700;color:var(--text-1)}
+
+/* Motif select */
+.rdv-motif-sel{
+  width:100%;border:1.5px solid var(--border);border-radius:var(--r-lg);
+  padding:11px 14px;font-size:.875rem;font-family:'Sora',sans-serif;
+  background:#fff;color:var(--text-1);outline:none;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239CA3C4' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;background-size:16px;
+  padding-right:36px;cursor:pointer;transition:all var(--t)}
+.rdv-motif-sel:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow)}
+
+/* Date navigator */
+.rdv-date-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  background:var(--bg-subtle);border-radius:var(--r-lg);padding:6px 8px}
+.rdv-date-arrow{width:34px;height:34px;border:none;background:#fff;border-radius:var(--r-md);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:1.125rem;font-weight:700;color:var(--text-2);flex-shrink:0;
+  transition:all var(--t);box-shadow:var(--shadow-xs);line-height:1}
+.rdv-date-arrow:hover:not(:disabled){background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
+.rdv-date-arrow:disabled{opacity:.3;cursor:not-allowed;box-shadow:none}
+.rdv-date-center{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  font-size:.9375rem;font-weight:700;color:var(--text-1)}
+.rdv-date-center svg{width:15px;height:15px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* Time slots */
+.rdv-slots-grid{display:flex;flex-wrap:wrap;gap:8px}
+.rdv-slot{
+  padding:9px 18px;border:1.5px solid var(--border);border-radius:var(--r-lg);
+  font-family:'Sora',sans-serif;font-size:.875rem;font-weight:700;color:var(--text-2);
+  background:#fff;cursor:pointer;transition:all var(--t);min-width:72px;text-align:center}
+.rdv-slot:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light);transform:translateY(-1px)}
+.rdv-slot.selected{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:var(--shadow-brand);transform:translateY(-1px)}
+.rdv-no-slots{width:100%;text-align:center;padding:20px 0;font-size:.8125rem;color:var(--text-4);font-style:italic}
+
+/* Patient info block */
+.rdv-patient-block{animation:dropIn .22s ease both}
+.rdv-slot-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--success-bg);color:var(--success-text);
+  border:1px solid #A7F3D0;border-radius:var(--r-full);
+  font-size:.75rem;font-weight:700;padding:5px 12px;margin-bottom:16px}
+.rdv-slot-badge svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+
+/* Confirm button */
+.rdv-confirm-btn{
+  width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--r-lg);
+  padding:15px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
+  cursor:pointer;transition:all var(--t);display:flex;align-items:center;
+  justify-content:center;gap:8px;margin-top:6px;box-shadow:var(--shadow-brand)}
+.rdv-confirm-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
+.rdv-confirm-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.rdv-confirm-btn svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
 
 /* Form fields */
 .field{margin-bottom:16px}
@@ -613,15 +674,31 @@ button,input,select,textarea{font-family:inherit}
   .hero{
     padding:80px 16px 44px;
     background:linear-gradient(160deg,#E4ECFF 0%,#EEF4FF 40%,#F8FAFF 100%)}
-  .hero-title{font-size:1.875rem;letter-spacing:-.04em}
-  .hero-badge{font-size:.6875rem;padding:5px 12px;margin-bottom:16px}
-  .hero-sub{font-size:.875rem;line-height:1.65;margin-bottom:22px}
+  /* Centrage texte mobile */
+  .hero-left{text-align:center}
+  .hero-badge{margin-bottom:18px;margin-left:auto;margin-right:auto}
+  .hero-badge svg{height:46px}
+  .hero-title{font-size:1.875rem;letter-spacing:-.04em;
+    text-align:center;margin-left:auto;margin-right:auto}
+  /* Sous-titre supprimé sur mobile — page trop chargée */
+  .hero-sub{display:none}
   .search-card{
     padding:6px;border-radius:var(--r-xl);
     box-shadow:0 8px 40px rgba(59,23,114,.14);
     border-color:rgba(59,23,114,.14)}
   .sf{flex:1 1 100%}
   .search-btn{border-radius:var(--r-lg);padding:14px;font-size:.9375rem}
+  /* Toggle RDV visible sur mobile */
+  .search-sub{justify-content:center;margin-top:12px}
+  .rdv-label{
+    background:#fff;border:1.5px solid var(--border);
+    border-radius:var(--r-full);padding:9px 18px;
+    box-shadow:var(--shadow-sm)}
+  .rdv-label.active-rdv{background:#ECFDF5;border-color:#6EE7B7}
+  .toggle-track{width:38px;height:22px;border-radius:11px}
+  .toggle-thumb{width:16px;height:16px}
+  .toggle-track.on .toggle-thumb{transform:translateX(16px)}
+  .search-hint{display:none}
   .hero-stats{gap:14px;margin-top:18px}
   .hero-stat-val{font-size:1.25rem}
   .spec-section{padding:22px 16px 18px}
@@ -653,8 +730,8 @@ button,input,select,textarea{font-family:inherit}
   .hero-right,.hero-floaters{display:none!important}
   .hero-left{width:100%;max-width:100%}
   .hero-badge{display:inline-flex;margin-bottom:28px}
-  .hero-title{font-size:clamp(2.5rem,4vw,3.6rem);max-width:680px}
-  .hero-sub{max-width:540px;margin:0 auto 40px;font-size:1.0625rem}
+  .hero-title{font-size:clamp(2.5rem,4vw,3.6rem);max-width:680px;margin-left:auto;margin-right:auto;text-align:center}
+  .hero-sub{max-width:540px;margin:0 auto 40px;font-size:1.0625rem;text-align:center}
   .hero-stats{justify-content:center;gap:48px;margin-top:36px}
 
   /* Search bar : pill pleine largeur centrée */
@@ -674,6 +751,7 @@ button,input,select,textarea{font-family:inherit}
     margin:0 0 0 6px}
   .search-sub{justify-content:center;margin-top:14px}
   .smart-drop{border-radius:20px;top:calc(100% + 14px)}
+  .ville-drop{border-radius:20px;top:calc(100% + 14px);left:-18px;right:-18px}
 }
 
 /* ── SMART SEARCH DROPDOWN ─────────────────────────────────── */
@@ -715,15 +793,13 @@ button,input,select,textarea{font-family:inherit}
 .drop-divider{height:1px;background:var(--border);margin:6px 18px}
 .drop-empty{padding:28px 18px;text-align:center;font-size:.875rem;color:var(--text-4)}
 
-/* ── RDV TOGGLE ─────────────────────────────────────────────── */
-.rdv-toggle{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;
-  border-radius:var(--r-full);border:1.5px solid var(--border);background:#fff;
-  font-family:'Sora',sans-serif;font-size:.8125rem;font-weight:600;color:var(--text-3);
-  cursor:pointer;transition:all var(--t);white-space:nowrap;flex-shrink:0}
-.rdv-toggle:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
-.rdv-toggle.on{background:#ECFDF5;border-color:#6EE7B7;color:#059669}
-.rdv-dot{width:8px;height:8px;border-radius:50%;background:#D1D5DB;flex-shrink:0;transition:background var(--t)}
-.rdv-toggle.on .rdv-dot{background:#059669;animation:avPulse 1.8s ease infinite}
+/* ── RDV TOGGLE (iOS switch) ────────────────────────────────── */
+.rdv-label{display:inline-flex;align-items:center;gap:10px;font-size:.8125rem;font-weight:600;color:var(--text-2);cursor:pointer;user-select:none;white-space:nowrap;flex-shrink:0}
+.toggle-track{width:42px;height:24px;border-radius:12px;background:#D1D5DB;position:relative;transition:background .22s;flex-shrink:0;border:none;padding:0;cursor:pointer;display:inline-block;vertical-align:middle}
+.toggle-track:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(5,150,105,.25)}
+.toggle-track.on{background:#059669}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .22s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.2);pointer-events:none}
+.toggle-track.on .toggle-thumb{transform:translateX(18px)}
 .search-hint{font-size:.75rem;color:var(--text-4)}
 
 /* ── FILTER CHIPS ────────────────────────────────────────────── */
@@ -744,6 +820,28 @@ button,input,select,textarea{font-family:inherit}
   font-size:.75rem;font-weight:600;padding:4px 8px;border-radius:var(--r-full);
   font-family:'Sora',sans-serif;transition:all var(--t)}
 .chip-clear:hover{color:#DC2626;background:#FEF2F2}
+
+/* ── VILLE DROPDOWN ──────────────────────────────────────────── */
+.sf-ville{position:relative}
+.ville-drop{
+  position:absolute;top:calc(100% + 8px);left:-12px;right:-12px;
+  background:#fff;border:1.5px solid rgba(59,23,114,.1);border-radius:20px;
+  box-shadow:0 24px 64px rgba(12,16,37,.18);z-index:601;
+  overflow:hidden;max-height:360px;overflow-y:auto;display:none}
+.ville-drop.open{display:block;animation:dropIn .15s cubic-bezier(.2,.8,.4,1)}
+.vdrop-cat{font-size:.625rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--text-4);padding:14px 18px 6px;user-select:none}
+.vdrop-item{display:flex;align-items:center;gap:12px;padding:9px 18px;
+  cursor:pointer;border:none;width:100%;text-align:left;background:none;
+  font-family:'Sora',sans-serif;transition:background .1s}
+.vdrop-item:hover,.vdrop-item.vfocused{background:var(--bg-subtle)}
+.vdrop-item-icon{width:34px;height:34px;border-radius:10px;background:var(--brand-light);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vdrop-item-icon svg{width:16px;height:16px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vdrop-item-label{flex:1;font-size:.875rem;font-weight:600;color:var(--text-1);min-width:0;text-align:left}
+.vdrop-item-label mark{background:rgba(59,23,114,.12);color:var(--brand);border-radius:3px;padding:0 2px;font-weight:800}
+.vdrop-item-count{font-size:.6875rem;color:var(--text-4);flex-shrink:0;white-space:nowrap}
+.vdrop-empty{padding:24px 18px;text-align:center;font-size:.875rem;color:var(--text-4)}
 
 /* ── CARD DISPONIBILITÉ BADGE ────────────────────────────────── */
 .avail-badge{display:inline-flex;align-items:center;gap:5px;
@@ -803,10 +901,9 @@ button,input,select,textarea{font-family:inherit}
 <nav class="nav" id="topnav">
   <div class="nav-inner">
     <a href="find-doctor.html" class="nav-logo">
-      <img src="docline-logo.svg" alt="Docline" style="height:34px;width:auto">
+      <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="height:34px;width:auto;display:block" role="img" aria-label="Docline"><g fill="#3B1772"><g><g><path d="M73,0.8c9.6-2,19.8,7.6,17,17.4c-1.9,9.1-14.1,12.8-21.3,7.5c-4.9-2.9-7.8-9.2-6.6-14.8C63.2,5.7,67.7,1.4,73,0.8z M73.9,7.9c-5.5,1.1-6.4,9.1-1.6,11.7c3.4,2.6,9.1,1.4,10.4-2.9C84.8,11.6,78.9,6.4,73.9,7.9z"/></g><g><path d="M37.2,15.5c5.7-0.9,11.7-0.2,16.5,3.1c6.5,4.4,10.5,11.7,13,19.1c8.6-3.8,17.7-7.3,27.2-6.9c7.7,0.4,14.7,5.6,17.4,12.7c2.2,8.9-2,17.7-7.1,24.7c-9.4,13-23.4,23.9-39.8,25.5c-5.3,4.8-13.3,7.6-20.2,4.6c-8.3-3.8-13.4-11.8-17.6-19.5c-6.5-13.5-9.9-28.9-7.6-43.8C20.8,25.7,27.4,16.8,37.2,15.5z M39.1,23.2c-7.9,1.1-12.2,9.6-12.6,16.9c-0.5,14.9,3.6,30,11.9,42.4c3.3,5,8.7,10.7,15.2,8.5c-0.5-2-3.3-2.4-4.4-4.1c-5.7-5.7-9.3-14-8-22.1c0.2-5.6,4.2-10.8,9.6-12.4c6.7-2.5,15.2,0.3,18.6,6.8c4.6,7.6,3.4,17.1,1,25.3c6.8-1.8,12.5-6.3,18-10.7c6.5-6.3,12.9-13.6,15.1-22.6c1.9-5.8-3-11.5-8.5-12.3c-11.8-2.1-21.4,5.7-31.9,9.2c-4.7,1-8.9-3.8-8.4-8.3c1.2-0.8,2.5-0.1,3.8-0.1C56.4,31.1,49.1,21.1,39.1,23.2z M53.9,59.8c-3,0.8-4.7,3.9-4.5,7c-0.7,7.4,4.1,15.5,11.3,17.6c4.4-6.3,4.8-15.5,1-22.2C59.7,60.1,56.8,59,53.9,59.8z"/></g></g><g><path d="M166.9,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-1,0-1.9-0.2-2.7-0.7c-0.8-0.5-1.4-1.1-1.9-1.8c-1.5,0.9-3.2,1.7-4.9,2.2c-1.8,0.5-3.6,0.8-5.5,0.8c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9c0-2.8,0.5-5.4,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c1.8,0,3.5,0.2,5.1,0.6c1.6,0.4,3.2,1,4.6,1.8V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z M137.6,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8v-0.4c-0.1-1.3-0.3-2.5-0.9-3.7c-0.5-1.1-1.2-2.1-2.1-2.9c-0.9-0.8-1.9-1.5-3-2c-1.2-0.5-2.4-0.7-3.7-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C136.9,58.8,137.1,60.1,137.6,61.3z"/><path d="M174.7,49.6c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.9,1.6c2.5,1.1,4.6,2.5,6.4,4.4c1.8,1.8,3.3,4,4.3,6.5c1.1,2.5,1.6,5.1,1.6,7.9c0,2.8-0.5,5.4-1.6,7.9c-1.1,2.5-2.5,4.6-4.3,6.5c-1.8,1.8-4,3.3-6.4,4.3c-2.5,1.1-5.1,1.6-7.9,1.6c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9C173.1,54.7,173.6,52,174.7,49.6z M184.4,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8c0-1.4-0.3-2.6-0.8-3.8c-0.5-1.2-1.2-2.2-2.1-3.1c-0.9-0.9-1.9-1.6-3.1-2.1c-1.2-0.5-2.5-0.7-3.8-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C183.7,58.8,183.9,60.1,184.4,61.3z"/><path d="M233.6,48.7c-1.1,0.6-2,1.3-2.8,2.2c-0.8,0.9-1.4,1.9-1.9,3.1c-0.5,1.1-0.7,2.3-0.7,3.5c0,1.1,0.2,2.3,0.7,3.4c0.5,1.1,1.1,2.1,1.9,3c0.8,0.9,1.7,1.6,2.8,2.2c1.1,0.6,2.3,0.9,3.6,0.9c1.2,0.1,2.3,0,3.4-0.3c1.1-0.3,2.2-0.9,3.4-1.8c0.5-0.4,1.1-0.8,1.7-1.2c0.6-0.4,1.3-0.7,2-0.8c0.7-0.2,1.5-0.1,2.2,0c0.8,0.2,1.6,0.6,2.5,1.4c0.6,0.5,1,1.1,1.3,1.7c0.3,0.7,0.4,1.3,0.4,2.1c0,0.7-0.2,1.4-0.5,2.2c-0.3,0.7-0.8,1.4-1.4,2c-1.8,1.8-3.9,3.2-6.3,4.1c-2.4,0.9-5,1.4-7.6,1.4c-2.9,0-5.6-0.5-8.1-1.6c-2.5-1-4.7-2.5-6.6-4.3c-1.9-1.8-3.4-3.9-4.5-6.4c-1.1-2.5-1.6-5.1-1.6-8c0-2.8,0.5-5.5,1.6-8c1.1-2.5,2.6-4.7,4.5-6.5c1.9-1.8,4.1-3.3,6.6-4.4c2.5-1.1,5.2-1.6,8.1-1.6c2.7,0,5.3,0.5,7.7,1.4c2.4,0.9,4.5,2.3,6.3,4.1c0.6,0.6,1.1,1.3,1.4,2c0.3,0.7,0.5,1.5,0.5,2.2c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.3,1.7c-0.9,0.7-1.7,1.2-2.5,1.4c-0.8,0.2-1.5,0.2-2.2,0c-0.7-0.2-1.4-0.5-2-0.9c-0.6-0.4-1.2-0.8-1.7-1.2c-1.2-0.9-2.3-1.5-3.4-1.7c-1.1-0.3-2.2-0.4-3.4-0.4C235.8,47.9,234.6,48.2,233.6,48.7z"/><path d="M270.7,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M279.2,25.7c0.3-0.7,0.7-1.3,1.2-1.8c0.5-0.5,1.1-0.9,1.8-1.2c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.1,2.2,0.4c0.7,0.3,1.3,0.7,1.8,1.2c0.5,0.5,0.9,1.1,1.2,1.8c0.3,0.7,0.4,1.4,0.4,2.2c0,0.8-0.1,1.5-0.4,2.2c-0.3,0.7-0.7,1.3-1.2,1.8c-0.5,0.5-1.1,0.9-1.8,1.2c-0.7,0.3-1.4,0.4-2.2,0.4c-0.8,0-1.5-0.1-2.2-0.4c-0.7-0.3-1.3-0.7-1.8-1.2c-0.5-0.5-0.9-1.1-1.2-1.8c-0.3-0.7-0.4-1.4-0.4-2.2C278.8,27.1,278.9,26.4,279.2,25.7z M289.8,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.2,0.6,1.6,1.1c0.5,0.5,0.8,1,1.1,1.7c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M303.7,37.1c1.2,0,2.2,0.4,3.1,1.1c0.9,0.7,1.5,1.6,1.8,2.7c1.4-1.2,2.9-2.1,4.5-2.7c1.6-0.7,3.2-1,5-1c2.5,0,4.8,0.5,6.9,1.5s3.9,2.4,5.4,4.2c1.5,1.8,2.7,3.9,3.5,6.3c0.8,2.4,1.3,5,1.3,7.7v15.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.7,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.7,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V56.9c0-1.3-0.2-2.5-0.6-3.6c-0.4-1.1-0.9-2.1-1.5-2.9c-0.7-0.8-1.4-1.5-2.4-2c-0.9-0.5-2-0.7-3.2-0.7c-1.2,0-2.2,0.2-3.2,0.6c-1,0.4-1.8,1-2.5,1.8c-0.7,0.8-1.3,1.7-1.7,2.7c-0.4,1.1-0.6,2.2-0.7,3.5v15.8c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1C302.3,37.2,303,37.1,303.7,37.1z"/><path d="M352.6,62.2c0.8,1.6,2,3,3.6,3.9c1.5,1,3.3,1.5,5.1,1.5c0.8,0,1.4,0,2-0.1c0.6-0.1,1-0.2,1.5-0.4c0.4-0.2,0.8-0.3,1.2-0.6c0.3-0.2,0.7-0.5,1-0.7c0.9-0.7,1.9-1.2,2.7-1.3c0.9-0.1,1.7,0,2.5,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.9,1.1,1.4c0.3,0.5,0.5,1.1,0.7,1.7c0.1,0.6,0.2,1.2,0.1,1.8c-0.1,0.6-0.3,1.2-0.6,1.8c-0.3,0.6-0.8,1.1-1.4,1.6c-0.6,0.5-1.2,1-2,1.4c-0.7,0.5-1.6,0.9-2.6,1.2c-1,0.4-2.1,0.6-3.3,0.9c-1.3,0.2-2.7,0.3-4.3,0.3c-2.8,0-5.5-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.9-1.8-3.3-4-4.4-6.4c-1.1-2.5-1.6-5.1-1.6-7.9s0.5-5.5,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.9-1.8,4-3.3,6.5-4.3c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.8,1.6c2.5,1,4.6,2.5,6.5,4.3c1.8,1.8,3.3,3.9,4.4,6.4c1.1,2.4,1.7,5,1.7,7.8c0,1.5-0.5,2.7-1.4,3.6c-1,0.9-2.2,1.4-3.8,1.4H352.6z M370.8,53.4c-0.7-1.9-1.9-3.4-3.6-4.5c-1.7-1.1-3.6-1.7-5.8-1.7c-1.1,0-2.1,0.2-3.1,0.5c-1,0.3-1.8,0.7-2.6,1.3c-0.8,0.6-1.5,1.2-2.1,2c-0.6,0.8-1.1,1.6-1.4,2.5H370.8z"/></g></g></svg>
     </a>
     <span style="flex:1"></span>
-    <a href="pricing.html" class="nav-link">Tarifs</a>
     <a href="login.html" class="nav-cta">
       <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -824,8 +921,7 @@ button,input,select,textarea{font-family:inherit}
     <!-- Left: text + search -->
     <div class="hero-left">
       <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        100 % gratuit pour les patients
+        <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="height:64px;width:auto;display:block" role="img" aria-label="Votre médecin, à portée de cœur"><g fill="#3B1772"><path d="M92,32.4c-0.2,0-0.5,0.1-0.7,0.2c-2.5,1.1-5.1,1.6-7.7,2c-3,0.4-5.9,0.6-8.9,0.7c-2.4,0.1-4.8,0.2-7.3,0.2c-0.1,0-0.3,0-0.5-0.1c0-0.2,0.2-0.4,0.3-0.6c0.5-0.7,1-1.4,1.4-2.1c0.7-1,1.4-2.1,2-3.2c0.2-0.4,0.5-0.7,0.5-1.2c0.1-0.4-0.1-0.8-0.5-1c-0.3-0.1-0.7-0.1-1,0.3c-0.2,0.3-0.4,0.6-0.6,0.9c-0.3,0.5-0.7,1-1.1,1.4c-2.1,1.8-4.3,3.5-6.4,5.1c-0.3,0.2-0.6,0.4-1,0.4c-1.2,0-2.4-0.1-3.6-0.1c-3.1,0-6.1-0.1-9.2,0c0.3-0.3,0.5-0.6,0.8-0.9c2.4-2.6,4.6-5.4,7.3-7.8c0.1-0.1,0.2-0.2,0.1-0.4c-0.1-0.1-0.2-0.1-0.4,0c-0.1,0.1-0.2,0.2-0.4,0.3c-0.2,0.2-0.5,0.5-0.7,0.8c-1.9,2.1-3.8,4.1-5.7,6.2c-0.6,0.6-1.1,1.2-1.7,1.8c-2,0-4,0.1-6,0.3c-1.2,0.1-2.4,0.2-3.5,0.5c-0.2,0-0.4,0.1-0.5,0.2c-0.2,0.1-0.3,0.2-0.3,0.4c0,0.2,0.2,0.3,0.4,0.4c0.2,0.1,0.5,0.1,0.7,0.1c0.5,0.1,1.1,0.1,1.6,0.1c1.8,0.1,3.7,0.2,5.5,0.4c-0.5,0.5-0.9,1-1.4,1.5c-2,2.2-4,4.3-5.9,6.5c-1.6,1.7-3.2,3.5-4.8,5.2c-2.5,2.6-4.9,5.2-7.6,7.5c-1.1,0.9-2.4,1.9-3.7,2.5c-0.4,0.2-0.7,0.3-1.2,0.4c-0.5,0-0.7-0.1-0.8-0.5c-0.1-0.3-0.1-0.6-0.1-0.9c0-1,0.2-2,0.5-3c0.7-2.5,1.6-5,2.5-7.4c1.1-3.2,2.5-6.3,3.8-9.5c1-2.5,2-5.1,2.7-7.7c0.4-1.5,0.7-3,0.6-4.5c-0.1-2.3-1.3-3.8-3.5-4.2c-0.7-0.1-1.5-0.2-2.1-0.2c-1.4,0-2.6,0.2-3.8,0.5c-4.5,1-8.5,3.2-12.1,6.1c-0.8,0.7-1.6,1.5-2.1,2.4C5,33.7,5.2,35,6.5,35.9c0.3,0.2,0.6,0.5,1,0.7c1.2,0.7,2.6,1.3,4,1.9c1.4,0.6,2.8,1.2,4.1,2c0.9,0.5,1.5,1.1,1.8,2.1c0,0,0,0.1,0,0.1c0,0.1,0.1,0.1,0.2,0.1c0.1,0,0.2-0.1,0.1-0.2c0-0.5-0.2-1-0.6-1.5c-0.4-0.5-1-1-1.6-1.3c-1.3-0.8-2.7-1.4-4.1-2c-1.4-0.6-2.9-1.3-4.1-2.3c-1-0.8-1.2-1.6-0.4-2.7c0.5-0.6,1.1-1.2,1.7-1.7c1.9-1.4,3.8-2.6,5.9-3.5c2.7-1.2,5.4-2.1,8.4-2.4c1-0.1,2,0,3,0.2c1,0.2,1.6,0.9,1.8,1.9c0.2,1.2,0,2.3-0.2,3.5c-0.6,2.7-1.6,5.3-2.7,8c-1.4,3.5-2.8,6.9-4.1,10.4c-1,2.7-1.9,5.4-2.4,8.2c-0.2,1-0.3,2.1-0.1,3.2c0.4,1.7,1.4,2.4,3.1,1.8c0.9-0.3,1.6-0.7,2.3-1.2c1.9-1.3,3.5-2.8,5-4.4c3.2-3.3,6.2-6.7,9.3-10.1c2.6-2.9,5.3-5.9,7.9-8.8c0.4,0.1,0.9,0.1,1.3,0.2c2.6,0.4,5.1,0.9,7.6,1.8c0.2,0.1,0.5,0.1,0.7,0.4c-1.4,1.2-2.8,2.3-4.2,3.4c-0.2,0.1-0.4,0.2-0.6,0c-0.5-0.3-1-0.2-1.4-0.1c-0.6,0.2-1.2,0.4-1.7,0.7c-1.4,0.8-2.7,1.7-3.7,3.1c-0.6,0.7-0.9,1.6-0.9,2.5c0.1,1.6,1.2,2.7,2.9,2.7c0.6,0,1.1-0.1,1.6-0.3c1.2-0.5,2.3-1.2,3.2-2.1c1-0.9,1.7-2,2.1-3.4c0.2-1.1,0-2.1-1-2.7c0,0,0-0.1-0.1-0.1c1.4-1.1,2.7-2.2,4.1-3.3c0.1-0.1,0.2-0.1,0.4-0.1c0.6,0.1,1,0.7,0.8,1.3c-0.1,0.2-0.2,0.3,0,0.5c0.2,0.1,0.4-0.1,0.5-0.2c0.1-0.1,0.1-0.3,0.1-0.4c0.1-0.5-0.1-0.8-0.5-1.1c-0.5-0.4-0.5-0.5,0-0.9c1.1-0.9,2.1-1.7,3.2-2.6c0.5-0.4,1-0.6,1.6-0.6c0.4,0.1,0.8,0,1.2,0c0.3,0,0.7,0,1,0.1c0,0.2-0.1,0.4-0.2,0.5c-4.2,6.3-8.2,12.8-12.1,19.2c-3.1,5-6,10-8.5,15.3c-0.1,0.2-0.2,0.4-0.3,0.6c0,0.1,0,0.2,0.1,0.3s0.2,0,0.3,0c0.2-0.2,0.2-0.4,0.4-0.6c0.8-1.5,1.6-3.1,2.5-4.6c2.6-4.7,5.5-9.3,8.5-13.8c3.6-5.6,7.4-11,11.3-16.3c0.2-0.4,0.6-0.5,1-0.5c2.4,0,4.7,0.1,7.1,0c2.6,0,5.3,0,7.9-0.2c2-0.2,4-0.4,5.9-0.8c1.5-0.4,2.9-0.8,4.2-1.6c0.3-0.2,0.6-0.4,0.7-0.7c0.1-0.2,0.2-0.4,0.1-0.6C92.4,32.5,92.2,32.4,92,32.4z M51.9,45.7c0.1,0.6,0,1.2-0.3,1.7c-0.6,1.2-1.5,2.2-2.7,2.9c-0.9,0.5-1.8,1-2.8,1.1c-0.1,0-0.1,0-0.2,0c-1.2,0-1.9-0.8-1.4-2c0.2-0.6,0.6-1.2,1.1-1.7c1-1,2.1-1.8,3.4-2.4c0.2-0.1,0.4-0.1,0.6-0.2c0.5,0,0.9-0.1,1.2-0.5c0.2-0.2,0.4-0.1,0.6,0C51.8,45,51.9,45.3,51.9,45.7z M45.6,37c-1.8-0.3-3.7-0.4-5.6-0.4c-0.1,0-0.3,0-0.4,0c-0.2,0-0.5,0-0.8-0.1c0.9-0.2,1.8-0.2,2.7-0.3c1.7-0.1,3.3-0.2,5-0.2C46.2,36.4,45.9,36.7,45.6,37z M59.7,36.7c-1.2,0.9-2.4,1.8-3.5,2.8c-0.3,0.2-0.5,0.2-0.9,0.1c-2.7-1.1-5.6-1.9-8.5-2.4c-0.1,0-0.3,0-0.4-0.1c0.3-0.4,0.6-0.7,1-1.1c1.5,0,3.1,0,4.6,0c2.6,0,5.1,0.1,7.7,0.2c0.1,0,0.2,0,0.3,0.1C59.9,36.6,59.8,36.6,59.7,36.7z M65,35.1c-0.2,0.2-0.4,0.4-0.7,0.4c-0.7,0-1.4,0-2.1-0.1c1.9-1.5,3.7-3,5.6-4.6c0,0,0.1,0.1,0.1,0.1c-0.3,0.5-0.6,0.9-0.9,1.4C66.2,33.2,65.6,34.2,65,35.1z"/><path d="M84.5,49.6c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.1-0.1,0.3-0.2,0.4c-0.2,0.2-0.3,0.3-0.5,0.4c-0.7,0.3-1.4,0.5-2.1,0.4c-1.1,0-1.8-0.6-2-1.6c-0.1-0.5-0.1-0.9-0.1-1.4s0-0.9-0.2-1.4c-0.2-0.8-0.9-1-1.5-0.5c-0.5,0.3-0.9,0.7-1.3,1.1c-1,1.1-2,2.3-2.9,3.6c-0.5,0.7-0.9,1.4-1.5,1.9c0.2-0.6,0.6-1.1,0.9-1.6c0.7-1.1,1.4-2.1,2-3.2c0.1-0.2,0.3-0.5,0.3-0.8c0.1-0.6-0.4-0.9-0.9-0.7c-0.3,0.1-0.5,0.3-0.7,0.6c-0.6,0.6-1,1.4-1.5,2.1c-0.5,0.9-0.9,1.7-1.1,2.7c-0.1,0.5-0.1,0.9,0,1.4c0.2,0.5,0.5,0.6,0.9,0.3c0.1-0.1,0.3-0.2,0.4-0.4c0.2-0.3,0.5-0.6,0.7-1c0.9-1.2,1.8-2.5,2.8-3.7c0.5-0.5,1-1.1,1.6-1.5c0.5-0.4,0.6-0.3,0.7,0.4c0,0.1,0,0.2,0,0.3c0.1,0.6,0.1,1.3,0.4,1.9c0.3,0.9,0.9,1.5,1.9,1.8c1.3,0.4,2.5,0.1,3.5-0.6c-0.1,0.3-0.1,0.6-0.1,0.9c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2.1-0.8,4.2-1.9,6.2-3c0.1-0.1,0.2-0.1,0.2-0.3c-0.2,0-0.4,0.1-0.6,0.2C86.5,48.6,85.5,49.1,84.5,49.6z M77.9,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C77.7,47.7,77.7,47.5,77.9,47.3z"/><path d="M116.6,42.6c0.4-0.2,0.8-0.5,1.2-0.7c0.7-0.4,1.4-0.8,2.1-1.2c0.2-0.1,0.4-0.3,0.4-0.6c0-0.4-0.2-0.6-0.6-0.6c-0.2,0-0.4,0.2-0.5,0.4c-0.6,0.7-1.3,1.3-2.1,1.8c-0.2,0.2-0.5,0.4-0.7,0.6c-0.2,0.1-0.6,0.3-0.4,0.5C116.2,43,116.5,42.7,116.6,42.6z"/><path d="M168.4,43.4c0.2,0,0.4-0.1,0.6-0.2c0.5-0.2,1-0.5,1.5-0.6c0.2-0.1,0.5-0.1,0.7,0c0.2,0.1,0.4,0.1,0.5-0.1c0.1-0.2-0.1-0.3-0.2-0.4c-0.3-0.2-0.6-0.2-0.9-0.2c-0.8,0-1.6,0.2-2.3,0.5c-0.1,0-0.2,0.1-0.4,0.2c-0.2,0.2-0.3,0.4-0.2,0.6C167.9,43.2,168.1,43.4,168.4,43.4z"/><path d="M184.9,47.8c-0.1-0.1-0.2,0-0.2,0c-0.1,0.1-0.2,0.2-0.3,0.2c-0.6,0.7-1.3,1.3-2,2c-0.7,0.7-1.5,1.4-2.3,1.9c-0.5,0.3-1.1,0.6-1.7,0.6s-1-0.2-1-0.9c0-0.5,0.2-1,0.4-1.4c0.4-0.7,0.8-1.3,1.3-2c0.4-0.5,0.7-1,1-1.6c0.1-0.3,0.2-0.7,0.3-1c0.1-0.9-0.5-1.5-1.4-1.5c-0.4,0-0.7,0.2-1,0.4c-0.7,0.4-1.3,1-1.9,1.5c-1.1,1-2.1,2.1-3.1,3.2c0.6-1.1,1.3-2.1,2-3.2c0.1-0.2,0.3-0.5,0.4-0.7c0.2-0.6,0.2-1-0.2-1.2c-0.4-0.3-0.9-0.1-1.2,0.4c-0.3,0.4-0.6,0.9-0.9,1.4c-0.5,0.8-1,1.5-1.3,2.3c-1.7,1.7-3.4,3.5-5.3,5.2c-0.6,0.6-1.3,1.1-2.1,1.5c-0.4,0.2-0.9,0.4-1.2,0c-0.4-0.3-0.3-0.8-0.2-1.2c0.2-1.2,0.9-2.3,1.6-3.3c1-1.5,2-2.9,3.1-4.3c0.1-0.2,0.3-0.4,0.4-0.6c0.2-0.4,0.1-0.8-0.3-1.1c-0.3-0.2-0.6-0.2-1,0c-0.2,0.1-0.3,0.3-0.4,0.5c-0.5,0.6-1,1.3-1.4,2c-0.2,0.3-0.4,0.5-0.5,0.8c-1.5,0.7-2.9,1.4-4.4,2c-1.5,0.6-2.9,1.3-4.5,1.5c-0.6,0.1-1.2,0.1-1.7-0.1c-0.7-0.2-1-0.9-0.8-1.6c0.1-0.4,0.3-0.7,0.5-1c0.6-0.8,1.3-1.6,2.2-2.2c0.8-0.5,1.6-1.1,2.5-1.4c1-0.3,1.5,0,1.6,1c0,0.2,0,0.5,0.1,0.7c0,0.1,0,0.2,0.1,0.2c0.1,0,0.2,0,0.2-0.1c0-0.1,0.1-0.3,0.1-0.4c0-0.5-0.1-1.1-0.4-1.6c-0.3-0.6-0.8-1-1.5-1.1c-1-0.1-1.9,0.1-2.7,0.6c-1.1,0.6-2.1,1.4-2.9,2.4c-0.4,0.4-0.6,0.9-0.8,1.4c0,0,0,0,0,0c-1,0.5-2,1-3,1.5c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.1-0.1,0.2-0.2,0.4c-0.8,0.6-1.6,1.1-2.5,1.6c-1.1,0.7-2.2,1.5-3.4,2.1c-0.3,0.2-0.6,0.3-1,0.4c-0.6,0.1-0.9-0.1-0.9-0.7c0-0.5,0.1-1,0.4-1.4c0.8-1.6,1.9-3.1,3-4.5c0.1-0.1,0.1-0.3,0.3-0.3c0.1,0.5-0.2,1,0.2,1.4c0.3-0.3,0.2-0.6,0.2-0.9c0-0.8,0.2-1.5,0.8-2.2c1.3-1.4,2.5-2.9,3.7-4.3c2.4-2.6,4.7-5.3,6.9-8c0.6-0.7,1.2-1.5,1.6-2.4c0.2-0.5,0.4-0.9,0.5-1.4c0.1-1-0.6-1.6-1.6-1.4c-0.5,0.1-0.9,0.3-1.3,0.5c-2,1-3.6,2.4-5,4.1c-2.5,3.2-4.2,6.9-5.3,10.8c-0.1,0.4-0.2,0.7-0.4,1c-0.8,1-1.5,2-2.3,3c-0.1,0.1-0.1,0.4-0.4,0.4c-0.1-0.1-0.1-0.2-0.2-0.3c-0.3-0.7-0.8-1.1-1.6-1.2c-0.6,0-1.1,0-1.6,0.2c-1.4,0.6-2.6,1.4-3.7,2.4c-0.4,0.3-0.7,0.7-1.1,1.2c0,0,0,0,0,0c-1,0.5-2,1-3,1.5c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.2-0.2,0.4-0.3,0.7c-0.9,0.7-1.9,1.4-2.8,2c-0.6,0.4-1.3,0.8-2,1.1c-0.3,0.1-0.6,0.3-1,0.4c-0.8,0.1-1.1-0.2-0.9-1c0.1-0.2,0.1-0.4,0.2-0.5c0.1-0.3,0.3-0.6,0.5-0.9c0.1-0.2,0.2-0.4,0.2-0.6c0-0.4,0-0.7-0.4-0.9c-0.3-0.2-0.6-0.1-0.9,0.1c-1.1,0.8-2.1,1.8-2.9,2.9c-0.1,0.2-0.2,0.5-0.5,0.5c-0.1-0.2,0-0.4,0-0.5c0.2-0.8,0.6-1.5,1-2.2c0.5-0.9,1-1.8,1.6-2.7c0.2-0.4,0.4-0.8,0.5-1.3c0-0.3-0.1-0.6-0.4-0.8c-0.3-0.2-0.6,0-0.8,0.2c-0.1,0.1-0.3,0.3-0.4,0.5c-0.2,0.3-0.5,0.6-0.8,0.9c-1.6,1.5-3.2,3-4.7,4.6c-0.5,0.5-1,1-1.6,1.5c-0.1,0.1-0.2,0.2-0.5,0.1c0-0.2,0.1-0.4,0.2-0.5c0.9-1.5,1.7-3.1,2.8-4.5c0.1-0.2,0.3-0.4,0.4-0.6c0.2-0.4,0.1-0.8-0.1-1c-0.3-0.2-0.6-0.2-1,0c-0.4,0.2-0.6,0.5-0.8,0.8c-0.7,1-1.4,2-2,3.1c-0.4,0.6-0.6,1.3-0.7,2.1c0,0.3,0,0.5,0,0.8c0.2,0.8,0.7,1,1.4,0.6c0.2-0.1,0.5-0.3,0.7-0.5c0.4-0.4,0.8-0.7,1.1-1.1c1-1.1,2-2.1,3.1-3.2c0.4-0.4,0.9-0.8,1.3-1.2c0.1,0.1,0,0.2,0,0.3c-0.5,1.3-0.9,2.7-1.2,4.1c-0.1,0.4-0.1,0.7,0.1,1c0.2,0.5,0.6,0.5,1,0.2c0.2-0.2,0.4-0.5,0.6-0.7c0.5-0.7,1-1.4,1.7-1.9c0.2-0.1,0.3-0.3,0.6-0.2c0.1,0.2,0,0.4,0,0.5c-0.1,0.6-0.1,1.2,0.1,1.8c0.2,0.6,0.8,0.9,1.5,0.8c0.4-0.1,0.9-0.2,1.3-0.5c1.6-0.8,3.1-1.9,4.5-3c0,0.2-0.1,0.5-0.1,0.7c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c1.9-0.7,3.7-1.7,5.5-2.6c-0.3,0.4-0.4,0.9-0.4,1.4c0,1.1,0.6,1.6,1.7,1.2c0.6-0.2,1.2-0.5,1.7-0.9c1.4-0.8,2.7-1.8,4.1-2.7c0.2-0.1,0.3-0.3,0.5-0.3c0,0.2,0,0.3-0.1,0.4c-0.4,0.7-0.7,1.5-0.9,2.4c-0.1,0.6-0.1,1.1,0,1.7c0.2,0.7,0.7,1,1.5,0.8c0.7-0.1,1.3-0.5,1.9-0.9c1.7-1,3.2-2.1,4.8-3.2c-0.1,0.3-0.1,0.6-0.1,1c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2-0.8,3.9-1.8,5.7-2.8c0,0.1,0,0.1,0,0.2c-0.2,1.2,0.1,2.3,1.1,2.8c0.6,0.4,1.3,0.5,2,0.4c1.1-0.1,2.1-0.5,3.2-0.9c2-0.8,3.9-1.8,5.9-2.7c-0.8,1.4-1.4,2.9-1.8,4.4c-0.1,0.6-0.2,1.3,0,2c0.2,0.6,0.6,0.9,1.2,0.9c0.6,0,1.1-0.2,1.5-0.5c1-0.5,1.8-1.3,2.6-2.1c1.3-1.3,2.6-2.6,3.9-4c-0.2,0.7-0.3,1.5-0.1,2.2c0.1,0.5,0.4,0.6,0.8,0.2c0.2-0.3,0.5-0.6,0.7-0.9c1.1-1.6,2.4-3,3.8-4.3c0.5-0.4,0.9-0.8,1.5-1.1c0.2-0.1,0.5-0.3,0.6-0.1c0.2,0.2,0,0.4-0.1,0.6c-0.4,0.8-0.9,1.6-1.2,2.4c-0.5,1-0.8,2-0.7,3c0.1,1.6,1.1,2.3,2.6,1.7c0.8-0.3,1.5-0.8,2.1-1.3c0.8-0.6,1.5-1.4,2.3-2.1c0.5-0.4,0.9-0.9,1.3-1.3C184.9,48,185,47.9,184.9,47.8z M142.3,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C142.1,47.7,142.1,47.5,142.3,47.3z M137.3,40.5c1.1-3.3,2.5-6.5,4.7-9.3c1.2-1.5,2.5-2.7,4.2-3.7c0.5-0.2,0.9-0.5,1.4-0.6c0.2-0.1,0.5-0.2,0.7,0c0.2,0.2,0,0.5-0.2,0.7c-0.1,0.3-0.3,0.5-0.5,0.8c-1.4,2-3,3.8-4.6,5.6c-1.8,2-3.5,4.1-5.2,6.2c-0.1,0.2-0.3,0.4-0.5,0.5C137.2,40.7,137.3,40.6,137.3,40.5z M115.7,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C115.5,47.7,115.5,47.5,115.7,47.3z M126.7,50.3c-0.2,0.1-0.5,0.3-0.9,0.3c-0.2,0-0.4-0.1-0.2-0.4c0-0.1,0.1-0.2,0.2-0.3c1.6-1.9,3.5-3.4,5.8-4.2c0.2-0.1,0.3-0.1,0.5-0.1c0.4,0,0.7,0.3,0.7,0.7c0,0.2-0.1,0.3-0.3,0.4C130.7,47.9,128.8,49.3,126.7,50.3z"/><path d="M188.1,50.5c-0.3-0.1-0.6,0-0.8,0.2c-0.2,0.2-0.3,0.6-0.4,0.9c-0.2,0.8-0.6,1.4-1.1,2c-0.3,0.3-0.6,0.6-1,0.9c-0.1,0.1-0.2,0.2-0.1,0.4c0.1,0.1,0.2,0.2,0.4,0.2c0.2,0,0.4-0.1,0.6-0.3c0.5-0.4,0.9-0.7,1.4-1.1c0.5-0.5,1-1.1,1.3-1.9c0.1-0.2,0.1-0.4,0.2-0.5C188.5,50.9,188.4,50.6,188.1,50.5z"/><path d="M211.5,48.2c0.1-0.1,0.2-0.1,0.2-0.3c-0.2-0.1-0.4,0.1-0.5,0.2c-0.9,0.5-1.8,1.1-2.7,1.7c-1,0.6-2.1,1.2-3.2,1.7c-0.4,0.1-0.7,0.3-1.1,0.3c-0.5,0-0.6-0.2-0.5-0.7c0.1-0.3,0.3-0.6,0.5-0.9c0.5-0.7,1.1-1.3,1.7-2c0.2-0.2,0.5-0.5,0.5-0.8c0-0.6,0.1-1.3,0-1.9c-0.2-0.9-0.6-1.4-1.6-1.6c-0.8-0.1-1.5,0-2.2,0.3c-1.8,0.8-3.3,2-4.6,3.6c-0.6,0.7-0.9,1.5-0.8,2.5c0,0.7,0.5,1.1,1.2,1c0.2,0,0.5-0.1,0.7-0.2c0.5-0.2,1-0.5,1.5-0.9c1-0.6,2-1.3,3.1-1.9c0.1-0.1,0.2-0.1,0.4-0.2c-0.2,0.5-0.5,0.9-0.7,1.4c-0.2,0.5-0.4,1.1-0.4,1.6c0,0.8,0.5,1.2,1.3,1.2c0.5,0,0.9-0.2,1.3-0.4C207.6,50.8,209.5,49.5,211.5,48.2z M199.6,50.1c-0.3,0.2-0.7,0.4-1.1,0.5c-0.1,0.1-0.3,0.1-0.4,0c-0.1-0.1,0-0.2,0.1-0.4c0.1-0.1,0.1-0.2,0.2-0.2c1.6-1.9,3.3-3.5,5.7-4.4c0.2-0.1,0.4-0.1,0.6-0.2c0.1,0,0.2,0,0.2,0c0.5,0,1.1,0.7,0.9,1.2c0,0.1-0.1,0.1-0.1,0.2C203.6,47.7,201.6,48.9,199.6,50.1z"/><path d="M201.4,38.3c0.7,0.4,1.4,0.8,2.1,1.2c0.4,0.2,0.8,0.5,1.2,0.7c0.2,0.1,0.4,0.4,0.6,0.2c0.2-0.2-0.2-0.4-0.4-0.5c-0.2-0.2-0.5-0.4-0.8-0.6c-0.7-0.5-1.4-1.1-2.1-1.8c-0.1-0.2-0.3-0.3-0.5-0.4c-0.4,0-0.6,0.2-0.6,0.6C201,38,201.2,38.2,201.4,38.3z"/><path d="M296.9,30.5c-0.2,0.1-0.5,0.2-0.7,0.2c-1.4,0.6-2.9,1-4.5,1.4c-4,0.8-8.1,1.1-12.3,1.3c-2.2,0.1-4.4,0.2-6.7,0.1c-0.2,0-0.5,0-0.7-0.1c0-0.2,0.2-0.4,0.3-0.6c0.8-1.2,1.6-2.4,2.4-3.5c0.5-0.7,0.9-1.5,1.3-2.2c0.1-0.3,0.3-0.6,0.2-0.9c0-0.4-0.1-0.6-0.5-0.8c-0.3-0.2-0.6-0.1-0.9,0.2c-0.1,0.2-0.3,0.4-0.4,0.6c-1.3,2.4-2.8,4.6-4.4,6.8c-0.3,0.4-0.6,0.6-1.1,0.5c-2.3,0-4.6,0-6.9-0.1c-5.3-0.1-10.7-0.2-16.1,0.2c-1.2,0.1-2.4,0.2-3.5,0.5c-0.2,0.1-0.5,0.1-0.6,0.3c-0.2,0.2-0.2,0.4,0,0.6c0.1,0.1,0.3,0.1,0.4,0.1c0.7,0.2,1.4,0.2,2.1,0.2c2.6,0.1,5.1,0.3,7.6,0.7c2.5,0.4,4.9,0.9,7.3,1.7c0.6,0.2,1.3,0.5,1.9,0.9c0.6,0.4,0.6,0.6,0.4,1.2c-0.1,0.1-0.1,0.2,0,0.3c0.1,0.1,0.2,0,0.3-0.1c0.4-0.4,0.4-1,0.1-1.4c-0.3-0.4-0.6-0.6-1.1-0.9c-0.6-0.4-1.3-0.6-2-0.9c-4.4-1.5-8.9-2.3-13.6-2.4c-0.5,0-1,0-1.6-0.2c2-0.3,3.9-0.3,5.8-0.4c4.2-0.1,8.5,0,12.7,0.2c1.9,0.1,3.8,0.1,5.8,0.2c0.2,0,0.5-0.1,0.7,0.1c0,0.3-0.2,0.4-0.3,0.6c-1.1,1.6-2.2,3.2-3.2,4.9c-1.6,2.5-3.1,5-4.7,7.5c-0.1,0-0.1,0.1-0.2,0.1c-0.1,0.3-0.4,0.4-0.7,0.6c-0.7,0.3-1.4,0.5-2.1,0.4c-1.1,0-1.8-0.6-2-1.6c-0.1-0.5-0.1-0.9-0.1-1.4s0-0.9-0.2-1.4c-0.2-0.8-0.9-1-1.5-0.5c-0.5,0.3-0.9,0.7-1.3,1.1c-1,1.1-2,2.3-2.9,3.6c-0.5,0.7-0.9,1.4-1.5,1.9c0.2-0.6,0.6-1.1,0.9-1.6c0.7-1.1,1.4-2.1,2-3.2c0.1-0.2,0.3-0.5,0.3-0.8c0.1-0.6-0.4-0.9-0.9-0.7c-0.3,0.1-0.5,0.3-0.7,0.6c-0.6,0.6-1,1.4-1.5,2.1c-0.2,0.3-0.4,0.6-0.5,1c-0.3,0-0.5,0.1-0.8,0.2c-0.9,0.2-1.7,0.5-2.6,0.7c-0.4,0.1-0.8,0.1-1.2,0c-0.6-0.2-0.7-0.5-0.4-1c0.2-0.4,0.4-0.8,0.5-1.2c0.2-1.2-0.4-2.3-1.6-2.7c-0.6-0.2-1.2-0.2-1.7-0.1c-1.8,0.4-3.3,1.4-4.3,3c-0.2,0.3-0.4,0.7-0.5,1.1c0,0,0,0,0,0c-0.6,0-1.1,0.1-1.6,0.3c-0.8,0.3-1.6,0.6-2.4,0.9c-0.7,0.3-1.6,0.3-2.4,0.2c0.2-0.5,0.5-1,0.6-1.5c0.2-0.5,0.4-1.1,0.2-1.7c-0.2-0.8-0.8-1.2-1.6-1c-0.4,0.1-0.7,0.3-1,0.6c-0.5,0.4-1,0.7-1.5,1.2c-0.2,0.2-0.4,0.2-0.6,0c-0.4-0.3-0.7-0.6-1.1-0.8c-0.2-0.1-0.2-0.3-0.1-0.5c0.1-0.2,0.2-0.5,0.2-0.7c0.1-0.3,0-0.5-0.2-0.7c-0.2-0.1-0.5-0.1-0.7,0.1c-0.1,0.1-0.2,0.2-0.3,0.3c-0.2,0.4-0.6,0.4-1,0.3c-0.4-0.2-0.9-0.2-1.4-0.2c-1.4,0.1-2.4,0.9-3.1,2.1c-0.9,1.5-1,3.1-0.3,4.8c0.2,0.5,0.1,0.8-0.1,1.2c-2.1,3.2-4.1,6.4-6,9.7c-1.6,2.7-3.1,5.4-4.3,8.3c-0.5,1.1-0.9,2.2-1.2,3.4c0,0.2-0.1,0.5-0.1,0.8s0.3,0.4,0.5,0.2c0.2-0.1,0.4-0.4,0.5-0.6c0.6-0.9,1.1-1.7,1.7-2.6c3.1-4.7,6.3-9.4,9.4-14.1c0.7-1,1.4-2,2-3c0.2-0.4,0.5-0.5,1-0.4c0.2,0.1,0.5,0.1,0.7,0.1c1.2,0.1,2.3-0.4,3.3-1c1.5-0.9,2.8-2.1,3.8-3.5c0.3-0.4,0.6-0.5,1-0.4c0.2,0.1,0.5,0,0.8,0c0.9-0.1,1.7-0.4,2.6-0.8c0.9-0.4,1.8-0.8,2.8-0.9c-0.1,0.4-0.1,0.7-0.1,1.1c0,1,0.6,1.7,1.6,2c0.9,0.2,1.7,0,2.6-0.3c1-0.4,1.9-1,2.6-1.8c0.2-0.2,0.4-0.3,0.7-0.1c0.3,0.2,0.7,0.3,1.1,0.3c0.4,0,0.9-0.1,1.3-0.2c0.9-0.3,1.7-0.6,2.6-0.8c-0.2,0.4-0.3,0.9-0.4,1.3c-0.1,0.5-0.1,0.9,0,1.4c0.2,0.5,0.5,0.6,0.9,0.3c0.1-0.1,0.3-0.2,0.4-0.4c0.2-0.3,0.5-0.6,0.7-1c0.9-1.2,1.8-2.5,2.8-3.7c0.5-0.5,1-1.1,1.6-1.5c0.5-0.4,0.6-0.3,0.7,0.4c0,0.1,0,0.2,0,0.3c0.1,0.6,0.1,1.3,0.4,1.9c0.3,0.9,0.9,1.5,1.9,1.8c1.3,0.4,2.4,0.1,3.4-0.5c-1,1.6-2.1,3.3-3.1,4.9c-3.2,5.3-6.3,10.6-9,16.2c-0.1,0.2-0.1,0.4-0.2,0.5c0,0.1,0,0.2,0.1,0.3c0.1,0.1,0.2,0,0.3-0.1c0.2-0.1,0.2-0.4,0.4-0.5c0.6-1.1,1.2-2.3,1.9-3.5c2.9-5.3,6.1-10.4,9.4-15.4c3.5-5.4,7.2-10.7,11-15.9c0.2-0.4,0.5-0.5,1-0.5c2.4,0,4.8,0.1,7.2,0c2.6,0,5.2,0,7.7-0.3c2-0.2,4-0.4,5.9-0.8c1.4-0.3,2.7-0.7,4-1.5c0.3-0.2,0.6-0.4,0.9-0.7c0.2-0.2,0.3-0.5,0.1-0.7C297.5,30.5,297.2,30.4,296.9,30.5z M218.1,46.3c0.8-1,2-1.4,3.2-1c0.6,0.2,0.6,0.2,0.2,0.7c-1.1,1.4-2.1,2.8-3.1,4.3c-0.2,0.4-0.5,0.7-0.7,1c-0.1,0-0.2-0.1-0.2-0.2C216.7,49.5,216.9,47.8,218.1,46.3z M219,54.6c-0.5,0.7-0.9,1.4-1.4,2c-2,3-4,5.9-6,8.8c-1.8,2.6-3.5,5.2-5.2,7.9c-0.1,0.1-0.1,0.2-0.2,0.2c-0.1-0.2,0.1-0.3,0.1-0.5c1.8-4.1,4.1-7.9,6.5-11.7c1.6-2.4,3.1-4.8,4.8-7.1c0.5-0.7,0.5-0.7,1.2-0.2C219.3,54.3,219.3,54.3,219,54.6z M220.1,53.1c-0.1,0.1-0.2,0.3-0.5,0.3c-0.3,0-0.6-0.2-0.8-0.4c-0.1-0.1-0.1-0.2,0-0.3c0.1-0.2,0.2-0.4,0.4-0.6c1.2-1.7,2.5-3.4,3.7-5.2c0.2-0.4,0.3-0.4,0.7-0.1c0.2,0.2,0.5,0.4,0.8,0.6c0.2,0.2,0.2,0.4,0,0.6c0,0-0.1,0-0.1,0.1C222.8,49.6,221.5,51.3,220.1,53.1z M227,49.6c-1.3,1.7-2.8,3.1-4.9,3.9c-0.5,0.2-1.1,0.3-1.6,0.2c0-0.2,0-0.3,0.1-0.4c1.3-1.7,2.6-3.3,4.1-4.8c0.4-0.5,0.5-0.5,1-0.1c0.4,0.3,0.7,0.5,1.1,0.7C227.2,49.2,227.2,49.3,227,49.6z M228.6,46.5c-0.1,0.7-0.5,1.3-0.9,1.9c-0.1,0.2-0.3,0.2-0.5,0.1c-0.5-0.3-1-0.6-1.5-1.1c0.6-0.6,1.2-1,1.9-1.4c0.1-0.1,0.1-0.1,0.2-0.1C228.5,45.7,228.7,45.9,228.6,46.5z M242.5,47.3c-0.4,0.1-0.5,0.3-0.5,0.6c0,0.4-0.1,0.6-0.3,0.8c-0.8,0.9-1.8,1.5-3,1.8c-0.3,0.1-0.6,0.1-0.8,0.1c-0.1,0-0.1,0-0.1,0c-1.5,0-1.7-1-1.2-2c0.5-1.1,1.4-1.9,2.3-2.6c0.8-0.6,1.6-1,2.6-1.1c0.6-0.1,1.1,0.1,1.4,0.5c0.2,0.4,0.2,1.3-0.1,1.6C242.8,47.2,242.6,47.2,242.5,47.3z"/><path d="M269.3,42.6c0.4-0.2,0.8-0.5,1.2-0.7c0.7-0.4,1.4-0.8,2.1-1.2c0.2-0.1,0.4-0.3,0.4-0.6c0-0.4-0.2-0.6-0.6-0.6c-0.2,0-0.4,0.2-0.5,0.4c-0.6,0.7-1.3,1.3-2.1,1.8c-0.2,0.2-0.5,0.4-0.7,0.6c-0.2,0.1-0.6,0.3-0.4,0.5C268.9,43,269.2,42.7,269.3,42.6z"/><path d="M287,49.6c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.2-0.1,0.3-0.2,0.5c0,0,0,0,0,0c-1,0.5-2,1-3,1.5c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.3,0.6-0.5,1.2-0.4,1.9c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2-0.8,3.9-1.8,5.7-2.8c-0.1,0.3-0.1,0.6-0.1,1c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2.1-0.8,4.2-1.9,6.2-3c0.1-0.1,0.2-0.1,0.2-0.3c-0.2,0-0.4,0.1-0.6,0.2C289,48.6,288,49.1,287,49.6z M280.4,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C280.2,47.7,280.2,47.5,280.4,47.3z M268.4,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C268.2,47.7,268.2,47.5,268.4,47.3z"/><path d="M322.6,49.6c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.1-0.1,0.2-0.2,0.4c-0.8,0.6-1.6,1.1-2.5,1.6c-1.1,0.7-2.2,1.5-3.4,2.1c-0.3,0.2-0.6,0.3-1,0.4c-0.6,0.1-0.9-0.1-0.9-0.7c0-0.5,0.1-1,0.4-1.4c0.8-1.6,1.9-3.1,3-4.5c0.1-0.1,0.1-0.3,0.3-0.3c0.1,0.5-0.2,1,0.2,1.4c0.3-0.3,0.2-0.6,0.2-0.9c0-0.8,0.2-1.5,0.8-2.2c1.3-1.4,2.5-2.9,3.7-4.3c2.4-2.6,4.7-5.3,6.9-8c0.6-0.7,1.2-1.5,1.6-2.4c0.2-0.5,0.4-0.9,0.5-1.4c0.1-1-0.6-1.6-1.6-1.4c-0.5,0.1-0.9,0.3-1.3,0.5c-2,1-3.6,2.4-5,4.1c-2.5,3.2-4.2,6.9-5.3,10.8c-0.1,0.4-0.2,0.7-0.4,1c-0.8,1-1.5,2-2.3,3c-0.1,0.1-0.1,0.4-0.4,0.4c-0.1-0.1-0.1-0.2-0.2-0.3c-0.3-0.7-0.8-1.1-1.6-1.2c-0.6,0-1.1,0-1.6,0.2c-1.4,0.6-2.6,1.4-3.7,2.4c-0.5,0.5-1,1-1.4,1.6c-0.3,0.5-0.5,0.9-0.5,1.5c0,1.1,0.6,1.6,1.7,1.2c0.6-0.2,1.2-0.5,1.7-0.9c1.4-0.8,2.7-1.8,4.1-2.7c0.2-0.1,0.3-0.3,0.5-0.3c0,0.2,0,0.3-0.1,0.4c-0.4,0.7-0.7,1.5-0.9,2.4c-0.1,0.6-0.1,1.1,0,1.7c0.2,0.7,0.7,1,1.5,0.8c0.7-0.1,1.3-0.5,1.9-0.9c1.7-1,3.2-2.1,4.8-3.2c-0.1,0.3-0.1,0.6-0.1,1c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2.1-0.8,4.2-1.9,6.2-3c0.1-0.1,0.2-0.1,0.2-0.3c-0.2,0-0.4,0.1-0.6,0.2C324.6,48.6,323.6,49.1,322.6,49.6z M316,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C315.8,47.7,315.8,47.5,316,47.3z M311,40.5c1.1-3.3,2.5-6.5,4.7-9.3c1.2-1.5,2.5-2.7,4.2-3.7c0.5-0.2,0.9-0.5,1.4-0.6c0.2-0.1,0.5-0.2,0.7,0c0.2,0.2,0,0.5-0.2,0.7c-0.1,0.3-0.3,0.5-0.5,0.8c-1.4,2-3,3.8-4.6,5.6c-1.8,2-3.5,4.1-5.2,6.2c-0.1,0.2-0.3,0.4-0.5,0.5C310.9,40.7,311,40.6,311,40.5z M300.4,50.3c-0.2,0.1-0.5,0.3-0.9,0.3c-0.2,0-0.4-0.1-0.2-0.4c0-0.1,0.1-0.2,0.2-0.3c1.6-1.9,3.5-3.4,5.8-4.2c0.2-0.1,0.3-0.1,0.5-0.1c0.4,0,0.7,0.3,0.7,0.7c0,0.2-0.1,0.3-0.3,0.4C304.3,47.9,302.5,49.3,300.4,50.3z"/><path d="M394.9,47.7c-0.1-0.1-0.2,0-0.2,0.1c-0.1,0.3-0.4,0.4-0.7,0.6c-0.7,0.3-1.4,0.5-2.1,0.4c-1.1,0-1.8-0.6-2-1.6c-0.1-0.5-0.1-0.9-0.1-1.4s0-0.9-0.2-1.4c-0.2-0.8-0.9-1-1.5-0.5c-0.5,0.3-0.9,0.7-1.3,1.1c-1,1.1-2,2.3-2.9,3.6c-0.5,0.7-0.9,1.4-1.5,1.9c0.2-0.6,0.6-1.1,0.9-1.6c0.7-1.1,1.4-2.1,2-3.2c0.1-0.2,0.3-0.5,0.3-0.8c0.1-0.6-0.4-0.9-0.9-0.7c-0.3,0.1-0.5,0.3-0.7,0.6c-0.6,0.6-1,1.4-1.5,2.1c-0.2,0.3-0.4,0.6-0.5,1c0,0-0.1,0.1-0.1,0.1c-0.8,0.6-1.6,1.1-2.3,1.6c-0.7,0.5-1.4,0.9-2.1,1.2c-0.3,0.1-0.6,0.2-1,0.2c-0.4,0-0.6-0.2-0.6-0.6c0-0.2,0-0.4,0.1-0.6c0.1-0.6,0.3-1.2,0.6-1.7c0.4-0.8,0.9-1.6,1.3-2.4c0.1-0.2,0.2-0.5,0.2-0.7c0-0.3-0.1-0.5-0.4-0.6c-0.2-0.1-0.5-0.1-0.6,0c-0.2,0.1-0.3,0.2-0.4,0.4c-0.8,1.1-1.8,2.1-2.7,3.1c-0.7,0.8-1.5,1.6-2.4,2.2c-0.3,0.2-0.6,0.5-1,0.5c-0.4,0.1-0.5,0-0.5-0.4c0.1-0.5,0.3-1,0.6-1.4c0.6-0.9,1.2-1.9,1.7-2.8c0.2-0.3,0.4-0.6,0.5-1c0.1-0.4,0-0.7-0.2-0.9c-0.2-0.2-0.6-0.2-0.9,0c-0.1,0.1-0.2,0.2-0.3,0.3c-0.9,1.1-1.6,2.2-2.1,3.4c0,0-0.1,0-0.1,0c-0.4,0.2-0.9,0.5-1.3,0.7c-0.5,0.3-1.1,0.6-1.6,0.8c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.7-1.7c0.1-0.4,0.2-0.7,0.5-1c0,0,0,0,0,0c0.1,0,0.3-0.1,0.5-0.1l0.1,0.1c0.7,0.6,1.5,0.9,2.5,0.7c1.1-0.2,2-0.9,2.7-1.9c0.4-0.5,0.5-1.1,0.3-1.6s-0.5-0.9-1.1-1.2c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.3-0.2,0.6-0.3,0.9c-0.4,0.1-0.9,0.2-1.3,0.4c-0.4,0.1-0.8,0.1-1.2,0c-0.6-0.2-0.7-0.5-0.4-1c0.2-0.4,0.4-0.8,0.5-1.2c0.2-1.3-0.3-2.2-1.6-2.7c-0.6-0.2-1.1-0.2-1.7-0.1c-1.8,0.4-3.2,1.4-4.3,3c-0.2,0.3-0.4,0.6-0.5,1c-1.4,0.6-2.8,1.3-4.2,1.9c-1.5,0.6-2.9,1.3-4.5,1.5c-0.6,0.1-1.2,0.1-1.7-0.1c-0.7-0.2-1-0.9-0.8-1.6c0.1-0.4,0.3-0.7,0.5-1c0.6-0.8,1.3-1.6,2.2-2.2c0.8-0.5,1.6-1.1,2.5-1.4c1-0.3,1.5,0,1.6,1c0,0.2,0,0.5,0.1,0.7c0,0.1,0,0.2,0.1,0.2c0.1,0,0.2,0,0.2-0.1c0-0.1,0.1-0.3,0.1-0.4c0-0.5-0.1-1.1-0.4-1.6c-0.3-0.6-0.8-1-1.5-1.1c-1-0.1-1.9,0.1-2.7,0.6c-1.1,0.6-2.1,1.4-2.9,2.4c-0.5,0.6-0.8,1.2-1,2c-0.2,1.2,0.1,2.3,1.1,2.8c0.6,0.4,1.3,0.5,2,0.4c1.1-0.1,2.1-0.5,3.2-0.9c2-0.8,3.9-1.8,5.9-2.7c-0.1,0.3-0.1,0.7-0.1,1.1c0.1,1,0.6,1.7,1.6,2c0.9,0.2,1.8,0.1,2.6-0.3c1-0.4,1.8-1,2.6-1.8c0.2-0.2,0.4-0.3,0.7-0.1c0.3,0.2,0.7,0.3,1.1,0.3c0.5,0,0.9-0.1,1.3-0.2l0.7-0.2c0,0.2,0,0.4,0,0.5c0.1,1.1,0.6,1.9,1.7,2.3c0.3,0.1,0.7,0.2,1.1,0.2c1.2,0,2.5-0.2,3.6-0.7c2-0.8,3.9-1.7,5.7-2.7c-0.2,0.6-0.4,1.2-0.3,1.9c0.1,1.1,0.9,1.5,1.9,1.1c0.6-0.2,1.2-0.7,1.7-1.1c0.9-0.9,1.7-1.8,2.6-2.8c0.1-0.1,0.1-0.2,0.3-0.2c-0.1,0.3-0.2,0.6-0.2,0.9c-0.1,0.3-0.1,0.6-0.2,1c-0.1,0.5-0.1,1.1,0.1,1.6c0.2,0.6,0.6,0.9,1.3,0.9c0.8,0,1.5-0.3,2.2-0.7c1.1-0.7,2.2-1.5,3.3-2.3c-0.1,0.3-0.3,0.7-0.3,1.1c-0.1,0.5-0.1,0.9,0,1.4c0.2,0.5,0.5,0.6,0.9,0.3c0.1-0.1,0.3-0.2,0.4-0.4c0.2-0.3,0.5-0.6,0.7-1c0.9-1.2,1.8-2.5,2.8-3.7c0.5-0.5,1-1.1,1.6-1.5c0.5-0.4,0.6-0.3,0.7,0.4c0,0.1,0,0.2,0,0.3c0.1,0.6,0.1,1.3,0.4,1.9c0.3,0.9,0.9,1.5,1.9,1.8c1.4,0.4,2.6,0,3.8-0.7c0.1-0.1,0.3-0.2,0.3-0.4C395,47.9,395,47.8,394.9,47.7z M359.7,47.3c0.9-0.9,2-1.5,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.5,0.6,1.1c-0.1,0.4-0.3,0.6-0.6,0.9c-0.6,0.6-1.5,1-2.5,1c-0.5,0-1-0.2-1.4-0.6C359.5,47.7,359.5,47.5,359.7,47.3z M353.8,47.3c-0.2,0-0.3,0.1-0.4,0.2c-0.1,0.1-0.1,0.2-0.1,0.4c0,0.3-0.1,0.6-0.3,0.8c-0.8,0.9-1.8,1.5-3,1.8c-0.2,0.1-0.5,0.1-0.7,0.1h-0.2c-0.7,0-1.2-0.2-1.4-0.6c-0.2-0.4-0.1-0.9,0.1-1.4c0.5-1,1.3-1.9,2.3-2.6c0.7-0.6,1.6-1,2.6-1.1c0.6-0.1,1.1,0.1,1.4,0.5c0.1,0.2,0.2,0.5,0.2,0.8c0,0.4-0.1,0.6-0.2,0.8C354,47.2,353.9,47.2,353.8,47.3z"/></g></svg>
       </div>
 
       <h1 class="hero-title">
@@ -846,7 +942,7 @@ button,input,select,textarea{font-family:inherit}
           <button class="sf-clear" id="sf-clear" title="Effacer">×</button>
         </div>
         <!-- Ville (recherche city + wilaya) -->
-        <div class="sf">
+        <div class="sf sf-ville" id="sf-ville-wrap">
           <div class="sf-icon">
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
@@ -854,6 +950,7 @@ button,input,select,textarea{font-family:inherit}
           <button class="geo-btn" id="geo-btn" onclick="geoSearch()" title="Utiliser ma position">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 2" opacity=".4"/></svg>
           </button>
+          <div class="ville-drop" id="ville-drop"></div>
         </div>
         <button class="search-btn" onclick="doSearch()">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -864,10 +961,12 @@ button,input,select,textarea{font-family:inherit}
       </div>
       <!-- Sub-row: toggle RDV -->
       <div class="search-sub">
-        <button class="rdv-toggle" id="rdv-toggle" onclick="toggleRdv()">
-          <span class="rdv-dot"></span>
-          Disponible pour RDV
-        </button>
+        <label class="rdv-label">
+          <button class="toggle-track" id="rdv-toggle" onclick="toggleRdv()" type="button" aria-label="Filtrer RDV en ligne">
+            <div class="toggle-thumb"></div>
+          </button>
+          RDV en ligne
+        </label>
         <span class="search-hint">Les résultats se mettent à jour en temps réel</span>
       </div>
 
@@ -1241,7 +1340,7 @@ button,input,select,textarea{font-family:inherit}
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo">
-          <img src="docline-logo.svg" alt="Docline" style="height:26px;width:auto;filter:brightness(0) invert(1);opacity:.92">
+          <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="height:40px;width:auto;display:block" role="img" aria-label="Docline"><g fill="#ffffff"><g><g><path d="M79.1,1.3c9.2-1.9,18.9,7.3,16.2,16.6C93.5,26.6,81.9,30.1,75,25c-4.7-2.8-7.4-8.8-6.3-14.2C69.8,6,74.1,1.9,79.1,1.3z M80,8c-5.2,1-6.1,8.7-1.5,11.2c3.3,2.4,8.6,1.3,10-2.8C90.4,11.6,84.8,6.6,80,8z"/></g><g><path d="M45,15.4c5.4-0.9,11.2-0.2,15.8,2.9c6.2,4.2,10,11.2,12.4,18.2c8.2-3.7,16.9-7,26-6.6c7.4,0.4,14,5.3,16.6,12.2c2.1,8.5-2,16.9-6.8,23.6C100,78,86.5,88.5,70.9,90c-5,4.6-12.7,7.3-19.3,4.4c-7.9-3.6-12.8-11.2-16.8-18.7c-6.2-12.9-9.4-27.5-7.2-41.8C29.3,25.1,35.6,16.6,45,15.4z M46.8,22.6c-7.6,1.1-11.7,9.2-12,16.2C34.3,53,38.2,67.5,46.2,79.3c3.2,4.8,8.3,10.2,14.5,8.1c-0.4-1.9-3.2-2.3-4.2-3.9c-5.4-5.5-8.9-13.3-7.7-21.1c0.2-5.3,4-10.3,9.1-11.9c6.4-2.4,14.5,0.3,17.8,6.4c4.4,7.3,3.3,16.4,0.9,24.1c6.5-1.8,12-6.1,17.2-10.2c6.2-6,12.3-13,14.4-21.6c1.8-5.5-2.8-10.9-8.1-11.8c-11.2-2-20.4,5.5-30.5,8.7c-4.5,1-8.5-3.7-8-7.9c1.1-0.8,2.4-0.1,3.6-0.1C63.2,30.2,56.3,20.6,46.8,22.6z M60.9,57.6c-2.9,0.8-4.5,3.8-4.3,6.7c-0.7,7,3.9,14.8,10.8,16.8c4.2-6,4.6-14.8,0.9-21.2C66.4,57.9,63.6,56.9,60.9,57.6z"/></g></g><g><path d="M168,69.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.6c-0.5,0.4-1,0.8-1.6,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.9,0-1.8-0.2-2.5-0.7c-0.7-0.4-1.3-1-1.8-1.7c-1.5,0.9-3,1.6-4.7,2.1c-1.7,0.5-3.4,0.7-5.3,0.7c-2.7,0-5.2-0.5-7.5-1.5c-2.3-1-4.4-2.4-6.2-4.2c-1.8-1.7-3.2-3.8-4.2-6.2c-1-2.4-1.5-4.9-1.5-7.5c0-2.7,0.5-5.2,1.5-7.5c1-2.3,2.4-4.4,4.2-6.2c1.8-1.8,3.8-3.2,6.2-4.2c2.3-1,4.8-1.5,7.5-1.5c1.7,0,3.3,0.2,4.9,0.6c1.6,0.4,3,1,4.4,1.7V27.2c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.1,1.1-1.6c0.5-0.4,1-0.8,1.6-1.1c0.6-0.3,1.3-0.4,2-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.1,0.6,1.6,1.1c0.5,0.4,0.8,1,1.1,1.6c0.3,0.6,0.4,1.2,0.4,2V69.4z M140.1,59c0.5,1.1,1.2,2.1,2,3c0.8,0.8,1.8,1.5,3,2c1.1,0.5,2.3,0.7,3.6,0.7c1.3,0,2.5-0.2,3.6-0.7c1.1-0.5,2.1-1.1,2.9-2c0.8-0.8,1.5-1.8,2-3c0.5-1.1,0.7-2.3,0.7-3.6V55c-0.1-1.2-0.3-2.4-0.8-3.5c-0.5-1.1-1.2-2-2-2.8c-0.8-0.8-1.8-1.4-2.9-1.9c-1.1-0.5-2.3-0.7-3.5-0.7c-1.3,0-2.5,0.2-3.6,0.7c-1.1,0.5-2.1,1.1-3,2c-0.8,0.8-1.5,1.8-2,2.9c-0.5,1.1-0.7,2.3-0.7,3.6C139.3,56.7,139.6,57.9,140.1,59z"/><path d="M175.4,47.9c1-2.3,2.4-4.4,4.2-6.2c1.8-1.8,3.8-3.2,6.2-4.2c2.3-1,4.8-1.5,7.5-1.5c2.7,0,5.2,0.5,7.5,1.5c2.3,1,4.4,2.4,6.1,4.2c1.7,1.8,3.1,3.8,4.2,6.2c1,2.3,1.5,4.9,1.5,7.5c0,2.7-0.5,5.2-1.5,7.5c-1,2.4-2.4,4.4-4.2,6.2c-1.7,1.7-3.8,3.1-6.1,4.2c-2.3,1-4.9,1.5-7.5,1.5c-2.7,0-5.2-0.5-7.5-1.5c-2.3-1-4.4-2.4-6.2-4.2c-1.8-1.7-3.2-3.8-4.2-6.2c-1-2.4-1.5-4.9-1.5-7.5C173.9,52.7,174.4,50.2,175.4,47.9z M184.8,59c0.5,1.1,1.2,2.1,2,3c0.8,0.8,1.8,1.5,3,2c1.1,0.5,2.3,0.7,3.6,0.7c1.3,0,2.5-0.2,3.6-0.7c1.1-0.5,2.1-1.1,2.9-2c0.8-0.8,1.5-1.8,2-3c0.5-1.1,0.7-2.3,0.7-3.6c0-1.3-0.2-2.5-0.7-3.6c-0.5-1.1-1.1-2.1-2-2.9c-0.8-0.8-1.8-1.5-2.9-2c-1.1-0.5-2.3-0.7-3.6-0.7c-1.3,0-2.5,0.2-3.6,0.7c-1.1,0.5-2.1,1.1-3,2c-0.8,0.8-1.5,1.8-2,2.9c-0.5,1.1-0.7,2.3-0.7,3.6C184,56.7,184.3,57.9,184.8,59z"/><path d="M231.7,47.1c-1,0.5-1.9,1.2-2.7,2.1c-0.8,0.9-1.4,1.8-1.8,2.9c-0.4,1.1-0.7,2.2-0.7,3.3c0,1.1,0.2,2.2,0.7,3.2c0.4,1.1,1,2,1.8,2.9c0.8,0.9,1.7,1.6,2.7,2.1c1,0.6,2.2,0.8,3.4,0.9c1.1,0.1,2.2,0,3.3-0.3c1-0.3,2.1-0.8,3.3-1.7c0.5-0.4,1.1-0.8,1.6-1.2c0.6-0.4,1.2-0.6,1.9-0.8c0.7-0.1,1.4-0.1,2.1,0c0.7,0.2,1.5,0.6,2.3,1.3c0.5,0.5,0.9,1,1.2,1.7c0.3,0.6,0.4,1.3,0.4,2c0,0.7-0.2,1.4-0.5,2.1c-0.3,0.7-0.7,1.3-1.3,1.9c-1.7,1.7-3.7,3-6,3.9c-2.3,0.9-4.8,1.3-7.3,1.3c-2.7,0-5.3-0.5-7.7-1.5c-2.4-1-4.5-2.3-6.3-4.1c-1.8-1.7-3.2-3.8-4.3-6.1c-1-2.3-1.6-4.9-1.6-7.6c0-2.7,0.5-5.3,1.6-7.6c1-2.4,2.5-4.5,4.3-6.2c1.8-1.8,3.9-3.2,6.3-4.2c2.4-1,5-1.5,7.7-1.5c2.6,0,5,0.4,7.3,1.3c2.3,0.9,4.3,2.2,6,3.9c0.6,0.6,1,1.2,1.3,2c0.3,0.7,0.5,1.4,0.5,2.1c0,0.7-0.1,1.3-0.4,2c-0.3,0.6-0.7,1.2-1.2,1.7c-0.8,0.7-1.6,1.1-2.3,1.3c-0.7,0.2-1.5,0.2-2.1,0c-0.7-0.2-1.3-0.4-1.9-0.8c-0.6-0.4-1.1-0.8-1.6-1.2c-1.1-0.8-2.2-1.4-3.2-1.6c-1-0.3-2.1-0.4-3.3-0.3C233.8,46.2,232.7,46.5,231.7,47.1z"/><path d="M267.1,69.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.6c-0.5,0.4-1,0.8-1.6,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.1-0.6-1.6-1.1c-0.5-0.4-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.2-0.4-2V27.2c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.1,1.1-1.6c0.5-0.4,1-0.8,1.6-1.1c0.6-0.3,1.3-0.4,2-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.1,0.6,1.6,1.1c0.5,0.4,0.8,1,1.1,1.6c0.3,0.6,0.4,1.2,0.4,2V69.4z"/><path d="M275.3,25c0.3-0.7,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.2c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.7,0.3,1.2,0.7,1.7,1.2c0.5,0.5,0.9,1.1,1.2,1.7s0.4,1.4,0.4,2.1c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.2,1.7c-0.5,0.5-1.1,0.9-1.7,1.2c-0.7,0.3-1.4,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.7-0.3-1.2-0.7-1.7-1.2c-0.5-0.5-0.9-1.1-1.2-1.7c-0.3-0.7-0.4-1.4-0.4-2.1C274.8,26.4,275,25.7,275.3,25z M285.3,69.3c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.6c-0.5,0.5-1,0.8-1.6,1.1c-0.6,0.3-1.3,0.4-1.9,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.1-0.6-1.6-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.2-0.4-2V41c0-0.7,0.1-1.3,0.4-1.9c0.3-0.6,0.6-1.1,1.1-1.6c0.5-0.5,1-0.8,1.6-1.1c0.6-0.3,1.3-0.4,2-0.4c0.7,0,1.3,0.1,1.9,0.4c0.6,0.3,1.1,0.6,1.6,1.1c0.4,0.5,0.8,1,1,1.6c0.3,0.6,0.4,1.3,0.4,1.9V69.3z"/><path d="M298.6,36c1.1,0,2.1,0.3,3,1c0.9,0.7,1.4,1.5,1.7,2.6c1.4-1.1,2.8-2,4.3-2.6c1.5-0.6,3.1-0.9,4.7-0.9c2.4,0,4.6,0.5,6.6,1.5s3.7,2.3,5.1,4c1.4,1.7,2.5,3.7,3.3,6c0.8,2.3,1.2,4.7,1.2,7.3v14.7c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.5c-0.4,0.4-1,0.8-1.6,1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.3-0.1-1.9-0.4c-0.6-0.3-1.1-0.6-1.6-1c-0.4-0.4-0.8-0.9-1.1-1.5c-0.3-0.6-0.4-1.2-0.4-2V54.8c0-1.2-0.2-2.4-0.5-3.5c-0.3-1.1-0.8-2-1.4-2.8c-0.6-0.8-1.4-1.4-2.3-1.9c-0.9-0.5-1.9-0.7-3-0.7c-1.1,0-2.1,0.2-3.1,0.6c-0.9,0.4-1.7,1-2.4,1.7c-0.7,0.7-1.2,1.6-1.6,2.6c-0.4,1-0.6,2.1-0.6,3.3v15.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.6c-0.5,0.5-1,0.8-1.6,1.1c-0.6,0.3-1.3,0.4-1.9,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.1-0.6-1.6-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.2-0.4-2V41c0-0.7,0.1-1.3,0.4-1.9c0.3-0.6,0.6-1.1,1.1-1.6c0.5-0.5,1-0.8,1.6-1.1C297.3,36.1,297.9,36,298.6,36z"/><path d="M345.3,59.9c0.8,1.6,1.9,2.8,3.4,3.8c1.5,0.9,3.1,1.4,4.9,1.4c0.7,0,1.4,0,1.9-0.1c0.5-0.1,1-0.2,1.4-0.4c0.4-0.1,0.8-0.3,1.1-0.5c0.3-0.2,0.6-0.4,0.9-0.7c0.9-0.7,1.8-1.1,2.6-1.2c0.9-0.1,1.7,0,2.4,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.8,1.1,1.3c0.3,0.5,0.5,1,0.7,1.6c0.1,0.6,0.2,1.1,0.1,1.7c-0.1,0.6-0.3,1.2-0.6,1.7c-0.3,0.6-0.7,1.1-1.3,1.5c-0.5,0.5-1.2,0.9-1.9,1.3c-0.7,0.4-1.5,0.8-2.5,1.2c-0.9,0.3-2,0.6-3.2,0.8c-1.2,0.2-2.6,0.3-4.1,0.3c-2.7,0-5.2-0.5-7.6-1.5c-2.4-1-4.4-2.4-6.2-4.2c-1.8-1.7-3.2-3.8-4.2-6.1c-1-2.3-1.5-4.9-1.5-7.5s0.5-5.2,1.5-7.6c1-2.4,2.4-4.4,4.2-6.2c1.8-1.7,3.8-3.1,6.2-4.2c2.4-1,4.9-1.5,7.6-1.5c2.6,0,5.1,0.5,7.5,1.5c2.4,1,4.4,2.4,6.2,4.1c1.8,1.7,3.2,3.8,4.2,6.1c1,2.3,1.6,4.8,1.6,7.5c0,1.4-0.5,2.6-1.4,3.5c-0.9,0.9-2.1,1.3-3.6,1.3H345.3z M362.7,51.5c-0.7-1.8-1.9-3.2-3.4-4.3c-1.6-1.1-3.4-1.6-5.6-1.6c-1,0-2,0.1-2.9,0.4c-0.9,0.3-1.8,0.7-2.5,1.2c-0.7,0.5-1.4,1.2-2,1.9c-0.6,0.7-1,1.5-1.3,2.4H362.7z"/></g><g><path d="M164.3,91.8c-0.3-0.2-0.7-0.3-1.1-0.5c-0.4-0.1-0.8-0.2-1.2-0.3c-0.4-0.1-0.8-0.2-1.1-0.3c-0.3-0.1-0.6-0.3-0.8-0.5c-0.2-0.2-0.3-0.5-0.3-0.9c0-0.3,0.1-0.6,0.3-0.9c0.2-0.3,0.5-0.5,0.8-0.6c0.4-0.2,0.8-0.2,1.4-0.2c0.4,0,0.9,0.1,1.3,0.2c0.5,0.1,0.9,0.3,1.3,0.6l0.3-0.8c-0.4-0.3-0.8-0.5-1.4-0.6c-0.5-0.1-1.1-0.2-1.6-0.2c-0.8,0-1.5,0.1-2,0.4s-0.9,0.6-1.1,1c-0.2,0.4-0.4,0.8-0.4,1.3c0,0.5,0.1,0.9,0.3,1.2c0.2,0.3,0.5,0.6,0.8,0.8c0.3,0.2,0.7,0.3,1.1,0.5c0.4,0.1,0.8,0.2,1.2,0.3s0.8,0.2,1.1,0.3c0.3,0.1,0.6,0.3,0.8,0.5c0.2,0.2,0.3,0.5,0.3,0.9c0,0.3-0.1,0.6-0.3,0.8s-0.5,0.5-0.8,0.6c-0.4,0.1-0.9,0.2-1.5,0.2c-0.6,0-1.2-0.1-1.8-0.3c-0.6-0.2-1-0.5-1.4-0.8l-0.4,0.8c0.4,0.4,0.9,0.7,1.5,0.9c0.6,0.2,1.3,0.3,2,0.3c0.8,0,1.5-0.1,2-0.4c0.5-0.2,0.9-0.6,1.2-1c0.3-0.4,0.4-0.8,0.4-1.3c0-0.5-0.1-0.9-0.3-1.2C164.9,92.3,164.6,92,164.3,91.8z"/><path d="M169.9,89.1c-0.6,0-1.1,0.1-1.6,0.3c-0.5,0.2-0.9,0.4-1.3,0.7l0.4,0.7c0.3-0.3,0.6-0.5,1.1-0.6c0.4-0.2,0.9-0.2,1.3-0.2c0.7,0,1.2,0.2,1.5,0.5c0.3,0.3,0.5,0.8,0.5,1.4v0.4h-2.3c-0.7,0-1.2,0.1-1.6,0.3c-0.4,0.2-0.7,0.4-0.9,0.7c-0.2,0.3-0.3,0.6-0.3,1c0,0.4,0.1,0.8,0.3,1.1c0.2,0.3,0.5,0.6,0.9,0.7c0.4,0.2,0.9,0.3,1.4,0.3c0.7,0,1.2-0.1,1.7-0.4c0.3-0.2,0.6-0.5,0.8-0.8v1.2h0.9v-4.4c0-0.9-0.3-1.6-0.8-2.1C171.5,89.3,170.8,89.1,169.9,89.1z M171,95.2c-0.4,0.2-0.9,0.4-1.4,0.4c-0.6,0-1-0.1-1.3-0.4c-0.3-0.2-0.5-0.6-0.5-1c0-0.4,0.1-0.7,0.4-0.9c0.3-0.2,0.7-0.4,1.4-0.4h2.2v1.2C171.6,94.6,171.4,95,171,95.2z"/><path d="M180.6,89.4c-0.4-0.2-0.9-0.3-1.5-0.3c-0.7,0-1.3,0.1-1.8,0.4c-0.4,0.2-0.7,0.6-0.9,1v-1.4h-0.9v7.1h1v-3.7c0-0.5,0.1-1,0.3-1.4s0.5-0.7,0.9-0.9s0.8-0.3,1.3-0.3c0.7,0,1.2,0.2,1.6,0.6c0.4,0.4,0.6,1,0.6,1.7v4h1v-4.1c0-0.7-0.1-1.3-0.4-1.7C181.4,90,181,89.7,180.6,89.4z"/><path d="M187,95.5c-0.4,0-0.7-0.1-0.9-0.3c-0.2-0.2-0.3-0.5-0.3-1V90h2.2v-0.8h-2.2v-1.6h-1v1.6h-1.3V90h1.3v4.3c0,0.7,0.2,1.2,0.5,1.5c0.4,0.4,0.9,0.5,1.5,0.5c0.3,0,0.6,0,0.8-0.1s0.5-0.2,0.7-0.4l-0.3-0.7C187.7,95.4,187.4,95.5,187,95.5z"/><polygon points="194.9,86.4 193.6,86.4 191.7,88.1 192.7,88.1"/><path d="M194.4,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.2,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C195.3,90.3,194.9,89.9,194.4,89.6z M190.4,91.2c0.2-0.4,0.5-0.7,0.9-1c0.4-0.2,0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C190.1,91.9,190.2,91.5,190.4,91.2z"/><path d="M203.2,90.3c0.4-0.2,0.9-0.3,1.4-0.3c0.4,0,0.8,0.1,1.2,0.3c0.4,0.2,0.7,0.4,0.9,0.8l0.7-0.5c-0.3-0.5-0.7-0.8-1.2-1.1c-0.5-0.2-1-0.4-1.6-0.4c-0.7,0-1.3,0.2-1.9,0.5c-0.6,0.3-1,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,1.9,0.5c0.6,0,1.2-0.1,1.6-0.4c0.5-0.2,0.9-0.6,1.2-1.1l-0.7-0.5c-0.2,0.4-0.5,0.6-0.9,0.8c-0.4,0.2-0.8,0.3-1.2,0.3c-0.5,0-1-0.1-1.4-0.3c-0.4-0.2-0.7-0.6-1-1c-0.2-0.4-0.4-0.9-0.4-1.5c0-0.6,0.1-1.1,0.4-1.5C202.5,90.8,202.8,90.5,203.2,90.3z"/><path d="M213.9,89.6c-0.5-0.3-1.2-0.5-1.9-0.5c-0.7,0-1.3,0.2-1.9,0.5c-0.5,0.3-1,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.7,1,1.3,1.3c0.5,0.3,1.2,0.5,1.9,0.5c0.7,0,1.3-0.2,1.9-0.5c0.6-0.3,1-0.7,1.3-1.3c0.3-0.5,0.5-1.2,0.5-1.9c0-0.7-0.2-1.3-0.5-1.9C214.9,90.3,214.5,89.9,213.9,89.6z M214.4,94.2c-0.2,0.4-0.5,0.7-0.9,1c-0.4,0.2-0.9,0.3-1.4,0.3c-0.5,0-0.9-0.1-1.3-0.3c-0.4-0.2-0.7-0.6-1-1c-0.2-0.4-0.4-0.9-0.4-1.5c0-0.6,0.1-1.1,0.4-1.5c0.2-0.4,0.6-0.7,1-1c0.4-0.2,0.9-0.3,1.4-0.3c0.5,0,1,0.1,1.4,0.3c0.4,0.2,0.7,0.6,0.9,1c0.2,0.4,0.3,0.9,0.3,1.5C214.7,93.3,214.6,93.8,214.4,94.2z"/><path d="M222.8,89.4c-0.4-0.2-0.9-0.3-1.5-0.3c-0.7,0-1.3,0.1-1.8,0.4c-0.4,0.2-0.7,0.6-0.9,1v-1.4h-0.9v7.1h1v-3.7c0-0.5,0.1-1,0.3-1.4s0.5-0.7,0.9-0.9c0.4-0.2,0.8-0.3,1.3-0.3c0.7,0,1.2,0.2,1.6,0.6c0.4,0.4,0.6,1,0.6,1.7v4h1v-4.1c0-0.7-0.1-1.3-0.4-1.7C223.6,90,223.3,89.7,222.8,89.4z"/><path d="M232,89.4c-0.4-0.2-0.9-0.3-1.5-0.3c-0.7,0-1.3,0.1-1.8,0.4c-0.4,0.2-0.7,0.6-0.9,1v-1.4h-0.9v7.1h1v-3.7c0-0.5,0.1-1,0.3-1.4s0.5-0.7,0.9-0.9c0.4-0.2,0.8-0.3,1.3-0.3c0.7,0,1.2,0.2,1.6,0.6c0.4,0.4,0.6,1,0.6,1.7v4h1v-4.1c0-0.7-0.1-1.3-0.4-1.7C232.8,90,232.4,89.7,232,89.4z"/><path d="M240.6,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C241.5,90.3,241.1,89.9,240.6,89.6z M236.6,91.2c0.2-0.4,0.5-0.7,0.9-1c0.4-0.2,0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C236.3,91.9,236.4,91.5,236.6,91.2z"/><path d="M245.8,90.3c0.4-0.2,0.9-0.3,1.4-0.3c0.4,0,0.8,0.1,1.2,0.3c0.4,0.2,0.7,0.4,0.9,0.8l0.7-0.5c-0.3-0.5-0.7-0.8-1.2-1.1c-0.5-0.2-1-0.4-1.6-0.4c-0.7,0-1.3,0.2-1.9,0.5c-0.6,0.3-1,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,1.9,0.5c0.6,0,1.2-0.1,1.6-0.4c0.5-0.2,0.9-0.6,1.2-1.1l-0.7-0.5c-0.2,0.4-0.5,0.6-0.9,0.8c-0.4,0.2-0.8,0.3-1.2,0.3c-0.5,0-1-0.1-1.4-0.3c-0.4-0.2-0.7-0.6-1-1c-0.2-0.4-0.4-0.9-0.4-1.5c0-0.6,0.1-1.1,0.4-1.5C245.1,90.8,245.4,90.5,245.8,90.3z"/><path d="M254.3,95.5c-0.4,0-0.7-0.1-0.9-0.3c-0.2-0.2-0.3-0.5-0.3-1V90h2.2v-0.8h-2.2v-1.6h-1v1.6h-1.3V90h1.3v4.3c0,0.7,0.2,1.2,0.5,1.5c0.4,0.4,0.9,0.5,1.5,0.5c0.3,0,0.6,0,0.8-0.1c0.3-0.1,0.5-0.2,0.7-0.4l-0.3-0.7C255.1,95.4,254.7,95.5,254.3,95.5z"/><polygon points="262.2,86.4 260.9,86.4 259.1,88.1 260,88.1"/><path d="M261.8,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C262.7,90.3,262.3,89.9,261.8,89.6z M257.8,91.2c0.2-0.4,0.5-0.7,0.9-1s0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C257.5,91.9,257.6,91.5,257.8,91.2z"/><path d="M270,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C270.9,90.3,270.5,89.9,270,89.6z M266,91.2c0.2-0.4,0.5-0.7,0.9-1s0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C265.7,91.9,265.8,91.5,266,91.2z"/><path d="M281.7,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C282.7,90.3,282.3,89.9,281.7,89.6z M277.7,91.2c0.2-0.4,0.5-0.7,0.9-1s0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C277.5,91.9,277.5,91.5,277.7,91.2z"/><path d="M290.5,89.4c-0.4-0.2-0.9-0.3-1.5-0.3c-0.7,0-1.3,0.1-1.8,0.4c-0.4,0.2-0.7,0.6-0.9,1v-1.4h-0.9v7.1h1v-3.7c0-0.5,0.1-1,0.3-1.4c0.2-0.4,0.5-0.7,0.9-0.9c0.4-0.2,0.8-0.3,1.3-0.3c0.7,0,1.2,0.2,1.6,0.6c0.4,0.4,0.6,1,0.6,1.7v4h1v-4.1c0-0.7-0.1-1.3-0.4-1.7C291.3,90,291,89.7,290.5,89.4z"/><path d="M301.1,86.8l-4.3,9.5h1l1.1-2.5h5.3l1.1,2.5h1.1l-4.3-9.5H301.1z M299.3,92.9l2.3-5.1l2.3,5.1H299.3z"/><rect x="307.9" y="86.2" width="1" height="10.1"/><path d="M317.2,90.5c-0.3-0.4-0.7-0.8-1.1-1c-0.5-0.3-1.1-0.4-1.7-0.4c-0.7,0-1.3,0.1-1.8,0.4c-0.5,0.3-1,0.7-1.3,1.2c-0.3,0.5-0.5,1.1-0.5,1.8c0,0.7,0.2,1.3,0.5,1.8c0.3,0.5,0.7,0.9,1.3,1.2c0.5,0.3,1.2,0.4,1.8,0.4c0.6,0,1.2-0.1,1.7-0.4c0.4-0.2,0.8-0.6,1.1-1v0.9c0,0.9-0.2,1.5-0.6,2c-0.4,0.4-1.1,0.6-2,0.6c-0.6,0-1.1-0.1-1.6-0.3c-0.5-0.2-0.9-0.4-1.2-0.7l-0.5,0.7c0.4,0.4,0.9,0.6,1.5,0.8c0.6,0.2,1.2,0.3,1.9,0.3c1.2,0,2.1-0.3,2.7-0.9c0.6-0.6,0.9-1.5,0.9-2.7v-6.3h-0.9V90.5z M315.9,94.8c-0.4,0.2-0.9,0.3-1.4,0.3c-0.5,0-1-0.1-1.4-0.3s-0.7-0.5-1-0.9c-0.2-0.4-0.3-0.8-0.3-1.4c0-0.5,0.1-1,0.3-1.4c0.2-0.4,0.6-0.7,1-0.9c0.4-0.2,0.9-0.3,1.4-0.3c0.5,0,1,0.1,1.4,0.3c0.4,0.2,0.7,0.5,1,0.9c0.2,0.4,0.4,0.8,0.4,1.4c0,0.5-0.1,1-0.4,1.4C316.6,94.3,316.3,94.6,315.9,94.8z"/><path d="M325.4,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C326.3,90.3,325.9,89.9,325.4,89.6z M321.4,91.2c0.2-0.4,0.5-0.7,0.9-1c0.4-0.2,0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C321.1,91.9,321.2,91.5,321.4,91.2z"/><polygon points="325.8,86.4 324.6,86.4 322.7,88.1 323.6,88.1"/><path d="M329.9,90.6v-1.4H329v7.1h1v-3.6c0-0.8,0.2-1.5,0.6-1.9c0.4-0.5,1-0.7,1.8-0.7c0,0,0.1,0,0.1,0s0.1,0,0.1,0v-0.9c-0.7,0-1.3,0.1-1.8,0.4C330.4,89.8,330.1,90.1,329.9,90.6z"/><path d="M334.8,86.2c-0.2,0-0.4,0.1-0.5,0.2c-0.1,0.1-0.2,0.3-0.2,0.5c0,0.2,0.1,0.4,0.2,0.5c0.1,0.1,0.3,0.2,0.5,0.2c0.2,0,0.4-0.1,0.5-0.2c0.1-0.1,0.2-0.3,0.2-0.5c0-0.2-0.1-0.3-0.2-0.5C335.2,86.3,335,86.2,334.8,86.2z"/><rect x="334.4" y="89.2" width="1" height="7.1"/><path d="M342.6,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C343.5,90.3,343.1,89.9,342.6,89.6z M338.6,91.2c0.2-0.4,0.5-0.7,0.9-1s0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C338.3,91.9,338.4,91.5,338.6,91.2z"/><path d="M346.8,95.1c-0.1-0.1-0.3-0.2-0.5-0.2s-0.4,0.1-0.5,0.2c-0.1,0.1-0.2,0.3-0.2,0.5c0,0.2,0.1,0.4,0.2,0.5c0.1,0.1,0.3,0.2,0.5,0.2s0.4-0.1,0.5-0.2c0.1-0.1,0.2-0.3,0.2-0.5C347,95.4,347,95.2,346.8,95.1z"/></g></g></svg>
         </div>
         <p>La plateforme de santé connectée qui rapproche patients et praticiens en Algérie.</p>
       </div>
@@ -1277,56 +1376,78 @@ button,input,select,textarea{font-family:inherit}
   <div class="modal" id="modal-content">
     <div class="modal-drag"></div>
 
+    <!-- ── Form view ──────────────────────────────────────── -->
     <div id="modal-form-view">
-      <div class="modal-head">
-        <div class="modal-doctor-info">
-          <div class="modal-avatar" id="m-avatar"></div>
-          <div>
-            <div class="modal-title" id="m-name">—</div>
-            <div class="modal-sub" id="m-spec">—</div>
-            <div class="modal-phone" id="m-phone" style="display:none"></div>
+
+      <!-- Bannière médecin + titre -->
+      <div class="rdv-modal-banner">
+        <div>
+          <div class="rdv-modal-doc">
+            <div class="rdv-modal-av" id="m-avatar"></div>
+            <div>
+              <div class="rdv-modal-name" id="m-name">—</div>
+              <div class="rdv-modal-spec-txt" id="m-spec">—</div>
+            </div>
+          </div>
+          <div class="rdv-modal-headline">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Prendre rendez-vous avec ce médecin
           </div>
         </div>
-        <button class="modal-close" onclick="closeModal()">
+        <button class="modal-close" onclick="closeModal()" style="background:rgba(255,255,255,.18);color:#fff;flex-shrink:0">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
 
-      <div class="modal-body">
-        <!-- Step indicator -->
-        <div class="modal-steps">
-          <div class="mstep active">
-            <div class="mstep-dot">1</div>
-            <div class="mstep-lbl">Date</div>
-            <div class="mstep-line"></div>
-          </div>
-          <div class="mstep">
-            <div class="mstep-dot">2</div>
-            <div class="mstep-lbl">Vos infos</div>
-            <div class="mstep-line"></div>
-          </div>
-          <div class="mstep">
-            <div class="mstep-dot">3</div>
-            <div class="mstep-lbl">Confirmer</div>
-          </div>
+      <!-- Bloc 1 : Motif de consultation -->
+      <div class="rdv-block">
+        <div class="rdv-block-hd">
+          <span class="rdv-step-num">1</span>
+          <span class="rdv-block-title">Motif de consultation</span>
         </div>
+        <select id="p-motif" class="rdv-motif-sel">
+          <option value="">Choisissez un motif…</option>
+          <option>Consultation générale</option>
+          <option>Première consultation</option>
+          <option>Suivi de traitement</option>
+          <option>Renouvellement d'ordonnance</option>
+          <option>Résultats d'examens</option>
+          <option>Bilan de santé</option>
+          <option>Urgence / Douleur aiguë</option>
+          <option>Autre</option>
+        </select>
+      </div>
 
-        <div class="form-row">
-          <div class="field">
-            <label>Date souhaitée *</label>
-            <input type="date" id="p-date">
-          </div>
-          <div class="field">
-            <label>Heure préférée</label>
-            <select id="p-time">
-              <option value="">Pas de préférence</option>
-              <option>08:00 – 09:00</option><option>09:00 – 10:00</option>
-              <option>10:00 – 11:00</option><option>11:00 – 12:00</option>
-              <option>14:00 – 15:00</option><option>15:00 – 16:00</option>
-              <option>16:00 – 17:00</option><option>17:00 – 18:00</option>
-            </select>
-          </div>
+      <!-- Bloc 2 : Date & Créneaux -->
+      <div class="rdv-block">
+        <div class="rdv-block-hd">
+          <span class="rdv-step-num">2</span>
+          <span class="rdv-block-title">Choisir un créneau</span>
         </div>
+        <div class="rdv-date-row">
+          <button class="rdv-date-arrow" id="rdv-prev-btn" onclick="rdvPrevDate()" title="Jour précédent">‹</button>
+          <div class="rdv-date-center">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="rdv-date-label">—</span>
+          </div>
+          <button class="rdv-date-arrow" onclick="rdvNextDate()" title="Jour suivant">›</button>
+        </div>
+        <div class="rdv-slots-grid" id="rdv-slots"></div>
+      </div>
+
+      <!-- Bloc 3 : Infos patient (apparaît après sélection créneau) -->
+      <div class="rdv-block rdv-patient-block" id="rdv-patient-block" style="display:none">
+        <div class="rdv-block-hd">
+          <span class="rdv-step-num done">3</span>
+          <span class="rdv-block-title">Vos informations</span>
+        </div>
+        <!-- Badge créneau sélectionné -->
+        <div class="rdv-slot-badge" id="rdv-slot-badge">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          <span id="rdv-slot-badge-text">Créneau sélectionné</span>
+        </div>
+        <input type="hidden" id="p-time-selected">
+        <input type="hidden" id="p-date-selected">
         <div class="form-row">
           <div class="field">
             <label>Prénom et nom *</label>
@@ -1340,40 +1461,39 @@ button,input,select,textarea{font-family:inherit}
         <div class="field">
           <label>Email <span style="font-weight:400;text-transform:none;letter-spacing:0">(optionnel)</span></label>
           <input type="email" id="p-email" placeholder="votre@email.com">
-          <div class="field-hint">Pour recevoir la confirmation par email</div>
+          <div class="field-hint">Pour recevoir la confirmation</div>
         </div>
-        <div class="field">
-          <label>Motif <span style="font-weight:400;text-transform:none;letter-spacing:0">(optionnel)</span></label>
-          <textarea id="p-notes" placeholder="Décrivez brièvement votre motif de consultation…"></textarea>
-        </div>
-
-        <button class="form-submit" id="submit-btn" onclick="submitBooking()">
+        <button class="rdv-confirm-btn" id="submit-btn" onclick="submitBooking()">
           <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          Envoyer la demande
+          Confirmer le rendez-vous
         </button>
         <div class="form-error" id="form-error"></div>
       </div>
     </div>
 
-    <!-- Success view -->
+    <!-- ── Vue succès ──────────────────────────────────────── -->
     <div id="modal-success-view" style="display:none">
       <div class="modal-success">
         <div class="success-icon">
           <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <div class="modal-success-title">Votre demande a été envoyée !</div>
+        <div class="modal-success-title">Rendez-vous demandé !</div>
         <div class="modal-success-sub">
-          Votre demande de RDV a bien été transmise au <strong id="m-name-success"></strong>.<br>
+          Votre demande a été transmise au <strong id="m-name-success"></strong>.<br>
           Le médecin vous contactera dans les <strong>24 heures</strong> pour confirmer.
         </div>
         <div class="success-detail">
           <div class="success-detail-row">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="m-success-slot">—</span>
+          </div>
+          <div class="success-detail-row">
             <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.21 15a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            Le médecin vous appellera pour confirmer
+            Rappel de confirmation sous 24h
           </div>
           <div class="success-detail-row">
             <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Vos données sont protégées et sécurisées
+            Vos données sont protégées
           </div>
         </div>
         <button class="btn btn-ghost-light" onclick="closeModal()" style="margin-top:24px;width:100%;justify-content:center">Fermer</button>
@@ -1505,6 +1625,7 @@ function renderStars(rating){
       .order('full_name');
     if (error) throw error;
     _allDoctors = data || [];
+    buildVilleIndex();
     var wilayas = [...new Set(_allDoctors.map(function(d){return d.wilaya;}).filter(Boolean))];
     document.getElementById('stat-docs').textContent = _allDoctors.length;
     document.getElementById('stat-wilayas').textContent = wilayas.length;
@@ -1549,8 +1670,23 @@ var SPEC_ICONS = {
 var SPECIALTIES = Object.keys(SPEC_ICONS);
 
 /* ── State ───────────────────────────────────────────────── */
-var _rdvOnly  = false;
-var _dropIdx  = -1;
+var _rdvOnly     = false;
+var _dropIdx     = -1;
+var _vDropIdx    = -1;
+var _availWilayas = [];
+var _availCities  = [];
+
+function buildVilleIndex(){
+  var wMap = {};
+  _availCities = [];
+  _allDoctors.forEach(function(d){
+    if(d.wilaya) wMap[d.wilaya] = (wMap[d.wilaya]||0)+1;
+    if(d.city && _availCities.indexOf(d.city)===-1) _availCities.push(d.city);
+  });
+  _availWilayas = Object.keys(wMap)
+    .sort(function(a,b){ return wMap[b]-wMap[a]; })
+    .map(function(w){ return {name:w, count:wMap[w]}; });
+}
 
 /* ── Debounce ────────────────────────────────────────────── */
 function debounce(fn, ms){
@@ -1577,7 +1713,7 @@ function geoSearch(){
       .then(function(data){
         var addr = data.address || {};
         var city = addr.city || addr.town || addr.suburb || addr.village || addr.county || '';
-        if(city){ document.getElementById('s-ville').value = city; doSearch(); }
+        if(city){ document.getElementById('s-ville').value = city; villeDropClose(); doSearch(); }
         btn.classList.remove('spinning');
       })
       .catch(function(){ btn.classList.remove('spinning'); });
@@ -1674,6 +1810,75 @@ function pickDoc(id){
   doSearch();
 }
 
+/* ── Ville dropdown ──────────────────────────────────────── */
+function renderVilleDrop(val){
+  var drop = document.getElementById('ville-drop');
+  if(!drop) return;
+  var q  = (val||'').trim();
+  var ql = q.toLowerCase();
+  var html = '';
+  _vDropIdx = -1;
+
+  var pinSvg = '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  var homeSvg = '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
+
+  if(!q){
+    if(_availWilayas.length){
+      html += '<div class="vdrop-cat">Wilayas disponibles</div>';
+      html += _availWilayas.map(function(w){
+        return '<button class="vdrop-item" onclick="pickVille(\''+escAttr(w.name)+'\')">'
+          +'<div class="vdrop-item-icon">'+pinSvg+'</div>'
+          +'<div class="vdrop-item-label">'+w.name+'</div>'
+          +'<span class="vdrop-item-count">'+w.count+' médecin'+(w.count>1?'s':'')+'</span>'
+          +'</button>';
+      }).join('');
+    } else {
+      html = '<div class="vdrop-empty">Aucun médecin disponible pour l\'instant</div>';
+    }
+  } else {
+    var matchW = _availWilayas.filter(function(w){ return w.name.toLowerCase().includes(ql); });
+    var matchC = _availCities.filter(function(c){ return c.toLowerCase().includes(ql); }).slice(0,6);
+
+    if(matchW.length){
+      html += '<div class="vdrop-cat">Wilayas</div>';
+      html += matchW.map(function(w){
+        return '<button class="vdrop-item" onclick="pickVille(\''+escAttr(w.name)+'\')">'
+          +'<div class="vdrop-item-icon">'+pinSvg+'</div>'
+          +'<div class="vdrop-item-label">'+hiLight(w.name,q)+'</div>'
+          +'<span class="vdrop-item-count">'+w.count+' médecin'+(w.count>1?'s':'')+'</span>'
+          +'</button>';
+      }).join('');
+    }
+    if(matchW.length && matchC.length) html += '<div class="drop-divider"></div>';
+    if(matchC.length){
+      html += '<div class="vdrop-cat">Villes</div>';
+      html += matchC.map(function(c){
+        return '<button class="vdrop-item" onclick="pickVille(\''+escAttr(c)+'\')">'
+          +'<div class="vdrop-item-icon">'+homeSvg+'</div>'
+          +'<div class="vdrop-item-label">'+hiLight(c,q)+'</div>'
+          +'</button>';
+      }).join('');
+    }
+    if(!matchW.length && !matchC.length){
+      html = '<div class="vdrop-empty">Aucun résultat pour « '+q+' »</div>';
+    }
+  }
+  drop.innerHTML = html;
+  drop.classList.add('open');
+}
+
+function villeDropClose(){
+  var drop = document.getElementById('ville-drop');
+  if(drop) drop.classList.remove('open');
+  _vDropIdx = -1;
+}
+
+function pickVille(name){
+  document.getElementById('s-ville').value = name;
+  villeDropClose();
+  doSearch();
+}
+
 /* ── Active filter chips ─────────────────────────────────── */
 function renderChips(){
   var bar  = document.getElementById('chips-bar');
@@ -1681,8 +1886,8 @@ function renderChips(){
   var smart = document.getElementById('s-smart').value.trim();
   var vil   = document.getElementById('s-ville').value.trim();
   if(smart) chips.push({label:smart, clear:function(){clearSmart();}});
-  if(vil)   chips.push({label:'📍 '+vil, clear:function(){document.getElementById('s-ville').value='';doSearch();}});
-  if(_rdvOnly) chips.push({label:'Disponible RDV', clear:function(){_rdvOnly=false;document.getElementById('rdv-toggle').classList.remove('on');doSearch();}});
+  if(vil)   chips.push({label:'Lieu : '+vil, clear:function(){document.getElementById('s-ville').value='';doSearch();}});
+  if(_rdvOnly) chips.push({label:'RDV en ligne', clear:function(){_rdvOnly=false;document.getElementById('rdv-toggle').classList.remove('on');doSearch();}});
   if(!chips.length){ bar.innerHTML=''; return; }
   bar.innerHTML = chips.map(function(c,i){
     return '<span class="f-chip" id="chip-'+i+'">'+c.label
@@ -1740,6 +1945,7 @@ function resetSearch(){
   _rdvOnly = false;
   document.getElementById('rdv-toggle').classList.remove('on');
   smartClose();
+  villeDropClose();
   document.querySelectorAll('.pill').forEach(function(p){p.classList.toggle('active',p.dataset.sp==='');});
   document.getElementById('state-empty').style.display='none';
   document.getElementById('chips-bar').innerHTML='';
@@ -1814,41 +2020,103 @@ function renderCards(docs){
   docs.forEach(function(d){window._docsMap[d.id]=d;});
 }
 
-/* ── Modal ───────────────────────────────────────────────── */
+/* ── RDV date & créneaux ─────────────────────────────────── */
+var _rdvDate    = new Date();
+var _rdvMinDate = new Date();
+var RDV_DAYS    = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+var RDV_MONTHS  = ['janvier','février','mars','avril','mai','juin',
+                   'juillet','août','septembre','octobre','novembre','décembre'];
+
+function updateRdvDateLabel(){
+  var d   = _rdvDate;
+  var lbl = RDV_DAYS[d.getDay()]+' '+d.getDate()+' '+RDV_MONTHS[d.getMonth()];
+  document.getElementById('rdv-date-label').textContent = lbl;
+  var prev = document.getElementById('rdv-prev-btn');
+  if(prev){
+    var cmp = new Date(_rdvDate); cmp.setHours(0,0,0,0);
+    var min = new Date(_rdvMinDate); min.setHours(0,0,0,0);
+    prev.disabled = cmp <= min;
+  }
+  generateSlots();
+}
+
+function rdvPrevDate(){
+  var d = new Date(_rdvDate); d.setDate(d.getDate()-1);
+  var min = new Date(_rdvMinDate); min.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  if(d < min) return;
+  _rdvDate = d; updateRdvDateLabel();
+}
+function rdvNextDate(){
+  var d = new Date(_rdvDate); d.setDate(d.getDate()+1);
+  _rdvDate = d; updateRdvDateLabel();
+}
+
+function generateSlots(){
+  var ALL = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30',
+             '14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
+  var docName = (_bookingDoc && _bookingDoc.full_name) || '';
+  var h = 0;
+  for(var i=0;i<docName.length;i++) h = docName.charCodeAt(i)+((h<<5)-h);
+  var dk = _rdvDate.getDate()*31+_rdvDate.getMonth()*400+_rdvDate.getDay()*7;
+  var slots = ALL.filter(function(s,idx){ return ((Math.abs(h)+dk+idx*17)%4)!==0; });
+  var grid = document.getElementById('rdv-slots');
+  if(!slots.length){
+    grid.innerHTML='<div class="rdv-no-slots">Aucun créneau ce jour — essayez le lendemain</div>';
+    return;
+  }
+  grid.innerHTML = slots.map(function(s){
+    return '<button class="rdv-slot" onclick="selectSlot(this,\''+s+'\')">'+s+'</button>';
+  }).join('');
+  // Reset patient block quand on change de jour
+  document.getElementById('rdv-patient-block').style.display='none';
+}
+
+function selectSlot(btn, time){
+  document.querySelectorAll('.rdv-slot').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  var d       = _rdvDate;
+  var dateLbl = RDV_DAYS[d.getDay()]+' '+d.getDate()+' '+RDV_MONTHS[d.getMonth()];
+  var dateStr = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  document.getElementById('p-time-selected').value = time;
+  document.getElementById('p-date-selected').value = dateStr;
+  document.getElementById('rdv-slot-badge-text').textContent = dateLbl+' à '+time;
+  document.getElementById('m-success-slot').textContent = dateLbl+' à '+time;
+  var block = document.getElementById('rdv-patient-block');
+  block.style.display = 'block';
+  setTimeout(function(){ block.scrollIntoView({behavior:'smooth',block:'nearest'}); }, 80);
+}
+
+/* ── Modal open / close ──────────────────────────────────── */
 function openModal(docId){
   var d=window._docsMap&&window._docsMap[docId];
-  if(!d){var f=_allDoctors.find(function(x){return x.id===docId;});d=f;}
+  if(!d){ d=_allDoctors.find(function(x){return x.id===docId;}); }
   if(!d) return;
   _bookingDoc=d;
   var name=d.full_name||'Médecin';
-  document.getElementById('m-avatar').style.background=avatarGrad(name);
-  document.getElementById('m-avatar').textContent=initials(name);
+
+  var av=document.getElementById('m-avatar');
+  av.style.background=avatarGrad(name); av.textContent=initials(name);
+
   var displayName='Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name);
   document.getElementById('m-name').textContent=displayName;
   document.getElementById('m-spec').textContent=(d.specialty||'')+(d.wilaya?' · '+d.wilaya:'');
   document.getElementById('m-name-success').textContent=displayName;
 
-  // Show phone if available
-  var phoneEl=document.getElementById('m-phone');
-  if(d.phone_public){
-    phoneEl.textContent='📞 '+d.phone_public;
-    phoneEl.style.display='block';
-  } else {
-    phoneEl.style.display='none';
-  }
-
-  ['p-name','p-phone','p-email','p-notes'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('p-date').value='';
-  document.getElementById('p-time').value='';
+  // Reset champs
+  ['p-name','p-phone','p-email'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('p-motif').value='';
+  document.getElementById('p-time-selected').value='';
+  document.getElementById('p-date-selected').value='';
   document.getElementById('form-error').style.display='none';
+  document.getElementById('rdv-patient-block').style.display='none';
+
+  // Init date = demain
+  var tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  _rdvDate=new Date(tomorrow); _rdvMinDate=new Date(tomorrow);
+  updateRdvDateLabel();
+
   document.getElementById('modal-form-view').style.display='block';
   document.getElementById('modal-success-view').style.display='none';
-  // Steps reset
-  document.querySelectorAll('.mstep').forEach(function(s,i){
-    s.classList.toggle('active',i===0);s.classList.remove('done');
-  });
-  var tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
-  document.getElementById('p-date').min=tomorrow.toISOString().split('T')[0];
   document.getElementById('modal').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -1860,30 +2128,28 @@ function closeModal(){
 function handleBackdrop(e){if(e.target===e.currentTarget)closeModal();}
 
 async function submitBooking(){
-  var name  =document.getElementById('p-name').value.trim();
-  var phone =document.getElementById('p-phone').value.trim();
-  var email =document.getElementById('p-email').value.trim();
-  var date  =document.getElementById('p-date').value;
-  var time  =document.getElementById('p-time').value;
-  var notes =document.getElementById('p-notes').value.trim();
-  var errEl =document.getElementById('form-error');
+  var name  = document.getElementById('p-name').value.trim();
+  var phone = document.getElementById('p-phone').value.trim();
+  var email = document.getElementById('p-email').value.trim();
+  var date  = document.getElementById('p-date-selected').value;
+  var time  = document.getElementById('p-time-selected').value;
+  var motif = document.getElementById('p-motif').value;
+  var errEl = document.getElementById('form-error');
   errEl.style.display='none';
-  if(!name){errEl.textContent='Veuillez saisir votre nom.';errEl.style.display='block';return;}
-  if(!phone){errEl.textContent='Veuillez saisir votre numéro de téléphone.';errEl.style.display='block';return;}
-  if(!date){errEl.textContent='Veuillez choisir une date souhaitée.';errEl.style.display='block';return;}
 
-  // Animate steps
-  document.querySelectorAll('.mstep').forEach(function(s,i){
-    s.classList.toggle('done',i<2);s.classList.toggle('active',i===2);
-  });
+  if(!name) { errEl.textContent='Veuillez saisir votre nom.'; errEl.style.display='block'; return; }
+  if(!phone){ errEl.textContent='Veuillez saisir votre numéro de téléphone.'; errEl.style.display='block'; return; }
+  if(!date||!time){ errEl.textContent='Veuillez sélectionner un créneau disponible.'; errEl.style.display='block'; return; }
 
-  var btn=document.getElementById('submit-btn');
-  btn.disabled=true;btn.textContent='Envoi en cours…';
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Envoi en cours…';
+
   try {
-    var {error}=await _supa.from('appointments').insert({
-      doctor_id:_bookingDoc.id,patient_name:name,patient_phone:phone,
-      patient_email:email||null,requested_date:date,requested_time:time||null,
-      notes:notes||null,status:'pending',
+    var {error} = await _supa.from('appointments').insert({
+      doctor_id:_bookingDoc.id, patient_name:name, patient_phone:phone,
+      patient_email:email||null, requested_date:date, requested_time:time,
+      notes:motif||null, status:'pending',
     });
     if(error) throw error;
     document.getElementById('modal-form-view').style.display='none';
@@ -1891,19 +2157,38 @@ async function submitBooking(){
   } catch(e){
     errEl.textContent='Erreur : '+(e.message||'Réessayez dans quelques instants.');
     errEl.style.display='block';
-    document.querySelectorAll('.mstep').forEach(function(s,i){
-      s.classList.toggle('active',i===0);s.classList.remove('done');
-    });
   } finally {
     btn.disabled=false;
-    btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Envoyer la demande';
+    btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirmer le rendez-vous';
   }
 }
 
 /* ── Live search listeners ───────────────────────────────── */
 (function(){
-  // Ville
-  document.getElementById('s-ville').addEventListener('input', _doSearchLive);
+  // Ville dropdown
+  var villeInp = document.getElementById('s-ville');
+  var _doVilleLive = debounce(function(){ renderVilleDrop(villeInp.value); }, 180);
+  villeInp.addEventListener('focus', function(){ renderVilleDrop(this.value); });
+  villeInp.addEventListener('input', function(){
+    _doVilleLive();
+    _doSearchLive();
+  });
+  villeInp.addEventListener('keydown', function(e){
+    var drop = document.getElementById('ville-drop');
+    var items = drop ? drop.querySelectorAll('.vdrop-item') : [];
+    if(e.key==='ArrowDown'){
+      e.preventDefault();
+      _vDropIdx = Math.min(_vDropIdx+1, items.length-1);
+      items.forEach(function(el,i){ el.classList.toggle('vfocused', i===_vDropIdx); });
+    } else if(e.key==='ArrowUp'){
+      e.preventDefault();
+      _vDropIdx = Math.max(_vDropIdx-1, 0);
+      items.forEach(function(el,i){ el.classList.toggle('vfocused', i===_vDropIdx); });
+    } else if(e.key==='Enter'){
+      if(_vDropIdx>=0 && items[_vDropIdx]){ items[_vDropIdx].click(); }
+      else { villeDropClose(); doSearch(); }
+    } else if(e.key==='Escape'){ villeDropClose(); }
+  });
 
   // Smart field
   var inp = document.getElementById('s-smart');
@@ -1934,7 +2219,7 @@ async function submitBooking(){
   // Close on outside click
   document.addEventListener('click', function(e){
     var card = document.querySelector('.search-card');
-    if(card && !card.contains(e.target)) smartClose();
+    if(card && !card.contains(e.target)){ smartClose(); villeDropClose(); }
   });
 })();
 
