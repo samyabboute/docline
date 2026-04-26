@@ -559,21 +559,28 @@ button,input,select,textarea{font-family:inherit}
 
 /* ── PWA INSTALL BANNER ────────────────────────────────────── */
 #pwa-banner{
-  position:fixed;bottom:0;left:0;right:0;z-index:300;
-  background:#fff;border-top:1.5px solid var(--border);
-  box-shadow:0 -4px 24px rgba(12,16,37,.10);
-  padding:12px 20px;
-  transform:translateY(100%);
-  transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
-#pwa-banner.visible{transform:translateY(0)}
-.pwa-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px}
-.pwa-icon{font-size:1.5rem;flex-shrink:0;line-height:1}
+  position:fixed;bottom:24px;left:50%;z-index:300;
+  transform:translateX(-50%) translateY(160px);
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 8px 40px rgba(59,23,114,.20),0 2px 12px rgba(12,16,37,.08);
+  padding:16px 18px;
+  width:calc(100% - 40px);max-width:420px;
+  transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+#pwa-banner.visible{transform:translateX(-50%) translateY(0)}
+#pwa-banner.floating{animation:pwa-float 3.5s ease-in-out infinite}
+@keyframes pwa-float{
+  0%,100%{transform:translateX(-50%) translateY(0)}
+  50%{transform:translateX(-50%) translateY(-7px)}}
+.pwa-inner{display:flex;align-items:center;gap:12px}
 .pwa-text{flex:1;min-width:0}
-.pwa-text strong{display:block;font-size:.875rem;font-weight:700;color:var(--text-1);line-height:1.3}
-.pwa-text span{font-size:.75rem;color:var(--text-3)}
+.pwa-text strong{display:block;font-size:.875rem;font-weight:700;color:var(--text-1);line-height:1.3;margin-bottom:2px}
+.pwa-text span{font-size:.75rem;color:var(--text-3);line-height:1.4}
+.pwa-text .pwa-ios-hint{font-size:.75rem;color:var(--text-3);line-height:1.5}
+.pwa-text .pwa-ios-hint svg{display:inline;vertical-align:middle;margin:0 2px}
 .pwa-install-btn{
   background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);
-  padding:9px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;
+  padding:9px 16px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;
   cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:var(--shadow-brand);
   transition:all var(--t)}
 .pwa-install-btn:hover{background:var(--brand-dark);transform:translateY(-1px)}
@@ -895,9 +902,16 @@ button,input,select,textarea{font-family:inherit}
   <div class="pwa-inner">
     <div class="pwa-text">
       <strong>Installer Docline</strong>
-      <span>Accédez à vos médecins depuis votre écran d'accueil</span>
+      <!-- Android/Chrome -->
+      <span id="pwa-sub-android">Accédez à vos médecins depuis votre écran d'accueil</span>
+      <!-- iOS Safari -->
+      <span id="pwa-sub-ios" class="pwa-ios-hint" style="display:none">
+        Appuyez sur
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><rect x="3" y="14" width="18" height="8" rx="2"/></svg>
+        puis <strong>« Sur l'écran d'accueil »</strong>
+      </span>
     </div>
-    <button class="pwa-install-btn" onclick="installPWA()">Installer</button>
+    <button class="pwa-install-btn" id="pwa-install-btn" onclick="installPWA()">Installer</button>
     <button class="pwa-dismiss" onclick="dismissPWA()" title="Fermer">✕</button>
   </div>
 </div>
@@ -2370,34 +2384,55 @@ renderCards = function(docs){
 
 /* ── PWA install prompt ──────────────────────────────────── */
 var _deferredInstall = null;
+
+function _showPWABanner(){
+  var banner = document.getElementById('pwa-banner');
+  banner.style.display = 'block';
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      banner.classList.add('visible');
+      // start gentle float after entry animation completes
+      setTimeout(function(){ banner.classList.add('floating'); }, 500);
+    });
+  });
+}
+
+function _hidePWABanner(){
+  var banner = document.getElementById('pwa-banner');
+  banner.classList.remove('visible','floating');
+  setTimeout(function(){ banner.style.display='none'; }, 450);
+}
+
+// Android / Chrome — standard install prompt
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault();
   _deferredInstall = e;
-  setTimeout(function(){
-    var banner = document.getElementById('pwa-banner');
-    banner.style.display = 'block';
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){ banner.classList.add('visible'); });
-    });
-  }, 1500);
+  setTimeout(_showPWABanner, 1500);
 });
+
+// iOS Safari — no beforeinstallprompt, show manual instructions
+(function(){
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isSafari = /safari/i.test(navigator.userAgent) && !/chrome|chromium|crios|fxios|edgios/i.test(navigator.userAgent);
+  var isStandalone = ('standalone' in navigator) && navigator.standalone;
+  if(isIOS && isSafari && !isStandalone){
+    document.getElementById('pwa-sub-android').style.display = 'none';
+    document.getElementById('pwa-sub-ios').style.display = 'inline';
+    document.getElementById('pwa-install-btn').style.display = 'none';
+    setTimeout(_showPWABanner, 1500);
+  }
+})();
 
 function installPWA(){
   if(!_deferredInstall) return;
   _deferredInstall.prompt();
   _deferredInstall.userChoice.then(function(){
     _deferredInstall = null;
-    var banner = document.getElementById('pwa-banner');
-    banner.classList.remove('visible');
-    setTimeout(function(){ banner.style.display='none'; }, 420);
+    _hidePWABanner();
   });
 }
 
-function dismissPWA(){
-  var banner = document.getElementById('pwa-banner');
-  banner.classList.remove('visible');
-  setTimeout(function(){ banner.style.display='none'; }, 420);
-}
+function dismissPWA(){ _hidePWABanner(); }
 </script>
 <script>
 if('serviceWorker' in navigator){
