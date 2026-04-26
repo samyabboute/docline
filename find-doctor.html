@@ -644,6 +644,38 @@ button,input,select,textarea{font-family:inherit}
   .hero-stats{flex-wrap:wrap;gap:8px 20px}
 }
 
+/* ── DESKTOP CENTERED HERO ≥ 860px ──────────────────────────── */
+@media(min-width:860px){
+  /* Hero centré, illustration cachée */
+  .hero{padding:96px 24px 72px}
+  .hero-inner{display:flex;flex-direction:column;align-items:center;
+    max-width:860px;margin:0 auto;text-align:center}
+  .hero-right,.hero-floaters{display:none!important}
+  .hero-left{width:100%;max-width:100%}
+  .hero-badge{display:inline-flex;margin-bottom:28px}
+  .hero-title{font-size:clamp(2.5rem,4vw,3.6rem);max-width:680px}
+  .hero-sub{max-width:540px;margin:0 auto 40px;font-size:1.0625rem}
+  .hero-stats{justify-content:center;gap:48px;margin-top:36px}
+
+  /* Search bar : pill pleine largeur centrée */
+  .search-card{
+    max-width:740px;width:100%;margin:0 auto;
+    border-radius:var(--r-full);
+    padding:6px;
+    box-shadow:0 8px 40px rgba(59,23,114,.14);
+    border:1.5px solid rgba(59,23,114,.1)}
+  .sf{padding:14px 24px;border-right:1px solid var(--border)}
+  .sf-smart{flex:1.8}
+  /* Arrondi sur le premier champ */
+  .sf-smart{border-radius:var(--r-full) 0 0 var(--r-full)}
+  .search-btn{
+    border-radius:var(--r-full);
+    padding:12px 32px;font-size:.9375rem;
+    margin:0 0 0 6px}
+  .search-sub{justify-content:center;margin-top:14px}
+  .smart-drop{border-radius:20px;top:calc(100% + 14px)}
+}
+
 /* ── SMART SEARCH DROPDOWN ─────────────────────────────────── */
 .search-card{position:relative}
 .sf-smart{flex:1.5;min-width:0}
