@@ -48,6 +48,31 @@ button,input,select,textarea{font-family:inherit}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
 
+/* ── APP LOADER (plein écran, cœur qui se remplit) ───────── */
+#app-loader{
+  position:fixed;inset:0;z-index:9999;
+  background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .5s ease,visibility .5s ease}
+#app-loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-heart{
+  width:160px;height:auto;
+  animation:heart-pulse 1.6s ease-in-out infinite;
+  filter:drop-shadow(0 6px 20px rgba(59,23,114,.18))}
+.loader-heart-outline{fill:none;stroke:#3B1772;stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+@keyframes heart-pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.06)}}
+.loader-text{
+  position:absolute;bottom:18%;left:0;right:0;
+  text-align:center;font-family:'Sora',system-ui,sans-serif;
+  font-weight:600;font-size:.875rem;color:#3B1772;
+  letter-spacing:.08em;text-transform:uppercase;
+  opacity:.75;animation:loader-text-fade 1.6s ease-in-out infinite}
+@keyframes loader-text-fade{
+  0%,100%{opacity:.4}
+  50%{opacity:.9}}
+
 /* ── TOP NAV ───────────────────────────────────────────────── */
 .nav{
   position:fixed;top:0;left:0;right:0;z-index:200;height:64px;
@@ -866,6 +891,26 @@ button,input,select,textarea{font-family:inherit}
 </style>
 </head>
 <body>
+
+<!-- ══ APP LOADER (cœur qui se remplit en violet) ═══════════ -->
+<div id="app-loader" role="status" aria-live="polite" aria-label="Chargement de Docline">
+  <svg class="loader-heart" viewBox="0 0 100 92" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <clipPath id="heart-clip">
+        <path d="M50,85 C25,75 5,55 5,32 C5,14 18,3 32,3 C41,3 47,9 50,17 C53,9 59,3 68,3 C82,3 95,14 95,32 C95,55 75,75 50,85 Z"/>
+      </clipPath>
+    </defs>
+    <!-- Heart fill, clipped, animates from bottom to top -->
+    <g clip-path="url(#heart-clip)">
+      <rect x="0" width="100" height="92" fill="#3B1772">
+        <animate attributeName="y" values="92;0;0;92" keyTimes="0;0.55;0.7;1" dur="1.8s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <!-- Heart outline -->
+    <path class="loader-heart-outline" d="M50,85 C25,75 5,55 5,32 C5,14 18,3 32,3 C41,3 47,9 50,17 C53,9 59,3 68,3 C82,3 95,14 95,32 C95,55 75,75 50,85 Z"/>
+  </svg>
+  <div class="loader-text">Docline</div>
+</div>
 
 <!-- ══ STICKY BOTTOM SEARCH (mobile ≤640px) ══════════════════ -->
 <div id="sticky-bar" aria-label="Recherche rapide">
@@ -2381,6 +2426,19 @@ renderCards = function(docs){
     el.setAttribute('placeholder', hints[idx]);
   }, 2600);
 })();
+
+/* ── APP LOADER — hide on full load ─────────────────────── */
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    var loader = document.getElementById('app-loader');
+    if(loader) loader.classList.add('hidden');
+  }, 600);
+});
+// Failsafe: hide after 5s no matter what
+setTimeout(function(){
+  var loader = document.getElementById('app-loader');
+  if(loader) loader.classList.add('hidden');
+}, 5000);
 
 /* ── PWA install prompt ──────────────────────────────────── */
 var _deferredInstall = null;
