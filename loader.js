@@ -67,11 +67,21 @@
   }
   inject();
 
-  // ── 4. Hide on window.load + 5s failsafe ──────────────────
+  // ── 4. Hide on window.load with min display time + failsafe ─
+  // Min display: 1900ms so user sees a full fill→drain cycle (1.8s loop)
+  var loaderStart = Date.now();
+  var MIN_DISPLAY = 1900;
+  var FAILSAFE = 6000;
   function hide(){
     var el = document.getElementById('app-loader');
-    if(el) el.classList.add('hidden');
+    if(!el) return;
+    var elapsed = Date.now() - loaderStart;
+    if(elapsed < MIN_DISPLAY){
+      setTimeout(hide, MIN_DISPLAY - elapsed);
+      return;
+    }
+    el.classList.add('hidden');
   }
-  window.addEventListener('load', function(){ setTimeout(hide, 600); });
-  setTimeout(hide, 5000);
+  window.addEventListener('load', function(){ setTimeout(hide, 100); });
+  setTimeout(hide, FAILSAFE);
 })();
