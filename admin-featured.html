@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="X-Frame-Options" content="DENY">
-<title>Médecins En Vedette — Docline Admin</title>
+<title>MÃ©decins En Vedette â€” Docline Admin</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@ button,input,select{font-family:inherit}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
 
-/* ── SHELL ───────────────────────────────────────────────── */
+/* â”€â”€ SHELL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;min-height:100vh}
 .sidebar{grid-row:1/-1;background:var(--sidebar-bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--sidebar-border);z-index:200}
 .sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 16px;border-bottom:1px solid var(--sidebar-border);flex-shrink:0}
@@ -54,7 +54,7 @@ button,input,select{font-family:inherit}
 .nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
 .nav-item:hover svg,.nav-item.active svg{opacity:1}
 
-/* ── TOPBAR ──────────────────────────────────────────────── */
+/* â”€â”€ TOPBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:100}
 .topbar-title{font-size:1.0625rem;font-weight:700;color:var(--text-primary)}
 .topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
@@ -62,11 +62,11 @@ button,input,select{font-family:inherit}
 .hamburger svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:199}
 
-/* ── MAIN ────────────────────────────────────────────────── */
+/* â”€â”€ MAIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .main{overflow-y:auto;min-height:calc(100vh - var(--topbar-h))}
 .page{padding:28px;max-width:1300px}
 
-/* ── KPI ─────────────────────────────────────────────────── */
+/* â”€â”€ KPI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 .kpi{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
@@ -89,7 +89,7 @@ button,input,select{font-family:inherit}
 .kpi-brand .kpi-icon svg{stroke:var(--brand)}
 .kpi-success .kpi-icon svg{stroke:var(--success)}
 
-/* ── TOOLBAR ─────────────────────────────────────────────── */
+/* â”€â”€ TOOLBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .search-input{flex:1;min-width:200px;border:1.5px solid var(--border);border-radius:var(--r-md);padding:9px 12px 9px 36px;font-size:.8125rem;font-family:inherit;background:var(--bg-raised);color:var(--text-primary);outline:none;transition:border-color var(--t);position:relative}
 .search-wrap{position:relative;flex:1;min-width:200px}
@@ -98,13 +98,13 @@ button,input,select{font-family:inherit}
 .filter-select{border:1.5px solid var(--border);border-radius:var(--r-md);padding:9px 12px;font-size:.8125rem;font-family:inherit;background:var(--bg-raised);color:var(--text-primary);outline:none;cursor:pointer;transition:border-color var(--t)}
 .filter-select:focus{border-color:var(--brand)}
 
-/* ── CARD ────────────────────────────────────────────────── */
+/* â”€â”€ CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
 .card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
 .card-title{font-size:.8125rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px}
 .card-title svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;color:var(--gold);flex-shrink:0}
 
-/* ── TABLE ───────────────────────────────────────────────── */
+/* â”€â”€ TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .table-wrap{overflow-x:auto}
 .data-table{width:100%;border-collapse:collapse}
 .data-table th{padding:10px 14px;text-align:left;font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;background:var(--bg-subtle)}
@@ -114,10 +114,10 @@ button,input,select{font-family:inherit}
 .trow.is-featured td{background:rgba(245,158,11,.03)}
 .trow.is-featured:hover td{background:rgba(245,158,11,.07)}
 
-/* ── DOCTOR AVATAR ───────────────────────────────────────── */
+/* â”€â”€ DOCTOR AVATAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .doc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:800;color:#fff;flex-shrink:0}
 
-/* ── BADGES ──────────────────────────────────────────────── */
+/* â”€â”€ BADGES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700}
 .badge-gold{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border)}
 .badge-teal{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border)}
@@ -126,7 +126,7 @@ button,input,select{font-family:inherit}
 .badge-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
 .badge svg{width:10px;height:10px;fill:currentColor;stroke:none;flex-shrink:0}
 
-/* ── FEATURED TOGGLE ─────────────────────────────────────── */
+/* â”€â”€ FEATURED TOGGLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .toggle-featured{
   display:inline-flex;align-items:center;gap:7px;
   padding:6px 14px;border-radius:var(--r-full);border:1.5px solid;
@@ -145,7 +145,7 @@ button,input,select{font-family:inherit}
 .toggle-featured.on svg{fill:var(--gold);stroke:none}
 .toggle-featured.off svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 
-/* ── VISIBILITY TOGGLE ───────────────────────────────────── */
+/* â”€â”€ VISIBILITY TOGGLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .vis-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:var(--r-full);border:1.5px solid;font-size:.6875rem;font-weight:600;cursor:pointer;transition:all var(--t);font-family:inherit}
 .vis-btn.public{background:var(--success-bg);color:var(--success);border-color:var(--success-border)}
 .vis-btn.public:hover{background:#D1FAE5}
@@ -154,7 +154,7 @@ button,input,select{font-family:inherit}
 .vis-btn.loading{opacity:.5;pointer-events:none}
 .vis-btn svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
 
-/* ── BUTTONS ─────────────────────────────────────────────── */
+/* â”€â”€ BUTTONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:inherit;font-size:.8125rem;font-weight:600;padding:9px 18px;transition:all var(--t);white-space:nowrap;line-height:1}
 .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
 .btn:active{transform:scale(.98)}
@@ -164,7 +164,7 @@ button,input,select{font-family:inherit}
 .btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,.4)}
 .btn-sm{padding:5px 10px;font-size:.6875rem}
 
-/* ── EMPTY / LOADING ─────────────────────────────────────── */
+/* â”€â”€ EMPTY / LOADING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .empty-state{padding:60px 24px;text-align:center;color:var(--text-muted)}
 .empty-icon{width:56px;height:56px;border-radius:var(--r-xl);background:var(--gold-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
 .empty-icon svg{width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.75;stroke-linecap:round}
@@ -172,7 +172,7 @@ button,input,select{font-family:inherit}
 .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── TOAST ───────────────────────────────────────────────── */
+/* â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{background:#1A1D26;color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-size:.8125rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:10px;pointer-events:all;animation:toastIn .25s ease;max-width:320px}
 .toast.success{border-left:3px solid var(--success)}
@@ -180,7 +180,7 @@ button,input,select{font-family:inherit}
 .toast.error{border-left:3px solid var(--danger)}
 @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── SIDEBAR MOBILE ──────────────────────────────────────── */
+/* â”€â”€ SIDEBAR MOBILE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media(max-width:768px){
   .app{grid-template-columns:1fr}
   .sidebar{position:fixed;left:-var(--sidebar-w);left:calc(-1 * var(--sidebar-w));width:var(--sidebar-w);transition:left .25s ease;z-index:300}
@@ -192,36 +192,37 @@ button,input,select{font-family:inherit}
   .page{padding:16px}
 }
 </style>
+<script src="loader.js"></script>
 </head>
 <body>
 
 <div class="app">
-  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <!-- â”€â”€ SIDEBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <aside class="sidebar" id="admin-sidebar"></aside>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <!-- ── TOPBAR ───────────────────────────────────────────── -->
+  <!-- â”€â”€ TOPBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <header class="topbar">
     <button class="hamburger" id="hamburger">
       <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <div class="topbar-title" style="display:flex;align-items:center;gap:10px">
       <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:#F59E0B;stroke:none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      Médecins En Vedette
+      MÃ©decins En Vedette
     </div>
     <div class="topbar-actions">
       <button class="btn btn-gold btn-sm" onclick="featuredAll()">
         <svg viewBox="0 0 24 24" style="fill:#fff;stroke:none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <span>Gérer tous les featured</span>
+        <span>GÃ©rer tous les featured</span>
       </button>
       <button class="btn btn-primary btn-sm" onclick="loadDoctors()">
         <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-        Rafraîchir
+        RafraÃ®chir
       </button>
     </div>
   </header>
 
-  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <!-- â”€â”€ MAIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <main class="main">
     <div class="page">
 
@@ -229,26 +230,26 @@ button,input,select{font-family:inherit}
       <div class="kpi-grid">
         <div class="kpi kpi-gold">
           <div class="kpi-label">En vedette</div>
-          <div class="kpi-value" id="kpi-featured">—</div>
-          <div class="kpi-sub">médecins sponsorisés</div>
+          <div class="kpi-value" id="kpi-featured">â€”</div>
+          <div class="kpi-sub">mÃ©decins sponsorisÃ©s</div>
           <div class="kpi-icon"><svg viewBox="0 0 24 24" style="fill:#F59E0B;stroke:none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
         </div>
         <div class="kpi kpi-teal">
-          <div class="kpi-label">RDV activés</div>
-          <div class="kpi-value" id="kpi-rdv">—</div>
-          <div class="kpi-sub">acceptent les réservations</div>
+          <div class="kpi-label">RDV activÃ©s</div>
+          <div class="kpi-value" id="kpi-rdv">â€”</div>
+          <div class="kpi-sub">acceptent les rÃ©servations</div>
           <div class="kpi-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg></div>
         </div>
         <div class="kpi kpi-brand">
           <div class="kpi-label">Profils publics</div>
-          <div class="kpi-value" id="kpi-public">—</div>
+          <div class="kpi-value" id="kpi-public">â€”</div>
           <div class="kpi-sub">visibles sur Docline</div>
           <div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
         </div>
         <div class="kpi kpi-success">
           <div class="kpi-label">Total inscrits</div>
-          <div class="kpi-value" id="kpi-total">—</div>
-          <div class="kpi-sub">médecins sur la plateforme</div>
+          <div class="kpi-value" id="kpi-total">â€”</div>
+          <div class="kpi-sub">mÃ©decins sur la plateforme</div>
           <div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         </div>
       </div>
@@ -257,21 +258,21 @@ button,input,select{font-family:inherit}
       <div class="toolbar">
         <div class="search-wrap">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" id="search-input" type="text" placeholder="Rechercher par nom, spécialité, wilaya…" oninput="filterTable()">
+          <input class="search-input" id="search-input" type="text" placeholder="Rechercher par nom, spÃ©cialitÃ©, wilayaâ€¦" oninput="filterTable()">
         </div>
         <select class="filter-select" id="filter-featured" onchange="filterTable()">
-          <option value="all">Tous les médecins</option>
+          <option value="all">Tous les mÃ©decins</option>
           <option value="featured">En vedette uniquement</option>
           <option value="not-featured">Pas en vedette</option>
         </select>
         <select class="filter-select" id="filter-visibility" onchange="filterTable()">
-          <option value="all">Toute visibilité</option>
+          <option value="all">Toute visibilitÃ©</option>
           <option value="public">Profils publics</option>
-          <option value="private">Profils privés</option>
+          <option value="private">Profils privÃ©s</option>
         </select>
         <select class="filter-select" id="filter-rdv" onchange="filterTable()">
           <option value="all">Tous</option>
-          <option value="rdv">RDV activé</option>
+          <option value="rdv">RDV activÃ©</option>
           <option value="no-rdv">Sans RDV</option>
         </select>
       </div>
@@ -281,9 +282,9 @@ button,input,select{font-family:inherit}
         <div class="card-header">
           <div class="card-title">
             <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <span id="table-count">—</span> médecin(s) affichés
+            <span id="table-count">â€”</span> mÃ©decin(s) affichÃ©s
           </div>
-          <div style="font-size:.6875rem;color:var(--text-muted)">Clic sur l'étoile pour mettre en vedette · Clic sur l'œil pour activer le profil</div>
+          <div style="font-size:.6875rem;color:var(--text-muted)">Clic sur l'Ã©toile pour mettre en vedette Â· Clic sur l'Å“il pour activer le profil</div>
         </div>
         <div id="table-loading" style="display:block">
           <div class="spinner"></div>
@@ -292,10 +293,10 @@ button,input,select{font-family:inherit}
           <table class="data-table">
             <thead>
               <tr>
-                <th>Médecin</th>
-                <th>Spécialité</th>
+                <th>MÃ©decin</th>
+                <th>SpÃ©cialitÃ©</th>
                 <th>Wilaya / Ville</th>
-                <th>Visibilité</th>
+                <th>VisibilitÃ©</th>
                 <th>RDV</th>
                 <th style="text-align:center">En vedette</th>
                 <th>Prix</th>
@@ -306,7 +307,7 @@ button,input,select{font-family:inherit}
           </table>
           <div id="empty-state" class="empty-state" style="display:none">
             <div class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-            <div class="empty-title">Aucun médecin trouvé</div>
+            <div class="empty-title">Aucun mÃ©decin trouvÃ©</div>
             <div>Modifiez vos filtres de recherche</div>
           </div>
         </div>
@@ -319,7 +320,7 @@ button,input,select{font-family:inherit}
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
-/* ── CONFIG ─────────────────────────────────────────────── */
+/* â”€â”€ CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 var _supa = supabase.createClient(
   (typeof DOCLINE_CONFIG !== 'undefined' ? DOCLINE_CONFIG.SUPA_URL : SUPA_URL),
   (typeof DOCLINE_CONFIG !== 'undefined' ? DOCLINE_CONFIG.SUPA_KEY : SUPA_KEY)
@@ -327,13 +328,13 @@ var _supa = supabase.createClient(
 var _doctors = [];
 var _filtered = [];
 
-/* ── SIDEBAR ─────────────────────────────────────────────── */
+/* â”€â”€ SIDEBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 var AdminNav = [
   ['admin.html',         'overview',  'Vue d\'ensemble',     '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
-  ['admin-users.html',   'users',     'Médecins & Cliniques', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+  ['admin-users.html',   'users',     'MÃ©decins & Cliniques', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
   ['admin-featured.html','featured',  'En Vedette',           '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
   ['admin-revenue.html', 'revenue',   'Revenus',              '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
-  ['admin-security.html','security',  'Sécurité & Logs',      '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
+  ['admin-security.html','security',  'SÃ©curitÃ© & Logs',      '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
 ];
 
 function renderSidebar() {
@@ -358,12 +359,12 @@ function renderSidebar() {
     +'<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Voir le site patient</a></div>'
     +'<div class="sidebar-footer"><div class="sidebar-user" onclick="signOut()">'
     +'<div class="user-avatar">F</div>'
-    +'<div><div class="user-name" id="sb-name">Fondateur</div><div class="user-role">Accès total</div></div>'
+    +'<div><div class="user-name" id="sb-name">Fondateur</div><div class="user-role">AccÃ¨s total</div></div>'
     +'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:2;margin-left:auto"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
     +'</div></div>';
 }
 
-/* ── AUTH ────────────────────────────────────────────────── */
+/* â”€â”€ AUTH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 (async function(){
   renderSidebar();
   var { data: { session } } = await _supa.auth.getSession();
@@ -384,7 +385,7 @@ function renderSidebar() {
   await loadDoctors();
 })();
 
-/* ── LOAD ────────────────────────────────────────────────── */
+/* â”€â”€ LOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 async function loadDoctors() {
   document.getElementById('table-loading').style.display = 'block';
   document.getElementById('table-wrap').style.display = 'none';
@@ -406,7 +407,7 @@ async function loadDoctors() {
   }
 }
 
-/* ── KPIs ────────────────────────────────────────────────── */
+/* â”€â”€ KPIs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function updateKPIs() {
   document.getElementById('kpi-total').textContent    = _doctors.length;
   document.getElementById('kpi-featured').textContent = _doctors.filter(function(d){return d.featured;}).length;
@@ -414,7 +415,7 @@ function updateKPIs() {
   document.getElementById('kpi-rdv').textContent      = _doctors.filter(function(d){return d.accepts_rdv;}).length;
 }
 
-/* ── FILTER ──────────────────────────────────────────────── */
+/* â”€â”€ FILTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function filterTable() {
   var q    = document.getElementById('search-input').value.toLowerCase();
   var fFeat = document.getElementById('filter-featured').value;
@@ -435,7 +436,7 @@ function filterTable() {
   renderTable();
 }
 
-/* ── RENDER ──────────────────────────────────────────────── */
+/* â”€â”€ RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 var GRADS = ['linear-gradient(135deg,#3B1772,#0066FF)','linear-gradient(135deg,#6D28D9,#A855F7)','linear-gradient(135deg,#059669,#10B981)','linear-gradient(135deg,#DC2626,#F87171)','linear-gradient(135deg,#D97706,#FBBF24)','linear-gradient(135deg,#0891B2,#22D3EE)'];
 function avatarGrad(name){var h=0;for(var i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+(h<<5)-h;return GRADS[Math.abs(h)%GRADS.length];}
 function initials(n){return(n||'?').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');}
@@ -453,11 +454,11 @@ function renderTable() {
   empty.style.display = 'none';
 
   tbody.innerHTML = _filtered.map(function(d) {
-    var name = d.full_name || '—';
+    var name = d.full_name || 'â€”';
     var grad = avatarGrad(name);
     var inits = initials(name);
-    var price = d.consultation_price ? new Intl.NumberFormat('fr-DZ').format(d.consultation_price)+' DA' : '—';
-    var date  = d.created_at ? new Date(d.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+    var price = d.consultation_price ? new Intl.NumberFormat('fr-DZ').format(d.consultation_price)+' DA' : 'â€”';
+    var date  = d.created_at ? new Date(d.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : 'â€”';
     var featClass = d.featured ? 'on' : 'off';
     var featLabel = d.featured ? 'En vedette' : 'Mettre en avant';
     var featIcon  = d.featured
@@ -465,13 +466,13 @@ function renderTable() {
       : '<svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
 
     var visClass  = d.is_public ? 'public' : 'private';
-    var visLabel  = d.is_public ? 'Public' : 'Privé';
+    var visLabel  = d.is_public ? 'Public' : 'PrivÃ©';
     var visIcon   = d.is_public
       ? '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
       : '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 
     var rdvBadge = d.accepts_rdv
-      ? '<span class="badge badge-teal">RDV activé</span>'
+      ? '<span class="badge badge-teal">RDV activÃ©</span>'
       : '<span class="badge badge-neutral">Appel</span>';
 
     return '<tr class="trow'+(d.featured?' is-featured':'')+'">'
@@ -480,8 +481,8 @@ function renderTable() {
       +'<div><div style="font-weight:700;color:var(--text-primary)">Dr. '+name.replace(/^Dr\.?\s*/i,'')+'</div>'
       +'<div style="font-size:.6875rem;color:var(--text-muted)">'+d.email+'</div></div>'
       +'</div></td>'
-      +'<td><span style="font-weight:500">'+( d.specialty||'—')+'</span></td>'
-      +'<td><div style="font-weight:500">'+(d.wilaya||'—')+'</div>'
+      +'<td><span style="font-weight:500">'+( d.specialty||'â€”')+'</span></td>'
+      +'<td><div style="font-weight:500">'+(d.wilaya||'â€”')+'</div>'
       +(d.city?'<div style="font-size:.6875rem;color:var(--text-muted)">'+d.city+'</div>':'')+'</td>'
       +'<td><button class="vis-btn '+visClass+'" onclick="toggleVisibility(\''+d.id+'\','+d.is_public+')" title="Cliquer pour '+(d.is_public?'masquer':'publier')+'">'+visIcon+' '+visLabel+'</button></td>'
       +'<td>'+rdvBadge+'</td>'
@@ -492,7 +493,7 @@ function renderTable() {
   }).join('');
 }
 
-/* ── TOGGLE FEATURED ─────────────────────────────────────── */
+/* â”€â”€ TOGGLE FEATURED â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 async function toggleFeatured(id, current) {
   var newVal = !current;
   // Optimistic update
@@ -503,7 +504,7 @@ async function toggleFeatured(id, current) {
   try {
     var { error } = await _supa.from('profiles').update({ featured: newVal }).eq('id', id);
     if (error) throw error;
-    toast(newVal ? 'Médecin mis En Vedette' : 'Retiré des vedettes', newVal ? 'success' : 'warning');
+    toast(newVal ? 'MÃ©decin mis En Vedette' : 'RetirÃ© des vedettes', newVal ? 'success' : 'warning');
   } catch(e) {
     // Rollback
     _doctors = _doctors.map(function(d){ return d.id===id ? Object.assign({},d,{featured:current}) : d; });
@@ -513,7 +514,7 @@ async function toggleFeatured(id, current) {
   }
 }
 
-/* ── TOGGLE VISIBILITY ───────────────────────────────────── */
+/* â”€â”€ TOGGLE VISIBILITY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 async function toggleVisibility(id, current) {
   var newVal = !current;
   _doctors = _doctors.map(function(d){ return d.id===id ? Object.assign({},d,{is_public:newVal}) : d; });
@@ -522,7 +523,7 @@ async function toggleVisibility(id, current) {
   try {
     var { error } = await _supa.from('profiles').update({ is_public: newVal }).eq('id', id);
     if (error) throw error;
-    toast(newVal ? 'Profil rendu public' : 'Profil masqué', 'success');
+    toast(newVal ? 'Profil rendu public' : 'Profil masquÃ©', 'success');
   } catch(e) {
     _doctors = _doctors.map(function(d){ return d.id===id ? Object.assign({},d,{is_public:current}) : d; });
     updateKPIs();
@@ -531,13 +532,13 @@ async function toggleVisibility(id, current) {
   }
 }
 
-/* ── SIGN OUT ────────────────────────────────────────────── */
+/* â”€â”€ SIGN OUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 async function signOut() {
   await _supa.auth.signOut();
   window.location.href = 'login.html';
 }
 
-/* ── TOAST ───────────────────────────────────────────────── */
+/* â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function toast(msg, type) {
   var wrap = document.getElementById('toast-wrap');
   var el = document.createElement('div');
@@ -547,9 +548,9 @@ function toast(msg, type) {
   setTimeout(function(){ el.style.opacity='0'; el.style.transform='translateY(8px)'; el.style.transition='.3s'; setTimeout(function(){el.remove();},300); }, 3000);
 }
 
-/* ── PLACEHOLDER ─────────────────────────────────────────── */
+/* â”€â”€ PLACEHOLDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function featuredAll() {
-  toast('Utilisez les boutons étoile sur chaque ligne', 'warning');
+  toast('Utilisez les boutons Ã©toile sur chaque ligne', 'warning');
 }
 </script>
 </body>
