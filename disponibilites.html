@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mes disponibilités — Docline</title>
+<script src="config.js"></script>
+<script src="shell.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3B1772">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
+<script src="loader.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F7F8FC;min-height:100vh;color:#0C0E14}
+
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.page-wrap{max-width:1100px;margin:0 auto;padding:24px 20px}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.page-title{font-size:22px;font-weight:800;color:#0D1117;letter-spacing:-.5px}
+.page-sub{font-size:13px;color:#6B7280;margin-top:3px;max-width:560px;line-height:1.45}
+.header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+
+.btn{padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#3B1772;color:#fff;box-shadow:0 1px 4px rgba(59,23,114,.25)}
+.btn-primary:hover{background:#2D1259}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:#fff;border:1px solid #E5E7EB;color:#374151}
+.btn-ghost:hover{background:#F9FAFB}
+.btn-danger{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+.btn-danger:hover{background:#FEE2E2}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ── Day card (planning hebdo) ───────────────────────────── */
+.section-title{font-size:14px;font-weight:800;color:#0D1117;margin:24px 0 12px;display:flex;align-items:center;gap:10px}
+.section-title .badge{background:#EDE8FF;color:#3B1772;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:700}
+
+.day-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.day-card{background:#fff;border:1.5px solid #E5E7EB;border-radius:14px;padding:16px;animation:cardIn .35s ease both;transition:border-color .15s,box-shadow .15s}
+.day-card.active{border-color:#C7BBE3;box-shadow:0 1px 4px rgba(59,23,114,.06)}
+.day-card.disabled{opacity:.55}
+.day-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.day-name{font-size:14px;font-weight:700;color:#0D1117;letter-spacing:-.2px}
+
+/* Toggle switch */
+.switch{position:relative;width:42px;height:24px;flex-shrink:0;cursor:pointer}
+.switch input{display:none}
+.switch .slider{position:absolute;inset:0;background:#D0D4E0;border-radius:999px;transition:background .2s}
+.switch .slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.switch input:checked + .slider{background:#3B1772}
+.switch input:checked + .slider::before{transform:translateX(18px)}
+
+.day-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.day-row label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:#7B8194;text-transform:uppercase;letter-spacing:.04em}
+.day-row input[type=time]{font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#0D1117;font-weight:600}
+.day-row input[type=time]:focus{outline:none;border-color:#3B1772;box-shadow:0 0 0 3px rgba(59,23,114,.1)}
+.day-row input[type=time]:disabled{background:#F3F4F6;color:#9CA3AF}
+
+.day-duration{margin-top:8px}
+.day-duration label{display:block;font-size:11px;font-weight:600;color:#7B8194;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.day-duration select{width:100%;font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#0D1117;font-weight:600;cursor:pointer}
+.day-duration select:focus{outline:none;border-color:#3B1772;box-shadow:0 0 0 3px rgba(59,23,114,.1)}
+.day-duration select:disabled{background:#F3F4F6;color:#9CA3AF;cursor:not-allowed}
+
+.day-summary{margin-top:10px;padding-top:10px;border-top:1px dashed #E5E7EB;font-size:12px;color:#3D4251;font-weight:500}
+.day-summary strong{color:#3B1772;font-weight:700}
+
+/* ── Days off (overrides) ─────────────────────────────────── */
+.off-card{background:#fff;border:1.5px solid #E5E7EB;border-radius:14px;padding:18px;animation:cardIn .35s ease both}
+.off-add{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.off-add label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:#7B8194;text-transform:uppercase;letter-spacing:.04em}
+.off-add input,.off-add select{font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#0D1117;font-weight:600}
+.off-add input:focus{outline:none;border-color:#3B1772;box-shadow:0 0 0 3px rgba(59,23,114,.1)}
+
+.off-list{display:flex;flex-direction:column;gap:6px}
+.off-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px}
+.off-item-date{font-size:13px;font-weight:700;color:#0D1117}
+.off-item-meta{font-size:12px;color:#7B8194;margin-top:2px}
+.off-item-del{background:none;border:none;color:#DC2626;cursor:pointer;padding:4px 8px;font-size:13px;border-radius:6px;transition:background .15s}
+.off-item-del:hover{background:#FEE2E2}
+.off-empty{text-align:center;padding:24px 16px;color:#9CA3AF;font-size:13px;font-style:italic}
+
+/* ── Save bar (sticky bottom) ─────────────────────────────── */
+.save-bar{position:sticky;bottom:0;background:linear-gradient(to top,#F7F8FC 60%,rgba(247,248,252,0));padding:18px 0 8px;margin-top:24px;display:flex;justify-content:flex-end;gap:8px;z-index:10}
+
+/* ── Toast ────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#0D1117;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:1000;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;max-width:90vw}
+.toast.visible{transform:translateX(-50%) translateY(0)}
+.toast.success{background:#059669}
+.toast.error{background:#DC2626}
+
+/* ── Mobile ────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .page-wrap{padding:16px 14px}
+  .day-grid{grid-template-columns:1fr;gap:10px}
+}
+</style>
+</head>
+<body>
+<div id="shell-mount"></div>
+<main class="page-wrap" id="main-content">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Mes disponibilités</h1>
+      <p class="page-sub">Configurez vos horaires de consultation par jour de la semaine. Les patients ne pourront prendre rendez-vous que sur vos créneaux disponibles.</p>
+    </div>
+  </div>
+
+  <!-- ══ PLANNING HEBDOMADAIRE ══════════════════════════════ -->
+  <h2 class="section-title">Planning hebdomadaire <span class="badge">Récurrent</span></h2>
+  <div class="day-grid" id="day-grid">
+    <!-- Day cards injected by JS -->
+  </div>
+
+  <!-- ══ JOURS OFF / EXCEPTIONS ════════════════════════════ -->
+  <h2 class="section-title">Jours fermés (exceptions) <span class="badge" id="off-count">0</span></h2>
+  <div class="off-card">
+    <div class="off-add">
+      <label>Date
+        <input type="date" id="off-date">
+      </label>
+      <label>Raison (optionnel)
+        <input type="text" id="off-reason" placeholder="Ex. Congé, Formation…" maxlength="80" style="min-width:200px">
+      </label>
+      <button class="btn btn-primary btn-sm" onclick="addOff()">+ Ajouter un jour off</button>
+    </div>
+    <div class="off-list" id="off-list">
+      <div class="off-empty">Aucun jour off enregistré</div>
+    </div>
+  </div>
+
+  <!-- ══ SAVE BAR ═══════════════════════════════════════════ -->
+  <div class="save-bar">
+    <button class="btn btn-ghost" onclick="window.location.reload()">Annuler</button>
+    <button class="btn btn-primary" id="save-btn" onclick="saveAvailability()">Enregistrer le planning</button>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _uid = null;
+var _availability = {}; // { day_of_week: { is_active, start, end, slot } }
+var _overrides = [];     // [{ id, override_date, reason }]
+
+// 0 = Lundi, 6 = Dimanche (cohérent avec SQL)
+var DAYS = [
+  { idx:0, name:'Lundi'    },
+  { idx:1, name:'Mardi'    },
+  { idx:2, name:'Mercredi' },
+  { idx:3, name:'Jeudi'    },
+  { idx:4, name:'Vendredi' },
+  { idx:5, name:'Samedi'   },
+  { idx:6, name:'Dimanche' }
+];
+var DURATIONS = [15, 20, 30, 45, 60];
+
+function toast(msg, type){
+  var t = document.getElementById('toast');
+  t.className = 'toast ' + (type||'') + ' visible';
+  t.textContent = msg;
+  setTimeout(function(){ t.classList.remove('visible'); }, 2800);
+}
+
+// ── Default availability (Mon-Fri 9-12 + 14-17, 30min) ──
+function defaultDay(idx){
+  var weekday = idx <= 4; // Mon-Fri
+  return {
+    is_active: weekday,
+    start: '09:00',
+    end:   '17:00',
+    slot:  30
+  };
+}
+
+function calcSlots(start, end, dur){
+  if(!start || !end || !dur) return 0;
+  var [sh,sm] = start.split(':').map(Number);
+  var [eh,em] = end.split(':').map(Number);
+  var minutes = (eh*60+em) - (sh*60+sm);
+  if(minutes <= 0) return 0;
+  return Math.floor(minutes / dur);
+}
+
+function renderDays(){
+  var grid = document.getElementById('day-grid');
+  grid.innerHTML = '';
+  DAYS.forEach(function(d){
+    var av = _availability[d.idx] || defaultDay(d.idx);
+    _availability[d.idx] = av;
+    var slots = calcSlots(av.start, av.end, av.slot);
+    var card = document.createElement('div');
+    card.className = 'day-card ' + (av.is_active ? 'active' : 'disabled');
+    card.innerHTML =
+      '<div class="day-head">'
+        + '<div class="day-name">' + d.name + '</div>'
+        + '<label class="switch">'
+          + '<input type="checkbox" data-day="'+d.idx+'" data-field="is_active" '+(av.is_active?'checked':'')+'>'
+          + '<span class="slider"></span>'
+        + '</label>'
+      + '</div>'
+      + '<div class="day-row">'
+        + '<label>Début<input type="time" data-day="'+d.idx+'" data-field="start" value="'+av.start+'" '+(av.is_active?'':'disabled')+'></label>'
+        + '<label>Fin<input type="time" data-day="'+d.idx+'" data-field="end" value="'+av.end+'" '+(av.is_active?'':'disabled')+'></label>'
+      + '</div>'
+      + '<div class="day-duration">'
+        + '<label>Durée d\'un créneau</label>'
+        + '<select data-day="'+d.idx+'" data-field="slot" '+(av.is_active?'':'disabled')+'>'
+          + DURATIONS.map(function(m){
+            return '<option value="'+m+'"'+(m===av.slot?' selected':'')+'>'+m+' minutes</option>';
+          }).join('')
+        + '</select>'
+      + '</div>'
+      + '<div class="day-summary">'+(av.is_active
+          ? '<strong>'+slots+'</strong> créneaux dispo ('+av.slot+' min)'
+          : 'Fermé')+'</div>';
+    grid.appendChild(card);
+  });
+
+  // Bind change handlers
+  grid.querySelectorAll('input,select').forEach(function(el){
+    el.addEventListener('change', onFieldChange);
+    el.addEventListener('input', onFieldChange);
+  });
+}
+
+function onFieldChange(e){
+  var day = parseInt(e.target.dataset.day, 10);
+  var field = e.target.dataset.field;
+  var av = _availability[day];
+  if(field === 'is_active') av.is_active = e.target.checked;
+  else if(field === 'slot') av.slot = parseInt(e.target.value, 10);
+  else av[field] = e.target.value;
+  renderDays(); // re-render to update slot count + disabled state
+}
+
+function renderOffList(){
+  var list = document.getElementById('off-list');
+  document.getElementById('off-count').textContent = _overrides.length;
+  if(!_overrides.length){
+    list.innerHTML = '<div class="off-empty">Aucun jour off enregistré</div>';
+    return;
+  }
+  // Sort by date asc
+  _overrides.sort(function(a,b){ return a.override_date.localeCompare(b.override_date); });
+  list.innerHTML = _overrides.map(function(o){
+    var d = new Date(o.override_date + 'T00:00:00');
+    var label = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    return '<div class="off-item">'
+      + '<div>'
+        + '<div class="off-item-date">'+label+'</div>'
+        + (o.reason ? '<div class="off-item-meta">'+escapeHtml(o.reason)+'</div>' : '')
+      + '</div>'
+      + '<button class="off-item-del" onclick="removeOff(\''+o.id+'\')">Supprimer</button>'
+    + '</div>';
+  }).join('');
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+async function addOff(){
+  var date = document.getElementById('off-date').value;
+  var reason = document.getElementById('off-reason').value.trim();
+  if(!date){ toast('Choisissez une date', 'error'); return; }
+  // Don't allow past dates
+  var today = new Date(); today.setHours(0,0,0,0);
+  var picked = new Date(date+'T00:00:00');
+  if(picked < today){ toast('La date doit être future', 'error'); return; }
+  // Check duplicate
+  if(_overrides.some(function(o){ return o.override_date === date; })){
+    toast('Ce jour est déjà fermé', 'error'); return;
+  }
+  try{
+    var { data, error } = await _supa.from('doctor_availability_overrides').insert({
+      doctor_id: _uid,
+      override_date: date,
+      is_off: true,
+      reason: reason || null
+    }).select().single();
+    if(error) throw error;
+    _overrides.push(data);
+    document.getElementById('off-date').value = '';
+    document.getElementById('off-reason').value = '';
+    renderOffList();
+    toast('Jour off ajouté', 'success');
+  }catch(err){
+    console.error('[disponibilites] addOff', err);
+    toast('Erreur : ' + (err.message || 'impossible d\'ajouter'), 'error');
+  }
+}
+
+async function removeOff(id){
+  if(!confirm('Supprimer ce jour off ?')) return;
+  try{
+    var { error } = await _supa.from('doctor_availability_overrides').delete().eq('id', id);
+    if(error) throw error;
+    _overrides = _overrides.filter(function(o){ return o.id !== id; });
+    renderOffList();
+    toast('Jour off supprimé', 'success');
+  }catch(err){
+    console.error('[disponibilites] removeOff', err);
+    toast('Erreur : ' + (err.message || 'impossible de supprimer'), 'error');
+  }
+}
+
+async function saveAvailability(){
+  var btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement…';
+
+  // Validate: each active day must have end > start
+  for(var i = 0; i < DAYS.length; i++){
+    var d = DAYS[i].idx;
+    var av = _availability[d];
+    if(!av.is_active) continue;
+    if(av.end <= av.start){
+      toast('Jour '+DAYS[i].name+' : l\'heure de fin doit être après le début', 'error');
+      btn.disabled = false; btn.textContent = 'Enregistrer le planning';
+      return;
+    }
+  }
+
+  // Build rows to upsert (one per day)
+  var rows = DAYS.map(function(d){
+    var av = _availability[d.idx];
+    return {
+      doctor_id: _uid,
+      day_of_week: d.idx,
+      start_time: av.start + ':00',
+      end_time: av.end + ':00',
+      slot_duration_minutes: av.slot,
+      is_active: !!av.is_active
+    };
+  });
+
+  try{
+    // Upsert on (doctor_id, day_of_week) unique constraint
+    var { error } = await _supa.from('doctor_availability')
+      .upsert(rows, { onConflict: 'doctor_id,day_of_week' });
+    if(error) throw error;
+    toast('Planning enregistré ✓', 'success');
+  }catch(err){
+    console.error('[disponibilites] save', err);
+    toast('Erreur : ' + (err.message || 'impossible d\'enregistrer'), 'error');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Enregistrer le planning';
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────
+(async function(){
+  try{
+    var s = await _supa.auth.getSession();
+    if(!s.data.session){ window.location.href = 'login.html'; return; }
+    _uid = s.data.session.user.id;
+
+    var u = s.data.session.user, meta = u.user_metadata||{};
+    var subR = await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id',_uid).maybeSingle();
+    var sub = subR && subR.data;
+    var isPro = sub && sub.plan!=='free' && sub.status==='active' && (!sub.expires_at || new Date(sub.expires_at) > new Date());
+    Shell.init({
+      page: 'disponibilites',
+      title: 'Mes disponibilités',
+      isPro: isPro,
+      plan: (sub&&sub.plan)||'free',
+      userName: meta.full_name||meta.name||u.email,
+      userEmail: u.email,
+    });
+
+    // Set min date for off picker = today
+    var today = new Date(); today.setHours(0,0,0,0);
+    document.getElementById('off-date').min = today.toISOString().slice(0,10);
+
+    // Load existing availability
+    var avR = await _supa.from('doctor_availability').select('*').eq('doctor_id', _uid);
+    if(avR.error) throw avR.error;
+    (avR.data||[]).forEach(function(r){
+      _availability[r.day_of_week] = {
+        is_active: r.is_active,
+        start: (r.start_time||'09:00').slice(0,5),
+        end:   (r.end_time||'17:00').slice(0,5),
+        slot:  r.slot_duration_minutes || 30
+      };
+    });
+
+    // Load overrides
+    var ovR = await _supa.from('doctor_availability_overrides')
+      .select('*').eq('doctor_id', _uid).gte('override_date', today.toISOString().slice(0,10));
+    if(ovR.error) throw ovR.error;
+    _overrides = ovR.data || [];
+
+    renderDays();
+    renderOffList();
+  }catch(err){
+    console.error('[disponibilites] init', err);
+    toast('Erreur de chargement : ' + (err.message||'inconnue'), 'error');
+  }
+})();
+
+window.addEventListener('unhandledrejection', function(e){
+  console.error('[disponibilites] Unhandled:', e.reason);
+});
+</script>
+</body>
+</html>

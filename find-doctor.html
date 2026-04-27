@@ -2071,24 +2071,116 @@ function rdvNextDate(){
   _rdvDate = d; updateRdvDateLabel();
 }
 
-function generateSlots(){
-  var ALL = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30',
-             '14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
-  var docName = (_bookingDoc && _bookingDoc.full_name) || '';
-  var h = 0;
-  for(var i=0;i<docName.length;i++) h = docName.charCodeAt(i)+((h<<5)-h);
-  var dk = _rdvDate.getDate()*31+_rdvDate.getMonth()*400+_rdvDate.getDay()*7;
-  var slots = ALL.filter(function(s,idx){ return ((Math.abs(h)+dk+idx*17)%4)!==0; });
+// Build "HH:MM" slot list from start/end times (in DB format "HH:MM:SS") and duration in minutes
+function _buildSlotsFromRange(startStr, endStr, durMin){
+  var [sh,sm] = startStr.split(':').map(Number);
+  var [eh,em] = endStr.split(':').map(Number);
+  var startM = sh*60 + sm;
+  var endM   = eh*60 + em;
+  var slots = [];
+  for(var t = startM; t + durMin <= endM; t += durMin){
+    var h = Math.floor(t/60), m = t%60;
+    slots.push(String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'));
+  }
+  return slots;
+}
+
+// Generate real available slots for the booking modal.
+// 1. Look up doctor's availability for the selected day_of_week
+// 2. Apply override for that exact date if any (off OR custom hours)
+// 3. Subtract slots already booked (status pending/confirmed)
+async function generateSlots(){
   var grid = document.getElementById('rdv-slots');
-  if(!slots.length){
-    grid.innerHTML='<div class="rdv-no-slots">Aucun créneau ce jour — essayez le lendemain</div>';
+  grid.innerHTML = '<div class="rdv-no-slots">Chargement des créneaux…</div>';
+  document.getElementById('rdv-patient-block').style.display = 'none';
+
+  if(!_bookingDoc || !_bookingDoc.id){
+    grid.innerHTML = '<div class="rdv-no-slots">Médecin introuvable</div>';
     return;
   }
-  grid.innerHTML = slots.map(function(s){
-    return '<button class="rdv-slot" onclick="selectSlot(this,\''+s+'\')">'+s+'</button>';
-  }).join('');
-  // Reset patient block quand on change de jour
-  document.getElementById('rdv-patient-block').style.display='none';
+
+  var dateRef = new Date(_rdvDate); // snapshot to detect race
+  var dateStr = dateRef.getFullYear()+'-'+
+    String(dateRef.getMonth()+1).padStart(2,'0')+'-'+
+    String(dateRef.getDate()).padStart(2,'0');
+  // JS getDay(): 0=Sun, 1=Mon … 6=Sat. SQL day_of_week: 0=Mon … 6=Sun.
+  var dow = (dateRef.getDay() + 6) % 7;
+
+  try{
+    // Parallel queries: weekly availability + override for this date + booked slots
+    var [avR, ovR, apR] = await Promise.all([
+      _supa.from('doctor_availability')
+        .select('start_time,end_time,slot_duration_minutes,is_active')
+        .eq('doctor_id', _bookingDoc.id)
+        .eq('day_of_week', dow)
+        .maybeSingle(),
+      _supa.from('doctor_availability_overrides')
+        .select('is_off,custom_start,custom_end')
+        .eq('doctor_id', _bookingDoc.id)
+        .eq('override_date', dateStr)
+        .maybeSingle(),
+      _supa.from('appointments')
+        .select('requested_time')
+        .eq('doctor_id', _bookingDoc.id)
+        .eq('requested_date', dateStr)
+        .in('status', ['pending','confirmed'])
+    ]);
+
+    // Race guard: if user changed date while we waited, ignore stale response
+    if(_rdvDate.getTime() !== dateRef.getTime()) return;
+
+    // Resolve effective hours
+    var startTime, endTime, durMin;
+    var override = ovR && ovR.data;
+    if(override && override.is_off){
+      grid.innerHTML = '<div class="rdv-no-slots">Le médecin est indisponible ce jour</div>';
+      return;
+    }
+    var weekly = avR && avR.data;
+    if(!weekly || !weekly.is_active){
+      grid.innerHTML = '<div class="rdv-no-slots">Aucun créneau ce jour — essayez un autre jour</div>';
+      return;
+    }
+    if(override && override.custom_start && override.custom_end){
+      startTime = override.custom_start;
+      endTime   = override.custom_end;
+      durMin    = weekly.slot_duration_minutes || 30;
+    } else {
+      startTime = weekly.start_time;
+      endTime   = weekly.end_time;
+      durMin    = weekly.slot_duration_minutes || 30;
+    }
+
+    var allSlots = _buildSlotsFromRange(startTime, endTime, durMin);
+
+    // Mark already-booked slots
+    var booked = {};
+    (apR.data||[]).forEach(function(r){
+      if(r.requested_time){ booked[r.requested_time.slice(0,5)] = true; }
+    });
+
+    // Filter past times if booking for today
+    var now = new Date();
+    var isToday = dateRef.toDateString() === now.toDateString();
+    var nowHM = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+
+    var available = allSlots.filter(function(s){
+      if(isToday && s <= nowHM) return false;
+      return !booked[s];
+    });
+
+    if(!available.length){
+      grid.innerHTML = '<div class="rdv-no-slots">Aucun créneau disponible — essayez un autre jour</div>';
+      return;
+    }
+
+    grid.innerHTML = available.map(function(s){
+      return '<button class="rdv-slot" onclick="selectSlot(this,\''+s+'\')">'+s+'</button>';
+    }).join('');
+  }catch(err){
+    console.error('[generateSlots]', err);
+    grid.innerHTML = '<div class="rdv-no-slots">Erreur de chargement — réessayez</div>';
+  }
 }
 
 function selectSlot(btn, time){

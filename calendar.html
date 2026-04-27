@@ -78,6 +78,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ev-rappel{background:#FEF3C7;color:#92400E}
 .ev-reunion{background:#F5F3FF;color:#6D28D9}
 .ev-task{background:#F3F4F6;color:#374151}
+.ev-rdv{background:#3B1772;color:#fff;font-weight:700}
 .more-events{font-size:9px;color:#9CA3AF;margin-top:2px;font-weight:500}
 
 /* ── Sidebar ── */
@@ -346,7 +347,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-var _uid = null, _tasks = [], _currentFilter = 'all';
+var _uid = null, _tasks = [], _appointments = [], _currentFilter = 'all';
 var _today = new Date(); _today.setHours(0,0,0,0);
 var _viewYear = _today.getFullYear(), _viewMonth = _today.getMonth();
 var _selectedDate = null, _editingId = null;
@@ -447,26 +448,36 @@ function renderCalendar(){
     cells.push({date:new Date(_viewYear,_viewMonth+1,i),otherMonth:true});
   }
 
-  var taskMap={};
+  // Build a unified events map: confirmed appointments + active tasks per date
+  var eventMap={};
   _tasks.forEach(function(t){
-    if(!t.due_date)return;
+    if(!t.due_date || t.completed) return;
     var k=t.due_date.slice(0,10);
-    if(!taskMap[k])taskMap[k]=[];
-    taskMap[k].push(t);
+    (eventMap[k] = eventMap[k] || []).push({
+      kind:'task', title:t.title, type:t.type||'task'
+    });
+  });
+  _appointments.forEach(function(a){
+    if(!a.requested_date) return;
+    var k=a.requested_date.slice(0,10);
+    (eventMap[k] = eventMap[k] || []).unshift({
+      kind:'rdv', title:'RDV '+(a.requested_time?a.requested_time.slice(0,5)+' ':'')+a.patient_name,
+      time:a.requested_time
+    });
   });
 
   cellsEl.innerHTML=cells.map(function(c){
     var dateStr=c.date.toISOString().slice(0,10);
     var isToday=c.date.getTime()===_today.getTime();
     var isSelected=_selectedDate===dateStr;
-    var dayTasks=taskMap[dateStr]||[];
+    var events=eventMap[dateStr]||[];
     var classes='cal-cell'+(c.otherMonth?' other-month':'')+(isToday?' today':'')+(isSelected?' selected':'');
     var numHtml='<div class="cal-cell-num">'+c.date.getDate()+'</div>';
-    var evHtml=dayTasks.filter(function(t){return!t.completed;}).slice(0,2).map(function(t){
-      return'<div class="event-dot '+(TYPE_EV_CLS[t.type||'task']||'ev-task')+'" title="'+sanitize(t.title)+'">'+sanitize(t.title)+'</div>';
+    var evHtml=events.slice(0,2).map(function(e){
+      var cls = e.kind === 'rdv' ? 'ev-rdv' : (TYPE_EV_CLS[e.type]||'ev-task');
+      return'<div class="event-dot '+cls+'" title="'+sanitize(e.title)+'">'+sanitize(e.title)+'</div>';
     }).join('');
-    var activeDayTasks=dayTasks.filter(function(t){return!t.completed;});
-    if(activeDayTasks.length>2)evHtml+='<div class="more-events">+'+(activeDayTasks.length-2)+' autres</div>';
+    if(events.length>2) evHtml+='<div class="more-events">+'+(events.length-2)+' autres</div>';
     return'<div class="'+classes+'" onclick="selectDate(\''+dateStr+'\')">'+numHtml+evHtml+'</div>';
   }).join('');
 }
@@ -484,12 +495,26 @@ function selectDate(dateStr){
 function renderDayPanel(dateStr){
   var panel=document.getElementById('day-panel');
   var dayTasks=_tasks.filter(function(t){return t.due_date && t.due_date.slice(0,10)===dateStr;});
-  if(!dayTasks.length){panel.style.display='none';return;}
+  var dayRdvs=_appointments.filter(function(a){return a.requested_date && a.requested_date.slice(0,10)===dateStr;});
+  // Sort RDVs by time
+  dayRdvs.sort(function(a,b){ return (a.requested_time||'').localeCompare(b.requested_time||''); });
+  var total=dayTasks.length + dayRdvs.length;
+  if(!total){panel.style.display='none';return;}
   panel.style.display='block';
   var d=new Date(dateStr+'T00:00:00');
   document.getElementById('day-panel-date').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('day-panel-count').textContent=dayTasks.length+' événement'+(dayTasks.length>1?'s':'');
-  document.getElementById('day-panel-events').innerHTML=dayTasks.map(function(t){
+  document.getElementById('day-panel-count').textContent=total+' événement'+(total>1?'s':'');
+  var rdvHtml=dayRdvs.map(function(a){
+    var time=a.requested_time?a.requested_time.slice(0,5):'';
+    return'<div class="day-event-item" onclick="window.location.href=\'mes-rdv.html\'">' +
+      '<div class="day-event-type-bar" style="background:#3B1772"></div>'+
+      '<div class="day-event-info">'+
+        '<div class="day-event-title">'+(time?'<strong>'+time+'</strong> · ':'')+sanitize(a.patient_name||'Patient')+'</div>'+
+        '<div class="day-event-meta">RDV confirmé'+(a.patient_phone?' · '+sanitize(a.patient_phone):'')+(a.notes?' · '+sanitize(a.notes.slice(0,40))+(a.notes.length>40?'…':''):'')+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  var taskHtml=dayTasks.map(function(t){
     var barColor=TYPE_BAR_COLOR[t.type||'task']||'#6B7280';
     return'<div class="day-event-item" onclick="editTask(\''+t.id+'\')">' +
       '<div class="day-event-type-bar" style="background:'+barColor+'"></div>'+
@@ -499,6 +524,7 @@ function renderDayPanel(dateStr){
       '</div>'+
     '</div>';
   }).join('');
+  document.getElementById('day-panel-events').innerHTML=rdvHtml+taskHtml;
 }
 
 function changeMonth(dir){
@@ -724,10 +750,15 @@ document.addEventListener('keydown',function(e){
     document.getElementById('selected-date-label').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     document.getElementById('task-due-input').value=todayStr;
 
-    // ── Chargement des tâches ─────────────────────────────────
-    var {data,error}=await _supa.from('calendar_tasks').select('*').eq('user_id',_uid).order('due_date',{ascending:true});
-    if(error)throw error;
-    _tasks=data||[];
+    // ── Chargement des tâches + RDV confirmés ─────────────────
+    var [taskR, apptR] = await Promise.all([
+      _supa.from('calendar_tasks').select('*').eq('user_id',_uid).order('due_date',{ascending:true}),
+      _supa.from('appointments').select('id,requested_date,requested_time,patient_name,patient_phone,notes,status')
+        .eq('doctor_id',_uid).eq('status','confirmed').order('requested_date',{ascending:true})
+    ]);
+    if(taskR.error)throw taskR.error;
+    _tasks = taskR.data || [];
+    _appointments = (apptR && apptR.data) || [];
     renderCalendar();
     renderTasks();
     updateKPIs();

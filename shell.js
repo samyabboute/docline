@@ -32,6 +32,8 @@ var Shell = (function () {
     { section: 'Rendez-vous' },
     { href:'mes-rdv.html',       key:'mes-rdv',      label:'Mes Rendez-vous',
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/>' },
+    { href:'disponibilites.html',key:'disponibilites',label:'Mes disponibilités',
+      icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
     { href:'profil-public.html', key:'profil-public',label:'Profil public',
       icon:'<rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/>' },
   ];
