@@ -615,7 +615,7 @@ function playSound(priority) {
   var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().then(function(r){return r.data;}).catch(function(){return null;});
   var isPro = sub && sub.plan !== 'free' && sub.status === 'active';
 
-  Shell.init({ page:'queue', title:"File d'attente", isPro:isPro, plan:sub?.plan||'free', userName:(meta.full_name||meta.name||''), userEmail:user.email||'' });
+  Shell.init({ page:'queue', title:"File d'attente", isPro:isPro, plan:sub?.plan||'free', userName: Shell.displayName(meta, user.email), userEmail:user.email||'' });
 
   // Display screen link
   var displayUrl = window.location.href.replace('queue.html','queue-display.html') + '?c=' + _uid;

@@ -340,7 +340,7 @@ var MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov
   _uid = s.data.session.user.id;
   var user = s.data.session.user;
   var meta = user.user_metadata || {};
-  var name = (meta.full_name || meta.name || '').trim();
+  var name = Shell.displayName(meta, user.email);
   var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().then(function(r){return r.data;}).catch(function(){return null;});
   var isPro = sub && (sub.plan==='pro'||sub.plan==='clinic') && sub.status==='active';
   Shell.init({ page:'ordonnances', title:'Ordonnances', isPro:isPro, plan:sub?.plan||'free', userName:name, userEmail:user.email||'' });

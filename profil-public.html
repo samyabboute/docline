@@ -364,7 +364,7 @@ var _uid, _email, _toastTimer;
         title: 'Mon profil public',
         isPro: isPro,
         plan: (sub && sub.plan) || 'free',
-        userName: meta.full_name || meta.name || session.user.email,
+        userName: Shell.displayName(meta, session.user.email),
         userEmail: session.user.email
       });
     }

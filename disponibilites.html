@@ -376,7 +376,7 @@ async function saveAvailability(){
       title: 'Mes disponibilités',
       isPro: isPro,
       plan: (sub&&sub.plan)||'free',
-      userName: meta.full_name||meta.name||u.email,
+      userName: Shell.displayName(meta, u.email),
       userEmail: u.email,
     });
 

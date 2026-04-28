@@ -480,5 +480,13 @@ button{font-family:inherit;cursor:pointer}
     }
   }
 
-  return { init: init, render: render };
+  // Helper: compute the display name from auth user metadata.
+  // Cliniques affichent le nom de la clinique, sinon nom du médecin/email.
+  function displayName(meta, email) {
+    meta = meta || {};
+    if (meta.is_clinic && meta.clinic_name) return meta.clinic_name;
+    return meta.full_name || meta.name || (email ? String(email).split('@')[0] : '') || 'Mon compte';
+  }
+
+  return { init: init, render: render, displayName: displayName };
 })();

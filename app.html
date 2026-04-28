@@ -682,7 +682,7 @@ async function load() {
 
   _uid   = session.user.id;
   _email = session.user.email || '';
-  _name  = session.user.user_metadata?.full_name || session.user.user_metadata?.name || '';
+  _name  = Shell.displayName(session.user.user_metadata || {}, _email);
 
   // Sub check
   var { data: sub } = await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id', _uid).single();

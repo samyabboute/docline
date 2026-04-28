@@ -740,7 +740,7 @@ document.addEventListener('keydown',function(e){
       title:'Agenda',
       isPro: isPro,
       plan: (sub&&sub.plan)||'free',
-      userName: meta.full_name||meta.name||u.email,
+      userName: Shell.displayName(meta, u.email),
       userEmail: u.email,
     });
 

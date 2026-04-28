@@ -1638,7 +1638,7 @@ function renderStars(rating){
 (async function(){
   try {
     var { data, error } = await _supa.from('profiles')
-      .select('id,full_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured')
+      .select('id,full_name,is_clinic,clinic_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured')
       .not('full_name','is',null)
       .not('specialty','is',null)
       .order('featured', { ascending: false, nullsFirst: false })
@@ -1989,14 +1989,14 @@ function renderCards(docs){
 
   var grid=document.getElementById('cards-grid');
   grid.innerHTML=docs.map(function(d,i){
-    var name   = d.full_name||'Médecin';
+    var name   = (d.is_clinic && d.clinic_name) ? d.clinic_name : (d.full_name||'Médecin');
     var grad   = avatarGrad(name);
     var inits  = initials(name);
     var rating = starRating(name);
     var price  = d.consultation_price?new Intl.NumberFormat('fr-DZ').format(d.consultation_price)+' DA':'Sur demande';
     var langs  = (d.languages||['Arabe']).map(function(l){return '<span class="lang-tag">'+l+'</span>';}).join('');
 
-    var displayName = name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name;
+    var displayName = (d.is_clinic && d.clinic_name) ? name : (name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name);
     var cardClass   = 'doctor-card'+(d.featured?' is-featured':'');
 
     return '<div class="'+cardClass+'" style="animation-delay:'+i*.04+'s">'
@@ -2204,12 +2204,13 @@ function openModal(docId){
   if(!d){ d=_allDoctors.find(function(x){return x.id===docId;}); }
   if(!d) return;
   _bookingDoc=d;
-  var name=d.full_name||'Médecin';
+  var isClinic = !!(d.is_clinic && d.clinic_name);
+  var name = isClinic ? d.clinic_name : (d.full_name||'Médecin');
 
   var av=document.getElementById('m-avatar');
   av.style.background=avatarGrad(name); av.textContent=initials(name);
 
-  var displayName='Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name);
+  var displayName = isClinic ? name : ('Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name));
   document.getElementById('m-name').textContent=displayName;
   document.getElementById('m-spec').textContent=(d.specialty||'')+(d.wilaya?' · '+d.wilaya:'');
   document.getElementById('m-name-success').textContent=displayName;
