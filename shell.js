@@ -464,6 +464,59 @@ button{font-family:inherit;cursor:pointer}
 .skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--surface-hover) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;border-radius:8px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
+/* ── Profile popover ── */
+.sb-pop-wrap{position:relative}
+.sb-profile-pop{
+  position:absolute;bottom:calc(100% + 8px);left:0;right:0;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:16px;z-index:500;overflow:hidden;
+  box-shadow:0 -4px 24px rgba(0,0,0,.1),0 12px 40px rgba(0,0,0,.12);
+  animation:popUp .17s cubic-bezier(.34,1.56,.64,1) both;
+  transform-origin:bottom center;
+}
+@keyframes popUp{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+.sb-pop-head{
+  padding:14px 14px 12px;display:flex;align-items:center;gap:11px;
+  background:var(--brand-subtle);border-bottom:1px solid var(--border);
+}
+.sb-pop-big-av{
+  width:42px;height:42px;border-radius:12px;flex-shrink:0;
+  background:var(--brand);color:#fff;
+  font-size:13px;font-weight:800;letter-spacing:.4px;
+  display:flex;align-items:center;justify-content:center;
+}
+.sb-pop-info{min-width:0;flex:1}
+.sb-pop-name{font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-pop-mail{font-size:10.5px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.sb-pop-badge{
+  font-size:9px;font-weight:800;padding:2px 7px;border-radius:99px;
+  margin-top:5px;display:inline-block;letter-spacing:.06em;
+}
+.sb-pop-badge.pro{background:rgba(5,150,105,.12);color:#059669}
+.sb-pop-badge.free{background:var(--surface-hover);color:var(--text-3)}
+.sb-pop-menu{padding:6px}
+.sb-pop-item{
+  display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;
+  font-size:13px;font-weight:500;color:var(--text-2);
+  cursor:pointer;border:none;background:none;width:100%;
+  text-align:left;font-family:inherit;text-decoration:none;
+  transition:background .1s,color .1s;
+}
+.sb-pop-item:hover{background:var(--surface-hover);color:var(--text)}
+.sb-pop-item svg{
+  width:15px;height:15px;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  flex-shrink:0;opacity:.6;transition:opacity .1s;
+}
+.sb-pop-item:hover svg{opacity:1}
+.sb-pop-sep{height:1px;background:var(--border);margin:4px 8px}
+.sb-pop-item.danger{color:var(--danger)}
+.sb-pop-item.danger:hover{background:var(--danger-bg)}
+.sb-pop-item.danger svg{opacity:1}
+/* chevron indicator on user row */
+.sb-chevron{width:18px;height:18px;fill:none;stroke:var(--text-4);stroke-width:2;stroke-linecap:round;transition:transform .2s,stroke .2s;flex-shrink:0}
+.sb-footer.pop-open .sb-chevron{transform:rotate(180deg);stroke:var(--brand)}
+
 /* ── RDV pending badge (sidebar) ── */
 .sb-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sb-rdv-dot{
@@ -547,16 +600,16 @@ button{font-family:inherit;cursor:pointer}
       +   navHTML
       + '</nav>'
       + usageHTML
-      + '<div class="sb-footer">'
-      +   '<div class="sb-user" onclick="if(typeof Auth!==\'undefined\')Auth.signOut()" title="Se déconnecter">'
+      + '<div class="sb-footer" id="sb-footer">'
+      +   '<div class="sb-pop-wrap" id="sb-pop-wrap">'
+      +   '<div class="sb-user" id="sb-user-btn" title="Mon profil">'
       +     '<div class="sb-avatar">' + initials + '</div>'
       +     '<div class="sb-user-info">'
       +       '<div class="sb-username">' + (userName || userEmail.split('@')[0] || 'Mon compte') + '</div>'
       +       '<div class="sb-email">' + (userEmail || '') + '</div>'
       +     '</div>'
-      +     '<button class="sb-signout" title="Se déconnecter">'
-      +       '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
-      +     '</button>'
+      +     '<svg class="sb-chevron" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>'
+      +   '</div>'
       +   '</div>'
       + '</div>';
 
@@ -590,6 +643,54 @@ button{font-family:inherit;cursor:pointer}
       + '</div></nav>';
 
     return { sidebar: sidebar, topbar: topbar, mobileNav: mobileNav };
+  }
+
+  // ── PROFILE POPOVER ───────────────────────────────────────────
+  function _buildProfilePop(o) {
+    var planCls = (o.plan === 'pro' || o.plan === 'clinic') ? 'pro' : 'free';
+    var planLbl = o.plan === 'clinic' ? 'CLINIC' : o.plan === 'pro' ? 'PRO' : 'FREE';
+    function esc(s){ var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML; }
+    return '<div class="sb-profile-pop" id="sb-profile-pop">'
+      /* ── Header ── */
+      + '<div class="sb-pop-head">'
+      +   '<div class="sb-pop-big-av">' + esc(o.initials) + '</div>'
+      +   '<div class="sb-pop-info">'
+      +     '<div class="sb-pop-name">' + esc(o.userName || o.userEmail.split('@')[0]) + '</div>'
+      +     '<div class="sb-pop-mail">' + esc(o.userEmail) + '</div>'
+      +     '<span class="sb-pop-badge ' + planCls + '">' + planLbl + '</span>'
+      +   '</div>'
+      + '</div>'
+      /* ── Menu ── */
+      + '<div class="sb-pop-menu">'
+      /* Mon profil public */
+      +   '<a href="profil-public.html" class="sb-pop-item">'
+      +     '<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/></svg>'
+      +     'Mon profil public'
+      +   '</a>'
+      /* Modifier le logo */
+      +   '<a href="profil-public.html#logo" class="sb-pop-item" id="sb-pop-logo">'
+      +     '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/><polyline points="16 16 12 12 8 16"/></svg>'
+      +     'Modifier le logo / avatar'
+      +   '</a>'
+      /* Mes disponibilités */
+      +   '<a href="disponibilites.html" class="sb-pop-item">'
+      +     '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+      +     'Mes disponibilités'
+      +   '</a>'
+      +   '<div class="sb-pop-sep"></div>'
+      /* Contacter le support */
+      +   '<a href="mailto:support@docline.dz" class="sb-pop-item">'
+      +     '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+      +     'Contacter le support'
+      +   '</a>'
+      +   '<div class="sb-pop-sep"></div>'
+      /* Déconnexion */
+      +   '<button class="sb-pop-item danger" id="sb-pop-signout">'
+      +     '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+      +     'Se déconnecter'
+      +   '</button>'
+      + '</div>'
+      + '</div>';
   }
 
   // ── RDV BADGE ─────────────────────────────────────────────────
@@ -699,6 +800,65 @@ button{font-family:inherit;cursor:pointer}
     var srch = document.getElementById('shell-search');
     if (srch && opts.onSearch) {
       srch.addEventListener('input', function (e) { opts.onSearch(e.target.value.trim()); });
+    }
+
+    // ── Profile popover
+    var userBtn = document.getElementById('sb-user-btn');
+    var popWrap = document.getElementById('sb-pop-wrap');
+    var footer  = document.getElementById('sb-footer');
+
+    if (userBtn && popWrap) {
+      // Calcule les initiales pour le popover (même logique que render())
+      var _un  = opts.userName  || '';
+      var _ue  = opts.userEmail || '';
+      var _ini = _un
+        ? _un.split(' ').map(function(w){ return w[0]||''; }).join('').toUpperCase().slice(0,2)
+        : ((_ue[0]||'?').toUpperCase());
+      var popOpts = {
+        initials:  _ini,
+        userName:  _un,
+        userEmail: _ue,
+        plan:      opts.plan || 'free',
+      };
+
+      function _togglePop(e) {
+        if (e) e.stopPropagation();
+        var existing = document.getElementById('sb-profile-pop');
+        if (existing) {
+          existing.remove();
+          if (footer) footer.classList.remove('pop-open');
+        } else {
+          popWrap.insertAdjacentHTML('afterbegin', _buildProfilePop(popOpts));
+          if (footer) footer.classList.add('pop-open');
+
+          // Signout button inside the popover
+          var signoutBtn = document.getElementById('sb-pop-signout');
+          if (signoutBtn) {
+            signoutBtn.addEventListener('click', function() {
+              if (typeof Auth !== 'undefined') Auth.signOut();
+            });
+          }
+        }
+      }
+
+      userBtn.addEventListener('click', _togglePop);
+
+      // Fermeture au clic en dehors
+      document.addEventListener('click', function(e) {
+        var pop = document.getElementById('sb-profile-pop');
+        if (pop && popWrap && !popWrap.contains(e.target)) {
+          pop.remove();
+          if (footer) footer.classList.remove('pop-open');
+        }
+      });
+
+      // Fermeture à l'Échap
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          var pop = document.getElementById('sb-profile-pop');
+          if (pop) { pop.remove(); if (footer) footer.classList.remove('pop-open'); }
+        }
+      });
     }
 
     // Lance le voyant RDV en attente (léger délai pour laisser supabase se charger)
