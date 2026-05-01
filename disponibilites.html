@@ -14,11 +14,7 @@
 <script src="loader.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F7F8FC;min-height:100vh;color:#0C0E14}
-
 @keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-.page-wrap{max-width:1100px;margin:0 auto;padding:24px 20px}
 .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
 .page-title{font-size:22px;font-weight:800;color:#0D1117;letter-spacing:-.5px}
 .page-sub{font-size:13px;color:#6B7280;margin-top:3px;max-width:560px;line-height:1.45}
@@ -100,10 +96,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
-<aside class="shell-sidebar" id="shell-sidebar"></aside>
-<div class="shell-overlay sb-overlay" id="shell-overlay"></div>
-<header class="shell-topbar" id="shell-topbar"></header>
-<main class="page-wrap" id="main-content">
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+  <div class="shell-page" id="main-content">
 
   <div class="page-header">
     <div>
@@ -141,7 +139,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="btn btn-primary" id="save-btn" onclick="saveAvailability()">Enregistrer le planning</button>
   </div>
 
-</main>
+  </div><!-- /shell-page -->
+  </main>
+</div><!-- /app-shell -->
 
 <div class="toast" id="toast"></div>
 
