@@ -400,15 +400,131 @@ footer{border-top:1px solid rgba(0,0,0,.08);width:100%}
   .reveal,.reveal-scale{opacity:1;transform:none;transition:none}
   .flip-card-inner{transition:none}
 }
+
+/* ── SCROLL PROGRESS BAR ────────────────────────────────────── */
+#scroll-bar{
+  position:fixed;top:0;left:0;height:2.5px;
+  background:linear-gradient(90deg,#3B1772,#7C3AED,#1D4ED8);
+  z-index:10000;width:0%;
+  border-radius:0 2px 2px 0;
+  transition:width .08s;
+}
+
+/* ── CUSTOM CURSOR ──────────────────────────────────────────── */
+.c-dot{
+  position:fixed;top:0;left:0;
+  width:8px;height:8px;
+  background:var(--brand);border-radius:50%;
+  pointer-events:none;z-index:9998;
+  mix-blend-mode:multiply;
+  transition:opacity .2s,background .2s;
+  will-change:transform;
+}
+.c-ring{
+  position:fixed;top:0;left:0;
+  width:36px;height:36px;
+  border:1.5px solid rgba(59,23,114,.45);
+  border-radius:50%;pointer-events:none;z-index:9997;
+  transition:width .25s var(--ease-spring),height .25s var(--ease-spring),
+             border-color .2s,background .2s,opacity .2s;
+  will-change:transform;
+}
+.c-ring.link{width:56px;height:56px;border-color:rgba(59,23,114,.7);background:rgba(59,23,114,.04)}
+.c-ring.btn{width:64px;height:64px;background:rgba(59,23,114,.08);border-color:var(--brand)}
+@media(pointer:coarse),(hover:none){.c-dot,.c-ring{display:none!important}}
+
+/* ── MARQUEE ────────────────────────────────────────────────── */
+.marquee-wrap{
+  overflow:hidden;padding:15px 0;
+  border-top:1px solid rgba(0,0,0,.06);
+  border-bottom:1px solid rgba(0,0,0,.06);
+  background:rgba(59,23,114,.015);
+  position:relative;
+}
+.marquee-wrap::before,.marquee-wrap::after{
+  content:'';position:absolute;top:0;bottom:0;width:120px;z-index:1;pointer-events:none;
+}
+.marquee-wrap::before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+.marquee-wrap::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent)}
+.marquee-track{
+  display:flex;width:max-content;
+  animation:mq-scroll 32s linear infinite;
+}
+.marquee-wrap:hover .marquee-track{animation-play-state:paused}
+@keyframes mq-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mq-item{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:0 36px;font-size:13px;font-weight:600;
+  color:var(--text3);white-space:nowrap;
+}
+.mq-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:linear-gradient(135deg,#3B1772,#1D4ED8);
+  flex-shrink:0;opacity:.6;
+}
+
+/* ── HERO MESH BACKGROUND ENHANCEMENT ──────────────────────── */
+.hero::after{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.5;
+}
+.hero>*:not(.hero-bg){position:relative;z-index:1}
+
+/* ── NAV WORDMARK ───────────────────────────────────────────── */
+.nav-wordmark{
+  font-size:16px;font-weight:800;color:var(--text);
+  letter-spacing:-.4px;margin-left:2px;
+}
+
+/* ── FEATURE CARDS HOVER LIFT ───────────────────────────────── */
+.flip-card:hover .flip-front{box-shadow:0 12px 40px rgba(59,23,114,.1)}
+
+/* ── SECTION EYEBROW PILL ───────────────────────────────────── */
+.section-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(59,23,114,.08);border:1px solid rgba(59,23,114,.18);
+  border-radius:99px;padding:4px 14px;
+  font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--brand);margin-bottom:16px;
+}
+.section-eyebrow::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  background:var(--brand);opacity:.7;
+}
+
+/* ── PRICE CARD FEATURED GLOW ───────────────────────────────── */
+.price-card.featured{
+  box-shadow:0 0 0 1px rgba(59,23,114,.25),0 8px 40px rgba(59,23,114,.12),0 0 60px rgba(59,23,114,.06);
+  animation:feat-glow 4s ease-in-out infinite;
+}
+@keyframes feat-glow{
+  0%,100%{box-shadow:0 0 0 1px rgba(59,23,114,.25),0 8px 40px rgba(59,23,114,.12)}
+  50%{box-shadow:0 0 0 1px rgba(59,23,114,.35),0 12px 50px rgba(59,23,114,.18),0 0 70px rgba(59,23,114,.1)}
+}
+
+/* ── HERO TITLE WORD REVEAL ─────────────────────────────────── */
+@keyframes wordReveal{
+  from{opacity:0;transform:translateY(32px) skewY(3deg)}
+  to{opacity:1;transform:translateY(0) skewY(0)}
+}
+.word-reveal{display:inline-block;animation:wordReveal .7s var(--ease-spring) both}
 </style>
 <script src="loader.js"></script>
 </head>
 <body>
 
+<!-- SCROLL PROGRESS -->
+<div id="scroll-bar"></div>
+<!-- CUSTOM CURSOR -->
+<div class="c-dot" id="c-dot"></div>
+<div class="c-ring" id="c-ring"></div>
+
 <!-- NAV -->
 <nav id="nav">
   <a href="#" class="nav-logo">
-    <img src="docline-logo-white.svg" alt="Docline">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:28px;height:28px;border-radius:8px;flex-shrink:0"><defs><linearGradient id="nlg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3B1772"/><stop offset="100%" stop-color="#23A7EA"/></linearGradient></defs><rect width="512" height="512" fill="url(#nlg)"/><path fill="white" d="M290.5,38.7c42.2-8.9,87.4,33.7,74.9,76.8c-8.5,40.2-61.9,56.3-94.1,32.9c-21.7-12.9-34.3-40.4-28.9-65.3C247.4,60.5,267.4,41.6,290.5,38.7z M294.6,70c-24.1,4.7-28.1,40.2-7.1,51.6c15.1,11.3,39.9,6.1,46-12.7C342.5,86.3,316.5,63.5,294.6,70z"/><path fill="white" d="M132.9,103.8c25-4.1,51.6-1.1,72.7,13.6c28.8,19.6,46.3,51.6,57.4,84c37.8-16.9,77.9-32.3,119.9-30.6c33.9,1.6,64.8,24.5,76.5,56.1c9.8,39.1-9,77.8-31.4,108.8C386.7,393,324.7,441.1,252.5,448c-23.2,21.2-58.8,33.5-88.9,20.2c-36.5-16.8-59.2-51.9-77.6-86.1c-28.8-59.4-43.6-127.1-33.3-192.9C60.5,148.6,89.8,109.4,132.9,103.8z M141.3,137.4c-34.9,4.9-54,42.3-55.4,74.6c-2.2,65.6,15.8,132.4,52.6,186.9c14.6,21.9,38.2,47,67.1,37.5c-2-8.7-14.6-10.7-19.5-17.9c-24.9-25.2-41-61.6-35.4-97.3c1-24.6,18.4-47.7,42.1-54.8c29.6-11,67,1.4,82,29.8c20.5,33.5,15.1,75.5,4.3,111.3c30.1-8.1,55.2-27.9,79.2-46.9c28.7-27.6,56.7-60,66.5-99.5c8.2-25.4-13.1-50.5-37.4-54.4c-51.9-9.3-94.3,25.2-140.6,40.3c-20.9,4.6-39.4-16.8-36.9-36.6c5.2-3.5,11.1-0.3,16.8-0.4C217.3,172.5,185,128.2,141.3,137.4z M206.4,298.9c-13.3,3.7-20.9,17.4-19.7,30.8c-3.1,32.5,18.1,68.3,49.9,77.4c19.2-27.9,21.2-68.2,4.3-98C231.8,300.1,219,295.3,206.4,298.9z"/></svg>
+    <span class="nav-wordmark">Docline</span>
   </a>
   <div class="nav-links">
     <a href="#features" class="nav-link">Fonctionnalités</a>
@@ -466,6 +582,29 @@ footer{border-top:1px solid rgba(0,0,0,.08);width:100%}
     <span>Aucune carte bancaire</span>
   </div>
 </section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="mq-item">Dossiers patients CNAS / CASNOS <span class="mq-dot"></span></span>
+    <span class="mq-item">File d'attente QR sans application <span class="mq-dot"></span></span>
+    <span class="mq-item">Ordonnances PDF en 30 secondes <span class="mq-dot"></span></span>
+    <span class="mq-item">Agenda intelligent &amp; rappels <span class="mq-dot"></span></span>
+    <span class="mq-item">Synchronisation en temps réel <span class="mq-dot"></span></span>
+    <span class="mq-item">Disponible dans les 48 wilayas <span class="mq-dot"></span></span>
+    <span class="mq-item">Notes cliniques structurées <span class="mq-dot"></span></span>
+    <span class="mq-item">Statistiques de cabinet avancées <span class="mq-dot"></span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="mq-item">Dossiers patients CNAS / CASNOS <span class="mq-dot"></span></span>
+    <span class="mq-item">File d'attente QR sans application <span class="mq-dot"></span></span>
+    <span class="mq-item">Ordonnances PDF en 30 secondes <span class="mq-dot"></span></span>
+    <span class="mq-item">Agenda intelligent &amp; rappels <span class="mq-dot"></span></span>
+    <span class="mq-item">Synchronisation en temps réel <span class="mq-dot"></span></span>
+    <span class="mq-item">Disponible dans les 48 wilayas <span class="mq-dot"></span></span>
+    <span class="mq-item">Notes cliniques structurées <span class="mq-dot"></span></span>
+    <span class="mq-item">Statistiques de cabinet avancées <span class="mq-dot"></span></span>
+  </div>
+</div>
 
 <!-- DASHBOARD PREVIEW -->
 <div class="dashboard-preview reveal-scale">
@@ -1139,6 +1278,78 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
     if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   });
 });
+
+// ── SCROLL PROGRESS BAR ───────────────────────────────────────
+(function(){
+  var bar = document.getElementById('scroll-bar');
+  if (!bar) return;
+  window.addEventListener('scroll', function(){
+    var pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    bar.style.width = Math.min(100, pct) + '%';
+  }, { passive: true });
+})();
+
+// ── CUSTOM CURSOR ─────────────────────────────────────────────
+(function(){
+  var dot  = document.getElementById('c-dot');
+  var ring = document.getElementById('c-ring');
+  if (!dot || !ring) return;
+  // Check touch device
+  if (!window.matchMedia('(pointer:fine)').matches) return;
+
+  var mx = -200, my = -200, rx = -200, ry = -200;
+  var dotW = 4, ringW = 18; // half sizes
+
+  document.addEventListener('mousemove', function(e){
+    mx = e.clientX; my = e.clientY;
+    dot.style.transform = 'translate3d(' + (mx - 4) + 'px,' + (my - 4) + 'px,0)';
+  }, { passive: true });
+
+  (function animRing(){
+    rx += (mx - rx) * .1;
+    ry += (my - ry) * .1;
+    ring.style.transform = 'translate3d(' + (rx - 18) + 'px,' + (ry - 18) + 'px,0)';
+    requestAnimationFrame(animRing);
+  })();
+
+  // Hover states
+  function addHover(sel, cls){
+    document.querySelectorAll(sel).forEach(function(el){
+      el.addEventListener('mouseenter', function(){ ring.classList.add(cls); });
+      el.addEventListener('mouseleave', function(){ ring.classList.remove(cls); });
+    });
+  }
+  addHover('a,button,.nav-link', 'link');
+  addHover('.btn-hero-primary,.btn-hero-ghost,.qrs-cta-btn,.price-btn', 'btn');
+})();
+
+// ── MAGNETIC BUTTONS ──────────────────────────────────────────
+(function(){
+  document.querySelectorAll('.btn-hero-primary,.qrs-cta-btn').forEach(function(btn){
+    btn.addEventListener('mousemove', function(e){
+      var r  = btn.getBoundingClientRect();
+      var x  = e.clientX - r.left - r.width  / 2;
+      var y  = e.clientY - r.top  - r.height / 2;
+      btn.style.transform = 'translate(' + (x * .18) + 'px,' + (y * .18) + 'px) translateY(-2px)';
+    });
+    btn.addEventListener('mouseleave', function(){
+      btn.style.transform = '';
+      btn.style.transition = 'transform .4s var(--ease-spring)';
+      setTimeout(function(){ btn.style.transition = ''; }, 400);
+    });
+  });
+})();
+
+// ── WORD REVEAL HERO TITLE ────────────────────────────────────
+(function(){
+  var lines = document.querySelectorAll('.hero-title span');
+  lines.forEach(function(line, li){
+    var words = line.textContent.trim().split(' ');
+    line.innerHTML = words.map(function(w, wi){
+      return '<span class="word-reveal" style="animation-delay:' + (.15 + li * .25 + wi * .08) + 's">' + w + ' </span>';
+    }).join('');
+  });
+})();
 
 // ── PWA ───────────────────────────────────────────────────────
 var _pwaPrompt = null;
