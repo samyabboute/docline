@@ -313,7 +313,18 @@ button{font-family:inherit;cursor:pointer}
   .shell-mobile-nav{display:flex}
 }
 @media(min-width:769px){
-  .shell-sidebar{transform:none!important}
+  /* Auto-hide sidebar: smooth slide + grid collapse */
+  .shell-sidebar{transition:transform .32s cubic-bezier(.4,0,.2,1)}
+  .app-shell{transition:grid-template-columns .32s cubic-bezier(.4,0,.2,1)}
+  .app-shell.sb-hidden{grid-template-columns:0 1fr}
+  .app-shell.sb-hidden .shell-sidebar{transform:translateX(-100%)}
+  /* Thin left-edge trigger zone shown when sidebar is hidden */
+  .sb-edge-trigger{
+    position:fixed;top:0;left:0;bottom:0;width:16px;
+    z-index:201;cursor:w-resize;display:none;
+  }
+  .app-shell.sb-hidden~.sb-edge-trigger,
+  body.sb-hidden-body .sb-edge-trigger{display:block}
 }
 @media(max-width:1100px){
   :root{--sidebar-w:210px}
@@ -859,6 +870,66 @@ button{font-family:inherit;cursor:pointer}
           if (pop) { pop.remove(); if (footer) footer.classList.remove('pop-open'); }
         }
       });
+    }
+
+    // ── Auto-hide sidebar (desktop only) ──────────────────────────────
+    var _appShell = document.querySelector('.app-shell');
+    if (_appShell && window.innerWidth > 768) {
+      var _autoHideTimer = null;
+
+      // Inject the edge trigger zone once
+      var _edgeTrigger = document.querySelector('.sb-edge-trigger');
+      if (!_edgeTrigger) {
+        _edgeTrigger = document.createElement('div');
+        _edgeTrigger.className = 'sb-edge-trigger';
+        document.body.appendChild(_edgeTrigger);
+      }
+
+      function _getSbW() { return sb ? sb.getBoundingClientRect().width : 228; }
+
+      function _hideSb() {
+        _appShell.classList.add('sb-hidden');
+        if (_edgeTrigger) _edgeTrigger.style.display = 'block';
+      }
+      function _showSb() {
+        _appShell.classList.remove('sb-hidden');
+        if (_edgeTrigger) _edgeTrigger.style.display = 'none';
+        if (_autoHideTimer) { clearTimeout(_autoHideTimer); _autoHideTimer = null; }
+      }
+
+      document.addEventListener('mousemove', function(e) {
+        if (window.innerWidth <= 768) return;
+        var hidden = _appShell.classList.contains('sb-hidden');
+        if (!hidden) {
+          // Cursor moved well into main content area → schedule hide
+          if (e.clientX > _getSbW() + 60) {
+            if (!_autoHideTimer) {
+              _autoHideTimer = setTimeout(function() {
+                _hideSb();
+                _autoHideTimer = null;
+              }, 500);
+            }
+          } else {
+            // Cursor is back near/over sidebar → cancel pending hide
+            if (_autoHideTimer) { clearTimeout(_autoHideTimer); _autoHideTimer = null; }
+          }
+        } else {
+          // Sidebar hidden: reveal when cursor touches left edge (≤ 20 px)
+          if (e.clientX <= 20) { _showSb(); }
+        }
+      }, { passive: true });
+
+      // Hovering on sidebar always cancels any pending hide
+      if (sb) {
+        sb.addEventListener('mouseenter', function() {
+          if (_autoHideTimer) { clearTimeout(_autoHideTimer); _autoHideTimer = null; }
+        });
+      }
+
+      // Edge trigger click / mouseenter also reveals
+      if (_edgeTrigger) {
+        _edgeTrigger.addEventListener('mouseenter', _showSb);
+      }
     }
 
     // Lance le voyant RDV en attente (léger délai pour laisser supabase se charger)
