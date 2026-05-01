@@ -403,7 +403,7 @@ async function loadClients() {
 function updateKpis() {
   document.getElementById('kpi-total').textContent = _clients.length;
   var chronic = _clients.filter(function(c){ return c.notes && /chronique|diab|hypert|asthm/i.test(c.notes); }).length;
-  var insured = _clients.filter(function(c){ return c.type==='company'||c.type==='freelancer'; }).length;
+  var insured = _clients.filter(function(c){ return c.insurance_type==='company'||c.insurance_type==='freelancer'; }).length;
   document.getElementById('kpi-chronic').textContent = chronic;
   document.getElementById('kpi-insured').textContent = insured;
 }
@@ -413,7 +413,7 @@ function getFiltered(search) {
   if (_filter==='chronic') {
     list = list.filter(function(c){ return c.notes && /chronique|diab|hypert|asthm/i.test(c.notes); });
   } else if (_filter!=='all') {
-    list = list.filter(function(c){ return c.type===_filter; });
+    list = list.filter(function(c){ return c.insurance_type===_filter; });
   }
   if (search) {
     var q = search.toLowerCase();
@@ -473,9 +473,9 @@ function renderClients(search) {
             (isChron?'<span class="chronic-chip">Chronique</span>':'')+
           '</div>'+
         '</div>'+
-        '<div>'+insBadge(c.type)+'</div>'+
+        '<div>'+insBadge(c.insurance_type)+'</div>'+
         '<div class="pr-right">'+
-          (c.vat_number?bloodBadge(c.vat_number):'')+
+          (c.groupe_sanguin?bloodBadge(c.groupe_sanguin):'')+
           '<button class="btn btn-ghost btn-sm" data-cid="'+c.id+'" onclick="event.stopPropagation();openModal(this.dataset.cid)">Modifier</button>'+
         '</div>'+
       '</div>';
@@ -493,7 +493,7 @@ function renderClients(search) {
       return '<div class="patient-card" data-id="'+c.id+'">'+
         '<div class="pc-top">'+
           '<div class="pc-avatar" style="background:'+p.bg+';color:'+p.color+'">'+sanitize(ini)+'</div>'+
-          '<div class="pc-badges">'+insBadge(c.type)+(c.vat_number?bloodBadge(c.vat_number):'')+'</div>'+
+          '<div class="pc-badges">'+insBadge(c.insurance_type)+(c.groupe_sanguin?bloodBadge(c.groupe_sanguin):'')+'</div>'+
         '</div>'+
         '<div class="pc-name">'+sanitize((c.first_name||'')+' '+(c.last_name||''))+'</div>'+
         '<div class="pc-sub">'+sanitize(c.company||'Patient')+'</div>'+
@@ -540,11 +540,11 @@ function openModal(id) {
     document.getElementById('f-last').value   = c.last_name  || '';
     document.getElementById('f-email').value  = c.email      || '';
     document.getElementById('f-phone').value  = c.phone      || '';
-    document.getElementById('f-company').value = c.company   || '';
-    document.getElementById('f-type').value   = c.type       || 'individual';
-    document.getElementById('f-city').value   = c.city       || '';
-    document.getElementById('f-siret').value  = c.siret      || '';
-    document.getElementById('f-vat').value    = c.vat_number || '';
+    document.getElementById('f-company').value = c.medecin_traitant || '';
+    document.getElementById('f-type').value   = c.insurance_type   || 'individual';
+    document.getElementById('f-city').value   = c.date_naissance   || '';
+    document.getElementById('f-siret').value  = c.insurance_num    || '';
+    document.getElementById('f-vat').value    = c.groupe_sanguin   || '';
     document.getElementById('f-notes').value  = c.notes      || '';
     document.getElementById('modal-title').textContent = 'Modifier le dossier';
     del.style.display = 'inline-flex';
@@ -582,11 +582,11 @@ async function saveClient() {
     last_name:  last,
     email:      email || null,
     phone:      document.getElementById('f-phone').value.trim() || null,
-    company:    document.getElementById('f-company').value.trim() || null,
-    type:       document.getElementById('f-type').value || 'individual',
-    city:       document.getElementById('f-city').value.trim() || null,
-    siret:      document.getElementById('f-siret').value.trim() || null,
-    vat_number: document.getElementById('f-vat').value || null,
+    medecin_traitant: document.getElementById('f-company').value.trim() || null,
+    insurance_type:   document.getElementById('f-type').value || 'individual',
+    date_naissance:   document.getElementById('f-city').value.trim() || null,
+    insurance_num:    document.getElementById('f-siret').value.trim() || null,
+    groupe_sanguin:   document.getElementById('f-vat').value || null,
     notes:      document.getElementById('f-notes').value.trim() || null,
     updated_at: new Date().toISOString()
   };
