@@ -555,7 +555,18 @@ button{font-family:inherit;cursor:pointer}
   from{transform:translateX(-1px)}
   to{transform:translateX(3px)}
 }
-@media(max-width:768px){.sb-peek{display:none}}
+/* Mobile : flèche en bas à gauche, au-dessus de la bottom-nav */
+@media(max-width:768px){
+  .sb-peek{
+    left:16px;top:auto;bottom:70px;
+    width:46px;height:46px;border-radius:50%;
+    /* remplace le slide depuis la gauche par un pop depuis le bas */
+    transform:translateY(80px) scale(.8);
+    box-shadow:0 4px 20px rgba(59,23,114,.35);
+  }
+  .sb-peek.on{transform:translateY(0) scale(1)}
+  .sb-peek:hover{width:46px} /* pas d'élargissement sur mobile */
+}
 
 /* ── RDV pending badge (sidebar) ── */
 .sb-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -901,65 +912,94 @@ button{font-family:inherit;cursor:pointer}
       });
     }
 
-    // ── Auto-hide sidebar + peek arrow (desktop only) ─────────────────
-    var _appShell = document.querySelector('.app-shell');
-    if (_appShell && window.innerWidth > 768) {
-      var _autoHideTimer = null;
+    // ── Peek arrow (créé une fois, commun desktop + mobile) ───────────
+    var _peek = document.getElementById('sb-peek');
+    if (!_peek) {
+      _peek = document.createElement('div');
+      _peek.id = 'sb-peek';
+      _peek.className = 'sb-peek';
+      _peek.title = 'Afficher le menu';
+      _peek.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+      document.body.appendChild(_peek);
+    }
 
-      // ── Peek arrow : onglet violet avec chevron ›
-      var _peek = document.getElementById('sb-peek');
-      if (!_peek) {
-        _peek = document.createElement('div');
-        _peek.id = 'sb-peek';
-        _peek.className = 'sb-peek';
-        _peek.title = 'Afficher le menu';
-        _peek.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
-        document.body.appendChild(_peek);
-      }
+    var _appShell = document.querySelector('.app-shell');
+
+    if (window.innerWidth > 768) {
+      // ── DESKTOP : auto-hide + peek depuis le bord gauche ──────────
+      var _autoHideTimer = null;
 
       function _getSbW() { return sb ? sb.getBoundingClientRect().width : 228; }
 
       function _hideSb() {
-        _appShell.classList.add('sb-hidden');
-        // Petit délai pour que la sidebar finisse de disparaître avant d'afficher la flèche
-        setTimeout(function() { if (_peek) _peek.classList.add('on'); }, 280);
+        if (_appShell) _appShell.classList.add('sb-hidden');
+        setTimeout(function() { _peek.classList.add('on'); }, 280);
       }
       function _showSb() {
-        _appShell.classList.remove('sb-hidden');
-        if (_peek) _peek.classList.remove('on');
+        if (_appShell) _appShell.classList.remove('sb-hidden');
+        _peek.classList.remove('on');
         if (_autoHideTimer) { clearTimeout(_autoHideTimer); _autoHideTimer = null; }
       }
 
       document.addEventListener('mousemove', function(e) {
         if (window.innerWidth <= 768) return;
-        var hidden = _appShell.classList.contains('sb-hidden');
+        var hidden = _appShell && _appShell.classList.contains('sb-hidden');
         if (!hidden) {
           if (e.clientX > _getSbW() + 60) {
             if (!_autoHideTimer) {
               _autoHideTimer = setTimeout(function() {
-                _hideSb();
-                _autoHideTimer = null;
+                _hideSb(); _autoHideTimer = null;
               }, 500);
             }
           } else {
             if (_autoHideTimer) { clearTimeout(_autoHideTimer); _autoHideTimer = null; }
           }
         } else {
-          // Révèle au survol du bord gauche OU de la flèche
           if (e.clientX <= 28) { _showSb(); }
         }
       }, { passive: true });
 
-      // Sidebar hover → annule le masquage
       if (sb) {
         sb.addEventListener('mouseenter', function() {
           if (_autoHideTimer) { clearTimeout(_autoHideTimer); _autoHideTimer = null; }
         });
       }
-
-      // Clic ou survol de la flèche → révèle la sidebar
       _peek.addEventListener('mouseenter', _showSb);
       _peek.addEventListener('click', _showSb);
+
+    } else {
+      // ── MOBILE : peek en bas, s'affiche quand le drawer est fermé ──
+      function _peekMobileUpdate() {
+        if (sb && sb.classList.contains('open')) {
+          _peek.classList.remove('on');
+        } else {
+          _peek.classList.add('on');
+        }
+      }
+
+      // Affiche la flèche après un court instant au chargement
+      setTimeout(_peekMobileUpdate, 700);
+
+      // Tap sur la flèche → ouvre le drawer
+      _peek.addEventListener('click', function() {
+        if (sb) {
+          sb.classList.add('open');
+          if (ov) ov.classList.add('open');
+          _peek.classList.remove('on');
+        }
+      });
+
+      // Quand le drawer se ferme (overlay ou ham), réafficher la flèche
+      if (ov) {
+        ov.addEventListener('click', function() {
+          setTimeout(_peekMobileUpdate, 250);
+        });
+      }
+      if (ham) {
+        ham.addEventListener('click', function() {
+          setTimeout(_peekMobileUpdate, 250);
+        });
+      }
     }
 
     // Lance le voyant RDV en attente (léger délai pour laisser supabase se charger)
