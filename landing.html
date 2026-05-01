@@ -516,20 +516,27 @@ nav.scrolled{
 .pb-contact{background:rgba(59,23,114,.08);color:#3B1772;border:1px solid rgba(59,23,114,.2)}
 .pb-contact:hover{background:rgba(59,23,114,.14)}
 
+/* ── DARK BRIDGE (pricing → CTA transition) ── */
+.dark-bridge{
+  height:180px;
+  background:linear-gradient(to bottom,#F8FAFF 0%,#040012 100%);
+  margin-bottom:-2px;
+}
+
 /* ── FINAL CTA ── */
 .final-cta{
-  padding:140px 24px;text-align:center;position:relative;overflow:hidden;
-  background:linear-gradient(180deg,#F8FAFF 0%,#05010F 30%,#0A0220 100%);
+  padding:80px 24px 140px;text-align:center;position:relative;overflow:hidden;
+  background:#040012;
 }
 .cta-bg{
   position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 70% 60% at 50% 70%,rgba(92,33,182,.4),transparent 70%);
+  background:radial-gradient(ellipse 65% 55% at 50% 60%,rgba(92,33,182,.38),transparent 70%);
 }
 .cta-title{
   font-size:clamp(32px,5vw,64px);font-weight:800;
   letter-spacing:-2px;color:#fff;margin-bottom:16px;line-height:1.05;
 }
-.cta-sub{font-size:18px;color:rgba(255,255,255,.45);max-width:480px;margin:0 auto 44px;line-height:1.7}
+.cta-sub{font-size:18px;color:rgba(255,255,255,.42);max-width:480px;margin:0 auto 44px;line-height:1.7}
 
 /* ── FOOTER ── */
 footer{background:#05010F;border-top:1px solid rgba(92,33,182,.2);width:100%}
@@ -623,6 +630,9 @@ footer{background:#05010F;border-top:1px solid rgba(92,33,182,.2);width:100%}
   mix-blend-mode:multiply;
   transition:opacity .2s,background .2s;
   will-change:transform;
+  /* Start hidden off-screen — JS places it on first mousemove */
+  transform:translate(-200px,-200px);
+  opacity:0;
 }
 .c-ring{
   position:fixed;top:0;left:0;
@@ -632,6 +642,8 @@ footer{background:#05010F;border-top:1px solid rgba(92,33,182,.2);width:100%}
   transition:width .25s var(--ease-spring),height .25s var(--ease-spring),
              border-color .2s,background .2s,opacity .2s;
   will-change:transform;
+  transform:translate(-200px,-200px);
+  opacity:0;
 }
 .c-ring.link{width:56px;height:56px;border-color:rgba(59,23,114,.7);background:rgba(59,23,114,.04)}
 .c-ring.btn{width:64px;height:64px;background:rgba(59,23,114,.08);border-color:var(--brand)}
@@ -707,12 +719,17 @@ footer{background:#05010F;border-top:1px solid rgba(92,33,182,.2);width:100%}
   50%{box-shadow:0 0 0 1px rgba(59,23,114,.35),0 12px 50px rgba(59,23,114,.18),0 0 70px rgba(59,23,114,.1)}
 }
 
-/* ── HERO TITLE WORD REVEAL ─────────────────────────────────── */
-@keyframes wordReveal{
-  from{opacity:0;transform:translateY(32px) skewY(3deg)}
-  to{opacity:1;transform:translateY(0) skewY(0)}
+/* ── HERO TITLE LINE ANIMATIONS ─────────────────────────────── */
+.hero-title-line1{
+  animation:lineUp .75s var(--ease-spring) .18s both;
 }
-.word-reveal{display:inline-block;animation:wordReveal .7s var(--ease-spring) both}
+.hero-title-line2{
+  animation:lineUp .75s var(--ease-spring) .42s both;
+}
+@keyframes lineUp{
+  from{opacity:0;transform:translateY(36px)}
+  to{opacity:1;transform:translateY(0)}
+}
 </style>
 <script src="loader.js"></script>
 </head>
@@ -763,7 +780,7 @@ footer{background:#05010F;border-top:1px solid rgba(92,33,182,.2);width:100%}
     <span>Disponible dans les 48 wilayas · Gratuit pour commencer</span>
   </div>
 
-  <h1 class="hero-title anim-fade-up delay-1">
+  <h1 class="hero-title">
     <span class="hero-title-line1">Votre cabinet, enfin</span>
     <span class="hero-title-line2">organisé.</span>
   </h1>
@@ -1293,6 +1310,9 @@ footer{background:#05010F;border-top:1px solid rgba(92,33,182,.2);width:100%}
   </div>
 </section>
 
+<!-- Bridge: smooth white → dark transition -->
+<div class="dark-bridge" aria-hidden="true"></div>
+
 <!-- FINAL CTA -->
 <section class="final-cta">
   <div class="cta-bg"></div>
@@ -1510,11 +1530,12 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
   if (!window.matchMedia('(pointer:fine)').matches) return;
 
   var mx = -200, my = -200, rx = -200, ry = -200;
-  var dotW = 4, ringW = 18; // half sizes
+  var _shown = false;
 
   document.addEventListener('mousemove', function(e){
     mx = e.clientX; my = e.clientY;
     dot.style.transform = 'translate3d(' + (mx - 4) + 'px,' + (my - 4) + 'px,0)';
+    if (!_shown) { _shown = true; dot.style.opacity = '1'; ring.style.opacity = '1'; }
   }, { passive: true });
 
   (function animRing(){
@@ -1552,16 +1573,7 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
   });
 })();
 
-// ── WORD REVEAL HERO TITLE ────────────────────────────────────
-(function(){
-  var lines = document.querySelectorAll('.hero-title span');
-  lines.forEach(function(line, li){
-    var words = line.textContent.trim().split(' ');
-    line.innerHTML = words.map(function(w, wi){
-      return '<span class="word-reveal" style="animation-delay:' + (.15 + li * .25 + wi * .08) + 's">' + w + ' </span>';
-    }).join('');
-  });
-})();
+// Word-reveal removed — lines use CSS @keyframes lineUp instead
 
 // ── PWA ───────────────────────────────────────────────────────
 var _pwaPrompt = null;
