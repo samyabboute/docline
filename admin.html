@@ -659,13 +659,21 @@ function renderKPIs(profiles, subs, requests) {
   if (pending.length>0){ palert.style.display='flex'; document.getElementById('pending-count').textContent=pending.length; }
   else palert.style.display='none';
 
+  var KPI_SVG = {
+    users:   '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    check:   '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:var(--success);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg>',
+    money:   '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:var(--warning);stroke-width:2;stroke-linecap:round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+    trend:   '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:var(--info);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+    clock:   '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:var(--danger);stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+    warning: '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#7C3AED;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  };
   document.getElementById('kpi-grid').innerHTML = [
-    ['kpi-brand',   '‍️', 'Médecins inscrits',    profiles.length,      '+'+newThisWeek.length+' cette semaine',             'up'],
-    ['kpi-success', '<span style="color:#059669">&#10003;</span>', 'Abonnés actifs',         activeSubs.length,    Math.round((activeSubs.length/(profiles.length||1))*100)+'% de conversion', 'neutral'],
-    ['kpi-warning', '', 'CA ce mois',             fmtDZD(monthRevenue), 'Paiements approuvés',                                 'neutral'],
-    ['kpi-info',    '', 'CA total all-time',       fmtDZD(totalRevenue), activeSubs.length+' abonnés actifs',                  'up'],
-    ['kpi-danger',  '', 'Demandes en attente',    pending.length,       pending.length?'Action requise ':'Tout est traité',    pending.length?'warn':'neutral'],
-    ['kpi-purple',  '<span style="color:#D97706">!</span>', 'Expirent bientôt',       expiringSoon.length,  suspendedSubs.length+' compte(s) suspendu(s)',        expiringSoon.length?'warn':'neutral'],
+    ['kpi-brand',   KPI_SVG.users,   'Médecins inscrits',   profiles.length,      '+'+newThisWeek.length+' cette semaine',                                    'up'],
+    ['kpi-success', KPI_SVG.check,   'Abonnés actifs',      activeSubs.length,    Math.round((activeSubs.length/(profiles.length||1))*100)+'% de conversion', 'neutral'],
+    ['kpi-warning', KPI_SVG.money,   'CA ce mois',          fmtDZD(monthRevenue), 'Paiements approuvés',                                                       'neutral'],
+    ['kpi-info',    KPI_SVG.trend,   'CA total all-time',   fmtDZD(totalRevenue), activeSubs.length+' abonnés actifs',                                         'up'],
+    ['kpi-danger',  KPI_SVG.clock,   'Demandes en attente', pending.length,       pending.length ? 'Action requise' : 'Tout est traité',                       pending.length ? 'warn' : 'neutral'],
+    ['kpi-purple',  KPI_SVG.warning, 'Expirent bientôt',    expiringSoon.length,  suspendedSubs.length+' compte(s) suspendu(s)',                               expiringSoon.length ? 'warn' : 'neutral'],
   ].map(function(k){
     return '<div class="kpi '+k[0]+'">'
       +'<div class="kpi-icon">'+k[1]+'</div>'
@@ -794,8 +802,8 @@ function renderPendingRequests(pending) {
       +(r.reference?' · <code style="font-size:.6875rem">'+san(r.reference)+'</code>':'')
       +'</div></div>'
       +'<div style="display:flex;gap:6px;flex-shrink:0">'
-      +'<button class="btn btn-success btn-sm" title="Approuver" onclick="quickApprove(\''+r.id+'\',\''+r.user_id+'\',\''+r.plan+'\',\''+r.billing+'\')">&#10003;</button>'
-      +'<button class="btn btn-danger btn-sm" title="Rejeter" onclick="quickReject(\''+r.id+'\')">&#10007;</button>'
+      +'<button class="btn btn-success btn-sm" title="Approuver" onclick="quickApprove(\''+r.id+'\',\''+r.user_id+'\',\''+r.plan+'\',\''+r.billing+'\')"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg></button>'
+      +'<button class="btn btn-danger btn-sm" title="Rejeter" onclick="quickReject(\''+r.id+'\')"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
       +'</div></div>';
   }).join('');
   if (pending.length>6) el.innerHTML+='<div style="padding:10px 20px;text-align:center"><span style="font-size:.75rem;color:var(--text-muted)">+'+(pending.length-6)+' autres — voir tous les médecins</span></div>';
@@ -885,8 +893,8 @@ function renderSubsTable(subs, profiles, statusFilter, searchQ) {
     else statusBadge = '<span class="badge badge-neutral">'+san(s.status||'—')+'</span>';
 
     var expiryCell = '';
-    if (expired) expiryCell = '<span style="color:var(--danger);font-weight:700">'+fmtDate(s.expires_at)+' <span style="color:#DC2626">&#10007;</span></span>';
-    else if (expiring) expiryCell = '<span style="color:var(--warning);font-weight:700">'+fmtDate(s.expires_at)+' <span style="color:#D97706">!</span></span>';
+    if (expired) expiryCell = '<span style="color:var(--danger);font-weight:700;display:inline-flex;align-items:center;gap:4px">'+fmtDate(s.expires_at)+' <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>';
+    else if (expiring) expiryCell = '<span style="color:var(--warning);font-weight:700;display:inline-flex;align-items:center;gap:4px">'+fmtDate(s.expires_at)+' <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>';
     else expiryCell = '<span style="color:var(--text-muted)">'+fmtDate(s.expires_at)+'</span>';
 
     // Quick actions
@@ -1080,7 +1088,7 @@ async function activatePlan() {
     });
     var data = await resp.json();
     if (!resp.ok) throw new Error(data.error||'Erreur activation');
-    showActMsg('<span style="color:#059669">&#10003;</span> Plan '+plan+' activé jusqu\'au '+fmtDate(data.expires_at), true);
+    showActMsg('✅ Plan '+plan+' activé jusqu\'au '+fmtDate(data.expires_at), true);
     document.getElementById('act-email').value='';
     Toast.success('Abonnement activé !', email+' — '+plan);
     await loadAll();
