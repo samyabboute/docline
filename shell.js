@@ -528,6 +528,35 @@ button{font-family:inherit;cursor:pointer}
 .sb-chevron{width:18px;height:18px;fill:none;stroke:var(--text-4);stroke-width:2;stroke-linecap:round;transition:transform .2s,stroke .2s;flex-shrink:0}
 .sb-footer.pop-open .sb-chevron{transform:rotate(180deg);stroke:var(--brand)}
 
+/* ── Sidebar peek arrow ──────────────────────────────────────── */
+.sb-peek{
+  position:fixed;left:0;top:50%;
+  transform:translateY(-50%) translateX(-100%);
+  z-index:300;width:22px;height:64px;
+  background:var(--brand);border-radius:0 12px 12px 0;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  box-shadow:3px 0 16px rgba(59,23,114,.28);
+  opacity:0;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+  pointer-events:none;
+}
+.sb-peek.on{
+  transform:translateY(-50%) translateX(0);
+  opacity:1;pointer-events:auto;
+}
+.sb-peek:hover{background:var(--brand-hover);width:28px}
+.sb-peek svg{
+  width:13px;height:13px;fill:none;
+  stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;
+  animation:peek-nudge 1.1s ease-in-out infinite alternate;
+}
+@keyframes peek-nudge{
+  from{transform:translateX(-1px)}
+  to{transform:translateX(3px)}
+}
+@media(max-width:768px){.sb-peek{display:none}}
+
 /* ── RDV pending badge (sidebar) ── */
 .sb-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sb-rdv-dot{
@@ -872,28 +901,32 @@ button{font-family:inherit;cursor:pointer}
       });
     }
 
-    // ── Auto-hide sidebar (desktop only) ──────────────────────────────
+    // ── Auto-hide sidebar + peek arrow (desktop only) ─────────────────
     var _appShell = document.querySelector('.app-shell');
     if (_appShell && window.innerWidth > 768) {
       var _autoHideTimer = null;
 
-      // Inject the edge trigger zone once
-      var _edgeTrigger = document.querySelector('.sb-edge-trigger');
-      if (!_edgeTrigger) {
-        _edgeTrigger = document.createElement('div');
-        _edgeTrigger.className = 'sb-edge-trigger';
-        document.body.appendChild(_edgeTrigger);
+      // ── Peek arrow : onglet violet avec chevron ›
+      var _peek = document.getElementById('sb-peek');
+      if (!_peek) {
+        _peek = document.createElement('div');
+        _peek.id = 'sb-peek';
+        _peek.className = 'sb-peek';
+        _peek.title = 'Afficher le menu';
+        _peek.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+        document.body.appendChild(_peek);
       }
 
       function _getSbW() { return sb ? sb.getBoundingClientRect().width : 228; }
 
       function _hideSb() {
         _appShell.classList.add('sb-hidden');
-        if (_edgeTrigger) _edgeTrigger.style.display = 'block';
+        // Petit délai pour que la sidebar finisse de disparaître avant d'afficher la flèche
+        setTimeout(function() { if (_peek) _peek.classList.add('on'); }, 280);
       }
       function _showSb() {
         _appShell.classList.remove('sb-hidden');
-        if (_edgeTrigger) _edgeTrigger.style.display = 'none';
+        if (_peek) _peek.classList.remove('on');
         if (_autoHideTimer) { clearTimeout(_autoHideTimer); _autoHideTimer = null; }
       }
 
@@ -901,7 +934,6 @@ button{font-family:inherit;cursor:pointer}
         if (window.innerWidth <= 768) return;
         var hidden = _appShell.classList.contains('sb-hidden');
         if (!hidden) {
-          // Cursor moved well into main content area → schedule hide
           if (e.clientX > _getSbW() + 60) {
             if (!_autoHideTimer) {
               _autoHideTimer = setTimeout(function() {
@@ -910,26 +942,24 @@ button{font-family:inherit;cursor:pointer}
               }, 500);
             }
           } else {
-            // Cursor is back near/over sidebar → cancel pending hide
             if (_autoHideTimer) { clearTimeout(_autoHideTimer); _autoHideTimer = null; }
           }
         } else {
-          // Sidebar hidden: reveal when cursor touches left edge (≤ 20 px)
-          if (e.clientX <= 20) { _showSb(); }
+          // Révèle au survol du bord gauche OU de la flèche
+          if (e.clientX <= 28) { _showSb(); }
         }
       }, { passive: true });
 
-      // Hovering on sidebar always cancels any pending hide
+      // Sidebar hover → annule le masquage
       if (sb) {
         sb.addEventListener('mouseenter', function() {
           if (_autoHideTimer) { clearTimeout(_autoHideTimer); _autoHideTimer = null; }
         });
       }
 
-      // Edge trigger click / mouseenter also reveals
-      if (_edgeTrigger) {
-        _edgeTrigger.addEventListener('mouseenter', _showSb);
-      }
+      // Clic ou survol de la flèche → révèle la sidebar
+      _peek.addEventListener('mouseenter', _showSb);
+      _peek.addEventListener('click', _showSb);
     }
 
     // Lance le voyant RDV en attente (léger délai pour laisser supabase se charger)
