@@ -49,12 +49,9 @@
 /* ── LAYOUT GRID ── */
 .queue-layout{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
 
-/* ── SERVING CARD ── */
-.serving-card{border-radius:20px;padding:28px 32px;color:#fff;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;background:linear-gradient(135deg,#3B1772 0%,#1D4ED8 60%,#0EA5E9 100%);box-shadow:0 8px 32px rgba(59,23,114,.25)}
-.serving-card::before{content:'';position:absolute;top:-60%;right:-15%;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
-.serving-card::after{content:'';position:absolute;bottom:-40%;left:-10%;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
-.serving-card.priority-urgente{background:linear-gradient(135deg,#C2410C 0%,#EA580C 60%,#F97316 100%);box-shadow:0 8px 32px rgba(234,88,12,.3)}
-.serving-card.priority-critique{background:linear-gradient(135deg,#991B1B 0%,#DC2626 60%,#EF4444 100%);box-shadow:0 8px 32px rgba(220,38,38,.35)}
+/* ── SERVING CARD (priority variants) ── */
+.serving-card.priority-urgente{background:linear-gradient(145deg,#C2410C 0%,#EA580C 55%,#F97316 100%);box-shadow:0 12px 40px rgba(234,88,12,.3)}
+.serving-card.priority-critique{background:linear-gradient(145deg,#991B1B 0%,#DC2626 55%,#EF4444 100%);box-shadow:0 12px 40px rgba(220,38,38,.35)}
 .serving-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:6px}
 .serving-priority-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:4px 12px;font-size:11px;font-weight:700;color:#fff;margin-bottom:10px;letter-spacing:.06em}
 .serving-priority-badge svg{width:11px;height:11px;fill:currentColor}
@@ -239,9 +236,92 @@
 .btn-reset:hover{border-color:#DC2626;color:#DC2626;background:#FEF2F2}
 .btn-reset svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
 
+/* ── STAT CARD ENHANCEMENTS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:20px 20px 16px;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s;cursor:default}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.09)}
+.stat-card::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:18px}
+.stat-card.blue::after{background:linear-gradient(135deg,rgba(37,99,235,.04),transparent)}
+.stat-card.amber::after{background:linear-gradient(135deg,rgba(217,119,6,.04),transparent)}
+.stat-card.red::after{background:linear-gradient(135deg,rgba(220,38,38,.04),transparent)}
+.stat-card.green::after{background:linear-gradient(135deg,rgba(5,150,105,.04),transparent)}
+.stat-card:hover::after{opacity:1}
+.stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.stat-card.blue .stat-icon{background:#EFF6FF}
+.stat-card.amber .stat-icon{background:#FFFBEB}
+.stat-card.red .stat-icon{background:#FEF2F2}
+.stat-card.green .stat-icon{background:#ECFDF5}
+.stat-icon svg{width:18px;height:18px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stat-card.blue .stat-icon svg{stroke:#2563EB}
+.stat-card.amber .stat-icon svg{stroke:#D97706}
+.stat-card.red .stat-icon svg{stroke:#DC2626}
+.stat-card.green .stat-icon svg{stroke:#059669}
+.stat-num{font-size:32px;font-weight:900;line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.stat-lbl{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.04em}
+.stat-badge{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:.04em}
+
+/* ── SERVING CARD IMPROVEMENTS ── */
+.serving-card{border-radius:24px;padding:36px 32px 28px;color:#fff;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;background:linear-gradient(145deg,#3B1772 0%,#5B21B6 45%,#1D4ED8 100%);box-shadow:0 12px 40px rgba(59,23,114,.3),inset 0 1px 0 rgba(255,255,255,.1)}
+.serving-card::before{content:'';position:absolute;top:-80px;right:-60px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.serving-card::after{content:'';position:absolute;bottom:-80px;left:-40px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+/* Empty-state ring */
+.serving-ring{width:100px;height:100px;border-radius:50%;border:3px dashed rgba(255,255,255,.2);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.serving-ring svg{width:36px;height:36px;fill:none;stroke:rgba(255,255,255,.4);stroke-width:1.5;stroke-linecap:round}
+/* Active number ring pulse */
+.serving-num{font-size:88px;font-weight:900;line-height:1;color:#fff;font-variant-numeric:tabular-nums;margin-bottom:4px;transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;text-shadow:0 4px 20px rgba(0,0,0,.2)}
+.serving-card.active-pulse .serving-num::after{content:'';position:absolute;inset:-16px;border-radius:50%;border:2px solid rgba(255,255,255,.15);animation:numRing 2.5s ease-out infinite}
+@keyframes numRing{0%{transform:scale(.9);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+.serving-name{font-size:18px;font-weight:600;color:rgba(255,255,255,.9);margin-bottom:8px;z-index:1;position:relative;letter-spacing:-.2px}
+.serving-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:18px;z-index:1;position:relative}
+
+/* Buttons in serving card */
+.btn-next{background:#fff;color:var(--brand);border:none;border-radius:99px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.18)}
+.btn-next:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 8px 28px rgba(0,0,0,.25)}
+.btn-next svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+/* ── ADD PATIENT PANEL IMPROVEMENTS ── */
+.add-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.add-panel-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.add-panel-title svg{width:16px;height:16px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round}
+.prio-btn{border:2px solid var(--border);border-radius:12px;padding:12px 4px 10px;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;background:var(--surface);position:relative;overflow:hidden}
+.prio-btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.09)}
+.prio-icon{margin-bottom:5px;display:flex;align-items:center;justify-content:center}
+.prio-icon svg{width:20px;height:20px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.prio-btn.selected-normale .prio-icon svg{stroke:var(--p-normale)}
+.prio-btn:not([class*="selected"]) .prio-icon svg{stroke:var(--text4)}
+.prio-btn.selected-urgente .prio-icon svg{stroke:var(--p-urgente)}
+.prio-btn.selected-critique .prio-icon svg{stroke:var(--p-critique)}
+.prio-label{font-size:10px;font-weight:800;letter-spacing:.06em}
+.add-input{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.add-input:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(59,23,114,.08)}
+.btn-add-patient{width:100%;padding:13px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 4px 16px rgba(59,23,114,.25)}
+.btn-add-patient:hover{background:#4C1D95;transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,23,114,.35)}
+
+/* ── QUEUE CARD ── */
+.queue-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.q-num{width:42px;height:42px;border-radius:12px;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+
+/* ── QR PANEL ── */
+.qr-frame{background:linear-gradient(145deg,#f8f5ff,#ede8ff);border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;border:1.5px solid rgba(59,23,114,.1)}
+#qr-code canvas,#qr-code img{border-radius:12px!important;border:8px solid #fff!important;box-shadow:0 4px 20px rgba(59,23,114,.12)!important}
+.qr-hint{font-size:11px;color:var(--text3);margin-top:10px;font-weight:500}
+.btn-copy{width:100%;padding:10px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-copy svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.btn-copy:hover{background:#4C1D95;transform:translateY(-1px)}
+.btn-copy.copied{background:#059669}
+
+/* ── DISPLAY PREVIEW ── */
+.display-preview{background:linear-gradient(135deg,#1a0936,#2a0d5e);border-radius:14px;padding:22px;text-align:center;margin-bottom:10px;border:1px solid rgba(167,139,250,.2)}
+.dp-num{font-size:56px;font-weight:900;color:#fff;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 2px 12px rgba(0,0,0,.3)}
+
+/* ── PAGE HEADER ── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:24px;font-weight:900;color:var(--text);letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+.page-sub{font-size:13px;color:var(--text3);margin-top:4px;font-weight:400}
+
 /* ── RESPONSIVE ── */
 @media(max-width:960px){.queue-layout{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr}.serving-num{font-size:72px}.priority-row{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr}.serving-num{font-size:68px}.priority-row{grid-template-columns:1fr 1fr 1fr}}
 </style>
 <script src="loader.js"></script>
 </head>
@@ -273,24 +353,36 @@
       <!-- Stats -->
       <div class="stats-row">
         <div class="stat-card blue">
-          <div class="stat-badge" id="badge-current">N° en cours</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
           <div class="stat-num" id="stat-current">—</div>
-          <div class="stat-lbl">Numéro appelé</div>
+          <div class="stat-lbl">N° en cours</div>
+          <div class="stat-badge" id="badge-current">En cours</div>
         </div>
         <div class="stat-card amber">
-          <div class="stat-badge" id="badge-waiting">En attente</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
           <div class="stat-num" id="stat-waiting">0</div>
-          <div class="stat-lbl">Patients en file</div>
+          <div class="stat-lbl">En attente</div>
+          <div class="stat-badge" id="badge-waiting">File</div>
         </div>
         <div class="stat-card red">
-          <div class="stat-badge" id="badge-urgent">Urgents</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
           <div class="stat-num" id="stat-urgent">0</div>
-          <div class="stat-lbl">Urgences actives</div>
+          <div class="stat-lbl">Urgences</div>
+          <div class="stat-badge" id="badge-urgent">Actives</div>
         </div>
         <div class="stat-card green">
-          <div class="stat-badge" id="badge-done">Aujourd'hui</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
           <div class="stat-num" id="stat-done">0</div>
           <div class="stat-lbl">Consultés</div>
+          <div class="stat-badge" id="badge-done">Aujourd'hui</div>
         </div>
       </div>
 
@@ -306,15 +398,21 @@
                 <span id="serving-priority-text">URGENTE</span>
               </span>
             </div>
-            <div class="serving-num" id="current-num">—</div>
-            <div class="serving-name" id="current-name">En attente du premier patient</div>
+            <!-- Empty state with ring illustration -->
+            <div id="serving-idle" style="margin:8px 0 16px">
+              <div class="serving-ring">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+            </div>
+            <div class="serving-num" id="current-num" style="display:none">—</div>
+            <div class="serving-name" id="current-name">Prêt à accueillir</div>
             <div id="serving-room-wrap" style="display:none;margin-bottom:18px">
               <span class="serving-room-badge">
                 <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 <span id="serving-room-name">—</span>
               </span>
             </div>
-            <div class="serving-actions" id="serving-actions">
+            <div class="serving-actions" id="serving-actions" style="margin-top:20px">
               <button class="btn-next" onclick="promptCallNext()" id="btn-next">
                 <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/><polyline points="15 18 21 12 15 6"/></svg>
                 Appeler le suivant
@@ -334,15 +432,21 @@
             <!-- Priority selector -->
             <div class="priority-row">
               <button class="prio-btn selected-normale" id="prio-normale" onclick="selectPriority('normale')">
-                <span class="prio-icon" style="display:flex;justify-content:center"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#059669"></span></span>
+                <span class="prio-icon">
+                  <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                </span>
                 <span class="prio-label" style="color:var(--p-normale)">NORMALE</span>
               </button>
               <button class="prio-btn" id="prio-urgente" onclick="selectPriority('urgente')">
-                <span class="prio-icon" style="display:flex;justify-content:center"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#EA580C"></span></span>
+                <span class="prio-icon">
+                  <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </span>
                 <span class="prio-label" style="color:var(--text3)">URGENTE</span>
               </button>
               <button class="prio-btn" id="prio-critique" onclick="selectPriority('critique')">
-                <span class="prio-icon" style="display:flex;justify-content:center"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#DC2626"></span></span>
+                <span class="prio-icon">
+                  <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </span>
                 <span class="prio-label" style="color:var(--text3)">CRITIQUE</span>
               </button>
             </div>
@@ -391,9 +495,14 @@
               </div>
             </div>
             <div class="panel-card-body">
-              <div id="qr-code"></div>
-              <div class="qr-link-box" id="qr-link-text">Génération…</div>
-              <button class="btn-copy" onclick="copyQRLink()">Copier le lien d'enregistrement</button>
+              <div class="qr-frame">
+                <div id="qr-code" style="display:flex;justify-content:center;margin-bottom:8px"></div>
+                <div class="qr-hint">📲 Les patients scannent pour rejoindre la file</div>
+              </div>
+              <button class="btn-copy" onclick="copyQRLink()" id="btn-copy-link">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copier le lien d'inscription
+              </button>
             </div>
           </div>
 
@@ -812,6 +921,8 @@ function renderQueue() {
   if (hasCurrentPatient) {
     var c = cur[0];
     card.className = 'serving-card active-pulse' + (c.priority!=='normale'?' priority-'+c.priority:'');
+    document.getElementById('serving-idle').style.display = 'none';
+    document.getElementById('current-num').style.display = 'block';
     document.getElementById('current-num').textContent = String(c.num).padStart(2,'0');
     document.getElementById('current-name').textContent = c.name || 'Patient anonyme';
     document.getElementById('display-num').textContent = String(c.num).padStart(2,'0');
@@ -840,8 +951,9 @@ function renderQueue() {
     document.getElementById('serving-empty').style.display = 'none';
   } else {
     card.className = 'serving-card';
-    document.getElementById('current-num').textContent = '—';
-    document.getElementById('current-name').textContent = hasWaiting ? waiting.length + ' patient' + (waiting.length>1?'s':'') + ' en attente' : 'En attente du premier patient';
+    document.getElementById('serving-idle').style.display = 'block';
+    document.getElementById('current-num').style.display = 'none';
+    document.getElementById('current-name').textContent = hasWaiting ? waiting.length + ' patient' + (waiting.length>1?'s':'') + ' en attente' : 'Prêt à accueillir';
     document.getElementById('display-num').textContent = '—';
     document.getElementById('display-name').textContent = '';
     document.getElementById('stat-current').textContent = '—';

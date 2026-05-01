@@ -1,7 +1,7 @@
-﻿// Docline Service Worker v6 — production ready
+﻿// Docline Service Worker v7 — production ready
 'use strict';
-var CACHE_NAME = 'docline-v6';
-var STATIC_CACHE = 'docline-static-v6';
+var CACHE_NAME = 'docline-v7';
+var STATIC_CACHE = 'docline-static-v7';
 var OFFLINE_PAGE = '/docline/find-doctor.html';
 
 // Core assets to precache for offline
