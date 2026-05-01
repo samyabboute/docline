@@ -463,6 +463,23 @@ button{font-family:inherit;cursor:pointer}
 /* ── Loading skeleton ── */
 .skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--surface-hover) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;border-radius:8px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── RDV pending badge (sidebar) ── */
+.sb-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-rdv-dot{
+  margin-left:auto;flex-shrink:0;
+  min-width:20px;height:20px;padding:0 6px;
+  border-radius:99px;
+  background:#DC2626;color:#fff;
+  font-size:10px;font-weight:800;letter-spacing:.01em;
+  display:inline-flex;align-items:center;justify-content:center;
+  animation:rdv-pulse 1.8s ease-in-out infinite;
+  line-height:1;
+}
+@keyframes rdv-pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.6);transform:scale(1)}
+  50%  {box-shadow:0 0 0 6px rgba(220,38,38,.0);transform:scale(1.08)}
+}
 </style>`;
 
   // ── INJECT CSS ────────────────────────────────────────────────
@@ -496,9 +513,13 @@ button{font-family:inherit;cursor:pointer}
     var navHTML = NAV.map(function (n) {
       if (n.section) return '<div class="sb-section">' + n.section + '</div>';
       var cls = 'sb-item' + (n.featured ? ' featured' : '') + (n.key === page ? ' active' : '');
+      var rdvBadge = n.key === 'mes-rdv'
+        ? '<span class="sb-rdv-dot" id="sb-rdv-dot" style="display:none"></span>'
+        : '';
       return '<a href="' + n.href + '" class="' + cls + '" data-key="' + n.key + '">'
         + '<svg viewBox="0 0 24 24">' + n.icon + '</svg>'
-        + '<span>' + n.label + '</span>'
+        + '<span class="sb-lbl">' + n.label + '</span>'
+        + rdvBadge
         + '</a>';
     }).join('');
 
@@ -571,6 +592,62 @@ button{font-family:inherit;cursor:pointer}
     return { sidebar: sidebar, topbar: topbar, mobileNav: mobileNav };
   }
 
+  // ── RDV BADGE ─────────────────────────────────────────────────
+  var _rdvClient = null;
+
+  function _setRdvBadge(n) {
+    var dot = document.getElementById('sb-rdv-dot');
+    if (dot) {
+      if (n > 0) {
+        dot.textContent = n > 99 ? '99+' : String(n);
+        dot.style.display = 'inline-flex';
+      } else {
+        dot.style.display = 'none';
+      }
+    }
+    // Allume aussi le badge cloche dans la topbar
+    var bell = document.getElementById('notif-badge');
+    if (bell) bell.classList.toggle('on', n > 0);
+  }
+
+  function _watchRdv() {
+    try {
+      if (typeof supabase === 'undefined') return;
+      var url = typeof SUPA_URL !== 'undefined'          ? SUPA_URL
+              : typeof DOCLINE_CONFIG !== 'undefined'    ? DOCLINE_CONFIG.SUPA_URL
+              : null;
+      var key = typeof SUPA_KEY !== 'undefined'          ? SUPA_KEY
+              : typeof DOCLINE_CONFIG !== 'undefined'    ? DOCLINE_CONFIG.SUPA_KEY
+              : null;
+      if (!url || !key) return;
+      if (!_rdvClient) _rdvClient = supabase.createClient(url, key);
+
+      _rdvClient.auth.getSession().then(function (res) {
+        var sess = res && res.data && res.data.session;
+        if (!sess) return;
+        var uid = sess.user.id;
+
+        function refresh() {
+          _rdvClient
+            .from('appointments')
+            .select('id', { count: 'exact', head: true })
+            .eq('doctor_id', uid)
+            .eq('status', 'pending')
+            .then(function (r) { _setRdvBadge(r.count || 0); });
+        }
+
+        // Premier appel immédiat
+        refresh();
+
+        // Mises à jour en temps réel (INSERT = nouvelle demande, UPDATE = annulation/confirmation)
+        _rdvClient.channel('shell-rdv-' + uid)
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, refresh)
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'appointments' }, refresh)
+          .subscribe();
+      });
+    } catch (e) { /* Badge non critique — échec silencieux */ }
+  }
+
   // ── INIT ──────────────────────────────────────────────────────
   function init(opts) {
     var sbEl  = document.getElementById('shell-sidebar');
@@ -623,6 +700,9 @@ button{font-family:inherit;cursor:pointer}
     if (srch && opts.onSearch) {
       srch.addEventListener('input', function (e) { opts.onSearch(e.target.value.trim()); });
     }
+
+    // Lance le voyant RDV en attente (léger délai pour laisser supabase se charger)
+    setTimeout(_watchRdv, 250);
   }
 
   // Helper: compute the display name from auth user metadata.
@@ -633,5 +713,5 @@ button{font-family:inherit;cursor:pointer}
     return meta.full_name || meta.name || (email ? String(email).split('@')[0] : '') || 'Mon compte';
   }
 
-  return { init: init, render: render, displayName: displayName };
+  return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge };
 })();

@@ -491,6 +491,8 @@ function updateKPIs(){
   document.getElementById('kpi-confirmed').textContent = confirmed;
   document.getElementById('kpi-today').textContent     = todayN;
   document.getElementById('kpi-total').textContent     = total;
+  // Synchronise le voyant sidebar immédiatement depuis la source de vérité
+  if (typeof Shell !== 'undefined' && Shell.setRdvBadge) Shell.setRdvBadge(pending);
 }
 
 /* ── Filter counts ───────────────────────────────────────────── */
