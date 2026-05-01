@@ -100,9 +100,6 @@
 /* ── EMPTY / SKELETON ───────────────────────────────── */
 .empty-state{text-align:center;padding:64px 24px;color:var(--text4);animation:fadeInUp .35s var(--ease)}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.empty-ico{width:72px;height:72px;background:var(--surface2);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px}
-.empty-title{font-size:17px;font-weight:800;color:var(--text2);margin-bottom:6px}
-.empty-sub{font-size:14px;line-height:1.65;margin-bottom:24px;max-width:320px;margin-left:auto;margin-right:auto}
 
 .skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
 .skeleton-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px}
@@ -206,16 +203,16 @@
 
       <!-- KPI STRIP -->
       <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-pill">
-          <div class="kpi-ico" style="background:#EFF6FF"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#1D4ED8;stroke-width:2;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="kpi-pill blue">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-lbl">Total patients</div></div>
         </div>
-        <div class="kpi-pill">
-          <div class="kpi-ico" style="background:#FEF9C3"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#92400E;stroke-width:2;stroke-linecap:round"><path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4zm0 0c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z"/></svg></div>
+        <div class="kpi-pill amber">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4zm0 0c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z"/></svg></div>
           <div><div class="kpi-val" id="kpi-chronic">—</div><div class="kpi-lbl">Chroniques</div></div>
         </div>
-        <div class="kpi-pill">
-          <div class="kpi-ico" style="background:#DBEAFE"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#1D4ED8;stroke-width:2;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="kpi-pill blue">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
           <div><div class="kpi-val" id="kpi-insured">—</div><div class="kpi-lbl">Assurés CNAS/CASNOS</div></div>
         </div>
       </div>
@@ -396,9 +393,9 @@ async function loadClients() {
   } catch(e) {
     document.getElementById('clients-container').innerHTML =
       '<div class="empty-state">'+
-        '<div class="empty-ico">️</div>'+
-        '<div class="empty-title">Impossible de charger les patients</div>'+
-        '<div class="empty-sub">'+sanitize(e.message)+'</div>'+
+        '<div class="empty-state-icon"><svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>'+
+        '<div class="empty-state-title">Impossible de charger les patients</div>'+
+        '<div class="empty-state-sub">'+sanitize(e.message)+'</div>'+
       '</div>';
   }
 }
@@ -445,11 +442,14 @@ function renderClients(search) {
   if (!filtered.length) {
     var none = !_clients.length;
     el.className = '';
+    var emptyIco = none
+      ? '<svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+      : '<svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
     el.innerHTML = '<div class="empty-state">'+
-      '<div class="empty-ico">'+(none?'':'')+'</div>'+
-      '<div class="empty-title">'+(none?'Aucun patient encore':'Aucun résultat')+'</div>'+
-      '<div class="empty-sub">'+(none?'Créez votre premier dossier patient pour commencer.':'Modifiez votre recherche ou le filtre actif.')+'</div>'+
-      (none?'<button class="btn btn-primary" onclick="openModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Premier patient</button>':'')+
+      '<div class="empty-state-icon">'+emptyIco+'</div>'+
+      '<div class="empty-state-title">'+(none?'Aucun patient encore':'Aucun résultat')+'</div>'+
+      '<div class="empty-state-sub">'+(none?'Créez votre premier dossier patient pour commencer.':'Modifiez votre recherche ou le filtre actif.')+'</div>'+
+      (none?'<button class="btn btn-primary" style="margin-top:18px" onclick="openModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Premier patient</button>':'')+
     '</div>';
     return;
   }

@@ -91,8 +91,6 @@
 
 /* ── EMPTY ──────────────────────────────────────────── */
 .empty-state{text-align:center;padding:64px 20px;color:var(--text4)}
-.empty-icon{font-size:40px;margin-bottom:12px}
-.empty-title{font-size:16px;font-weight:700;color:var(--text3);margin-bottom:6px}
 
 /* ── MODAL ─────────────────────────────────────────── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;opacity:0;visibility:hidden;transition:all .2s;backdrop-filter:blur(4px)}
@@ -144,7 +142,7 @@
 
       <div class="page-header">
         <div>
-          <div class="page-title"> Personnel</div>
+          <div class="page-title">Personnel</div>
           <div class="page-sub">Gérez les membres de votre équipe médicale et administrative</div>
         </div>
         <button class="btn-primary" onclick="openModal()">
@@ -154,21 +152,21 @@
       </div>
 
       <div class="kpi-row">
-        <div class="kpi-card">
-          <div class="kpi-ico" style="background:#EFF6FF"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#1D4ED8;stroke-width:2;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="kpi-card blue">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <div><div class="kpi-val" id="stat-total">—</div><div class="kpi-lbl">Total personnel</div></div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-ico" style="background:#ECFDF5"><span style="color:#059669">&#10003;</span></div>
-          <div><div class="kpi-val" id="stat-active" style="color:#059669">—</div><div class="kpi-lbl">Actifs</div></div>
+        <div class="kpi-card green">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="kpi-val" id="stat-active">—</div><div class="kpi-lbl">Actifs</div></div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-ico" style="background:#EDE9FE"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#7C3AED;stroke-width:2;stroke-linecap:round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
-          <div><div class="kpi-val" id="stat-secretaires" style="color:#7C3AED">—</div><div class="kpi-lbl">Secrétaires</div></div>
+        <div class="kpi-card violet">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+          <div><div class="kpi-val" id="stat-secretaires">—</div><div class="kpi-lbl">Secrétaires</div></div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-ico" style="background:#ECFDF5"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#059669;stroke-width:2;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-          <div><div class="kpi-val" id="stat-infirmiers" style="color:#059669">—</div><div class="kpi-lbl">Infirmiers / Assistants</div></div>
+        <div class="kpi-card green">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div><div class="kpi-val" id="stat-infirmiers">—</div><div class="kpi-lbl">Infirmiers / Assistants</div></div>
         </div>
       </div>
 
@@ -183,10 +181,14 @@
       </div>
 
       <div class="staff-grid" id="staff-grid">
-        <div class="empty-state">
-          <div class="empty-icon"><svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-          <div class="empty-title">Aucun membre du personnel</div>
-          <div>Ajoutez votre équipe pour une meilleure organisation du cabinet.</div>
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-state-icon"><svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div class="empty-state-title">Aucun membre du personnel</div>
+          <div class="empty-state-sub">Ajoutez votre équipe pour une meilleure organisation du cabinet.</div>
+          <button class="btn-primary" style="margin-top:18px" onclick="openModal()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Ajouter un membre
+          </button>
         </div>
       </div>
 
@@ -285,7 +287,9 @@ function renderStaff() {
     return true;
   });
   if (!filtered.length) {
-    grid.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="empty-title">'+(_filterRole!=='all'?'Aucun membre dans cette catégorie':'Aucun membre du personnel')+'</div><div>'+(_staff.length===0?'Ajoutez votre équipe pour une meilleure organisation.':'Ajustez les filtres pour voir plus de résultats.')+'</div></div>';
+    var emptyMsg = _filterRole!=='all' ? 'Aucun membre dans cette catégorie' : 'Aucun membre du personnel';
+    var emptySub = _staff.length===0 ? 'Ajoutez votre équipe pour une meilleure organisation.' : 'Ajustez les filtres pour voir plus de résultats.';
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon"><svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="empty-state-title">'+emptyMsg+'</div><div class="empty-state-sub">'+emptySub+'</div></div>';
     return;
   }
   grid.innerHTML = filtered.map(function(s, i) {

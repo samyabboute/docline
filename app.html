@@ -37,36 +37,32 @@ button{font-family:inherit;cursor:pointer}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
 
 /* ── GREETING ─────────────────────────────────────────── */
-.greeting{margin-bottom:24px}
-.greeting-line{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--text);margin-bottom:3px}
-.greeting-sub{font-size:13px;color:var(--text-3)}
+.greeting{margin-bottom:28px;padding:24px 28px;background:linear-gradient(135deg,var(--brand) 0%,#5B21B6 100%);border-radius:20px;position:relative;overflow:hidden}
+.greeting::before{content:'';position:absolute;top:-40px;right:-20px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none}
+.greeting::after{content:'';position:absolute;bottom:-60px;left:30%;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.greeting-line{font-size:22px;font-weight:800;letter-spacing:-.5px;color:#fff;margin-bottom:4px;position:relative;z-index:1}
+.greeting-sub{font-size:13px;color:rgba(255,255,255,.65);position:relative;z-index:1}
 
 /* ── KPI GRID ─────────────────────────────────────────── */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
-.kpi{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
-  padding:18px 20px;position:relative;overflow:hidden;
-  transition:box-shadow var(--t) var(--ease);
-}
-.kpi:hover{box-shadow:var(--shadow-md)}
-.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;border-radius:var(--r-lg) var(--r-lg) 0 0}
-.kpi-blue::after{background:var(--brand)}
-.kpi-green::after{background:var(--success)}
-.kpi-amber::after{background:var(--warning)}
-.kpi-red::after{background:var(--danger)}
-.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.kpi-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center}
-.kpi-blue .kpi-icon{background:var(--brand-light);color:var(--brand)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.kpi{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:20px 20px 16px;position:relative;overflow:hidden;transition:transform .18s var(--ease),box-shadow .18s var(--ease);cursor:default}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.kpi-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.kpi-blue .kpi-icon{background:#EDE8FF;color:var(--brand)}
 .kpi-green .kpi-icon{background:var(--success-bg);color:var(--success)}
 .kpi-amber .kpi-icon{background:var(--warning-bg);color:var(--warning)}
 .kpi-red .kpi-icon{background:var(--danger-bg);color:var(--danger)}
-.kpi-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.kpi-trend{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--rfull)}
+.kpi-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.kpi-val{font-size:32px;font-weight:900;letter-spacing:-.8px;color:var(--text);line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.kpi-blue .kpi-val{color:var(--brand)}
+.kpi-green .kpi-val{color:var(--success)}
+.kpi-amber .kpi-val{color:var(--warning)}
+.kpi-red .kpi-val{color:var(--danger)}
+.kpi-lbl{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:.02em}
+.kpi-trend{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px}
 .trend-up{background:var(--success-bg);color:var(--success)}
 .trend-neutral{background:var(--surface-2);color:var(--text-3)}
 .trend-down{background:var(--danger-bg);color:var(--danger)}
-.kpi-val{font-size:28px;font-weight:800;letter-spacing:-.8px;color:var(--text);line-height:1;margin-bottom:4px}
-.kpi-lbl{font-size:12px;font-weight:500;color:var(--text-3)}
 
 /* ── QUICK ACTIONS ────────────────────────────────────── */
 .qa-row{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
@@ -86,14 +82,15 @@ button{font-family:inherit;cursor:pointer}
 .dash-grid{display:grid;grid-template-columns:1fr 340px;gap:16px}
 
 /* ── CARDS ────────────────────────────────────────────── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
-.card-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
-.card-title svg{width:14px;height:14px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.card-link{font-size:12px;font-weight:600;color:var(--brand);opacity:.8;transition:opacity var(--t)}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.04);overflow:hidden;transition:box-shadow .18s}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1.5px solid var(--border)}
+.card-title{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;letter-spacing:-.2px}
+.card-title svg{width:16px;height:16px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card-link{font-size:12px;font-weight:600;color:var(--brand);opacity:.8;transition:opacity var(--t);display:inline-flex;align-items:center;gap:4px}
 .card-link:hover{opacity:1}
 .card-body{padding:20px}
-.card-empty{padding:40px 20px;text-align:center;color:var(--text-4);font-size:13px}
+.card-empty{padding:48px 20px;text-align:center;color:var(--text-4);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:8px}
 
 /* ── PATIENT LIST ─────────────────────────────────────── */
 .patient-item{
@@ -498,10 +495,10 @@ function renderKPIs(patients, queue, consultations) {
 
   document.getElementById('kpi-grid').innerHTML = kpis.map(function(k) {
     return '<div class="kpi '+k.cls+'">'
-      +'<div class="kpi-top"><div class="kpi-icon"><svg viewBox="0 0 24 24">'+k.icon+'</svg></div>'
-      +'<span class="kpi-trend '+k.tclass+'">'+k.trend+'</span></div>'
+      +'<div class="kpi-icon"><svg viewBox="0 0 24 24">'+k.icon+'</svg></div>'
       +'<div class="kpi-val">'+k.val+'</div>'
       +'<div class="kpi-lbl">'+k.lbl+'</div>'
+      +'<span class="kpi-trend '+k.tclass+'">'+k.trend+'</span>'
       +'</div>';
   }).join('');
 }
