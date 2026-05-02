@@ -802,7 +802,7 @@ async function sendOtp() {
   try {
     const res = await fetch(FN_BASE + '/send-otp', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+      headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY },
       body: JSON.stringify({ phone }),
     });
     const data = await res.json();
@@ -897,7 +897,7 @@ async function resendOtp() {
   try {
     await fetch(FN_BASE + '/send-otp', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+      headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY },
       body: JSON.stringify({ phone }),
     });
     startOtpTimer();
@@ -924,7 +924,7 @@ async function verifyOtp() {
   try {
     const res = await fetch(FN_BASE + '/verify-otp-book', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+      headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY },
       body: JSON.stringify({
         phone,
         otp,
