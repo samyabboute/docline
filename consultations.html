@@ -135,6 +135,19 @@
 .btn-save:hover{background:var(--brand2)}
 .btn-save:disabled{opacity:.5;cursor:not-allowed}
 
+/* ── PATIENT AUTOCOMPLETE ─────────────────────────── */
+.patient-wrap{position:relative}
+.ac-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1.5px solid var(--brand);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.13);z-index:300;max-height:220px;overflow-y:auto;display:none;animation:dropIn .15s var(--ease)}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.ac-dropdown.open{display:block}
+.ac-item{padding:9px 12px;font-size:13px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:9px;transition:background .1s;border-bottom:1px solid var(--border)}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover{background:var(--brand-light)}
+.ac-item svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0;color:var(--text3)}
+.ac-item-name{font-weight:600;flex:1}
+.ac-item-new{color:var(--brand);font-weight:600;flex:1}
+.ac-item-new svg{color:var(--brand)}
+
 /* Toast */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1E3A5F;color:#fff;padding:11px 22px;border-radius:var(--rfull);font-size:13px;font-weight:600;opacity:0;transition:all .26s var(--ease);z-index:9999;white-space:nowrap;max-width:90vw;box-shadow:0 6px 20px rgba(0,0,0,.2)}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
@@ -231,8 +244,11 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Patient *</label>
-            <input class="form-input" id="f-patient" type="text" placeholder="Nom complet du patient" maxlength="100" list="patients-list">
-            <datalist id="patients-list"></datalist>
+            <div class="patient-wrap">
+              <input class="form-input" id="f-patient" type="text" placeholder="Nom complet du patient" maxlength="100" autocomplete="off"
+                oninput="onPatientInput()" onfocus="onPatientInput()">
+              <div class="ac-dropdown" id="ac-dropdown"></div>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Date *</label>
@@ -324,9 +340,52 @@ var MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov
 async function loadPatients() {
   var { data } = await _supa.from('clients').select('id,first_name,last_name').eq('user_id',_uid).order('last_name');
   _patients = data || [];
-  var dl = document.getElementById('patients-list');
-  dl.innerHTML = _patients.map(function(p){ return '<option value="'+esc((p.first_name+' '+p.last_name).trim())+'">'; }).join('');
 }
+
+// ── AUTOCOMPLETE ──────────────────────────────────────────────────────
+var _selectedClientId = null;
+
+function onPatientInput() {
+  var q = document.getElementById('f-patient').value.trim();
+  _selectedClientId = null;
+  var dd = document.getElementById('ac-dropdown');
+  if (!q) { dd.classList.remove('open'); dd.innerHTML = ''; return; }
+  var ql = q.toLowerCase();
+  var matches = _patients.filter(function(p) {
+    return (p.first_name+' '+p.last_name).toLowerCase().includes(ql);
+  }).slice(0,8);
+  var exactMatch = _patients.some(function(p) {
+    return (p.first_name+' '+p.last_name).trim().toLowerCase() === ql;
+  });
+  var html = matches.map(function(p) {
+    var name = (p.first_name+' '+p.last_name).trim();
+    return '<div class="ac-item" onmousedown="selectPatient(\''+esc(name)+'\',\''+p.id+'\')">'
+      +'<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+      +'<span class="ac-item-name">'+esc(name)+'</span></div>';
+  }).join('');
+  if (!exactMatch) {
+    html += '<div class="ac-item" onmousedown="selectPatient(\''+esc(q)+'\',null)">'
+      +'<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+      +'<span class="ac-item-new">Nouveau : '+esc(q)+'</span></div>';
+  }
+  dd.innerHTML = html;
+  dd.classList.add('open');
+}
+
+function selectPatient(name, clientId) {
+  document.getElementById('f-patient').value = name;
+  _selectedClientId = clientId || null;
+  var dd = document.getElementById('ac-dropdown');
+  dd.classList.remove('open');
+  dd.innerHTML = '';
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.patient-wrap')) {
+    var dd = document.getElementById('ac-dropdown');
+    if (dd) { dd.classList.remove('open'); }
+  }
+});
 
 async function loadConsults() {
   var { data, error } = await _supa.from('consultations').select('*').eq('user_id',_uid).order('consult_date',{ascending:false});
@@ -462,8 +521,31 @@ async function saveConsult() {
   if (!patient || !date) { toast('Patient et date requis.','error'); return; }
   var btn = document.getElementById('btn-save');
   btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+  // Résoudre ou créer le patient dans clients
+  var clientId = _selectedClientId;
+  if (!clientId) {
+    var matched = _patients.find(function(p) {
+      return (p.first_name+' '+p.last_name).trim().toLowerCase() === patient.toLowerCase();
+    });
+    if (matched) {
+      clientId = matched.id;
+    } else {
+      // Nouveau patient → insérer dans clients
+      var parts = patient.trim().split(/\s+/);
+      var lastName  = parts.length > 1 ? parts.slice(1).join(' ') : '';
+      var firstName = parts[0];
+      var { data: nc } = await _supa.from('clients').insert({
+        user_id: _uid, first_name: firstName, last_name: lastName
+      }).select('id').single();
+      if (nc) { clientId = nc.id; }
+      await loadPatients();
+    }
+  }
+
   var payload = {
     user_id: _uid, patient_name: patient, consult_date: date,
+    client_id: clientId || null,
     motif: document.getElementById('f-motif').value.trim()||null,
     diagnostic: document.getElementById('f-diagnostic').value.trim()||null,
     prescription: document.getElementById('f-prescription').value.trim()||null,
@@ -473,8 +555,6 @@ async function saveConsult() {
     follow_up_date: document.getElementById('f-followup-date').value||null,
     follow_up_notes: document.getElementById('f-followup-notes').value.trim()||null,
   };
-  var matched = _patients.find(function(p){ return (p.first_name+' '+p.last_name).toLowerCase()===patient.toLowerCase(); });
-  if (matched) payload.client_id = matched.id;
   var error;
   if (_editId) { var r = await _supa.from('consultations').update(payload).eq('id',_editId); error=r.error; }
   else         { var r = await _supa.from('consultations').insert(payload); error=r.error; }
