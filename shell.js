@@ -276,6 +276,7 @@ button{font-family:inherit;cursor:pointer}
 /* ── MAIN CONTENT ── */
 .shell-main{grid-row:2;grid-column:2;min-width:0;overflow-x:hidden}
 .shell-page{padding:24px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box}
+.page{padding:24px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box}
 
 /* ── MOBILE BOTTOM NAV ── */
 .shell-mobile-nav{
