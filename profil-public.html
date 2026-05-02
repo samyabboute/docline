@@ -18,7 +18,7 @@
 }
 
 /* ── Layout ────────────────────────────────────────────────── */
-.page{padding:28px 24px;max-width:1040px}
+.page{padding:28px 24px;max-width:1040px;margin:0 auto;width:100%;box-sizing:border-box}
 .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
 .page-header h1{font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:-.3px;margin-bottom:3px}
 .page-header p{font-size:.8125rem;color:var(--text-3)}
@@ -101,6 +101,31 @@
 .rdv-count-link{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:.75rem;font-weight:600;color:var(--brand,#3B1772);text-decoration:none}
 .rdv-count-link svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
 
+/* ── Avatar upload ─────────────────────────────────────────── */
+.avatar-upload-wrap{display:flex;align-items:center;gap:24px;padding:4px 0}
+.avatar-circle{
+  width:92px;height:92px;border-radius:50%;
+  background:#3B1772;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;cursor:pointer;flex-shrink:0;
+  overflow:hidden;
+  border:3px solid var(--border,#E8EAF0);
+  transition:border-color .18s,box-shadow .18s;
+}
+.avatar-circle:hover{border-color:var(--brand,#3B1772);box-shadow:0 0 0 4px rgba(59,23,114,.12)}
+.avatar-circle img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;display:none}
+.avatar-initials-txt{font-size:1.625rem;font-weight:800;color:#fff;letter-spacing:.5px;position:relative;z-index:1;pointer-events:none}
+.avatar-cam-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.48);border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  opacity:0;transition:opacity .18s;z-index:2;pointer-events:none;
+}
+.avatar-circle:hover .avatar-cam-overlay{opacity:1}
+.avatar-cam-overlay svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+.avatar-cam-label{font-size:9px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.06em}
+.avatar-info-title{font-size:.875rem;font-weight:700;color:var(--text,#0C0E14);margin-bottom:3px}
+.avatar-info-sub{font-size:.75rem;color:var(--text-3,#7B8194);margin-bottom:10px;line-height:1.5}
+
 /* ── Spinner ───────────────────────────────────────────────── */
 .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:none;flex-shrink:0}
 @keyframes sp{to{transform:rotate(360deg)}}
@@ -145,6 +170,37 @@
       <div class="profile-grid">
         <!-- ── LEFT col ──────────────────────────────────── -->
         <div>
+
+          <!-- Photo de profil -->
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header">
+              <div class="card-header-icon">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <span class="card-title">Photo de profil</span>
+            </div>
+            <div class="card-body">
+              <div class="avatar-upload-wrap">
+                <div class="avatar-circle" id="avatar-circle" onclick="document.getElementById('avatar-file-input').click()" title="Changer la photo">
+                  <img id="avatar-img-preview" alt="Photo de profil">
+                  <span class="avatar-initials-txt" id="avatar-initials-txt">DR</span>
+                  <div class="avatar-cam-overlay">
+                    <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span class="avatar-cam-label">Modifier</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="avatar-info-title">Photo de profil</div>
+                  <div class="avatar-info-sub">JPG ou PNG · max 2 Mo<br>Visible par les patients sur votre fiche</div>
+                  <button type="button" class="btn btn-outline" style="font-size:.75rem;padding:7px 14px" onclick="document.getElementById('avatar-file-input').click()">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Choisir une photo
+                  </button>
+                </div>
+              </div>
+              <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="onAvatarChange(event)">
+            </div>
+          </div>
 
           <!-- Visibility toggles -->
           <div class="visibility-card">
@@ -290,7 +346,10 @@
             </div>
             <div class="card-body">
               <div class="preview-inner">
-                <div class="preview-avatar" id="prev-avatar">DR</div>
+                <div class="preview-avatar" id="prev-avatar" style="overflow:hidden;position:relative">
+                  <img id="prev-avatar-img" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%">
+                  <span id="prev-avatar-initials">DR</span>
+                </div>
                 <div class="preview-name" id="prev-name">Dr. Votre Nom</div>
                 <div class="preview-spec">
                   <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -343,6 +402,37 @@
 
 var _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
 var _uid, _email, _toastTimer;
+var _avatarFile = null;   // fichier en attente d'upload
+var _avatarSrc  = null;   // URL courante (distante ou data URL local)
+
+/* ── Avatar ─────────────────────────────────────────────────── */
+function onAvatarChange(e) {
+  var file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('Image trop lourde (max 2 Mo)', 'err'); return; }
+  _avatarFile = file;
+  var reader = new FileReader();
+  reader.onload = function(ev) { applyAvatarSrc(ev.target.result); };
+  reader.readAsDataURL(file);
+  // reset input so same file can be re-selected
+  e.target.value = '';
+}
+
+function applyAvatarSrc(src) {
+  _avatarSrc = src;
+  // Left panel circle
+  var img   = document.getElementById('avatar-img-preview');
+  var inits = document.getElementById('avatar-initials-txt');
+  if (src) { img.src = src; img.style.display = 'block'; inits.style.display = 'none'; }
+  else      { img.style.display = 'none'; inits.style.display = 'block'; }
+  // Right panel preview
+  var pImg   = document.getElementById('prev-avatar-img');
+  var pInits = document.getElementById('prev-avatar-initials');
+  if (src) { pImg.src = src; pImg.style.display = 'block'; pInits.style.display = 'none'; }
+  else      { pImg.style.display = 'none'; pInits.style.display = 'block'; }
+}
+
+window.onAvatarChange = onAvatarChange;
 
 /* ── Auth ──────────────────────────────────────────────────── */
 (async function(){
@@ -406,6 +496,7 @@ function populateForm(p) {
   setVal('f-bio',       p.bio       || '');
   document.getElementById('t-public').checked = !!p.is_public;
   document.getElementById('t-rdv').checked    = !!p.accepts_rdv;
+  if (p.avatar_url) applyAvatarSrc(p.avatar_url);
   updatePreview();
 }
 
@@ -423,10 +514,21 @@ function updatePreview() {
   var bio    = getVal('f-bio');
 
   var color = COLORS[name.length % COLORS.length];
-  var inits = name.split(' ').filter(Boolean).slice(0, 2).map(function(w){ return w[0].toUpperCase(); }).join('');
+  var inits = name.split(' ').filter(Boolean).slice(0, 2).map(function(w){ return w[0].toUpperCase(); }).join('') || 'DR';
 
   document.getElementById('prev-avatar').style.background = color;
-  document.getElementById('prev-avatar').textContent = inits || 'DR';
+  // left panel initials
+  document.getElementById('avatar-initials-txt').textContent = inits;
+  document.getElementById('avatar-circle').style.background = color;
+  // right panel initials (only if no photo)
+  var pInits = document.getElementById('prev-avatar-initials');
+  var pImg   = document.getElementById('prev-avatar-img');
+  pInits.textContent = inits;
+  if (!_avatarSrc) {
+    document.getElementById('prev-avatar').style.background = color;
+    pImg.style.display   = 'none';
+    pInits.style.display = 'block';
+  }
   document.getElementById('prev-name').textContent   = 'Dr. ' + name;
   document.getElementById('prev-spec-txt').textContent = spec;
   document.getElementById('prev-location').textContent = (city ? city + ', ' : '') + (wilaya || '—');
@@ -463,7 +565,20 @@ window.saveProfile = async function() {
     updated_at:         new Date().toISOString(),
   };
 
-  var { error } = await _supa.from('profiles').upsert({ ...payload, id: _uid }, { onConflict: 'id' });
+  // Upload avatar si un nouveau fichier est sélectionné
+  if (_avatarFile) {
+    var ext  = _avatarFile.type === 'image/png' ? 'png' : 'jpg';
+    var path = _uid + '/avatar.' + ext;
+    var { error: upErr } = await _supa.storage.from('avatars').upload(path, _avatarFile, { upsert: true, contentType: _avatarFile.type });
+    if (!upErr) {
+      var { data: urlData } = _supa.storage.from('avatars').getPublicUrl(path);
+      payload.avatar_url = urlData.publicUrl + '?v=' + Date.now();
+      _avatarSrc  = payload.avatar_url;
+      _avatarFile = null;
+    }
+  }
+
+  var { error } = await _supa.from('profiles').upsert(Object.assign({ id: _uid }, payload), { onConflict: 'id' });
 
   btn.disabled       = false;
   spin.style.display = 'none';
