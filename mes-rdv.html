@@ -597,10 +597,45 @@ function cardHTML(rdv){
     +'</div>';
 }
 
-/* ── Quick cancel ────────────────────────────────────────────── */
-function quickCancel(id){
-  if(!confirm('Annuler ce rendez-vous ?')) return;
-  updateStatus(id, 'cancelled');
+/* ── Quick cancel (via Edge Function → SMS patient) ─────────── */
+async function quickCancel(id){
+  var rdv = _allRdv.find(function(x){ return x.id===id; });
+  var patientName = rdv ? rdv.patient_name : 'le patient';
+  var reason = prompt('Motif d\'annulation (facultatif, sera envoyé au patient par SMS) :');
+  if(reason === null) return; // annulé par le médecin
+
+  // Récupérer le JWT du médecin pour l'Edge Function
+  var { data: sessionData } = await _sb.auth.getSession();
+  var jwt = sessionData?.session?.access_token;
+  if(!jwt){ showToast('Session expirée, reconnectez-vous', 'err'); return; }
+
+  showToast('Annulation en cours…', 'ok');
+
+  try {
+    var res = await fetch(SUPABASE_URL + '/functions/v1/cancel-appointment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + jwt,
+        'apikey': SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ appointmentId: id, reason: reason || '' }),
+    });
+    var data = await res.json();
+
+    if(!res.ok){
+      showToast('Erreur : ' + (data.message || data.error), 'err'); return;
+    }
+
+    // Mettre à jour localement
+    _allRdv = _allRdv.map(function(x){ return x.id===id ? Object.assign({},x,{status:'cancelled'}) : x; });
+    updateKPIs(); updateCounts(); renderList();
+    showToast('RDV annulé — ' + patientName + ' notifié par SMS ✓', 'ok');
+  } catch(e) {
+    // Fallback : mise à jour directe sans SMS
+    console.warn('Edge Function unavailable, direct cancel fallback:', e);
+    updateStatus(id, 'cancelled');
+  }
 }
 window.quickCancel = quickCancel;
 

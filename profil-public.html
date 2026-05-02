@@ -307,10 +307,10 @@
                   </div>
                 </div>
                 <div class="preview-bio" id="prev-bio" style="display:none"></div>
-                <button class="preview-rdv-btn">
+                <a class="preview-rdv-btn" id="previewRdvBtn" href="#" target="_blank">
                   <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                   Prendre RDV
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -372,6 +372,10 @@ var _uid, _email, _toastTimer;
     var profRes = await _supa.from('profiles').select('*').eq('id', _uid).maybeSingle();
     populateForm((profRes && profRes.data) || {});
     document.getElementById('page-wrap').style.display = 'block';
+
+    // Lier le bouton "Prendre RDV" de l'aperçu vers book.html
+    var rdvPreviewBtn = document.getElementById('previewRdvBtn');
+    if (rdvPreviewBtn) rdvPreviewBtn.href = 'book.html?doctor=' + _uid;
 
     /* RDV count */
     _supa.from('appointments').select('id', { count: 'exact', head: true }).eq('doctor_id', _uid)
