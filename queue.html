@@ -8,7 +8,6 @@
 <script src="config.js"></script>
 <script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
 /* ── PRIORITY TOKENS ── */
 :root {
@@ -615,6 +614,7 @@ var _todayKey = new Date().toISOString().slice(0,10);
 var _selectedPriority = 'normale';
 var _audioCtx = null;
 var _notesVisible = false;
+var _qrJoinUrl = '';
 
 // ── SOUND ENGINE (Web Audio API — aucun fichier externe) ──────
 function getAudioCtx() {
@@ -1061,18 +1061,18 @@ async function deleteRoom(id) {
 // ── QR CODE ───────────────────────────────────────────────────
 function generateQR() {
   var _appBase = (typeof APP_URL !== 'undefined' && APP_URL) ? APP_URL : (window.location.origin + window.location.pathname.replace(/[^/]*$/, '').replace(/\/$/, ''));
-  var joinUrl = _appBase + '/queue-join.html?c=' + _uid;
-  document.getElementById('qr-link-text').textContent = joinUrl;
-  document.getElementById('qr-code').innerHTML = '';
-  try {
-    new QRCode(document.getElementById('qr-code'), { text:joinUrl, width:160, height:160, colorDark:'#3B1772', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M });
-  } catch(e) {}
+  _qrJoinUrl = _appBase + '/queue-join.html?c=' + _uid;
+  document.getElementById('qr-code').innerHTML =
+    '<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&color=3B1772&bgcolor=FFFFFF&qzone=1&format=svg&data='
+    + encodeURIComponent(_qrJoinUrl)
+    + '" width="160" height="160" style="display:block;border-radius:10px">';
 }
 
 function copyQRLink() {
   playClick();
-  var link = document.getElementById('qr-link-text').textContent;
-  navigator.clipboard.writeText(link).then(function(){toast('Lien copié ✓','success');}).catch(function(){toast('Copiez manuellement : '+link,'');});
+  navigator.clipboard.writeText(_qrJoinUrl)
+    .then(function(){ toast('Lien copié ✓', 'success'); })
+    .catch(function(){ toast('Copiez manuellement : ' + _qrJoinUrl, ''); });
 }
 
 // ── RESET ─────────────────────────────────────────────────────
