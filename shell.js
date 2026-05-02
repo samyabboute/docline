@@ -569,6 +569,38 @@ button{font-family:inherit;cursor:pointer}
   .sb-peek:hover{width:46px} /* pas d'élargissement sur mobile */
 }
 
+/* ── ONBOARDING ─────────────────────────────────────────────── */
+#ob-ov{position:fixed;inset:0;background:rgba(15,10,40,.75);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(10px);animation:ob-bg .4s ease both}
+@keyframes ob-bg{from{opacity:0}to{opacity:1}}
+#ob-modal{background:#fff;border-radius:24px;width:100%;max-width:480px;box-shadow:0 32px 80px rgba(0,0,0,.30);overflow:hidden;animation:ob-pop .45s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes ob-pop{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:none}}
+.ob-bar{height:4px;background:#EDE8FF}
+.ob-fill{height:100%;background:linear-gradient(90deg,#3B1772,#7C3AED);border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1)}
+.ob-body{padding:32px 32px 20px;min-height:300px}
+.ob-illo{height:150px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;position:relative}
+.ob-illo-inner{animation:ob-zoom .5s cubic-bezier(.34,1.56,.64,1) both .1s}
+@keyframes ob-zoom{from{opacity:0;transform:scale(.65) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.ob-chip{display:inline-block;font-size:10px;font-weight:700;color:#7C3AED;background:#EDE8FF;border-radius:99px;padding:3px 10px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.ob-title{font-size:21px;font-weight:900;color:#0C0E14;letter-spacing:-.4px;line-height:1.25;margin-bottom:10px}
+.ob-desc{font-size:13.5px;color:#7B8194;line-height:1.7}
+.ob-foot{padding:18px 32px 26px;display:flex;align-items:center;gap:12px}
+.ob-dots{display:flex;gap:6px;flex:1}
+.ob-dot{width:8px;height:8px;border-radius:4px;background:#E8EAF0;transition:all .3s cubic-bezier(.4,0,.2,1)}
+.ob-dot.on{width:22px;background:#3B1772}
+.ob-skip{font-size:12px;font-weight:500;color:#B0B7CC;background:none;border:none;cursor:pointer;padding:4px 6px;font-family:inherit;transition:color .15s}
+.ob-skip:hover{color:#7B8194}
+.ob-btn{padding:11px 22px;border-radius:99px;font-size:13.5px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#3B1772 0%,#6D28D9 100%);color:#fff;font-family:inherit;box-shadow:0 4px 16px rgba(59,23,114,.35);display:flex;align-items:center;gap:7px;transition:all .18s}
+.ob-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(59,23,114,.45)}
+.ob-btn:active{transform:scale(.97)}
+.ob-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;transition:transform .2s}
+.ob-btn:hover svg{transform:translateX(3px)}
+@media(max-width:480px){
+  .ob-body{padding:22px 18px 14px}
+  .ob-foot{padding:14px 18px 22px}
+  .ob-illo{height:110px}
+  .ob-title{font-size:18px}
+}
+
 /* ── RDV pending badge (sidebar) ── */
 .sb-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sb-rdv-dot{
@@ -801,6 +833,204 @@ button{font-family:inherit;cursor:pointer}
     } catch (e) { /* Badge non critique — échec silencieux */ }
   }
 
+  // ── ONBOARDING ────────────────────────────────────────────────
+  var _OB_KEY = 'docline_ob_v1';
+  var _obStep = 0;
+
+  var _OB_STEPS = [
+    {
+      chip: 'Bienvenue 👋',
+      title: 'Votre cabinet médical numérique',
+      desc: 'Docline centralise vos patients, consultations et rendez-vous. Suivez ce guide pour tout configurer en 4 étapes.',
+      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
+          + '<rect x="10" y="20" width="160" height="90" rx="14" fill="#EDE8FF"/>'
+          + '<rect x="24" y="34" width="60" height="62" rx="10" fill="#3B1772"/>'
+          + '<circle cx="54" cy="55" r="14" fill="#fff" opacity=".9"/>'
+          + '<rect x="30" y="76" width="48" height="6" rx="3" fill="#fff" opacity=".5"/>'
+          + '<rect x="30" y="86" width="36" height="5" rx="2.5" fill="#fff" opacity=".3"/>'
+          + '<rect x="94" y="34" width="62" height="18" rx="6" fill="#fff" opacity=".8"/>'
+          + '<rect x="100" y="40" width="30" height="5" rx="2.5" fill="#3B1772" opacity=".4"/>'
+          + '<rect x="94" y="58" width="62" height="18" rx="6" fill="#fff" opacity=".8"/>'
+          + '<rect x="100" y="64" width="42" height="5" rx="2.5" fill="#3B1772" opacity=".4"/>'
+          + '<rect x="94" y="78" width="62" height="18" rx="6" fill="#7C3AED" opacity=".8"/>'
+          + '<rect x="100" y="84" width="28" height="5" rx="2.5" fill="#fff" opacity=".6"/>'
+          + '<circle cx="148" cy="26" r="10" fill="#7C3AED"/>'
+          + '<path d="M144 26l2.5 2.5L152 23" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>'
+          + '</svg>',
+    },
+    {
+      chip: 'Étape 1 — Profil',
+      title: 'Complétez votre fiche publique',
+      desc: 'Renseignez votre spécialité, votre adresse et une photo de profil. Les patients vous trouveront via la plateforme.',
+      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
+          + '<rect x="20" y="10" width="140" height="110" rx="14" fill="#F3F0FF"/>'
+          + '<rect x="36" y="22" width="108" height="70" rx="10" fill="#fff" stroke="#E8EAF0" stroke-width="1.5"/>'
+          + '<circle cx="70" cy="50" r="18" fill="#EDE8FF"/>'
+          + '<circle cx="70" cy="46" r="8" fill="#7C3AED" opacity=".7"/>'
+          + '<path d="M54 66c0-8.8 7.2-10 16-10s16 1.2 16 10" fill="#7C3AED" opacity=".4"/>'
+          + '<rect x="96" y="36" width="36" height="6" rx="3" fill="#3B1772" opacity=".6"/>'
+          + '<rect x="96" y="48" width="24" height="5" rx="2.5" fill="#7B8194" opacity=".5"/>'
+          + '<rect x="96" y="59" width="42" height="5" rx="2.5" fill="#7B8194" opacity=".3"/>'
+          + '<rect x="96" y="70" width="20" height="14" rx="4" fill="#3B1772" opacity=".8"/>'
+          + '<rect x="36" y="100" width="108" height="12" rx="6" fill="#EDE8FF"/>'
+          + '<rect x="36" y="100" width="72" height="12" rx="6" fill="#3B1772" opacity=".7"/>'
+          + '</svg>',
+      href: 'profil-public.html',
+    },
+    {
+      chip: 'Étape 2 — Disponibilités',
+      title: 'Définissez vos créneaux',
+      desc: 'Indiquez vos jours et horaires de travail. Les patients ne pourront réserver que sur ces créneaux.',
+      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
+          + '<rect x="16" y="10" width="148" height="110" rx="14" fill="#F3F0FF"/>'
+          + '<rect x="28" y="22" width="124" height="90" rx="10" fill="#fff" stroke="#E8EAF0" stroke-width="1.5"/>'
+          + '<rect x="28" y="22" width="124" height="22" rx="10" fill="#3B1772"/>'
+          + '<rect x="28" y="32" width="124" height="12" rx="0" fill="#3B1772"/>'
+          + '<rect x="34" y="26" width="30" height="10" rx="3" fill="#fff" opacity=".2"/>'
+          + '<text x="90" y="37" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="sans-serif">Lun — Ven</text>'
+          + '<rect x="34" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
+          + '<rect x="34" y="50" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="64" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
+          + '<rect x="64" y="50" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="94" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
+          + '<rect x="124" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
+          + '<rect x="34" y="74" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="64" y="74" width="24" height="18" rx="5" fill="#EDE8FF"/>'
+          + '<rect x="94" y="74" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="124" y="74" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="34" y="98" width="114" height="8" rx="4" fill="#EDE8FF"/>'
+          + '</svg>',
+      href: 'disponibilites.html',
+    },
+    {
+      chip: 'Étape 3 — Booking',
+      title: 'Partagez votre lien de RDV',
+      desc: 'Votre page de réservation est prête. Envoyez le lien à vos patients par WhatsApp, SMS ou email.',
+      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
+          + '<rect x="54" y="5" width="72" height="120" rx="12" fill="#0C0E14"/>'
+          + '<rect x="58" y="12" width="64" height="106" rx="9" fill="#F7F8FC"/>'
+          + '<rect x="62" y="20" width="56" height="8" rx="4" fill="#EDE8FF"/>'
+          + '<rect x="62" y="20" width="38" height="8" rx="4" fill="#3B1772" opacity=".5"/>'
+          + '<rect x="66" y="34" width="48" height="32" rx="6" fill="#fff" stroke="#E8EAF0" stroke-width="1"/>'
+          + '<circle cx="82" cy="46" r="8" fill="#EDE8FF"/>'
+          + '<circle cx="82" cy="44" r="4" fill="#7C3AED" opacity=".6"/>'
+          + '<rect x="93" y="38" width="16" height="4" rx="2" fill="#3B1772" opacity=".5"/>'
+          + '<rect x="93" y="46" width="12" height="3" rx="1.5" fill="#7B8194" opacity=".4"/>'
+          + '<rect x="93" y="53" width="20" height="8" rx="3" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="66" y="72" width="48" height="5" rx="2.5" fill="#EDE8FF"/>'
+          + '<rect x="66" y="72" width="32" height="5" rx="2.5" fill="#7C3AED" opacity=".4"/>'
+          + '<rect x="66" y="83" width="20" height="14" rx="5" fill="#3B1772" opacity=".9"/>'
+          + '<rect x="90" y="83" width="24" height="14" rx="5" fill="#EDE8FF"/>'
+          + '<circle cx="90" cy="110" r="4" fill="#3B1772" opacity=".5"/>'
+          + '</svg>',
+      href: 'mes-rdv.html',
+    },
+    {
+      chip: '🎉 Tout est prêt !',
+      title: 'Vous êtes prêt à démarrer',
+      desc: 'Votre espace Docline est configuré. Vos patients peuvent maintenant prendre rendez-vous en ligne. Bonne pratique !',
+      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
+          + '<circle cx="90" cy="65" r="48" fill="#EDE8FF"/>'
+          + '<circle cx="90" cy="65" r="36" fill="#3B1772" opacity=".15"/>'
+          + '<circle cx="90" cy="65" r="24" fill="#3B1772"/>'
+          + '<path d="M78 65l8 8 16-16" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'
+          + '<circle cx="38" cy="28" r="5" fill="#7C3AED" opacity=".5"/>'
+          + '<circle cx="148" cy="40" r="3.5" fill="#3B1772" opacity=".4"/>'
+          + '<circle cx="28" cy="90" r="3" fill="#6D28D9" opacity=".4"/>'
+          + '<circle cx="155" cy="95" r="5" fill="#7C3AED" opacity=".3"/>'
+          + '<circle cx="60" cy="18" r="2.5" fill="#3B1772" opacity=".3"/>'
+          + '<circle cx="130" cy="110" r="2" fill="#6D28D9" opacity=".5"/>'
+          + '</svg>',
+      last: true,
+    },
+  ];
+
+  function _obRender() {
+    var s   = _OB_STEPS[_obStep];
+    var total = _OB_STEPS.length;
+    var pct = Math.round((_obStep / (total - 1)) * 100);
+    var modal = document.getElementById('ob-modal');
+    if (!modal) return;
+
+    var dots = _OB_STEPS.map(function(_, i) {
+      return '<div class="ob-dot' + (i === _obStep ? ' on' : '') + '"></div>';
+    }).join('');
+
+    var btnLabel = s.last ? 'Commencer' : 'Suivant';
+    var btnIcon  = s.last
+      ? '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>'
+      : '<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+
+    modal.innerHTML =
+      '<div class="ob-bar"><div class="ob-fill" id="ob-fill" style="width:' + pct + '%"></div></div>'
+    + '<div class="ob-body">'
+    +   '<div class="ob-illo"><div class="ob-illo-inner" id="ob-illo-inner">' + s.illo + '</div></div>'
+    +   '<div class="ob-chip">' + s.chip + '</div>'
+    +   '<div class="ob-title">' + s.title + '</div>'
+    +   '<div class="ob-desc">' + s.desc + '</div>'
+    + '</div>'
+    + '<div class="ob-foot">'
+    +   '<div class="ob-dots">' + dots + '</div>'
+    +   (!s.last ? '<button class="ob-skip" id="ob-skip">Ignorer</button>' : '')
+    +   '<button class="ob-btn" id="ob-next">' + btnLabel + btnIcon + '</button>'
+    + '</div>';
+
+    document.getElementById('ob-next').addEventListener('click', function() {
+      if (s.last) {
+        _obClose();
+        window.location.href = 'app.html';
+      } else if (s.href && _obStep > 0) {
+        _obClose();
+        window.location.href = s.href;
+      } else {
+        _obNext();
+      }
+    });
+
+    var skipBtn = document.getElementById('ob-skip');
+    if (skipBtn) skipBtn.addEventListener('click', _obClose);
+  }
+
+  function _obNext() {
+    if (_obStep < _OB_STEPS.length - 1) {
+      _obStep++;
+      // Re-render avec animation de l'illustration
+      var modal = document.getElementById('ob-modal');
+      if (!modal) return;
+      _obRender();
+    }
+  }
+
+  function _obClose() {
+    localStorage.setItem(_OB_KEY, '1');
+    var ov = document.getElementById('ob-ov');
+    if (ov) {
+      ov.style.animation = 'ob-bg .3s ease reverse forwards';
+      setTimeout(function(){ ov.remove(); }, 300);
+    }
+  }
+
+  function _launchOnboarding() {
+    if (localStorage.getItem(_OB_KEY)) return;
+    // Délai pour laisser le shell se charger
+    setTimeout(function() {
+      _obStep = 0;
+      var ov = document.createElement('div');
+      ov.id = 'ob-ov';
+      ov.innerHTML = '<div id="ob-modal"></div>';
+      document.body.appendChild(ov);
+      _obRender();
+      // Fermer sur clic backdrop
+      ov.addEventListener('click', function(e) {
+        if (e.target === ov) _obClose();
+      });
+      // Fermer à Escape
+      document.addEventListener('keydown', function onEsc(e) {
+        if (e.key === 'Escape') { _obClose(); document.removeEventListener('keydown', onEsc); }
+      });
+    }, 600);
+  }
+
   // ── INIT ──────────────────────────────────────────────────────
   function init(opts) {
     var sbEl  = document.getElementById('shell-sidebar');
@@ -1005,6 +1235,9 @@ button{font-family:inherit;cursor:pointer}
 
     // Lance le voyant RDV en attente (léger délai pour laisser supabase se charger)
     setTimeout(_watchRdv, 250);
+
+    // Lance l'onboarding à la première connexion
+    _launchOnboarding();
   }
 
   // Helper: compute the display name from auth user metadata.
@@ -1015,5 +1248,5 @@ button{font-family:inherit;cursor:pointer}
     return meta.full_name || meta.name || (email ? String(email).split('@')[0] : '') || 'Mon compte';
   }
 
-  return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge };
+  return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
 })();
