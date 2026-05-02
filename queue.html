@@ -496,12 +496,20 @@
             <div class="panel-card-body">
               <div class="qr-frame">
                 <div id="qr-code" style="display:flex;justify-content:center;margin-bottom:8px"></div>
-                <div class="qr-hint">📲 Les patients scannent pour rejoindre la file</div>
+                <div class="qr-hint">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;vertical-align:middle;margin-right:4px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  Les patients scannent pour rejoindre la file
+                </div>
               </div>
-              <button class="btn-copy" onclick="copyQRLink()" id="btn-copy-link">
-                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                Copier le lien d'inscription
-              </button>
+              <div style="display:flex;gap:8px;margin-top:0">
+                <button class="btn-copy" onclick="copyQRLink()" id="btn-copy-link" style="flex:1">
+                  <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copier le lien
+                </button>
+                <button class="btn-copy" onclick="printQR()" style="flex:0 0 auto;padding:10px 14px;background:var(--brand-light);color:var(--brand);border:1px solid var(--brand-border)" title="Imprimer le QR Code">
+                  <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1073,6 +1081,20 @@ function copyQRLink() {
   navigator.clipboard.writeText(_qrJoinUrl)
     .then(function(){ toast('Lien copié ✓', 'success'); })
     .catch(function(){ toast('Copiez manuellement : ' + _qrJoinUrl, ''); });
+}
+
+function printQR() {
+  playClick();
+  var w = window.open('', '_blank', 'width=500,height=600');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR Code — File d\'attente</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#fff;padding:40px;text-align:center}h2{font-size:22px;font-weight:800;color:#3B1772;margin-bottom:8px}p{font-size:14px;color:#6B7280;margin-bottom:28px}img{border:6px solid #fff;box-shadow:0 4px 24px rgba(59,23,114,.15);border-radius:16px;margin-bottom:24px}.footer{font-size:11px;color:#9CA3AF;margin-top:24px}@media print{body{margin:0}}</style></head><body>'
+    + '<h2>Rejoignez la file d\'attente</h2>'
+    + '<p>Scannez le QR Code avec votre téléphone</p>'
+    + '<img src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&color=3B1772&bgcolor=FFFFFF&qzone=2&format=svg&data=' + encodeURIComponent(_qrJoinUrl) + '" width="260" height="260">'
+    + '<p style="font-size:13px;color:#374151;font-weight:600;word-break:break-all;max-width:320px">' + _qrJoinUrl + '</p>'
+    + '<div class="footer">Propulsé par Docline · docline.dz</div>'
+    + '</body></html>');
+  w.document.close();
+  w.onload = function(){ w.focus(); w.print(); };
 }
 
 // ── RESET ─────────────────────────────────────────────────────
