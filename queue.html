@@ -321,6 +321,41 @@
 /* ── RESPONSIVE ── */
 @media(max-width:960px){.queue-layout{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr}.serving-num{font-size:68px}.priority-row{grid-template-columns:1fr 1fr 1fr}}
+
+/* ── PLANNING DU JOUR ── */
+.planning-section{background:var(--surface);border:1px solid var(--border);border-radius:18px;margin-bottom:20px;overflow:hidden}
+.planning-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.planning-title{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.planning-title svg{width:16px;height:16px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round}
+.planning-meta{display:flex;align-items:center;gap:8px}
+.planning-date-lbl{font-size:12px;color:var(--text3);font-weight:500}
+.planning-badge{font-size:11px;font-weight:700;background:var(--brand-subtle,#EEF2FF);color:var(--brand);padding:2px 9px;border-radius:99px}
+.planning-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);transition:background .12s}
+.planning-row:last-child{border-bottom:none}
+.planning-row:hover{background:var(--surface-hover,#F8F9FF)}
+.planning-row.rdv-arrived{opacity:.45;pointer-events:none}
+.planning-time{font-size:13px;font-weight:700;color:var(--text);min-width:40px;font-variant-numeric:tabular-nums;flex-shrink:0}
+.planning-patient{flex:1;min-width:0}
+.planning-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planning-phone{font-size:11px;color:var(--text3);margin-top:1px}
+.sms-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.sms-ok{background:#ECFDF5;color:#065F46}
+.sms-wait{background:#FEF3C7;color:#92400E}
+.sms-none{background:#F3F4F6;color:#6B7280}
+.call-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:#FEE2E2;color:#991B1B;flex-shrink:0;white-space:nowrap}
+.planning-actions{display:flex;gap:5px;flex-shrink:0}
+.btn-arrive{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:#059669;color:#fff;transition:all .14s;white-space:nowrap}
+.btn-arrive:hover{background:#047857;transform:translateY(-1px)}
+.btn-arrive svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.btn-noshow{display:inline-flex;align-items:center;padding:6px 8px;border-radius:8px;font-size:12px;font-weight:700;border:1.5px solid var(--border);cursor:pointer;font-family:inherit;background:none;color:var(--text3);transition:all .14s}
+.btn-noshow:hover{border-color:#DC2626;color:#DC2626}
+.planning-empty{padding:28px;text-align:center;color:var(--text3);font-size:13px}
+.planning-empty svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;display:block;margin:0 auto 8px;opacity:.35}
+.planning-empty-title{font-weight:600;margin-bottom:4px}
+.planning-empty-sub{font-size:12px;opacity:.7}
+.planning-loading{padding:24px;text-align:center;font-size:12px;color:var(--text3)}
+.alert-unconfirmed{display:none;align-items:center;gap:10px;padding:10px 16px;background:#FFFBEB;border-bottom:1px solid #FDE68A;font-size:12px;font-weight:600;color:#92400E}
+.alert-unconfirmed svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
 </style>
 <script src="loader.js"></script>
 </head>
@@ -382,6 +417,28 @@
           <div class="stat-num" id="stat-done">0</div>
           <div class="stat-lbl">Consultés</div>
           <div class="stat-badge" id="badge-done">Aujourd'hui</div>
+        </div>
+      </div>
+
+      <!-- ════ PLANNING DU JOUR ════ -->
+      <div class="planning-section" id="planning-section">
+        <div class="planning-head">
+          <div class="planning-title">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+            Planning du jour
+          </div>
+          <div class="planning-meta">
+            <span class="planning-date-lbl" id="planning-date-lbl"></span>
+            <span class="planning-badge" id="planning-rdv-badge">—</span>
+          </div>
+        </div>
+        <!-- Alerte RDV non confirmés -->
+        <div class="alert-unconfirmed" id="alert-unconfirmed">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 21.72 16.92z"/></svg>
+          <span id="alert-unconfirmed-txt"></span>
+        </div>
+        <div id="planning-body">
+          <div class="planning-loading">Chargement des rendez-vous…</div>
         </div>
       </div>
 
@@ -741,6 +798,7 @@ function playSound(priority) {
 
   loadRooms();
   await loadQueue();
+  await loadTodayAppointments();
   generateQR();
 
   // Real-time: new patient joins via QR
@@ -773,6 +831,140 @@ async function loadQueue() {
   }
   renderQueue();
   updateStats();
+}
+
+// ── PLANNING DU JOUR ─────────────────────────────────────────
+var _todayRdvs = [];
+
+async function loadTodayAppointments() {
+  // Date label
+  var now = new Date();
+  var jours  = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var moisFr = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  document.getElementById('planning-date-lbl').textContent =
+    jours[now.getDay()] + ' ' + now.getDate() + ' ' + moisFr[now.getMonth()];
+
+  var r = await _supa.from('appointments')
+    .select('id,patient_name,patient_phone,requested_time,status,patient_confirmed,sms_confirmation_sent,arrived_at,no_show')
+    .eq('doctor_id', _uid)
+    .eq('requested_date', _todayKey)
+    .in('status', ['pending','confirmed'])
+    .order('requested_time');
+
+  _todayRdvs = (r.data || []).filter(function(a){ return !a.no_show && !a.arrived_at; });
+  renderPlanning();
+}
+
+function renderPlanning() {
+  var el    = document.getElementById('planning-body');
+  var badge = document.getElementById('planning-rdv-badge');
+  var alertEl = document.getElementById('alert-unconfirmed');
+  var alertTxt = document.getElementById('alert-unconfirmed-txt');
+
+  badge.textContent = _todayRdvs.length + ' RDV';
+
+  if (!_todayRdvs.length) {
+    alertEl.style.display = 'none';
+    el.innerHTML = '<div class="planning-empty">'
+      + '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+      + '<div class="planning-empty-title">Aucun rendez-vous planifié</div>'
+      + '<div class="planning-empty-sub">Les RDV confirmés apparaîtront ici automatiquement</div>'
+      + '</div>';
+    return;
+  }
+
+  // Alerte: RDV confirmés sans SMS de confirmation patient
+  var needCall = _todayRdvs.filter(function(a){
+    return a.status === 'confirmed' && !a.patient_confirmed;
+  });
+  if (needCall.length > 0) {
+    alertEl.style.display = 'flex';
+    alertTxt.textContent = needCall.length + ' RDV confirmé'+(needCall.length>1?'s':'')+' sans confirmation patient — pensez à envoyer les rappels SMS depuis "Mes RDV"';
+  } else {
+    alertEl.style.display = 'none';
+  }
+
+  el.innerHTML = _todayRdvs.map(function(a) {
+    var smsBadge;
+    if (a.patient_confirmed) {
+      smsBadge = '<span class="sms-badge sms-ok">✓ SMS confirmé</span>';
+    } else if (a.sms_confirmation_sent) {
+      smsBadge = '<span class="sms-badge sms-wait">SMS envoyé</span>';
+    } else {
+      smsBadge = '<span class="sms-badge sms-none">Pas de SMS</span>';
+    }
+
+    var callTag = (a.status === 'confirmed' && !a.patient_confirmed)
+      ? '<span class="call-tag">📞 À appeler</span>'
+      : '';
+
+    var timeStr = a.requested_time ? a.requested_time.slice(0,5) : '—';
+
+    return '<div class="planning-row" id="plan-'+a.id+'">'
+      + '<div class="planning-time">'+timeStr+'</div>'
+      + '<div class="planning-patient">'
+      +   '<div class="planning-name">'+escHtml(a.patient_name||'Patient')+'</div>'
+      +   (a.patient_phone ? '<div class="planning-phone">'+escHtml(a.patient_phone)+'</div>' : '')
+      + '</div>'
+      + smsBadge
+      + callTag
+      + '<div class="planning-actions">'
+      +   '<button class="btn-arrive" onclick="markArrived(\''+a.id+'\',\''+escHtml(a.patient_name||'Patient')+'\')">'
+      +     '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Arrivé'
+      +   '</button>'
+      +   '<button class="btn-noshow" onclick="markNoShow(\''+a.id+'\')" title="Marquer absent">✕</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function markArrived(appointmentId, patientName) {
+  playClick();
+  // 1. Mettre à jour appointments
+  await _supa.from('appointments')
+    .update({ arrived_at: new Date().toISOString() })
+    .eq('id', appointmentId);
+
+  // 2. Ajouter à la file d'attente
+  var nextNum = _queue.length > 0
+    ? Math.max.apply(null, _queue.map(function(p){ return p.num; })) + 1
+    : 1;
+  var entry = {
+    clinic_id: _uid,
+    number: nextNum,
+    patient_name: patientName,
+    status: 'waiting',
+    priority: 'normale',
+    queue_date: _todayKey,
+    notes: 'RDV planifié'
+  };
+  var r = await _supa.from('queue_entries').insert(entry).select().single();
+  if (!r.error) {
+    _queue.push(dbToLocal(r.data));
+    renderQueue();
+    updateStats();
+    playNewPatient();
+    toast('✓ ' + patientName + ' — N°' + nextNum + ' ajouté à la file', 'success');
+  }
+
+  // 3. Retirer du planning
+  _todayRdvs = _todayRdvs.filter(function(a){ return a.id !== appointmentId; });
+  renderPlanning();
+}
+
+async function markNoShow(appointmentId) {
+  playClick();
+  if (!confirm('Marquer ce patient comme absent ? Le RDV sera annulé.')) return;
+  await _supa.from('appointments')
+    .update({ no_show: true, status: 'cancelled' })
+    .eq('id', appointmentId);
+  _todayRdvs = _todayRdvs.filter(function(a){ return a.id !== appointmentId; });
+  renderPlanning();
+  toast('Patient marqué absent', '');
 }
 
 // ── PRIORITY SELECTOR ─────────────────────────────────────────
