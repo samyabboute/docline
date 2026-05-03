@@ -1,285 +1,288 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Rejoindre la file d'attente</title>
-<meta name="description" content="Scannez le QR Code pour rejoindre la file d'attente de votre cabinet médical.">
-<meta name="theme-color" content="#2563EB">
+<title>Rejoindre la file d'attente — Docline</title>
+<meta name="theme-color" content="#3B1772">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --brand:#2563EB;--brand2:#1D4ED8;--brand-dark:#1E3A8A;
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-hover:#4C1D95;
+  --brand-light:#EDE8FF;--brand-glow:rgba(59,23,114,.18);
   --ok:#059669;--ok-bg:#ECFDF5;--ok-border:#A7F3D0;
   --warn:#EA580C;--warn-bg:#FFF7ED;--warn-border:#FED7AA;
   --danger:#DC2626;--danger-bg:#FEF2F2;--danger-border:#FECACA;
-  --bg:#F0F4FF;--surface:#fff;
-  --text:#0D1117;--text2:#374151;--text3:#6B7280;--text4:#9CA3AF;
-  --border:#E5E7EB;
+  --rdv:#7C3AED;--rdv-bg:#F5F3FF;--rdv-border:#DDD6FE;
+  --bg:#F5F3FF;--surface:#fff;
+  --text:#0C0E14;--text2:#3D4251;--text3:#6B7194;--text4:#9CA3C4;
+  --border:#E4E2F0;
   --r:16px;--rfull:999px;
   --ease:cubic-bezier(.25,.46,.45,.94);
-  /* dynamic accent per priority */
-  --acc:#2563EB;--acc2:#1D4ED8;--acc-rgb:37,99,235;
 }
-
 html{-webkit-font-smoothing:antialiased;height:100%;overscroll-behavior:none}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
+  font-family:'Sora',system-ui,sans-serif;
   background:var(--bg);color:var(--text);
-  min-height:100dvh;
-  display:flex;flex-direction:column;align-items:center;
-  justify-content:flex-start;padding:16px 16px 40px;
+  min-height:100dvh;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  padding:20px 16px 48px;
 }
 
-/* ── CARD ─────────────────────────────────────────── */
+/* ── CARD ── */
 .card{
-  background:var(--surface);
-  border-radius:24px;
-  box-shadow:0 20px 60px rgba(37,99,235,.15);
-  width:100%;max-width:420px;
-  overflow:hidden;
-  animation:slideUp .45s var(--ease) both;
+  background:var(--surface);border-radius:28px;
+  box-shadow:0 24px 64px rgba(59,23,114,.14);
+  width:100%;max-width:420px;overflow:hidden;
+  animation:slideUp .4s var(--ease) both;
 }
-@keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── HEADER ───────────────────────────────────────── */
+/* ── HEADER ── */
 .card-header{
-  background:linear-gradient(150deg,var(--acc) 0%,var(--acc2) 100%);
-  padding:28px 24px 22px;text-align:center;color:#fff;
-  transition:background .5s var(--ease);
-  position:relative;overflow:hidden;
+  background:linear-gradient(145deg,#3B1772 0%,#5B21B6 60%,#7C3AED 100%);
+  padding:28px 24px 22px;text-align:center;color:#fff;position:relative;overflow:hidden;
 }
 .card-header::before{
   content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.18) 0%,transparent 60%);
+  background:radial-gradient(circle at 75% 15%,rgba(255,255,255,.15) 0%,transparent 55%);
   pointer-events:none;
 }
-.clinic-avatar{
-  width:60px;height:60px;
-  background:rgba(255,255,255,.2);backdrop-filter:blur(4px);
+.hdr-logo{height:26px;width:auto;fill:#fff;display:block;margin:0 auto 16px;position:relative}
+.hdr-avatar{
+  width:62px;height:62px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);
   border-radius:50%;border:2px solid rgba(255,255,255,.3);
   display:flex;align-items:center;justify-content:center;
-  margin:0 auto 14px;font-size:26px;
-}
-.clinic-name{font-size:19px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
-.clinic-sub{font-size:13px;opacity:.75;font-weight:400}
-.header-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  background:rgba(255,255,255,.18);backdrop-filter:blur(4px);
-  border:1px solid rgba(255,255,255,.25);
-  border-radius:var(--rfull);padding:5px 12px;
-  font-size:12px;font-weight:600;margin-top:12px;
-}
-.pulse-dot{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:pulse-dot 1.8s ease-in-out infinite}
-@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
-
-/* ── STEPS CONTAINER ─────────────────────────────── */
-.steps-wrap{position:relative;overflow:hidden}
-.step{padding:24px;display:flex;flex-direction:column;gap:18px}
-.step.hidden{display:none}
-.step-enter{animation:stepIn .35s var(--ease) both}
-@keyframes stepIn{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
-
-.step-title{font-size:18px;font-weight:800;color:var(--text);text-align:center;letter-spacing:-.3px}
-.step-sub{font-size:14px;color:var(--text3);text-align:center;line-height:1.6}
-
-/* ── PROGRESS DOTS ────────────────────────────────── */
-.progress-dots{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 0}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s var(--ease)}
-.dot.active{width:22px;border-radius:4px;background:var(--acc)}
-.dot.done{background:var(--ok)}
-
-/* ── NAME INPUT (step 1) ──────────────────────────── */
-.name-icon{font-size:40px;text-align:center;line-height:1}
-.form-group{display:flex;flex-direction:column;gap:6px}
-.form-label{font-size:13px;font-weight:600;color:var(--text2)}
-.form-input{
-  width:100%;padding:15px 16px;
-  border:2px solid var(--border);border-radius:var(--r);
-  font-size:17px;font-family:inherit;color:var(--text);
-  background:var(--surface);
-  transition:border-color .2s,box-shadow .2s;
-  outline:none;-webkit-appearance:none;
-}
-.form-input:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(var(--acc-rgb),.1)}
-.form-input::placeholder{color:var(--text4)}
-.form-hint{font-size:12px;color:var(--text4);text-align:center}
-
-/* ── BTN PRIMARY ──────────────────────────────────── */
-.btn{
-  width:100%;padding:16px;
-  background:var(--acc);color:#fff;
-  border:none;border-radius:var(--rfull);
-  font-size:16px;font-weight:700;cursor:pointer;
-  font-family:inherit;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:all .2s;
-  -webkit-tap-highlight-color:transparent;
-}
-.btn:active:not(:disabled){transform:scale(.97);opacity:.9}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn.loading .btn-spinner{display:block}
-.btn.loading .btn-label{display:none}
-.btn.loading .btn-icon{display:none}
-.btn-icon{font-size:18px;transition:transform .2s}
-
-.btn-ghost{
-  width:100%;padding:12px;
-  background:none;color:var(--text3);
-  border:2px solid var(--border);border-radius:var(--rfull);
-  font-size:14px;font-weight:600;cursor:pointer;
-  font-family:inherit;
-  transition:all .2s;
-  -webkit-tap-highlight-color:transparent;
-}
-.btn-ghost:active{background:#F8FAFF;border-color:var(--acc);color:var(--acc)}
-
-/* ── PRIORITY SELECTOR (step 2) ──────────────────── */
-.priority-intro{
-  background:#F8FAFF;border-radius:var(--r);
-  padding:14px 16px;border-left:3px solid var(--acc);
-  font-size:13px;color:var(--text2);line-height:1.6;
-}
-.priority-intro strong{color:var(--acc)}
-.priority-grid{display:flex;flex-direction:column;gap:10px}
-.priority-option{
-  display:flex;align-items:center;gap:14px;
-  padding:16px;
-  border:2px solid var(--border);border-radius:var(--r);
-  cursor:pointer;
-  transition:all .2s var(--ease);
-  -webkit-tap-highlight-color:transparent;
-  user-select:none;
+  margin:0 auto 12px;font-size:22px;font-weight:800;color:#fff;letter-spacing:.5px;
   position:relative;overflow:hidden;
 }
-.priority-option::before{
-  content:'';position:absolute;inset:0;opacity:0;
-  transition:opacity .2s;pointer-events:none;
+.hdr-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.hdr-name{font-size:18px;font-weight:800;letter-spacing:-.3px;margin-bottom:3px}
+.hdr-spec{font-size:12px;opacity:.72;font-weight:500;margin-bottom:12px}
+.live-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.16);backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.22);border-radius:var(--rfull);
+  padding:5px 13px;font-size:11px;font-weight:700;letter-spacing:.03em;
+}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:pdot 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}
+
+/* ── DOTS ── */
+.progress-dots{display:flex;align-items:center;justify-content:center;gap:7px;padding:16px 0 0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s var(--ease)}
+.dot.active{width:24px;border-radius:4px;background:var(--brand)}
+.dot.done{background:var(--ok)}
+
+/* ── STEPS ── */
+.steps-wrap{position:relative;overflow:hidden}
+.step{padding:24px;display:flex;flex-direction:column;gap:16px}
+.step.hidden{display:none}
+.step-enter{animation:stepIn .32s var(--ease) both}
+@keyframes stepIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+.step-title{font-size:18px;font-weight:800;color:var(--text);text-align:center;letter-spacing:-.3px}
+.step-sub{font-size:13px;color:var(--text3);text-align:center;line-height:1.65;margin-top:-8px}
+
+/* ── CHOICE CARDS (step 0) ── */
+.choice-grid{display:flex;flex-direction:column;gap:10px}
+.choice-card{
+  display:flex;align-items:center;gap:14px;padding:16px;
+  border:2px solid var(--border);border-radius:var(--r);
+  cursor:pointer;transition:all .18s var(--ease);
+  -webkit-tap-highlight-color:transparent;user-select:none;
+}
+.choice-card:active{transform:scale(.98)}
+.choice-card.rdv-card:hover,.choice-card.rdv-card:focus{border-color:var(--brand);background:var(--brand-light)}
+.choice-card.walkin-card:hover,.choice-card.walkin-card:focus{border-color:var(--border);background:#F8F8FC}
+.choice-icon{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.choice-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.choice-card.rdv-card .choice-icon{background:var(--brand-light);color:var(--brand)}
+.choice-card.walkin-card .choice-icon{background:#F3F4F6;color:var(--text3)}
+.choice-label{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.choice-sub{font-size:12px;color:var(--text3)}
+.rdv-badge-mini{
+  display:inline-flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0;
+  background:var(--brand-light);color:var(--brand);
+  font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;
+}
+
+/* ── FORM ── */
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)}
+.form-input{
+  width:100%;padding:14px 16px;
+  border:2px solid var(--border);border-radius:12px;
+  font-size:16px;font-family:'Sora',inherit;color:var(--text);
+  background:var(--surface);outline:none;-webkit-appearance:none;
+  transition:border-color .18s,box-shadow .18s;
+}
+.form-input:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-glow)}
+.form-input::placeholder{color:var(--text4)}
+.phone-row{display:flex;gap:0}
+.phone-prefix{
+  display:flex;align-items:center;gap:6px;padding:14px 14px;
+  background:#F5F3FF;border:2px solid var(--border);border-right:none;
+  border-radius:12px 0 0 12px;font-size:13px;font-weight:700;color:var(--text2);
+  white-space:nowrap;flex-shrink:0;
+}
+.phone-row .form-input{border-radius:0 12px 12px 0;border-left:none}
+.phone-row .form-input:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-glow)}
+.form-hint{font-size:11px;color:var(--text4);text-align:center}
+
+/* ── RDV FOUND CARD ── */
+.rdv-found-card{
+  background:linear-gradient(135deg,var(--brand-light),#F0EBFF);
+  border:2px solid var(--rdv-border);border-radius:var(--r);
+  padding:16px;text-align:center;
+}
+.rdv-found-ico{
+  width:48px;height:48px;background:var(--brand);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 10px;
+}
+.rdv-found-ico svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+.rdv-found-title{font-size:15px;font-weight:800;color:var(--brand);margin-bottom:4px}
+.rdv-found-detail{font-size:12px;color:var(--text3);line-height:1.5}
+.rdv-priority-note{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;
+  background:#FFF7ED;border:1px solid var(--warn-border);border-radius:10px;
+  font-size:12px;font-weight:600;color:#92400E;margin-top:10px;
+}
+.rdv-priority-note svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* ── PRIORITY (walk-in) ── */
+.emergency-note{
+  background:#FEF2F2;border-radius:10px;padding:12px 14px;
+  border-left:3px solid var(--danger);font-size:12px;color:#B91C1C;line-height:1.6;
+}
+.emergency-note strong{color:#991B1B}
+.priority-grid{display:flex;flex-direction:column;gap:9px}
+.priority-option{
+  display:flex;align-items:center;gap:12px;padding:14px;
+  border:2px solid var(--border);border-radius:12px;cursor:pointer;
+  transition:all .18s var(--ease);-webkit-tap-highlight-color:transparent;user-select:none;
 }
 .priority-option:active{transform:scale(.98)}
-.priority-option.selected{border-width:2.5px;transform:scale(1.01)}
-.priority-option[data-p="normale"].selected{border-color:#2563EB;background:#EFF6FF}
-.priority-option[data-p="normale"].selected::before{background:#2563EB;opacity:.04}
-.priority-option[data-p="urgente"].selected{border-color:#EA580C;background:#FFF7ED}
-.priority-option[data-p="urgente"].selected::before{background:#EA580C;opacity:.04}
-.priority-option[data-p="critique"].selected{border-color:#DC2626;background:#FEF2F2}
-.priority-option[data-p="critique"].selected::before{background:#DC2626;opacity:.04}
-
-.prio-icon{font-size:28px;flex-shrink:0;width:40px;text-align:center}
+.priority-option.selected-normale{border-color:var(--brand);background:var(--brand-light)}
+.priority-option.selected-urgente{border-color:var(--warn);background:var(--warn-bg)}
+.priority-option.selected-critique{border-color:var(--danger);background:var(--danger-bg)}
+.prio-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .prio-info{flex:1}
-.prio-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
-.prio-desc{font-size:12px;color:var(--text3);line-height:1.45}
+.prio-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.prio-desc{font-size:11px;color:var(--text3);line-height:1.45}
 .prio-check{
-  width:22px;height:22px;border-radius:50%;
-  border:2px solid var(--border);flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .2s;font-size:12px;
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-size:11px;transition:all .18s;
 }
-.priority-option[data-p="normale"].selected .prio-check{background:#2563EB;border-color:#2563EB;color:#fff}
-.priority-option[data-p="urgente"].selected .prio-check{background:#EA580C;border-color:#EA580C;color:#fff}
-.priority-option[data-p="critique"].selected .prio-check{background:#DC2626;border-color:#DC2626;color:#fff}
+.priority-option.selected-normale .prio-check{background:var(--brand);border-color:var(--brand);color:#fff}
+.priority-option.selected-urgente .prio-check{background:var(--warn);border-color:var(--warn);color:#fff}
+.priority-option.selected-critique .prio-check{background:var(--danger);border-color:var(--danger);color:#fff}
 
-/* ── CONFIRMATION (step 3) ────────────────────────── */
-.confirm-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
-.confirm-label{font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+/* ── BTN ── */
+.btn{
+  width:100%;padding:15px;background:var(--brand);color:#fff;
+  border:none;border-radius:var(--rfull);font-size:15px;font-weight:700;
+  cursor:pointer;font-family:'Sora',inherit;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .18s;-webkit-tap-highlight-color:transparent;
+  box-shadow:0 4px 18px rgba(59,23,114,.28);
+}
+.btn:active:not(:disabled){transform:scale(.97);opacity:.9}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-spinner{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn.loading .btn-spinner{display:block}
+.btn.loading .btn-lbl,.btn.loading .btn-ico{display:none}
+.btn-ghost{
+  width:100%;padding:11px;background:none;color:var(--text3);
+  border:2px solid var(--border);border-radius:var(--rfull);
+  font-size:13px;font-weight:600;cursor:pointer;font-family:'Sora',inherit;
+  transition:all .15s;-webkit-tap-highlight-color:transparent;
+}
+.btn-ghost:active{background:var(--brand-light);border-color:var(--brand);color:var(--brand)}
+
+/* ── CONFIRMATION ── */
+.confirm-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:4px}
+.confirm-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text4)}
 .confirm-num{
-  font-size:clamp(88px,24vw,120px);font-weight:900;
-  line-height:1;
-  background:linear-gradient(135deg,var(--acc),var(--acc2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  animation:numBump .5s var(--ease) both;
-  letter-spacing:-4px;
+  font-size:clamp(80px,22vw,108px);font-weight:900;line-height:1;letter-spacing:-3px;
+  background:linear-gradient(135deg,var(--brand),#7C3AED);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:numBump .45s var(--ease) both;
 }
-@keyframes numBump{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
-.confirm-badge{
-  display:flex;align-items:center;gap:6px;
-  border-radius:var(--rfull);padding:7px 16px;
-  font-size:13px;font-weight:700;
-  border:1.5px solid;
+.confirm-num.rdv-num{background:linear-gradient(135deg,#059669,#10B981);-webkit-background-clip:text;background-clip:text}
+@keyframes numBump{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
+.confirm-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 16px;border-radius:var(--rfull);font-size:12px;font-weight:700;border:1.5px solid;
 }
-.confirm-badge.normale{background:var(--ok-bg);border-color:var(--ok-border);color:var(--ok)}
-.confirm-badge.urgente{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn)}
-.confirm-badge.critique{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
+.tag-normale{background:var(--ok-bg);border-color:var(--ok-border);color:var(--ok)}
+.tag-urgente{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn)}
+.tag-critique{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
+.tag-rdv{background:var(--brand-light);border-color:#C4B5FD;color:var(--brand)}
 
-.info-rows{width:100%;display:flex;flex-direction:column;gap:8px}
+.info-rows{width:100%;display:flex;flex-direction:column;gap:7px}
 .info-row{
   display:flex;align-items:center;justify-content:space-between;
-  padding:13px 15px;background:#F8FAFF;
-  border-radius:12px;border:1px solid rgba(37,99,235,.07);
+  padding:12px 14px;background:#F8F6FF;border-radius:11px;
+  border:1px solid rgba(59,23,114,.07);
 }
-.info-row-label{font-size:13px;color:var(--text3);display:flex;align-items:center;gap:7px}
-.info-row-label span{font-size:15px}
-.info-row-val{font-size:14px;font-weight:700;color:var(--text)}
-.info-row-val.accent{color:var(--acc)}
-.info-row-val.orange{color:var(--warn)}
-.info-row-val.red{color:var(--danger)}
+.info-row-label{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
+.info-row-label span{font-size:14px}
+.info-row-val{font-size:13px;font-weight:700;color:var(--text)}
+.info-row-val.accent{color:var(--brand)}
+.info-row-val.ok{color:var(--ok)}
 
-/* ── STATUS CARD ──────────────────────────────────── */
+/* ── STATUS ── */
 .status-card{
-  width:100%;border-radius:var(--r);
-  padding:18px;text-align:center;
-  border:1.5px solid;
-  transition:all .4s var(--ease);
+  width:100%;border-radius:var(--r);padding:16px;text-align:center;border:1.5px solid;transition:all .4s var(--ease);
 }
-.status-card.waiting{background:#EFF6FF;border-color:rgba(37,99,235,.2);animation:pulseBg 2.5s ease-in-out infinite}
-.status-card.imminent{background:#FFF7ED;border-color:rgba(234,88,12,.25);animation:pulseAmber 1.8s ease-in-out infinite}
-.status-card.called{background:#ECFDF5;border-color:rgba(5,150,105,.25);animation:none}
-.status-card.done{background:#F8FAFF;border-color:var(--border);animation:none}
-@keyframes pulseBg{0%,100%{background:#EFF6FF}50%{background:#DBEAFE}}
+.status-card.waiting{background:#F5F3FF;border-color:rgba(59,23,114,.18);animation:pulseBrand 2.5s ease-in-out infinite}
+.status-card.imminent{background:var(--warn-bg);border-color:rgba(234,88,12,.25);animation:pulseAmber 1.8s ease-in-out infinite}
+.status-card.called{background:var(--ok-bg);border-color:rgba(5,150,105,.25)}
+.status-card.done{background:#F8F8FC;border-color:var(--border)}
+@keyframes pulseBrand{0%,100%{background:#F5F3FF}50%{background:#EDE8FF}}
 @keyframes pulseAmber{0%,100%{background:#FFF7ED}50%{background:#FEF3C7}}
-
-.status-emoji{font-size:36px;margin-bottom:8px;display:block;line-height:1}
-.status-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px}
-.status-sub{font-size:13px;color:var(--text3);line-height:1.55}
-.status-progress{margin-top:12px;height:5px;background:#E5E7EB;border-radius:3px;overflow:hidden}
-.status-fill{height:100%;border-radius:3px;transition:width 1.2s var(--ease);background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.status-emoji{font-size:32px;margin-bottom:7px;display:block;line-height:1}
+.status-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px}
+.status-sub{font-size:12px;color:var(--text3);line-height:1.55}
+.status-progress{margin-top:11px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.status-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--brand),#7C3AED);transition:width 1.2s var(--ease)}
 
 .info-note{
   display:flex;align-items:flex-start;gap:10px;
-  background:#FFFBEB;border:1px solid #FDE68A;
-  border-radius:var(--r);padding:13px 15px;
+  background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:12px 14px;
 }
-.info-note-icon{font-size:18px;flex-shrink:0;line-height:1;margin-top:1px}
-.info-note-text{font-size:13px;color:#92400E;line-height:1.6}
+.info-note-text{font-size:12px;color:#92400E;line-height:1.6}
 .info-note-text strong{display:block;font-weight:700;margin-bottom:1px;color:#78350F}
 
-/* ── ERROR ────────────────────────────────────────── */
-.error-box{
+/* ── ERROR ── */
+.err-box{
   background:var(--danger-bg);border:1.5px solid var(--danger-border);
-  border-radius:var(--r);padding:13px 16px;
-  font-size:13px;color:#B91C1C;text-align:center;display:none;
+  border-radius:10px;padding:11px 14px;font-size:12px;color:#B91C1C;
+  text-align:center;display:none;
 }
-.error-box.show{display:block}
+.err-box.show{display:block}
 
-/* ── FOOTER ───────────────────────────────────────── */
-.card-footer{
-  padding:14px 24px;text-align:center;
-  border-top:1px solid var(--border);
-}
-.footer-text{font-size:12px;color:var(--text4)}
-.footer-text a{color:var(--acc);text-decoration:none;font-weight:600}
+/* ── FOOTER ── */
+.card-footer{padding:14px 24px;text-align:center;border-top:1px solid var(--border)}
+.footer-text{font-size:11px;color:var(--text4)}
+.footer-text a{color:var(--brand);text-decoration:none;font-weight:600}
 
-/* ── INVALID STATE ────────────────────────────────── */
-.invalid-state{
-  display:flex;flex-direction:column;align-items:center;
-  gap:16px;padding:40px 24px;text-align:center;
-}
-.invalid-icon{font-size:56px}
-.invalid-title{font-size:17px;font-weight:800;color:var(--text)}
-.invalid-sub{font-size:14px;color:var(--text3);line-height:1.6}
-
-/* ── GLOBAL ACCENT TRANSITIONS ────────────────────── */
-.card-header,.status-fill,.btn,.form-input:focus,.confirm-num,.dot.active{
-  transition:background .4s var(--ease),border-color .4s,color .4s;
-}
+/* ── INVALID ── */
+.invalid-state{display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px 24px;text-align:center}
+.invalid-icon{width:64px;height:64px;background:var(--danger-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.invalid-icon svg{width:28px;height:28px;fill:none;stroke:var(--danger);stroke-width:2;stroke-linecap:round}
+.invalid-title{font-size:16px;font-weight:800;color:var(--text)}
+.invalid-sub{font-size:13px;color:var(--text3);line-height:1.6;max-width:300px}
 </style>
-<script src="loader.js"></script>
 </head>
 <body>
 
@@ -287,132 +290,195 @@ body{
 
   <!-- HEADER -->
   <div class="card-header" id="clinic-header">
-    <div class="clinic-avatar" id="clinic-avatar"><svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:none;stroke:#3B1772;stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-    <div class="clinic-name" id="clinic-name">Cabinet médical</div>
-    <div class="clinic-sub" id="clinic-sub">File d'attente numérique</div>
-    <div class="header-badge">
+    <svg class="hdr-logo" viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg">
+      <path d="M28 14h16c19.9 0 34 13.2 34 36s-14.1 36-34 36H28V14zm16 58c13.4 0 22-9.2 22-22s-8.6-22-22-22H42v44h2zm52-22c0-20.9 14.6-36 35-36s35 15.1 35 36-14.6 36-35 36-35-15.1-35-36zm56 0c0-13.4-8.4-22-21-22s-21 8.6-21 22 8.4 22 21 22 21-8.6 21-22zm28-34h14v68h-14V16zm24 34c0-20.9 14.3-36 35-36 11.2 0 20.2 4.4 26 11.6l-9.6 9c-3.8-4.6-9.4-7.2-16.4-7.2-13 0-21 8.6-21 22s8 22 21 22c7 0 12.6-2.6 16.4-7.2l9.6 9C243.2 81.6 234.2 86 223 86c-20.7 0-35-15.1-35-36zm72 0c0-20.9 14.6-36 35-36s35 15.1 35 36-14.6 36-35 36-35-15.1-35-36zm56 0c0-13.4-8.4-22-21-22s-21 8.6-21 22 8.4 22 21 22 21-8.6 21-22zm34-34h13.6l24 44.4V16H398v68h-13.6l-24-44.4V84H346V16z"/>
+    </svg>
+    <div class="hdr-avatar" id="hdr-avatar">
+      <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:none;stroke:rgba(255,255,255,.8);stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </div>
+    <div class="hdr-name" id="hdr-name">Cabinet médical</div>
+    <div class="hdr-spec" id="hdr-spec">File d'attente numérique</div>
+    <div class="live-badge">
       <div class="pulse-dot"></div>
       File en temps réel
     </div>
   </div>
 
-  <!-- PROGRESS DOTS -->
+  <!-- DOTS -->
   <div class="progress-dots" id="progress-dots">
     <div class="dot active" id="dot-1"></div>
     <div class="dot" id="dot-2"></div>
     <div class="dot" id="dot-3"></div>
   </div>
 
-  <!-- STEP 1: NAME -->
-  <div class="step" id="step-name">
-    <div class="name-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-    <div>
-      <div class="step-title">Bonjour !</div>
-      <div class="step-sub" style="margin-top:6px">Entrez votre prénom pour prendre votre numéro dans la file d'attente.</div>
+  <!-- STEP 0 : RDV ou sans RDV ? -->
+  <div class="step" id="step-choice">
+    <div class="step-title">Bonjour 👋</div>
+    <div class="step-sub">Comment souhaitez-vous rejoindre la file ?</div>
+    <div class="choice-grid">
+      <div class="choice-card rdv-card" onclick="goToStepRdv()">
+        <div class="choice-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+        </div>
+        <div>
+          <div class="choice-label">J'ai un RDV en ligne</div>
+          <div class="choice-sub">J'ai pris rendez-vous via Docline</div>
+        </div>
+        <div class="rdv-badge-mini">Prioritaire</div>
+      </div>
+      <div class="choice-card walkin-card" onclick="goToStepName()">
+        <div class="choice-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div>
+          <div class="choice-label">Je suis sans rendez-vous</div>
+          <div class="choice-sub">Je me présente directement au cabinet</div>
+        </div>
+      </div>
     </div>
+  </div>
 
+  <!-- STEP RDV : téléphone -->
+  <div class="step hidden" id="step-rdv">
+    <div class="step-title">Votre numéro de téléphone</div>
+    <div class="step-sub">Entrez le numéro utilisé lors de votre réservation en ligne.</div>
     <div class="form-group">
-      <label class="form-label" for="input-name">Votre prénom</label>
-      <input
-        class="form-input" type="text" id="input-name"
+      <label class="form-label">Téléphone</label>
+      <div class="phone-row">
+        <div class="phone-prefix">🇩🇿 +213</div>
+        <input class="form-input" type="tel" id="input-phone"
+          placeholder="05XXXXXXXX" maxlength="10" inputmode="numeric"
+          onkeydown="if(event.key==='Enter')lookupRdv()">
+      </div>
+    </div>
+    <div class="err-box" id="err-rdv"></div>
+    <button class="btn" id="btn-rdv" onclick="lookupRdv()">
+      <div class="btn-spinner"></div>
+      <span class="btn-lbl">Rechercher mon RDV</span>
+      <span class="btn-ico">→</span>
+    </button>
+    <button class="btn-ghost" onclick="backToChoice()">← Retour</button>
+  </div>
+
+  <!-- STEP RDV FOUND : confirmation auto -->
+  <div class="step hidden" id="step-rdv-found">
+    <div class="rdv-found-card" id="rdv-found-card">
+      <div class="rdv-found-ico">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="rdv-found-title" id="rdv-found-title">RDV détecté ✓</div>
+      <div class="rdv-found-detail" id="rdv-found-detail"></div>
+      <div class="rdv-priority-note">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Vous bénéficiez d'une priorité de passage grâce à votre RDV en ligne.
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Votre prénom (confirmation)</label>
+      <input class="form-input" type="text" id="input-name-rdv" placeholder="Ex: Mohamed"
+        maxlength="50" autocomplete="given-name"
+        onkeydown="if(event.key==='Enter')joinQueueRdv()">
+    </div>
+    <div class="err-box" id="err-rdv-found"></div>
+    <button class="btn" id="btn-join-rdv" onclick="joinQueueRdv()">
+      <div class="btn-spinner"></div>
+      <span class="btn-lbl">Prendre mon ticket prioritaire</span>
+      <span class="btn-ico">→</span>
+    </button>
+    <button class="btn-ghost" onclick="backToStepRdv()">← Modifier le numéro</button>
+  </div>
+
+  <!-- STEP NAME (walk-in) -->
+  <div class="step hidden" id="step-name">
+    <div class="step-title">Votre prénom</div>
+    <div class="step-sub">Pour vous appeler lorsque c'est votre tour.</div>
+    <div class="form-group">
+      <label class="form-label">Prénom</label>
+      <input class="form-input" type="text" id="input-name"
         placeholder="Ex: Mohamed" maxlength="50"
         autocomplete="given-name" inputmode="text"
-        onkeydown="if(event.key==='Enter')goToStep2()"
-      >
+        onkeydown="if(event.key==='Enter')goToStepPriority()">
     </div>
-
-    <div class="error-box" id="error-step1">Veuillez entrer votre prénom pour continuer.</div>
-
-    <button class="btn" id="btn-step1" onclick="goToStep2()">
-      <span class="btn-label">Continuer</span>
-      <span class="btn-icon">→</span>
+    <div class="err-box" id="err-name"></div>
+    <button class="btn" id="btn-name" onclick="goToStepPriority()">
+      <span class="btn-lbl">Continuer</span>
+      <span class="btn-ico">→</span>
     </button>
-
-    <div class="form-hint">Votre numéro sera visible sur l'écran de la salle d'attente</div>
+    <button class="btn-ghost" onclick="backToChoice()">← Retour</button>
   </div>
 
-  <!-- STEP 2: PRIORITY -->
+  <!-- STEP PRIORITY (walk-in) -->
   <div class="step hidden" id="step-priority">
-    <div>
-      <div class="step-title">Motif de votre visite</div>
-      <div class="step-sub" style="margin-top:6px">Sélectionnez le niveau correspondant à votre situation.</div>
-    </div>
-
-    <div class="priority-intro">
+    <div class="step-title">Motif de visite</div>
+    <div class="step-sub">Sélectionnez le niveau correspondant à votre situation.</div>
+    <div class="emergency-note">
       En cas d'urgence vitale, <strong>appelez le 14 (SAMU)</strong> ou rendez-vous aux urgences de l'hôpital le plus proche.
     </div>
-
     <div class="priority-grid">
-      <div class="priority-option selected" data-p="normale" onclick="selectPriority('normale')">
-        <div class="prio-icon"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#059669"></span></div>
+      <div class="priority-option selected-normale" data-p="normale" onclick="selectPriority('normale')">
+        <div class="prio-dot" style="background:#059669"></div>
         <div class="prio-info">
           <div class="prio-title">Consultation normale</div>
-          <div class="prio-desc">Rendez-vous planifié, suivi régulier ou renouvellement d'ordonnance</div>
+          <div class="prio-desc">Suivi régulier, renouvellement d'ordonnance</div>
         </div>
-        <div class="prio-check" id="check-normale">✓</div>
+        <div class="prio-check" id="chk-normale">✓</div>
       </div>
       <div class="priority-option" data-p="urgente" onclick="selectPriority('urgente')">
-        <div class="prio-icon"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#EA580C"></span></div>
+        <div class="prio-dot" style="background:#EA580C"></div>
         <div class="prio-info">
           <div class="prio-title">Gêne importante</div>
-          <div class="prio-desc">Douleur, fièvre élevée, malaise — nécessite une prise en charge rapide</div>
+          <div class="prio-desc">Douleur, fièvre élevée, malaise</div>
         </div>
-        <div class="prio-check" id="check-urgente"></div>
+        <div class="prio-check" id="chk-urgente"></div>
       </div>
       <div class="priority-option" data-p="critique" onclick="selectPriority('critique')">
-        <div class="prio-icon"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#DC2626"></span></div>
+        <div class="prio-dot" style="background:#DC2626"></div>
         <div class="prio-info">
           <div class="prio-title">Urgence médicale</div>
-          <div class="prio-desc">Douleur très intense, difficultés respiratoires, perte de connaissance</div>
+          <div class="prio-desc">Douleur intense, difficultés respiratoires</div>
         </div>
-        <div class="prio-check" id="check-critique"></div>
+        <div class="prio-check" id="chk-critique"></div>
       </div>
     </div>
-
-    <div class="error-box" id="error-step2"></div>
-
-    <button class="btn" id="btn-step2" onclick="joinQueue()">
+    <div class="err-box" id="err-priority"></div>
+    <button class="btn" id="btn-priority" onclick="joinQueue()">
       <div class="btn-spinner"></div>
-      <span class="btn-label">Prendre mon numéro</span>
-      <span class="btn-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+      <span class="btn-lbl">Prendre mon numéro</span>
+      <span class="btn-ico"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
     </button>
-    <button class="btn-ghost" onclick="backToStep1()">← Modifier mon prénom</button>
+    <button class="btn-ghost" onclick="backToStepName()">← Modifier mon prénom</button>
   </div>
 
-  <!-- STEP 3: CONFIRMATION -->
+  <!-- STEP CONFIRM -->
   <div class="step hidden" id="step-confirm">
     <div class="confirm-wrap">
       <div class="confirm-label">Votre numéro</div>
       <div class="confirm-num" id="confirm-num">--</div>
-      <div class="confirm-badge normale" id="confirm-badge">✓ Enregistré</div>
+      <div class="confirm-tag" id="confirm-tag">✓ Enregistré</div>
     </div>
-
     <div class="info-rows">
       <div class="info-row">
-        <div class="info-row-label"><span>#</span> Numéro en cours</div>
+        <div class="info-row-label"># Numéro en cours</div>
         <div class="info-row-val accent" id="info-current">--</div>
       </div>
       <div class="info-row">
-        <div class="info-row-label"> Patients avant vous</div>
+        <div class="info-row-label">Patients avant vous</div>
         <div class="info-row-val" id="info-ahead">--</div>
       </div>
       <div class="info-row">
-        <div class="info-row-label"><span></span> Attente estimée</div>
+        <div class="info-row-label">Attente estimée</div>
         <div class="info-row-val" id="info-wait">--</div>
       </div>
     </div>
-
     <div class="status-card waiting" id="status-card">
-      <div class="status-emoji" id="status-emoji"></div>
-      <div class="status-title" id="status-title">Votre tour approche</div>
+      <div class="status-emoji" id="status-emoji">🕐</div>
+      <div class="status-title" id="status-title">En attente de votre tour</div>
       <div class="status-sub" id="status-sub">Restez à proximité du cabinet</div>
       <div class="status-progress">
         <div class="status-fill" id="status-fill" style="width:8%"></div>
       </div>
     </div>
-
     <div class="info-note">
-      <div class="info-note-icon"></div>
       <div class="info-note-text">
         <strong>Restez à proximité</strong>
         Si vous n'êtes pas présent lorsque votre numéro est appelé, votre tour sera passé.
@@ -420,10 +486,10 @@ body{
     </div>
   </div>
 
-  <!-- INVALID QR -->
+  <!-- INVALID -->
   <div class="step hidden" id="step-invalid">
     <div class="invalid-state">
-      <div class="invalid-icon"><span style="color:#DC2626">&#10007;</span></div>
+      <div class="invalid-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
       <div class="invalid-title">QR Code invalide</div>
       <div class="invalid-sub">Ce lien ne correspond à aucun cabinet médical. Veuillez scanner à nouveau le QR Code affiché dans la salle d'attente.</div>
     </div>
@@ -437,27 +503,21 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-// ── GLOBALS ──────────────────────────────────────────────────────────
-var _supa      = supabase.createClient(SUPA_URL, SUPA_KEY);
-var _clinicId  = null;
-var _myNumber  = null;
+var _supa     = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _clinicId = null;
+var _myNumber = null;
 var _myPriority = 'normale';
-var _channel   = null;
-var _audioCtx  = null;
+var _foundAppt  = null;
+var _isRdv      = false;
+var _channel    = null;
+var _audioCtx   = null;
 
-var PRIORITY_META = {
-  normale : { label:'Consultation normale', badge:'✓ Enregistré',   cls:'normale', acc:'#2563EB', acc2:'#1D4ED8', rgb:'37,99,235',   emoji:'' },
-  urgente : { label:'Gêne importante',      badge:' Urgence signalée', cls:'urgente', acc:'#EA580C', acc2:'#C2410C', rgb:'234,88,12',  emoji:'' },
-  critique: { label:'Urgence médicale',     badge:'URGENCE',         cls:'critique', acc:'#DC2626', acc2:'#B91C1C', rgb:'220,38,38', emoji:'' },
-};
-
-// ── INIT ──────────────────────────────────────────────────────────────
-(function init() {
+// ── INIT ─────────────────────────────────────────────────────
+(function(){
   var params = new URLSearchParams(window.location.search);
   _clinicId = params.get('c') || params.get('clinic');
-
   if (!_clinicId) {
-    showAllSteps('invalid');
+    showStep('invalid');
     document.getElementById('progress-dots').style.display = 'none';
     return;
   }
@@ -467,312 +527,348 @@ var PRIORITY_META = {
 async function loadClinicInfo() {
   try {
     var { data } = await _supa.from('profiles')
-      .select('full_name, clinic_name, specialty')
-      .eq('id', _clinicId)
-      .single();
+      .select('full_name, clinic_name, specialty, avatar_url')
+      .eq('id', _clinicId).single();
     if (data) {
       var name = data.clinic_name || data.full_name || 'Cabinet médical';
-      document.getElementById('clinic-name').textContent = name;
-      if (data.specialty) {
-        document.getElementById('clinic-sub').textContent = data.specialty;
+      document.getElementById('hdr-name').textContent = name;
+      if (data.specialty) document.getElementById('hdr-spec').textContent = data.specialty;
+      if (data.avatar_url) {
+        var av = document.getElementById('hdr-avatar');
+        av.innerHTML = '<img src="' + data.avatar_url + '" alt="">';
+      } else {
+        var parts = (data.full_name || name).split(' ').filter(Boolean);
+        var inits = parts.slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');
+        document.getElementById('hdr-avatar').textContent = inits || 'DR';
       }
     }
-  } catch(e) { /* silently fail — clinic header stays generic */ }
+  } catch(e) {}
 }
 
-// ── AUDIO ─────────────────────────────────────────────────────────────
-function getAudio() {
-  if (!_audioCtx) {
-    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-  }
-  return _audioCtx;
-}
-function playTick() {
-  var ctx = getAudio(); if (!ctx) return;
-  var o = ctx.createOscillator(), g = ctx.createGain();
-  o.connect(g); g.connect(ctx.destination);
-  o.frequency.value = 880; o.type = 'sine';
-  g.gain.setValueAtTime(.07, ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .08);
-  o.start(); o.stop(ctx.currentTime + .08);
-}
-function playSuccess() {
-  var ctx = getAudio(); if (!ctx) return;
-  [[523,.0],[659,.12],[784,.24]].forEach(function(p) {
-    var o = ctx.createOscillator(), g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.frequency.value = p[0]; o.type = 'sine';
-    var t = ctx.currentTime + p[1];
-    g.gain.setValueAtTime(.08, t);
-    g.gain.exponentialRampToValueAtTime(.001, t + .2);
-    o.start(t); o.stop(t + .2);
+// ── AUDIO ─────────────────────────────────────────────────────
+function getAudio(){ if(!_audioCtx){try{_audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}return _audioCtx}
+function playTick(){var c=getAudio();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);o.start();o.stop(c.currentTime+.07)}
+function playSuccess(){var c=getAudio();if(!c)return;[[523,0],[659,.12],[784,.24]].forEach(function(p){var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=p[0];var t=c.currentTime+p[1];g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.start(t);o.stop(t+.22)})}
+function playCallAlert(){var c=getAudio();if(!c)return;[0,.18,.36].forEach(function(d){var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=660;o.type='square';var t=c.currentTime+d;g.gain.setValueAtTime(.06,t);g.gain.exponentialRampToValueAtTime(.001,t+.14);o.start(t);o.stop(t+.14)})}
+
+// ── NAVIGATION ────────────────────────────────────────────────
+function showStep(id) {
+  ['choice','rdv','rdv-found','name','priority','confirm','invalid'].forEach(function(s){
+    var el=document.getElementById('step-'+s);
+    if(el){el.classList.add('hidden');el.classList.remove('step-enter');}
   });
+  var t=document.getElementById('step-'+id);
+  if(!t)return;
+  t.classList.remove('hidden');
+  requestAnimationFrame(function(){t.classList.add('step-enter');});
 }
-function playCallAlert() {
-  var ctx = getAudio(); if (!ctx) return;
-  [0,.18,.36].forEach(function(delay) {
-    var o = ctx.createOscillator(), g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.frequency.value = 660; o.type = 'square';
-    var t = ctx.currentTime + delay;
-    g.gain.setValueAtTime(.06, t);
-    g.gain.exponentialRampToValueAtTime(.001, t + .15);
-    o.start(t); o.stop(t + .15);
+
+function updateDots(n) {
+  [1,2,3].forEach(function(i){
+    var d=document.getElementById('dot-'+i);
+    if(!d)return;
+    d.className='dot';
+    if(i<n)d.classList.add('done');
+    else if(i===n)d.classList.add('active');
   });
 }
 
-// ── ACCENT ────────────────────────────────────────────────────────────
-function setAccent(priority) {
-  var m = PRIORITY_META[priority] || PRIORITY_META.normale;
-  document.documentElement.style.setProperty('--acc',  m.acc);
-  document.documentElement.style.setProperty('--acc2', m.acc2);
-  document.documentElement.style.setProperty('--acc-rgb', m.rgb);
-}
+function backToChoice(){ showStep('choice'); updateDots(1); }
+function goToStepRdv(){ playTick(); showStep('rdv'); updateDots(2); }
+function goToStepName(){ playTick(); showStep('name'); updateDots(2); }
+function backToStepRdv(){ showStep('rdv'); }
+function backToStepName(){ showStep('name'); updateDots(2); }
 
-// ── STEP NAV ─────────────────────────────────────────────────────────
-function showAllSteps(which) {
-  ['name','priority','confirm','invalid'].forEach(function(s) {
-    var el = document.getElementById('step-' + s);
-    el.classList.add('hidden');
-    el.classList.remove('step-enter');
-  });
-  var target = document.getElementById('step-' + which);
-  target.classList.remove('hidden');
-  requestAnimationFrame(function() { target.classList.add('step-enter'); });
-}
-
-function updateDots(active) {
-  ['dot-1','dot-2','dot-3'].forEach(function(id, i) {
-    var d = document.getElementById(id);
-    d.className = 'dot';
-    if (i + 1 < active) d.classList.add('done');
-    else if (i + 1 === active) d.classList.add('active');
-  });
-}
-
-function goToStep2() {
+function goToStepPriority() {
   var name = document.getElementById('input-name').value.trim();
-  if (!name) {
-    document.getElementById('error-step1').classList.add('show');
-    document.getElementById('input-name').focus();
-    playTick();
-    return;
-  }
-  document.getElementById('error-step1').classList.remove('show');
-  showAllSteps('priority');
-  updateDots(2);
+  if(!name){ document.getElementById('err-name').textContent='Entrez votre prénom.'; document.getElementById('err-name').classList.add('show'); playTick(); return; }
+  document.getElementById('err-name').classList.remove('show');
   playTick();
-}
-
-function backToStep1() {
-  showAllSteps('name');
-  updateDots(1);
+  showStep('priority');
+  updateDots(3);
 }
 
 function selectPriority(p) {
   _myPriority = p;
-  document.querySelectorAll('.priority-option').forEach(function(opt) {
-    opt.classList.remove('selected');
-    var chk = opt.querySelector('.prio-check');
-    chk.textContent = '';
+  document.querySelectorAll('.priority-option').forEach(function(o){
+    o.className='priority-option';
+    o.querySelector('.prio-check').textContent='';
   });
-  var opt = document.querySelector('[data-p="' + p + '"]');
-  opt.classList.add('selected');
-  opt.querySelector('.prio-check').textContent = '✓';
-  setAccent(p);
+  var opt=document.querySelector('[data-p="'+p+'"]');
+  opt.className='priority-option selected-'+p;
+  opt.querySelector('.prio-check').textContent='✓';
   playTick();
-  // Scroll option into view on mobile
-  opt.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
-// ── JOIN QUEUE ────────────────────────────────────────────────────────
-async function joinQueue() {
-  if (!_clinicId) return;
-  var name = document.getElementById('input-name').value.trim();
-  if (!name) { backToStep1(); return; }
+// ── LOOKUP RDV ────────────────────────────────────────────────
+async function lookupRdv() {
+  var rawPhone = document.getElementById('input-phone').value.trim();
+  var errEl = document.getElementById('err-rdv');
+  if(!rawPhone){ errEl.textContent='Entrez votre numéro de téléphone.'; errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
 
-  var btn = document.getElementById('btn-step2');
-  btn.classList.add('loading');
-  btn.disabled = true;
-  document.getElementById('error-step2').classList.remove('show');
+  var btn = document.getElementById('btn-rdv');
+  btn.classList.add('loading'); btn.disabled = true;
 
   try {
-    var today = new Date().toISOString().split('T')[0];
+    var today = new Date().toISOString().slice(0,10);
+    var now   = new Date();
+    var nowMin = now.getHours()*60 + now.getMinutes();
 
-    // Get next number
+    // Normalise le numéro (enlève le 0 initial si présent)
+    var phone = rawPhone.replace(/^0/, '');
+    var phoneVariants = [rawPhone, phone, '+213'+phone, '213'+phone];
+
+    // Cherche un RDV confirmé aujourd'hui avec ce numéro
+    var { data: appts } = await _supa.from('appointments')
+      .select('id, patient_name, requested_time, status, confirmation_token')
+      .eq('doctor_id', _clinicId)
+      .eq('requested_date', today)
+      .in('status', ['pending','confirmed'])
+      .is('no_show', false);
+
+    // Filtre par numéro de téléphone et créneau ±30 min
+    var matched = (appts||[]).filter(function(a) {
+      if(!a.requested_time) return false;
+      // Match téléphone
+      var phoneMatch = false;
+      try {
+        var { data: pdata } = { data: null }; // local fallback
+        // On vérifie dans les variantes — on fera le match via la colonne
+      } catch(e){}
+      // Check horaire ±30 min
+      var parts = a.requested_time.split(':');
+      var apptMin = parseInt(parts[0])*60 + parseInt(parts[1]);
+      return Math.abs(apptMin - nowMin) <= 30;
+    });
+
+    // Refetch avec filtre téléphone (les variantes)
+    var matchedFull = [];
+    for(var i=0;i<phoneVariants.length;i++){
+      var variant = phoneVariants[i];
+      var { data: r2 } = await _supa.from('appointments')
+        .select('id, patient_name, requested_time, status, confirmation_token, arrived_at')
+        .eq('doctor_id', _clinicId)
+        .eq('requested_date', today)
+        .eq('patient_phone', variant)
+        .in('status', ['pending','confirmed'])
+        .is('no_show', false);
+      if(r2 && r2.length){ matchedFull = r2; break; }
+    }
+
+    // Filtre ±30 min
+    matchedFull = matchedFull.filter(function(a){
+      if(!a.requested_time) return false;
+      var parts = a.requested_time.split(':');
+      var apptMin = parseInt(parts[0])*60 + parseInt(parts[1]);
+      return Math.abs(apptMin - nowMin) <= 30;
+    });
+
+    btn.classList.remove('loading'); btn.disabled = false;
+
+    if(!matchedFull.length) {
+      errEl.textContent = 'Aucun rendez-vous trouvé pour ce numéro dans les ±30 minutes. Vérifiez ou rejoignez la file sans RDV.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    // RDV trouvé
+    _foundAppt = matchedFull[0];
+    var MONTHS_FR = ['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+    var d = new Date(today+'T00:00:00');
+    var detailTxt = 'Rendez-vous du ' + d.getDate() + ' ' + MONTHS_FR[d.getMonth()] + ' à ' + _foundAppt.requested_time;
+    document.getElementById('rdv-found-title').textContent = 'RDV trouvé — ' + _foundAppt.patient_name;
+    document.getElementById('rdv-found-detail').textContent = detailTxt;
+    document.getElementById('input-name-rdv').value = _foundAppt.patient_name || '';
+    showStep('rdv-found');
+
+  } catch(e) {
+    btn.classList.remove('loading'); btn.disabled = false;
+    errEl.textContent = 'Erreur de recherche. Réessayez.';
+    errEl.classList.add('show');
+  }
+}
+
+// ── JOIN (RDV prioritaire) ────────────────────────────────────
+async function joinQueueRdv() {
+  var name = document.getElementById('input-name-rdv').value.trim() || (_foundAppt && _foundAppt.patient_name) || 'Patient RDV';
+  var errEl = document.getElementById('err-rdv-found');
+  errEl.classList.remove('show');
+
+  var btn = document.getElementById('btn-join-rdv');
+  btn.classList.add('loading'); btn.disabled = true;
+  _isRdv = true;
+  _myPriority = 'urgente'; // priorité automatique = passe avant les walk-ins
+
+  try {
+    var today = new Date().toISOString().slice(0,10);
     var { data: existing } = await _supa.from('queue_entries')
-      .select('number')
-      .eq('clinic_id', _clinicId)
-      .eq('queue_date', today)
-      .order('number', {ascending: false})
-      .limit(1);
+      .select('number').eq('clinic_id',_clinicId).eq('queue_date',today)
+      .order('number',{ascending:false}).limit(1);
+    var nextNum = (existing&&existing.length) ? existing[0].number+1 : 1;
 
-    var nextNum = (existing && existing.length > 0) ? existing[0].number + 1 : 1;
-
-    // Insert
+    // Préfixe RDV dans les notes
     var { data: entry, error } = await _supa.from('queue_entries')
       .insert({
         clinic_id:    _clinicId,
         number:       nextNum,
         patient_name: name,
         status:       'waiting',
-        priority:     _myPriority,
-        queue_date:   today
-      })
-      .select()
-      .single();
+        priority:     'urgente',   // priorité auto → passe devant les normales
+        queue_date:   today,
+        notes:        'RDV en ligne · ' + (_foundAppt ? _foundAppt.requested_time : '')
+      }).select().single();
 
-    if (error) throw error;
+    if(error) throw error;
+
+    // Marquer le RDV comme arrivé
+    if(_foundAppt) {
+      await _supa.from('appointments')
+        .update({ arrived_at: new Date().toISOString(), patient_confirmed: true })
+        .eq('id', _foundAppt.id);
+    }
 
     _myNumber = nextNum;
     playSuccess();
-    showConfirmation(entry, existing ? existing.length : 0);
+    showConfirmation(entry, existing ? existing.length : 0, true);
     startRealtime();
 
   } catch(e) {
-    console.error(e);
-    var errEl = document.getElementById('error-step2');
-    errEl.textContent = 'Impossible de rejoindre la file. Réessayez ou demandez au secrétariat.';
+    btn.classList.remove('loading'); btn.disabled = false;
+    errEl.textContent = 'Impossible de rejoindre la file. Réessayez.';
     errEl.classList.add('show');
-    btn.classList.remove('loading');
-    btn.disabled = false;
   }
 }
 
-// ── SHOW CONFIRMATION ─────────────────────────────────────────────────
-async function showConfirmation(entry, positionBefore) {
-  setAccent(_myPriority);
-  showAllSteps('confirm');
+// ── JOIN (walk-in) ────────────────────────────────────────────
+async function joinQueue() {
+  var name = document.getElementById('input-name').value.trim();
+  if(!name){ backToStepName(); return; }
+  var btn = document.getElementById('btn-priority');
+  btn.classList.add('loading'); btn.disabled = true;
+  document.getElementById('err-priority').classList.remove('show');
+  _isRdv = false;
+
+  try {
+    var today = new Date().toISOString().slice(0,10);
+    var { data: existing } = await _supa.from('queue_entries')
+      .select('number').eq('clinic_id',_clinicId).eq('queue_date',today)
+      .order('number',{ascending:false}).limit(1);
+    var nextNum = (existing&&existing.length) ? existing[0].number+1 : 1;
+
+    var { data: entry, error } = await _supa.from('queue_entries')
+      .insert({ clinic_id:_clinicId, number:nextNum, patient_name:name, status:'waiting', priority:_myPriority, queue_date:today })
+      .select().single();
+
+    if(error) throw error;
+
+    _myNumber = nextNum;
+    playSuccess();
+    showConfirmation(entry, existing ? existing.length : 0, false);
+    startRealtime();
+  } catch(e) {
+    btn.classList.remove('loading'); btn.disabled = false;
+    var errEl = document.getElementById('err-priority');
+    errEl.textContent = 'Impossible de rejoindre la file. Réessayez ou demandez au secrétariat.';
+    errEl.classList.add('show');
+  }
+}
+
+// ── SHOW CONFIRMATION ─────────────────────────────────────────
+async function showConfirmation(entry, positionBefore, isRdv) {
+  showStep('confirm');
   updateDots(3);
 
   var numEl = document.getElementById('confirm-num');
-  numEl.textContent = String(entry.number).padStart(2, '0');
+  numEl.textContent = String(entry.number).padStart(2,'0');
+  if(isRdv) numEl.classList.add('rdv-num');
 
-  var meta = PRIORITY_META[_myPriority] || PRIORITY_META.normale;
-  var badge = document.getElementById('confirm-badge');
-  badge.className = 'confirm-badge ' + meta.cls;
-  badge.textContent = meta.emoji + ' ' + meta.badge;
+  var tag = document.getElementById('confirm-tag');
+  if(isRdv){
+    tag.className = 'confirm-tag tag-rdv';
+    tag.textContent = '📅 RDV en ligne — Prioritaire';
+  } else {
+    var labels = {normale:'✓ Enregistré', urgente:'⚡ Urgence signalée', critique:'🚨 Urgence critique'};
+    var cls    = {normale:'tag-normale', urgente:'tag-urgente', critique:'tag-critique'};
+    tag.className = 'confirm-tag ' + (cls[_myPriority]||'tag-normale');
+    tag.textContent = labels[_myPriority]||'✓ Enregistré';
+  }
 
-  // Fetch current number
-  var today = new Date().toISOString().split('T')[0];
+  var today = new Date().toISOString().slice(0,10);
   try {
     var { data: qdata } = await _supa.from('queue_entries')
-      .select('number,status')
-      .eq('clinic_id', _clinicId)
-      .eq('queue_date', today)
-      .order('number', {ascending: true});
-
-    var current = (qdata || []).find(function(e) { return e.status === 'current'; });
+      .select('number,status').eq('clinic_id',_clinicId).eq('queue_date',today)
+      .order('number',{ascending:true});
+    var current = (qdata||[]).find(function(e){return e.status==='current';});
     document.getElementById('info-current').textContent = current ? String(current.number).padStart(2,'0') : '--';
-
     var ahead = Math.max(0, positionBefore);
     renderAhead(ahead);
     updateStatusCard(ahead, null);
-  } catch(e) {
-    renderAhead(Math.max(0, positionBefore));
-  }
+  } catch(e) { renderAhead(Math.max(0,positionBefore)); }
 }
 
 function renderAhead(ahead) {
-  document.getElementById('info-ahead').textContent  = ahead === 0 ? 'Vous êtes le suivant !' : ahead;
-  document.getElementById('info-wait').textContent   = ahead === 0 ? 'Très bientôt' : '~' + (ahead * 15) + ' min';
-  var pct = ahead === 0 ? 92 : Math.max(8, Math.min(75, 8 + (1 / (ahead + 1)) * 67));
-  document.getElementById('status-fill').style.width = pct + '%';
+  document.getElementById('info-ahead').textContent = ahead===0 ? 'Vous êtes le suivant !' : ahead;
+  document.getElementById('info-wait').textContent  = ahead===0 ? 'Très bientôt' : '~'+(ahead*15)+' min';
+  var pct = ahead===0 ? 92 : Math.max(8, Math.min(78, 8+(1/(ahead+1))*70));
+  document.getElementById('status-fill').style.width = pct+'%';
 }
 
-// ── STATUS CARD ────────────────────────────────────────────────────────
 function updateStatusCard(ahead, room) {
   var card  = document.getElementById('status-card');
   var emoji = document.getElementById('status-emoji');
   var title = document.getElementById('status-title');
   var sub   = document.getElementById('status-sub');
-
   card.className = 'status-card';
-
-  if (ahead === -1) { // done
-    card.classList.add('done');
-    emoji.textContent = '<span style="color:#059669">&#10003;</span>';
-    title.textContent = 'Consultation terminée';
-    sub.textContent   = 'Merci de votre visite. Bonne santé !';
-    document.getElementById('status-fill').style.width = '100%';
-  } else if (ahead === 0) {
-    card.classList.add('called');
-    emoji.textContent = '';
-    title.textContent = 'C\'est votre tour !';
-    sub.textContent   = room ? 'Rendez-vous en ' + room + ' maintenant' : 'Veuillez vous présenter au cabinet';
-    document.getElementById('status-fill').style.width = '100%';
-    if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+  if(ahead===-1){
+    card.classList.add('done'); emoji.textContent='✅';
+    title.textContent='Consultation terminée'; sub.textContent='Merci de votre visite. Bonne santé !';
+    document.getElementById('status-fill').style.width='100%';
+  } else if(ahead===0){
+    card.classList.add('called'); emoji.textContent='🟢';
+    title.textContent='C\'est votre tour !';
+    sub.textContent = room ? 'Rendez-vous en '+room+' maintenant' : 'Veuillez vous présenter au cabinet';
+    document.getElementById('status-fill').style.width='100%';
+    if(navigator.vibrate) navigator.vibrate([300,100,300]);
     playCallAlert();
-  } else if (ahead === 1) {
-    card.classList.add('imminent');
-    emoji.textContent = '';
-    title.textContent = 'Vous êtes le suivant !';
-    sub.textContent   = 'Préparez-vous, restez juste devant la porte';
+  } else if(ahead===1){
+    card.classList.add('imminent'); emoji.textContent='🔔';
+    title.textContent='Vous êtes le suivant !'; sub.textContent='Préparez-vous, restez juste devant la porte';
   } else {
-    card.classList.add('waiting');
-    emoji.textContent = '';
-    title.textContent = 'En attente de votre tour';
-    sub.textContent   = ahead + ' personne' + (ahead > 1 ? 's' : '') + ' avant vous';
+    card.classList.add('waiting'); emoji.textContent='🕐';
+    title.textContent='En attente de votre tour'; sub.textContent=ahead+' personne'+(ahead>1?'s':'')+' avant vous';
   }
 }
 
-// ── REALTIME ───────────────────────────────────────────────────────────
+// ── REALTIME ──────────────────────────────────────────────────
 function startRealtime() {
-  if (!_clinicId) return;
-  _channel = _supa.channel('qj-' + _clinicId + '-' + Date.now())
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'queue_entries',
-      filter: 'clinic_id=eq.' + _clinicId
-    }, function() { refreshPosition(); })
+  _channel = _supa.channel('qj-'+_clinicId+'-'+Date.now())
+    .on('postgres_changes',{event:'*',schema:'public',table:'queue_entries',filter:'clinic_id=eq.'+_clinicId},
+      function(){refreshPosition();})
     .subscribe();
 }
 
 async function refreshPosition() {
-  if (!_myNumber || !_clinicId) return;
-  var today = new Date().toISOString().split('T')[0];
+  if(!_myNumber||!_clinicId) return;
+  var today = new Date().toISOString().slice(0,10);
   try {
     var { data } = await _supa.from('queue_entries')
       .select('number,status,room,priority')
-      .eq('clinic_id', _clinicId)
-      .eq('queue_date', today)
-      .order('number', {ascending: true});
-
-    if (!data) return;
-
-    var current = data.find(function(e) { return e.status === 'current'; });
-    document.getElementById('info-current').textContent = current
-      ? String(current.number).padStart(2,'0') : '--';
-
-    var myEntry = data.find(function(e) { return e.number === _myNumber; });
-    if (!myEntry) return;
-
-    if (myEntry.status === 'done') {
-      renderAhead(0);
-      updateStatusCard(-1, null);
-      document.getElementById('status-fill').style.width = '100%';
-      return;
-    }
-
-    if (myEntry.status === 'current') {
-      renderAhead(0);
-      updateStatusCard(0, myEntry.room || null);
-      return;
-    }
-
-    var ahead = data.filter(function(e) {
-      return (e.status === 'current' || e.status === 'waiting') && e.number < _myNumber;
-    }).length;
-
-    renderAhead(ahead);
-    updateStatusCard(ahead, null);
-
-  } catch(e) { /* silently fail */ }
+      .eq('clinic_id',_clinicId).eq('queue_date',today)
+      .order('number',{ascending:true});
+    if(!data) return;
+    var current = data.find(function(e){return e.status==='current';});
+    document.getElementById('info-current').textContent = current ? String(current.number).padStart(2,'0') : '--';
+    var myEntry = data.find(function(e){return e.number===_myNumber;});
+    if(!myEntry) return;
+    if(myEntry.status==='done'){ renderAhead(0); updateStatusCard(-1,null); return; }
+    if(myEntry.status==='current'){ renderAhead(0); updateStatusCard(0,myEntry.room||null); return; }
+    var ahead = data.filter(function(e){return (e.status==='current'||e.status==='waiting')&&e.number<_myNumber;}).length;
+    renderAhead(ahead); updateStatusCard(ahead,null);
+  } catch(e){}
 }
 
-// ── UNLOCK AUDIO on first touch ────────────────────────────────────────
-document.addEventListener('touchstart', function() { getAudio(); }, {once: true, passive: true});
+document.addEventListener('touchstart',function(){getAudio();},{once:true,passive:true});
 </script>
 </body>
 </html>
