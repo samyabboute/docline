@@ -828,9 +828,58 @@ button{font-family:inherit;cursor:pointer}
         // Premier appel immédiat
         refresh();
 
+        // Son Apple-like (Web Audio API)
+        function playNotifSound() {
+          try {
+            var ctx = new (window.AudioContext || window.webkitAudioContext)();
+            var notes = [783.99, 1046.50]; // Sol5 → Do6
+            notes.forEach(function(freq, i) {
+              var osc = ctx.createOscillator();
+              var gain = ctx.createGain();
+              osc.connect(gain); gain.connect(ctx.destination);
+              osc.type = 'sine';
+              osc.frequency.value = freq;
+              var t = ctx.currentTime + i * 0.18;
+              gain.gain.setValueAtTime(0, t);
+              gain.gain.linearRampToValueAtTime(0.28, t + 0.02);
+              gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+              osc.start(t); osc.stop(t + 0.55);
+            });
+          } catch(e) {}
+        }
+
+        // Toast notification nouveau RDV
+        function showRdvToast(appt) {
+          var existing = document.getElementById('shell-rdv-toast');
+          if (existing) existing.remove();
+          var el = document.createElement('div');
+          el.id = 'shell-rdv-toast';
+          el.style.cssText = 'position:fixed;bottom:28px;right:24px;z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.18);border:1px solid #E8E3F5;min-width:280px;max-width:360px;animation:rdvToastIn .3s cubic-bezier(.34,1.56,.64,1)';
+          el.innerHTML = '<div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#3B1772,#7C3AED);display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+            +'<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg></div>'
+            +'<div style="flex:1;min-width:0">'
+            +'<div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px">Nouveau rendez-vous 📅</div>'
+            +'<div style="font-size:12px;color:#6B7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(appt.patient_name||'Patient')+' · '+(appt.requested_time||'')+'</div>'
+            +'</div>'
+            +'<button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#9CA3AF;font-size:18px;line-height:1;padding:2px">×</button>';
+          if (!document.getElementById('rdvToastAnim')) {
+            var s = document.createElement('style');
+            s.id = 'rdvToastAnim';
+            s.textContent = '@keyframes rdvToastIn{from{transform:translateY(20px) scale(.95);opacity:0}to{transform:none;opacity:1}}';
+            document.head.appendChild(s);
+          }
+          document.body.appendChild(el);
+          setTimeout(function(){ if(el.parentNode) el.remove(); }, 6000);
+        }
+
         // Mises à jour en temps réel (INSERT = nouvelle demande, UPDATE = annulation/confirmation)
         _rdvClient.channel('shell-rdv-' + uid)
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, refresh)
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments', filter: 'doctor_id=eq.' + uid },
+            function(payload) {
+              refresh();
+              playNotifSound();
+              showRdvToast(payload.new || {});
+            })
           .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'appointments' }, refresh)
           .subscribe();
       });
