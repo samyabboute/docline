@@ -330,7 +330,8 @@
 
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
-var _clients = [], _uid = null, _view = 'grid', _filter = 'all', _editId = null;
+var _clients = [], _uid = null, _view = 'grid', _filter = 'all', _editId = null, _isPro = false;
+var FREE_PATIENT_LIMIT = 30;
 
 var AVATAR_PALETTES = [
   {bg:'#DBEAFE',color:'#1D4ED8'},{bg:'#D1FAE5',color:'#065F46'},
@@ -340,6 +341,29 @@ var AVATAR_PALETTES = [
 ];
 
 function sanitize(s) { var d = document.createElement('div'); d.textContent = String(s||''); return d.innerHTML; }
+
+function showUpgradeWall() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  var existing = document.getElementById('upgrade-wall');
+  if (existing) { existing.style.display = 'flex'; return; }
+  var ov = document.createElement('div');
+  ov.id = 'upgrade-wall';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(10,12,20,.6);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)';
+  ov.innerHTML =
+    '<div style="background:#fff;border-radius:20px;max-width:420px;width:100%;padding:32px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.2)">'
+    + '<div style="width:64px;height:64px;border-radius:18px;background:#EDE8FF;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">'
+    + '<svg viewBox="0 0 24 24" style="width:30px;height:30px;fill:none;stroke:#3B1772;stroke-width:1.8;stroke-linecap:round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
+    + '</div>'
+    + '<div style="font-size:20px;font-weight:900;color:#0C0E14;letter-spacing:-.4px;margin-bottom:8px">Limite du plan Gratuit</div>'
+    + '<div style="font-size:14px;color:#7B8194;line-height:1.6;margin-bottom:24px">Vous avez atteint la limite de <strong>' + FREE_PATIENT_LIMIT + ' patients</strong> du plan Gratuit.<br>Passez au plan Pro pour ajouter des patients sans aucune limite.</div>'
+    + '<div style="display:flex;flex-direction:column;gap:10px">'
+    + '<a href="pricing.html" style="display:block;padding:13px;background:#3B1772;color:#fff;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none">Voir les offres Pro</a>'
+    + '<button onclick="document.getElementById(\'upgrade-wall\').style.display=\'none\'" style="padding:10px;background:none;border:1.5px solid #E8EAF0;border-radius:12px;font-size:13px;font-weight:600;color:#7B8194;cursor:pointer;font-family:inherit">Continuer sans passer au Pro</button>'
+    + '</div>'
+    + '</div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click', function(e) { if (e.target === ov) ov.style.display = 'none'; });
+}
 function toast(msg, type) {
   var t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast '+(type||'')+' show';
@@ -356,12 +380,13 @@ function toast(msg, type) {
     var name = Shell.displayName(meta, user.email);
     var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single()
       .then(function(r){return r.data;}).catch(function(){return null;});
-    var isPro = sub && sub.plan==='pro' && sub.status==='active';
+    _isPro = sub && (sub.plan==='pro'||sub.plan==='clinic') && sub.status==='active';
     Shell.init({
       page:'clients', title:'Patients',
-      isPro:isPro, plan:sub?.plan||'free', userName:name, userEmail:user.email||'',
+      isPro:_isPro, plan:sub?.plan||'free', userName:name, userEmail:user.email||'',
       onSearch:function(q){ renderClients(q); }
     });
+    if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
     if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'clients', 'Patients');
     showSkeleton();
     await loadClients();
@@ -403,6 +428,41 @@ async function loadClients() {
 
 function updateKpis() {
   document.getElementById('kpi-total').textContent = _clients.length;
+  // Banniere de limite plan gratuit
+  var banner = document.getElementById('limit-banner');
+  if (!_isPro) {
+    var used = _clients.length;
+    var pct  = Math.round((used / FREE_PATIENT_LIMIT) * 100);
+    var remaining = FREE_PATIENT_LIMIT - used;
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'limit-banner';
+      banner.style.cssText = 'margin-bottom:16px;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;';
+      var grid = document.getElementById('clients-container');
+      if (grid && grid.parentNode) grid.parentNode.insertBefore(banner, grid);
+    }
+    if (used >= FREE_PATIENT_LIMIT) {
+      banner.style.background = '#FEF2F2';
+      banner.style.border = '1.5px solid #FECACA';
+      banner.innerHTML =
+        '<svg viewBox="0 0 24 24" style="width:20px;height:20px;flex-shrink:0;fill:none;stroke:#DC2626;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+        + '<div style="flex:1"><strong style="font-size:13px;color:#DC2626">Limite de ' + FREE_PATIENT_LIMIT + ' patients atteinte</strong>'
+        + '<div style="font-size:12px;color:#7B8194;margin-top:2px">Passez au plan Pro pour ajouter des patients sans limite.</div></div>'
+        + '<a href="pricing.html" style="flex-shrink:0;padding:8px 16px;background:#3B1772;color:#fff;border-radius:99px;font-size:12px;font-weight:700;text-decoration:none">Passer au Pro</a>';
+    } else if (used >= FREE_PATIENT_LIMIT - 5) {
+      banner.style.background = '#FFFBEB';
+      banner.style.border = '1.5px solid #FDE68A';
+      banner.innerHTML =
+        '<svg viewBox="0 0 24 24" style="width:20px;height:20px;flex-shrink:0;fill:none;stroke:#D97706;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+        + '<div style="flex:1"><strong style="font-size:13px;color:#D97706">Il vous reste ' + remaining + ' patient' + (remaining > 1 ? 's' : '') + ' sur ' + FREE_PATIENT_LIMIT + '</strong>'
+        + '<div style="font-size:12px;color:#7B8194;margin-top:2px">Le plan Gratuit est limite a ' + FREE_PATIENT_LIMIT + ' patients.</div></div>'
+        + '<a href="pricing.html" style="flex-shrink:0;padding:8px 16px;background:#D97706;color:#fff;border-radius:99px;font-size:12px;font-weight:700;text-decoration:none">Voir le Pro</a>';
+    } else {
+      if (banner) banner.remove();
+    }
+  } else {
+    if (banner) banner.remove();
+  }
   var chronic = _clients.filter(function(c){ return c.notes && /chronique|diab|hypert|asthm/i.test(c.notes); }).length;
   var insured = _clients.filter(function(c){ return c.insurance_type==='company'||c.insurance_type==='freelancer'; }).length;
   document.getElementById('kpi-chronic').textContent = chronic;
@@ -570,6 +630,11 @@ function cancelDelete() { document.getElementById('delete-confirm').classList.re
 function confirmDelete(){ deleteClient(); }
 
 async function saveClient() {
+  // Limite plan gratuit — seulement pour les nouveaux patients
+  if (!_editId && !_isPro && _clients.length >= FREE_PATIENT_LIMIT) {
+    showUpgradeWall();
+    return;
+  }
   var first = document.getElementById('f-first').value.trim();
   var last  = document.getElementById('f-last').value.trim();
   if (!first && !last) { toast('Veuillez saisir un prénom ou un nom.','error'); return; }

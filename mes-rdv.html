@@ -442,7 +442,7 @@ _sb.auth.getSession().then(function(r){
     userName: name,
     userEmail: email
   });
-  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'mes-rdv', 'Mes Rendez-vous');
+  if (typeof Shell.guard === .function. && !Shell.guard(sub)) return;\n  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'mes-rdv', 'Mes Rendez-vous');
 
   document.getElementById('page-content').style.display = 'block';
   loadProfile();
@@ -790,3 +790,4 @@ function esc(s){
 </script>
 </body>
 </html>
+

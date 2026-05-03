@@ -1252,6 +1252,34 @@ button{font-family:inherit;cursor:pointer}
     return meta.full_name || meta.name || (email ? String(email).split('@')[0] : '') || 'Mon compte';
   }
 
+  // ── ACCOUNT GUARD (suspension) ───────────────────────────────
+  // Appelé par chaque page après Shell.init(), avec l'objet sub déjà fetchée :
+  //   if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  // Retourne false et affiche un overlay si le compte est suspendu.
+  function guard(sub) {
+    if (!sub) return true; // pas de données = on laisse passer (erreur réseau)
+    if (sub.status === 'suspended') {
+      _showSuspended();
+      return false;
+    }
+    return true;
+  }
+
+  function _showSuspended() {
+    var ov = document.createElement('div');
+    ov.className = 'shell-no-access';
+    ov.innerHTML =
+        '<div class="shell-no-access-ico" style="background:#FFF7ED">'
+      + '<svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:none;stroke:#D97706;stroke-width:1.8;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+      + '</div>'
+      + '<div class="shell-no-access-title">Compte suspendu</div>'
+      + '<div class="shell-no-access-sub">Votre compte a ete suspendu par l\'administrateur.<br>Regularisez votre situation pour retrouver l\'acces.</div>'
+      + '<a href="mailto:support@docline.dz" class="shell-no-access-back" style="text-decoration:none">Contacter le support</a>';
+    document.body.appendChild(ov);
+    var main = document.querySelector('.shell-main');
+    if (main) main.style.visibility = 'hidden';
+  }
+
   // ── STAFF ACCESS CONTROL ──────────────────────────────────────
   // Pages accessibles par clé → fichier HTML
   var _PAGE_HREFS = {
@@ -1356,5 +1384,5 @@ button{font-family:inherit;cursor:pointer}
     if (main) main.style.visibility = 'hidden';
   }
 
-  return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
+  return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, guard: guard, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
 })();

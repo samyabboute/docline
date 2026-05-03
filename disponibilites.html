@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mes disponibilités — Docline</title>
+<title>Mes disponibilitÃ©s â€” Docline</title>
 <script src="config.js"></script>
 <script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -30,7 +30,7 @@
 .btn-danger:hover{background:#FEE2E2}
 .btn-sm{padding:6px 12px;font-size:12px}
 
-/* ── Day card (planning hebdo) ───────────────────────────── */
+/* â”€â”€ Day card (planning hebdo) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .section-title{font-size:14px;font-weight:800;color:#0D1117;margin:24px 0 12px;display:flex;align-items:center;gap:10px}
 .section-title .badge{background:#EDE8FF;color:#3B1772;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:700}
 
@@ -64,7 +64,7 @@
 .day-summary{margin-top:10px;padding-top:10px;border-top:1px dashed #E5E7EB;font-size:12px;color:#3D4251;font-weight:500}
 .day-summary strong{color:#3B1772;font-weight:700}
 
-/* ── Days off (overrides) ─────────────────────────────────── */
+/* â”€â”€ Days off (overrides) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .off-card{background:#fff;border:1.5px solid #E5E7EB;border-radius:14px;padding:18px;animation:cardIn .35s ease both}
 .off-add{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
 .off-add label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:#7B8194;text-transform:uppercase;letter-spacing:.04em}
@@ -79,16 +79,16 @@
 .off-item-del:hover{background:#FEE2E2}
 .off-empty{text-align:center;padding:24px 16px;color:#9CA3AF;font-size:13px;font-style:italic}
 
-/* ── Save bar (sticky bottom) ─────────────────────────────── */
+/* â”€â”€ Save bar (sticky bottom) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .save-bar{position:sticky;bottom:0;background:linear-gradient(to top,#F7F8FC 60%,rgba(247,248,252,0));padding:18px 0 8px;margin-top:24px;display:flex;justify-content:flex-end;gap:8px;z-index:10}
 
-/* ── Toast ────────────────────────────────────────────────── */
+/* â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#0D1117;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:1000;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;max-width:90vw}
 .toast.visible{transform:translateX(-50%) translateY(0)}
 .toast.success{background:#059669}
 .toast.error{background:#DC2626}
 
-/* ── Mobile ────────────────────────────────────────────────── */
+/* â”€â”€ Mobile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media(max-width:640px){
   .page-wrap{padding:16px 14px}
   .day-grid{grid-template-columns:1fr;gap:10px}
@@ -105,35 +105,35 @@
 
   <div class="page-header">
     <div>
-      <h1 class="page-title">Mes disponibilités</h1>
-      <p class="page-sub">Configurez vos horaires de consultation par jour de la semaine. Les patients ne pourront prendre rendez-vous que sur vos créneaux disponibles.</p>
+      <h1 class="page-title">Mes disponibilitÃ©s</h1>
+      <p class="page-sub">Configurez vos horaires de consultation par jour de la semaine. Les patients ne pourront prendre rendez-vous que sur vos crÃ©neaux disponibles.</p>
     </div>
   </div>
 
-  <!-- ══ PLANNING HEBDOMADAIRE ══════════════════════════════ -->
-  <h2 class="section-title">Planning hebdomadaire <span class="badge">Récurrent</span></h2>
+  <!-- â•â• PLANNING HEBDOMADAIRE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <h2 class="section-title">Planning hebdomadaire <span class="badge">RÃ©current</span></h2>
   <div class="day-grid" id="day-grid">
     <!-- Day cards injected by JS -->
   </div>
 
-  <!-- ══ JOURS OFF / EXCEPTIONS ════════════════════════════ -->
-  <h2 class="section-title">Jours fermés (exceptions) <span class="badge" id="off-count">0</span></h2>
+  <!-- â•â• JOURS OFF / EXCEPTIONS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <h2 class="section-title">Jours fermÃ©s (exceptions) <span class="badge" id="off-count">0</span></h2>
   <div class="off-card">
     <div class="off-add">
       <label>Date
         <input type="date" id="off-date">
       </label>
       <label>Raison (optionnel)
-        <input type="text" id="off-reason" placeholder="Ex. Congé, Formation…" maxlength="80" style="min-width:200px">
+        <input type="text" id="off-reason" placeholder="Ex. CongÃ©, Formationâ€¦" maxlength="80" style="min-width:200px">
       </label>
       <button class="btn btn-primary btn-sm" onclick="addOff()">+ Ajouter un jour off</button>
     </div>
     <div class="off-list" id="off-list">
-      <div class="off-empty">Aucun jour off enregistré</div>
+      <div class="off-empty">Aucun jour off enregistrÃ©</div>
     </div>
   </div>
 
-  <!-- ══ SAVE BAR ═══════════════════════════════════════════ -->
+  <!-- â•â• SAVE BAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="save-bar">
     <button class="btn btn-ghost" onclick="window.location.reload()">Annuler</button>
     <button class="btn btn-primary" id="save-btn" onclick="saveAvailability()">Enregistrer le planning</button>
@@ -151,7 +151,7 @@ var _uid = null;
 var _availability = {}; // { day_of_week: { is_active, start, end, slot } }
 var _overrides = [];     // [{ id, override_date, reason }]
 
-// 0 = Lundi, 6 = Dimanche (cohérent avec SQL)
+// 0 = Lundi, 6 = Dimanche (cohÃ©rent avec SQL)
 var DAYS = [
   { idx:0, name:'Lundi'    },
   { idx:1, name:'Mardi'    },
@@ -170,7 +170,7 @@ function toast(msg, type){
   setTimeout(function(){ t.classList.remove('visible'); }, 2800);
 }
 
-// ── Default availability (Mon-Fri 9-12 + 14-17, 30min) ──
+// â”€â”€ Default availability (Mon-Fri 9-12 + 14-17, 30min) â”€â”€
 function defaultDay(idx){
   var weekday = idx <= 4; // Mon-Fri
   return {
@@ -208,11 +208,11 @@ function renderDays(){
         + '</label>'
       + '</div>'
       + '<div class="day-row">'
-        + '<label>Début<input type="time" data-day="'+d.idx+'" data-field="start" value="'+av.start+'" '+(av.is_active?'':'disabled')+'></label>'
+        + '<label>DÃ©but<input type="time" data-day="'+d.idx+'" data-field="start" value="'+av.start+'" '+(av.is_active?'':'disabled')+'></label>'
         + '<label>Fin<input type="time" data-day="'+d.idx+'" data-field="end" value="'+av.end+'" '+(av.is_active?'':'disabled')+'></label>'
       + '</div>'
       + '<div class="day-duration">'
-        + '<label>Durée d\'un créneau</label>'
+        + '<label>DurÃ©e d\'un crÃ©neau</label>'
         + '<select data-day="'+d.idx+'" data-field="slot" '+(av.is_active?'':'disabled')+'>'
           + DURATIONS.map(function(m){
             return '<option value="'+m+'"'+(m===av.slot?' selected':'')+'>'+m+' minutes</option>';
@@ -220,8 +220,8 @@ function renderDays(){
         + '</select>'
       + '</div>'
       + '<div class="day-summary">'+(av.is_active
-          ? '<strong>'+slots+'</strong> créneaux dispo ('+av.slot+' min)'
-          : 'Fermé')+'</div>';
+          ? '<strong>'+slots+'</strong> crÃ©neaux dispo ('+av.slot+' min)'
+          : 'FermÃ©')+'</div>';
     grid.appendChild(card);
   });
 
@@ -246,7 +246,7 @@ function renderOffList(){
   var list = document.getElementById('off-list');
   document.getElementById('off-count').textContent = _overrides.length;
   if(!_overrides.length){
-    list.innerHTML = '<div class="off-empty">Aucun jour off enregistré</div>';
+    list.innerHTML = '<div class="off-empty">Aucun jour off enregistrÃ©</div>';
     return;
   }
   // Sort by date asc
@@ -277,10 +277,10 @@ async function addOff(){
   // Don't allow past dates
   var today = new Date(); today.setHours(0,0,0,0);
   var picked = new Date(date+'T00:00:00');
-  if(picked < today){ toast('La date doit être future', 'error'); return; }
+  if(picked < today){ toast('La date doit Ãªtre future', 'error'); return; }
   // Check duplicate
   if(_overrides.some(function(o){ return o.override_date === date; })){
-    toast('Ce jour est déjà fermé', 'error'); return;
+    toast('Ce jour est dÃ©jÃ  fermÃ©', 'error'); return;
   }
   try{
     var { data, error } = await _supa.from('doctor_availability_overrides').insert({
@@ -294,7 +294,7 @@ async function addOff(){
     document.getElementById('off-date').value = '';
     document.getElementById('off-reason').value = '';
     renderOffList();
-    toast('Jour off ajouté', 'success');
+    toast('Jour off ajoutÃ©', 'success');
   }catch(err){
     console.error('[disponibilites] addOff', err);
     toast('Erreur : ' + (err.message || 'impossible d\'ajouter'), 'error');
@@ -308,7 +308,7 @@ async function removeOff(id){
     if(error) throw error;
     _overrides = _overrides.filter(function(o){ return o.id !== id; });
     renderOffList();
-    toast('Jour off supprimé', 'success');
+    toast('Jour off supprimÃ©', 'success');
   }catch(err){
     console.error('[disponibilites] removeOff', err);
     toast('Erreur : ' + (err.message || 'impossible de supprimer'), 'error');
@@ -318,7 +318,7 @@ async function removeOff(id){
 async function saveAvailability(){
   var btn = document.getElementById('save-btn');
   btn.disabled = true;
-  btn.textContent = 'Enregistrement…';
+  btn.textContent = 'Enregistrementâ€¦';
 
   // Validate: each active day must have end > start
   for(var i = 0; i < DAYS.length; i++){
@@ -326,7 +326,7 @@ async function saveAvailability(){
     var av = _availability[d];
     if(!av.is_active) continue;
     if(av.end <= av.start){
-      toast('Jour '+DAYS[i].name+' : l\'heure de fin doit être après le début', 'error');
+      toast('Jour '+DAYS[i].name+' : l\'heure de fin doit Ãªtre aprÃ¨s le dÃ©but', 'error');
       btn.disabled = false; btn.textContent = 'Enregistrer le planning';
       return;
     }
@@ -350,7 +350,7 @@ async function saveAvailability(){
     var { error } = await _supa.from('doctor_availability')
       .upsert(rows, { onConflict: 'doctor_id,day_of_week' });
     if(error) throw error;
-    toast('Planning enregistré ✓', 'success');
+    toast('Planning enregistrÃ© âœ“', 'success');
   }catch(err){
     console.error('[disponibilites] save', err);
     toast('Erreur : ' + (err.message || 'impossible d\'enregistrer'), 'error');
@@ -360,7 +360,7 @@ async function saveAvailability(){
   }
 }
 
-// ── Init ─────────────────────────────────────────────────
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 (async function(){
   try{
     var s = await _supa.auth.getSession();
@@ -373,13 +373,13 @@ async function saveAvailability(){
     var isPro = sub && sub.plan!=='free' && sub.status==='active' && (!sub.expires_at || new Date(sub.expires_at) > new Date());
     Shell.init({
       page: 'disponibilites',
-      title: 'Mes disponibilités',
+      title: 'Mes disponibilitÃ©s',
       isPro: isPro,
       plan: (sub&&sub.plan)||'free',
       userName: Shell.displayName(meta, u.email),
       userEmail: u.email,
     });
-    if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'disponibilites', 'Mes disponibilites');
+    if (typeof Shell.guard === .function. && !Shell.guard(sub)) return;\n  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'disponibilites', 'Mes disponibilites');
 
     // Set min date for off picker = today
     var today = new Date(); today.setHours(0,0,0,0);
@@ -417,3 +417,4 @@ window.addEventListener('unhandledrejection', function(e){
 </script>
 </body>
 </html>
+
