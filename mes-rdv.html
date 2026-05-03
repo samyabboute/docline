@@ -623,7 +623,7 @@ function cardHTML(rdv){
 function smsBadge(rdv) {
   // Seulement pour les RDV confirmés et à venir
   var today = todayStr();
-  if (rdv.status !== 'confirmed' || rdv.requested_date < today) return '';
+  if ((rdv.status !== 'confirmed' && rdv.status !== 'pending') || rdv.requested_date < today) return '';
   if (rdv.patient_confirmed) {
     return '<span class="sms-confirm-badge sms-ok"><svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round"><polyline points="20 6 9 17 4 12"/></svg>Patient confirmé</span>';
   }
@@ -694,12 +694,12 @@ async function quickCancel(id){
   showToast('Annulation en cours…', 'ok');
 
   try {
-    var res = await fetch(SUPABASE_URL + '/functions/v1/cancel-appointment', {
+    var res = await fetch(DOCLINE_CONFIG.SUPA_URL + '/functions/v1/cancel-appointment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + jwt,
-        'apikey': SUPABASE_ANON_KEY,
+        'apikey': DOCLINE_CONFIG.SUPA_KEY,
       },
       body: JSON.stringify({ appointmentId: id, reason: reason || '' }),
     });
