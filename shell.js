@@ -10,12 +10,14 @@ var Shell = (function () {
 
   // ── NAV ───────────────────────────────────────────────────────
   var NAV = [
-    // ── Section: Clinique
-    { section: 'Clinique' },
+    // ── Section: Vue d'ensemble
+    { section: 'Vue d\'ensemble' },
     { href:'app.html',           key:'dashboard',    label:'Tableau de bord',
       icon:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>' },
     { href:'queue.html',         key:'queue',        label:"File d'attente", featured:true,
       icon:'<path d="M9 12h.01M12 12h.01M15 12h.01M12 8c-4.418 0-8 1.79-8 4s3.582 4 8 4 8-1.79 8-4-3.582-4-8-4z"/><path d="M4 12v4c0 2.21 3.582 4 8 4s8-1.79 8-4v-4"/>' },
+    // ── Section: Clinique
+    { section: 'Clinique' },
     { href:'clients.html',       key:'clients',      label:'Patients',
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
     { href:'consultations.html', key:'consultations',label:'Consultations',
@@ -24,18 +26,20 @@ var Shell = (function () {
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
     { href:'ordonnances.html',   key:'ordonnances',  label:'Ordonnances',
       icon:'<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/>' },
-    { href:'staff.html',         key:'staff',        label:'Personnel',
-      icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/>' },
     { href:'labo.html',          key:'labo',         label:'Laboratoire',
       icon:'<path d="M6 2v6l-2 4v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8l-2-4V2"/><line x1="6" y1="10" x2="14" y2="10"/>' },
-    // ── Section: Rendez-vous en ligne
-    { section: 'Rendez-vous' },
+    // ── Section: En ligne
+    { section: 'En ligne' },
     { href:'mes-rdv.html',       key:'mes-rdv',      label:'Mes Rendez-vous',
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/>' },
-    { href:'disponibilites.html',key:'disponibilites',label:'Mes disponibilités',
+    { href:'disponibilites.html',key:'disponibilites',label:'Disponibilites',
       icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
     { href:'profil-public.html', key:'profil-public',label:'Profil public',
       icon:'<rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/>' },
+    // ── Section: Gestion
+    { section: 'Gestion' },
+    { href:'staff.html',         key:'staff',        label:'Ressources humaines',
+      icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/>' },
   ];
 
   // ── CSS ───────────────────────────────────────────────────────
@@ -278,27 +282,8 @@ button{font-family:inherit;cursor:pointer}
 .shell-page{padding:24px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box}
 .page{padding:24px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box}
 
-/* ── MOBILE BOTTOM NAV ── */
-.shell-mobile-nav{
-  display:none;position:fixed;bottom:0;left:0;right:0;
-  height:60px;background:var(--surface);
-  border-top:1px solid var(--border);z-index:500;
-  padding-bottom:env(safe-area-inset-bottom,0px);
-}
-.smn-row{display:flex;height:100%;align-items:stretch}
-.smn-item{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  text-decoration:none;color:var(--text-3);border:none;background:none;
-  cursor:pointer;font-family:inherit;padding:4px 2px;font-size:9px;font-weight:600;
-  -webkit-tap-highlight-color:transparent;transition:color var(--t);position:relative;
-}
-.smn-item svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
-.smn-item.active{color:var(--brand)}
-.smn-item.active::before{
-  content:'';position:absolute;top:0;left:50%;
-  transform:translateX(-50%);width:22px;height:2.5px;
-  background:var(--brand);border-radius:0 0 3px 3px;
-}
+/* ── MOBILE BOTTOM NAV — désactivée ── */
+.shell-mobile-nav{display:none!important}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
@@ -308,10 +293,9 @@ button{font-family:inherit;cursor:pointer}
   .shell-sidebar.open{transform:translateX(0)}
   .shell-topbar{grid-column:1}
   .shell-main{grid-column:1;grid-row:2}
-  .shell-page{padding:14px;padding-bottom:76px}
+  .shell-page{padding:14px}
   .tb-ham{display:flex}
   .tb-search{display:none}
-  .shell-mobile-nav{display:flex}
 }
 @media(min-width:769px){
   /* Auto-hide sidebar: smooth slide + grid collapse */
@@ -559,7 +543,7 @@ button{font-family:inherit;cursor:pointer}
 /* Mobile : flèche en bas à gauche, au-dessus de la bottom-nav */
 @media(max-width:768px){
   .sb-peek{
-    left:16px;top:auto;bottom:70px;
+    left:16px;top:auto;bottom:20px;
     width:46px;height:46px;border-radius:50%;
     /* remplace le slide depuis la gauche par un pop depuis le bas */
     transform:translateY(80px) scale(.8);
