@@ -89,6 +89,8 @@
 .toast.error{background:#DC2626}
 
 /* â”€â”€ Mobile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.page-wrap{max-width:1100px;margin:0 auto;padding:28px 24px}
+.day-date{font-size:11px;color:#9CA3AF;font-weight:500;margin-top:1px}
 @media(max-width:640px){
   .page-wrap{padding:16px 14px}
   .day-grid{grid-template-columns:1fr;gap:10px}
@@ -101,7 +103,7 @@
   <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
   <header class="shell-topbar" id="shell-topbar"></header>
   <main class="shell-main">
-  <div class="shell-page" id="main-content">
+  <div class="shell-page" id="main-content"><div class="page-wrap">
 
   <div class="page-header">
     <div>
@@ -139,7 +141,7 @@
     <button class="btn btn-primary" id="save-btn" onclick="saveAvailability()">Enregistrer le planning</button>
   </div>
 
-  </div><!-- /shell-page -->
+  </div></div><!-- /page-wrap /shell-page -->
   </main>
 </div><!-- /app-shell -->
 
@@ -151,16 +153,23 @@ var _uid = null;
 var _availability = {}; // { day_of_week: { is_active, start, end, slot } }
 var _overrides = [];     // [{ id, override_date, reason }]
 
-// 0 = Lundi, 6 = Dimanche (cohÃ©rent avec SQL)
+// 0=Dim,1=Lun...6=Sam (JS getDay() convention) — Weekend DZ: Vendredi+Samedi
 var DAYS = [
-  { idx:0, name:'Lundi'    },
-  { idx:1, name:'Mardi'    },
-  { idx:2, name:'Mercredi' },
-  { idx:3, name:'Jeudi'    },
-  { idx:4, name:'Vendredi' },
-  { idx:5, name:'Samedi'   },
-  { idx:6, name:'Dimanche' }
+  { idx:0, name:'Dimanche', jsDay:0 },
+  { idx:1, name:'Lundi',    jsDay:1 },
+  { idx:2, name:'Mardi',    jsDay:2 },
+  { idx:3, name:'Mercredi', jsDay:3 },
+  { idx:4, name:'Jeudi',    jsDay:4 },
+  { idx:5, name:'Vendredi', jsDay:5 },
+  { idx:6, name:'Samedi',   jsDay:6 },
 ];
+
+function nextDateForDay(jsDay) {
+  var d = new Date();
+  var diff = (jsDay - d.getDay() + 7) % 7;
+  d.setDate(d.getDate() + diff);
+  return d.toLocaleDateString('fr-DZ', { day:'numeric', month:'short' });
+}
 var DURATIONS = [15, 20, 30, 45, 60];
 
 function toast(msg, type){
@@ -172,7 +181,7 @@ function toast(msg, type){
 
 // â”€â”€ Default availability (Mon-Fri 9-12 + 14-17, 30min) â”€â”€
 function defaultDay(idx){
-  var weekday = idx <= 4; // Mon-Fri
+  var weekday = idx <= 4; // Dim–Jeu actifs, Ven+Sam = weekend DZ
   return {
     is_active: weekday,
     start: '09:00',
@@ -201,7 +210,7 @@ function renderDays(){
     card.className = 'day-card ' + (av.is_active ? 'active' : 'disabled');
     card.innerHTML =
       '<div class="day-head">'
-        + '<div class="day-name">' + d.name + '</div>'
+        + '<div><div class="day-name">' + d.name + '</div><div class="day-date">' + nextDateForDay(d.jsDay) + '</div></div>'
         + '<label class="switch">'
           + '<input type="checkbox" data-day="'+d.idx+'" data-field="is_active" '+(av.is_active?'checked':'')+'>'
           + '<span class="slider"></span>'
