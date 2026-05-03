@@ -1253,11 +1253,29 @@ button{font-family:inherit;cursor:pointer}
   }
 
   // ── STAFF ACCESS CONTROL ──────────────────────────────────────
+  // Pages accessibles par clé → fichier HTML
+  var _PAGE_HREFS = {
+    'queue':        'queue.html',
+    'clients':      'clients.html',
+    'calendar':     'calendar.html',
+    'mes-rdv':      'mes-rdv.html',
+    'consultations':'consultations.html',
+    'labo':         'labo.html',
+    'ordonnances':  'ordonnances.html',
+    'staff':        'staff.html',
+    'disponibilites':'disponibilites.html',
+    'profil-public':'profil-public.html',
+  };
+  // Ordre de priorité pour la redirection automatique depuis le dashboard
+  var _REDIRECT_PRIORITY = ['queue','clients','calendar','mes-rdv','consultations','labo','ordonnances','staff'];
+
   // Appelé par chaque page après Shell.init() :
   //   Shell.checkStaff(_supa, 'queue', "File d'attente");
-  // Si l'utilisateur connecté est un membre du personnel :
-  //   - verrouille les pages interdites dans la sidebar
-  //   - affiche un overlay "Acces refuse" si la page courante est interdite
+  // Pour le médecin : ne fait rien (accès total).
+  // Pour le staff :
+  //   - sur le dashboard → redirige vers la première page accessible
+  //   - sur les autres pages → cache les items interdits dans la sidebar
+  //   - si la page courante est interdite → affiche l'overlay "Accès refusé"
   function checkStaff(supaClient, pageKey, pageLabel) {
     try {
       supaClient.auth.getSession().then(function(res) {
@@ -1265,46 +1283,57 @@ button{font-family:inherit;cursor:pointer}
         if (!session) return;
         supaClient
           .from('staff')
-          .select('page_access, first_name, last_name, role, clinic_id')
+          .select('page_access, role, clinic_id')
           .eq('user_id', session.user.id)
           .single()
           .then(function(result) {
-            if (!result.data) return; // pas du staff = médecin propriétaire, acces total
+            if (!result.data) return; // médecin propriétaire → accès total, rien à faire
+
             var access = result.data.page_access || [];
 
-            // Verrouiller les items de nav interdits
+            // ── Dashboard : redirection automatique vers la première page accessible
+            if (pageKey === 'dashboard') {
+              for (var i = 0; i < _REDIRECT_PRIORITY.length; i++) {
+                var k = _REDIRECT_PRIORITY[i];
+                if (access.indexOf(k) !== -1 && _PAGE_HREFS[k]) {
+                  window.location.replace(_PAGE_HREFS[k]);
+                  return;
+                }
+              }
+              return; // aucune page accessible → reste sur le dashboard
+            }
+
+            // ── Sidebar : cacher complètement les pages interdites
             NAV.forEach(function(n) {
               if (n.section) return;
               if (access.indexOf(n.key) === -1) {
                 var el = document.querySelector('.sb-item[data-key="' + n.key + '"]');
-                if (el) {
-                  el.classList.add('locked-clickable');
-                  if (el.tagName === 'A') el.removeAttribute('href');
-                  el.onclick = function(e) { e.preventDefault(); _noAccess(); return false; };
-                  var ico = el.querySelector('.sb-lock-ico');
-                  if (ico) ico.style.display = 'block';
-                }
+                if (el) el.style.display = 'none';
               }
             });
 
-            // Verifier l'acces a la page courante
+            // ── Cacher les titres de section dont tous les items sont cachés
+            var sectionEls = document.querySelectorAll('.sb-section');
+            sectionEls.forEach(function(sEl) {
+              var sibling = sEl.nextElementSibling;
+              var hasVisible = false;
+              while (sibling && !sibling.classList.contains('sb-section')) {
+                if (sibling.style.display !== 'none' && sibling.classList.contains('sb-item')) {
+                  hasVisible = true;
+                  break;
+                }
+                sibling = sibling.nextElementSibling;
+              }
+              if (!hasVisible) sEl.style.display = 'none';
+            });
+
+            // ── Page courante interdite → overlay "Accès refusé"
             if (pageKey && access.indexOf(pageKey) === -1) {
               _showNoAccessPage(pageLabel || pageKey);
             }
           }).catch(function() {});
       });
     } catch(e) { /* silence */ }
-  }
-
-  function _noAccess() {
-    if (document.getElementById('shell-toast-na')) return;
-    var t = document.createElement('div');
-    t.id = 'shell-toast-na';
-    t.className = 'shell-toast-na';
-    t.textContent = 'Acces non autorise pour ce compte';
-    document.body.appendChild(t);
-    setTimeout(function() { t.style.opacity = '0'; }, 2000);
-    setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 2400);
   }
 
   function _showNoAccessPage(pageLabel) {
@@ -1315,7 +1344,9 @@ button{font-family:inherit;cursor:pointer}
       + '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
       + '</div>'
       + '<div class="shell-no-access-title">Acces refuse</div>'
-      + '<div class="shell-no-access-sub">Ce compte ne dispose pas des droits pour acceder a <strong>' + (pageLabel || 'cette page') + '</strong>.<br>Contactez votre responsable pour obtenir l\'acces.</div>'
+      + '<div class="shell-no-access-sub">Ce compte ne dispose pas des droits pour acceder a <strong>'
+      + (pageLabel || 'cette page')
+      + '</strong>.<br>Contactez votre responsable pour obtenir l\'acces.</div>'
       + '<button class="shell-no-access-back" onclick="history.back()">'
       + '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><polyline points="15 18 9 12 15 6"/></svg>'
       + 'Retour'
