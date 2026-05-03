@@ -839,7 +839,7 @@ button{font-family:inherit;cursor:pointer}
 
   var _OB_STEPS = [
     {
-      chip: 'Bienvenue 👋',
+      chip: 'Bienvenue',
       title: 'Votre cabinet médical numérique',
       desc: 'Docline centralise vos patients, consultations et rendez-vous. Suivez ce guide pour tout configurer en 4 étapes.',
       illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
@@ -926,7 +926,7 @@ button{font-family:inherit;cursor:pointer}
       href: 'mes-rdv.html',
     },
     {
-      chip: '🎉 Tout est prêt !',
+      chip: 'Tout est prêt',
       title: 'Vous êtes prêt à démarrer',
       desc: 'Votre espace Docline est configuré. Vos patients peuvent maintenant prendre rendez-vous en ligne. Bonne pratique !',
       illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'

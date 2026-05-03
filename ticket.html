@@ -253,15 +253,15 @@ function renderTicket(appt) {
 
         <div class="info-grid">
           <div class="info-item">
-            <div class="info-label">📅 Date</div>
+            <div class="info-label">Date</div>
             <div class="info-val" style="font-size:.8rem">${dateStr}</div>
           </div>
           <div class="info-item">
-            <div class="info-label">⏰ Heure</div>
+            <div class="info-label">Heure</div>
             <div class="info-val">${appt.requested_time}</div>
           </div>
           <div class="info-item full">
-            <div class="info-label">👤 Patient</div>
+            <div class="info-label">Patient</div>
             <div class="info-val">${appt.patient_name}</div>
           </div>
           ${doc?.address ? `<div class="info-item full"><div class="info-label">📍 Adresse</div><div class="info-val" style="font-size:.8rem">${doc.address}</div></div>` : ''}

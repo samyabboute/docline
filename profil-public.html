@@ -475,7 +475,7 @@ window.onAvatarChange = onAvatarChange;
     console.error('[profil-public] Erreur critique:', e);
     // Afficher l'erreur à l'écran plutôt qu'une page blanche
     document.body.innerHTML = '<div style="font-family:sans-serif;padding:40px;max-width:600px;margin:60px auto;background:#fff;border:1px solid #E5E7EB;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.06)">'
-      + '<div style="font-size:2rem;margin-bottom:12px">⚠️</div>'
+      + '<div style="font-size:2rem;margin-bottom:12px"></div>'
       + '<h2 style="font-size:1.1rem;font-weight:700;color:#0C0E14;margin-bottom:8px">Impossible de charger le profil</h2>'
       + '<p style="color:#6B7280;font-size:.875rem;margin-bottom:20px">' + (e && e.message ? e.message : 'Erreur inattendue') + '</p>'
       + '<a href="login.html" style="display:inline-flex;align-items:center;gap:6px;background:#3B1772;color:#fff;padding:9px 18px;border-radius:8px;font-size:.875rem;font-weight:600;text-decoration:none">↩ Retour à la connexion</a>'
