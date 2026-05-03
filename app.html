@@ -642,9 +642,10 @@ var Auth = {
 
 async function load() {
   try {
+    var todayKey = new Date().toISOString().slice(0,10);
     var [pRes, qRes, cRes] = await Promise.all([
       _supa.from('clients').select('*').eq('user_id', _uid).order('created_at', { ascending: false }).limit(50),
-      _supa.from('queue_entries').select('*').eq('clinic_id', _uid).order('position'),
+      _supa.from('queue_entries').select('*').eq('clinic_id', _uid).eq('queue_date', todayKey).order('number'),
       _supa.from('consultations').select('id,created_at').eq('user_id', _uid).limit(200),
     ]);
     var patients = pRes.data || [];
@@ -676,6 +677,14 @@ async function load() {
   _uid   = session.user.id;
   _email = session.user.email || '';
   _name  = Shell.displayName(session.user.user_metadata || {}, _email);
+
+  // Charger le vrai nom depuis profiles
+  var { data: prof } = await _supa.from('profiles').select('full_name,first_name,last_name,clinic_name,is_clinic').eq('id', _uid).single();
+  if (prof) {
+    if (prof.is_clinic && prof.clinic_name) _name = prof.clinic_name;
+    else if (prof.full_name) _name = prof.full_name;
+    else if (prof.first_name || prof.last_name) _name = ((prof.first_name||'') + ' ' + (prof.last_name||'')).trim();
+  }
 
   // Sub check
   var { data: sub } = await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id', _uid).single();
