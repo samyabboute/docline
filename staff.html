@@ -82,6 +82,11 @@
 .status-dot{width:7px;height:7px;border-radius:50%}
 .status-dot.active{background:#059669;box-shadow:0 0 0 2px rgba(5,150,105,.2)}
 .status-dot.inactive{background:var(--text4)}
+.invite-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+.invite-badge.invited{background:#FFF7ED;color:#D97706;border:1px solid #FED7AA}
+.invite-badge.no-invite{background:var(--surface2);color:var(--text4);border:1px solid var(--border)}
+.btn-invite{padding:5px 12px;border-radius:99px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text3);font-family:inherit;transition:all .14s;white-space:nowrap}
+.btn-invite:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
 .staff-actions{display:flex;gap:4px}
 .btn-icon{width:30px;height:30px;border-radius:8px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text4);transition:all .14s}
 .btn-icon:hover{background:var(--surface2);color:var(--text)}
@@ -386,9 +391,15 @@ function renderStaff() {
           '<div class="access-chips">'+chipsHtml+'</div>' +
         '</div>' +
       '</div>' +
-      '<div class="staff-card-foot">' +
+      '<div class="staff-card-foot" style="flex-wrap:wrap;gap:6px">' +
         '<div class="staff-status"><div class="status-dot '+(s.active?'active':'inactive')+'"></div><span style="color:'+(s.active?'#059669':'var(--text4)')+'">'+(s.active?'Actif':'Inactif')+'</span></div>' +
-        '<div class="staff-actions">' +
+        (s.user_id
+          ? '<span class="invite-badge invited">Invite</span>'
+          : s.email
+            ? '<button class="btn-invite" onclick="inviteStaff(\''+s.id+'\',\''+esc(s.email)+'\')">Inviter par email</button>'
+            : '<span class="invite-badge no-invite">Sans email</span>'
+        ) +
+        '<div class="staff-actions" style="margin-left:auto">' +
           '<button class="btn-icon" onclick="toggleActive(\''+s.id+'\','+((!s.active))+')\" title="'+(s.active?'Desactiver':'Activer')+'">' +
             '<svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>' +
           '</button>' +
@@ -503,6 +514,28 @@ async function saveStaff() {
   toast(_editId ? 'Membre mis a jour' : 'Membre ajoute', 'success');
   closeModal();
   loadStaff();
+}
+
+// ── INVITE STAFF ──────────────────────────────────────────
+async function inviteStaff(staffId, email) {
+  if (!confirm('Envoyer une invitation a ' + email + ' ?')) return;
+  toast('Envoi de l\'invitation...', '');
+  try {
+    var sess = await _supa.auth.getSession();
+    var token = sess.data.session ? sess.data.session.access_token : '';
+    var supaUrl = typeof SUPA_URL !== 'undefined' ? SUPA_URL : (typeof DOCLINE_CONFIG !== 'undefined' ? DOCLINE_CONFIG.SUPA_URL : '');
+    var res = await fetch(supaUrl.replace('/rest/v1','').replace('https://','https://') + '/functions/v1/invite-staff', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ staffId: staffId, email: email, redirectTo: window.location.origin + '/docline/app.html' })
+    });
+    var body = await res.json();
+    if (!res.ok) { toast('Erreur : ' + (body.error || res.status), 'error'); return; }
+    toast('Invitation envoyee a ' + email, 'success');
+    loadStaff();
+  } catch(e) {
+    toast('Erreur reseau', 'error');
+  }
 }
 
 // ── TOGGLE ACTIVE ─────────────────────────────────────────

@@ -585,6 +585,25 @@ button{font-family:inherit;cursor:pointer}
   .ob-title{font-size:18px}
 }
 
+/* ── LOCKED NAV ITEM ── */
+.sb-item.locked-clickable{opacity:.45;cursor:not-allowed}
+.sb-item.locked-clickable:hover{background:none!important;color:var(--text-2)!important}
+.sb-item.locked-clickable svg.sb-lock-ico{display:block!important}
+.sb-lock-ico{display:none;width:11px;height:11px;margin-left:auto;fill:none;stroke:var(--text-3);stroke-width:2.2;flex-shrink:0;stroke-linecap:round}
+
+/* ── NO-ACCESS OVERLAY ── */
+.shell-no-access{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;animation:sna-in .25s ease}
+@keyframes sna-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.shell-no-access-ico{width:72px;height:72px;border-radius:20px;background:#FEF2F2;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.shell-no-access-ico svg{width:32px;height:32px;fill:none;stroke:#DC2626;stroke-width:1.8;stroke-linecap:round}
+.shell-no-access-title{font-size:22px;font-weight:900;color:var(--text);letter-spacing:-.4px;margin-bottom:8px}
+.shell-no-access-sub{font-size:14px;color:var(--text-3);line-height:1.6;max-width:380px}
+.shell-no-access-back{margin-top:24px;display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:var(--brand);color:#fff;border:none;border-radius:99px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s}
+.shell-no-access-back:hover{background:var(--brand-hover)}
+
+/* ── TOAST ACCES REFUSE ── */
+.shell-toast-na{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1E293B;color:#fff;padding:11px 22px;border-radius:99px;font-size:13px;font-weight:600;z-index:10000;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.2);transition:opacity .3s;pointer-events:none}
+
 /* ── RDV pending badge (sidebar) ── */
 .sb-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sb-rdv-dot{
@@ -641,6 +660,7 @@ button{font-family:inherit;cursor:pointer}
         + '<svg viewBox="0 0 24 24">' + n.icon + '</svg>'
         + '<span class="sb-lbl">' + n.label + '</span>'
         + rdvBadge
+        + '<svg class="sb-lock-ico" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
         + '</a>';
     }).join('');
 
@@ -1232,5 +1252,78 @@ button{font-family:inherit;cursor:pointer}
     return meta.full_name || meta.name || (email ? String(email).split('@')[0] : '') || 'Mon compte';
   }
 
-  return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
+  // ── STAFF ACCESS CONTROL ──────────────────────────────────────
+  // Appelé par chaque page après Shell.init() :
+  //   Shell.checkStaff(_supa, 'queue', "File d'attente");
+  // Si l'utilisateur connecté est un membre du personnel :
+  //   - verrouille les pages interdites dans la sidebar
+  //   - affiche un overlay "Acces refuse" si la page courante est interdite
+  function checkStaff(supaClient, pageKey, pageLabel) {
+    try {
+      supaClient.auth.getSession().then(function(res) {
+        var session = res && res.data && res.data.session;
+        if (!session) return;
+        supaClient
+          .from('staff')
+          .select('page_access, first_name, last_name, role, clinic_id')
+          .eq('user_id', session.user.id)
+          .single()
+          .then(function(result) {
+            if (!result.data) return; // pas du staff = médecin propriétaire, acces total
+            var access = result.data.page_access || [];
+
+            // Verrouiller les items de nav interdits
+            NAV.forEach(function(n) {
+              if (n.section) return;
+              if (access.indexOf(n.key) === -1) {
+                var el = document.querySelector('.sb-item[data-key="' + n.key + '"]');
+                if (el) {
+                  el.classList.add('locked-clickable');
+                  if (el.tagName === 'A') el.removeAttribute('href');
+                  el.onclick = function(e) { e.preventDefault(); _noAccess(); return false; };
+                  var ico = el.querySelector('.sb-lock-ico');
+                  if (ico) ico.style.display = 'block';
+                }
+              }
+            });
+
+            // Verifier l'acces a la page courante
+            if (pageKey && access.indexOf(pageKey) === -1) {
+              _showNoAccessPage(pageLabel || pageKey);
+            }
+          }).catch(function() {});
+      });
+    } catch(e) { /* silence */ }
+  }
+
+  function _noAccess() {
+    if (document.getElementById('shell-toast-na')) return;
+    var t = document.createElement('div');
+    t.id = 'shell-toast-na';
+    t.className = 'shell-toast-na';
+    t.textContent = 'Acces non autorise pour ce compte';
+    document.body.appendChild(t);
+    setTimeout(function() { t.style.opacity = '0'; }, 2000);
+    setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 2400);
+  }
+
+  function _showNoAccessPage(pageLabel) {
+    var ov = document.createElement('div');
+    ov.className = 'shell-no-access';
+    ov.innerHTML =
+        '<div class="shell-no-access-ico">'
+      + '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+      + '</div>'
+      + '<div class="shell-no-access-title">Acces refuse</div>'
+      + '<div class="shell-no-access-sub">Ce compte ne dispose pas des droits pour acceder a <strong>' + (pageLabel || 'cette page') + '</strong>.<br>Contactez votre responsable pour obtenir l\'acces.</div>'
+      + '<button class="shell-no-access-back" onclick="history.back()">'
+      + '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><polyline points="15 18 9 12 15 6"/></svg>'
+      + 'Retour'
+      + '</button>';
+    document.body.appendChild(ov);
+    var main = document.querySelector('.shell-main');
+    if (main) main.style.visibility = 'hidden';
+  }
+
+  return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
 })();
