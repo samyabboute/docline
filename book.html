@@ -368,15 +368,10 @@ button,input{font-family:inherit}
 
         <div class="form-group">
           <label class="form-label">Numéro de téléphone <span>*</span></label>
-          <div class="phone-wrap">
-            <div class="phone-prefix">
-              <span>🇩🇿</span>+213
-            </div>
-            <input class="form-input" type="tel" id="inputPhone"
-              placeholder="05XXXXXXXX" maxlength="10" inputmode="numeric"
-              autocomplete="tel">
-          </div>
-          <div class="form-hint">Vous recevrez un code de vérification par SMS</div>
+          <input class="form-input" type="tel" id="inputPhone"
+            placeholder="+213XXXXXXXXX ou +48XXXXXXXXX" maxlength="20"
+            autocomplete="tel" style="border-radius:var(--r-md)">
+          <div class="form-hint">Format international — ex: +213661234567 · +48601234567</div>
         </div>
 
         <button class="btn btn-primary" id="btnSendOtp" onclick="sendOtp()">
@@ -791,8 +786,10 @@ async function sendOtp() {
   const phone = document.getElementById('inputPhone').value.trim();
 
   if (!name) { showAlert('contactAlert', 'error', 'Veuillez saisir votre nom complet.'); return; }
-  if (!phone || !/^0[567]\d{8}$/.test(phone.replace(/\s/g,''))) {
-    showAlert('contactAlert', 'error', 'Numéro invalide. Format : 05XXXXXXXX / 06XXXXXXXX / 07XXXXXXXX');
+  const phoneClean = phone.replace(/\s/g,'').replace(/-/g,'');
+  const isValid = /^0[5-9]\d{8}$/.test(phoneClean) || /^\+\d{7,15}$/.test(phoneClean) || /^00\d{7,15}$/.test(phoneClean);
+  if (!phone || !isValid) {
+    showAlert('contactAlert', 'error', 'Numéro invalide. Ex: 0661234567 ou +48601234567');
     return;
   }
 
