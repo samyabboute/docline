@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mes disponibilitÃ©s â€” Docline</title>
+<title>Mes disponibilités â€” Docline</title>
 <script src="config.js"></script>
 <script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -107,35 +107,35 @@
 
   <div class="page-header">
     <div>
-      <h1 class="page-title">Mes disponibilitÃ©s</h1>
-      <p class="page-sub">Configurez vos horaires de consultation par jour de la semaine. Les patients ne pourront prendre rendez-vous que sur vos crÃ©neaux disponibles.</p>
+      <h1 class="page-title">Mes disponibilités</h1>
+      <p class="page-sub">Configurez vos horaires de consultation par jour de la semaine. Les patients ne pourront prendre rendez-vous que sur vos créneaux disponibles.</p>
     </div>
   </div>
 
-  <!-- â•â• PLANNING HEBDOMADAIRE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-  <h2 class="section-title">Planning hebdomadaire <span class="badge">RÃ©current</span></h2>
+  <!-- ══ PLANNING HEBDOMADAIRE ══════════════════════════════ -->
+  <h2 class="section-title">Planning hebdomadaire <span class="badge">Récurrent</span></h2>
   <div class="day-grid" id="day-grid">
     <!-- Day cards injected by JS -->
   </div>
 
-  <!-- â•â• JOURS OFF / EXCEPTIONS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-  <h2 class="section-title">Jours fermÃ©s (exceptions) <span class="badge" id="off-count">0</span></h2>
+  <!-- ══ JOURS OFF / EXCEPTIONS ════════════════════════════ -->
+  <h2 class="section-title">Jours fermés (exceptions) <span class="badge" id="off-count">0</span></h2>
   <div class="off-card">
     <div class="off-add">
       <label>Date
         <input type="date" id="off-date">
       </label>
       <label>Raison (optionnel)
-        <input type="text" id="off-reason" placeholder="Ex. CongÃ©, Formationâ€¦" maxlength="80" style="min-width:200px">
+        <input type="text" id="off-reason" placeholder="Ex. Congé, Formation…" maxlength="80" style="min-width:200px">
       </label>
       <button class="btn btn-primary btn-sm" onclick="addOff()">+ Ajouter un jour off</button>
     </div>
     <div class="off-list" id="off-list">
-      <div class="off-empty">Aucun jour off enregistrÃ©</div>
+      <div class="off-empty">Aucun jour off enregistré</div>
     </div>
   </div>
 
-  <!-- â•â• SAVE BAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ══ SAVE BAR ═══════════════════════════════════════════ -->
   <div class="save-bar">
     <button class="btn btn-ghost" onclick="window.location.reload()">Annuler</button>
     <button class="btn btn-primary" id="save-btn" onclick="saveAvailability()">Enregistrer le planning</button>
@@ -217,11 +217,11 @@ function renderDays(){
         + '</label>'
       + '</div>'
       + '<div class="day-row">'
-        + '<label>DÃ©but<input type="time" data-day="'+d.idx+'" data-field="start" value="'+av.start+'" '+(av.is_active?'':'disabled')+'></label>'
+        + '<label>Début<input type="time" data-day="'+d.idx+'" data-field="start" value="'+av.start+'" '+(av.is_active?'':'disabled')+'></label>'
         + '<label>Fin<input type="time" data-day="'+d.idx+'" data-field="end" value="'+av.end+'" '+(av.is_active?'':'disabled')+'></label>'
       + '</div>'
       + '<div class="day-duration">'
-        + '<label>DurÃ©e d\'un crÃ©neau</label>'
+        + '<label>Durée d\'un créneau</label>'
         + '<select data-day="'+d.idx+'" data-field="slot" '+(av.is_active?'':'disabled')+'>'
           + DURATIONS.map(function(m){
             return '<option value="'+m+'"'+(m===av.slot?' selected':'')+'>'+m+' minutes</option>';
@@ -229,8 +229,8 @@ function renderDays(){
         + '</select>'
       + '</div>'
       + '<div class="day-summary">'+(av.is_active
-          ? '<strong>'+slots+'</strong> crÃ©neaux dispo ('+av.slot+' min)'
-          : 'FermÃ©')+'</div>';
+          ? '<strong>'+slots+'</strong> créneaux dispo ('+av.slot+' min)'
+          : 'Fermé')+'</div>';
     grid.appendChild(card);
   });
 
@@ -255,7 +255,7 @@ function renderOffList(){
   var list = document.getElementById('off-list');
   document.getElementById('off-count').textContent = _overrides.length;
   if(!_overrides.length){
-    list.innerHTML = '<div class="off-empty">Aucun jour off enregistrÃ©</div>';
+    list.innerHTML = '<div class="off-empty">Aucun jour off enregistré</div>';
     return;
   }
   // Sort by date asc
@@ -286,10 +286,10 @@ async function addOff(){
   // Don't allow past dates
   var today = new Date(); today.setHours(0,0,0,0);
   var picked = new Date(date+'T00:00:00');
-  if(picked < today){ toast('La date doit Ãªtre future', 'error'); return; }
+  if(picked < today){ toast('La date doit être future', 'error'); return; }
   // Check duplicate
   if(_overrides.some(function(o){ return o.override_date === date; })){
-    toast('Ce jour est dÃ©jÃ  fermÃ©', 'error'); return;
+    toast('Ce jour est déjÃ  fermé', 'error'); return;
   }
   try{
     var { data, error } = await _supa.from('doctor_availability_overrides').insert({
@@ -303,7 +303,7 @@ async function addOff(){
     document.getElementById('off-date').value = '';
     document.getElementById('off-reason').value = '';
     renderOffList();
-    toast('Jour off ajoutÃ©', 'success');
+    toast('Jour off ajouté', 'success');
   }catch(err){
     console.error('[disponibilites] addOff', err);
     toast('Erreur : ' + (err.message || 'impossible d\'ajouter'), 'error');
@@ -317,7 +317,7 @@ async function removeOff(id){
     if(error) throw error;
     _overrides = _overrides.filter(function(o){ return o.id !== id; });
     renderOffList();
-    toast('Jour off supprimÃ©', 'success');
+    toast('Jour off supprimé', 'success');
   }catch(err){
     console.error('[disponibilites] removeOff', err);
     toast('Erreur : ' + (err.message || 'impossible de supprimer'), 'error');
@@ -327,7 +327,7 @@ async function removeOff(id){
 async function saveAvailability(){
   var btn = document.getElementById('save-btn');
   btn.disabled = true;
-  btn.textContent = 'Enregistrementâ€¦';
+  btn.textContent = 'Enregistrement…';
 
   // Validate: each active day must have end > start
   for(var i = 0; i < DAYS.length; i++){
@@ -335,7 +335,7 @@ async function saveAvailability(){
     var av = _availability[d];
     if(!av.is_active) continue;
     if(av.end <= av.start){
-      toast('Jour '+DAYS[i].name+' : l\'heure de fin doit Ãªtre aprÃ¨s le dÃ©but', 'error');
+      toast('Jour '+DAYS[i].name+' : l\'heure de fin doit être après le début', 'error');
       btn.disabled = false; btn.textContent = 'Enregistrer le planning';
       return;
     }
@@ -359,7 +359,7 @@ async function saveAvailability(){
     var { error } = await _supa.from('doctor_availability')
       .upsert(rows, { onConflict: 'doctor_id,day_of_week' });
     if(error) throw error;
-    toast('Planning enregistrÃ© âœ“', 'success');
+    toast('Planning enregistré âœ“', 'success');
   }catch(err){
     console.error('[disponibilites] save', err);
     toast('Erreur : ' + (err.message || 'impossible d\'enregistrer'), 'error');
@@ -382,7 +382,7 @@ async function saveAvailability(){
     var isPro = sub && sub.plan!=='free' && sub.status==='active' && (!sub.expires_at || new Date(sub.expires_at) > new Date());
     Shell.init({
       page: 'disponibilites',
-      title: 'Mes disponibilitÃ©s',
+      title: 'Mes disponibilités',
       isPro: isPro,
       plan: (sub&&sub.plan)||'free',
       userName: Shell.displayName(meta, u.email),
