@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -690,7 +690,8 @@ async function load() {
     userName:  _name,
     userEmail: _email,
   });
-  if (typeof Shell.guard === .function. && !Shell.guard(sub)) return;\n  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'dashboard', 'Tableau de bord');
+  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'dashboard', 'Tableau de bord');
 
   renderGreeting();
   document.getElementById('loading').style.display = 'none';

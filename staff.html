@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" data-theme="light">
 <head>
 <meta charset="UTF-8">
@@ -319,7 +319,8 @@ var DEFAULT_ACCESS = {
   Shell.init({ page:'staff', title:'Personnel', isPro:isPro, plan:sub&&sub.plan||'free', userName:Shell.displayName(meta,user.email), userEmail:user.email||'' });
   buildPermGrid();
   loadStaff();
-  if (typeof Shell.guard === .function. && !Shell.guard(sub)) return;\n  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'staff', 'Personnel');
+  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'staff', 'Personnel');
 })();
 
 // â”€â”€ LOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
