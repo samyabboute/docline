@@ -379,6 +379,7 @@ async function saveAvailability(){
       userName: Shell.displayName(meta, u.email),
       userEmail: u.email,
     });
+    Shell.checkStaff(_supa, 'disponibilites', 'Mes disponibilites');
 
     // Set min date for off picker = today
     var today = new Date(); today.setHours(0,0,0,0);

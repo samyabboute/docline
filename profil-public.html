@@ -457,6 +457,7 @@ window.onAvatarChange = onAvatarChange;
         userName: Shell.displayName(meta, session.user.email),
         userEmail: session.user.email
       });
+      Shell.checkStaff(_supa, 'profil-public', 'Profil public');
     }
 
     var profRes = await _supa.from('profiles').select('*').eq('id', _uid).maybeSingle();

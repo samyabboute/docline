@@ -362,6 +362,7 @@ function toast(msg, type) {
       isPro:isPro, plan:sub?.plan||'free', userName:name, userEmail:user.email||'',
       onSearch:function(q){ renderClients(q); }
     });
+    Shell.checkStaff(_supa, 'clients', 'Patients');
     showSkeleton();
     await loadClients();
   } catch(e) {
