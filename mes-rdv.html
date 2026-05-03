@@ -442,7 +442,7 @@ _sb.auth.getSession().then(function(r){
     userName: name,
     userEmail: email
   });
-  Shell.checkStaff(_supa, 'mes-rdv', 'Mes Rendez-vous');
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'mes-rdv', 'Mes Rendez-vous');
 
   document.getElementById('page-content').style.display = 'block';
   loadProfile();

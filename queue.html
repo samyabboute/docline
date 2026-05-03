@@ -733,7 +733,7 @@ function playSound(priority) {
   var isPro = sub && sub.plan !== 'free' && sub.status === 'active';
 
   Shell.init({ page:'queue', title:"File d'attente", isPro:isPro, plan:sub?.plan||'free', userName: Shell.displayName(meta, user.email), userEmail:user.email||'' });
-  Shell.checkStaff(_supa, 'queue', "File d'attente");
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'queue', "File d'attente");
 
   // Display screen link
   var displayUrl = window.location.href.replace('queue.html','queue-display.html') + '?c=' + _uid;

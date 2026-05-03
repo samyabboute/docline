@@ -744,7 +744,7 @@ document.addEventListener('keydown',function(e){
       userName: Shell.displayName(meta, u.email),
       userEmail: u.email,
     });
-    Shell.checkStaff(_supa, 'calendar', 'Agenda');
+    if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'calendar', 'Agenda');
 
     // ── Initialisation du calendrier ──────────────────────────
     var todayStr=_today.toISOString().slice(0,10);
