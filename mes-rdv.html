@@ -461,8 +461,8 @@ _sb.auth.getSession().then(function(r){
     userName: name,
     userEmail: email
   });
-  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
-  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'mes-rdv', 'Mes Rendez-vous');
+  if (typeof Shell.guard === 'function' && !Shell.guard(null)) return;
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_sb, 'mes-rdv', 'Mes Rendez-vous');
 
   document.getElementById('page-content').style.display = 'block';
   loadProfile();
