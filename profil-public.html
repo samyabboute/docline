@@ -403,6 +403,7 @@
 var _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
 var _uid, _email, _toastTimer;
 var _avatarFile = null;   // fichier en attente d'upload
+var _kycStatus  = 'not_submitted';
 var _avatarSrc  = null;   // URL courante (distante ou data URL local)
 
 /* ── Avatar ─────────────────────────────────────────────────── */
@@ -462,7 +463,10 @@ window.onAvatarChange = onAvatarChange;
     }
 
     var profRes = await _supa.from('profiles').select('*').eq('id', _uid).maybeSingle();
-    populateForm((profRes && profRes.data) || {});
+    var profData = (profRes && profRes.data) || {};
+    _kycStatus = profData.kyc_status || 'not_submitted';
+    populateForm(profData);
+    applyKycGate();
     document.getElementById('page-wrap').style.display = 'block';
 
     // Lier le bouton "Prendre RDV" de l'aperçu vers book.html
@@ -504,6 +508,43 @@ function populateForm(p) {
 
 function setVal(id, val) { var el = document.getElementById(id); if (el) el.value = val; }
 function getVal(id)      { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+/* ── KYC Gate ───────────────────────────────────────────────── */
+function applyKycGate() {
+  if (_kycStatus === 'approved') return; // tout débloqué
+
+  var tPub = document.getElementById('t-public');
+  var tRdv = document.getElementById('t-rdv');
+
+  // Force les toggles à OFF et les désactive visuellement
+  if (tPub) { tPub.checked = false; tPub.disabled = true; }
+  if (tRdv) { tRdv.checked = false; tRdv.disabled = true; }
+
+  // Ajoute un badge "Vérification requise" à côté de chaque toggle
+  var MSG = {
+    'not_submitted': '🔒 Vérification médicale requise — <a href="app.html" style="color:var(--brand);font-weight:700;text-decoration:underline">Soumettre mon dossier</a>',
+    'pending_review': '🕐 Vérification en cours — disponible sous 24–48h',
+    'rejected':       '❌ Document rejeté — <a href="app.html" style="color:#DC2626;font-weight:700;text-decoration:underline">Resoumettre</a>',
+  };
+  var msg = MSG[_kycStatus] || MSG['not_submitted'];
+  var notice = document.createElement('div');
+  notice.id = 'kyc-gate-notice';
+  notice.style.cssText = 'margin-top:12px;padding:11px 14px;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;font-size:12.5px;color:#92400E;line-height:1.5';
+  notice.innerHTML = msg;
+
+  // Insère la notice après le dernier toggle-row
+  var rows = document.querySelectorAll('.toggle-row');
+  var lastRow = rows[rows.length - 1];
+  if (lastRow && lastRow.parentNode) lastRow.parentNode.insertBefore(notice, lastRow.nextSibling);
+
+  // Grise les labels pour signaler visuellement le verrouillage
+  document.querySelectorAll('.toggle-row').forEach(function(row) {
+    row.style.opacity = '.55';
+    row.style.pointerEvents = 'none';
+  });
+  notice.style.pointerEvents = 'auto';
+  if (notice.querySelector('a')) notice.querySelectorAll('a').forEach(function(a){ a.style.pointerEvents = 'auto'; });
+}
 
 /* ── Preview ────────────────────────────────────────────────── */
 var COLORS = ['#3B1772','#0D6EFD','#7C3AED','#059669','#DC2626','#D97706'];
@@ -549,6 +590,20 @@ function updatePreview() {
 window.saveProfile = async function() {
   var btn  = document.getElementById('save-btn');
   var spin = document.getElementById('save-spin');
+
+  // ── KYC Gate : blocage si profil public demandé sans vérification ──
+  var wantsPublic = document.getElementById('t-public').checked;
+  var wantsRdv    = document.getElementById('t-rdv').checked;
+  if ((wantsPublic || wantsRdv) && _kycStatus !== 'approved') {
+    var msgs = {
+      'not_submitted': 'Vous devez soumettre votre justificatif médical avant d\'activer votre profil public.',
+      'pending_review': 'Votre dossier est en cours de vérification. Activez votre profil public une fois approuvé.',
+      'rejected':       'Votre document a été rejeté. Soumettez un nouveau justificatif valide.',
+    };
+    showToast(msgs[_kycStatus] || msgs['not_submitted'], 'err');
+    return;
+  }
+
   btn.disabled = true;
   spin.style.display = 'block';
 
@@ -562,8 +617,8 @@ window.saveProfile = async function() {
     phone_public:       getVal('f-phone')     || null,
     consultation_price: parseInt(getVal('f-price')) || 0,
     bio:                getVal('f-bio')       || null,
-    is_public:          document.getElementById('t-public').checked,
-    accepts_rdv:        document.getElementById('t-rdv').checked,
+    is_public:          _kycStatus === 'approved' ? document.getElementById('t-public').checked : false,
+    accepts_rdv:        _kycStatus === 'approved' ? document.getElementById('t-rdv').checked   : false,
     updated_at:         new Date().toISOString(),
   };
 

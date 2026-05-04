@@ -163,30 +163,61 @@ button{font-family:inherit;cursor:pointer}
 .queue-cta{display:block;margin:12px 16px 16px;padding:10px;border-radius:var(--r);background:var(--brand);color:#fff;font-size:13px;font-weight:700;text-align:center;border:none;transition:background var(--t)}
 .queue-cta:hover{background:#002580}
 
-/* ── KYC BANNER ───────────────────────────────────────── */
+/* ── KYC BANNER (pending / rejected only) ─────────────── */
 .kyc-banner{
-  display:none;align-items:center;gap:12px;
-  border-radius:var(--r-lg);padding:13px 16px;margin-bottom:20px;
+  display:none;align-items:center;gap:10px;
+  border-radius:var(--r-lg);padding:12px 16px;margin-bottom:20px;
   border:1.5px solid;position:relative;
 }
-.kyc-banner.kyc-warning{background:#FFFBEB;border-color:#FDE68A;color:#92400E}
-.kyc-banner.kyc-info   {background:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8}
-.kyc-banner.kyc-danger {background:#FFF5F5;border-color:#FECACA;color:#991B1B}
-.kyc-banner-inner{display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap}
-.kyc-banner-icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
-.kyc-banner-text{font-size:13px;line-height:1.4;flex:1;min-width:0}
-.kyc-banner-btn{
-  display:inline-block;padding:6px 14px;border-radius:99px;
-  font-size:12px;font-weight:700;white-space:nowrap;text-decoration:none;
-  background:currentColor;color:inherit;border:1.5px solid currentColor;
-  background:transparent;transition:.15s;flex-shrink:0;
-}
-.kyc-banner-btn:hover{opacity:.75}
-.kyc-banner-close{
-  position:absolute;top:8px;right:10px;background:none;border:none;
-  font-size:13px;color:currentColor;cursor:pointer;opacity:.5;padding:2px;line-height:1;
-}
+.kyc-banner.kyc-info  {background:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8}
+.kyc-banner.kyc-danger{background:#FFF5F5;border-color:#FECACA;color:#991B1B}
+.kyc-banner-icon{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.kyc-banner-text{font-size:12.5px;line-height:1.4;flex:1}
+.kyc-banner-btn{display:inline-block;padding:5px 12px;border-radius:99px;font-size:11px;font-weight:700;text-decoration:none;border:1.5px solid currentColor;background:transparent;transition:.15s;cursor:pointer;font-family:inherit;color:inherit}
+.kyc-banner-btn:hover{opacity:.7}
+.kyc-banner-close{position:absolute;top:8px;right:10px;background:none;border:none;font-size:12px;color:currentColor;cursor:pointer;opacity:.45;padding:2px;line-height:1}
 .kyc-banner-close:hover{opacity:1}
+
+/* ── KYC MODAL ────────────────────────────────────────── */
+#kyc-overlay{z-index:1100}
+.kyc-modal{background:var(--surface);border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.22);transform:translateY(20px) scale(.97);transition:transform .25s cubic-bezier(.34,1.4,.64,1)}
+.overlay.open .kyc-modal{transform:none}
+.kyc-modal-head{padding:24px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.kyc-modal-title{font-size:18px;font-weight:800;color:var(--text);line-height:1.2}
+.kyc-modal-sub{font-size:13px;color:var(--text-3);margin-top:4px;line-height:1.5}
+.kyc-modal-body{padding:20px 24px 24px}
+.kyc-info-box{display:flex;gap:10px;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:11px 13px;margin-bottom:18px}
+.kyc-info-box svg{width:15px;height:15px;fill:none;stroke:#2563EB;stroke-width:2;stroke-linecap:round;flex-shrink:0;margin-top:1px}
+.kyc-info-box-text{font-size:12px;color:#1D4ED8;line-height:1.5}
+.kyc-upload-zone{border:2px dashed var(--border);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:.2s;position:relative;margin-bottom:14px}
+.kyc-upload-zone:hover,.kyc-upload-zone.drag-over{border-color:var(--brand);background:rgba(59,23,114,.03)}
+.kyc-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.kyc-upload-icon{width:44px;height:44px;border-radius:12px;background:rgba(59,23,114,.07);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.kyc-upload-icon svg{width:22px;height:22px;fill:none;stroke:var(--brand);stroke-width:1.8;stroke-linecap:round}
+.kyc-upload-title{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:3px}
+.kyc-upload-sub{font-size:12px;color:var(--text-3)}
+.kyc-formats{display:flex;gap:5px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.kyc-format{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:#E8EAF0;color:var(--text-3)}
+.kyc-file-preview{display:none;align-items:center;gap:10px;background:#F0FDF9;border:1.5px solid #A7F3D0;border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.kyc-file-preview.show{display:flex}
+.kyc-file-icon{width:36px;height:36px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kyc-file-icon svg{width:18px;height:18px;fill:none;stroke:#059669;stroke-width:2;stroke-linecap:round}
+.kyc-file-name{font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.kyc-file-size{font-size:11px;color:var(--text-3)}
+.kyc-file-rm{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text-3);padding:4px;border-radius:6px;display:flex}
+.kyc-file-rm:hover{background:#FEE2E2;color:#DC2626}
+.kyc-select{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;color:var(--text);font-family:inherit;outline:none;background:var(--surface);margin-bottom:10px}
+.kyc-select:focus{border-color:var(--brand)}
+.kyc-input{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;color:var(--text);font-family:inherit;outline:none;margin-bottom:4px}
+.kyc-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.07)}
+.kyc-hint{font-size:11px;color:var(--text-3);margin-bottom:14px}
+.kyc-btn-primary{width:100%;padding:12px;border-radius:11px;background:linear-gradient(135deg,var(--brand),#5B21B6);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;margin-bottom:8px}
+.kyc-btn-primary:hover:not(:disabled){opacity:.9}
+.kyc-btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.kyc-btn-skip{width:100%;padding:9px;border-radius:11px;background:none;border:1.5px solid var(--border);color:var(--text-3);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
+.kyc-btn-skip:hover{border-color:var(--border-strong);color:var(--text-2)}
+@keyframes kspin{to{transform:rotate(360deg)}}
+.kspin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:kspin .7s linear infinite}
 
 /* ── PLAN UPGRADE BANNER ──────────────────────────────── */
 .upgrade-banner{
@@ -426,6 +457,63 @@ button{font-family:inherit;cursor:pointer}
   </main>
 </div>
 
+<!-- MODAL: Vérification KYC -->
+<div class="overlay" id="kyc-overlay">
+  <div class="kyc-modal">
+    <div class="kyc-modal-head">
+      <div>
+        <div class="kyc-modal-title">🔐 Vérification médicale requise</div>
+        <div class="kyc-modal-sub">Pour activer votre profil public et recevoir des RDV en ligne</div>
+      </div>
+      <button class="modal-close" onclick="closeKycModal()" title="Plus tard"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="kyc-modal-body">
+      <div class="kyc-info-box">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div class="kyc-info-box-text">Documents acceptés : <strong>carte d'inscription à l'Ordre des Médecins</strong>, diplôme de médecine ou attestation d'exercice. JPG, PNG, PDF — max 10 Mo.</div>
+      </div>
+
+      <!-- Zone upload -->
+      <div class="kyc-upload-zone" id="kyc-zone">
+        <input type="file" id="kyc-file" accept=".jpg,.jpeg,.png,.webp,.heic,.pdf" onchange="kycFileSelect(this)">
+        <div class="kyc-upload-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="kyc-upload-title">Glissez votre document ici</div>
+        <div class="kyc-upload-sub">ou cliquez pour parcourir</div>
+        <div class="kyc-formats">
+          <span class="kyc-format">JPG</span><span class="kyc-format">PNG</span><span class="kyc-format">PDF</span><span class="kyc-format">HEIC</span><span class="kyc-format">Max 10 Mo</span>
+        </div>
+      </div>
+
+      <!-- Aperçu -->
+      <div class="kyc-file-preview" id="kyc-preview">
+        <div class="kyc-file-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div><div class="kyc-file-name" id="kyc-fname">document.pdf</div><div class="kyc-file-size" id="kyc-fsize">0 Ko</div></div>
+        <button class="kyc-file-rm" onclick="kycRemoveFile()" title="Supprimer"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <!-- Type document -->
+      <select class="kyc-select" id="kyc-type">
+        <option value="ordre">Carte d'inscription à l'Ordre des Médecins</option>
+        <option value="diplome">Diplôme de médecine</option>
+        <option value="attestation">Attestation d'exercice</option>
+        <option value="autre">Autre document officiel</option>
+      </select>
+
+      <!-- Numéro d'ordre -->
+      <input class="kyc-input" id="kyc-order" type="text" placeholder="Numéro d'ordre (optionnel, ex: 16-12345)" maxlength="30">
+      <div class="kyc-hint">Accélère la vérification automatique de votre dossier.</div>
+
+      <button class="kyc-btn-primary" id="kyc-submit-btn" onclick="kycSubmit()" disabled>
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Soumettre mon dossier
+      </button>
+      <button class="kyc-btn-skip" onclick="closeKycModal()">Plus tard — je continuerai sans profil public</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: Nouveau patient -->
 <div class="overlay" id="add-patient-overlay" onclick="if(event.target===this)closeAddPatient()">
   <div class="modal">
@@ -487,42 +575,122 @@ function toast(msg, type) {
   setTimeout(function() { el.remove(); }, 3500);
 }
 
-// ── BANNIÈRE KYC ───────────────────────────────────────
+// ── KYC MODAL ──────────────────────────────────────────
+var _kycFile = null;
+
+function openKycModal() {
+  document.getElementById('kyc-overlay').classList.add('open');
+}
+function closeKycModal() {
+  document.getElementById('kyc-overlay').classList.remove('open');
+}
+
+function kycFileSelect(input) {
+  var file = input.files ? input.files[0] : input;
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { toast('Fichier trop volumineux (max 10 Mo)', 'error'); return; }
+  _kycFile = file;
+  document.getElementById('kyc-fname').textContent = file.name;
+  var s = file.size; var sz = s < 1024 ? s+'o' : s < 1048576 ? Math.round(s/1024)+'Ko' : (s/1048576).toFixed(1)+'Mo';
+  document.getElementById('kyc-fsize').textContent = sz;
+  document.getElementById('kyc-preview').classList.add('show');
+  document.getElementById('kyc-zone').style.display = 'none';
+  document.getElementById('kyc-submit-btn').disabled = false;
+}
+function kycRemoveFile() {
+  _kycFile = null;
+  document.getElementById('kyc-file').value = '';
+  document.getElementById('kyc-preview').classList.remove('show');
+  document.getElementById('kyc-zone').style.display = '';
+  document.getElementById('kyc-submit-btn').disabled = true;
+}
+
+// Drag & drop sur la zone KYC
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var z = document.getElementById('kyc-zone');
+    if (!z) return;
+    z.addEventListener('dragover', function(e){ e.preventDefault(); z.classList.add('drag-over'); });
+    z.addEventListener('dragleave', function(){ z.classList.remove('drag-over'); });
+    z.addEventListener('drop', function(e){
+      e.preventDefault(); z.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) kycFileSelect(e.dataTransfer.files[0]);
+    });
+  });
+})();
+
+async function kycSubmit() {
+  if (!_kycFile || !_uid) return;
+  var btn = document.getElementById('kyc-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="kspin"></div> Envoi…';
+  try {
+    var ext  = _kycFile.name.split('.').pop().toLowerCase();
+    var path = _uid + '/kyc_' + Date.now() + '.' + ext;
+    var { error: upErr } = await _supa.storage.from('doctor-kyc').upload(path, _kycFile, { contentType: _kycFile.type, upsert: true });
+    if (upErr) throw upErr;
+    var orderNum = (document.getElementById('kyc-order').value || '').trim();
+    var { error: dbErr } = await _supa.from('profiles').update({
+      kyc_status: 'pending_review',
+      kyc_document_url: path,
+      kyc_document_type: document.getElementById('kyc-type').value,
+      kyc_order_number: orderNum || null,
+      kyc_submitted_at: new Date().toISOString(),
+    }).eq('id', _uid);
+    if (dbErr) throw dbErr;
+    // Log
+    await _supa.from('kyc_audit_log').insert({ doctor_id: _uid, action: 'submitted', document_url: path }).select();
+    closeKycModal();
+    // Remplace le bouton "Soumettre" par bannière "en cours"
+    showKycBanner('pending_review', null);
+    toast('Dossier soumis — vérification sous 24–48h', 'success');
+  } catch(e) {
+    console.error('KYC submit error:', e);
+    toast('Erreur : ' + (e.message || e), 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Réessayer';
+  }
+}
+
+// ── BANNIÈRE KYC (pending / rejected) ──────────────────
 function showKycBanner(status, rejectReason) {
-  var el = document.getElementById('kyc-banner');
-  if (!el) return;
-  var cfg = {
-    'not_submitted': {
-      cls: 'kyc-warning',
-      icon: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
-      text: '<strong>Vérification médicale requise.</strong> Soumettez votre justificatif pour activer toutes les fonctionnalités de Docline.',
-      btn:  { label: 'Soumettre mon document', href: 'onboarding.html' },
-    },
+  var banner = document.getElementById('kyc-banner');
+  if (!banner) return;
+
+  if (status === 'not_submitted') {
+    // Ouvre le modal popup automatiquement
+    banner.style.display = 'none';
+    openKycModal();
+    return;
+  }
+  if (status === 'approved' || !status) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  var cfgs = {
     'pending_review': {
       cls: 'kyc-info',
       icon: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
-      text: '<strong>Vérification en cours.</strong> Votre dossier est en cours d\'analyse. Vous serez notifié par email sous 24–48h.',
+      text: '<strong>Vérification en cours</strong> — Votre dossier est en cours d\'analyse. Vous serez notifié sous 24–48h.',
       btn:  null,
     },
     'rejected': {
       cls: 'kyc-danger',
       icon: '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
-      text: '<strong>Document rejeté.</strong> ' + (rejectReason ? rejectReason + '.' : 'Veuillez soumettre un nouveau document valide.'),
-      btn:  { label: 'Soumettre un nouveau document', href: 'onboarding.html' },
+      text: '<strong>Document rejeté</strong> — ' + (rejectReason || 'Veuillez soumettre un nouveau document valide.'),
+      btn:  'Soumettre un nouveau document',
     },
-    'approved': null, // pas de bannière si approuvé
   };
-  var c = cfg[status];
+  var c = cfgs[status];
   if (!c) return;
-  el.className = 'kyc-banner ' + c.cls;
-  el.innerHTML =
-    '<div class="kyc-banner-inner">'
-    + '<svg class="kyc-banner-icon" viewBox="0 0 24 24">' + c.icon + '</svg>'
+  banner.className = 'kyc-banner ' + c.cls;
+  banner.innerHTML =
+    '<svg class="kyc-banner-icon" viewBox="0 0 24 24">' + c.icon + '</svg>'
     + '<span class="kyc-banner-text">' + c.text + '</span>'
-    + (c.btn ? '<a href="' + c.btn.href + '" class="kyc-banner-btn">' + c.btn.label + '</a>' : '')
-    + '</div>'
-    + '<button class="kyc-banner-close" onclick="this.parentElement.style.display=\'none\'" title="Fermer">✕</button>';
-  el.style.display = 'flex';
+    + (c.btn ? '<button class="kyc-banner-btn" onclick="openKycModal()">' + c.btn + '</button>' : '')
+    + '<button class="kyc-banner-close" onclick="this.parentElement.style.display=\'none\'">✕</button>';
+  banner.style.display = 'flex';
 }
 
 // ── GREETING ───────────────────────────────────────────
