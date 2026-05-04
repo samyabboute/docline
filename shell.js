@@ -566,7 +566,10 @@ button{font-family:inherit;cursor:pointer}
 @keyframes ob-zoom{from{opacity:0;transform:scale(.65) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .ob-chip{display:inline-block;font-size:10px;font-weight:700;color:#7C3AED;background:#EDE8FF;border-radius:99px;padding:3px 10px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
 .ob-title{font-size:21px;font-weight:900;color:#0C0E14;letter-spacing:-.4px;line-height:1.25;margin-bottom:10px}
-.ob-desc{font-size:13.5px;color:#7B8194;line-height:1.7}
+.ob-desc{font-size:13.5px;color:#7B8194;line-height:1.7;margin-bottom:10px}
+.ob-access-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#3B1772;text-decoration:none;padding:5px 12px;border-radius:99px;border:1.5px solid rgba(59,23,114,.2);background:rgba(59,23,114,.04);transition:.15s;margin-top:2px}
+.ob-access-link:hover{background:rgba(59,23,114,.09);border-color:rgba(59,23,114,.4)}
+.ob-access-link svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
 .ob-foot{padding:18px 32px 26px;display:flex;align-items:center;gap:12px}
 .ob-dots{display:flex;gap:6px;flex:1}
 .ob-dot{width:8px;height:8px;border-radius:4px;background:#E8EAF0;transition:all .3s cubic-bezier(.4,0,.2,1)}
@@ -1014,6 +1017,13 @@ button{font-family:inherit;cursor:pointer}
       ? '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>'
       : '<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
 
+    // Lien "Accéder" discret sous la description (si la step a une page associée)
+    var accessLink = s.href
+      ? '<a href="' + s.href + '" class="ob-access-link" target="_self">'
+        + '<svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>'
+        + 'Accéder à cette page</a>'
+      : '';
+
     modal.innerHTML =
       '<div class="ob-bar"><div class="ob-fill" id="ob-fill" style="width:' + pct + '%"></div></div>'
     + '<div class="ob-body">'
@@ -1021,6 +1031,7 @@ button{font-family:inherit;cursor:pointer}
     +   '<div class="ob-chip">' + s.chip + '</div>'
     +   '<div class="ob-title">' + s.title + '</div>'
     +   '<div class="ob-desc">' + s.desc + '</div>'
+    +   accessLink
     + '</div>'
     + '<div class="ob-foot">'
     +   '<div class="ob-dots">' + dots + '</div>'
@@ -1028,13 +1039,10 @@ button{font-family:inherit;cursor:pointer}
     +   '<button class="ob-btn" id="ob-next">' + btnLabel + btnIcon + '</button>'
     + '</div>';
 
+    // "Suivant" : toujours avancer dans les étapes, jamais rediriger
     document.getElementById('ob-next').addEventListener('click', function() {
       if (s.last) {
         _obClose();
-        window.location.href = 'app.html';
-      } else if (s.href && _obStep > 0) {
-        _obClose();
-        window.location.href = s.href;
       } else {
         _obNext();
       }
