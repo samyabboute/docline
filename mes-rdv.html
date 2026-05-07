@@ -628,14 +628,14 @@ function smsBadge(rdv) {
     return '<span class="sms-confirm-badge sms-ok"><svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round"><polyline points="20 6 9 17 4 12"/></svg>Patient confirmé</span>';
   }
   if (rdv.sms_confirmation_sent) {
-    return '<span class="sms-confirm-badge sms-sent">SMS envoyé</span>'
+    return '<span class="sms-confirm-badge sms-sent">WhatsApp envoyé</span>'
       + '<button class="btn-sms-reminder" onclick="sendSmsReminder(\''+rdv.id+'\')" title="Renvoyer le SMS de rappel">'
       + '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 21.72 16.92z"/></svg>'
       + 'Renvoyer</button>';
   }
   return '<button class="btn-sms-reminder" onclick="sendSmsReminder(\''+rdv.id+'\')" id="sms-btn-'+rdv.id+'">'
     + '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 21.72 16.92z"/></svg>'
-    + 'Envoyer rappel SMS</button>';
+    + 'Envoyer rappel WhatsApp</button>';
 }
 
 /* ── Send SMS reminder ───────────────────────────────────────── */
@@ -661,8 +661,8 @@ async function sendSmsReminder(id) {
 
     if (!res.ok) {
       var msg = data.message || data.error || 'Erreur';
-      showToast('SMS non envoyé : ' + msg, 'err');
-      if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 21.72 16.92z"/></svg>Envoyer rappel SMS'; }
+      showToast('WhatsApp non envoyé : ' + msg, 'err');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 21.72 16.92z"/></svg>Envoyer rappel WhatsApp'; }
       return;
     }
 
@@ -671,7 +671,7 @@ async function sendSmsReminder(id) {
       return x.id === id ? Object.assign({}, x, { sms_confirmation_sent: true }) : x;
     });
     renderList();
-    showToast('SMS de rappel envoyé ✓', 'ok');
+    showToast('Rappel WhatsApp envoyé ✓', 'ok');
   } catch(e) {
     showToast('Erreur réseau : ' + e.message, 'err');
     if (btn) { btn.disabled = false; }
@@ -683,7 +683,7 @@ window.sendSmsReminder = sendSmsReminder;
 async function quickCancel(id){
   var rdv = _allRdv.find(function(x){ return x.id===id; });
   var patientName = rdv ? rdv.patient_name : 'le patient';
-  var reason = prompt('Motif d\'annulation (facultatif, sera envoyé au patient par SMS) :');
+  var reason = prompt('Motif d\'annulation (facultatif, sera envoyé au patient par WhatsApp) :');
   if(reason === null) return; // annulé par le médecin
 
   // Récupérer le JWT du médecin pour l'Edge Function
@@ -712,7 +712,7 @@ async function quickCancel(id){
     // Mettre à jour localement
     _allRdv = _allRdv.map(function(x){ return x.id===id ? Object.assign({},x,{status:'cancelled'}) : x; });
     updateKPIs(); updateCounts(); renderList();
-    showToast('RDV annulé — ' + patientName + ' notifié par SMS ✓', 'ok');
+    showToast('RDV annulé — ' + patientName + ' notifié par WhatsApp ✓', 'ok');
   } catch(e) {
     // Fallback : mise à jour directe sans SMS
     console.warn('Edge Function unavailable, direct cancel fallback:', e);

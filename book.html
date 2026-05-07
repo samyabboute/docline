@@ -376,7 +376,7 @@ button,input{font-family:inherit}
 
         <button class="btn btn-primary" id="btnSendOtp" onclick="sendOtp()">
           <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3-8.63A2 2 0 0 1 3.67 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          Recevoir le code par SMS
+          Recevoir le code par WhatsApp
         </button>
 
         <div style="text-align:center;margin-top:14px">
@@ -444,7 +444,7 @@ button,input{font-family:inherit}
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <h2 class="success-title">RDV confirmé !</h2>
-          <p class="success-sub">Votre rendez-vous est enregistré. Un SMS de confirmation vient de vous être envoyé.</p>
+          <p class="success-sub">Votre rendez-vous est enregistré. Un message de confirmation vient de vous être envoyé sur WhatsApp.</p>
 
           <div class="appt-recap" id="apptRecap">
             <div class="recap-row">
@@ -476,7 +476,7 @@ button,input{font-family:inherit}
 
           <p class="sms-note">
             <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3-8.63A2 2 0 0 1 3.67 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            Rappel automatique par SMS 1h avant votre RDV
+            Rappel automatique par WhatsApp 1h avant votre RDV
           </p>
         </div>
       </div>
@@ -819,7 +819,7 @@ async function sendOtp() {
     showAlert('contactAlert', 'error', 'Erreur réseau. Vérifiez votre connexion.');
   } finally {
     setLoading(btn, false, '');
-    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3-8.63A2 2 0 0 1 3.67 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Recevoir le code par SMS`;
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3-8.63A2 2 0 0 1 3.67 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Recevoir le code par WhatsApp`;
   }
 }
 
