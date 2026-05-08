@@ -810,10 +810,15 @@ async function sendOtp() {
     }
 
     // Passer à l'étape OTP
-    document.getElementById('otpPhoneDisplay').textContent = '+213' + phone.slice(1);
+    document.getElementById('otpPhoneDisplay').textContent = phone;
     goToStep(3);
     startOtpTimer();
     initOtpInputs();
+
+    // Mode dev : code affiché directement à l'écran
+    if (data.channel === 'dev' && data.otp) {
+      showAlert('otpAlert', 'info', '🧪 Mode test — Votre code : <strong>' + data.otp + '</strong>');
+    }
 
   } catch(e) {
     showAlert('contactAlert', 'error', 'Erreur réseau. Vérifiez votre connexion.');
