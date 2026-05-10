@@ -256,7 +256,7 @@
         <div class="fg"><label>Nom *</label><input id="f-last" placeholder="Benali" maxlength="80"></div>
       </div>
       <div class="form-row">
-        <div class="fg"><label>Date de naissance</label><input id="f-city" type="date" max="2020-01-01"></div>
+        <div class="fg"><label>Date de naissance</label><input id="f-city" type="text" placeholder="JJ.MM.AAAA" maxlength="10" inputmode="numeric"></div>
         <div class="fg"><label>Groupe sanguin</label>
           <select id="f-vat">
             <option value="">— Inconnu —</option>
@@ -603,7 +603,7 @@ function openModal(id) {
     document.getElementById('f-phone').value  = c.phone      || '';
     document.getElementById('f-company').value = c.medecin_traitant || '';
     document.getElementById('f-type').value   = c.insurance_type   || 'individual';
-    document.getElementById('f-city').value   = c.date_naissance   || '';
+    document.getElementById('f-city').value   = isoToDMY(c.date_naissance) || '';
     document.getElementById('f-siret').value  = c.insurance_num    || '';
     document.getElementById('f-vat').value    = c.groupe_sanguin   || '';
     document.getElementById('f-notes').value  = c.notes      || '';
@@ -650,7 +650,7 @@ async function saveClient() {
     phone:      document.getElementById('f-phone').value.trim() || null,
     medecin_traitant: document.getElementById('f-company').value.trim() || null,
     insurance_type:   document.getElementById('f-type').value || 'individual',
-    date_naissance:   document.getElementById('f-city').value || null, // type=date → YYYY-MM-DD
+    date_naissance:   dmyToISO(document.getElementById('f-city').value) || null,
     insurance_num:    document.getElementById('f-siret').value.trim() || null,
     groupe_sanguin:   document.getElementById('f-vat').value || null,
     notes:      document.getElementById('f-notes').value.trim() || null,
@@ -692,6 +692,44 @@ async function deleteClient() {
 window.addEventListener('keydown',function(e){
   if(e.key==='Escape') document.getElementById('modal-overlay').classList.remove('open');
 });
+
+// ── Helpers date DD.MM.YYYY ───────────────────────────────────────────
+function dmyToISO(val) {
+  if (!val) return null;
+  var m = val.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!m) return null;
+  var iso = m[3] + '-' + m[2] + '-' + m[1];
+  if (isNaN(Date.parse(iso))) return null;
+  return iso;
+}
+function isoToDMY(val) {
+  if (!val) return '';
+  var m = val.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? m[3] + '.' + m[2] + '.' + m[1] : val;
+}
+
+// ── Masque auto JJ.MM.AAAA ────────────────────────────────────────────
+(function() {
+  var inp = document.getElementById('f-city');
+  if (!inp) return;
+  inp.addEventListener('input', function() {
+    var digits = this.value.replace(/\D/g, '').slice(0, 8);
+    var out = '';
+    if (digits.length > 4)      out = digits.slice(0,2) + '.' + digits.slice(2,4) + '.' + digits.slice(4);
+    else if (digits.length > 2) out = digits.slice(0,2) + '.' + digits.slice(2);
+    else                         out = digits;
+    this.value = out;
+  });
+  inp.addEventListener('blur', function() {
+    if (this.value && !dmyToISO(this.value)) {
+      this.style.borderColor = 'var(--danger)';
+      this.title = 'Format attendu : JJ.MM.AAAA';
+    } else {
+      this.style.borderColor = '';
+      this.title = '';
+    }
+  });
+})();
 </script>
 </body>
 </html>
