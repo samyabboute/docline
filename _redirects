@@ -1,15 +1,10 @@
-﻿# Docline — Clean URL redirects
 /                   /index.html         200
 /login              /login.html         200
 /dashboard          /app.html           200
-/invoices           /invoices.html      200
-/clients            /clients.html       200
+/patients           /patients.html      200
 /calendar           /calendar.html      200
 /pricing            /pricing.html       200
-/onboarding         /onboarding.html    200
 /admin              /admin.html         200
-/admin/users        /admin-users.html   200
-/admin/revenue      /admin-revenue.html 200
-/admin/security     /admin-security.html 200
+/book               /book.html          200
 /privacy            /privacy.html       200
 /terms              /terms.html         200
