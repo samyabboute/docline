@@ -1,10 +1,32 @@
-/                   /index.html         200
-/login              /login.html         200
-/dashboard          /app.html           200
-/patients           /patients.html      200
-/calendar           /calendar.html      200
-/pricing            /pricing.html       200
-/admin              /admin.html         200
-/book               /book.html          200
-/privacy            /privacy.html       200
-/terms              /terms.html         200
+# Supprimer .html des URLs (301 = permanent, pour SEO)
+/find-doctor.html     /find-doctor     301
+/login.html           /login           301
+/app.html             /dashboard       301
+/admin.html           /admin           301
+/pricing.html         /pricing         301
+/patients.html        /patients        301
+/calendar.html        /calendar        301
+/book.html            /book            301
+/mes-rdv.html         /mes-rdv         301
+/privacy.html         /privacy         301
+/terms.html           /terms           301
+/onboarding.html      /onboarding      301
+/import.html          /import          301
+
+# Servir les fichiers sans .html dans l'URL (200 = rewrite silencieux)
+/find-doctor          /find-doctor.html   200
+/login                /login.html         200
+/dashboard            /app.html           200
+/admin                /admin.html         200
+/pricing              /pricing.html       200
+/patients             /patients.html      200
+/calendar             /calendar.html      200
+/book                 /book.html          200
+/mes-rdv              /mes-rdv.html       200
+/privacy              /privacy.html       200
+/terms                /terms.html         200
+/onboarding           /onboarding.html    200
+/import               /import.html        200
+
+# Racine
+/                     /find-doctor.html   200
