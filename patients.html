@@ -256,7 +256,7 @@
         <div class="fg"><label>Nom *</label><input id="f-last" placeholder="Benali" maxlength="80"></div>
       </div>
       <div class="form-row">
-        <div class="fg"><label>Date de naissance</label><input id="f-city" type="text" placeholder="Ex: 15/04/1985" maxlength="12"></div>
+        <div class="fg"><label>Date de naissance</label><input id="f-city" type="date" max="2020-01-01"></div>
         <div class="fg"><label>Groupe sanguin</label>
           <select id="f-vat">
             <option value="">— Inconnu —</option>
@@ -650,7 +650,7 @@ async function saveClient() {
     phone:      document.getElementById('f-phone').value.trim() || null,
     medecin_traitant: document.getElementById('f-company').value.trim() || null,
     insurance_type:   document.getElementById('f-type').value || 'individual',
-    date_naissance:   document.getElementById('f-city').value.trim() || null,
+    date_naissance:   document.getElementById('f-city').value || null, // type=date → YYYY-MM-DD
     insurance_num:    document.getElementById('f-siret').value.trim() || null,
     groupe_sanguin:   document.getElementById('f-vat').value || null,
     notes:      document.getElementById('f-notes').value.trim() || null,
