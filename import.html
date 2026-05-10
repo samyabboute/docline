@@ -107,7 +107,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <main class="shell-main">
     <div class="shell-page">
 <span class="topbar-title">Import Clients</span>
-  <a href="patients.html" class="back-btn">
+  <a href="/patients" class="back-btn">
     <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><polyline points="15 18 9 12 15 6"/></svg>
     Back to Clients
   </a>
@@ -176,8 +176,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="success-title" id="success-title">Import complete!</div>
     <div class="success-sub" id="success-sub"></div>
     <div style="margin-top:16px;display:flex;gap:10px;justify-content:center">
-      <a href="patients.html" class="btn btn-primary">View Clients</a>
-      <a href="app.html" class="btn btn-ghost">Go to Dashboard</a>
+      <a href="/patients" class="btn btn-primary">View Clients</a>
+      <a href="/dashboard" class="btn btn-ghost">Go to Dashboard</a>
     </div>
   </div>
 
@@ -237,7 +237,7 @@ function sanitize(s) {
 
 (async function init() {
   var s = await _supa.auth.getSession();
-  if (!s.data.session) { window.location.href = 'login.html'; return; }
+  if (!s.data.session) { window.location.href = '/login'; return; }
   _uid = s.data.session.user.id;
 
   // Theme sync

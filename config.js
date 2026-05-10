@@ -3,7 +3,7 @@ var DOCLINE_CONFIG = {
   SUPA_URL: 'https://ferkzwzypmdtuypxribz.supabase.co',
   SUPA_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmt6d3p5cG1kdHV5cHhyaWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY4MjksImV4cCI6MjA4OTI0MjgyOX0.KbRa1t0VqrdURT0xbWLUXOZrf462wLNZaUgljk7h6eg',
   APP_URL:  'https://samyabboute.github.io/docline',
-  // Emails avec accès admin — redirigés vers admin.html après connexion
+  // Emails avec accès admin — redirigés vers /admin après connexion
   ADMIN_EMAILS: [
     'samyabboute5@gmail.com',
   ],
@@ -17,5 +17,5 @@ var APP_URL      = DOCLINE_CONFIG.APP_URL;
 var ADMIN_EMAILS = DOCLINE_CONFIG.ADMIN_EMAILS;
 
 function getRedirectUrl(email) {
-  return ADMIN_EMAILS.indexOf((email||'').toLowerCase()) !== -1 ? 'admin.html' : 'app.html';
+  return ADMIN_EMAILS.indexOf((email||'').toLowerCase()) !== -1 ? '/admin' : '/dashboard';
 }

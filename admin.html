@@ -401,7 +401,7 @@ ul,ol{list-style:none}
           <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Changer d'utilisateur
         </button>
-        <button class="user-drop-item" onclick="window.open('app.html','_blank')">
+        <button class="user-drop-item" onclick="window.open('/dashboard','_blank')">
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
           Voir l'app médecin
         </button>
@@ -421,7 +421,7 @@ ul,ol{list-style:none}
     </button>
     <div class="topbar-title" id="topbar-title">Dashboard</div>
     <div class="topbar-actions">
-      <button class="btn btn-secondary btn-sm" onclick="window.open('app.html','_blank')" title="Ouvrir l'app médecin">
+      <button class="btn btn-secondary btn-sm" onclick="window.open('/dashboard','_blank')" title="Ouvrir l'app médecin">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
         App médecin
       </button>
@@ -710,7 +710,7 @@ ul,ol{list-style:none}
         </div>
 
         <div class="param-note" style="margin:0 20px 12px">
-          L'utilisateur doit avoir un compte Docline avec cet email. Il pourra accéder au panel admin depuis <strong>admin.html</strong> avec ses identifiants habituels.
+          L'utilisateur doit avoir un compte Docline avec cet email. Il pourra accéder au panel admin depuis <strong>/admin</strong> avec ses identifiants habituels.
         </div>
 
         <!-- Users table -->
@@ -839,7 +839,7 @@ function applyRoleRestrictions() {
 }
 
 function redirect() {
-  window.location.href = 'login.html';
+  window.location.href = '/login';
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1485,7 +1485,7 @@ async function toggleActive(doctorId, currentlyActive) {
 ═══════════════════════════════════════════════════════════ */
 async function signOut() {
   await _sb.auth.signOut();
-  window.location.href = 'login.html';
+  window.location.href = '/login';
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1661,7 +1661,7 @@ function toggleUserMenu() {
 
 function openAsDoctor() {
   document.getElementById('userDropdown').classList.remove('open');
-  _sb.auth.signOut().then(() => { window.location.href = 'login.html'; });
+  _sb.auth.signOut().then(() => { window.location.href = '/login'; });
 }
 
 document.addEventListener('click', function(e) {

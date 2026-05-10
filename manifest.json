@@ -2,7 +2,7 @@
   "name": "Docline — Trouvez votre médecin",
   "short_name": "Docline",
   "description": "Trouvez et prenez rendez-vous avec les meilleurs médecins en Algérie",
-  "start_url": "find-doctor.html",
+  "start_url": "/find-doctor",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",

@@ -373,7 +373,7 @@ async function saveAvailability(){
 (async function(){
   try{
     var s = await _supa.auth.getSession();
-    if(!s.data.session){ window.location.href = 'login.html'; return; }
+    if(!s.data.session){ window.location.href = '/login'; return; }
     _uid = s.data.session.user.id;
 
     var u = s.data.session.user, meta = u.user_metadata||{};

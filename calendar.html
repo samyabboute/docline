@@ -507,7 +507,7 @@ function renderDayPanel(dateStr){
   document.getElementById('day-panel-count').textContent=total+' événement'+(total>1?'s':'');
   var rdvHtml=dayRdvs.map(function(a){
     var time=a.requested_time?a.requested_time.slice(0,5):'';
-    return'<div class="day-event-item" onclick="window.location.href=\'mes-rdv.html\'">' +
+    return'<div class="day-event-item" onclick="window.location.href=\'/mes-rdv\'">' +
       '<div class="day-event-type-bar" style="background:#3B1772"></div>'+
       '<div class="day-event-info">'+
         '<div class="day-event-title">'+(time?'<strong>'+time+'</strong> · ':'')+sanitize(a.patient_name||'Patient')+'</div>'+
@@ -726,7 +726,7 @@ document.addEventListener('keydown',function(e){
 (async function(){
   try{
     var s=await _supa.auth.getSession();
-    if(!s.data.session){window.location.href='login.html';return;}
+    if(!s.data.session){window.location.href='/login';return;}
     _uid=s.data.session.user.id;
 
     var u=s.data.session.user;

@@ -324,7 +324,7 @@ var MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov
 
 (async function init() {
   var s = await _supa.auth.getSession();
-  if (!s.data.session) { window.location.href = 'login.html'; return; }
+  if (!s.data.session) { window.location.href = '/login'; return; }
   _uid = s.data.session.user.id;
   var user = s.data.session.user;
   var meta = user.user_metadata || {};

@@ -63,7 +63,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 <div class="topbar">
   <div class="topbar-logo"><img src="docline-logo.svg" alt="Docline" style="height:22px;width:auto"></div>
-  <a class="back-link" href="admin.html">&#8592; Admin Dashboard</a>
+  <a class="back-link" href="/admin">&#8592; Admin Dashboard</a>
 </div>
 <div class="content">
   <div class="page-head">
@@ -146,7 +146,7 @@ function fmt(n){return new Intl.NumberFormat('fr-FR').format(n);}
 
 (async function(){
   var s=await _supa.auth.getSession();
-  if(!s.data.session){window.location.href='login.html';return;}
+  if(!s.data.session){window.location.href='/login';return;}
 
   // Load all data in parallel
   var [profRes,subRes,fbRes,auditRes] = await Promise.all([

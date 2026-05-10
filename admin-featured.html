@@ -330,7 +330,7 @@ var _filtered = [];
 
 /* ── SIDEBAR ─────────────────────────────────────────────── */
 var AdminNav = [
-  ['admin.html',         'overview',  'Vue d\'ensemble',     '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
+  ['/admin',         'overview',  'Vue d\'ensemble',     '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
   ['admin-users.html',   'users',     'Médecins & Cliniques', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
   ['admin-featured.html','featured',  'En Vedette',           '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
   ['admin-revenue.html', 'revenue',   'Revenus',              '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
@@ -355,7 +355,7 @@ function renderSidebar() {
       }).join('')
     +'</div>'
     +'<div style="padding:8px 8px 0;margin-top:4px"><div class="sidebar-section">Application</div>'
-    +'<a href="find-doctor.html" target="_blank" class="nav-item">'
+    +'<a href="/find-doctor" target="_blank" class="nav-item">'
     +'<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Voir le site patient</a></div>'
     +'<div class="sidebar-footer"><div class="sidebar-user" onclick="signOut()">'
     +'<div class="user-avatar">F</div>'
@@ -368,10 +368,10 @@ function renderSidebar() {
 (async function(){
   renderSidebar();
   var { data: { session } } = await _supa.auth.getSession();
-  if (!session) { window.location.href = 'login.html'; return; }
+  if (!session) { window.location.href = '/login'; return; }
   var email = (session.user.email || '').toLowerCase();
   var admins = (typeof DOCLINE_CONFIG !== 'undefined' ? (DOCLINE_CONFIG.ADMIN_EMAILS||[]) : []).map(function(e){return e.toLowerCase();});
-  if (!admins.includes(email)) { window.location.href = 'app.html'; return; }
+  if (!admins.includes(email)) { window.location.href = '/dashboard'; return; }
   var sbName = document.getElementById('sb-name');
   if (sbName) sbName.textContent = session.user.email.split('@')[0];
   document.getElementById('hamburger').addEventListener('click', function(){
@@ -535,7 +535,7 @@ async function toggleVisibility(id, current) {
 /* ── SIGN OUT ────────────────────────────────────────────── */
 async function signOut() {
   await _supa.auth.signOut();
-  window.location.href = 'login.html';
+  window.location.href = '/login';
 }
 
 /* ── TOAST ───────────────────────────────────────────────── */

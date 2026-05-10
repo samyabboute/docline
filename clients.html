@@ -357,7 +357,7 @@ function showUpgradeWall() {
     + '<div style="font-size:20px;font-weight:900;color:#0C0E14;letter-spacing:-.4px;margin-bottom:8px">Limite du plan Gratuit</div>'
     + '<div style="font-size:14px;color:#7B8194;line-height:1.6;margin-bottom:24px">Vous avez atteint la limite de <strong>' + FREE_PATIENT_LIMIT + ' patients</strong> du plan Gratuit.<br>Passez au plan Pro pour ajouter des patients sans aucune limite.</div>'
     + '<div style="display:flex;flex-direction:column;gap:10px">'
-    + '<a href="pricing.html" style="display:block;padding:13px;background:#3B1772;color:#fff;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none">Voir les offres Pro</a>'
+    + '<a href="/pricing" style="display:block;padding:13px;background:#3B1772;color:#fff;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none">Voir les offres Pro</a>'
     + '<button onclick="document.getElementById(\'upgrade-wall\').style.display=\'none\'" style="padding:10px;background:none;border:1.5px solid #E8EAF0;border-radius:12px;font-size:13px;font-weight:600;color:#7B8194;cursor:pointer;font-family:inherit">Continuer sans passer au Pro</button>'
     + '</div>'
     + '</div>';
@@ -373,7 +373,7 @@ function toast(msg, type) {
 (async function init() {
   try {
     var session = await _supa.auth.getSession();
-    if (!session.data.session) { window.location.href = 'login.html'; return; }
+    if (!session.data.session) { window.location.href = '/login'; return; }
     _uid = session.data.session.user.id;
     var user = session.data.session.user;
     var meta = user.user_metadata || {};
@@ -448,7 +448,7 @@ function updateKpis() {
         '<svg viewBox="0 0 24 24" style="width:20px;height:20px;flex-shrink:0;fill:none;stroke:#DC2626;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
         + '<div style="flex:1"><strong style="font-size:13px;color:#DC2626">Limite de ' + FREE_PATIENT_LIMIT + ' patients atteinte</strong>'
         + '<div style="font-size:12px;color:#7B8194;margin-top:2px">Passez au plan Pro pour ajouter des patients sans limite.</div></div>'
-        + '<a href="pricing.html" style="flex-shrink:0;padding:8px 16px;background:#3B1772;color:#fff;border-radius:99px;font-size:12px;font-weight:700;text-decoration:none">Passer au Pro</a>';
+        + '<a href="/pricing" style="flex-shrink:0;padding:8px 16px;background:#3B1772;color:#fff;border-radius:99px;font-size:12px;font-weight:700;text-decoration:none">Passer au Pro</a>';
     } else if (used >= FREE_PATIENT_LIMIT - 5) {
       banner.style.background = '#FFFBEB';
       banner.style.border = '1.5px solid #FDE68A';
@@ -456,7 +456,7 @@ function updateKpis() {
         '<svg viewBox="0 0 24 24" style="width:20px;height:20px;flex-shrink:0;fill:none;stroke:#D97706;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
         + '<div style="flex:1"><strong style="font-size:13px;color:#D97706">Il vous reste ' + remaining + ' patient' + (remaining > 1 ? 's' : '') + ' sur ' + FREE_PATIENT_LIMIT + '</strong>'
         + '<div style="font-size:12px;color:#7B8194;margin-top:2px">Le plan Gratuit est limite a ' + FREE_PATIENT_LIMIT + ' patients.</div></div>'
-        + '<a href="pricing.html" style="flex-shrink:0;padding:8px 16px;background:#D97706;color:#fff;border-radius:99px;font-size:12px;font-weight:700;text-decoration:none">Voir le Pro</a>';
+        + '<a href="/pricing" style="flex-shrink:0;padding:8px 16px;background:#D97706;color:#fff;border-radius:99px;font-size:12px;font-weight:700;text-decoration:none">Voir le Pro</a>';
     } else {
       if (banner) banner.remove();
     }

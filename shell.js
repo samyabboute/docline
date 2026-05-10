@@ -12,17 +12,17 @@ var Shell = (function () {
   var NAV = [
     // ── Section: Vue d'ensemble
     { section: 'Vue d\'ensemble' },
-    { href:'app.html',           key:'dashboard',    label:'Tableau de bord',
+    { href:'/dashboard',           key:'dashboard',    label:'Tableau de bord',
       icon:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>' },
     { href:'queue.html',         key:'queue',        label:"File d'attente", featured:true,
       icon:'<path d="M9 12h.01M12 12h.01M15 12h.01M12 8c-4.418 0-8 1.79-8 4s3.582 4 8 4 8-1.79 8-4-3.582-4-8-4z"/><path d="M4 12v4c0 2.21 3.582 4 8 4s8-1.79 8-4v-4"/>' },
     // ── Section: Clinique
     { section: 'Clinique' },
-    { href:'patients.html',       key:'clients',      label:'Patients',
+    { href:'/patients',       key:'clients',      label:'Patients',
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
     { href:'consultations.html', key:'consultations',label:'Consultations',
       icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>' },
-    { href:'calendar.html',      key:'calendar',     label:'Agenda',
+    { href:'/calendar',      key:'calendar',     label:'Agenda',
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
     { href:'ordonnances.html',   key:'ordonnances',  label:'Ordonnances',
       icon:'<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/>' },
@@ -30,7 +30,7 @@ var Shell = (function () {
       icon:'<path d="M6 2v6l-2 4v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8l-2-4V2"/><line x1="6" y1="10" x2="14" y2="10"/>' },
     // ── Section: En ligne
     { section: 'En ligne' },
-    { href:'mes-rdv.html',       key:'mes-rdv',      label:'Mes Rendez-vous',
+    { href:'/mes-rdv',       key:'mes-rdv',      label:'Mes Rendez-vous',
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/>' },
     { href:'disponibilites.html',key:'disponibilites',label:'Disponibilites',
       icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
@@ -384,7 +384,7 @@ button{font-family:inherit;cursor:pointer}
 .kpi-card.red .kpi-val,.stat-card.red .stat-num{color:#DC2626}
 .kpi-card.red .stat-badge,.kpi-card.red .kpi-badge{background:#FEF2F2;color:#DC2626}
 
-/* kpi-pill color variants (patients.html) */
+/* kpi-pill color variants (/patients) */
 .kpi-pill.blue .kpi-ico{background:#EFF6FF}.kpi-pill.blue .kpi-ico svg{stroke:#2563EB}.kpi-pill.blue .kpi-val{color:#1D4ED8}
 .kpi-pill.violet .kpi-ico{background:#EDE8FF}.kpi-pill.violet .kpi-ico svg{stroke:var(--brand)}.kpi-pill.violet .kpi-val{color:var(--brand)}
 .kpi-pill.green .kpi-ico{background:#ECFDF5}.kpi-pill.green .kpi-ico svg{stroke:#059669}.kpi-pill.green .kpi-val{color:#059669}
@@ -673,7 +673,7 @@ button{font-family:inherit;cursor:pointer}
         + '<div class="sb-usage">'
         +   '<div class="sb-usage-label"><span>Patients</span><strong>' + patientCount + ' / ' + patientLimit + '</strong></div>'
         +   '<div class="sb-usage-bar"><div class="sb-usage-fill' + (pct > 80 ? ' warn' : '') + (pct >= 100 ? ' danger' : '') + '" style="width:' + pct + '%"></div></div>'
-        +   '<a href="pricing.html" class="sb-upgrade">'
+        +   '<a href="/pricing" class="sb-upgrade">'
         +     '<svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><line x1="6" y1="12" x2="18" y2="12"/></svg>'
         +     'Passer en Pro'
         +   '</a>'
@@ -979,7 +979,7 @@ button{font-family:inherit;cursor:pointer}
           + '<rect x="90" y="83" width="24" height="14" rx="5" fill="#EDE8FF"/>'
           + '<circle cx="90" cy="110" r="4" fill="#3B1772" opacity=".5"/>'
           + '</svg>',
-      href: 'mes-rdv.html',
+      href: '/mes-rdv',
     },
     {
       chip: 'Tout est prêt',
@@ -1341,9 +1341,9 @@ button{font-family:inherit;cursor:pointer}
   // Pages accessibles par clé → fichier HTML
   var _PAGE_HREFS = {
     'queue':        'queue.html',
-    'clients':      'patients.html',
-    'calendar':     'calendar.html',
-    'mes-rdv':      'mes-rdv.html',
+    'clients':      '/patients',
+    'calendar':     '/calendar',
+    'mes-rdv':      '/mes-rdv',
     'consultations':'consultations.html',
     'labo':         'labo.html',
     'ordonnances':  'ordonnances.html',

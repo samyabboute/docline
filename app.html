@@ -354,7 +354,7 @@ button{font-family:inherit;cursor:pointer}
             <div class="upgrade-banner-title">Passez en Pro — File d'attente QR illimitée</div>
             <div class="upgrade-banner-sub">Patients illimités, ordonnances, rappels automatiques. À partir de 2 900 DA/mois.</div>
           </div>
-          <button class="upgrade-banner-btn" onclick="window.location.href='pricing.html'">Voir les offres</button>
+          <button class="upgrade-banner-btn" onclick="window.location.href='/pricing'">Voir les offres</button>
         </div>
 
         <!-- KPIs -->
@@ -374,7 +374,7 @@ button{font-family:inherit;cursor:pointer}
             <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
             Ordonnance
           </button>
-          <button class="qa-btn" onclick="window.location.href='calendar.html'">
+          <button class="qa-btn" onclick="window.location.href='/calendar'">
             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Agenda
           </button>
@@ -393,7 +393,7 @@ button{font-family:inherit;cursor:pointer}
                   <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                   Patients récents
                 </div>
-                <a href="patients.html" class="card-link">Voir tous →</a>
+                <a href="/patients" class="card-link">Voir tous →</a>
               </div>
               <div id="patients-list">
                 <div class="card-empty">Chargement…</div>
@@ -407,7 +407,7 @@ button{font-family:inherit;cursor:pointer}
                   <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                   Agenda aujourd'hui
                 </div>
-                <a href="calendar.html" class="card-link">Tout l'agenda →</a>
+                <a href="/calendar" class="card-link">Tout l'agenda →</a>
               </div>
               <div id="agenda-list">
                 <div class="card-empty">Chargement…</div>
@@ -751,7 +751,7 @@ function renderPatients(patients) {
     var ins = p.insurance_type || 'libre';
     var badge = BADGE[ins] || BADGE.libre;
     var bClass = badge.split(' ')[0], bLabel = badge.split(' ')[1];
-    return '<a href="patients.html" class="patient-item">'
+    return '<a href="/patients" class="patient-item">'
       +'<div class="patient-av">'+initials+'</div>'
       +'<div class="patient-info">'
       +'<div class="patient-name">'+name+'</div>'
@@ -871,7 +871,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAddP
 
 // ── MAIN LOAD ──────────────────────────────────────────
 var Auth = {
-  signOut: async function() { await _supa.auth.signOut(); window.location.href = 'login.html'; }
+  signOut: async function() { await _supa.auth.signOut(); window.location.href = '/login'; }
 };
 
 async function load() {
@@ -906,7 +906,7 @@ async function load() {
 // ── INIT ───────────────────────────────────────────────
 (async function() {
   var { data: { session } } = await _supa.auth.getSession();
-  if (!session) { window.location.href = 'login.html'; return; }
+  if (!session) { window.location.href = '/login'; return; }
 
   _uid   = session.user.id;
   _email = session.user.email || '';

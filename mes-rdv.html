@@ -342,7 +342,7 @@
             <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/></svg>
             Modifier profil
           </a>
-          <a id="btn-view-public" href="find-doctor.html" class="btn-outline" target="_blank" style="display:none">
+          <a id="btn-view-public" href="/find-doctor" class="btn-outline" target="_blank" style="display:none">
             <svg viewBox="0 0 24 24"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             Ma fiche publique
           </a>
@@ -447,7 +447,7 @@ var _modalRdv = null;
 /* ── Auth guard ──────────────────────────────────────────────── */
 _sb.auth.getSession().then(function(r){
   var sess = r && r.data && r.data.session;
-  if(!sess){ window.location.href = 'login.html'; return; }
+  if(!sess){ window.location.href = '/login'; return; }
   _uid = sess.user.id;
   var email = sess.user.email || '';
   var meta  = sess.user.user_metadata || {};

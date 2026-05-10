@@ -310,7 +310,7 @@ var DEFAULT_ACCESS = {
 // â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 (async function init() {
   var s = await _supa.auth.getSession();
-  if (!s.data.session) { window.location.href = 'login.html'; return; }
+  if (!s.data.session) { window.location.href = '/login'; return; }
   _uid = s.data.session.user.id;
   var user = s.data.session.user;
   var meta = user.user_metadata || {};
@@ -529,7 +529,7 @@ async function inviteStaff(staffId, email) {
     var res = await fetch(supaUrl.replace('/rest/v1','').replace('https://','https://') + '/functions/v1/invite-staff', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ staffId: staffId, email: email, redirectTo: window.location.origin + '/docline/app.html' })
+      body: JSON.stringify({ staffId: staffId, email: email, redirectTo: window.location.origin + '/dashboard' })
     });
     var body = await res.json();
     if (!res.ok) { toast('Erreur : ' + (body.error || res.status), 'error'); return; }

@@ -2,19 +2,19 @@
 'use strict';
 var CACHE_NAME = 'docline-v7';
 var STATIC_CACHE = 'docline-static-v7';
-var OFFLINE_PAGE = '/docline/find-doctor.html';
+var OFFLINE_PAGE = '/find-doctor';
 
 // Core assets to precache for offline
 var PRECACHE_URLS = [
-  '/docline/find-doctor.html',
-  '/docline/app.html',
-  '/docline/login.html',
+  '/find-doctor',
+  '/dashboard',
+  '/login',
   '/docline/index.html',
-  '/docline/patients.html',
+  '/patients',
   '/docline/invoices.html',
-  '/docline/calendar.html',
+  '/calendar',
   '/docline/disponibilites.html',
-  '/docline/mes-rdv.html',
+  '/mes-rdv',
   '/docline/proposals.html',
   '/docline/shell.js',
   '/docline/loader.js',
