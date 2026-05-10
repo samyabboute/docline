@@ -393,7 +393,7 @@ button{font-family:inherit;cursor:pointer}
                   <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                   Patients récents
                 </div>
-                <a href="clients.html" class="card-link">Voir tous →</a>
+                <a href="patients.html" class="card-link">Voir tous →</a>
               </div>
               <div id="patients-list">
                 <div class="card-empty">Chargement…</div>
@@ -751,7 +751,7 @@ function renderPatients(patients) {
     var ins = p.insurance_type || 'libre';
     var badge = BADGE[ins] || BADGE.libre;
     var bClass = badge.split(' ')[0], bLabel = badge.split(' ')[1];
-    return '<a href="clients.html" class="patient-item">'
+    return '<a href="patients.html" class="patient-item">'
       +'<div class="patient-av">'+initials+'</div>'
       +'<div class="patient-info">'
       +'<div class="patient-name">'+name+'</div>'

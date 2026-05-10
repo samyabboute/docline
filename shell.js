@@ -18,7 +18,7 @@ var Shell = (function () {
       icon:'<path d="M9 12h.01M12 12h.01M15 12h.01M12 8c-4.418 0-8 1.79-8 4s3.582 4 8 4 8-1.79 8-4-3.582-4-8-4z"/><path d="M4 12v4c0 2.21 3.582 4 8 4s8-1.79 8-4v-4"/>' },
     // ── Section: Clinique
     { section: 'Clinique' },
-    { href:'clients.html',       key:'clients',      label:'Patients',
+    { href:'patients.html',       key:'clients',      label:'Patients',
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
     { href:'consultations.html', key:'consultations',label:'Consultations',
       icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>' },
@@ -384,7 +384,7 @@ button{font-family:inherit;cursor:pointer}
 .kpi-card.red .kpi-val,.stat-card.red .stat-num{color:#DC2626}
 .kpi-card.red .stat-badge,.kpi-card.red .kpi-badge{background:#FEF2F2;color:#DC2626}
 
-/* kpi-pill color variants (clients.html) */
+/* kpi-pill color variants (patients.html) */
 .kpi-pill.blue .kpi-ico{background:#EFF6FF}.kpi-pill.blue .kpi-ico svg{stroke:#2563EB}.kpi-pill.blue .kpi-val{color:#1D4ED8}
 .kpi-pill.violet .kpi-ico{background:#EDE8FF}.kpi-pill.violet .kpi-ico svg{stroke:var(--brand)}.kpi-pill.violet .kpi-val{color:var(--brand)}
 .kpi-pill.green .kpi-ico{background:#ECFDF5}.kpi-pill.green .kpi-ico svg{stroke:#059669}.kpi-pill.green .kpi-val{color:#059669}
@@ -1341,7 +1341,7 @@ button{font-family:inherit;cursor:pointer}
   // Pages accessibles par clé → fichier HTML
   var _PAGE_HREFS = {
     'queue':        'queue.html',
-    'clients':      'clients.html',
+    'clients':      'patients.html',
     'calendar':     'calendar.html',
     'mes-rdv':      'mes-rdv.html',
     'consultations':'consultations.html',

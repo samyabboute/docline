@@ -10,7 +10,7 @@ var PRECACHE_URLS = [
   '/docline/app.html',
   '/docline/login.html',
   '/docline/index.html',
-  '/docline/clients.html',
+  '/docline/patients.html',
   '/docline/invoices.html',
   '/docline/calendar.html',
   '/docline/disponibilites.html',
