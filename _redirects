@@ -28,5 +28,11 @@
 /onboarding           /onboarding.html    200
 /import               /import.html        200
 
+# Pages médecin SEO /dr/:slug
+/dr/*                 /dr.html            200
+
+# Sitemap dynamique
+/sitemap.xml          https://qzqsdnjzydwtxlblgbqg.supabase.co/functions/v1/sitemap  200
+
 # Racine
 /                     /find-doctor.html   200

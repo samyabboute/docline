@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<!-- SEO dynamique — rempli par JS -->
+<title id="meta-title">Médecin — Docline</title>
+<meta id="meta-desc" name="description" content="Prenez rendez-vous en ligne avec ce médecin sur Docline.">
+<meta id="og-title" property="og:title" content="Médecin — Docline">
+<meta id="og-desc" property="og:description" content="Prenez rendez-vous en ligne sur Docline.">
+<meta id="og-image" property="og:image" content="https://docline.health/og-default.png">
+<meta property="og:type" content="profile">
+<meta id="og-url" property="og:url" content="">
+<meta name="twitter:card" content="summary">
+<link id="canonical" rel="canonical" href="">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+
+<!-- Sentry monitoring -->
+<script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
+<script src="/js/sentry-config.js"></script>
+<script src="/js/sentry-init.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#F4F7FF;color:#0C0E14;min-height:100vh}
+
+/* ── Topbar ── */
+.topbar{background:#fff;border-bottom:1px solid #E8EAF0;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#0C0E14;font-weight:800;font-size:.95rem}
+.topbar-logo svg{flex-shrink:0}
+.topbar-actions{display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;padding:9px 18px;font-size:.8125rem;transition:all .15s;text-decoration:none}
+.btn-primary{background:#3B1772;color:#fff}
+.btn-primary:hover{background:#2d1259}
+.btn-outline{background:#fff;color:#3D4251;border:1.5px solid #E8EAF0}
+.btn-outline:hover{border-color:#3B1772;color:#3B1772}
+
+/* ── Layout ── */
+.page{max-width:900px;margin:0 auto;padding:32px 20px 60px}
+
+/* ── Hero card ── */
+.hero-card{background:#fff;border:1px solid #E8EAF0;border-radius:20px;padding:32px;display:flex;gap:24px;align-items:flex-start;margin-bottom:20px;box-shadow:0 2px 12px rgba(59,23,114,.07)}
+@media(max-width:600px){.hero-card{flex-direction:column;align-items:center;text-align:center}}
+.avatar{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid #EEF2FF;flex-shrink:0;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#3B1772;font-weight:800}
+.hero-info{flex:1}
+.hero-name{font-size:1.5rem;font-weight:800;color:#0C0E14;margin-bottom:4px}
+.hero-spec{font-size:.9rem;color:#3B1772;font-weight:600;margin-bottom:10px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.meta-chip{display:inline-flex;align-items:center;gap:6px;background:#F4F7FF;border:1px solid #E8EAF0;border-radius:20px;padding:5px 12px;font-size:.78rem;color:#4A5068}
+.meta-chip svg{width:13px;height:13px;fill:none;stroke:#3B1772;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.badge-verified{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border-color:#A7F3D0;color:#065F46}
+.badge-verified svg{stroke:#059669}
+.price-tag{font-size:1.1rem;font-weight:700;color:#3B1772}
+
+/* ── CTA ── */
+.cta-btn{width:100%;background:linear-gradient(135deg,#3B1772,#5C359C);color:#fff;border:none;border-radius:12px;padding:15px;font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.cta-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,23,114,.3)}
+.cta-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Info cards ── */
+.card{background:#fff;border:1px solid #E8EAF0;border-radius:16px;padding:24px;margin-bottom:16px}
+.card-title{font-size:.875rem;font-weight:700;color:#0C0E14;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title svg{width:16px;height:16px;fill:none;stroke:#3B1772;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bio-text{font-size:.875rem;color:#4A5068;line-height:1.7}
+.info-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #F4F7FF;font-size:.85rem;color:#4A5068;align-items:flex-start}
+.info-row:last-child{border-bottom:none}
+.info-label{font-weight:600;color:#0C0E14;min-width:130px;flex-shrink:0}
+.lang-pill{display:inline-block;background:#EEF2FF;color:#3B1772;border-radius:20px;padding:3px 10px;font-size:.75rem;font-weight:600;margin:2px}
+
+/* ── Booking sidebar ── */
+.grid-layout{display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start}
+@media(max-width:800px){.grid-layout{grid-template-columns:1fr}}
+.sidebar-card{background:#fff;border:1px solid #E8EAF0;border-radius:16px;padding:24px;position:sticky;top:80px}
+.sidebar-title{font-size:.95rem;font-weight:700;color:#0C0E14;margin-bottom:16px}
+
+/* ── Breadcrumb ── */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:.78rem;color:#4A5068;margin-bottom:20px}
+.breadcrumb a{color:#3B1772;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#C5CAD8}
+
+/* ── States ── */
+.loading{text-align:center;padding:80px 20px;color:#4A5068}
+.not-found{text-align:center;padding:80px 20px}
+.not-found h2{font-size:1.3rem;font-weight:700;color:#0C0E14;margin-bottom:8px}
+.not-found p{color:#4A5068;font-size:.875rem;margin-bottom:20px}
+
+/* ── Review stars ── */
+.stars{display:flex;gap:3px}
+.star{color:#F59E0B;font-size:1rem}
+.star.empty{color:#E5E7EB}
+.rating-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.rating-count{font-size:.78rem;color:#4A5068}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<nav class="topbar">
+  <a href="/find-doctor" class="topbar-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:28px;height:28px;border-radius:8px"><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3B1772"/><stop offset="100%" stop-color="#23A7EA"/></linearGradient></defs><rect width="512" height="512" fill="url(#lg)"/><path fill="white" d="M290.5,38.7c42.2-8.9,87.4,33.7,74.9,76.8c-8.5,40.2-61.9,56.3-94.1,32.9c-21.7-12.9-34.3-40.4-28.9-65.3C247.4,60.5,267.4,41.6,290.5,38.7z"/><path fill="white" d="M132.9,103.8c25-4.1,51.6-1.1,72.7,13.6c28.8,19.6,46.3,51.6,57.4,84c37.8-16.9,77.9-32.3,119.9-30.6c33.9,1.6,64.8,24.5,76.5,56.1c9.8,39.1-9,77.8-31.4,108.8C386.7,393,324.7,441.1,252.5,448c-23.2,21.2-58.8,33.5-88.9,20.2c-36.5-16.8-59.2-51.9-77.6-86.1c-28.8-59.4-43.6-127.1-33.3-192.9C60.5,148.6,89.8,109.4,132.9,103.8z"/></svg>
+    Docline
+  </a>
+  <div class="topbar-actions">
+    <a href="/find-doctor" class="btn btn-outline">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      Trouver un médecin
+    </a>
+    <a href="/login" class="btn btn-primary">Connexion médecin</a>
+  </div>
+</nav>
+
+<main class="page">
+  <!-- Loading -->
+  <div id="state-loading" class="loading">
+    <svg style="width:40px;height:40px;fill:none;stroke:#3B1772;stroke-width:2;animation:spin 1s linear infinite" viewBox="0 0 24 24">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+    </svg>
+    <p style="margin-top:12px">Chargement…</p>
+  </div>
+  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+  <!-- Not found -->
+  <div id="state-notfound" class="not-found" style="display:none">
+    <svg style="width:48px;height:48px;fill:none;stroke:#C5CAD8;stroke-width:1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <h2>Médecin introuvable</h2>
+    <p>Ce profil n'existe pas ou n'est plus disponible.</p>
+    <a href="/find-doctor" class="btn btn-primary">Voir tous les médecins</a>
+  </div>
+
+  <!-- Profile content -->
+  <div id="state-content" style="display:none">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="/find-doctor">Médecins</a>
+      <span>›</span>
+      <span id="bc-spec"></span>
+      <span>›</span>
+      <span id="bc-name"></span>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero-card">
+      <div id="avatar-wrap"></div>
+      <div class="hero-info">
+        <div id="hero-name" class="hero-name"></div>
+        <div id="hero-spec" class="hero-spec"></div>
+        <div class="hero-meta" id="hero-meta"></div>
+        <div id="hero-price"></div>
+      </div>
+    </div>
+
+    <!-- Grid: main + sidebar -->
+    <div class="grid-layout">
+      <div>
+        <!-- Bio -->
+        <div class="card" id="bio-card" style="display:none">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            À propos
+          </div>
+          <p id="bio-text" class="bio-text"></p>
+        </div>
+
+        <!-- Informations -->
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Informations
+          </div>
+          <div id="info-rows"></div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar-card">
+        <div class="sidebar-title">Prendre rendez-vous</div>
+        <div id="sidebar-body"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Schema.org JSON-LD — injecté dynamiquement -->
+<script id="schema-jsonld" type="application/ld+json">{}</script>
+
+<script>
+(function () {
+  var _supa = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  var SITE = 'https://docline.health';
+
+  // ── Lire le slug depuis l'URL ──────────────────────────────────────────────
+  var slug = window.location.pathname.replace(/^\/dr\//, '').replace(/\/$/, '');
+  if (!slug) { show('notfound'); return; }
+
+  // ── Charger le profil ──────────────────────────────────────────────────────
+  load();
+
+  async function load() {
+    var res = await _supa
+      .from('profiles')
+      .select('id,full_name,is_clinic,clinic_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured,slug,is_active')
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (res.error || !res.data) { show('notfound'); return; }
+    render(res.data);
+  }
+
+  function render(d) {
+    var name = d.is_clinic ? (d.clinic_name || d.full_name) : (d.full_name || 'Médecin');
+    var spec = d.specialty || 'Médecin généraliste';
+    var loc  = [d.city, d.wilaya].filter(Boolean).join(', ');
+    var url  = SITE + '/dr/' + d.slug;
+
+    // ── Meta SEO ─────────────────────────────────────────────────────────────
+    var title = 'Dr ' + name + ' — ' + spec + (d.wilaya ? ' à ' + d.wilaya : '') + ' | Docline';
+    var desc  = 'Prenez rendez-vous en ligne avec ' + name + ', ' + spec
+                + (loc ? ' à ' + loc : '') + '. Consultation disponible sur Docline.';
+    document.getElementById('meta-title').textContent = title;
+    document.title = title;
+    setMeta('meta-desc', 'content', desc);
+    setMeta('og-title',  'content', title);
+    setMeta('og-desc',   'content', desc);
+    setMeta('og-url',    'content', url);
+    setMeta('canonical', 'href',    url);
+    if (d.avatar_url) setMeta('og-image', 'content', d.avatar_url);
+
+    // ── Schema.org Physician ─────────────────────────────────────────────────
+    var schema = {
+      '@context': 'https://schema.org',
+      '@type': d.is_clinic ? 'MedicalClinic' : 'Physician',
+      'name': name,
+      'description': desc,
+      'url': url,
+      'medicalSpecialty': spec,
+      'address': {
+        '@type': 'PostalAddress',
+        'addressLocality': d.city || d.wilaya || 'Algérie',
+        'addressRegion': d.wilaya || '',
+        'addressCountry': 'DZ'
+      },
+      'areaServed': { '@type': 'Country', 'name': 'Algeria' },
+      'availableService': d.accepts_rdv ? {
+        '@type': 'MedicalTherapy',
+        'name': 'Consultation sur rendez-vous'
+      } : undefined,
+      'priceRange': d.consultation_price ? d.consultation_price + ' DA' : undefined,
+      'telephone': d.phone_public || undefined,
+      'image': d.avatar_url || undefined,
+      'sameAs': [url]
+    };
+    document.getElementById('schema-jsonld').textContent = JSON.stringify(schema, null, 2);
+
+    // ── Breadcrumb ────────────────────────────────────────────────────────────
+    document.getElementById('bc-spec').textContent = spec;
+    document.getElementById('bc-name').textContent = name;
+
+    // ── Avatar ────────────────────────────────────────────────────────────────
+    var avatarWrap = document.getElementById('avatar-wrap');
+    if (d.avatar_url) {
+      avatarWrap.innerHTML = '<img class="avatar" src="' + esc(d.avatar_url) + '" alt="Photo de ' + esc(name) + '">';
+    } else {
+      var initials = name.split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
+      avatarWrap.innerHTML = '<div class="avatar">' + initials + '</div>';
+    }
+
+    // ── Hero ──────────────────────────────────────────────────────────────────
+    document.getElementById('hero-name').textContent = (d.is_clinic ? '' : 'Dr ') + name;
+    document.getElementById('hero-spec').textContent = spec;
+
+    var meta = '';
+    if (loc) meta += chip('<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>', loc);
+    meta += chip('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 15a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 4.11h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 11a16 16 0 0 0 5.91 5.91l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 18z"/>', 'Rdv en ligne', d.accepts_rdv ? '' : 'display:none');
+    meta += chip('<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>', 'Profil vérifié', 'badge-verified');
+    document.getElementById('hero-meta').innerHTML = meta;
+
+    if (d.consultation_price) {
+      document.getElementById('hero-price').innerHTML = '<span class="price-tag">' + esc(String(d.consultation_price)) + ' DA</span> <span style="font-size:.78rem;color:#4A5068">/ consultation</span>';
+    }
+
+    // ── Bio ───────────────────────────────────────────────────────────────────
+    if (d.bio) {
+      document.getElementById('bio-text').textContent = d.bio;
+      document.getElementById('bio-card').style.display = '';
+    }
+
+    // ── Info rows ─────────────────────────────────────────────────────────────
+    var rows = '';
+    if (d.address) rows += infoRow('Adresse', esc(d.address));
+    if (d.wilaya)  rows += infoRow('Wilaya', esc(d.wilaya));
+    if (d.city)    rows += infoRow('Ville', esc(d.city));
+    if (d.languages) {
+      var langs = d.languages.split(',').map(function(l){return l.trim();}).filter(Boolean);
+      if (langs.length) {
+        rows += infoRow('Langues', langs.map(function(l){return '<span class="lang-pill">'+esc(l)+'</span>';}).join(''));
+      }
+    }
+    document.getElementById('info-rows').innerHTML = rows || '<p style="color:#C5CAD8;font-size:.85rem">Aucune information supplémentaire.</p>';
+
+    // ── Sidebar ───────────────────────────────────────────────────────────────
+    if (d.accepts_rdv) {
+      document.getElementById('sidebar-body').innerHTML =
+        '<p style="font-size:.82rem;color:#4A5068;margin-bottom:16px">Réservez en quelques secondes, recevez une confirmation par SMS.</p>'
+        + '<a href="/book?doctor=' + encodeURIComponent(d.id) + '" class="cta-btn">'
+        + '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+        + 'Prendre rendez-vous'
+        + '</a>'
+        + (d.consultation_price ? '<p style="text-align:center;margin-top:12px;font-size:.78rem;color:#4A5068">Consultation : <strong>' + esc(String(d.consultation_price)) + ' DA</strong></p>' : '');
+    } else {
+      document.getElementById('sidebar-body').innerHTML =
+        '<p style="font-size:.82rem;color:#4A5068;margin-bottom:16px">Ce médecin ne prend pas de rendez-vous en ligne pour le moment.</p>'
+        + '<a href="/find-doctor" class="btn btn-outline" style="width:100%;justify-content:center">Voir d\'autres médecins</a>';
+    }
+
+    show('content');
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function show(state) {
+    ['loading','notfound','content'].forEach(function(s){
+      document.getElementById('state-'+s).style.display = s === state ? '' : 'none';
+    });
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function chip(svgPath, label, cls, style) {
+    if (style === 'display:none') return '';
+    return '<span class="meta-chip ' + (cls||'') + '">'
+      + '<svg viewBox="0 0 24 24">' + svgPath + '</svg>'
+      + esc(label) + '</span>';
+  }
+
+  function infoRow(label, val) {
+    return '<div class="info-row"><span class="info-label">' + label + '</span><span>' + val + '</span></div>';
+  }
+})();
+</script>
+</body>
+</html>
