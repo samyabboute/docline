@@ -246,7 +246,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
     <div class="plan-badge">Le plus populaire</div>
     <div class="plan-name">Pro Médecin</div>
     <div class="plan-price-row">
-      <div class="plan-price" id="pro-price">2 900 DA</div>
+      <div class="plan-price" id="pro-price">5 900 DA</div>
       <div class="plan-price-suffix" id="pro-suffix">/mois</div>
     </div>
     <div class="plan-price-yearly" id="pro-yearly">&nbsp;</div>
@@ -276,7 +276,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
   <div class="plan anim-fade-up delay-300">
     <div class="plan-name">Pro Clinique</div>
     <div class="plan-price-row">
-      <div class="plan-price" id="clinic-price">7 900 DA</div>
+      <div class="plan-price" id="clinic-price">13 900 DA</div>
       <div class="plan-price-suffix" id="clinic-suffix">/mois</div>
     </div>
     <div class="plan-price-yearly" id="clinic-yearly">&nbsp;</div>
@@ -477,17 +477,17 @@ function setBilling(mode) {
   save.classList.toggle('hidden', mode === 'monthly');
 
   if (mode === 'yearly') {
-    document.getElementById('pro-price').textContent = '2 400 DA';
+    document.getElementById('pro-price').textContent = '4 900 DA';
     document.getElementById('pro-suffix').textContent = '/mois';
-    document.getElementById('pro-yearly').textContent = 'Facturé 29 000 DA/an · 2 mois offerts';
-    document.getElementById('clinic-price').textContent = '6 600 DA';
+    document.getElementById('pro-yearly').textContent = 'Facturé 59 000 DA/an · 2 mois offerts';
+    document.getElementById('clinic-price').textContent = '11 500 DA';
     document.getElementById('clinic-suffix').textContent = '/mois';
-    document.getElementById('clinic-yearly').textContent = 'Facturé 79 000 DA/an · 2 mois offerts';
+    document.getElementById('clinic-yearly').textContent = 'Facturé 139 000 DA/an · 2 mois offerts';
   } else {
-    document.getElementById('pro-price').textContent = '2 900 DA';
+    document.getElementById('pro-price').textContent = '5 900 DA';
     document.getElementById('pro-suffix').textContent = '/mois';
     document.getElementById('pro-yearly').innerHTML = '&nbsp;';
-    document.getElementById('clinic-price').textContent = '7 900 DA';
+    document.getElementById('clinic-price').textContent = '13 900 DA';
     document.getElementById('clinic-suffix').textContent = '/mois';
     document.getElementById('clinic-yearly').innerHTML = '&nbsp;';
   }
@@ -495,8 +495,8 @@ function setBilling(mode) {
 
 // OPEN PAYMENT MODAL
 var PLAN_PRICES = {
-  pro:        { monthly: '2 900 DA', yearly: '29 000 DA' },
-  enterprise: { monthly: '7 900 DA', yearly: '79 000 DA' },
+  pro:        { monthly: '5 900 DA', yearly: '59 000 DA' },
+  enterprise: { monthly: '13 900 DA', yearly: '139 000 DA' },
 };
 var PLAN_LABELS = { pro: 'Pro Médecin', enterprise: 'Pro Clinique' };
 
@@ -572,7 +572,7 @@ async function submitManual(method) {
   try {
     var { data: { session } } = await _supa.auth.getSession();
     if (!session) { window.location.href = '/login'; return; }
-    var AMOUNTS_INT = { pro: { monthly: 2900, yearly: 29000 }, enterprise: { monthly: 7900, yearly: 79000 } };
+    var AMOUNTS_INT = { pro: { monthly: 5900, yearly: 59000 }, enterprise: { monthly: 13900, yearly: 139000 } };
     var { error } = await _supa.from('payment_requests').insert({
       user_id:    session.user.id,
       user_email: session.user.email,
