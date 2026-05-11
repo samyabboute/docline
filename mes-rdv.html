@@ -332,7 +332,7 @@
           <strong>Rendez-vous en ligne désactivés</strong>
           <p>Activez votre profil public pour que les patients puissent vous trouver et réserver.</p>
         </div>
-        <a href="profil-public.html" class="banner-btn">Activer mon profil →</a>
+        <a href="/profil-public" class="banner-btn">Activer mon profil →</a>
       </div>
 
       <!-- Page header -->
@@ -342,7 +342,7 @@
           <p>Gérez les demandes de rendez-vous de vos patients</p>
         </div>
         <div class="header-actions">
-          <a href="profil-public.html" class="btn-outline">
+          <a href="/profil-public" class="btn-outline">
             <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/></svg>
             Modifier profil
           </a>
@@ -567,7 +567,7 @@ function renderList(){
       +'<div class="empty-state-title">Aucun rendez-vous trouvé</div>'
       +'<div class="empty-state-sub">'+rdvSub+'</div>'
       + (_allRdv.length === 0
-          ? '<a href="profil-public.html" style="display:inline-flex;align-items:center;gap:6px;margin-top:18px;padding:9px 20px;border-radius:999px;background:var(--brand);color:#fff;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 2px 8px rgba(59,23,114,.2)">Configurer mon profil →</a>'
+          ? '<a href="/profil-public" style="display:inline-flex;align-items:center;gap:6px;margin-top:18px;padding:9px 20px;border-radius:999px;background:var(--brand);color:#fff;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 2px 8px rgba(59,23,114,.2)">Configurer mon profil →</a>'
           : '')
       +'</div>';
     return;

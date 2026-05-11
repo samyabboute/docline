@@ -769,7 +769,7 @@ button{font-family:inherit;cursor:pointer}
       /* ── Menu ── */
       + '<div class="sb-pop-menu">'
       /* Mon profil public */
-      +   '<a href="profil-public.html" class="sb-pop-item">'
+      +   '<a href="/profil-public" class="sb-pop-item">'
       +     '<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/></svg>'
       +     'Mon profil public'
       +   '</a>'
@@ -779,7 +779,7 @@ button{font-family:inherit;cursor:pointer}
       +     'Modifier le logo / avatar'
       +   '</a>'
       /* Mes disponibilités */
-      +   '<a href="disponibilites.html" class="sb-pop-item">'
+      +   '<a href="/disponibilites" class="sb-pop-item">'
       +     '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
       +     'Mes disponibilités'
       +   '</a>'
