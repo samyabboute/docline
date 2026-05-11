@@ -2,6 +2,21 @@
  * Docline Shell v2 — sidebar + topbar partagés
  * Usage: Shell.init({ page: 'queue', title: 'File d\'attente', isPro, userName, userEmail })
  */
+
+// Global error capture — envoyé à Sentry si initialisé
+window.addEventListener('error', function (e) {
+  if (typeof Sentry !== 'undefined') {
+    Sentry.captureException(e.error || new Error(e.message), {
+      extra: { filename: e.filename, lineno: e.lineno, colno: e.colno },
+    });
+  }
+});
+window.addEventListener('unhandledrejection', function (e) {
+  if (typeof Sentry !== 'undefined') {
+    Sentry.captureException(e.reason instanceof Error ? e.reason : new Error(String(e.reason)));
+  }
+});
+
 var Shell = (function () {
   'use strict';
 
