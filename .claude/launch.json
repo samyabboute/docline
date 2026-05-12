@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "prospeo",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "src/pages", "-p", "8765", "--no-clipboard"],
+      "port": 8765
+    }
+  ]
+}

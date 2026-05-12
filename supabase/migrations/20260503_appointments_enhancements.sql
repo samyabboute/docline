@@ -27,7 +27,8 @@ ALTER TABLE clients
   ADD COLUMN IF NOT EXISTS no_show_count INTEGER DEFAULT 0;
 
 -- 3. Vue utilitaire : RDV du jour enrichis
-CREATE OR REPLACE VIEW v_today_appointments AS
+DROP VIEW IF EXISTS v_today_appointments;
+CREATE VIEW v_today_appointments AS
 SELECT
   a.id,
   a.doctor_id,

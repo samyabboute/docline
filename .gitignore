@@ -1,0 +1,33 @@
+# SECURITY: Never commit these
+.env
+.env.local
+.env.production
+.env.*.local
+supabase/.env
+
+# Dependencies
+node_modules/
+.npm/
+
+# Build
+dist/
+build/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Supabase local dev
+supabase/.branches
+supabase/.temp
+
+# Local Netlify folder
+.netlify

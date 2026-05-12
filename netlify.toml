@@ -1,0 +1,103 @@
+[build]
+  publish = "src/pages"
+
+# ── Production (branche main) ─────────────────────────────────────────────────
+[context.production]
+  publish = "src/pages"
+
+# ── Staging / Beta (branche beta) ────────────────────────────────────────────
+[context.beta]
+  publish = "src/pages"
+
+# ── Branch deploys (toutes les autres branches) ───────────────────────────────
+[context.branch-deploy]
+  publish = "src/pages"
+
+# ── Security headers on all pages ────────────────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options            = "DENY"
+    X-Content-Type-Options     = "nosniff"
+    X-XSS-Protection           = "1; mode=block"
+    Referrer-Policy            = "strict-origin-when-cross-origin"
+    Permissions-Policy         = "camera=(), microphone=(), geolocation=()"
+    # CSP — allows Supabase, Stripe, CDNs, and Google Fonts
+    Content-Security-Policy    = "default-src 'self' https://*.supabase.co https://cdn.jsdelivr.net https://js.stripe.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com;"
+
+# ── Cache static assets aggressively ─────────────────────────────────────────
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ── Clean URL redirects ───────────────────────────────────────────────────────
+[[redirects]]
+  from   = "/dashboard"
+  to     = "/app.html"
+  status = 200
+
+[[redirects]]
+  from   = "/admin"
+  to     = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from   = "/login"
+  to     = "/login.html"
+  status = 200
+
+[[redirects]]
+  from   = "/pricing"
+  to     = "/pricing.html"
+  status = 200
+
+[[redirects]]
+  from   = "/clients"
+  to     = "/clients.html"
+  status = 200
+
+[[redirects]]
+  from   = "/invoices"
+  to     = "/invoices.html"
+  status = 200
+
+[[redirects]]
+  from   = "/proposals"
+  to     = "/proposals.html"
+  status = 200
+
+[[redirects]]
+  from   = "/calendar"
+  to     = "/calendar.html"
+  status = 200
+
+[[redirects]]
+  from   = "/privacy"
+  to     = "/privacy.html"
+  status = 200
+
+[[redirects]]
+  from   = "/terms"
+  to     = "/terms.html"
+  status = 200
+
+[[redirects]]
+  from   = "/timer"
+  to     = "/timer.html"
+  status = 200
