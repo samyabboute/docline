@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<title>Admin — Docline</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+/* ── CSS VARIABLES ─────────────────────────────────────────── */
+:root {
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;--brand-glow:rgba(59,23,114,.14);
+  --sidebar-bg:#0f172a;--sidebar-hover:rgba(255,255,255,.06);--sidebar-active:rgba(59,23,114,.18);--sidebar-border:rgba(255,255,255,.07);
+  --bg:#F8FAFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
+  --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
+  --border:#E4E7F0;--border-strong:#C8CCE0;
+  --success:#12B76A;--success-bg:#ECFDF5;--success-border:rgba(18,183,106,.2);
+  --warning:#F79009;--warning-bg:#FFFAEB;--warning-border:rgba(247,144,9,.2);
+  --danger:#F04438;--danger-bg:#FEF3F2;--danger-border:rgba(240,68,56,.2);
+  --info:#2E90FA;--info-bg:#EFF8FF;--info-border:rgba(46,144,250,.2);
+  --sidebar-w:240px;--topbar-h:56px;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --shadow-xs:0 1px 2px rgba(13,15,20,.06);
+  --shadow-sm:0 1px 3px rgba(13,15,20,.08),0 1px 2px rgba(13,15,20,.05);
+  --shadow-md:0 4px 8px rgba(13,15,20,.08),0 2px 4px rgba(13,15,20,.04);
+  --shadow-lg:0 12px 24px rgba(13,15,20,.1),0 4px 8px rgba(13,15,20,.06);
+  --shadow-brand:0 4px 14px rgba(59,23,114,.28);
+  --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);
+}
+
+/* ── RESET ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Sora',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+img,svg{display:block;max-width:100%}
+ul,ol{list-style:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
+
+/* ── SHELL ─────────────────────────────────────────────────── */
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;min-height:100vh}
+.sidebar{grid-row:1/-1;background:var(--sidebar-bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--sidebar-border);z-index:200;transition:left var(--t-base)}
+.sidebar-head{display:flex;align-items:center;padding:18px 16px 14px;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;gap:10px}
+.sidebar-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#7C3AED,#3B1772);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-logo-text{font-size:.9375rem;font-weight:800;color:#fff;letter-spacing:-.3px}
+.sidebar-logo-sub{font-size:.625rem;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+.sidebar-section{padding:18px 16px 6px;font-size:.625rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.22)}
+.sidebar-footer{margin-top:auto;border-top:1px solid var(--sidebar-border);padding:10px 8px;flex-shrink:0;position:relative}
+.sidebar-user-menu{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-md);cursor:pointer;transition:background var(--t-fast)}
+.sidebar-user-menu:hover{background:var(--sidebar-hover)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#F79009,#F04438);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:.6875rem;font-weight:600;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.user-role{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px}
+.user-dropdown{display:none;position:absolute;bottom:calc(100% + 4px);left:8px;right:8px;background:#1e293b;border:1px solid var(--sidebar-border);border-radius:var(--r-lg);padding:6px;box-shadow:0 -8px 24px rgba(0,0,0,.3);z-index:300}
+.user-dropdown.open{display:block}
+.user-drop-item{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:var(--r-md);background:none;border:none;color:rgba(255,255,255,.7);font-size:.8125rem;font-weight:500;cursor:pointer;text-align:left;transition:all var(--t-fast);font-family:inherit}
+.user-drop-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
+.user-drop-item:hover{background:var(--sidebar-hover);color:#fff}
+.user-drop-item.danger{color:rgba(240,68,56,.8)}
+.user-drop-item.danger:hover{background:rgba(240,68,56,.1);color:#F04438}
+.user-drop-sep{height:1px;background:var(--sidebar-border);margin:4px 0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 14px;margin:1px 8px;border-radius:var(--r-md);color:rgba(255,255,255,.5);font-size:.8125rem;font-weight:500;cursor:pointer;transition:all var(--t-fast);border:none;background:transparent;width:calc(100% - 16px);text-align:left;position:relative}
+.nav-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.8)}
+.nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:#F79009;border-radius:0 var(--r-full) var(--r-full) 0}
+.nav-item .ni-icon{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
+.nav-item:hover .ni-icon,.nav-item.active .ni-icon{opacity:1}
+.nav-badge{margin-left:auto;background:#F79009;color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:var(--r-full);min-width:18px;text-align:center}
+
+/* ── TOPBAR ────────────────────────────────────────────────── */
+.topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:1rem;font-weight:700;color:var(--text-primary)}
+.topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.admin-chip{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);color:var(--brand);font-size:.6875rem;font-weight:700;padding:4px 10px;border-radius:var(--r-full);border:1px solid rgba(59,23,114,.15)}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--r-md);color:var(--text-secondary)}
+.hamburger svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199}
+
+/* ── MAIN CONTENT ─────────────────────────────────────────── */
+.main{overflow-y:auto;min-height:calc(100vh - var(--topbar-h))}
+.page{padding:28px;max-width:1400px}
+.section{display:none}
+.section.active{display:block}
+.page-header{margin-bottom:24px}
+.page-title{font-size:1.1875rem;font-weight:800;color:var(--text-primary);letter-spacing:-.3px}
+.page-sub{font-size:.8125rem;color:var(--text-muted);margin-top:3px}
+
+/* ── BUTTONS ───────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Sora',sans-serif;font-size:.8125rem;font-weight:600;padding:9px 18px;transition:all var(--t-fast);white-space:nowrap;line-height:1}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
+.btn-primary:hover:not(:disabled){background:var(--brand-dark)}
+.btn-secondary{background:var(--bg-subtle);color:var(--text-secondary);border:1px solid var(--border)}
+.btn-secondary:hover:not(:disabled){background:var(--bg-hover);color:var(--text-primary)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.btn-danger:hover:not(:disabled){background:var(--danger);color:#fff}
+.btn-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.btn-success:hover:not(:disabled){background:var(--success);color:#fff}
+.btn-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.btn-warning:hover:not(:disabled){background:var(--warning);color:#fff}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid transparent}
+.btn-ghost:hover:not(:disabled){background:var(--bg-subtle);color:var(--text-primary)}
+.btn-sm{padding:5px 10px;font-size:.75rem;border-radius:var(--r-sm)}
+.btn-xs{padding:3px 8px;font-size:.6875rem;border-radius:var(--r-sm)}
+.spinner-btn{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
+.btn.loading .spinner-btn{display:block}
+.btn.loading .btn-lbl{display:none}
+.btn-secondary.loading .spinner-btn{border-color:rgba(0,0,0,.15);border-top-color:var(--text-secondary)}
+.btn-warning.loading .spinner-btn{border-color:rgba(0,0,0,.15);border-top-color:var(--warning)}
+
+/* ── CARDS ─────────────────────────────────────────────────── */
+.card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.card-title{font-size:.8125rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+.card-title svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--brand);flex-shrink:0}
+.card-body{padding:20px}
+
+/* ── KPI CARDS ─────────────────────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
+.kpi-brand::before{background:var(--brand)}
+.kpi-success::before{background:var(--success)}
+.kpi-warning::before{background:var(--warning)}
+.kpi-danger::before{background:var(--danger)}
+.kpi-info::before{background:var(--info)}
+.kpi-label{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px}
+.kpi-value{font-size:1.875rem;font-weight:800;letter-spacing:-.5px;line-height:1;color:var(--text-primary);margin-bottom:6px}
+.kpi-sub{font-size:.6875rem;color:var(--text-muted)}
+.kpi-icon{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:18px}
+.kpi-brand .kpi-icon{background:var(--brand-light)}
+.kpi-success .kpi-icon{background:var(--success-bg)}
+.kpi-warning .kpi-icon{background:var(--warning-bg)}
+.kpi-danger .kpi-icon{background:var(--danger-bg)}
+.kpi-info .kpi-icon{background:var(--info-bg)}
+
+/* ── BADGES ────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700;letter-spacing:.2px}
+.badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.badge-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.badge-success .badge-dot{background:var(--success)}
+.badge-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.badge-warning .badge-dot{background:var(--warning)}
+.badge-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.badge-danger .badge-dot{background:var(--danger)}
+.badge-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
+.badge-neutral .badge-dot{background:var(--text-faint)}
+.badge-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
+.badge-info{background:var(--info-bg);color:var(--info);border:1px solid var(--info-border)}
+
+/* ── TABLE ─────────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:10px 14px;text-align:left;font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;background:var(--bg-subtle)}
+.data-table td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:.8125rem}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover td{background:var(--bg-hover)}
+.td-name{font-weight:600;color:var(--text-primary)}
+.td-muted{color:var(--text-muted);font-size:.75rem}
+.td-actions{display:flex;align-items:center;gap:6px}
+
+/* ── TABS ─────────────────────────────────────────────────── */
+.tabs{display:flex;gap:2px;background:var(--bg-subtle);border-radius:var(--r-md);padding:3px}
+.tab{padding:6px 14px;border-radius:var(--r-sm);font-size:.75rem;font-weight:600;color:var(--text-muted);cursor:pointer;border:none;background:transparent;transition:all var(--t-fast)}
+.tab.active{background:var(--bg-raised);color:var(--text-primary);box-shadow:var(--shadow-xs)}
+.tab:hover:not(.active){color:var(--text-secondary)}
+
+/* ── TOOLBAR ───────────────────────────────────────────────── */
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--bg-subtle);border:1.5px solid var(--border);border-radius:var(--r-md);padding:7px 12px;transition:border-color var(--t-fast)}
+.search-bar:focus-within{border-color:var(--brand);background:var(--bg-raised)}
+.search-bar svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.search-bar input{background:transparent;border:none;outline:none;font-size:.8125rem;color:var(--text-primary);width:200px}
+.search-bar input::placeholder{color:var(--text-faint)}
+
+/* ── SKELETON ──────────────────────────────────────────────── */
+.skel{background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-hover) 50%,var(--bg-subtle) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r-sm);height:14px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-row td{padding:12px 14px}
+
+/* ── TOAST ─────────────────────────────────────────────────── */
+.toasts{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 16px;display:flex;align-items:flex-start;gap:10px;box-shadow:var(--shadow-lg);min-width:260px;max-width:380px;pointer-events:all;animation:toastIn .25s ease both}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.toast-go{animation:toastOut .2s ease both}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+.toast.success{border-left:3px solid var(--success)}
+.toast.error{border-left:3px solid var(--danger)}
+.toast.info{border-left:3px solid var(--info)}
+.toast-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;flex-shrink:0;margin-top:1px}
+.toast.success .toast-icon{color:var(--success)}
+.toast.error .toast-icon{color:var(--danger)}
+.toast.info .toast-icon{color:var(--info)}
+.toast-body{flex:1;min-width:0}
+.toast-title{font-weight:700;font-size:.8125rem;color:var(--text-primary)}
+.toast-msg{font-size:.75rem;color:var(--text-muted);margin-top:2px}
+
+/* ── SIDE PANEL (KYC detail) ───────────────────────────────── */
+.panel-backdrop{position:fixed;inset:0;background:rgba(13,15,20,.4);z-index:400;opacity:0;pointer-events:none;transition:opacity var(--t-base)}
+.panel-backdrop.open{opacity:1;pointer-events:all}
+.panel{position:fixed;top:0;right:-680px;width:660px;max-width:100vw;height:100vh;background:var(--bg-raised);box-shadow:var(--shadow-lg);z-index:401;display:flex;flex-direction:column;transition:right var(--t-base);border-left:1px solid var(--border)}
+.panel-backdrop.open .panel{right:0}
+.panel-head{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.panel-title{font-size:1rem;font-weight:800;color:var(--text-primary)}
+.panel-sub{font-size:.75rem;color:var(--text-muted);margin-top:2px}
+.panel-close{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:6px;border-radius:var(--r-sm);transition:all var(--t-fast);flex-shrink:0}
+.panel-close:hover{background:var(--bg-hover);color:var(--text-primary)}
+.panel-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.panel-body{flex:1;overflow-y:auto;padding:0}
+.panel-section{padding:20px 24px;border-bottom:1px solid var(--border)}
+.panel-section:last-child{border-bottom:none}
+.panel-section-label{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:12px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.info-row{padding:8px 0;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+.info-row:last-child{border-bottom:none}
+.info-key{font-size:.6875rem;color:var(--text-muted)}
+.info-val{font-size:.8125rem;font-weight:600;color:var(--text-primary)}
+.doc-preview-area{border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:var(--bg-subtle);min-height:200px;display:flex;align-items:center;justify-content:center}
+.doc-preview-area img{width:100%;max-height:360px;object-fit:contain;background:#fff}
+.doc-preview-area iframe{width:100%;height:360px;border:none}
+.doc-no-preview{text-align:center;padding:40px 20px;color:var(--text-muted)}
+.doc-no-preview svg{width:36px;height:36px;stroke:var(--text-faint);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 10px}
+.panel-actions{display:flex;gap:8px;flex-wrap:wrap;padding:16px 24px;border-top:1px solid var(--border);background:var(--bg-raised);flex-shrink:0}
+
+/* ── AI RESULT CARD ────────────────────────────────────────── */
+.ai-card{border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:12px}
+.ai-card-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-subtle);border-bottom:1px solid var(--border)}
+.ai-card-head svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;color:var(--brand)}
+.ai-card-title{font-weight:700;font-size:.875rem;color:var(--text-primary)}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.ai-field{padding:10px 16px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)}
+.ai-field:nth-child(even){border-right:none}
+.ai-field:nth-last-child(-n+2){border-bottom:none}
+.ai-label{font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px}
+.ai-value{font-size:.8125rem;font-weight:600;color:var(--text-primary)}
+.ai-remarques{padding:12px 16px;background:var(--warning-bg);border-top:1px solid var(--warning-border)}
+.ai-remarques-label{font-size:.6875rem;font-weight:700;color:var(--warning);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.ai-remarques-text{font-size:.8125rem;color:var(--text-secondary)}
+.confidence-bar{display:flex;align-items:center;gap:8px;margin-top:4px}
+.confidence-track{flex:1;height:6px;background:var(--bg-hover);border-radius:var(--r-full);overflow:hidden}
+.confidence-fill{height:100%;border-radius:var(--r-full);background:var(--brand);transition:width .5s ease}
+.confidence-val{font-size:.6875rem;font-weight:700;color:var(--text-muted);flex-shrink:0;min-width:30px}
+
+/* ── PARAMÈTRES ────────────────────────────────────────────── */
+.param-block{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-sm)}
+.param-block-head{padding:16px 20px;border-bottom:1px solid var(--border);font-size:.875rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;background:var(--bg-subtle)}
+.param-block-head svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--brand)}
+.param-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+.param-row:last-child{border-bottom:none}
+.param-key{font-size:.8125rem;font-weight:600;color:var(--text-secondary)}
+.param-val{font-family:'DM Mono','Courier New',monospace;font-size:.75rem;color:var(--text-primary);background:var(--bg-subtle);padding:4px 10px;border-radius:var(--r-sm);border:1px solid var(--border);max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.param-val.secret{letter-spacing:2px;color:var(--text-muted)}
+.param-note{font-size:.75rem;color:var(--text-muted);margin-top:10px;line-height:1.7;padding:0 20px 16px}
+.param-note code{background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-sm);padding:1px 6px;font-size:.6875rem;font-family:'DM Mono','Courier New',monospace;color:var(--brand)}
+
+/* ── PENDING ALERT ─────────────────────────────────────────── */
+.pending-alert{display:flex;align-items:center;gap:12px;background:rgba(247,144,9,.06);border:1px solid rgba(247,144,9,.25);border-radius:var(--r-lg);padding:14px 18px;margin-bottom:20px;cursor:pointer;transition:background var(--t-fast)}
+.pending-alert:hover{background:rgba(247,144,9,.1)}
+.pa-dot{width:10px;height:10px;border-radius:50%;background:var(--warning);flex-shrink:0;box-shadow:0 0 0 3px rgba(247,144,9,.2);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(247,144,9,.2)}50%{box-shadow:0 0 0 6px rgba(247,144,9,.05)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite}
+
+/* ── EMPTY STATE ───────────────────────────────────────────── */
+.empty-state{text-align:center;padding:60px 24px;color:var(--text-muted)}
+.empty-state svg{width:40px;height:40px;stroke:var(--text-faint);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 12px}
+.empty-state p{font-size:.875rem}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:960px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:calc(-1 * var(--sidebar-w) - 10px);height:100vh;transition:left var(--t-base)}
+  .sidebar.open{left:0}
+  .sidebar-overlay{display:block;opacity:0;pointer-events:none;transition:opacity var(--t-base)}
+  .sidebar-overlay.open{opacity:1;pointer-events:all}
+  .hamburger{display:flex}
+  .panel{width:100vw}
+}
+@media(max-width:600px){
+  .kpi-grid{grid-template-columns:1fr}
+  .page{padding:16px}
+  .info-grid{grid-template-columns:1fr}
+  .ai-grid{grid-template-columns:1fr}
+  .ai-field{border-right:none}
+  .ai-field:nth-last-child(-n+2){border-bottom:1px solid var(--border)}
+  .ai-field:last-child{border-bottom:none}
+}
+</style>
+  <!-- Sentry monitoring -->
+  <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
+  <script src="/js/sentry-config.js"></script>
+  <script src="/js/sentry-init.js"></script>
+</head>
+<body>
+
+<!-- TOASTS -->
+<div class="toasts" id="toasts"></div>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- KYC DETAIL PANEL -->
+<div class="panel-backdrop" id="panel-backdrop" onclick="handlePanelBackdropClick(event)">
+  <div class="panel" id="kyc-panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title" id="panel-title">Examen KYC</div>
+        <div class="panel-sub" id="panel-sub">—</div>
+      </div>
+      <button class="panel-close" onclick="closePanel()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="panel-body" id="panel-body">
+      <!-- dynamic content -->
+    </div>
+    <div class="panel-actions" id="panel-actions">
+      <button class="btn btn-warning" id="btn-ai" onclick="analyzeWithAI()">
+        <div class="spinner-btn"></div>
+        <span class="btn-lbl">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle;margin-right:4px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Analyser avec IA
+        </span>
+      </button>
+      <button class="btn btn-success" id="btn-approve" onclick="approveKYC()">
+        <div class="spinner-btn"></div>
+        <span class="btn-lbl">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>
+          Approuver
+        </span>
+      </button>
+      <button class="btn btn-danger" id="btn-reject" onclick="rejectKYC()">
+        <div class="spinner-btn"></div>
+        <span class="btn-lbl">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle;margin-right:4px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Rejeter
+        </span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="closePanel()" style="margin-left:auto">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <div>
+        <div class="sidebar-logo-text">Docline</div>
+        <div class="sidebar-logo-sub">Admin Panel</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">Navigation</div>
+
+    <button class="nav-item active" id="nav-dashboard" onclick="showSection('dashboard')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+
+    <button class="nav-item" id="nav-kyc" onclick="showSection('kyc')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Vérifications KYC
+      <span class="nav-badge" id="kyc-badge" style="display:none">0</span>
+    </button>
+
+    <button class="nav-item" id="nav-medecins" onclick="showSection('medecins')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Médecins
+    </button>
+
+    <button class="nav-item" id="nav-parametres" onclick="showSection('parametres')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Paramètres
+    </button>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user-menu" id="sidebarUserMenu" onclick="toggleUserMenu()">
+        <div class="user-avatar" id="admin-avatar">A</div>
+        <div style="flex:1;min-width:0">
+          <div class="user-name" id="admin-email-sidebar">—</div>
+          <div class="user-role" id="admin-role-sidebar">—</div>
+        </div>
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="user-drop-item" onclick="openAsDoctor()">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Changer d'utilisateur
+        </button>
+        <button class="user-drop-item" onclick="window.open('/dashboard','_blank')">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          Voir l'app médecin
+        </button>
+        <div class="user-drop-sep"></div>
+        <button class="user-drop-item danger" onclick="signOut()">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="hamburger" onclick="toggleSidebar()">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn btn-secondary btn-sm" onclick="window.open('/dashboard','_blank')" title="Ouvrir l'app médecin">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        App médecin
+      </button>
+      <div class="admin-chip">
+        <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span id="admin-email-top">admin</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="signOut()" title="Déconnexion">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ══════════════════ DASHBOARD ══════════════════ -->
+    <div class="section active page" id="section-dashboard">
+      <div class="page-header">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Vue d'ensemble de la plateforme Docline</div>
+      </div>
+
+      <!-- KYC PENDING ALERT -->
+      <div class="pending-alert" id="pending-alert" style="display:none" onclick="showSection('kyc')">
+        <div class="pa-dot"></div>
+        <div>
+          <strong id="pending-alert-count">0</strong> demande(s) KYC en attente de vérification
+        </div>
+        <span style="margin-left:auto;font-size:.75rem;color:var(--warning);font-weight:600">Examiner →</span>
+      </div>
+
+      <!-- KPI GRID -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi kpi-brand">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="kpi-label">Médecins inscrits</div>
+          <div class="kpi-value" id="kpi-total">—</div>
+          <div class="kpi-sub">profils médecins actifs</div>
+        </div>
+        <div class="kpi kpi-warning">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div class="kpi-label">KYC en attente</div>
+          <div class="kpi-value" id="kpi-pending">—</div>
+          <div class="kpi-sub">à vérifier</div>
+        </div>
+        <div class="kpi kpi-success">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div class="kpi-label">KYC approuvés</div>
+          <div class="kpi-value" id="kpi-approved">—</div>
+          <div class="kpi-sub">médecins vérifiés</div>
+        </div>
+        <div class="kpi kpi-info">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="kpi-label">RDV aujourd'hui</div>
+          <div class="kpi-value" id="kpi-rdv">—</div>
+          <div class="kpi-sub">rendez-vous prévus</div>
+        </div>
+      </div>
+
+      <!-- BOTTOM GRID: KYC + Recent signups -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+
+        <!-- RECENT PENDING KYC -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              KYC en attente
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="showSection('kyc')">Voir tout →</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Médecin</th>
+                  <th>Type doc</th>
+                  <th>Soumis le</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="dash-kyc-tbody">
+                <tr class="skel-row"><td><div class="skel" style="width:120px"></div></td><td><div class="skel" style="width:80px"></div></td><td><div class="skel" style="width:70px"></div></td><td><div class="skel" style="width:60px"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RECENT SIGNUPS -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Dernières inscriptions
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="showSection('medecins')">Voir tout →</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Médecin</th>
+                  <th>Plan</th>
+                  <th>Inscrit le</th>
+                  <th>KYC</th>
+                </tr>
+              </thead>
+              <tbody id="dash-signups-tbody">
+                <tr class="skel-row"><td><div class="skel" style="width:120px"></div></td><td><div class="skel" style="width:50px"></div></td><td><div class="skel" style="width:70px"></div></td><td><div class="skel" style="width:60px"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════ KYC ══════════════════ -->
+    <div class="section page" id="section-kyc">
+      <div class="page-header">
+        <div class="page-title">Vérifications KYC</div>
+        <div class="page-sub">Examinez et validez les documents d'identité professionnelle des médecins</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tabs" id="kyc-tabs">
+          <button class="tab active" data-filter="all" onclick="setKycFilter('all')">Tous</button>
+          <button class="tab" data-filter="pending_review" onclick="setKycFilter('pending_review')">En attente</button>
+          <button class="tab" data-filter="approved" onclick="setKycFilter('approved')">Approuvés</button>
+          <button class="tab" data-filter="rejected" onclick="setKycFilter('rejected')">Rejetés</button>
+        </div>
+        <div class="search-bar" style="margin-left:auto">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="kyc-search" placeholder="Rechercher un médecin…" oninput="renderKycTable()">
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadKyc()">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Rafraîchir
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Médecin</th>
+                <th>Type document</th>
+                <th>N° Ordre</th>
+                <th>Soumis le</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="kyc-tbody">
+              <tr class="skel-row"><td><div class="skel" style="width:140px"></div></td><td><div class="skel" style="width:100px"></div></td><td><div class="skel" style="width:80px"></div></td><td><div class="skel" style="width:80px"></div></td><td><div class="skel" style="width:70px"></div></td><td><div class="skel" style="width:70px"></div></td></tr>
+              <tr class="skel-row"><td><div class="skel" style="width:120px"></div></td><td><div class="skel" style="width:90px"></div></td><td><div class="skel" style="width:70px"></div></td><td><div class="skel" style="width:80px"></div></td><td><div class="skel" style="width:70px"></div></td><td><div class="skel" style="width:70px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ MÉDECINS ══════════════════ -->
+    <div class="section page" id="section-medecins">
+      <div class="page-header">
+        <div class="page-title">Médecins</div>
+        <div class="page-sub">Gérez les comptes médecins, leurs plans et leur statut</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="doc-search" placeholder="Nom, email…" oninput="renderDoctorsTable()">
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadDoctors()" style="margin-left:auto">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Rafraîchir
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Plan</th>
+                <th>KYC</th>
+                <th>Actif</th>
+                <th>RDV total</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="doc-tbody">
+              <tr class="skel-row"><td><div class="skel" style="width:140px"></div></td><td><div class="skel" style="width:160px"></div></td><td><div class="skel" style="width:60px"></div></td><td><div class="skel" style="width:70px"></div></td><td><div class="skel" style="width:50px"></div></td><td><div class="skel" style="width:40px"></div></td><td><div class="skel" style="width:120px"></div></td></tr>
+              <tr class="skel-row"><td><div class="skel" style="width:120px"></div></td><td><div class="skel" style="width:140px"></div></td><td><div class="skel" style="width:60px"></div></td><td><div class="skel" style="width:70px"></div></td><td><div class="skel" style="width:50px"></div></td><td><div class="skel" style="width:40px"></div></td><td><div class="skel" style="width:120px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ PARAMÈTRES ══════════════════ -->
+    <div class="section page" id="section-parametres">
+      <div class="page-header">
+        <div class="page-title">Paramètres</div>
+        <div class="page-sub">Configuration et informations techniques de l'administration</div>
+      </div>
+
+      <div class="param-block">
+        <div class="param-block-head">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Configuration admin
+        </div>
+        <div class="param-row">
+          <span class="param-key">Email administrateur</span>
+          <span class="param-val">samyabboute5@gmail.com</span>
+        </div>
+        <div class="param-row">
+          <span class="param-key">Supabase Project URL</span>
+          <span class="param-val" id="cfg-supa-url">—</span>
+        </div>
+        <div class="param-row">
+          <span class="param-key">Supabase Anon Key</span>
+          <span class="param-val secret">••••••••••••••••••••••••</span>
+        </div>
+        <div class="param-row">
+          <span class="param-key">Edge Functions Base URL</span>
+          <span class="param-val" id="cfg-edge-url">—</span>
+        </div>
+      </div>
+
+      <div class="param-block">
+        <div class="param-block-head">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Intégration IA (Gemini)
+        </div>
+        <div class="param-row">
+          <span class="param-key">GEMINI_API_KEY</span>
+          <span class="param-val secret">••••••••••••••••••••••••</span>
+        </div>
+        <div class="param-note">
+          Pour configurer la clé API Gemini, définissez le secret <code>GEMINI_API_KEY</code> dans les secrets Supabase Edge Functions :<br>
+          <code>supabase secrets set GEMINI_API_KEY=votre_clé</code><br>
+          Ou via le Dashboard Supabase → Edge Functions → Secrets.
+        </div>
+        <div style="padding:0 20px 16px;display:flex;gap:8px;flex-wrap:wrap">
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
+            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Obtenir clé API Gemini
+          </a>
+          <a href="https://supabase.com/dashboard/project/ferkzwzypmdtuypxribz/functions" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
+            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Supabase Edge Functions
+          </a>
+        </div>
+      </div>
+
+      <!-- GESTION DES ACCÈS — super_admin only -->
+      <div class="param-block" id="acces-block">
+        <div class="param-block-head">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Gestion des accès
+        </div>
+
+        <!-- Add user form -->
+        <div style="padding:0 20px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:200px">
+            <label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px">Email</label>
+            <input type="email" id="acces-email" class="form-input" placeholder="agent@exemple.com" style="width:100%">
+          </div>
+          <div>
+            <label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px">Rôle</label>
+            <select id="acces-role" class="form-input">
+              <option value="support">Support (KYC + Médecins)</option>
+              <option value="kyc_agent">Agent KYC (KYC uniquement)</option>
+            </select>
+          </div>
+          <button class="btn btn-brand btn-sm" onclick="addAdminUser()" id="btn-add-admin">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Ajouter
+          </button>
+        </div>
+
+        <div class="param-note" style="margin:0 20px 12px">
+          L'utilisateur doit avoir un compte Docline avec cet email. Il pourra accéder au panel admin depuis <strong>/admin</strong> avec ses identifiants habituels.
+        </div>
+
+        <!-- Users table -->
+        <div class="table-wrap" style="margin:0 0 4px">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Ajouté le</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="acces-tbody">
+              <tr class="skel-row"><td><div class="skel" style="width:180px"></div></td><td><div class="skel" style="width:80px"></div></td><td><div class="skel" style="width:80px"></div></td><td><div class="skel" style="width:80px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="param-block">
+        <div class="param-block-head">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          À propos
+        </div>
+        <div class="param-row">
+          <span class="param-key">Application</span>
+          <span class="param-val">Docline — Gestion médicale Algérie</span>
+        </div>
+        <div class="param-row">
+          <span class="param-key">Version panel admin</span>
+          <span class="param-val">1.0.0</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+const ADMIN_EMAIL = 'samyabboute5@gmail.com';
+var _sb = null;
+var _session = null;
+var _adminRole = null;
+var _kycData = [];
+var _doctorsData = [];
+var _kycFilter = 'all';
+var _activePanelDoctor = null;
+
+document.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+  // Init Supabase
+  const url = (typeof SUPA_URL !== 'undefined') ? SUPA_URL : window.SUPABASE_URL;
+  const key = (typeof SUPA_KEY !== 'undefined') ? SUPA_KEY : window.SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    showToast('error', 'Configuration manquante', 'SUPA_URL ou SUPA_KEY introuvable dans config.js');
+    return;
+  }
+
+  _sb = supabase.createClient(url, key);
+
+  // Params section
+  const cfgEl = document.getElementById('cfg-supa-url');
+  const edgeEl = document.getElementById('cfg-edge-url');
+  if (cfgEl) cfgEl.textContent = url;
+  if (edgeEl) edgeEl.textContent = url + '/functions/v1';
+
+  // Auth guard
+  const { data: { session }, error } = await _sb.auth.getSession();
+  if (error || !session) { redirect(); return; }
+
+  const userEmail = session.user.email;
+
+  // Determine role: hardcoded super_admin or check admin_roles table
+  if (userEmail === ADMIN_EMAIL) {
+    _adminRole = 'super_admin';
+  } else {
+    const { data: roleRow } = await _sb.from('admin_roles').select('role').eq('email', userEmail).single();
+    if (!roleRow) { redirect(); return; }
+    _adminRole = roleRow.role;
+  }
+
+  _session = session;
+
+  // Show email + role in UI
+  setEl('admin-email-sidebar', userEmail);
+  setEl('admin-email-top', userEmail);
+  setEl('admin-avatar', userEmail.substring(0, 2).toUpperCase());
+  const roleLabels = { super_admin: 'Super Admin', support: 'Support', kyc_agent: 'Agent KYC' };
+  setEl('admin-role-sidebar', roleLabels[_adminRole] || _adminRole);
+
+  // Apply section visibility based on role
+  applyRoleRestrictions();
+
+  // Load default section
+  if (_adminRole === 'kyc_agent') {
+    showSection('kyc');
+  } else {
+    loadDashboard();
+  }
+}
+
+function applyRoleRestrictions() {
+  const role = _adminRole;
+  if (role === 'kyc_agent') {
+    const el = document.getElementById('nav-dashboard');
+    if (el) el.style.display = 'none';
+    const el2 = document.getElementById('nav-medecins');
+    if (el2) el2.style.display = 'none';
+    const el3 = document.getElementById('nav-parametres');
+    if (el3) el3.style.display = 'none';
+  } else if (role === 'support') {
+    const el = document.getElementById('nav-parametres');
+    if (el) el.style.display = 'none';
+  }
+  // super_admin: everything visible
+  if (role !== 'super_admin') {
+    const accesBlock = document.getElementById('acces-block');
+    if (accesBlock) accesBlock.style.display = 'none';
+  }
+}
+
+function redirect() {
+  window.location.href = '/login';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════ */
+var sectionTitles = {
+  dashboard: 'Dashboard',
+  kyc: 'Vérifications KYC',
+  medecins: 'Médecins',
+  parametres: 'Paramètres'
+};
+
+function showSection(name) {
+  // Hide all
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  // Show target
+  const sec = document.getElementById('section-' + name);
+  const nav = document.getElementById('nav-' + name);
+  if (sec) sec.classList.add('active');
+  if (nav) nav.classList.add('active');
+  setEl('topbar-title', sectionTitles[name] || name);
+
+  // Lazy load
+  if (name === 'kyc') loadKyc();
+  if (name === 'medecins') loadDoctors();
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'parametres') loadAdminUsers();
+
+  closeSidebar();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR MOBILE
+═══════════════════════════════════════════════════════════ */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════════════════════ */
+async function loadDashboard() {
+  try {
+    // Total doctors
+    const { count: totalDoctors } = await _sb
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('role', 'doctor');
+
+    // Pending KYC
+    const { count: pendingCount } = await _sb
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('kyc_status', 'pending_review');
+
+    // Approved KYC
+    const { count: approvedCount } = await _sb
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('kyc_status', 'approved');
+
+    // RDV today
+    const today = new Date().toISOString().slice(0, 10);
+    const { count: rdvCount } = await _sb
+      .from('appointments')
+      .select('id', { count: 'exact', head: true })
+      .eq('requested_date', today);
+
+    setEl('kpi-total', totalDoctors ?? '0');
+    setEl('kpi-pending', pendingCount ?? '0');
+    setEl('kpi-approved', approvedCount ?? '0');
+    setEl('kpi-rdv', rdvCount ?? '0');
+
+    // Pending alert
+    const alertEl = document.getElementById('pending-alert');
+    if (pendingCount > 0) {
+      alertEl.style.display = 'flex';
+      setEl('pending-alert-count', pendingCount);
+    } else {
+      alertEl.style.display = 'none';
+    }
+
+    // Update KYC badge in sidebar
+    const badge = document.getElementById('kyc-badge');
+    if (pendingCount > 0) {
+      badge.style.display = '';
+      badge.textContent = pendingCount;
+    } else {
+      badge.style.display = 'none';
+    }
+
+    // Recent pending KYC for dashboard
+    const { data: recentKyc } = await _sb
+      .from('profiles')
+      .select('id, first_name, last_name, full_name, kyc_document_type, kyc_submitted_at, kyc_status')
+      .eq('kyc_status', 'pending_review')
+      .order('kyc_submitted_at', { ascending: false })
+      .limit(5);
+
+    renderDashKyc(recentKyc || []);
+
+    // Recent signups
+    const { data: recentSignups } = await _sb
+      .from('profiles')
+      .select('id, first_name, last_name, full_name, plan, kyc_status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    renderDashSignups(recentSignups || []);
+
+  } catch (err) {
+    console.error('Dashboard load error', err);
+    showToast('error', 'Erreur', err.message || 'Impossible de charger le dashboard');
+  }
+}
+
+function renderDashKyc(rows) {
+  const tbody = document.getElementById('dash-kyc-tbody');
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:30px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><p>Aucune demande en attente</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr class="trow">
+      <td><span class="td-name">${esc(doctorName(r))}</span></td>
+      <td><span class="td-muted">${esc(r.kyc_document_type || '—')}</span></td>
+      <td><span class="td-muted">${fmtDate(r.kyc_submitted_at)}</span></td>
+      <td>
+        <button class="btn btn-secondary btn-xs" onclick="openKycPanel('${r.id}')">Examiner</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderDashSignups(rows) {
+  const tbody = document.getElementById('dash-signups-tbody');
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:30px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><p>Aucune inscription</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr class="trow">
+      <td><span class="td-name">${esc(doctorName(r))}</span></td>
+      <td>${planBadge(r.plan)}</td>
+      <td><span class="td-muted">${fmtDate(r.created_at)}</span></td>
+      <td>${kycBadge(r.kyc_status)}</td>
+    </tr>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KYC LIST
+═══════════════════════════════════════════════════════════ */
+async function loadKyc() {
+  try {
+    setKycSkeleton();
+    const { data, error } = await _sb
+      .from('profiles')
+      .select('id, first_name, last_name, full_name, email, kyc_status, kyc_document_type, kyc_order_number, kyc_submitted_at, kyc_reject_reason, kyc_document_url, plan, is_active')
+      .order('kyc_submitted_at', { ascending: false, nullsFirst: false });
+
+    if (error) throw error;
+    _kycData = data || [];
+    renderKycTable();
+
+    // Update badge
+    const pending = _kycData.filter(r => r.kyc_status === 'pending_review').length;
+    const badge = document.getElementById('kyc-badge');
+    if (pending > 0) {
+      badge.style.display = '';
+      badge.textContent = pending;
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch (err) {
+    console.error('KYC load error', err);
+    showToast('error', 'Erreur chargement KYC', err.message);
+    document.getElementById('kyc-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--danger)">Erreur: ' + esc(err.message) + '</td></tr>';
+  }
+}
+
+function setKycFilter(f) {
+  _kycFilter = f;
+  document.querySelectorAll('#kyc-tabs .tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.filter === f);
+  });
+  renderKycTable();
+}
+
+function renderKycTable() {
+  const search = (document.getElementById('kyc-search')?.value || '').toLowerCase();
+  let rows = _kycData;
+
+  if (_kycFilter !== 'all') rows = rows.filter(r => r.kyc_status === _kycFilter);
+  if (search) rows = rows.filter(r => {
+    const name = doctorName(r).toLowerCase();
+    const email = (r.email || '').toLowerCase();
+    return name.includes(search) || email.includes(search);
+  });
+
+  const tbody = document.getElementById('kyc-tbody');
+  if (!tbody) return;
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Aucune demande trouvée</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => `
+    <tr class="trow">
+      <td>
+        <div class="td-name">${esc(doctorName(r))}</div>
+        <div class="td-muted">${esc(r.email || '—')}</div>
+      </td>
+      <td>${esc(r.kyc_document_type || '—')}</td>
+      <td>${esc(r.kyc_order_number || '—')}</td>
+      <td>${fmtDate(r.kyc_submitted_at)}</td>
+      <td>${kycBadge(r.kyc_status)}</td>
+      <td>
+        <button class="btn btn-secondary btn-xs" onclick="openKycPanel('${r.id}')">Examiner</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function setKycSkeleton() {
+  const tbody = document.getElementById('kyc-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = [1,2,3].map(() => `
+    <tr class="skel-row">
+      <td><div class="skel" style="width:140px"></div></td>
+      <td><div class="skel" style="width:100px"></div></td>
+      <td><div class="skel" style="width:80px"></div></td>
+      <td><div class="skel" style="width:80px"></div></td>
+      <td><div class="skel" style="width:70px"></div></td>
+      <td><div class="skel" style="width:70px"></div></td>
+    </tr>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KYC DETAIL PANEL
+═══════════════════════════════════════════════════════════ */
+async function openKycPanel(doctorId) {
+  // Find in local data first
+  var doctor = _kycData.find(r => r.id === doctorId);
+  if (!doctor) {
+    // Fetch from DB
+    const { data } = await _sb.from('profiles').select('*').eq('id', doctorId).single();
+    doctor = data;
+  }
+  if (!doctor) { showToast('error', 'Erreur', 'Médecin introuvable'); return; }
+
+  _activePanelDoctor = doctor;
+  const name = doctorName(doctor);
+
+  setEl('panel-title', 'Examen KYC — ' + name);
+  setEl('panel-sub', doctor.email || '—');
+
+  // Build panel body
+  let docPreviewHtml = '<div class="doc-no-preview"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Chargement du document…</p></div>';
+
+  document.getElementById('panel-body').innerHTML = `
+    <div class="panel-section">
+      <div class="panel-section-label">Informations du médecin</div>
+      <div class="info-grid">
+        <div class="info-row"><span class="info-key">Nom complet</span><span class="info-val">${esc(name)}</span></div>
+        <div class="info-row"><span class="info-key">Email</span><span class="info-val">${esc(doctor.email || '—')}</span></div>
+        <div class="info-row"><span class="info-key">Plan</span><span class="info-val">${esc(doctor.plan || 'free')}</span></div>
+        <div class="info-row"><span class="info-key">Statut KYC</span><span class="info-val">${kycBadge(doctor.kyc_status)}</span></div>
+        <div class="info-row"><span class="info-key">Type document</span><span class="info-val">${esc(doctor.kyc_document_type || '—')}</span></div>
+        <div class="info-row"><span class="info-key">N° Ordre</span><span class="info-val">${esc(doctor.kyc_order_number || '—')}</span></div>
+        <div class="info-row"><span class="info-key">Soumis le</span><span class="info-val">${fmtDate(doctor.kyc_submitted_at)}</span></div>
+        <div class="info-row"><span class="info-key">Compte actif</span><span class="info-val">${doctor.is_active ? '✓ Oui' : '✗ Non'}</span></div>
+      </div>
+      ${doctor.kyc_reject_reason ? `<div style="margin-top:12px;padding:10px 14px;background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:var(--r-md);font-size:.8125rem;color:var(--danger)"><strong>Raison de rejet :</strong> ${esc(doctor.kyc_reject_reason)}</div>` : ''}
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-label">Document KYC</div>
+      <div class="doc-preview-area" id="doc-preview">${docPreviewHtml}</div>
+      ${doctor.kyc_document_url ? `<div style="margin-top:8px;display:flex;gap:8px"><a id="doc-open-link" href="#" target="_blank" class="btn btn-ghost btn-xs"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ouvrir dans un onglet</a></div>` : ''}
+    </div>
+
+    <div class="panel-section" id="ai-section">
+      <div class="panel-section-label">Analyse IA</div>
+      <div id="ai-result-area" style="color:var(--text-muted);font-size:.8125rem">Cliquez sur "Analyser avec IA" pour lancer l'analyse automatique du document.</div>
+    </div>
+  `;
+
+  // Show/hide approve/reject buttons based on status
+  const approveBtn = document.getElementById('btn-approve');
+  const rejectBtn = document.getElementById('btn-reject');
+  if (doctor.kyc_status === 'approved') {
+    approveBtn.disabled = true;
+  } else {
+    approveBtn.disabled = false;
+  }
+  if (doctor.kyc_status === 'rejected') {
+    rejectBtn.disabled = true;
+  } else {
+    rejectBtn.disabled = false;
+  }
+
+  // Open panel
+  document.getElementById('panel-backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Load document preview
+  if (doctor.kyc_document_url) {
+    loadDocPreview(doctor.kyc_document_url);
+  } else {
+    document.getElementById('doc-preview').innerHTML = '<div class="doc-no-preview"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Aucun document soumis</p></div>';
+  }
+}
+
+async function loadDocPreview(docUrl) {
+  try {
+    // Extract just the path after 'doctor-kyc/'
+    let storagePath = docUrl;
+    if (docUrl.includes('doctor-kyc/')) {
+      const idx = docUrl.indexOf('doctor-kyc/');
+      storagePath = docUrl.substring(idx + 'doctor-kyc/'.length);
+    }
+
+    const { data, error } = await _sb.storage.from('doctor-kyc').createSignedUrl(storagePath, 3600);
+    if (error || !data?.signedUrl) throw error || new Error('Signed URL introuvable');
+
+    const signedUrl = data.signedUrl;
+
+    // Update the open-in-tab link
+    const openLink = document.getElementById('doc-open-link');
+    if (openLink) openLink.href = signedUrl;
+
+    // Detect type
+    const isImage = /\.(jpg|jpeg|png|gif|webp|bmp)(\?|$)/i.test(storagePath);
+    const isPdf = /\.pdf(\?|$)/i.test(storagePath);
+
+    const preview = document.getElementById('doc-preview');
+    if (!preview) return;
+
+    if (isImage) {
+      preview.innerHTML = `<img src="${esc(signedUrl)}" alt="Document KYC" loading="lazy">`;
+    } else if (isPdf) {
+      preview.innerHTML = `<iframe src="${esc(signedUrl)}" title="Document KYC PDF"></iframe>`;
+    } else {
+      // Try image first, fallback to link
+      preview.innerHTML = `<img src="${esc(signedUrl)}" alt="Document KYC" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'doc-no-preview\\'><svg viewBox=\\'0 0 24 24\\'><path d=\\'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\\'/><polyline points=\\'14 2 14 8 20 8\\'/></svg><p>Aperçu non disponible — <a href=\\'${esc(signedUrl)}\\' target=\\'_blank\\' rel=\\'noopener\\' style=\\'color:var(--brand)\\'>Ouvrir le document</a></p></div>'">`;
+    }
+  } catch (err) {
+    console.error('Doc preview error', err);
+    document.getElementById('doc-preview').innerHTML = `<div class="doc-no-preview"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Impossible de charger le document</p></div>`;
+  }
+}
+
+function closePanel() {
+  document.getElementById('panel-backdrop').classList.remove('open');
+  document.body.style.overflow = '';
+  _activePanelDoctor = null;
+}
+
+function handlePanelBackdropClick(e) {
+  if (e.target === document.getElementById('panel-backdrop')) closePanel();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AI ANALYSIS
+═══════════════════════════════════════════════════════════ */
+async function analyzeWithAI() {
+  if (!_activePanelDoctor) return;
+  const btn = document.getElementById('btn-ai');
+  setLoading(btn, true);
+
+  try {
+    const token = _session?.access_token;
+    const edgeBase = (typeof EDGE_BASE !== 'undefined') ? EDGE_BASE : (SUPA_URL + '/functions/v1');
+    const res = await fetch(edgeBase + '/analyze-kyc', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ doctorId: _activePanelDoctor.id })
+    });
+
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || json.message || 'Erreur edge function');
+
+    renderAiResult(json);
+    showToast('success', 'Analyse terminée', 'Résultat IA disponible ci-dessous');
+  } catch (err) {
+    console.error('AI analyze error', err);
+    document.getElementById('ai-result-area').innerHTML = `<div style="color:var(--danger);font-size:.8125rem;padding:10px;background:var(--danger-bg);border-radius:var(--r-md);border:1px solid var(--danger-border)">Erreur : ${esc(err.message)}</div>`;
+    showToast('error', 'Erreur analyse IA', err.message);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+function renderAiResult(data) {
+  const rec = data.recommendation || data.recommandation || '';
+  const recBadge = {
+    'approuver': '<span class="badge badge-success">✓ Approuver</span>',
+    'rejeter': '<span class="badge badge-danger">✗ Rejeter</span>',
+    'verifier_manuellement': '<span class="badge badge-warning">⚠ Vérifier manuellement</span>'
+  }[rec] || `<span class="badge badge-neutral">${esc(rec)}</span>`;
+
+  const confidence = parseFloat(data.confidence || data.confiance || 0);
+  const confPercent = Math.round(confidence * 100);
+
+  const remarques = data.remarks || data.remarques || '';
+
+  document.getElementById('ai-result-area').innerHTML = `
+    <div class="ai-card">
+      <div class="ai-card-head">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span class="ai-card-title">Résultat de l'analyse IA</span>
+        <span style="margin-left:auto">${recBadge}</span>
+      </div>
+      <div class="ai-grid">
+        <div class="ai-field">
+          <div class="ai-label">Type détecté</div>
+          <div class="ai-value">${esc(data.detected_type || data.type_detecte || '—')}</div>
+        </div>
+        <div class="ai-field">
+          <div class="ai-label">Nom sur document</div>
+          <div class="ai-value">${esc(data.name_on_document || data.nom_sur_document || '—')}</div>
+        </div>
+        <div class="ai-field">
+          <div class="ai-label">N° Ordre détecté</div>
+          <div class="ai-value">${esc(data.order_number || data.numero_ordre || '—')}</div>
+        </div>
+        <div class="ai-field">
+          <div class="ai-label">Spécialité</div>
+          <div class="ai-value">${esc(data.specialty || data.specialite || '—')}</div>
+        </div>
+        <div class="ai-field" style="grid-column:1/-1;border-right:none">
+          <div class="ai-label">Confiance</div>
+          <div class="confidence-bar">
+            <div class="confidence-track">
+              <div class="confidence-fill" style="width:${confPercent}%;background:${confPercent >= 75 ? 'var(--success)' : confPercent >= 50 ? 'var(--warning)' : 'var(--danger)'}"></div>
+            </div>
+            <span class="confidence-val">${confPercent}%</span>
+          </div>
+        </div>
+      </div>
+      ${remarques ? `<div class="ai-remarques"><div class="ai-remarques-label">Remarques</div><div class="ai-remarques-text">${esc(remarques)}</div></div>` : ''}
+    </div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KYC ACTIONS
+═══════════════════════════════════════════════════════════ */
+async function approveKYC() {
+  if (!_activePanelDoctor) return;
+  const btn = document.getElementById('btn-approve');
+  setLoading(btn, true);
+  try {
+    await kycAction(_activePanelDoctor.id, 'approve');
+    showToast('success', 'KYC approuvé', 'Le médecin a été validé avec succès');
+    closePanel();
+    loadKyc();
+    loadDashboard();
+  } catch (err) {
+    showToast('error', 'Erreur approbation', err.message);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+async function rejectKYC() {
+  if (!_activePanelDoctor) return;
+  const reason = prompt('Raison du rejet (obligatoire) :');
+  if (reason === null) return; // cancelled
+  if (!reason.trim()) { showToast('error', 'Champ vide', 'Veuillez saisir une raison de rejet'); return; }
+
+  const btn = document.getElementById('btn-reject');
+  setLoading(btn, true);
+  try {
+    await kycAction(_activePanelDoctor.id, 'reject', reason.trim());
+    showToast('success', 'KYC rejeté', 'Le document a été rejeté');
+    closePanel();
+    loadKyc();
+    loadDashboard();
+  } catch (err) {
+    showToast('error', 'Erreur rejet', err.message);
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+async function kycAction(doctorId, action, note) {
+  const token = _session?.access_token;
+  const edgeBase = (typeof EDGE_BASE !== 'undefined') ? EDGE_BASE : (SUPA_URL + '/functions/v1');
+  const body = { doctorId, action };
+  if (note !== undefined) body.note = note;
+
+  const res = await fetch(edgeBase + '/admin-kyc-action', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify(body)
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || json.message || 'Erreur edge function');
+  return json;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MÉDECINS
+═══════════════════════════════════════════════════════════ */
+async function loadDoctors() {
+  try {
+    setDocSkeleton();
+    const { data, error } = await _sb
+      .from('profiles')
+      .select('id, first_name, last_name, full_name, email, plan, kyc_status, is_active')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Count appointments per doctor
+    const ids = (data || []).map(d => d.id);
+    var rdvCounts = {};
+    if (ids.length > 0) {
+      const { data: rdvData } = await _sb
+        .from('appointments')
+        .select('doctor_id')
+        .in('doctor_id', ids);
+      (rdvData || []).forEach(r => {
+        rdvCounts[r.doctor_id] = (rdvCounts[r.doctor_id] || 0) + 1;
+      });
+    }
+
+    _doctorsData = (data || []).map(d => ({ ...d, rdv_count: rdvCounts[d.id] || 0 }));
+    renderDoctorsTable();
+  } catch (err) {
+    console.error('Doctors load error', err);
+    showToast('error', 'Erreur chargement médecins', err.message);
+    document.getElementById('doc-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--danger)">Erreur: ' + esc(err.message) + '</td></tr>';
+  }
+}
+
+function renderDoctorsTable() {
+  const search = (document.getElementById('doc-search')?.value || '').toLowerCase();
+  let rows = _doctorsData;
+  if (search) rows = rows.filter(r => {
+    const name = doctorName(r).toLowerCase();
+    const email = (r.email || '').toLowerCase();
+    return name.includes(search) || email.includes(search);
+  });
+
+  const tbody = document.getElementById('doc-tbody');
+  if (!tbody) return;
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><p>Aucun médecin trouvé</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => `
+    <tr class="trow">
+      <td><span class="td-name">${esc(doctorName(r))}</span></td>
+      <td><span class="td-muted">${esc(r.email || '—')}</span></td>
+      <td>${planBadge(r.plan)}</td>
+      <td>${kycBadge(r.kyc_status)}</td>
+      <td>${r.is_active ? '<span class="badge badge-success">Actif</span>' : '<span class="badge badge-neutral">Inactif</span>'}</td>
+      <td style="text-align:center;font-weight:700">${r.rdv_count || 0}</td>
+      <td>
+        <div class="td-actions">
+          <select class="plan-select" onchange="changePlan('${r.id}', this)" style="font-size:.6875rem;border:1px solid var(--border);border-radius:var(--r-sm);padding:3px 6px;background:var(--bg-raised);color:var(--text-primary);cursor:pointer">
+            <option value="free" ${r.plan === 'free' ? 'selected' : ''}>Free</option>
+            <option value="pro" ${r.plan === 'pro' ? 'selected' : ''}>Pro</option>
+            <option value="clinic" ${r.plan === 'clinic' ? 'selected' : ''}>Clinic</option>
+          </select>
+          <button class="btn btn-ghost btn-xs" onclick="toggleActive('${r.id}', ${r.is_active})" title="${r.is_active ? 'Désactiver' : 'Activer'}">
+            ${r.is_active ? '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="16" cy="12" r="3" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="8" cy="12" r="3" fill="currentColor"/></svg>'}
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function setDocSkeleton() {
+  const tbody = document.getElementById('doc-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = [1,2,3].map(() => `
+    <tr class="skel-row">
+      <td><div class="skel" style="width:140px"></div></td>
+      <td><div class="skel" style="width:160px"></div></td>
+      <td><div class="skel" style="width:60px"></div></td>
+      <td><div class="skel" style="width:70px"></div></td>
+      <td><div class="skel" style="width:50px"></div></td>
+      <td><div class="skel" style="width:30px"></div></td>
+      <td><div class="skel" style="width:130px"></div></td>
+    </tr>
+  `).join('');
+}
+
+async function changePlan(doctorId, selectEl) {
+  const newPlan = selectEl.value;
+  try {
+    await kycAction(doctorId, 'set_plan', newPlan);
+    showToast('success', 'Plan mis à jour', 'Plan changé en ' + newPlan);
+    // Update local data
+    const doc = _doctorsData.find(d => d.id === doctorId);
+    if (doc) doc.plan = newPlan;
+  } catch (err) {
+    showToast('error', 'Erreur changement plan', err.message);
+    // Revert select
+    const doc = _doctorsData.find(d => d.id === doctorId);
+    if (doc) selectEl.value = doc.plan;
+  }
+}
+
+async function toggleActive(doctorId, currentlyActive) {
+  try {
+    await kycAction(doctorId, 'toggle_active');
+    const doc = _doctorsData.find(d => d.id === doctorId);
+    if (doc) doc.is_active = !currentlyActive;
+    renderDoctorsTable();
+    showToast('success', 'Statut mis à jour', !currentlyActive ? 'Compte activé' : 'Compte désactivé');
+  } catch (err) {
+    showToast('error', 'Erreur toggle actif', err.message);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════════ */
+async function signOut() {
+  await _sb.auth.signOut();
+  window.location.href = '/login';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+function doctorName(r) {
+  if (r.full_name) return r.full_name;
+  const fn = (r.first_name || '').trim();
+  const ln = (r.last_name || '').trim();
+  if (fn || ln) return (fn + ' ' + ln).trim();
+  return r.email || 'Médecin #' + r.id.slice(0, 6);
+}
+
+function kycBadge(status) {
+  switch (status) {
+    case 'pending_review': return '<span class="badge badge-warning"><span class="badge-dot"></span>En attente</span>';
+    case 'approved':       return '<span class="badge badge-success"><span class="badge-dot"></span>Approuvé</span>';
+    case 'rejected':       return '<span class="badge badge-danger"><span class="badge-dot"></span>Rejeté</span>';
+    case 'not_submitted':  return '<span class="badge badge-neutral"><span class="badge-dot"></span>Non soumis</span>';
+    default:               return '<span class="badge badge-neutral"><span class="badge-dot"></span>' + esc(status || 'Inconnu') + '</span>';
+  }
+}
+
+function planBadge(plan) {
+  switch (plan) {
+    case 'pro':    return '<span class="badge badge-brand">Pro</span>';
+    case 'clinic': return '<span class="badge badge-info">Clinic</span>';
+    default:       return '<span class="badge badge-neutral">Free</span>';
+  }
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch { return iso; }
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function setLoading(btn, loading) {
+  if (!btn) return;
+  if (loading) btn.classList.add('loading');
+  else btn.classList.remove('loading');
+  btn.disabled = loading;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GESTION DES ACCÈS
+═══════════════════════════════════════════════════════════ */
+const EDGE = (typeof SUPA_URL !== 'undefined' ? SUPA_URL : '') + '/functions/v1';
+
+async function loadAdminUsers() {
+  if (_adminRole !== 'super_admin') return;
+  const tbody = document.getElementById('acces-tbody');
+  if (!tbody) return;
+  try {
+    const res = await fetch(EDGE + '/admin-manage-users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _session.access_token },
+      body: JSON.stringify({ action: 'list' })
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    renderAdminUsers(json.data || []);
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">Erreur de chargement</td></tr>';
+    console.error(e);
+  }
+}
+
+function renderAdminUsers(rows) {
+  const tbody = document.getElementById('acces-tbody');
+  if (!tbody) return;
+  const roleLabels = { super_admin: 'Super Admin', support: 'Support', kyc_agent: 'Agent KYC' };
+  const roleBadges = {
+    super_admin: '<span class="badge badge-brand">Super Admin</span>',
+    support:     '<span class="badge badge-info">Support</span>',
+    kyc_agent:   '<span class="badge badge-neutral">Agent KYC</span>'
+  };
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted)">Aucun utilisateur</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const isSelf = r.email === ADMIN_EMAIL;
+    const roleSelect = isSelf ? (roleBadges[r.role] || r.role) : `
+      <select class="form-input" style="padding:4px 8px;font-size:.75rem" onchange="changeAdminRole('${esc(r.email)}', this.value)">
+        <option value="support" ${r.role === 'support' ? 'selected' : ''}>Support</option>
+        <option value="kyc_agent" ${r.role === 'kyc_agent' ? 'selected' : ''}>Agent KYC</option>
+      </select>`;
+    return `<tr class="trow">
+      <td><span class="td-name">${esc(r.email)}</span></td>
+      <td>${roleSelect}</td>
+      <td><span class="td-muted">${fmtDate(r.created_at)}</span></td>
+      <td>${isSelf ? '<span class="td-muted">—</span>' : `<button class="btn btn-sm" style="color:var(--danger);border-color:var(--danger-border)" onclick="removeAdminUser('${esc(r.email)}')">Supprimer</button>`}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function addAdminUser() {
+  const email = (document.getElementById('acces-email').value || '').trim().toLowerCase();
+  const role  = document.getElementById('acces-role').value;
+  if (!email) { showToast('error', 'Email requis', ''); return; }
+  const btn = document.getElementById('btn-add-admin');
+  setLoading(btn, true);
+  try {
+    const res = await fetch(EDGE + '/admin-manage-users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _session.access_token },
+      body: JSON.stringify({ action: 'add', email, role })
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    document.getElementById('acces-email').value = '';
+    showToast('success', 'Utilisateur ajouté', email + ' peut maintenant accéder au panel admin.');
+    loadAdminUsers();
+  } catch (e) {
+    showToast('error', 'Erreur', e.message || 'Impossible d\'ajouter l\'utilisateur');
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+async function removeAdminUser(email) {
+  if (!confirm('Supprimer l\'accès admin de ' + email + ' ?')) return;
+  try {
+    const res = await fetch(EDGE + '/admin-manage-users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _session.access_token },
+      body: JSON.stringify({ action: 'remove', email })
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    showToast('success', 'Accès supprimé', email);
+    loadAdminUsers();
+  } catch (e) {
+    showToast('error', 'Erreur', e.message);
+  }
+}
+
+async function changeAdminRole(email, role) {
+  try {
+    const res = await fetch(EDGE + '/admin-manage-users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _session.access_token },
+      body: JSON.stringify({ action: 'update_role', email, role })
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    showToast('success', 'Rôle mis à jour', email + ' → ' + role);
+  } catch (e) {
+    showToast('error', 'Erreur', e.message);
+    loadAdminUsers();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   USER DROPDOWN (sidebar footer)
+═══════════════════════════════════════════════════════════ */
+function toggleUserMenu() {
+  document.getElementById('userDropdown').classList.toggle('open');
+}
+
+function openAsDoctor() {
+  document.getElementById('userDropdown').classList.remove('open');
+  _sb.auth.signOut().then(() => { window.location.href = '/login'; });
+}
+
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('sidebarUserMenu');
+  const drop = document.getElementById('userDropdown');
+  if (menu && drop && !menu.contains(e.target) && !drop.contains(e.target)) {
+    drop.classList.remove('open');
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════ */
+function showToast(type, title, msg, duration) {
+  duration = duration || 3500;
+  const icons = {
+    success: '<polyline points="20 6 9 17 4 12"/>',
+    error:   '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    info:    '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'
+  };
+  const icon = icons[type] || icons.info;
+  const div = document.createElement('div');
+  div.className = 'toast ' + type;
+  div.innerHTML = `
+    <div class="toast-icon"><svg viewBox="0 0 24 24">${icon}</svg></div>
+    <div class="toast-body"><div class="toast-title">${esc(title)}</div>${msg ? '<div class="toast-msg">' + esc(msg) + '</div>' : ''}</div>
+  `;
+  document.getElementById('toasts').appendChild(div);
+  setTimeout(() => {
+    div.classList.add('toast-go');
+    setTimeout(() => div.remove(), 300);
+  }, duration);
+}
+</script>
+</body>
+</html>

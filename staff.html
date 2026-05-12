@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Personnel â€” Docline</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script src="config.js"></script>
+<script src="shell.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --text2:var(--text-2);--text3:var(--text-3);--text4:var(--text-4);
+  --surface2:var(--surface-hover);--brand-light:var(--brand-subtle);--brand2:var(--brand-hover);
+}
+
+/* â”€â”€ PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.page{padding:28px 24px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px}
+.page-sub{font-size:13px;color:var(--text4);margin-top:3px}
+
+/* â”€â”€ BUTTONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.btn-primary{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--brand);color:#fff;font-family:inherit;transition:all .15s;box-shadow:0 2px 8px rgba(59,23,114,.2)}
+.btn-primary:hover{background:var(--brand2);transform:translateY(-1px)}
+.btn-primary svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+/* â”€â”€ KPI ROW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:12px}
+.kpi-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kpi-ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.kpi-card.blue .kpi-ico{background:#EFF6FF;color:#2563EB}
+.kpi-card.green .kpi-ico{background:#ECFDF5;color:#059669}
+.kpi-card.violet .kpi-ico{background:#EDE9FE;color:#7C3AED}
+.kpi-card.amber .kpi-ico{background:#FFFBEB;color:#D97706}
+.kpi-val{font-size:24px;font-weight:900;color:var(--text);line-height:1}
+.kpi-lbl{font-size:11px;color:var(--text3);margin-top:2px;font-weight:500}
+
+/* â”€â”€ FILTER BAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-chip{padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text3);font-family:inherit;transition:all .14s;white-space:nowrap}
+.filter-chip:hover{border-color:var(--brand);color:var(--brand)}
+.filter-chip.active{background:var(--brand-light);border-color:var(--brand);color:var(--brand)}
+.filter-spacer{flex:1}
+
+/* â”€â”€ STAFF GRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+
+.staff-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:18px;padding:0;
+  display:flex;flex-direction:column;
+  transition:box-shadow .18s,border-color .18s,transform .18s;
+  position:relative;overflow:hidden;
+}
+.staff-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.09);border-color:var(--brand-border);transform:translateY(-2px)}
+.staff-card.inactive{opacity:.55}
+.staff-card-top{padding:18px 18px 14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border)}
+.staff-avatar{width:48px;height:48px;border-radius:12px;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-.5px}
+.staff-name{font-size:14px;font-weight:800;color:var(--text);letter-spacing:-.2px}
+.staff-role-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;margin-top:4px}
+.role-secretaire{background:rgba(124,58,237,.1);color:#7C3AED}
+.role-infirmier{background:rgba(5,150,105,.1);color:#059669}
+.role-medecin_assistant{background:rgba(59,23,114,.1);color:var(--brand)}
+.role-technicien_labo{background:rgba(217,119,6,.1);color:#D97706}
+.role-autre{background:var(--surface2);color:var(--text3)}
+
+.staff-card-body{padding:14px 18px;flex:1;display:flex;flex-direction:column;gap:10px}
+.staff-contact-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text3)}
+.staff-contact-row svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0;opacity:.6}
+
+/* â”€â”€ ACCESS CHIPS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.access-section{display:flex;flex-direction:column;gap:6px}
+.access-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text4)}
+.access-chips{display:flex;flex-wrap:wrap;gap:4px}
+.access-chip{font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--brand-light);color:var(--brand);border:1px solid var(--brand-border)}
+.access-chip.none{background:var(--surface2);color:var(--text4);border-color:var(--border)}
+
+.staff-card-foot{padding:12px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.staff-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.status-dot{width:7px;height:7px;border-radius:50%}
+.status-dot.active{background:#059669;box-shadow:0 0 0 2px rgba(5,150,105,.2)}
+.status-dot.inactive{background:var(--text4)}
+.invite-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+.invite-badge.invited{background:#FFF7ED;color:#D97706;border:1px solid #FED7AA}
+.invite-badge.no-invite{background:var(--surface2);color:var(--text4);border:1px solid var(--border)}
+.btn-invite{padding:5px 12px;border-radius:99px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text3);font-family:inherit;transition:all .14s;white-space:nowrap}
+.btn-invite:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+.staff-actions{display:flex;gap:4px}
+.btn-icon{width:30px;height:30px;border-radius:8px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text4);transition:all .14s}
+.btn-icon:hover{background:var(--surface2);color:var(--text)}
+.btn-icon.danger:hover{background:rgba(220,38,38,.08);color:#DC2626}
+.btn-icon svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* â”€â”€ EMPTY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.empty-state{text-align:center;padding:60px 24px;color:var(--text4);grid-column:1/-1}
+.empty-state svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;margin-bottom:12px;opacity:.4}
+.empty-state-title{font-size:15px;font-weight:700;color:var(--text3);margin-bottom:4px}
+.empty-state-sub{font-size:13px;line-height:1.6}
+
+/* â”€â”€ MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;opacity:0;visibility:hidden;transition:all .22s;backdrop-filter:blur(4px)}
+.modal-overlay.open{opacity:1;visibility:visible}
+.modal{background:var(--surface);border-radius:20px;width:100%;max-width:540px;box-shadow:0 24px 64px rgba(0,0,0,.18);transform:translateY(14px) scale(.98);transition:transform .24s cubic-bezier(.32,.72,0,1);overflow:hidden;max-height:92vh;display:flex;flex-direction:column}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:15px;transition:all .12s}
+.modal-close:hover{background:var(--border)}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 24px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);flex-shrink:0}
+
+/* â”€â”€ FORM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.form-section{margin-bottom:20px}
+.form-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.form-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.form-input,.form-select,.form-textarea{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s;width:100%;-webkit-appearance:none;box-sizing:border-box}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.08)}
+.form-textarea{resize:vertical;min-height:68px}
+
+/* â”€â”€ PERMISSIONS GRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.perm-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;transition:all .14s;user-select:none;background:var(--surface)}
+.perm-item:hover{border-color:var(--brand-border);background:var(--brand-light)}
+.perm-item.checked{border-color:var(--brand);background:var(--brand-light)}
+.perm-item input{display:none}
+.perm-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .14s;background:#fff}
+.perm-item.checked .perm-check{background:var(--brand);border-color:var(--brand)}
+.perm-check svg{width:10px;height:10px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;opacity:0;transition:opacity .1s}
+.perm-item.checked .perm-check svg{opacity:1}
+.perm-text{font-size:12px;font-weight:600;color:var(--text2)}
+.perm-icon{width:14px;height:14px;fill:none;stroke:var(--text3);stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.perm-item.checked .perm-icon{stroke:var(--brand)}
+
+.perm-hint{font-size:11px;color:var(--text4);margin-top:8px;line-height:1.5}
+
+/* â”€â”€ MODAL BTNS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.btn-ghost{padding:9px 18px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:none;color:var(--text3);font-family:inherit;transition:all .15s}
+.btn-ghost:hover{background:var(--surface2)}
+.btn-save{padding:10px 24px;border-radius:99px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--brand);color:#fff;font-family:inherit;transition:all .15s}
+.btn-save:hover{background:var(--brand2)}
+.btn-save:disabled{opacity:.5;cursor:not-allowed}
+
+/* â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1E3A5F;color:#fff;padding:11px 22px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;transition:all .26s cubic-bezier(.34,1.56,.64,1);z-index:9999;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.2);pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:#059669}.toast.error{background:#DC2626}
+
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}.staff-grid{grid-template-columns:1fr}.perm-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
+</style>
+<script src="loader.js"></script>
+  <!-- Sentry monitoring -->
+  <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
+  <script src="/js/sentry-config.js"></script>
+  <script src="/js/sentry-init.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="page">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">Personnel</div>
+          <div class="page-sub">GÃ©rez votre Ã©quipe et dÃ©finissez leurs accÃ¨s aux fonctionnalitÃ©s</div>
+        </div>
+        <button class="btn-primary" onclick="openModal()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter un membre
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="kpi-row">
+        <div class="kpi-card blue">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div><div class="kpi-val" id="stat-total">â€”</div><div class="kpi-lbl">Total</div></div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="kpi-val" id="stat-active">â€”</div><div class="kpi-lbl">Actifs</div></div>
+        </div>
+        <div class="kpi-card violet">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+          <div><div class="kpi-val" id="stat-secretaires">â€”</div><div class="kpi-lbl">SecrÃ©taires</div></div>
+        </div>
+        <div class="kpi-card amber">
+          <div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div><div class="kpi-val" id="stat-soignants">â€”</div><div class="kpi-lbl">Soignants</div></div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <button class="filter-chip active" data-role="all" onclick="setFilter('all',this)">Tous</button>
+        <button class="filter-chip" data-role="secretaire" onclick="setFilter('secretaire',this)">SecrÃ©taires</button>
+        <button class="filter-chip" data-role="infirmier" onclick="setFilter('infirmier',this)">Infirmiers</button>
+        <button class="filter-chip" data-role="medecin_assistant" onclick="setFilter('medecin_assistant',this)">Assistants</button>
+        <button class="filter-chip" data-role="technicien_labo" onclick="setFilter('technicien_labo',this)">Techniciens labo</button>
+        <button class="filter-chip" data-role="autre" onclick="setFilter('autre',this)">Autre</button>
+        <div class="filter-spacer"></div>
+        <button class="filter-chip" id="filter-inactive" onclick="toggleInactive(this)">Afficher inactifs</button>
+      </div>
+
+      <!-- Grid -->
+      <div class="staff-grid" id="staff-grid"></div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Ajouter un membre</div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Infos -->
+      <div class="form-section">
+        <div class="form-section-title">Informations</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">PrÃ©nom *</label><input class="form-input" id="f-first" placeholder="Amina" maxlength="60"></div>
+          <div class="form-group"><label class="form-label">Nom *</label><input class="form-input" id="f-last" placeholder="Benali" maxlength="60"></div>
+        </div>
+        <div class="form-row full" style="margin-bottom:12px">
+          <div class="form-group">
+            <label class="form-label">Role *</label>
+            <select class="form-select" id="f-role" onchange="onRoleChange()">
+              <option value="secretaire">Secretaire medicale</option>
+              <option value="infirmier">Infirmier / Infirmiere</option>
+              <option value="medecin_assistant">Medecin assistant</option>
+              <option value="technicien_labo">Technicien de laboratoire</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Telephone</label><input class="form-input" id="f-phone" type="tel" placeholder="0555 123 456"></div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="f-email" type="email" placeholder="prenom@cabinet.dz"></div>
+        </div>
+        <div class="form-row full" style="margin-bottom:0">
+          <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="f-notes" placeholder="Horaires, observations..."></textarea></div>
+        </div>
+      </div>
+
+      <!-- Permissions -->
+      <div class="form-section" style="margin-bottom:0">
+        <div class="form-section-title">Acces aux pages</div>
+        <div class="perm-grid" id="perm-grid"></div>
+        <div class="perm-hint">Les acces sont pre-remplis selon le role. Vous pouvez les personnaliser.</div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn-save" id="btn-save" onclick="saveStaff()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _uid = null, _staff = [], _editId = null, _filterRole = 'all', _showInactive = false;
+
+var ROLE_LABELS = {
+  secretaire:        'Secretaire',
+  infirmier:         'Infirmier(e)',
+  medecin_assistant: 'Med. assistant',
+  technicien_labo:   'Technicien labo',
+  autre:             'Autre'
+};
+
+var AVATAR_COLORS = [
+  {bg:'#DBEAFE',color:'#1D4ED8'},{bg:'#D1FAE5',color:'#065F46'},
+  {bg:'#EDE9FE',color:'#5B21B6'},{bg:'#FEF9C3',color:'#92400E'},
+  {bg:'#FCE7F3',color:'#9D174D'},{bg:'#E0F2FE',color:'#0369A1'},
+];
+
+// Pages disponibles pour les permissions
+var PAGES = [
+  { key:'mes-rdv',        label:'Rendez-vous',    icon:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' },
+  { key:'queue',          label:'File d\'attente', icon:'<svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>' },
+  { key:'clients',        label:'Patients',        icon:'<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>' },
+  { key:'consultations',  label:'Consultations',   icon:'<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' },
+  { key:'calendar',       label:'Calendrier',      icon:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>' },
+  { key:'labo',           label:'Laboratoire',     icon:'<svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11l-5 5h16l-5-5V3"/></svg>' },
+  { key:'ordonnances',    label:'Ordonnances',     icon:'<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' },
+  { key:'staff',          label:'Personnel',       icon:'<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
+];
+
+// Acces par defaut selon le role
+var DEFAULT_ACCESS = {
+  secretaire:        ['mes-rdv', 'queue', 'clients', 'calendar'],
+  infirmier:         ['queue', 'clients', 'labo'],
+  medecin_assistant: ['mes-rdv', 'queue', 'clients', 'consultations', 'calendar', 'labo', 'ordonnances'],
+  technicien_labo:   ['labo'],
+  autre:             [],
+};
+
+// â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+(async function init() {
+  var s = await _supa.auth.getSession();
+  if (!s.data.session) { window.location.href = '/login'; return; }
+  _uid = s.data.session.user.id;
+  var user = s.data.session.user;
+  var meta = user.user_metadata || {};
+  var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().then(function(r){return r.data;}).catch(function(){return null;});
+  var isPro = sub && (sub.plan==='pro'||sub.plan==='clinic') && sub.status==='active';
+  Shell.init({ page:'staff', title:'Personnel', isPro:isPro, plan:sub&&sub.plan||'free', userName:Shell.displayName(meta,user.email), userEmail:user.email||'' });
+  buildPermGrid();
+  loadStaff();
+  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'staff', 'Personnel');
+})();
+
+// â”€â”€ LOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function loadStaff() {
+  var { data, error } = await _supa.from('staff').select('*').eq('clinic_id',_uid).order('created_at',{ascending:false});
+  if (error) { toast('Erreur de chargement','error'); return; }
+  _staff = data || [];
+  updateStats();
+  renderStaff();
+}
+
+function updateStats() {
+  var active = _staff.filter(function(s){ return s.active; });
+  var sec    = _staff.filter(function(s){ return s.role==='secretaire'; });
+  var care   = _staff.filter(function(s){ return s.role==='infirmier'||s.role==='medecin_assistant'; });
+  document.getElementById('stat-total').textContent       = _staff.length;
+  document.getElementById('stat-active').textContent      = active.length;
+  document.getElementById('stat-secretaires').textContent = sec.length;
+  document.getElementById('stat-soignants').textContent   = care.length;
+}
+
+// â”€â”€ RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function renderStaff() {
+  var grid = document.getElementById('staff-grid');
+  var filtered = _staff.filter(function(s) {
+    if (!_showInactive && !s.active) return false;
+    if (_filterRole !== 'all' && s.role !== _filterRole) return false;
+    return true;
+  });
+
+  if (!filtered.length) {
+    var msg = _filterRole !== 'all' ? 'Aucun membre dans cette categorie' : 'Aucun membre du personnel';
+    var sub = _staff.length === 0 ? 'Ajoutez votre equipe.' : 'Ajustez les filtres.';
+    grid.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><div class="empty-state-title">'+msg+'</div><div class="empty-state-sub">'+sub+'</div></div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(function(s, i) {
+    var pal = AVATAR_COLORS[i % AVATAR_COLORS.length];
+    var ini = ((s.first_name||'')[0]||'').toUpperCase() + ((s.last_name||'')[0]||'').toUpperCase();
+    var roleLabel = ROLE_LABELS[s.role] || 'Autre';
+    var access = s.page_access || [];
+
+    // Chips d'acces
+    var chipsHtml;
+    if (!access.length) {
+      chipsHtml = '<span class="access-chip none">Aucun acces configure</span>';
+    } else {
+      chipsHtml = access.map(function(key) {
+        var page = PAGES.find(function(p){ return p.key === key; });
+        return '<span class="access-chip">'+(page ? page.label : key)+'</span>';
+      }).join('');
+    }
+
+    return '<div class="staff-card'+(s.active?'':' inactive')+'">' +
+      '<div class="staff-card-top">' +
+        '<div class="staff-avatar" style="background:'+pal.bg+';color:'+pal.color+'">'+esc(ini)+'</div>' +
+        '<div>' +
+          '<div class="staff-name">'+esc(s.first_name+' '+s.last_name)+'</div>' +
+          '<div class="staff-role-badge role-'+s.role+'">'+esc(roleLabel)+'</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="staff-card-body">' +
+        (s.phone || s.email ? '<div>' +
+          (s.phone ? '<div class="staff-contact-row"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.13 18a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+esc(s.phone)+'</div>' : '') +
+          (s.email ? '<div class="staff-contact-row"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'+esc(s.email)+'</div>' : '') +
+        '</div>' : '') +
+        '<div class="access-section">' +
+          '<div class="access-label">Acces</div>' +
+          '<div class="access-chips">'+chipsHtml+'</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="staff-card-foot" style="flex-wrap:wrap;gap:6px">' +
+        '<div class="staff-status"><div class="status-dot '+(s.active?'active':'inactive')+'"></div><span style="color:'+(s.active?'#059669':'var(--text4)')+'">'+(s.active?'Actif':'Inactif')+'</span></div>' +
+        (s.user_id
+          ? '<span class="invite-badge invited">Invite</span>'
+          : s.email
+            ? '<button class="btn-invite" onclick="inviteStaff(\''+s.id+'\',\''+esc(s.email)+'\')">Inviter par email</button>'
+            : '<span class="invite-badge no-invite">Sans email</span>'
+        ) +
+        '<div class="staff-actions" style="margin-left:auto">' +
+          '<button class="btn-icon" onclick="toggleActive(\''+s.id+'\','+((!s.active))+')\" title="'+(s.active?'Desactiver':'Activer')+'">' +
+            '<svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>' +
+          '</button>' +
+          '<button class="btn-icon" onclick="openModal(\''+s.id+'\')" title="Modifier">' +
+            '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+          '</button>' +
+          '<button class="btn-icon danger" onclick="deleteStaff(\''+s.id+'\')" title="Supprimer">' +
+            '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// â”€â”€ PERMISSIONS GRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function buildPermGrid() {
+  var grid = document.getElementById('perm-grid');
+  grid.innerHTML = PAGES.map(function(p) {
+    return '<label class="perm-item" id="perm-'+p.key+'" onclick="togglePerm(\''+p.key+'\')">' +
+      '<div class="perm-check"><svg viewBox="0 0 12 10"><polyline points="1,5 4,9 11,1"/></svg></div>' +
+      '<svg class="perm-icon" viewBox="0 0 24 24">'+p.icon.replace(/<svg[^>]*>/,'').replace('</svg>','')+'</svg>' +
+      '<span class="perm-text">'+p.label+'</span>' +
+    '</label>';
+  }).join('');
+}
+
+function togglePerm(key) {
+  var item = document.getElementById('perm-'+key);
+  item.classList.toggle('checked');
+}
+
+function setPerms(access) {
+  PAGES.forEach(function(p) {
+    var item = document.getElementById('perm-'+p.key);
+    if (!item) return;
+    if (access.indexOf(p.key) !== -1) item.classList.add('checked');
+    else item.classList.remove('checked');
+  });
+}
+
+function getPerms() {
+  return PAGES.filter(function(p) {
+    var item = document.getElementById('perm-'+p.key);
+    return item && item.classList.contains('checked');
+  }).map(function(p){ return p.key; });
+}
+
+function onRoleChange() {
+  var role = document.getElementById('f-role').value;
+  setPerms(DEFAULT_ACCESS[role] || []);
+}
+
+// â”€â”€ MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function openModal(id) {
+  _editId = id || null;
+  document.getElementById('modal-title').textContent = id ? 'Modifier le membre' : 'Ajouter un membre';
+  var s = id ? _staff.find(function(m){ return m.id === id; }) : null;
+  document.getElementById('f-first').value = s ? s.first_name : '';
+  document.getElementById('f-last').value  = s ? s.last_name  : '';
+  document.getElementById('f-role').value  = s ? s.role : 'secretaire';
+  document.getElementById('f-phone').value = s ? (s.phone||'') : '';
+  document.getElementById('f-email').value = s ? (s.email||'') : '';
+  document.getElementById('f-notes').value = s ? (s.notes||'') : '';
+
+  // Permissions : si edition, acces existants ; sinon defauts du role
+  var role = s ? s.role : 'secretaire';
+  var access = (s && s.page_access && s.page_access.length) ? s.page_access : (DEFAULT_ACCESS[role] || []);
+  setPerms(access);
+
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('f-first').focus(); }, 200);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  _editId = null;
+}
+
+// â”€â”€ SAVE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function saveStaff() {
+  var first = document.getElementById('f-first').value.trim();
+  var last  = document.getElementById('f-last').value.trim();
+  if (!first || !last) { toast('Prenom et nom requis','error'); return; }
+
+  var btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Enregistrement...';
+
+  var payload = {
+    clinic_id:   _uid,
+    first_name:  first,
+    last_name:   last,
+    role:        document.getElementById('f-role').value,
+    phone:       document.getElementById('f-phone').value.trim() || null,
+    email:       document.getElementById('f-email').value.trim() || null,
+    notes:       document.getElementById('f-notes').value.trim() || null,
+    page_access: getPerms(),
+  };
+
+  var error;
+  if (_editId) {
+    var r = await _supa.from('staff').update(payload).eq('id', _editId);
+    error = r.error;
+  } else {
+    payload.active = true;
+    var r = await _supa.from('staff').insert(payload);
+    error = r.error;
+  }
+
+  btn.disabled = false; btn.textContent = 'Enregistrer';
+  if (error) { toast('Erreur : '+error.message, 'error'); return; }
+  toast(_editId ? 'Membre mis a jour' : 'Membre ajoute', 'success');
+  closeModal();
+  loadStaff();
+}
+
+// â”€â”€ INVITE STAFF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function inviteStaff(staffId, email) {
+  if (!confirm('Envoyer une invitation a ' + email + ' ?')) return;
+  toast('Envoi de l\'invitation...', '');
+  try {
+    var sess = await _supa.auth.getSession();
+    var token = sess.data.session ? sess.data.session.access_token : '';
+    var supaUrl = typeof SUPA_URL !== 'undefined' ? SUPA_URL : (typeof DOCLINE_CONFIG !== 'undefined' ? DOCLINE_CONFIG.SUPA_URL : '');
+    var res = await fetch(supaUrl.replace('/rest/v1','').replace('https://','https://') + '/functions/v1/invite-staff', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ staffId: staffId, email: email, redirectTo: window.location.origin + '/dashboard' })
+    });
+    var body = await res.json();
+    if (!res.ok) { toast('Erreur : ' + (body.error || res.status), 'error'); return; }
+    toast('Invitation envoyee a ' + email, 'success');
+    loadStaff();
+  } catch(e) {
+    toast('Erreur reseau', 'error');
+  }
+}
+
+// â”€â”€ TOGGLE ACTIVE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function toggleActive(id, newActive) {
+  var { error } = await _supa.from('staff').update({ active: newActive }).eq('id', id);
+  if (error) { toast('Erreur', 'error'); return; }
+  toast(newActive ? 'Membre active' : 'Membre desactive');
+  loadStaff();
+}
+
+// â”€â”€ DELETE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function deleteStaff(id) {
+  var s = _staff.find(function(m){ return m.id === id; });
+  if (!confirm('Supprimer '+(s ? s.first_name+' '+s.last_name : 'ce membre')+' du personnel ?')) return;
+  var { error } = await _supa.from('staff').delete().eq('id', id);
+  if (error) { toast('Erreur', 'error'); return; }
+  toast('Membre supprime');
+  loadStaff();
+}
+
+// â”€â”€ FILTERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function setFilter(role, btn) {
+  _filterRole = role;
+  document.querySelectorAll('.filter-chip[data-role]').forEach(function(c){ c.classList.remove('active'); });
+  btn.classList.add('active');
+  renderStaff();
+}
+
+function toggleInactive(btn) {
+  _showInactive = !_showInactive;
+  btn.classList.toggle('active', _showInactive);
+  btn.textContent = _showInactive ? 'Masquer inactifs' : 'Afficher inactifs';
+  renderStaff();
+}
+
+// â”€â”€ UTILS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast '+(type||'')+' show';
+  setTimeout(function(){ t.className = 'toast'; }, 3000);
+}
+window.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
+

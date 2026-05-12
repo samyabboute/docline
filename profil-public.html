@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mon profil public — Docline</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="shell.js"></script>
+<style>
+/* ── Shell aliases ─────────────────────────────────────────── */
+:root{
+  --text2:var(--text-2);--text3:var(--text-3);--text4:var(--text-4);
+  --surface2:var(--surface-hover);--brand-light:var(--brand-subtle);
+}
+
+/* ── Layout ────────────────────────────────────────────────── */
+.page{padding:28px 24px;max-width:1040px;margin:0 auto;width:100%;box-sizing:border-box}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.page-header h1{font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:-.3px;margin-bottom:3px}
+.page-header p{font-size:.8125rem;color:var(--text-3)}
+.hdr-actions{display:flex;gap:10px;flex-shrink:0}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:var(--r,8px);cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;padding:9px 18px;font-size:.8125rem;transition:all .15s;line-height:1;text-decoration:none}
+.btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn-primary{background:var(--brand,#3B1772);color:#fff;box-shadow:0 2px 10px rgba(59,23,114,.22)}
+.btn-primary:hover{background:#002280;transform:translateY(-1px)}
+.btn-outline{background:var(--surface,#fff);color:var(--text-2,#3D4251);border:1.5px solid var(--border,#E8EAF0)}
+.btn-outline:hover{border-color:var(--brand,#3B1772);color:var(--brand,#3B1772);background:var(--brand-subtle,#EEF2FF)}
+
+/* ── Profile grid ──────────────────────────────────────────── */
+.profile-grid{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+@media(max-width:900px){.profile-grid{grid-template-columns:1fr}}
+
+/* ── Cards ─────────────────────────────────────────────────── */
+.card{background:var(--surface,#fff);border:1px solid var(--border,#E8EAF0);border-radius:18px;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:box-shadow .18s}
+.card+.card{margin-top:16px}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border,#E8EAF0);display:flex;align-items:center;gap:10px}
+.card-header-icon{width:30px;height:30px;border-radius:8px;background:var(--brand-subtle,#EEF2FF);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-header-icon svg{width:15px;height:15px;fill:none;stroke:var(--brand,#3B1772);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card-title{font-size:.875rem;font-weight:700;color:var(--text,#0C0E14)}
+.card-body{padding:20px}
+
+/* ── Toggles ───────────────────────────────────────────────── */
+.visibility-card{background:linear-gradient(135deg,rgba(59,23,114,.04),rgba(59,23,114,.01));border:1.5px solid rgba(59,23,114,.14);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(59,23,114,.08)}
+.toggle-row:last-child{border-bottom:none;padding-bottom:0}
+.toggle-row:first-child{padding-top:0}
+.toggle-left{display:flex;align-items:center;gap:12px}
+.toggle-icon{width:34px;height:34px;border-radius:9px;background:rgba(59,23,114,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toggle-icon svg{width:16px;height:16px;fill:none;stroke:var(--brand,#3B1772);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.toggle-label{font-size:.875rem;font-weight:600;color:var(--text,#0C0E14)}
+.toggle-sub{font-size:.75rem;color:var(--text-3,#7B8194);margin-top:2px}
+.toggle{position:relative;width:42px;height:23px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:var(--border,#E8EAF0);border-radius:23px;cursor:pointer;transition:.2s}
+.toggle-slider::before{content:'';position:absolute;width:17px;height:17px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.toggle input:checked+.toggle-slider{background:var(--brand,#3B1772)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(19px)}
+
+/* ── Form fields ───────────────────────────────────────────── */
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3,#7B8194);margin-bottom:5px}
+.field input,.field select,.field textarea{
+  width:100%;border:1.5px solid var(--border,#E8EAF0);border-radius:8px;
+  padding:9px 12px;font-size:.875rem;font-family:'Sora',sans-serif;
+  background:var(--surface,#fff);color:var(--text,#0C0E14);
+  outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--brand,#3B1772);
+  box-shadow:0 0 0 3px rgba(59,23,114,.08);
+}
+.field textarea{resize:vertical;min-height:90px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.field-row{grid-template-columns:1fr}}
+
+/* ── Preview card (right column) ───────────────────────────── */
+.preview-wrapper{position:sticky;top:78px;display:flex;flex-direction:column;gap:14px}
+.preview-inner{border:1px solid var(--border);border-radius:12px;padding:18px;background:var(--surface)}
+.preview-avatar{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:800;color:#fff;margin-bottom:12px;background:#3B1772;letter-spacing:.5px}
+.preview-name{font-size:.9375rem;font-weight:800;color:var(--text);margin-bottom:5px;letter-spacing:-.2px}
+.preview-spec{display:inline-flex;align-items:center;gap:5px;background:var(--brand-subtle,#EEF2FF);color:var(--brand,#3B1772);padding:3px 10px;border-radius:999px;font-size:.6875rem;font-weight:700;margin-bottom:10px}
+.preview-spec svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.preview-meta{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.preview-meta-row{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-3)}
+.preview-meta-row svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.preview-bio{font-size:.75rem;color:var(--text-3);line-height:1.5;margin-bottom:14px;border-left:2px solid var(--border);padding-left:10px}
+.preview-rdv-btn{width:100%;background:var(--brand,#3B1772);color:#fff;border:none;border-radius:8px;padding:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;cursor:default;display:flex;align-items:center;justify-content:center;gap:7px}
+.preview-rdv-btn svg{width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+
+/* ── RDV count box ─────────────────────────────────────────── */
+.rdv-count-box{background:rgba(5,150,105,.05);border:1px solid rgba(5,150,105,.18);border-radius:12px;padding:16px 18px;text-align:center}
+.rdv-count-val{font-size:1.75rem;font-weight:800;color:var(--success,#059669);line-height:1}
+.rdv-count-lbl{font-size:.75rem;color:var(--text-3);margin-top:4px}
+.rdv-count-link{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:.75rem;font-weight:600;color:var(--brand,#3B1772);text-decoration:none}
+.rdv-count-link svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+/* ── Avatar upload ─────────────────────────────────────────── */
+.avatar-upload-wrap{display:flex;align-items:center;gap:24px;padding:4px 0}
+.avatar-circle{
+  width:92px;height:92px;border-radius:50%;
+  background:#3B1772;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;cursor:pointer;flex-shrink:0;
+  overflow:hidden;
+  border:3px solid var(--border,#E8EAF0);
+  transition:border-color .18s,box-shadow .18s;
+}
+.avatar-circle:hover{border-color:var(--brand,#3B1772);box-shadow:0 0 0 4px rgba(59,23,114,.12)}
+.avatar-circle img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;display:none}
+.avatar-initials-txt{font-size:1.625rem;font-weight:800;color:#fff;letter-spacing:.5px;position:relative;z-index:1;pointer-events:none}
+.avatar-cam-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.48);border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  opacity:0;transition:opacity .18s;z-index:2;pointer-events:none;
+}
+.avatar-circle:hover .avatar-cam-overlay{opacity:1}
+.avatar-cam-overlay svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+.avatar-cam-label{font-size:9px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.06em}
+.avatar-info-title{font-size:.875rem;font-weight:700;color:var(--text,#0C0E14);margin-bottom:3px}
+.avatar-info-sub{font-size:.75rem;color:var(--text-3,#7B8194);margin-bottom:10px;line-height:1.5}
+
+/* ── Spinner ───────────────────────────────────────────────── */
+.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:none;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ── Toast ─────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:24px;right:24px;display:flex;align-items:center;gap:9px;background:var(--text,#0C0E14);color:#fff;border-radius:10px;padding:12px 18px;font-size:.8125rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:999;transform:translateY(12px);opacity:0;transition:all .22s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--success,#059669)}
+.toast.err{background:var(--danger,#DC2626)}
+.toast svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+</style>
+<script src="loader.js"></script>
+  <!-- Sentry monitoring -->
+  <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
+  <script src="/js/sentry-config.js"></script>
+  <script src="/js/sentry-init.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+
+  <main class="shell-main">
+    <div class="page" id="page-wrap" style="display:none">
+
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h1>Mon profil public</h1>
+          <p>Ce profil est visible par les patients sur la plateforme de recherche de médecins.</p>
+        </div>
+        <div class="hdr-actions">
+          <a href="/find-doctor" target="_blank" class="btn btn-outline">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Voir ma fiche
+          </a>
+          <button class="btn btn-primary" id="save-btn" onclick="saveProfile()">
+            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <div class="spin" id="save-spin"></div>
+            Enregistrer
+          </button>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <!-- ── LEFT col ──────────────────────────────────── -->
+        <div>
+
+          <!-- Photo de profil -->
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header">
+              <div class="card-header-icon">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <span class="card-title">Photo de profil</span>
+            </div>
+            <div class="card-body">
+              <div class="avatar-upload-wrap">
+                <div class="avatar-circle" id="avatar-circle" onclick="document.getElementById('avatar-file-input').click()" title="Changer la photo">
+                  <img id="avatar-img-preview" alt="Photo de profil">
+                  <span class="avatar-initials-txt" id="avatar-initials-txt">DR</span>
+                  <div class="avatar-cam-overlay">
+                    <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span class="avatar-cam-label">Modifier</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="avatar-info-title">Photo de profil</div>
+                  <div class="avatar-info-sub">JPG ou PNG · max 2 Mo<br>Visible par les patients sur votre fiche</div>
+                  <button type="button" class="btn btn-outline" style="font-size:.75rem;padding:7px 14px" onclick="document.getElementById('avatar-file-input').click()">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Choisir une photo
+                  </button>
+                </div>
+              </div>
+              <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="onAvatarChange(event)">
+            </div>
+          </div>
+
+          <!-- Visibility toggles -->
+          <div class="visibility-card">
+            <div class="toggle-row">
+              <div class="toggle-left">
+                <div class="toggle-icon">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </div>
+                <div>
+                  <div class="toggle-label">Profil visible publiquement</div>
+                  <div class="toggle-sub">Les patients peuvent me trouver sur la plateforme</div>
+                </div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="t-public" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-left">
+                <div class="toggle-icon">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+                </div>
+                <div>
+                  <div class="toggle-label">Accepter les demandes de RDV en ligne</div>
+                  <div class="toggle-sub">Les patients pourront envoyer une demande de rendez-vous</div>
+                </div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="t-rdv" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <!-- Informations professionnelles -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-icon">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <span class="card-title">Informations professionnelles</span>
+            </div>
+            <div class="card-body">
+              <div class="field">
+                <label>Nom complet *</label>
+                <input type="text" id="f-name" placeholder="Prénom Nom" oninput="updatePreview()">
+              </div>
+              <div class="field">
+                <label>Spécialité *</label>
+                <select id="f-specialty" onchange="updatePreview()">
+                  <option value="">Choisir une spécialité</option>
+                  <option>Médecine générale</option><option>Cardiologie</option>
+                  <option>Dermatologie</option><option>Endocrinologie</option>
+                  <option>Gastro-entérologie</option><option>Gynécologie-Obstétrique</option>
+                  <option>Infectiologie</option><option>Médecine interne</option>
+                  <option>Néphrologie</option><option>Neurologie</option>
+                  <option>Oncologie</option><option>Ophtalmologie</option>
+                  <option>ORL</option><option>Orthopédie</option>
+                  <option>Pédiatrie</option><option>Pneumologie</option>
+                  <option>Psychiatrie</option><option>Radiologie</option>
+                  <option>Rhumatologie</option><option>Urologie</option>
+                  <option>Chirurgie générale</option><option>Chirurgie dentaire</option>
+                  <option>Médecine du travail</option><option>Médecine d'urgence</option>
+                  <option>Anesthésie-Réanimation</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Biographie courte</label>
+                <textarea id="f-bio" placeholder="Ex : Cardiologue avec 15 ans d'expérience, spécialisé dans les maladies coronariennes…" oninput="updatePreview()"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Localisation -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <span class="card-title">Localisation du cabinet</span>
+            </div>
+            <div class="card-body">
+              <div class="field-row">
+                <div class="field">
+                  <label>Wilaya *</label>
+                  <select id="f-wilaya" onchange="updatePreview()">
+                    <option value="">Choisir une wilaya</option>
+                    <option>Adrar</option><option>Chlef</option><option>Laghouat</option><option>Oum El Bouaghi</option>
+                    <option>Batna</option><option>Béjaïa</option><option>Biskra</option><option>Béchar</option>
+                    <option>Blida</option><option>Bouira</option><option>Tamanrasset</option><option>Tébessa</option>
+                    <option>Tlemcen</option><option>Tiaret</option><option>Tizi Ouzou</option><option>Alger</option>
+                    <option>Djelfa</option><option>Jijel</option><option>Sétif</option><option>Saïda</option>
+                    <option>Skikda</option><option>Sidi Bel Abbès</option><option>Annaba</option><option>Guelma</option>
+                    <option>Constantine</option><option>Médéa</option><option>Mostaganem</option><option>M'Sila</option>
+                    <option>Mascara</option><option>Ouargla</option><option>Oran</option><option>El Bayadh</option>
+                    <option>Bordj Bou Arreridj</option><option>Boumerdès</option><option>El Tarf</option>
+                    <option>Tissemsilt</option><option>El Oued</option><option>Khenchela</option>
+                    <option>Souk Ahras</option><option>Tipaza</option><option>Mila</option><option>Aïn Defla</option>
+                    <option>Naâma</option><option>Aïn Témouchent</option><option>Ghardaïa</option><option>Relizane</option>
+                    <option>Touggourt</option><option>Timimoun</option><option>In Salah</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Ville / Commune</label>
+                  <input type="text" id="f-city" placeholder="Ex : Hydra" oninput="updatePreview()">
+                </div>
+              </div>
+              <div class="field">
+                <label>Adresse du cabinet</label>
+                <input type="text" id="f-address" placeholder="Ex : 12 Rue Hassiba Ben Bouali, Alger">
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact & Tarifs -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-icon">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <span class="card-title">Contact & Tarifs</span>
+            </div>
+            <div class="card-body">
+              <div class="field-row">
+                <div class="field">
+                  <label>Téléphone public</label>
+                  <input type="tel" id="f-phone" placeholder="0555 123 456">
+                </div>
+                <div class="field">
+                  <label>Tarif consultation (DA)</label>
+                  <input type="number" id="f-price" placeholder="Ex : 2000" min="0" oninput="updatePreview()">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── RIGHT col ─────────────────────────────────── -->
+        <div class="preview-wrapper">
+
+          <!-- Aperçu fiche -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-icon">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <span class="card-title">Aperçu de votre fiche</span>
+            </div>
+            <div class="card-body">
+              <div class="preview-inner">
+                <div class="preview-avatar" id="prev-avatar" style="overflow:hidden;position:relative">
+                  <img id="prev-avatar-img" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%">
+                  <span id="prev-avatar-initials">DR</span>
+                </div>
+                <div class="preview-name" id="prev-name">Dr. Votre Nom</div>
+                <div class="preview-spec">
+                  <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  <span id="prev-spec-txt">Spécialité</span>
+                </div>
+                <div class="preview-meta">
+                  <div class="preview-meta-row">
+                    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span id="prev-location">Ville, Wilaya</span>
+                  </div>
+                  <div class="preview-meta-row">
+                    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <span id="prev-price">Sur demande</span>
+                  </div>
+                </div>
+                <div class="preview-bio" id="prev-bio" style="display:none"></div>
+                <a class="preview-rdv-btn" id="previewRdvBtn" href="#" target="_blank">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Prendre RDV
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- RDV count -->
+          <div class="rdv-count-box">
+            <div class="rdv-count-val" id="rdv-count">—</div>
+            <div class="rdv-count-lbl">Demandes de RDV reçues</div>
+            <a href="/mes-rdv" class="rdv-count-link">
+              Gérer mes RDV
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /page-wrap -->
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg id="toast-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg">OK</span>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
+var _uid, _email, _toastTimer;
+var _avatarFile = null;   // fichier en attente d'upload
+var _kycStatus  = 'not_submitted';
+var _avatarSrc  = null;   // URL courante (distante ou data URL local)
+
+/* ── Avatar ─────────────────────────────────────────────────── */
+function onAvatarChange(e) {
+  var file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('Image trop lourde (max 2 Mo)', 'err'); return; }
+  _avatarFile = file;
+  var reader = new FileReader();
+  reader.onload = function(ev) { applyAvatarSrc(ev.target.result); };
+  reader.readAsDataURL(file);
+  // reset input so same file can be re-selected
+  e.target.value = '';
+}
+
+function applyAvatarSrc(src) {
+  _avatarSrc = src;
+  // Left panel circle
+  var img   = document.getElementById('avatar-img-preview');
+  var inits = document.getElementById('avatar-initials-txt');
+  if (src) { img.src = src; img.style.display = 'block'; inits.style.display = 'none'; }
+  else      { img.style.display = 'none'; inits.style.display = 'block'; }
+  // Right panel preview
+  var pImg   = document.getElementById('prev-avatar-img');
+  var pInits = document.getElementById('prev-avatar-initials');
+  if (src) { pImg.src = src; pImg.style.display = 'block'; pInits.style.display = 'none'; }
+  else      { pImg.style.display = 'none'; pInits.style.display = 'block'; }
+}
+
+window.onAvatarChange = onAvatarChange;
+
+/* ── Auth ──────────────────────────────────────────────────── */
+(async function(){
+  try {
+    var r = await _supa.auth.getSession();
+    var session = r && r.data && r.data.session;
+    if (!session) { window.location.href = '/login?return=profil-public.html'; return; }
+    _uid   = session.user.id;
+    _email = session.user.email;
+
+    var subR = await _supa.from('subscriptions').select('plan,status').eq('user_id', _uid).maybeSingle();
+    var sub  = subR && subR.data;
+    var isPro = sub && sub.plan !== 'free' && sub.status === 'active';
+    var meta  = session.user.user_metadata || {};
+
+    if (typeof Shell !== 'undefined') {
+      Shell.init({
+        page: 'profil-public',
+        title: 'Mon profil public',
+        isPro: isPro,
+        plan: (sub && sub.plan) || 'free',
+        userName: Shell.displayName(meta, session.user.email),
+        userEmail: session.user.email
+      });
+      if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'profil-public', 'Profil public');
+    }
+
+    var profRes = await _supa.from('profiles').select('*').eq('id', _uid).maybeSingle();
+    var profData = (profRes && profRes.data) || {};
+    _kycStatus = profData.kyc_status || 'not_submitted';
+    populateForm(profData);
+    applyKycGate();
+    document.getElementById('page-wrap').style.display = 'block';
+
+    // Lier le bouton "Prendre RDV" de l'aperçu vers /book
+    var rdvPreviewBtn = document.getElementById('previewRdvBtn');
+    if (rdvPreviewBtn) rdvPreviewBtn.href = '/book?doctor=' + _uid;
+
+    /* RDV count */
+    _supa.from('appointments').select('id', { count: 'exact', head: true }).eq('doctor_id', _uid)
+      .then(function(res){ var el = document.getElementById('rdv-count'); if(el) el.textContent = (res && res.count) || 0; });
+
+  } catch(e) {
+    console.error('[profil-public] Erreur critique:', e);
+    // Afficher l'erreur à l'écran plutôt qu'une page blanche
+    document.body.innerHTML = '<div style="font-family:sans-serif;padding:40px;max-width:600px;margin:60px auto;background:#fff;border:1px solid #E5E7EB;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.06)">'
+      + '<div style="font-size:2rem;margin-bottom:12px"></div>'
+      + '<h2 style="font-size:1.1rem;font-weight:700;color:#0C0E14;margin-bottom:8px">Impossible de charger le profil</h2>'
+      + '<p style="color:#6B7280;font-size:.875rem;margin-bottom:20px">' + (e && e.message ? e.message : 'Erreur inattendue') + '</p>'
+      + '<a href="/login" style="display:inline-flex;align-items:center;gap:6px;background:#3B1772;color:#fff;padding:9px 18px;border-radius:8px;font-size:.875rem;font-weight:600;text-decoration:none">↩ Retour à la connexion</a>'
+      + '<a href="/dashboard" style="display:inline-flex;align-items:center;gap:6px;background:#F2F4FA;color:#4A5068;padding:9px 18px;border-radius:8px;font-size:.875rem;font-weight:600;text-decoration:none;margin-left:8px">Tableau de bord</a>'
+      + '</div>';
+  }
+})();
+
+/* ── Populate ───────────────────────────────────────────────── */
+function populateForm(p) {
+  setVal('f-name',      p.full_name || '');
+  setVal('f-specialty', p.specialty || '');
+  setVal('f-wilaya',    p.wilaya    || '');
+  setVal('f-city',      p.city      || '');
+  setVal('f-address',   p.address   || '');
+  setVal('f-phone',     p.phone_public || '');
+  setVal('f-price',     p.consultation_price || '');
+  setVal('f-bio',       p.bio       || '');
+  document.getElementById('t-public').checked = !!p.is_public;
+  document.getElementById('t-rdv').checked    = !!p.accepts_rdv;
+  if (p.avatar_url) applyAvatarSrc(p.avatar_url);
+  updatePreview();
+}
+
+function setVal(id, val) { var el = document.getElementById(id); if (el) el.value = val; }
+function getVal(id)      { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+/* ── KYC Gate ───────────────────────────────────────────────── */
+function applyKycGate() {
+  if (_kycStatus === 'approved') return; // tout débloqué
+
+  var tPub = document.getElementById('t-public');
+  var tRdv = document.getElementById('t-rdv');
+
+  // Force les toggles à OFF et les désactive visuellement
+  if (tPub) { tPub.checked = false; tPub.disabled = true; }
+  if (tRdv) { tRdv.checked = false; tRdv.disabled = true; }
+
+  // Ajoute un badge "Vérification requise" à côté de chaque toggle
+  var MSG = {
+    'not_submitted': '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:#92400E;stroke-width:2;stroke-linecap:round;vertical-align:middle;margin-right:5px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Vérification médicale requise — <a href="/dashboard" style="color:#92400E;font-weight:700;text-decoration:underline">Soumettre mon dossier</a>',
+    'pending_review': '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:#92400E;stroke-width:2;stroke-linecap:round;vertical-align:middle;margin-right:5px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Vérification en cours — disponible sous 24–48h',
+    'rejected':       '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:#DC2626;stroke-width:2;stroke-linecap:round;vertical-align:middle;margin-right:5px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Document rejeté — <a href="/dashboard" style="color:#DC2626;font-weight:700;text-decoration:underline">Resoumettre</a>',
+  };
+  var msg = MSG[_kycStatus] || MSG['not_submitted'];
+  var notice = document.createElement('div');
+  notice.id = 'kyc-gate-notice';
+  notice.style.cssText = 'margin-top:12px;padding:11px 14px;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;font-size:12.5px;color:#92400E;line-height:1.5';
+  notice.innerHTML = msg;
+
+  // Insère la notice après le dernier toggle-row
+  var rows = document.querySelectorAll('.toggle-row');
+  var lastRow = rows[rows.length - 1];
+  if (lastRow && lastRow.parentNode) lastRow.parentNode.insertBefore(notice, lastRow.nextSibling);
+
+  // Grise les labels pour signaler visuellement le verrouillage
+  document.querySelectorAll('.toggle-row').forEach(function(row) {
+    row.style.opacity = '.55';
+    row.style.pointerEvents = 'none';
+  });
+  notice.style.pointerEvents = 'auto';
+  if (notice.querySelector('a')) notice.querySelectorAll('a').forEach(function(a){ a.style.pointerEvents = 'auto'; });
+}
+
+/* ── Preview ────────────────────────────────────────────────── */
+var COLORS = ['#3B1772','#0D6EFD','#7C3AED','#059669','#DC2626','#D97706'];
+function updatePreview() {
+  var name   = getVal('f-name') || 'Votre Nom';
+  var spec   = getVal('f-specialty') || 'Spécialité';
+  var wilaya = getVal('f-wilaya');
+  var city   = getVal('f-city');
+  var price  = getVal('f-price');
+  var bio    = getVal('f-bio');
+
+  var color = COLORS[name.length % COLORS.length];
+  var inits = name.split(' ').filter(Boolean).slice(0, 2).map(function(w){ return w[0].toUpperCase(); }).join('') || 'DR';
+
+  document.getElementById('prev-avatar').style.background = color;
+  // left panel initials
+  document.getElementById('avatar-initials-txt').textContent = inits;
+  document.getElementById('avatar-circle').style.background = color;
+  // right panel initials (only if no photo)
+  var pInits = document.getElementById('prev-avatar-initials');
+  var pImg   = document.getElementById('prev-avatar-img');
+  pInits.textContent = inits;
+  if (!_avatarSrc) {
+    document.getElementById('prev-avatar').style.background = color;
+    pImg.style.display   = 'none';
+    pInits.style.display = 'block';
+  }
+  document.getElementById('prev-name').textContent   = 'Dr. ' + name;
+  document.getElementById('prev-spec-txt').textContent = spec;
+  document.getElementById('prev-location').textContent = (city ? city + ', ' : '') + (wilaya || '—');
+  document.getElementById('prev-price').textContent   = price ? new Intl.NumberFormat('fr-DZ').format(price) + ' DA' : 'Sur demande';
+
+  var bioEl = document.getElementById('prev-bio');
+  if (bio) {
+    bioEl.style.display = 'block';
+    bioEl.textContent   = bio.substring(0, 110) + (bio.length > 110 ? '…' : '');
+  } else {
+    bioEl.style.display = 'none';
+  }
+}
+
+/* ── Save ───────────────────────────────────────────────────── */
+window.saveProfile = async function() {
+  var btn  = document.getElementById('save-btn');
+  var spin = document.getElementById('save-spin');
+
+  // ── KYC Gate : blocage si profil public demandé sans vérification ──
+  var wantsPublic = document.getElementById('t-public').checked;
+  var wantsRdv    = document.getElementById('t-rdv').checked;
+  if ((wantsPublic || wantsRdv) && _kycStatus !== 'approved') {
+    var msgs = {
+      'not_submitted': 'Vous devez soumettre votre justificatif médical avant d\'activer votre profil public.',
+      'pending_review': 'Votre dossier est en cours de vérification. Activez votre profil public une fois approuvé.',
+      'rejected':       'Votre document a été rejeté. Soumettez un nouveau justificatif valide.',
+    };
+    showToast(msgs[_kycStatus] || msgs['not_submitted'], 'err');
+    return;
+  }
+
+  btn.disabled = true;
+  spin.style.display = 'block';
+
+  var payload = {
+    email:              _email,
+    full_name:          getVal('f-name'),
+    specialty:          getVal('f-specialty') || null,
+    wilaya:             getVal('f-wilaya')    || null,
+    city:               getVal('f-city')      || null,
+    address:            getVal('f-address')   || null,
+    phone_public:       getVal('f-phone')     || null,
+    consultation_price: parseInt(getVal('f-price')) || 0,
+    bio:                getVal('f-bio')       || null,
+    is_public:          _kycStatus === 'approved' ? document.getElementById('t-public').checked : false,
+    accepts_rdv:        _kycStatus === 'approved' ? document.getElementById('t-rdv').checked   : false,
+    updated_at:         new Date().toISOString(),
+  };
+
+  // Upload avatar si un nouveau fichier est sélectionné
+  if (_avatarFile) {
+    var ext  = _avatarFile.type === 'image/png' ? 'png' : 'jpg';
+    var path = _uid + '/avatar.' + ext;
+    var { error: upErr } = await _supa.storage.from('avatars').upload(path, _avatarFile, { upsert: true, contentType: _avatarFile.type });
+    if (!upErr) {
+      var { data: urlData } = _supa.storage.from('avatars').getPublicUrl(path);
+      payload.avatar_url = urlData.publicUrl + '?v=' + Date.now();
+      _avatarSrc  = payload.avatar_url;
+      _avatarFile = null;
+    }
+  }
+
+  var { error } = await _supa.from('profiles').upsert(Object.assign({ id: _uid }, payload), { onConflict: 'id' });
+
+  btn.disabled       = false;
+  spin.style.display = 'none';
+
+  if (error) {
+    showToast('Erreur : ' + error.message, 'err');
+  } else {
+    showToast('Profil enregistré', 'ok');
+  }
+};
+
+/* ── Toast ──────────────────────────────────────────────────── */
+function showToast(msg, type) {
+  var el   = document.getElementById('toast');
+  var icon = document.getElementById('toast-icon');
+  el.className = 'toast ' + (type || 'ok');
+  document.getElementById('toast-msg').textContent = msg;
+  icon.innerHTML = type === 'err'
+    ? '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+    : '<polyline points="20 6 9 17 4 12"/>';
+  clearTimeout(_toastTimer);
+  el.classList.add('show');
+  _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 3000);
+}
+
+window.updatePreview = updatePreview;
+})();
+</script>
+</body>
+</html>
+

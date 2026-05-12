@@ -1,0 +1,585 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Salle d'attente — Affichage</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#3B1772;
+  --bg:#060D1F;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+  /* Priority accent colors (change dynamically) */
+  --accent: #2563EB;
+  --accent-glow: rgba(37,99,235,.35);
+}
+html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;background:var(--bg);color:#fff;display:flex;flex-direction:column}
+
+/* ── ANIMATED BACKGROUND ── */
+.bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:0;transition:background .8s,opacity .8s}
+.bg-blob-1{width:900px;height:900px;top:-20%;left:-15%;animation:blob1 18s ease-in-out infinite}
+.bg-blob-2{width:700px;height:700px;bottom:-15%;right:-10%;animation:blob2 22s ease-in-out infinite}
+@keyframes blob1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,40px) scale(1.08)}66%{transform:translate(-30px,60px) scale(.95)}}
+@keyframes blob2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-50px,-30px) scale(1.06)}66%{transform:translate(40px,-50px) scale(.97)}}
+.grid-lines{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:70px 70px;z-index:0;pointer-events:none}
+
+/* ── TOPBAR ── */
+.topbar{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:18px 44px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:20px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff;transition:background .8s;flex-shrink:0}
+.brand-name{font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.clinic-block{text-align:center}
+.clinic-name{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.clinic-date{font-size:13px;color:rgba(255,255,255,.45);margin-top:3px}
+.clock-block{text-align:right}
+.clock{font-size:36px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-1px;color:#fff;line-height:1}
+.clock-label{font-size:11px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+
+/* ── MAIN LAYOUT ── */
+.main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr 360px;overflow:hidden}
+
+/* ── LEFT: CURRENT PATIENT ── */
+.panel-current{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;border-right:1px solid rgba(255,255,255,.06);gap:0;position:relative}
+
+.current-label{font-size:13px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.16em;margin-bottom:20px}
+
+/* Priority indicator */
+.priority-ribbon{display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:6px 18px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:rgba(255,255,255,.9);opacity:0;transition:all .4s;min-height:34px}
+.priority-ribbon.show{opacity:1}
+.priority-ribbon.urgente{background:rgba(234,88,12,.2);border-color:rgba(234,88,12,.4);color:#FED7AA}
+.priority-ribbon.critique{background:rgba(220,38,38,.2);border-color:rgba(220,38,38,.4);color:#FECACA;animation:ribbon-pulse 1.5s ease-in-out infinite}
+@keyframes ribbon-pulse{0%,100%{box-shadow:0 0 0 rgba(220,38,38,0)}50%{box-shadow:0 0 24px rgba(220,38,38,.4)}}
+.priority-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+.priority-ribbon.urgente .priority-dot{animation:dot-blink 1.5s ease-in-out infinite}
+.priority-ribbon.critique .priority-dot{animation:dot-blink .8s ease-in-out infinite}
+@keyframes dot-blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* Big number */
+.current-num-wrap{position:relative;margin-bottom:12px}
+.current-num{
+  font-size:clamp(140px,22vw,240px);
+  font-weight:900;
+  line-height:1;
+  letter-spacing:-6px;
+  font-variant-numeric:tabular-nums;
+  background:linear-gradient(160deg,#FFFFFF 0%,rgba(255,255,255,.8) 50%,var(--accent) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  transition:background 1s;
+  position:relative;
+}
+.current-num.animate-in{animation:num-in .55s cubic-bezier(.34,1.56,.64,1)}
+@keyframes num-in{from{opacity:0;transform:scale(.7) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+/* Shine sweep on number change */
+.current-num::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.25) 50%,transparent 60%);
+  background-size:200%;
+  background-position:200%;
+  border-radius:4px;
+  pointer-events:none;
+}
+.current-num.shine::after{animation:shine-sweep .6s ease-out}
+@keyframes shine-sweep{from{background-position:200%}to{background-position:-200%}}
+
+.current-name{font-size:clamp(20px,2.5vw,32px);font-weight:600;color:rgba(255,255,255,.85);min-height:40px;text-align:center;max-width:480px;line-height:1.3;transition:opacity .4s}
+
+/* Room badge */
+.room-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:8px 22px;font-size:16px;font-weight:700;color:rgba(255,255,255,.9);margin-top:14px;transition:all .4s}
+.room-badge svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;opacity:.7}
+.room-badge.hidden-el{opacity:0;pointer-events:none}
+
+/* Status badge */
+.status-badge{display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:10px 24px;font-size:14px;font-weight:600;margin-top:20px;transition:all .6s}
+.status-badge.serving{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#6EE7B7}
+.status-badge.waiting{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)}
+.status-dot{width:10px;height:10px;border-radius:50%;background:currentColor}
+.status-badge.serving .status-dot{animation:status-blink 1.8s ease-in-out infinite}
+@keyframes status-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* Stats pills */
+.stats-row{display:flex;gap:16px;margin-top:36px}
+.stat-pill{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 22px;text-align:center;min-width:100px;transition:all .4s}
+.stat-val{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.stat-pill.blue .stat-val{color:#60A5FA}
+.stat-pill.green .stat-val{color:#34D399}
+.stat-pill.amber .stat-val{color:#FCD34D}
+.stat-pill.red .stat-val{color:#F87171}
+
+/* ── RIGHT: QUEUE LIST ── */
+.panel-queue{display:flex;flex-direction:column;background:rgba(0,0,0,.25);overflow:hidden}
+.queue-hdr{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.queue-hdr-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em}
+.queue-hdr-count{font-size:12px;color:rgba(255,255,255,.3);font-weight:500}
+.queue-list{flex:1;overflow-y:auto;padding:10px 12px;gap:6px;display:flex;flex-direction:column}
+.queue-list::-webkit-scrollbar{width:3px}
+.queue-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+
+.q-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;transition:all .4s var(--ease)}
+.q-item.current{background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14)}
+.q-item.waiting{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
+.q-item.done{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.1);opacity:.55}
+.q-item.new{animation:item-slide .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes item-slide{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* Priority left border */
+.q-item.prio-urgente{border-left:3px solid rgba(234,88,12,.6)}
+.q-item.prio-critique{border-left:3px solid rgba(220,38,38,.7);background:rgba(220,38,38,.04)!important}
+
+.q-num-box{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;flex-shrink:0;font-variant-numeric:tabular-nums}
+.q-item.current .q-num-box{background:rgba(255,255,255,.12);color:#fff}
+.q-item.waiting.prio-normale .q-num-box{background:rgba(37,99,235,.15);color:#93C5FD}
+.q-item.waiting.prio-urgente .q-num-box{background:rgba(234,88,12,.15);color:#FED7AA}
+.q-item.waiting.prio-critique .q-num-box{background:rgba(220,38,38,.15);color:#FECACA}
+.q-item.done .q-num-box{background:rgba(16,185,129,.12);color:#6EE7B7}
+
+.q-info{flex:1;min-width:0}
+.q-name{font-size:15px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-status{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px;display:flex;align-items:center;gap:6px}
+.q-prio-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.prio-normale .q-prio-dot{background:#60A5FA}
+.prio-urgente .q-prio-dot{background:#FB923C;animation:dot-blink 1.5s ease-in-out infinite}
+.prio-critique .q-prio-dot{background:#F87171;animation:dot-blink .8s ease-in-out infinite}
+.q-time{font-size:11px;color:rgba(255,255,255,.25);flex-shrink:0}
+
+.queue-empty-display{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;padding:32px;text-align:center}
+.queue-empty-icon-big{font-size:48px;opacity:.4}
+.queue-empty-text{font-size:15px;font-weight:600;color:rgba(255,255,255,.3)}
+.queue-empty-sub{font-size:12px;color:rgba(255,255,255,.2);line-height:1.6;max-width:200px}
+
+/* ── FOOTER ── */
+.footer{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:12px 44px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.footer-qr{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.3)}
+.footer-qr-icon{width:32px;height:32px;background:rgba(255,255,255,.07);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.footer-qr-icon svg{width:16px;height:16px;stroke:rgba(255,255,255,.5);fill:none;stroke-width:2;stroke-linecap:round}
+.footer-brand{font-size:12px;color:rgba(255,255,255,.2)}
+.footer-brand span{color:var(--accent);transition:color .8s}
+
+/* ── LOADING ── */
+.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;gap:16px;transition:opacity .6s}
+.loading-overlay.hidden{opacity:0;pointer-events:none}
+.loader{width:40px;height:40px;border:3px solid rgba(255,255,255,.08);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:14px;color:rgba(255,255,255,.35)}
+
+/* ── CALL FLASH OVERLAY ── */
+.call-flash{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:0}
+.call-flash.flash-normal{animation:flash-blue .6s ease-out}
+.call-flash.flash-urgente{animation:flash-orange .6s ease-out}
+.call-flash.flash-critique{animation:flash-red .6s ease-out}
+@keyframes flash-blue{0%{opacity:.18;background:rgba(37,99,235,1)}100%{opacity:0}}
+@keyframes flash-orange{0%{opacity:.22;background:rgba(234,88,12,1)}100%{opacity:0}}
+@keyframes flash-red{0%{opacity:.28;background:rgba(220,38,38,1)}100%{opacity:0}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .main{grid-template-columns:1fr}
+  .panel-queue{display:none}
+  .topbar{padding:14px 20px}
+  .footer{padding:10px 20px}
+}
+</style>
+<script src="loader.js"></script>
+  <!-- Sentry monitoring -->
+  <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
+  <script src="/js/sentry-config.js"></script>
+  <script src="/js/sentry-init.js"></script>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loader"></div>
+  <div class="loader-text">Chargement de la file d'attente…</div>
+</div>
+
+<div class="call-flash" id="call-flash"></div>
+
+<div class="bg-canvas">
+  <div class="bg-blob bg-blob-1" id="bg-blob-1"></div>
+  <div class="bg-blob bg-blob-2" id="bg-blob-2"></div>
+</div>
+<div class="grid-lines"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark" id="brand-mark">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:22px;height:22px">
+        <path fill="white" d="M290.5,38.7c42.2-8.9,87.4,33.7,74.9,76.8c-8.5,40.2-61.9,56.3-94.1,32.9c-21.7-12.9-34.3-40.4-28.9-65.3C247.4,60.5,267.4,41.6,290.5,38.7z M294.6,70c-24.1,4.7-28.1,40.2-7.1,51.6c15.1,11.3,39.9,6.1,46-12.7C342.5,86.3,316.5,63.5,294.6,70z"/>
+        <path fill="white" d="M132.9,103.8c25-4.1,51.6-1.1,72.7,13.6c28.8,19.6,46.3,51.6,57.4,84c37.8-16.9,77.9-32.3,119.9-30.6c33.9,1.6,64.8,24.5,76.5,56.1c9.8,39.1-9,77.8-31.4,108.8C386.7,393,324.7,441.1,252.5,448c-23.2,21.2-58.8,33.5-88.9,20.2c-36.5-16.8-59.2-51.9-77.6-86.1c-28.8-59.4-43.6-127.1-33.3-192.9C60.5,148.6,89.8,109.4,132.9,103.8z M141.3,137.4c-34.9,4.9-54,42.3-55.4,74.6c-2.2,65.6,15.8,132.4,52.6,186.9c14.6,21.9,38.2,47,67.1,37.5c-2-8.7-14.6-10.7-19.5-17.9c-24.9-25.2-41-61.6-35.4-97.3c1-24.6,18.4-47.7,42.1-54.8c29.6-11,67,1.4,82,29.8c20.5,33.5,15.1,75.5,4.3,111.3c30.1-8.1,55.2-27.9,79.2-46.9c28.7-27.6,56.7-60,66.5-99.5c8.2-25.4-13.1-50.5-37.4-54.4c-51.9-9.3-94.3,25.2-140.6,40.3c-20.9,4.6-39.4-16.8-36.9-36.6c5.2-3.5,11.1-0.3,16.8-0.4C217.3,172.5,185,128.2,141.3,137.4z M206.4,298.9c-13.3,3.7-20.9,17.4-19.7,30.8c-3.1,32.5,18.1,68.3,49.9,77.4c19.2-27.9,21.2-68.2,4.3-98C231.8,300.1,219,295.3,206.4,298.9z"/>
+      </svg>
+    </div>
+    <div class="brand-name">Docline</div>
+  </div>
+  <div class="clinic-block">
+    <div class="clinic-name" id="clinic-name">Cabinet médical</div>
+    <div class="clinic-date" id="clinic-date"></div>
+  </div>
+  <div class="clock-block">
+    <div class="clock" id="clock">--:--</div>
+    <div class="clock-label">Heure</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="panel-current">
+    <div class="current-label">Numéro appelé</div>
+
+    <div class="priority-ribbon" id="priority-ribbon">
+      <div class="priority-dot"></div>
+      <span id="priority-text">URGENTE</span>
+    </div>
+
+    <div class="current-num-wrap">
+      <div class="current-num" id="current-num">--</div>
+    </div>
+
+    <div class="current-name" id="current-name"></div>
+
+    <div class="room-badge hidden-el" id="room-badge">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span id="room-text">—</span>
+    </div>
+
+    <div class="status-badge waiting" id="status-badge">
+      <div class="status-dot"></div>
+      <span id="status-text">En attente du premier patient</span>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-pill amber">
+        <div class="stat-val" id="stat-waiting">0</div>
+        <div class="stat-lbl">En attente</div>
+      </div>
+      <div class="stat-pill green">
+        <div class="stat-val" id="stat-done">0</div>
+        <div class="stat-lbl">Consultés</div>
+      </div>
+      <div class="stat-pill red">
+        <div class="stat-val" id="stat-urgent">0</div>
+        <div class="stat-lbl">Urgences</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="panel-queue">
+    <div class="queue-hdr">
+      <div class="queue-hdr-title">File d'attente</div>
+      <div class="queue-hdr-count" id="queue-hdr-count">—</div>
+    </div>
+    <div class="queue-list" id="queue-list">
+      <div class="queue-empty-display">
+        <div class="queue-empty-icon-big"><svg viewBox="0 0 24 24" style="width:60px;height:60px;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round;opacity:.3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="queue-empty-text">File vide</div>
+        <div class="queue-empty-sub">Les patients rejoignent en scannant le QR Code</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-qr">
+    <div class="footer-qr-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    </div>
+    Scannez le QR Code à l'entrée pour rejoindre la file
+  </div>
+  <div class="footer-brand">Propulsé par <span>Docline</span> · Cabinet médical </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DOCLINE — QUEUE DISPLAY v2
+   Écran salle d'attente — plein écran, temps réel, sons
+═══════════════════════════════════════════════════════════ */
+
+var _supa  = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _clinicId = null;
+var _queue = [];
+var _lastCurrentId = null;
+var _audioCtx = null;
+
+/* ── PRIORITY COLOR PALETTE ── */
+var PRIORITY_COLORS = {
+  normale:  { accent:'#2563EB', glow:'rgba(37,99,235,.35)',  blob1:'#1E3A8A', blob2:'#0EA5E9' },
+  urgente:  { accent:'#EA580C', glow:'rgba(234,88,12,.35)',  blob1:'#7C2D12', blob2:'#F97316' },
+  critique: { accent:'#DC2626', glow:'rgba(220,38,38,.4)',   blob1:'#7F1D1D', blob2:'#EF4444' },
+  none:     { accent:'#2563EB', glow:'rgba(37,99,235,.2)',   blob1:'#0F2056', blob2:'#0369A1' }
+};
+
+/* ── SOUND ENGINE ── */
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+
+function playCallNormal() {
+  try {
+    var ctx = getAudioCtx();
+    [[523,.0],[659,.15],[784,.30],[1047,.50]].forEach(function(x){
+      var o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='sine'; o.frequency.value=x[0];
+      var t=ctx.currentTime+x[1];
+      g.gain.setValueAtTime(0,t);
+      g.gain.linearRampToValueAtTime(.22,t+.06);
+      g.gain.exponentialRampToValueAtTime(.001,t+.65);
+      o.start(t); o.stop(t+.7);
+    });
+  } catch(e){}
+}
+
+function playCallUrgent() {
+  try {
+    var ctx = getAudioCtx();
+    [0,.25,.5].forEach(function(delay){
+      var o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='sawtooth';
+      o.frequency.setValueAtTime(440,ctx.currentTime+delay);
+      o.frequency.linearRampToValueAtTime(880,ctx.currentTime+delay+.18);
+      g.gain.setValueAtTime(.25,ctx.currentTime+delay);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay+.35);
+      o.start(ctx.currentTime+delay); o.stop(ctx.currentTime+delay+.4);
+    });
+  } catch(e){}
+}
+
+function playCallCritique() {
+  try {
+    var ctx = getAudioCtx();
+    [0,.18,.36,.54,.72].forEach(function(delay){
+      var o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='square'; o.frequency.value=660;
+      g.gain.setValueAtTime(.28,ctx.currentTime+delay);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay+.16);
+      o.start(ctx.currentTime+delay); o.stop(ctx.currentTime+delay+.18);
+    });
+  } catch(e){}
+}
+
+/* ── COLOR THEME ── */
+function applyTheme(priority) {
+  var c = PRIORITY_COLORS[priority||'none'];
+  document.documentElement.style.setProperty('--accent', c.accent);
+  document.documentElement.style.setProperty('--accent-glow', c.glow);
+  var b1 = document.getElementById('bg-blob-1');
+  var b2 = document.getElementById('bg-blob-2');
+  b1.style.background = 'radial-gradient(circle,'+c.blob1+',transparent)';
+  b2.style.background = 'radial-gradient(circle,'+c.blob2+',transparent)';
+  b1.style.opacity = priority && priority!=='none' ? '0.18' : '0.1';
+  b2.style.opacity = priority && priority!=='none' ? '0.15' : '0.08';
+  document.getElementById('brand-mark').style.background = c.accent;
+  document.querySelector('.footer-brand span').style.color = c.accent;
+}
+
+/* ── FLASH OVERLAY ── */
+function flashScreen(priority) {
+  var el = document.getElementById('call-flash');
+  el.className = 'call-flash';
+  void el.offsetWidth;
+  el.className = 'call-flash flash-' + (priority||'normal');
+}
+
+/* ── INIT ── */
+(function init() {
+  var params = new URLSearchParams(window.location.search);
+  _clinicId = params.get('c');
+
+  tickClock(); setInterval(tickClock, 1000);
+  updateDate();
+
+  if (!_clinicId) {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    applyTheme('none');
+    document.getElementById('status-text').textContent = 'Aucun cabinet connecté — ajoutez ?c=CLINIC_ID dans l\'URL';
+    return;
+  }
+
+  loadClinicInfo();
+  loadQueue();
+  startRealtime();
+})();
+
+function tickClock() {
+  var n = new Date();
+  document.getElementById('clock').textContent =
+    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+}
+
+function updateDate() {
+  var n = new Date();
+  var DAYS   = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  document.getElementById('clinic-date').textContent =
+    DAYS[n.getDay()] + ' ' + n.getDate() + ' ' + MONTHS[n.getMonth()] + ' ' + n.getFullYear();
+}
+
+async function loadClinicInfo() {
+  try {
+    var r = await _supa.from('profiles').select('first_name,last_name,clinic_name').eq('id',_clinicId).single();
+    if (r.data) {
+      var name = r.data.clinic_name || ((r.data.first_name||'') + ' ' + (r.data.last_name||'')).trim() || 'Cabinet médical';
+      document.getElementById('clinic-name').textContent = name;
+    }
+  } catch(e) {}
+}
+
+async function loadQueue() {
+  var today = new Date().toISOString().split('T')[0];
+  try {
+    var r = await _supa.from('queue_entries').select('*').eq('clinic_id',_clinicId).eq('queue_date',today).order('number');
+    _queue = r.data || [];
+    renderDisplay();
+  } catch(e) {
+    console.warn('Queue load error:', e);
+  } finally {
+    document.getElementById('loading-overlay').classList.add('hidden');
+  }
+}
+
+function renderDisplay(animated) {
+  var current = _queue.find(function(e){return e.status==='current';});
+  var waiting  = _queue.filter(function(e){return e.status==='waiting';});
+  var done     = _queue.filter(function(e){return e.status==='done';});
+  var urgents  = waiting.filter(function(e){return e.priority==='urgente'||e.priority==='critique';});
+
+  /* -- Stats -- */
+  document.getElementById('stat-waiting').textContent = waiting.length;
+  document.getElementById('stat-done').textContent    = done.length;
+  document.getElementById('stat-urgent').textContent  = urgents.length;
+
+  /* -- Current patient -- */
+  var numEl    = document.getElementById('current-num');
+  var nameEl   = document.getElementById('current-name');
+  var roomEl   = document.getElementById('room-badge');
+  var statusEl = document.getElementById('status-badge');
+  var ribbonEl = document.getElementById('priority-ribbon');
+
+  if (current) {
+    var isNew = animated && current.id !== _lastCurrentId;
+    _lastCurrentId = current.id;
+
+    /* Number */
+    numEl.textContent = String(current.number).padStart(2,'0');
+    if (isNew) {
+      numEl.classList.remove('animate-in','shine'); void numEl.offsetWidth;
+      numEl.classList.add('animate-in','shine');
+    }
+
+    /* Name */
+    nameEl.textContent = current.patient_name || '';
+
+    /* Room */
+    if (current.room) {
+      document.getElementById('room-text').textContent = current.room;
+      roomEl.classList.remove('hidden-el');
+    } else {
+      roomEl.classList.add('hidden-el');
+    }
+
+    /* Status */
+    statusEl.className = 'status-badge serving';
+    document.getElementById('status-text').textContent = 'Consultation en cours';
+
+    /* Priority ribbon */
+    var prio = current.priority || 'normale';
+    if (prio !== 'normale') {
+      ribbonEl.className = 'priority-ribbon show ' + prio;
+      document.getElementById('priority-text').textContent = prio.toUpperCase();
+    } else {
+      ribbonEl.className = 'priority-ribbon';
+    }
+
+    /* Theme */
+    applyTheme(prio);
+
+    /* Sounds + flash on change */
+    if (isNew) {
+      flashScreen(prio==='critique'?'critique':prio==='urgente'?'urgente':'normal');
+      if (prio==='critique')     playCallCritique();
+      else if (prio==='urgente') playCallUrgent();
+      else                       playCallNormal();
+    }
+
+  } else {
+    _lastCurrentId = null;
+    numEl.textContent = '--';
+    nameEl.textContent = waiting.length > 0 ? 'Prochain : N°' + String(waiting[0].number).padStart(2,'0') : '';
+    roomEl.classList.add('hidden-el');
+    ribbonEl.className = 'priority-ribbon';
+    statusEl.className = 'status-badge waiting';
+    document.getElementById('status-text').textContent =
+      waiting.length > 0 ? waiting.length + ' patient' + (waiting.length>1?'s':'') + ' en attente' : 'En attente du premier patient';
+    applyTheme('none');
+  }
+
+  /* -- Queue list (right panel) -- */
+  var listEl = document.getElementById('queue-list');
+  var items  = [].concat(
+    _queue.filter(function(e){return e.status==='current';}),
+    _queue.filter(function(e){return e.status==='waiting';}),
+    done.slice(-4)
+  );
+
+  document.getElementById('queue-hdr-count').textContent = _queue.length + ' patient' + (_queue.length!==1?'s':'');
+
+  if (!items.length) {
+    listEl.innerHTML = '<div class="queue-empty-display"><div class="queue-empty-icon-big"><svg viewBox="0 0 24 24" style="width:60px;height:60px;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round;opacity:.3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="queue-empty-text">File vide</div><div class="queue-empty-sub">Les patients rejoignent en scannant le QR Code</div></div>';
+    return;
+  }
+
+  listEl.innerHTML = items.map(function(e) {
+    var prio = e.priority || 'normale';
+    var statusLabel = e.status==='current'?'En consultation':e.status==='done'?'Consulté ✓':'En attente';
+    if (e.status==='current' && e.room) statusLabel = 'Salle : ' + esc(e.room);
+    var timeStr = e.created_at ? new Date(e.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+    return '<div class="q-item ' + e.status + ' prio-' + prio + '">' +
+      '<div class="q-num-box">' + String(e.number).padStart(2,'0') + '</div>' +
+      '<div class="q-info">' +
+        '<div class="q-name">' + esc(e.patient_name||'Patient') + '</div>' +
+        '<div class="q-status"><span class="q-prio-dot"></span>' + statusLabel + '</div>' +
+      '</div>' +
+      '<div class="q-time">' + timeStr + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ── REALTIME ── */
+function startRealtime() {
+  _supa.channel('display-v2-' + _clinicId)
+    .on('postgres_changes', {event:'*', schema:'public', table:'queue_entries', filter:'clinic_id=eq.'+_clinicId},
+      function() { loadQueueAnimated(); })
+    .subscribe();
+}
+
+async function loadQueueAnimated() {
+  var today = new Date().toISOString().split('T')[0];
+  try {
+    var r = await _supa.from('queue_entries').select('*').eq('clinic_id',_clinicId).eq('queue_date',today).order('number');
+    _queue = r.data || [];
+    renderDisplay(true);
+  } catch(e) {}
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

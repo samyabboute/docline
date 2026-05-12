@@ -22,8 +22,7 @@
     X-XSS-Protection           = "1; mode=block"
     Referrer-Policy            = "strict-origin-when-cross-origin"
     Permissions-Policy         = "camera=(), microphone=(), geolocation=()"
-    # CSP — allows Supabase, Stripe, CDNs, and Google Fonts
-    Content-Security-Policy    = "default-src 'self' https://*.supabase.co https://cdn.jsdelivr.net https://js.stripe.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com;"
+    Content-Security-Policy    = "default-src 'self' https://*.supabase.co https://cdn.jsdelivr.net https://js.stripe.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com https://browser.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com https://generativelanguage.googleapis.com;"
 
 # ── Cache static assets aggressively ─────────────────────────────────────────
 [[headers]]
@@ -73,6 +72,11 @@
   status = 200
 
 [[redirects]]
+  from   = "/patients"
+  to     = "/patients.html"
+  status = 200
+
+[[redirects]]
   from   = "/invoices"
   to     = "/invoices.html"
   status = 200
@@ -88,6 +92,11 @@
   status = 200
 
 [[redirects]]
+  from   = "/book"
+  to     = "/book.html"
+  status = 200
+
+[[redirects]]
   from   = "/privacy"
   to     = "/privacy.html"
   status = 200
@@ -100,4 +109,9 @@
 [[redirects]]
   from   = "/timer"
   to     = "/timer.html"
+  status = 200
+
+[[redirects]]
+  from   = "/mes-rdv"
+  to     = "/mes-rdv.html"
   status = 200

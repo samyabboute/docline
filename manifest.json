@@ -1,0 +1,48 @@
+{
+  "name": "Docline — Trouvez votre médecin",
+  "short_name": "Docline",
+  "description": "Trouvez et prenez rendez-vous avec les meilleurs médecins en Algérie",
+  "start_url": "/find-doctor",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#3B1772",
+  "background_color": "#3B1772",
+  "lang": "fr",
+  "categories": [
+    "medical",
+    "health"
+  ],
+  "icons": [
+    {
+      "src": "icon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "apple touch icon"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": []
+}

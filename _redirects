@@ -1,0 +1,77 @@
+# ── 301 : supprimer .html des URLs (permanent, SEO) ──────────────────────────
+/find-doctor.html         /find-doctor          301
+/login.html               /login                301
+/app.html                 /dashboard            301
+/admin.html               /admin                301
+/pricing.html             /pricing              301
+/patients.html            /patients             301
+/calendar.html            /calendar             301
+/book.html                /book                 301
+/mes-rdv.html             /mes-rdv              301
+/privacy.html             /privacy              301
+/terms.html               /terms                301
+/onboarding.html          /onboarding           301
+/import.html              /import               301
+/consultations.html       /consultations        301
+/disponibilites.html      /disponibilites       301
+/ordonnances.html         /ordonnances          301
+/labo.html                /labo                 301
+/staff.html               /staff                301
+/profil-public.html       /profil-public        301
+/queue.html               /queue                301
+/queue-display.html       /queue-display        301
+/queue-join.html          /queue-join           301
+/confirm.html             /confirm              301
+/ticket.html              /ticket               301
+/results-view.html        /results-view         301
+/payment-return.html      /payment-return       301
+/landing.html             /landing              301
+/admin-analytics.html     /admin-analytics      301
+/admin-featured.html      /admin-featured       301
+/admin-revenue.html       /admin-revenue        301
+/admin-security.html      /admin-security       301
+/admin-users.html         /admin-users          301
+/clients.html             /patients             301
+
+# ── 200 : servir les fichiers pour les URLs propres ───────────────────────────
+/find-doctor              /find-doctor.html     200
+/login                    /login.html           200
+/dashboard                /app.html             200
+/admin                    /admin.html           200
+/pricing                  /pricing.html         200
+/patients                 /patients.html        200
+/calendar                 /calendar.html        200
+/book                     /book.html            200
+/mes-rdv                  /mes-rdv.html         200
+/privacy                  /privacy.html         200
+/terms                    /terms.html           200
+/onboarding               /onboarding.html      200
+/import                   /import.html          200
+/consultations            /consultations.html   200
+/disponibilites           /disponibilites.html  200
+/ordonnances              /ordonnances.html     200
+/labo                     /labo.html            200
+/staff                    /staff.html           200
+/profil-public            /profil-public.html   200
+/queue                    /queue.html           200
+/queue-display            /queue-display.html   200
+/queue-join               /queue-join.html      200
+/confirm                  /confirm.html         200
+/ticket                   /ticket.html          200
+/results-view             /results-view.html    200
+/payment-return           /payment-return.html  200
+/landing                  /landing.html         200
+/admin-analytics          /admin-analytics.html 200
+/admin-featured           /admin-featured.html  200
+/admin-revenue            /admin-revenue.html   200
+/admin-security           /admin-security.html  200
+/admin-users              /admin-users.html     200
+
+# ── Pages médecin SEO /dr/:slug ───────────────────────────────────────────────
+/dr/*                     /dr.html              200
+
+# ── Sitemap dynamique ─────────────────────────────────────────────────────────
+/sitemap.xml              https://ferkzwzypmdtuypxribz.supabase.co/functions/v1/sitemap  200
+
+# ── Racine ────────────────────────────────────────────────────────────────────
+/                         /find-doctor.html     200

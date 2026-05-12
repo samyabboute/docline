@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>File d'attente — Docline</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script src="config.js"></script>
+<script src="shell.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<style>
+/* ── PRIORITY TOKENS ── */
+:root {
+  --p-normale:   #2563EB; --p-normale-bg:   #EFF6FF; --p-normale-border: #BFDBFE;
+  --p-urgente:   #EA580C; --p-urgente-bg:   #FFF7ED; --p-urgente-border: #FED7AA;
+  --p-critique:  #DC2626; --p-critique-bg:  #FEF2F2; --p-critique-border:#FECACA;
+
+  /* Aliases for backward-compat with old variable names */
+  --text2:var(--text-2); --text3:var(--text-3); --text4:var(--text-4);
+  --surface2:var(--surface-hover);
+  --brand-light:var(--brand-subtle);
+}
+
+/* ── PAGE HEADER ── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px;display:flex;align-items:center;gap:10px}
+.page-title svg{width:22px;height:22px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round}
+.page-sub{font-size:13px;color:var(--text3);margin-top:3px}
+.hdr-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;transition:transform .15s}
+.stat-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-num{font-size:36px;font-weight:900;line-height:1;margin-bottom:4px;font-variant-numeric:tabular-nums;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.stat-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.stat-card.blue .stat-num{color:#2563EB}
+.stat-card.amber .stat-num{color:#D97706}
+.stat-card.red .stat-num{color:#DC2626}
+.stat-card.green .stat-num{color:#059669}
+.stat-badge{position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.04em}
+.stat-card.blue .stat-badge{background:#EFF6FF;color:#2563EB}
+.stat-card.amber .stat-badge{background:#FFFBEB;color:#D97706}
+.stat-card.red .stat-badge{background:#FEF2F2;color:#DC2626}
+.stat-card.green .stat-badge{background:#ECFDF5;color:#059669}
+
+/* ── LAYOUT GRID ── */
+.queue-layout{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+
+/* ── SERVING CARD (priority variants) ── */
+.serving-card.priority-urgente{background:linear-gradient(145deg,#C2410C 0%,#EA580C 55%,#F97316 100%);box-shadow:0 12px 40px rgba(234,88,12,.3)}
+.serving-card.priority-critique{background:linear-gradient(145deg,#991B1B 0%,#DC2626 55%,#EF4444 100%);box-shadow:0 12px 40px rgba(220,38,38,.35)}
+.serving-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:6px}
+.serving-priority-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:4px 12px;font-size:11px;font-weight:700;color:#fff;margin-bottom:10px;letter-spacing:.06em}
+.serving-priority-badge svg{width:11px;height:11px;fill:currentColor}
+.serving-num{font-size:96px;font-weight:900;line-height:1;color:#fff;font-variant-numeric:tabular-nums;margin-bottom:6px;transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1}
+.serving-num.bump{animation:num-bump .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes num-bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.serving-name{font-size:20px;font-weight:600;color:rgba(255,255,255,.9);margin-bottom:6px}
+.serving-room-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:5px 14px;font-size:13px;font-weight:600;color:#fff;margin-bottom:18px}
+.serving-room-badge svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.serving-actions{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.btn-next{background:#fff;color:var(--brand);border:none;border-radius:99px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.btn-next:active{transform:scale(.97)}
+.btn-next svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.btn-skip{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-skip:hover{background:rgba(255,255,255,.22)}
+.btn-done{background:rgba(16,185,129,.2);color:#6EE7B7;border:1px solid rgba(16,185,129,.3);border-radius:99px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-done:hover{background:rgba(16,185,129,.3)}
+.serving-empty{font-size:15px;font-weight:500;color:rgba(255,255,255,.6);margin-top:8px}
+
+/* ── PULSE ANIMATION (when serving) ── */
+.serving-card.active-pulse{animation:card-pulse 3s ease-in-out infinite}
+@keyframes card-pulse{0%,100%{box-shadow:0 8px 32px rgba(59,23,114,.25)}50%{box-shadow:0 8px 48px rgba(59,23,114,.45)}}
+.serving-card.priority-urgente.active-pulse{animation:card-pulse-orange 3s ease-in-out infinite}
+@keyframes card-pulse-orange{0%,100%{box-shadow:0 8px 32px rgba(234,88,12,.3)}50%{box-shadow:0 8px 48px rgba(234,88,12,.55)}}
+.serving-card.priority-critique.active-pulse{animation:card-pulse-red 2s ease-in-out infinite}
+@keyframes card-pulse-red{0%,100%{box-shadow:0 8px 32px rgba(220,38,38,.35)}50%{box-shadow:0 8px 52px rgba(220,38,38,.6)}}
+
+/* ── ADD PATIENT PANEL ── */
+.add-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px}
+.add-panel-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.add-panel-title svg{width:15px;height:15px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;opacity:.8}
+.add-row{display:flex;gap:8px;margin-bottom:12px}
+.add-input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.add-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.08)}
+.priority-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
+.prio-btn{border:2px solid var(--border);border-radius:10px;padding:8px 4px;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;background:var(--surface)}
+.prio-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.prio-btn.selected-normale{border-color:var(--p-normale);background:var(--p-normale-bg)}
+.prio-btn.selected-urgente{border-color:var(--p-urgente);background:var(--p-urgente-bg)}
+.prio-btn.selected-critique{border-color:var(--p-critique);background:var(--p-critique-bg)}
+.prio-icon{font-size:18px;display:block;margin-bottom:3px}
+.prio-label{font-size:11px;font-weight:700;letter-spacing:.04em}
+.prio-btn.selected-normale .prio-label{color:var(--p-normale)}
+.prio-btn.selected-urgente .prio-label{color:var(--p-urgente)}
+.prio-btn.selected-critique .prio-label{color:var(--p-critique)}
+.add-notes{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;resize:none;transition:border-color .15s;display:none}
+.add-notes:focus{border-color:var(--brand)}
+.btn-add-patient{width:100%;padding:11px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-add-patient:hover{background:#1D4ED8;transform:translateY(-1px);box-shadow:0 4px 16px rgba(59,23,114,.3)}
+.btn-add-patient:active{transform:scale(.98)}
+.btn-add-patient svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+/* ── QUEUE LIST ── */
+.queue-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.queue-card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.queue-card-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px}
+.queue-card-title svg{width:15px;height:15px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round}
+.queue-count-badge{font-size:11px;font-weight:700;background:var(--surface2);color:var(--text3);border-radius:99px;padding:3px 10px}
+.queue-list-body{max-height:460px;overflow-y:auto}
+.queue-list-body::-webkit-scrollbar{width:4px}
+.queue-list-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── QUEUE ITEM ── */
+.q-item{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);transition:background .15s,transform .2s;position:relative}
+.q-item:last-child{border-bottom:none}
+.q-item:hover{background:var(--surface2)}
+.q-item.current{background:linear-gradient(90deg,rgba(59,23,114,.04),transparent);border-left:3px solid var(--brand)}
+.q-item.done{opacity:.5}
+.q-item.new-entry{animation:slide-in .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slide-in{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+
+/* priority left stripe */
+.q-item.prio-urgente{border-left:3px solid var(--p-urgente)}
+.q-item.prio-critique{border-left:3px solid var(--p-critique);background:rgba(220,38,38,.02)}
+.q-item.prio-critique.current{background:rgba(220,38,38,.04)}
+
+.q-num{width:40px;height:40px;border-radius:10px;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+.q-item.current .q-num{background:var(--brand);color:#fff}
+.q-item.done .q-num{background:var(--surface2);color:var(--text4)}
+.q-item.waiting.prio-normale .q-num{background:#EFF6FF;color:#2563EB}
+.q-item.waiting.prio-urgente .q-num{background:#FFF7ED;color:#EA580C}
+.q-item.waiting.prio-critique .q-num{background:#FEF2F2;color:#DC2626}
+
+.q-info{flex:1;min-width:0}
+.q-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.q-meta{font-size:11px;color:var(--text4);margin-top:2px;display:flex;align-items:center;gap:8px}
+
+.priority-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;letter-spacing:.04em;flex-shrink:0}
+.priority-tag.normale{background:var(--p-normale-bg);color:var(--p-normale);border:1px solid var(--p-normale-border)}
+.priority-tag.urgente{background:var(--p-urgente-bg);color:var(--p-urgente);border:1px solid var(--p-urgente-border)}
+.priority-tag.critique{background:var(--p-critique-bg);color:var(--p-critique);border:1px solid var(--p-critique-border);animation:tag-pulse 2s ease-in-out infinite}
+@keyframes tag-pulse{0%,100%{opacity:1}50%{opacity:.65}}
+
+.room-tag{font-size:10px;font-weight:600;background:rgba(59,23,114,.08);color:var(--brand);border-radius:99px;padding:2px 8px}
+
+.q-actions{display:flex;gap:4px;flex-shrink:0}
+.q-action-btn{width:28px;height:28px;border-radius:8px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text4);transition:all .12s}
+.q-action-btn:hover{background:var(--surface2)}
+.q-action-btn.danger:hover{background:rgba(220,38,38,.1);color:#DC2626}
+.q-action-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+.queue-empty{padding:48px 24px;text-align:center}
+.queue-empty-icon{font-size:40px;margin-bottom:10px}
+.queue-empty-title{font-size:14px;font-weight:600;color:var(--text3);margin-bottom:4px}
+.queue-empty-sub{font-size:12px;color:var(--text4);line-height:1.6}
+
+/* ── RIGHT PANEL ── */
+.right-panel{display:flex;flex-direction:column;gap:14px}
+
+.panel-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.panel-card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-card-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px}
+.panel-card-title svg{width:15px;height:15px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;opacity:.8}
+.panel-card-body{padding:16px}
+
+/* QR */
+#qr-code{display:flex;justify-content:center;margin-bottom:12px}
+#qr-code canvas,#qr-code img{border-radius:10px;border:6px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.qr-link-box{background:var(--surface2);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--text4);word-break:break-all;margin-bottom:10px}
+.btn-copy{width:100%;padding:8px;background:var(--brand-light);color:var(--brand);border:1px solid var(--brand-border);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-copy:hover{background:var(--brand);color:#fff}
+
+/* Display preview */
+.display-preview{background:linear-gradient(135deg,#0D1B4B,#1a3a8f);border-radius:12px;padding:20px;text-align:center;margin-bottom:10px}
+.dp-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:6px}
+.dp-num{font-size:52px;font-weight:900;color:#fff;line-height:1;font-variant-numeric:tabular-nums}
+.dp-name{font-size:13px;color:rgba(255,255,255,.7);margin-top:4px}
+.btn-display{width:100%;padding:9px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none;display:block;text-align:center;margin-top:2px}
+.btn-display:hover{background:var(--brand-light);color:var(--brand);border-color:var(--brand-border)}
+
+/* Settings */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:12px;font-weight:500;color:var(--text2)}
+.setting-sub{font-size:11px;color:var(--text4);margin-top:1px}
+.switch{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.switch-track{position:absolute;cursor:pointer;inset:0;background:var(--border);border-radius:10px;transition:.2s}
+.switch input:checked+.switch-track{background:var(--brand)}
+.switch-track::before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked+.switch-track::before{transform:translateX(16px)}
+
+/* Rooms */
+.rooms-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.room-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+.room-item-name{flex:1;font-size:12px;font-weight:600;color:var(--text2)}
+.room-del-btn{width:22px;height:22px;border-radius:6px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text4);transition:all .12s}
+.room-del-btn:hover{background:rgba(220,38,38,.1);color:#DC2626}
+.room-del-btn svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.add-room-row{display:flex;gap:6px}
+.add-room-input{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s}
+.add-room-input:focus{border-color:var(--brand)}
+.add-room-btn{padding:6px 12px;background:var(--brand-light);color:var(--brand);border:1px solid var(--brand-border);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}
+.add-room-btn:hover{background:var(--brand);color:#fff}
+
+/* ── ROOM PICKER MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;z-index:2000;padding:0;opacity:0;visibility:hidden;transition:all .25s}
+.modal-overlay.open{opacity:1;visibility:visible}
+.modal-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:20px 20px 36px;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:17px;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--text3);text-align:center;margin-bottom:18px}
+.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.room-pick-btn{padding:14px 10px;border:2px solid var(--border);border-radius:12px;background:var(--surface);cursor:pointer;text-align:center;font-family:inherit;transition:all .15s;font-size:13px;font-weight:600;color:var(--text2)}
+.room-pick-btn:hover{border-color:var(--brand);background:var(--brand-light);color:var(--brand)}
+.room-pick-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;display:block;margin:0 auto 6px;opacity:.6}
+.room-pick-none{padding:11px;border:1.5px dashed var(--border);border-radius:12px;background:none;cursor:pointer;text-align:center;width:100%;font-family:inherit;font-size:13px;color:var(--text4);transition:all .15s}
+.room-pick-none:hover{border-color:var(--text3);color:var(--text2)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1E3A5F;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;opacity:0;transition:all .28s cubic-bezier(.34,1.56,.64,1);z-index:9999;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:#059669}
+.toast.error{background:#DC2626}
+.toast.urgent{background:#EA580C}
+.toast.critique{background:#DC2626}
+
+/* ── RESET BTN ── */
+.btn-reset{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-family:inherit;transition:all .15s}
+.btn-reset:hover{border-color:#DC2626;color:#DC2626;background:#FEF2F2}
+.btn-reset svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+/* ── STAT CARD ENHANCEMENTS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:20px 20px 16px;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s;cursor:default}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.09)}
+.stat-card::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:18px}
+.stat-card.blue::after{background:linear-gradient(135deg,rgba(37,99,235,.04),transparent)}
+.stat-card.amber::after{background:linear-gradient(135deg,rgba(217,119,6,.04),transparent)}
+.stat-card.red::after{background:linear-gradient(135deg,rgba(220,38,38,.04),transparent)}
+.stat-card.green::after{background:linear-gradient(135deg,rgba(5,150,105,.04),transparent)}
+.stat-card:hover::after{opacity:1}
+.stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.stat-card.blue .stat-icon{background:#EFF6FF}
+.stat-card.amber .stat-icon{background:#FFFBEB}
+.stat-card.red .stat-icon{background:#FEF2F2}
+.stat-card.green .stat-icon{background:#ECFDF5}
+.stat-icon svg{width:18px;height:18px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stat-card.blue .stat-icon svg{stroke:#2563EB}
+.stat-card.amber .stat-icon svg{stroke:#D97706}
+.stat-card.red .stat-icon svg{stroke:#DC2626}
+.stat-card.green .stat-icon svg{stroke:#059669}
+.stat-num{font-size:32px;font-weight:900;line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.stat-lbl{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.04em}
+.stat-badge{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:.04em}
+
+/* ── SERVING CARD IMPROVEMENTS ── */
+.serving-card{border-radius:24px;padding:36px 32px 28px;color:#fff;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;background:linear-gradient(145deg,#3B1772 0%,#5B21B6 45%,#1D4ED8 100%);box-shadow:0 12px 40px rgba(59,23,114,.3),inset 0 1px 0 rgba(255,255,255,.1)}
+.serving-card::before{content:'';position:absolute;top:-80px;right:-60px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.serving-card::after{content:'';position:absolute;bottom:-80px;left:-40px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+/* Empty-state ring */
+.serving-ring{width:100px;height:100px;border-radius:50%;border:3px dashed rgba(255,255,255,.2);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.serving-ring svg{width:36px;height:36px;fill:none;stroke:rgba(255,255,255,.4);stroke-width:1.5;stroke-linecap:round}
+/* Active number ring pulse */
+.serving-num{font-size:88px;font-weight:900;line-height:1;color:#fff;font-variant-numeric:tabular-nums;margin-bottom:4px;transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;text-shadow:0 4px 20px rgba(0,0,0,.2)}
+.serving-card.active-pulse .serving-num::after{content:'';position:absolute;inset:-16px;border-radius:50%;border:2px solid rgba(255,255,255,.15);animation:numRing 2.5s ease-out infinite}
+@keyframes numRing{0%{transform:scale(.9);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+.serving-name{font-size:18px;font-weight:600;color:rgba(255,255,255,.9);margin-bottom:8px;z-index:1;position:relative;letter-spacing:-.2px}
+.serving-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:18px;z-index:1;position:relative}
+
+/* Buttons in serving card */
+.btn-next{background:#fff;color:var(--brand);border:none;border-radius:99px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.18)}
+.btn-next:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 8px 28px rgba(0,0,0,.25)}
+.btn-next svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+/* ── ADD PATIENT PANEL IMPROVEMENTS ── */
+.add-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.add-panel-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.add-panel-title svg{width:16px;height:16px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round}
+.prio-btn{border:2px solid var(--border);border-radius:12px;padding:12px 4px 10px;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;background:var(--surface);position:relative;overflow:hidden}
+.prio-btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.09)}
+.prio-icon{margin-bottom:5px;display:flex;align-items:center;justify-content:center}
+.prio-icon svg{width:20px;height:20px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.prio-btn.selected-normale .prio-icon svg{stroke:var(--p-normale)}
+.prio-btn:not([class*="selected"]) .prio-icon svg{stroke:var(--text4)}
+.prio-btn.selected-urgente .prio-icon svg{stroke:var(--p-urgente)}
+.prio-btn.selected-critique .prio-icon svg{stroke:var(--p-critique)}
+.prio-label{font-size:10px;font-weight:800;letter-spacing:.06em}
+.add-input{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.add-input:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(59,23,114,.08)}
+.btn-add-patient{width:100%;padding:13px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 4px 16px rgba(59,23,114,.25)}
+.btn-add-patient:hover{background:#4C1D95;transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,23,114,.35)}
+
+/* ── QUEUE CARD ── */
+.queue-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.q-num{width:42px;height:42px;border-radius:12px;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+
+/* ── QR PANEL ── */
+.qr-frame{background:linear-gradient(145deg,#f8f5ff,#ede8ff);border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;border:1.5px solid rgba(59,23,114,.1)}
+#qr-code canvas,#qr-code img{border-radius:12px!important;border:8px solid #fff!important;box-shadow:0 4px 20px rgba(59,23,114,.12)!important}
+.qr-hint{font-size:11px;color:var(--text3);margin-top:10px;font-weight:500}
+.btn-copy{width:100%;padding:10px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-copy svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.btn-copy:hover{background:#4C1D95;transform:translateY(-1px)}
+.btn-copy.copied{background:#059669}
+
+/* ── DISPLAY PREVIEW ── */
+.display-preview{background:linear-gradient(135deg,#1a0936,#2a0d5e);border-radius:14px;padding:22px;text-align:center;margin-bottom:10px;border:1px solid rgba(167,139,250,.2)}
+.dp-num{font-size:56px;font-weight:900;color:#fff;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 2px 12px rgba(0,0,0,.3)}
+
+/* ── PAGE HEADER ── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:24px;font-weight:900;color:var(--text);letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+.page-sub{font-size:13px;color:var(--text3);margin-top:4px;font-weight:400}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){.queue-layout{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr}.serving-num{font-size:68px}.priority-row{grid-template-columns:1fr 1fr 1fr}}
+
+/* ── PLANNING DU JOUR ── */
+.planning-section{background:var(--surface);border:1px solid var(--border);border-radius:18px;margin-bottom:20px;overflow:hidden}
+.planning-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.planning-title{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.planning-title svg{width:16px;height:16px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round}
+.planning-meta{display:flex;align-items:center;gap:8px}
+.planning-date-lbl{font-size:12px;color:var(--text3);font-weight:500}
+.planning-badge{font-size:11px;font-weight:700;background:var(--brand-subtle,#EEF2FF);color:var(--brand);padding:2px 9px;border-radius:99px}
+.planning-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);transition:background .12s}
+.planning-row:last-child{border-bottom:none}
+.planning-row:hover{background:var(--surface-hover,#F8F9FF)}
+.planning-row.rdv-arrived{opacity:.45;pointer-events:none}
+.planning-time{font-size:13px;font-weight:700;color:var(--text);min-width:40px;font-variant-numeric:tabular-nums;flex-shrink:0}
+.planning-patient{flex:1;min-width:0}
+.planning-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planning-phone{font-size:11px;color:var(--text3);margin-top:1px}
+.sms-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.sms-ok{background:#ECFDF5;color:#065F46}
+.sms-wait{background:#FEF3C7;color:#92400E}
+.sms-none{background:#F3F4F6;color:#6B7280}
+.call-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:#FEE2E2;color:#991B1B;flex-shrink:0;white-space:nowrap}
+.planning-actions{display:flex;gap:5px;flex-shrink:0}
+.btn-arrive{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:#059669;color:#fff;transition:all .14s;white-space:nowrap}
+.btn-arrive:hover{background:#047857;transform:translateY(-1px)}
+.btn-arrive svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.btn-noshow{display:inline-flex;align-items:center;padding:6px 8px;border-radius:8px;font-size:12px;font-weight:700;border:1.5px solid var(--border);cursor:pointer;font-family:inherit;background:none;color:var(--text3);transition:all .14s}
+.btn-noshow:hover{border-color:#DC2626;color:#DC2626}
+.planning-empty{padding:28px;text-align:center;color:var(--text3);font-size:13px}
+.planning-empty svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;display:block;margin:0 auto 8px;opacity:.35}
+.planning-empty-title{font-weight:600;margin-bottom:4px}
+.planning-empty-sub{font-size:12px;opacity:.7}
+.planning-loading{padding:24px;text-align:center;font-size:12px;color:var(--text3)}
+.alert-unconfirmed{display:none;align-items:center;gap:10px;padding:10px 16px;background:#FFFBEB;border-bottom:1px solid #FDE68A;font-size:12px;font-weight:600;color:#92400E}
+.alert-unconfirmed svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+</style>
+<script src="loader.js"></script>
+  <!-- Sentry monitoring -->
+  <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
+  <script src="/js/sentry-config.js"></script>
+  <script src="/js/sentry-init.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="shell-page">
+
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <div class="page-title">
+            <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            File d'attente
+          </div>
+          <div class="page-sub">Les patients scannent le QR, prennent leur numéro et suivent leur tour en direct.</div>
+        </div>
+        <div class="hdr-actions">
+          <button class="btn-reset" onclick="confirmReset()">
+            <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.7"/></svg>
+            Réinitialiser la journée
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card blue">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="stat-num" id="stat-current">—</div>
+          <div class="stat-lbl">N° en cours</div>
+          <div class="stat-badge" id="badge-current">En cours</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="stat-num" id="stat-waiting">0</div>
+          <div class="stat-lbl">En attente</div>
+          <div class="stat-badge" id="badge-waiting">File</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="stat-num" id="stat-urgent">0</div>
+          <div class="stat-lbl">Urgences</div>
+          <div class="stat-badge" id="badge-urgent">Actives</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="stat-num" id="stat-done">0</div>
+          <div class="stat-lbl">Consultés</div>
+          <div class="stat-badge" id="badge-done">Aujourd'hui</div>
+        </div>
+      </div>
+
+      <!-- ════ PLANNING DU JOUR ════ -->
+      <div class="planning-section" id="planning-section">
+        <div class="planning-head">
+          <div class="planning-title">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+            Planning du jour
+          </div>
+          <div class="planning-meta">
+            <span class="planning-date-lbl" id="planning-date-lbl"></span>
+            <span class="planning-badge" id="planning-rdv-badge">—</span>
+          </div>
+        </div>
+        <!-- Alerte RDV non confirmés -->
+        <div class="alert-unconfirmed" id="alert-unconfirmed">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 21.72 16.92z"/></svg>
+          <span id="alert-unconfirmed-txt"></span>
+        </div>
+        <div id="planning-body">
+          <div class="planning-loading">Chargement des rendez-vous…</div>
+        </div>
+      </div>
+
+      <div class="queue-layout">
+        <!-- LEFT COLUMN -->
+        <div>
+          <!-- Serving card -->
+          <div class="serving-card" id="serving-card">
+            <div class="serving-label">Actuellement en consultation</div>
+            <div id="serving-priority-wrap" style="display:none">
+              <span class="serving-priority-badge" id="serving-priority-badge">
+                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span id="serving-priority-text">URGENTE</span>
+              </span>
+            </div>
+            <!-- Empty state with ring illustration -->
+            <div id="serving-idle" style="margin:8px 0 16px">
+              <div class="serving-ring">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+            </div>
+            <div class="serving-num" id="current-num" style="display:none">—</div>
+            <div class="serving-name" id="current-name">Prêt à accueillir</div>
+            <div id="serving-room-wrap" style="display:none;margin-bottom:18px">
+              <span class="serving-room-badge">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span id="serving-room-name">—</span>
+              </span>
+            </div>
+            <div class="serving-actions" id="serving-actions" style="margin-top:20px">
+              <button class="btn-next" onclick="promptCallNext()" id="btn-next">
+                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/><polyline points="15 18 21 12 15 6"/></svg>
+                Appeler le suivant
+              </button>
+              <button class="btn-skip" onclick="skipCurrent()" id="btn-skip" style="display:none">Passer</button>
+              <button class="btn-done" onclick="markDone()" id="btn-done" style="display:none">✓ Consultation terminée</button>
+            </div>
+            <div class="serving-empty" id="serving-empty" style="display:none">Aucun patient en attente</div>
+          </div>
+
+          <!-- Add patient form -->
+          <div class="add-panel">
+            <div class="add-panel-title">
+              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+              Ajouter un patient à la file
+            </div>
+            <!-- Priority selector -->
+            <div class="priority-row">
+              <button class="prio-btn selected-normale" id="prio-normale" onclick="selectPriority('normale')">
+                <span class="prio-icon">
+                  <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                </span>
+                <span class="prio-label" style="color:var(--p-normale)">NORMALE</span>
+              </button>
+              <button class="prio-btn" id="prio-urgente" onclick="selectPriority('urgente')">
+                <span class="prio-icon">
+                  <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </span>
+                <span class="prio-label" style="color:var(--text3)">URGENTE</span>
+              </button>
+              <button class="prio-btn" id="prio-critique" onclick="selectPriority('critique')">
+                <span class="prio-icon">
+                  <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </span>
+                <span class="prio-label" style="color:var(--text3)">CRITIQUE</span>
+              </button>
+            </div>
+            <div class="add-row">
+              <input class="add-input" type="text" id="patient-name" placeholder="Nom complet du patient…" maxlength="80" onkeydown="if(event.key==='Enter')addPatient()">
+            </div>
+            <textarea class="add-notes" id="patient-notes" placeholder="Notes ou motif (optionnel)…" rows="2" id="patient-notes"></textarea>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;color:var(--text3);cursor:pointer" onclick="toggleNotes()">
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Ajouter un motif / notes
+            </div>
+            <button class="btn-add-patient" onclick="addPatient()">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Enregistrer dans la file
+            </button>
+          </div>
+
+          <!-- Queue list -->
+          <div class="queue-card">
+            <div class="queue-card-head">
+              <div class="queue-card-title">
+                <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                File du jour
+              </div>
+              <span class="queue-count-badge" id="queue-count">0 patients</span>
+            </div>
+            <div class="queue-list-body" id="queue-list">
+              <div class="queue-empty">
+                <div class="queue-empty-icon" style="font-size:0"><svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:none;stroke:#9CA3AF;stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+                <div class="queue-empty-title">Aucun patient en attente</div>
+                <div class="queue-empty-sub">Ajoutez un patient manuellement ci-dessus<br>ou partagez le QR Code à l'entrée.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="right-panel">
+
+          <!-- QR Code -->
+          <div class="panel-card">
+            <div class="panel-card-head">
+              <div class="panel-card-title">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                QR Code patients
+              </div>
+            </div>
+            <div class="panel-card-body">
+              <div class="qr-frame">
+                <div id="qr-code" style="display:flex;justify-content:center;margin-bottom:8px"></div>
+                <div class="qr-hint">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;vertical-align:middle;margin-right:4px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  Les patients scannent pour rejoindre la file
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:0">
+                <button class="btn-copy" onclick="copyQRLink()" id="btn-copy-link" style="flex:1">
+                  <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copier le lien
+                </button>
+                <button onclick="printQR()" title="Imprimer le QR Code pour la salle d'attente" style="flex:0 0 auto;width:38px;height:38px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Display screen -->
+          <div class="panel-card">
+            <div class="panel-card-head">
+              <div class="panel-card-title">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Écran salle d'attente
+              </div>
+            </div>
+            <div class="panel-card-body">
+              <div class="display-preview">
+                <div class="dp-label">Numéro appelé</div>
+                <div class="dp-num" id="display-num">—</div>
+                <div class="dp-name" id="display-name"></div>
+              </div>
+              <a href="/queue-display" target="_blank" class="btn-display" id="display-link">
+                Ouvrir sur l'écran d'accueil →
+              </a>
+            </div>
+          </div>
+
+          <!-- Settings -->
+          <div class="panel-card">
+            <div class="panel-card-head">
+              <div class="panel-card-title">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Paramètres
+              </div>
+            </div>
+            <div class="panel-card-body" style="padding:0 16px">
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Sons activés</div>
+                  <div class="setting-sub">Bip à chaque appel de patient</div>
+                </div>
+                <label class="switch"><input type="checkbox" id="opt-sound" checked><span class="switch-track"></span></label>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Afficher le nom</div>
+                  <div class="setting-sub">Sur l'écran de la salle d'attente</div>
+                </div>
+                <label class="switch"><input type="checkbox" id="opt-name" checked><span class="switch-track"></span></label>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Urgents en premier</div>
+                  <div class="setting-sub">Les urgences passent avant les autres</div>
+                </div>
+                <label class="switch"><input type="checkbox" id="opt-urgent-first" checked><span class="switch-track"></span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rooms -->
+          <div class="panel-card">
+            <div class="panel-card-head">
+              <div class="panel-card-title">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Salles de consultation
+              </div>
+            </div>
+            <div class="panel-card-body">
+              <div class="rooms-list" id="rooms-list">
+                <div style="font-size:12px;color:var(--text4)">Aucune salle configurée</div>
+              </div>
+              <div class="add-room-row">
+                <input class="add-room-input" id="new-room-name" type="text" placeholder="Salle 1, Cabinet A…" maxlength="40" onkeydown="if(event.key==='Enter')addRoom()">
+                <button class="add-room-btn" onclick="addRoom()">+ Ajouter</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Room picker modal -->
+<div class="modal-overlay" id="room-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Assigner une salle</div>
+    <div class="modal-sub" id="room-modal-sub">Vers quelle salle envoyer ce patient ?</div>
+    <div class="room-grid" id="room-grid"></div>
+    <button class="room-pick-none" onclick="callNext(null)">Appeler sans salle assignée</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DOCLINE — QUEUE MANAGEMENT v2
+   Fonctionnalités : priorités, sons Web Audio, animations,
+   temps réel Supabase, salles, QR code
+═══════════════════════════════════════════════════════════ */
+
+var _supaUrl = (typeof DOCLINE_CONFIG !== 'undefined' && DOCLINE_CONFIG.supabaseUrl) ? DOCLINE_CONFIG.supabaseUrl : (typeof SUPA_URL !== 'undefined' ? SUPA_URL : '');
+var _supaKey = (typeof DOCLINE_CONFIG !== 'undefined' && DOCLINE_CONFIG.supabaseAnonKey) ? DOCLINE_CONFIG.supabaseAnonKey : (typeof SUPA_KEY !== 'undefined' ? SUPA_KEY : '');
+var _supa = supabase.createClient(_supaUrl, _supaKey);
+var _uid = null;
+var _queue = [];
+var _rooms = [];
+var _todayKey = new Date().toISOString().slice(0,10);
+var _selectedPriority = 'normale';
+var _audioCtx = null;
+var _notesVisible = false;
+var _qrJoinUrl = '';
+
+// ── SOUND ENGINE (Web Audio API — aucun fichier externe) ──────
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+
+function playClick() {
+  if (!document.getElementById('opt-sound').checked) return;
+  try {
+    var ctx = getAudioCtx();
+    var o = ctx.createOscillator();
+    var g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 800;
+    o.type = 'sine';
+    g.gain.setValueAtTime(0.08, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.08);
+  } catch(e){}
+}
+
+function playCallNormal() {
+  if (!document.getElementById('opt-sound').checked) return;
+  try {
+    var ctx = getAudioCtx();
+    var notes = [523, 659, 784]; // Do Mi Sol — accord ascendant
+    notes.forEach(function(freq, i) {
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine';
+      o.frequency.value = freq;
+      var t = ctx.currentTime + i * 0.15;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.18, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+      o.start(t); o.stop(t + 0.55);
+    });
+  } catch(e){}
+}
+
+function playCallUrgent() {
+  if (!document.getElementById('opt-sound').checked) return;
+  try {
+    var ctx = getAudioCtx();
+    [0, 0.22].forEach(function(delay) {
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(440, ctx.currentTime + delay);
+      o.frequency.linearRampToValueAtTime(880, ctx.currentTime + delay + 0.15);
+      g.gain.setValueAtTime(0.2, ctx.currentTime + delay);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.3);
+      o.start(ctx.currentTime + delay); o.stop(ctx.currentTime + delay + 0.35);
+    });
+  } catch(e){}
+}
+
+function playCallCritique() {
+  if (!document.getElementById('opt-sound').checked) return;
+  try {
+    var ctx = getAudioCtx();
+    [0, 0.2, 0.4].forEach(function(delay) {
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'square';
+      o.frequency.value = 660;
+      g.gain.setValueAtTime(0.22, ctx.currentTime + delay);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.18);
+      o.start(ctx.currentTime + delay); o.stop(ctx.currentTime + delay + 0.2);
+    });
+  } catch(e){}
+}
+
+function playNewPatient() {
+  if (!document.getElementById('opt-sound').checked) return;
+  try {
+    var ctx = getAudioCtx();
+    var o = ctx.createOscillator();
+    var g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.value = 1047;
+    g.gain.setValueAtTime(0.1, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.35);
+  } catch(e){}
+}
+
+function playSound(priority) {
+  if (priority === 'critique') playCallCritique();
+  else if (priority === 'urgente') playCallUrgent();
+  else playCallNormal();
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+(async function init() {
+  var s = await _supa.auth.getSession();
+  if (!s.data.session) { window.location.href = '/login'; return; }
+  _uid = s.data.session.user.id;
+
+  var user = s.data.session.user;
+  var meta = user.user_metadata || {};
+  var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().then(function(r){return r.data;}).catch(function(){return null;});
+  var isPro = sub && sub.plan !== 'free' && sub.status === 'active';
+
+  Shell.init({ page:'queue', title:"File d'attente", isPro:isPro, plan:sub?.plan||'free', userName: Shell.displayName(meta, user.email), userEmail:user.email||'' });
+  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'queue', "File d'attente");
+
+  // Display screen link
+  var displayUrl = window.location.href.replace('queue.html','queue-display.html') + '?c=' + _uid;
+  document.getElementById('display-link').href = 'queue-display.html?c=' + _uid;
+
+  loadRooms();
+  await loadQueue();
+  await loadTodayAppointments();
+  generateQR();
+
+  // Real-time: new patient joins via QR
+  _supa.channel('queue-mgmt-' + _uid)
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'queue_entries', filter:'clinic_id=eq.'+_uid}, function(payload) {
+      var e = payload.new;
+      if (e.queue_date === _todayKey) {
+        var already = _queue.find(function(p){return p.id===e.id;});
+        if (!already) {
+          _queue.push(dbToLocal(e));
+          renderQueue();
+          updateStats();
+          toast('Nouveau patient : ' + e.patient_name + ' — N°' + e.number, e.priority === 'critique' ? 'critique' : e.priority === 'urgente' ? 'urgent' : 'success');
+          playNewPatient();
+        }
+      }
+    })
+    .subscribe();
+})();
+
+function dbToLocal(e) {
+  return {id:e.id, num:e.number, name:e.patient_name, status:e.status||'waiting', priority:e.priority||'normale', arrived_at:e.created_at, room:e.room||null, notes:e.notes||null};
+}
+
+// ── LOAD QUEUE ────────────────────────────────────────────────
+async function loadQueue() {
+  var r = await _supa.from('queue_entries').select('*').eq('clinic_id',_uid).eq('queue_date',_todayKey).order('number');
+  if (r.data && r.data.length) {
+    _queue = r.data.map(dbToLocal);
+  }
+  renderQueue();
+  updateStats();
+}
+
+// ── PLANNING DU JOUR ─────────────────────────────────────────
+var _todayRdvs = [];
+
+async function loadTodayAppointments() {
+  // Date label
+  var now = new Date();
+  var jours  = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var moisFr = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  document.getElementById('planning-date-lbl').textContent =
+    jours[now.getDay()] + ' ' + now.getDate() + ' ' + moisFr[now.getMonth()];
+
+  var r = await _supa.from('appointments')
+    .select('id,patient_name,patient_phone,requested_time,status,patient_confirmed,sms_confirmation_sent,arrived_at,no_show')
+    .eq('doctor_id', _uid)
+    .eq('requested_date', _todayKey)
+    .in('status', ['pending','confirmed'])
+    .order('requested_time');
+
+  _todayRdvs = (r.data || []).filter(function(a){ return !a.no_show && !a.arrived_at; });
+  renderPlanning();
+}
+
+function renderPlanning() {
+  var el    = document.getElementById('planning-body');
+  var badge = document.getElementById('planning-rdv-badge');
+  var alertEl = document.getElementById('alert-unconfirmed');
+  var alertTxt = document.getElementById('alert-unconfirmed-txt');
+
+  badge.textContent = _todayRdvs.length + ' RDV';
+
+  if (!_todayRdvs.length) {
+    alertEl.style.display = 'none';
+    el.innerHTML = '<div class="planning-empty">'
+      + '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+      + '<div class="planning-empty-title">Aucun rendez-vous planifié</div>'
+      + '<div class="planning-empty-sub">Les RDV confirmés apparaîtront ici automatiquement</div>'
+      + '</div>';
+    return;
+  }
+
+  // Alerte: RDV confirmés sans SMS de confirmation patient
+  var needCall = _todayRdvs.filter(function(a){
+    return a.status === 'confirmed' && !a.patient_confirmed;
+  });
+  if (needCall.length > 0) {
+    alertEl.style.display = 'flex';
+    alertTxt.textContent = needCall.length + ' RDV confirmé'+(needCall.length>1?'s':'')+' sans confirmation patient — pensez à envoyer les rappels SMS depuis "Mes RDV"';
+  } else {
+    alertEl.style.display = 'none';
+  }
+
+  el.innerHTML = _todayRdvs.map(function(a) {
+    var smsBadge;
+    if (a.patient_confirmed) {
+      smsBadge = '<span class="sms-badge sms-ok">✓ SMS confirmé</span>';
+    } else if (a.sms_confirmation_sent) {
+      smsBadge = '<span class="sms-badge sms-wait">SMS envoyé</span>';
+    } else {
+      smsBadge = '<span class="sms-badge sms-none">Pas de SMS</span>';
+    }
+
+    var callTag = (a.status === 'confirmed' && !a.patient_confirmed)
+      ? '<span class="call-tag">📞 À appeler</span>'
+      : '';
+
+    var timeStr = a.requested_time ? a.requested_time.slice(0,5) : '—';
+
+    return '<div class="planning-row" id="plan-'+a.id+'">'
+      + '<div class="planning-time">'+timeStr+'</div>'
+      + '<div class="planning-patient">'
+      +   '<div class="planning-name">'+escHtml(a.patient_name||'Patient')+'</div>'
+      +   (a.patient_phone ? '<div class="planning-phone">'+escHtml(a.patient_phone)+'</div>' : '')
+      + '</div>'
+      + smsBadge
+      + callTag
+      + '<div class="planning-actions">'
+      +   '<button class="btn-arrive" onclick="markArrived(\''+a.id+'\',\''+escHtml(a.patient_name||'Patient')+'\')">'
+      +     '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Arrivé'
+      +   '</button>'
+      +   '<button class="btn-noshow" onclick="markNoShow(\''+a.id+'\')" title="Marquer absent">✕</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function markArrived(appointmentId, patientName) {
+  playClick();
+  // 1. Mettre à jour appointments
+  await _supa.from('appointments')
+    .update({ arrived_at: new Date().toISOString() })
+    .eq('id', appointmentId);
+
+  // 2. Ajouter à la file d'attente
+  var nextNum = _queue.length > 0
+    ? Math.max.apply(null, _queue.map(function(p){ return p.num; })) + 1
+    : 1;
+  var entry = {
+    clinic_id: _uid,
+    number: nextNum,
+    patient_name: patientName,
+    status: 'waiting',
+    priority: 'normale',
+    queue_date: _todayKey,
+    notes: 'RDV planifié'
+  };
+  var r = await _supa.from('queue_entries').insert(entry).select().single();
+  if (!r.error) {
+    _queue.push(dbToLocal(r.data));
+    renderQueue();
+    updateStats();
+    playNewPatient();
+    toast('✓ ' + patientName + ' — N°' + nextNum + ' ajouté à la file', 'success');
+  }
+
+  // 3. Retirer du planning
+  _todayRdvs = _todayRdvs.filter(function(a){ return a.id !== appointmentId; });
+  renderPlanning();
+}
+
+async function markNoShow(appointmentId) {
+  playClick();
+  if (!confirm('Marquer ce patient comme absent ? Le RDV sera annulé.')) return;
+  await _supa.from('appointments')
+    .update({ no_show: true, status: 'cancelled' })
+    .eq('id', appointmentId);
+  _todayRdvs = _todayRdvs.filter(function(a){ return a.id !== appointmentId; });
+  renderPlanning();
+  toast('Patient marqué absent', '');
+}
+
+// ── PRIORITY SELECTOR ─────────────────────────────────────────
+function selectPriority(p) {
+  playClick();
+  _selectedPriority = p;
+  ['normale','urgente','critique'].forEach(function(k) {
+    var btn = document.getElementById('prio-' + k);
+    btn.className = 'prio-btn' + (k===p ? ' selected-'+k : '');
+    btn.querySelector('.prio-label').style.color = k===p ? 'var(--p-'+k+')' : 'var(--text3)';
+  });
+}
+
+function toggleNotes() {
+  _notesVisible = !_notesVisible;
+  document.getElementById('patient-notes').style.display = _notesVisible ? 'block' : 'none';
+}
+
+// ── ADD PATIENT ───────────────────────────────────────────────
+async function addPatient() {
+  playClick();
+  var name = (document.getElementById('patient-name').value || '').trim();
+  if (!name) { toast('Entrez le nom du patient', 'error'); return; }
+
+  var notes = (document.getElementById('patient-notes').value || '').trim();
+  var nextNum = Math.max(0, ..._queue.map(function(p){return p.num;})) + 1;
+
+  var entry = {clinic_id:_uid, number:nextNum, patient_name:name, status:'waiting', priority:_selectedPriority, queue_date:_todayKey, notes:notes||null};
+  var r = await _supa.from('queue_entries').insert(entry).select().single();
+  if (r.error) { toast('Erreur : ' + r.error.message, 'error'); return; }
+
+  _queue.push(dbToLocal(r.data));
+  renderQueue();
+  updateStats();
+
+  document.getElementById('patient-name').value = '';
+  document.getElementById('patient-notes').value = '';
+
+  var pLabel = _selectedPriority==='critique'?'CRITIQUE':_selectedPriority==='urgente'?'Urgente':'';
+  toast('Patient ajouté : ' + name + (pLabel?' — '+pLabel:'') + ' · N°'+nextNum,
+    _selectedPriority==='critique'?'critique':_selectedPriority==='urgente'?'urgent':'success');
+  playNewPatient();
+}
+
+// ── CALL NEXT ─────────────────────────────────────────────────
+function promptCallNext() {
+  playClick();
+  if (_rooms.length > 0) {
+    openRoomModal();
+  } else {
+    callNext(null);
+  }
+}
+
+function openRoomModal() {
+  var grid = document.getElementById('room-grid');
+  grid.innerHTML = _rooms.map(function(r) {
+    return '<button class="room-pick-btn" onclick="callNext(\'' + esc(r.name) + '\')">' +
+      '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' +
+      esc(r.name) + '</button>';
+  }).join('');
+  document.getElementById('room-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('room-modal').classList.remove('open');
+}
+document.addEventListener('click', function(e) {
+  if (e.target === document.getElementById('room-modal')) closeModal();
+});
+
+async function callNext(room) {
+  closeModal();
+
+  // Mark current as done first
+  var cur = _queue.find(function(p){return p.status==='current';});
+  if (cur) {
+    cur.status = 'done';
+    await _supa.from('queue_entries').update({status:'done'}).eq('id',cur.id);
+  }
+
+  // Next: respect priority if option checked
+  var waiting = _queue.filter(function(p){return p.status==='waiting';});
+  if (!waiting.length) { renderQueue(); updateStats(); toast('File vide — tous les patients ont été consultés ✓','success'); return; }
+
+  var optUrgentFirst = document.getElementById('opt-urgent-first').checked;
+  var next;
+  if (optUrgentFirst) {
+    next = waiting.find(function(p){return p.priority==='critique';}) ||
+           waiting.find(function(p){return p.priority==='urgente';}) ||
+           waiting[0];
+  } else {
+    next = waiting[0];
+  }
+
+  next.status = 'current';
+  next.room = room;
+  await _supa.from('queue_entries').update({status:'current', room:room||null}).eq('id',next.id);
+
+  // Animate number
+  var numEl = document.getElementById('current-num');
+  numEl.classList.remove('bump');
+  void numEl.offsetWidth;
+  numEl.classList.add('bump');
+
+  renderQueue();
+  updateStats();
+  playSound(next.priority);
+
+  var roomStr = room ? ' → ' + room : '';
+  toast('N°' + next.num + ' — ' + next.name + roomStr, next.priority==='critique'?'critique':next.priority==='urgente'?'urgent':'success');
+}
+
+async function skipCurrent() {
+  playClick();
+  var cur = _queue.find(function(p){return p.status==='current';});
+  if (!cur) return;
+  cur.status = 'waiting';
+  await _supa.from('queue_entries').update({status:'waiting'}).eq('id',cur.id);
+  renderQueue();
+  updateStats();
+  toast('Patient passé — repassera plus tard','');
+}
+
+async function markDone() {
+  playClick();
+  var cur = _queue.find(function(p){return p.status==='current';});
+  if (!cur) return;
+  cur.status = 'done';
+  await _supa.from('queue_entries').update({status:'done'}).eq('id',cur.id);
+  renderQueue();
+  updateStats();
+  toast('Consultation terminée ✓','success');
+}
+
+async function removeFromQueue(id) {
+  playClick();
+  _queue = _queue.filter(function(p){return p.id!==id;});
+  await _supa.from('queue_entries').delete().eq('id',id);
+  renderQueue();
+  updateStats();
+}
+
+// ── RENDER QUEUE ──────────────────────────────────────────────
+function renderQueue() {
+  var cur     = _queue.filter(function(p){return p.status==='current';});
+  var waiting = _queue.filter(function(p){return p.status==='waiting';});
+  var done    = _queue.filter(function(p){return p.status==='done';});
+
+  // Update serving card
+  var card = document.getElementById('serving-card');
+  var hasCurrentPatient = cur.length > 0;
+  var hasWaiting = waiting.length > 0;
+
+  if (hasCurrentPatient) {
+    var c = cur[0];
+    card.className = 'serving-card active-pulse' + (c.priority!=='normale'?' priority-'+c.priority:'');
+    document.getElementById('serving-idle').style.display = 'none';
+    document.getElementById('current-num').style.display = 'block';
+    document.getElementById('current-num').textContent = String(c.num).padStart(2,'0');
+    document.getElementById('current-name').textContent = c.name || 'Patient anonyme';
+    document.getElementById('display-num').textContent = String(c.num).padStart(2,'0');
+    document.getElementById('display-name').textContent = document.getElementById('opt-name').checked ? (c.name||'') : '';
+    document.getElementById('stat-current').textContent = String(c.num).padStart(2,'0');
+
+    // Priority badge
+    if (c.priority !== 'normale') {
+      document.getElementById('serving-priority-wrap').style.display = 'block';
+      document.getElementById('serving-priority-text').textContent = c.priority.toUpperCase();
+    } else {
+      document.getElementById('serving-priority-wrap').style.display = 'none';
+    }
+
+    // Room badge
+    if (c.room) {
+      document.getElementById('serving-room-name').textContent = c.room;
+      document.getElementById('serving-room-wrap').style.display = 'block';
+    } else {
+      document.getElementById('serving-room-wrap').style.display = 'none';
+    }
+
+    document.getElementById('btn-next').textContent = ''; document.getElementById('btn-next').innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><polyline points="9 18 15 12 9 6"/><polyline points="15 18 21 12 15 6"/></svg> Appeler le suivant';
+    document.getElementById('btn-skip').style.display = 'inline-block';
+    document.getElementById('btn-done').style.display = 'inline-block';
+    document.getElementById('serving-empty').style.display = 'none';
+  } else {
+    card.className = 'serving-card';
+    document.getElementById('serving-idle').style.display = 'block';
+    document.getElementById('current-num').style.display = 'none';
+    document.getElementById('current-name').textContent = hasWaiting ? waiting.length + ' patient' + (waiting.length>1?'s':'') + ' en attente' : 'Prêt à accueillir';
+    document.getElementById('display-num').textContent = '—';
+    document.getElementById('display-name').textContent = '';
+    document.getElementById('stat-current').textContent = '—';
+    document.getElementById('serving-priority-wrap').style.display = 'none';
+    document.getElementById('serving-room-wrap').style.display = 'none';
+    document.getElementById('btn-skip').style.display = 'none';
+    document.getElementById('btn-done').style.display = 'none';
+    if (!hasWaiting) {
+      document.getElementById('btn-next').style.display = 'none';
+      document.getElementById('serving-empty').style.display = 'block';
+    } else {
+      document.getElementById('btn-next').style.display = 'inline-flex';
+      document.getElementById('serving-empty').style.display = 'none';
+    }
+  }
+
+  // Queue list
+  var listEl = document.getElementById('queue-list');
+  var all = cur.concat(waiting).concat(done.slice(-5));
+  document.getElementById('queue-count').textContent = _queue.length + ' patient' + (_queue.length !== 1?'s':'');
+
+  if (!all.length) {
+    listEl.innerHTML = '<div class="queue-empty"><div class="queue-empty-icon" style="font-size:0"><svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:none;stroke:#9CA3AF;stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="queue-empty-title">File vide</div><div class="queue-empty-sub">Ajoutez un patient ou partagez le QR Code.</div></div>';
+    return;
+  }
+
+  listEl.innerHTML = all.map(function(p, i) {
+    var timeStr = p.arrived_at ? new Date(p.arrived_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+    var prioTag = '<span class="priority-tag ' + p.priority + '">' +
+      p.priority.toUpperCase() + '</span>';
+    var roomTag = p.room ? '<span class="room-tag">' + esc(p.room) + '</span>' : '';
+    var statusLabel = p.status==='current'?'En consultation':p.status==='done'?'Consulté ✓':'En attente';
+    var itemClass = 'q-item ' + p.status + ' prio-' + p.priority;
+    var actions = p.status !== 'done' ?
+      '<div class="q-actions">' +
+        '<button class="q-action-btn danger" onclick="removeFromQueue(\'' + p.id + '\')" title="Retirer">' +
+          '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>' +
+      '</div>' : '<div style="width:28px"></div>';
+
+    return '<div class="' + itemClass + '" data-id="' + p.id + '">' +
+      '<div class="q-num">' + String(p.num).padStart(2,'0') + '</div>' +
+      '<div class="q-info">' +
+        '<div class="q-name">' + esc(p.name||'Patient anonyme') + ' ' + prioTag + roomTag + '</div>' +
+        '<div class="q-meta"><span>' + statusLabel + '</span>' + (timeStr ? '<span>Arrivée ' + timeStr + '</span>' : '') + (p.notes?'<span title="'+esc(p.notes)+'"><svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></span>':'') + '</div>' +
+      '</div>' +
+      actions +
+    '</div>';
+  }).join('');
+}
+
+// ── STATS ─────────────────────────────────────────────────────
+function updateStats() {
+  var waiting  = _queue.filter(function(p){return p.status==='waiting';});
+  var done     = _queue.filter(function(p){return p.status==='done';});
+  var urgents  = waiting.filter(function(p){return p.priority==='urgente'||p.priority==='critique';});
+
+  animateCount('stat-waiting', waiting.length);
+  animateCount('stat-done', done.length);
+  animateCount('stat-urgent', urgents.length);
+}
+
+function animateCount(id, target) {
+  var el = document.getElementById(id);
+  var cur = parseInt(el.textContent) || 0;
+  if (cur === target) return;
+  el.style.transform = 'scale(1.3)';
+  el.textContent = target;
+  setTimeout(function(){ el.style.transform = ''; }, 200);
+}
+
+// ── ROOMS ─────────────────────────────────────────────────────
+async function loadRooms() {
+  var r = await _supa.from('clinic_rooms').select('*').eq('clinic_id',_uid).eq('active',true).order('sort_order');
+  _rooms = (r.data||[]).map(function(x){return {id:x.id,name:x.name};});
+  renderRooms();
+}
+
+function renderRooms() {
+  var el = document.getElementById('rooms-list');
+  if (!_rooms.length) { el.innerHTML = '<div style="font-size:12px;color:var(--text4)">Aucune salle configurée</div>'; return; }
+  el.innerHTML = _rooms.map(function(r) {
+    return '<div class="room-item"><div class="room-item-name">' + esc(r.name) + '</div>' +
+      '<button class="room-del-btn" onclick="deleteRoom(\'' + r.id + '\')">' +
+        '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button></div>';
+  }).join('');
+}
+
+async function addRoom() {
+  playClick();
+  var name = (document.getElementById('new-room-name').value||'').trim();
+  if (!name) return;
+  var r = await _supa.from('clinic_rooms').insert({clinic_id:_uid, name:name, active:true, sort_order:_rooms.length}).select().single();
+  if (!r.error) { _rooms.push({id:r.data.id,name:name}); renderRooms(); document.getElementById('new-room-name').value=''; }
+}
+
+async function deleteRoom(id) {
+  playClick();
+  await _supa.from('clinic_rooms').delete().eq('id',id);
+  _rooms = _rooms.filter(function(r){return r.id!==id;});
+  renderRooms();
+}
+
+// ── QR CODE ───────────────────────────────────────────────────
+function generateQR() {
+  var _appBase = (typeof APP_URL !== 'undefined' && APP_URL) ? APP_URL : (window.location.origin + window.location.pathname.replace(/[^/]*$/, '').replace(/\/$/, ''));
+  _qrJoinUrl = _appBase + '/queue-join.html?c=' + _uid;
+  document.getElementById('qr-code').innerHTML =
+    '<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&color=3B1772&bgcolor=FFFFFF&qzone=1&format=svg&data='
+    + encodeURIComponent(_qrJoinUrl)
+    + '" width="160" height="160" style="display:block;border-radius:10px">';
+}
+
+function copyQRLink() {
+  playClick();
+  navigator.clipboard.writeText(_qrJoinUrl)
+    .then(function(){ toast('Lien copié ✓', 'success'); })
+    .catch(function(){ toast('Copiez manuellement : ' + _qrJoinUrl, ''); });
+}
+
+function printQR() {
+  playClick();
+  var qrSize = 420;
+  var qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=' + qrSize + 'x' + qrSize + '&color=3B1772&bgcolor=FFFFFF&qzone=2&format=svg&data=' + encodeURIComponent(_qrJoinUrl);
+  var logo = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" style="height:36px;width:auto"><path fill="#3B1772" d="M28 14h16c19.9 0 34 13.2 34 36s-14.1 36-34 36H28V14zm16 58c13.4 0 22-9.2 22-22s-8.6-22-22-22H42v44h2zm52-22c0-20.9 14.6-36 35-36s35 15.1 35 36-14.6 36-35 36-35-15.1-35-36zm56 0c0-13.4-8.4-22-21-22s-21 8.6-21 22 8.4 22 21 22 21-8.6 21-22zm28-34h14v68h-14V16zm24 34c0-20.9 14.3-36 35-36 11.2 0 20.2 4.4 26 11.6l-9.6 9c-3.8-4.6-9.4-7.2-16.4-7.2-13 0-21 8.6-21 22s8 22 21 22c7 0 12.6-2.6 16.4-7.2l9.6 9C243.2 81.6 234.2 86 223 86c-20.7 0-35-15.1-35-36zm72 0c0-20.9 14.6-36 35-36s35 15.1 35 36-14.6 36-35 36-35-15.1-35-36zm56 0c0-13.4-8.4-22-21-22s-21 8.6-21 22 8.4 22 21 22 21-8.6 21-22zm34-34h13.6l24 44.4V16H398v68h-13.6l-24-44.4V84H346V16z"/></svg>';
+  var w = window.open('', '_blank', 'width=700,height=900');
+  w.document.write('<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>QR Code — File d\'attente</title><style>'
+    + '*{margin:0;padding:0;box-sizing:border-box}'
+    + 'html,body{height:100%;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+    + 'body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:48px 40px;text-align:center;gap:0}'
+    + '.header-band{width:100%;background:#3B1772;border-radius:20px;padding:28px 32px;margin-bottom:36px;display:flex;align-items:center;justify-content:center}'
+    + '.title{font-size:42px;font-weight:900;color:#1E0A4A;margin-bottom:10px;letter-spacing:-.8px;line-height:1.1}'
+    + '.subtitle{font-size:20px;color:#6B7280;font-weight:500;margin-bottom:36px}'
+    + '.qr-wrap{background:#F8F5FF;border-radius:24px;padding:28px;border:2px solid #E9D5FF;margin-bottom:32px;display:inline-block}'
+    + '.qr-wrap img{display:block;border-radius:12px}'
+    + '.instruction{font-size:17px;color:#374151;font-weight:600;margin-bottom:8px}'
+    + '.url-box{font-size:12px;color:#9CA3AF;word-break:break-all;max-width:500px;margin:0 auto 40px}'
+    + '.footer{display:flex;align-items:center;justify-content:center;gap:10px;padding-top:24px;border-top:1px solid #E5E7EB;width:100%;margin-top:auto}'
+    + '.footer-text{font-size:13px;color:#9CA3AF}'
+    + '@media print{'
+    + '  body{padding:20mm 15mm}'
+    + '  .header-band{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;background:#3B1772!important}'
+    + '}'
+    + '</style></head><body>'
+    + '<div class="header-band">' + logo.replace('fill="#3B1772"','fill="#fff"') + '</div>'
+    + '<div class="title">Rejoignez la file d\'attente</div>'
+    + '<div class="subtitle">Scannez le QR Code avec votre téléphone</div>'
+    + '<div class="qr-wrap"><img src="' + qrSrc + '" width="' + qrSize + '" height="' + qrSize + '" alt="QR Code"></div>'
+    + '<div class="instruction">Pointez l\'appareil photo de votre téléphone vers ce code</div>'
+    + '<div class="url-box">' + _qrJoinUrl + '</div>'
+    + '<div class="footer">' + logo + '<span class="footer-text">Propulsé par Docline · docline.dz</span></div>'
+    + '</body></html>');
+  w.document.close();
+  w.onload = function(){ w.focus(); w.print(); };
+}
+
+// ── RESET ─────────────────────────────────────────────────────
+function confirmReset() {
+  playClick();
+  if (!confirm('Réinitialiser toute la file d\'attente d\'aujourd\'hui ? Cette action est irréversible.')) return;
+  _supa.from('queue_entries').delete().eq('clinic_id',_uid).eq('queue_date',_todayKey).then(function(){
+    _queue = [];
+    renderQueue();
+    updateStats();
+    toast('File réinitialisée','success');
+  });
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+var _toastTimer;
+function toast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type?' '+type:'');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ el.className='toast'; }, 3500);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
+
