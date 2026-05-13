@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Conditions Générales d'Utilisation — Docline</title>
+<meta name="description" content="Conditions générales d'utilisation de la plateforme Docline — contrat de service, abonnements, responsabilités, droit algérien.">
+<link rel="canonical" href="https://docline.health/terms">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
+<script src="/js/sentry-config.js"></script>
+<script src="/js/sentry-init.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#F4F7FF;color:#0C0E14;line-height:1.75}
+.topbar{background:#fff;border-bottom:1px solid #E8EAF0;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#0C0E14;font-weight:800;font-size:.95rem}
+.btn{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;padding:9px 18px;font-size:.8125rem;transition:all .15s;text-decoration:none}
+.btn-outline{background:#fff;color:#3D4251;border:1.5px solid #E8EAF0}
+.btn-outline:hover{border-color:#3B1772;color:#3B1772}
+.container{max-width:820px;margin:0 auto;padding:48px 24px 80px}
+.doc-hero{background:linear-gradient(135deg,#0D0F14,#3B1772);color:#fff;border-radius:20px;padding:40px 40px 36px;margin-bottom:40px}
+.doc-hero-eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#C4B5E8;margin-bottom:10px}
+.doc-hero h1{font-size:1.75rem;font-weight:800;margin-bottom:10px;line-height:1.2;color:#fff}
+.doc-hero p{font-size:.875rem;color:#E2D9F3;max-width:580px;line-height:1.7}
+.doc-meta{display:flex;flex-wrap:wrap;gap:16px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.2);font-size:.78rem;color:#C4B5E8}
+.toc{background:#fff;border:1px solid #E8EAF0;border-radius:14px;padding:24px 28px;margin-bottom:36px}
+.toc-title{font-size:.8rem;font-weight:700;color:#4A5068;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.toc ol{padding-left:18px;display:grid;grid-template-columns:1fr 1fr;gap:4px 24px}
+@media(max-width:600px){.toc ol{grid-template-columns:1fr}}
+.toc a{color:#3B1772;font-size:.825rem;text-decoration:none;font-weight:500}
+.toc a:hover{text-decoration:underline}
+.section{margin-bottom:40px}
+.section-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #EEF2FF}
+.section-num{width:32px;height:32px;border-radius:8px;background:#0D0F14;color:#fff;font-size:.8rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.section h2{font-size:1.1rem;font-weight:800;color:#0C0E14}
+.section h3{font-size:.9rem;font-weight:700;color:#3B1772;margin:20px 0 8px}
+p{font-size:.875rem;color:#3D4251;margin-bottom:10px}
+ul,ol{padding-left:20px;margin-bottom:10px}
+li{font-size:.875rem;color:#3D4251;margin-bottom:5px}
+strong{color:#0C0E14;font-weight:700}
+code{background:#F4F7FF;border:1px solid #E8EAF0;border-radius:4px;padding:1px 5px;font-size:.8rem;color:#3B1772}
+.callout{border-radius:10px;padding:16px 18px;margin:16px 0;font-size:.84rem}
+.callout-warning{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
+.callout-info{background:#EEF2FF;border:1px solid #C7D2FE;color:#3730A3}
+.callout-success{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.callout-title{font-weight:700;margin-bottom:6px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.825rem}
+th{background:#0D0F14;color:#fff;padding:10px 14px;text-align:left;font-weight:600}
+td{padding:9px 14px;border-bottom:1px solid #E8EAF0;color:#3D4251;vertical-align:top}
+tr:nth-child(even) td{background:#F9FAFF}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+@media(max-width:600px){.plan-grid{grid-template-columns:1fr}}
+.plan-card{background:#fff;border:1.5px solid #E8EAF0;border-radius:12px;padding:18px}
+.plan-card.featured{border-color:#3B1772;background:#F9F7FF}
+.plan-name{font-weight:800;font-size:.9rem;color:#0C0E14;margin-bottom:4px}
+.plan-price{font-size:1.1rem;font-weight:700;color:#3B1772;margin-bottom:8px}
+.plan-price span{font-size:.78rem;font-weight:400;color:#4A5068}
+.plan-features{font-size:.78rem;color:#4A5068;line-height:1.6}
+.doc-footer{margin-top:60px;padding-top:24px;border-top:1px solid #E8EAF0;font-size:.78rem;color:#4A5068;text-align:center}
+.doc-footer a{color:#3B1772;text-decoration:none}
+a{color:#3B1772}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a href="/find-doctor" class="topbar-logo">
+    <img src="/docline-logo.svg" alt="Docline" style="height:30px;width:auto">
+  </a>
+  <a href="/find-doctor" class="btn btn-outline">← Retour</a>
+</nav>
+
+<div class="container">
+
+  <div class="doc-hero">
+    <div class="doc-hero-eyebrow">Document contractuel</div>
+    <h1>Conditions Générales d'Utilisation</h1>
+    <p>Les présentes CGU constituent le contrat liant Docline à tout professionnel de santé ou établissement médical utilisant la plateforme. Leur acceptation est obligatoire et sans réserve.</p>
+    <div class="doc-meta">
+      <span>Version 1.0</span>
+      <span>En vigueur depuis le 1er mai 2026</span>
+      <span>Droit algérien applicable</span>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Sommaire</div>
+    <ol>
+      <li><a href="#a1">Définitions</a></li>
+      <li><a href="#a2">Objet et champ d'application</a></li>
+      <li><a href="#a3">Accès et inscription</a></li>
+      <li><a href="#a4">Vérification d'identité (KYC)</a></li>
+      <li><a href="#a5">Description du service</a></li>
+      <li><a href="#a6">Plans et tarification</a></li>
+      <li><a href="#a7">Paiement et facturation</a></li>
+      <li><a href="#a8">Obligations de l'abonné</a></li>
+      <li><a href="#a9">Obligations de Docline</a></li>
+      <li><a href="#a10">Données médicales et secret professionnel</a></li>
+      <li><a href="#a11">Propriété intellectuelle</a></li>
+      <li><a href="#a12">Disponibilité et maintenance</a></li>
+      <li><a href="#a13">Limitation de responsabilité</a></li>
+      <li><a href="#a14">Suspension et résiliation</a></li>
+      <li><a href="#a15">Modifications des CGU</a></li>
+      <li><a href="#a16">Droit applicable et juridiction</a></li>
+      <li><a href="#a17">Statut non-dispositif médical (IA)</a></li>
+      <li><a href="#a18">Indemnisation par l'Abonné</a></li>
+      <li><a href="#a19">Dispositions générales</a></li>
+    </ol>
+  </div>
+
+  <!-- 1 -->
+  <div class="section" id="a1">
+    <div class="section-header"><div class="section-num">1</div><h2>Définitions</h2></div>
+    <p>Dans les présentes conditions, les termes ci-après ont les significations suivantes :</p>
+    <ul>
+      <li><strong>« Docline »</strong> : la société éditrice de la plateforme, établie en République Algérienne Démocratique et Populaire.</li>
+      <li><strong>« Plateforme »</strong> : l'ensemble des services accessibles à l'adresse <strong>docline.health</strong> et ses sous-domaines, incluant l'application web, les interfaces mobiles (PWA) et les API associées.</li>
+      <li><strong>« Abonné »</strong> : tout professionnel de santé (médecin, spécialiste) ou établissement médical (clinique, cabinet de groupe) titulaire d'un compte actif.</li>
+      <li><strong>« Patient »</strong> : toute personne physique prenant rendez-vous ou dont les données sont gérées via la Plateforme par un Abonné.</li>
+      <li><strong>« Données de santé »</strong> : toute information relative à l'état de santé d'un Patient, au sens de l'article 8 de la Loi n° 18-07 du 10 juin 2018.</li>
+      <li><strong>« Plan »</strong> : formule d'abonnement (Gratuit, Pro, Clinique) donnant accès à des fonctionnalités déterminées contre une redevance mensuelle ou annuelle.</li>
+      <li><strong>« KYC »</strong> (Know Your Customer) : procédure de vérification d'identité et de qualifications professionnelles mise en œuvre par Docline avant l'activation complète du compte.</li>
+      <li><strong>« Contenu Abonné »</strong> : toutes les données, informations, dossiers et documents créés, importés ou générés par l'Abonné dans la Plateforme.</li>
+    </ul>
+  </div>
+
+  <!-- 2 -->
+  <div class="section" id="a2">
+    <div class="section-header"><div class="section-num">2</div><h2>Objet et champ d'application</h2></div>
+    <p>Les présentes Conditions Générales d'Utilisation (CGU) ont pour objet de définir les conditions contractuelles dans lesquelles Docline met à disposition des professionnels de santé algériens sa plateforme de gestion médicale numérique.</p>
+    <p>Elles s'appliquent à toute inscription, connexion ou utilisation de la Plateforme, qu'elle soit effectuée à titre gratuit ou onéreux. En créant un compte ou en continuant à utiliser la Plateforme après notification de modifications, l'Abonné reconnaît avoir lu, compris et accepté sans réserve les présentes CGU dans leur intégralité.</p>
+    <div class="callout callout-warning">
+      <div class="callout-title">Utilisation réservée aux professionnels de santé</div>
+      Docline est une plateforme exclusivement destinée aux professionnels de santé exerçant légalement sur le territoire algérien et inscrits au Conseil National de l'Ordre des Médecins (CNOM) ou à tout ordre professionnel de santé reconnu. L'accès par des personnes non habilitées constitue une violation des présentes CGU.
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="section" id="a3">
+    <div class="section-header"><div class="section-num">3</div><h2>Accès et inscription</h2></div>
+    <h3>3.1 — Création du compte</h3>
+    <p>L'inscription est ouverte à tout médecin ou établissement médical. Elle requiert la communication d'une adresse e-mail valide, d'un numéro de téléphone algérien actif (servant à la vérification OTP) et des informations professionnelles pertinentes.</p>
+    <h3>3.2 — Sécurité du compte</h3>
+    <p>L'Abonné est seul responsable de la confidentialité de ses identifiants de connexion. Tout accès effectué depuis son compte est réputé effectué par lui, sauf notification préalable de compromission à <a href="mailto:support@docline.health">support@docline.health</a>. Docline ne saurait être tenu responsable des conséquences d'un accès non autorisé résultant d'une négligence de l'Abonné.</p>
+    <h3>3.3 — Compte gratuit (plan Free)</h3>
+    <p>La création d'un compte est gratuite et permet d'accéder à un ensemble limité de fonctionnalités. Docline se réserve le droit de modifier ou de supprimer les fonctionnalités du plan gratuit à tout moment, sans préavis ni indemnité, sous réserve d'une notification e-mail 15 jours à l'avance.</p>
+  </div>
+
+  <!-- 4 -->
+  <div class="section" id="a4">
+    <div class="section-header"><div class="section-num">4</div><h2>Vérification d'identité professionnelle (KYC)</h2></div>
+    <p>Afin de garantir l'intégrité de la plateforme et la protection des patients, Docline procède à une vérification d'identité et de qualifications avant d'activer l'accès complet aux fonctionnalités.</p>
+    <h3>4.1 — Documents requis</h3>
+    <ul>
+      <li>Pièce d'identité nationale en cours de validité (CNI ou passeport algérien)</li>
+      <li>Diplôme de médecine ou de spécialité reconnu par le Ministère de la Santé algérien</li>
+      <li>Numéro d'inscription au tableau du CNOM (ou équivalent pour les paramédicaux)</li>
+      <li>Photo professionnelle récente (pour le profil public)</li>
+    </ul>
+    <h3>4.2 — Délai et décision</h3>
+    <p>Docline s'engage à traiter les dossiers KYC dans un délai de <strong>72 heures ouvrables</strong> à compter de la réception de l'ensemble des documents requis. En cas de refus, les motifs sont communiqués par e-mail et un droit de recours est ouvert pendant 15 jours.</p>
+    <h3>4.3 — Conséquences d'une fraude documentaire</h3>
+    <p>Toute falsification ou usurpation d'identité dans le cadre de la procédure KYC entraîne la résiliation immédiate et définitive du compte, sans remboursement, et est susceptible de faire l'objet d'un signalement aux autorités compétentes conformément à la législation algérienne en vigueur.</p>
+  </div>
+
+  <!-- 5 -->
+  <div class="section" id="a5">
+    <div class="section-header"><div class="section-num">5</div><h2>Description du service</h2></div>
+    <p>Docline est une plateforme SaaS (Software as a Service) de gestion médicale numérique offrant notamment :</p>
+    <h3>5.1 — Fonctionnalités principales</h3>
+    <ul>
+      <li><strong>Gestion de l'agenda :</strong> configuration des disponibilités hebdomadaires, gestion des créneaux, blocage de plages horaires.</li>
+      <li><strong>Prise de rendez-vous en ligne :</strong> interface patient avec vérification OTP SMS, confirmation automatique, rappels.</li>
+      <li><strong>Dossier patient numérique :</strong> création et gestion des fiches patients, antécédents médicaux, pathologies chroniques.</li>
+      <li><strong>Ordonnances numériques :</strong> génération, archivage et export PDF des prescriptions médicales.</li>
+      <li><strong>File d'attente :</strong> gestion en temps réel de la salle d'attente avec affichage dédié et QR code.</li>
+      <li><strong>Facturation :</strong> génération de reçus, suivi des paiements, export comptable.</li>
+      <li><strong>Profil public indexé :</strong> page publique SEO-friendly permettant aux patients de trouver le médecin via les moteurs de recherche.</li>
+    </ul>
+    <h3>5.2 — Fonctionnalités avancées (plans Pro et Clinique)</h3>
+    <ul>
+      <li>Laboratoire et gestion des analyses biologiques</li>
+      <li>Gestion du personnel de la clinique (secrétaires, infirmiers, comptables) avec contrôle d'accès par rôle</li>
+      <li>DoclineAssist — aide à la décision clinique par intelligence artificielle (plan Clinique)</li>
+      <li>Statistiques et analytiques avancées (taux d'occupation, revenus, top pathologies)</li>
+      <li>Import de données depuis d'autres systèmes (CSV)</li>
+    </ul>
+    <h3>5.3 — Nature du service</h3>
+    <p>Docline fournit un <strong>outil logiciel</strong> et non des conseils médicaux. La plateforme facilite l'organisation administrative et la documentation médicale, mais n'intervient à aucun titre dans la relation médicale ou la décision thérapeutique, qui relèvent exclusivement de la responsabilité du professionnel de santé.</p>
+  </div>
+
+  <!-- 6 -->
+  <div class="section" id="a6">
+    <div class="section-header"><div class="section-num">6</div><h2>Plans et tarification</h2></div>
+
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-name">Gratuit</div>
+        <div class="plan-price">0 DA <span>/ mois</span></div>
+        <div class="plan-features">Agenda de base · 50 patients · Profil public · Prise de RDV</div>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">5 900 DA <span>/ mois</span></div>
+        <div class="plan-features">Patients illimités · Ordonnances · Labo · Facturation · Analytics · Importation · Support prioritaire</div>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-name">Clinique</div>
+        <div class="plan-price">13 900 DA <span>/ mois</span></div>
+        <div class="plan-features">Tout Pro + Gestion personnel · DoclineAssist IA · Multi-médecins · File d'attente dédiée · Rapport mensuel PDF</div>
+      </div>
+    </div>
+
+    <p>Des formules annuelles sont disponibles à tarif réduit (2 mois offerts) : <strong>59 000 DA/an</strong> (Pro) et <strong>139 000 DA/an</strong> (Clinique). Les prix sont exprimés en Dinars Algériens (DZD), toutes taxes comprises le cas échéant.</p>
+    <div class="callout callout-info">
+      <div class="callout-title">Révision tarifaire</div>
+      Docline se réserve le droit de modifier ses tarifs. Toute hausse sera notifiée par e-mail <strong>60 jours avant son entrée en vigueur</strong> pour les abonnés existants, qui disposeront d'un droit de résiliation sans frais pendant cette période.
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="section" id="a7">
+    <div class="section-header"><div class="section-num">7</div><h2>Paiement et facturation</h2></div>
+    <h3>7.1 — Modalités de paiement</h3>
+    <p>Le paiement des abonnements s'effectue via les moyens suivants :</p>
+    <ul>
+      <li><strong>Chargily Pay :</strong> CIB (Carte Interbancaire Algérienne), Baridimob, eDahabia — paiement en dinars algériens directement.</li>
+      <li><strong>Carte bancaire internationale :</strong> via Stripe (Visa, Mastercard) — pour les médecins disposant d'une carte internationale.</li>
+    </ul>
+    <h3>7.2 — Cycle de facturation</h3>
+    <p>L'abonnement est facturé en début de période (mensuelle ou annuelle). À l'issue de chaque période, l'abonnement est automatiquement renouvelé sauf résiliation explicite de l'Abonné avant la date d'échéance.</p>
+    <h3>7.3 — Politique de remboursement</h3>
+    <p>Un <strong>remboursement intégral est accordé</strong> dans les <strong>7 jours calendaires</strong> suivant le premier paiement d'un nouvel abonnement, si l'Abonné n'est pas satisfait, sans justification requise. Au-delà de ce délai, aucun remboursement proratisé n'est accordé pour la période en cours. Les abonnements annuels peuvent faire l'objet d'un remboursement proratisé des mois non consommés en cas de résiliation anticipée justifiée par une fermeture définitive du cabinet ou un cas de force majeure dûment justifié.</p>
+    <h3>7.4 — Défaut de paiement</h3>
+    <p>En cas d'échec de paiement, Docline adresse une notification par e-mail. Si le paiement n'est pas régularisé dans un délai de <strong>15 jours</strong>, le compte est suspendu (accès en lecture seule préservé) puis résilié après un délai supplémentaire de 15 jours. Les données de l'Abonné sont conservées pendant 30 jours après résiliation pour permettre un éventuel rétablissement du service.</p>
+  </div>
+
+  <!-- 8 -->
+  <div class="section" id="a8">
+    <div class="section-header"><div class="section-num">8</div><h2>Obligations de l'Abonné</h2></div>
+    <h3>8.1 — Obligations générales</h3>
+    <ul>
+      <li>Utiliser la Plateforme conformément à sa destination et aux lois algériennes en vigueur.</li>
+      <li>Maintenir à jour ses informations professionnelles (spécialité, adresse, numéro CNOM).</li>
+      <li>Ne pas tenter de contourner, désactiver ou altérer les mécanismes de sécurité de la Plateforme.</li>
+      <li>Ne pas utiliser la Plateforme à des fins illégales, frauduleuses, ou contraires à l'ordre public et aux bonnes mœurs.</li>
+      <li>Notifier Docline sans délai de toute suspicion de compromission de son compte.</li>
+    </ul>
+    <h3>8.2 — Obligations spécifiques liées aux données médicales</h3>
+    <ul>
+      <li>Obtenir le consentement éclairé des patients avant de saisir leurs données personnelles et médicales dans la Plateforme.</li>
+      <li>Informer les patients de l'utilisation d'un outil numérique pour la gestion de leur dossier et de la possibilité de consulter la <a href="/privacy">Politique de confidentialité</a> de Docline.</li>
+      <li>Ne pas saisir de données médicales de patients mineurs sans le consentement du représentant légal.</li>
+      <li>Respecter le secret médical dans toute utilisation du Contenu Abonné accessible via la Plateforme.</li>
+      <li>En cas de cessation d'activité, informer ses patients et procéder, si nécessaire, au transfert de leurs dossiers médicaux conformément aux obligations déontologiques.</li>
+    </ul>
+    <h3>8.3 — Usages interdits</h3>
+    <div class="callout callout-danger">
+      <div class="callout-title">Sont strictement interdits</div>
+      <ul style="margin:0">
+        <li>La revente, la location ou le prêt d'accès à des tiers non autorisés</li>
+        <li>L'ingénierie inverse, la décompilation ou l'extraction du code source de la Plateforme</li>
+        <li>L'envoi de communications non sollicitées (spam) aux patients via la Plateforme</li>
+        <li>L'importation de données non conformes à la réglementation algérienne sur les données de santé</li>
+        <li>Toute utilisation portant atteinte aux droits de tiers ou à la réputation de Docline</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="section" id="a9">
+    <div class="section-header"><div class="section-num">9</div><h2>Obligations de Docline</h2></div>
+    <h3>9.1 — Disponibilité du service</h3>
+    <p>Docline s'engage à maintenir une disponibilité cible de <strong>99,5 % par mois calendaire</strong> (hors maintenances planifiées). Cet engagement de niveau de service (SLA) est mesuré sur la disponibilité de l'interface principale. Les maintenances planifiées sont annoncées 48 heures à l'avance par e-mail et effectuées de préférence entre 00h00 et 06h00 (heure d'Alger).</p>
+    <h3>9.2 — Sécurité et intégrité des données</h3>
+    <ul>
+      <li>Mettre en œuvre les mesures techniques et organisationnelles appropriées pour protéger les données contre la perte, l'altération ou l'accès non autorisé.</li>
+      <li>Effectuer des sauvegardes quotidiennes automatiques avec une rétention de 7 jours minimum.</li>
+      <li>Notifier l'Abonné dans un délai de 72 heures en cas de violation de données le concernant.</li>
+    </ul>
+    <h3>9.3 — Portabilité et restitution des données</h3>
+    <p>Sur demande de l'Abonné, Docline s'engage à fournir l'intégralité du Contenu Abonné dans un format exportable standard (CSV, JSON, PDF) dans un délai de <strong>30 jours</strong>. Cette restitution est gratuite pour les données des 3 dernières années d'activité.</p>
+    <h3>9.4 — Support</h3>
+    <table>
+      <tr><th>Plan</th><th>Canal</th><th>Délai de réponse</th></tr>
+      <tr><td>Gratuit</td><td>E-mail</td><td>5 jours ouvrables</td></tr>
+      <tr><td>Pro</td><td>E-mail prioritaire</td><td>48 heures ouvrables</td></tr>
+      <tr><td>Clinique</td><td>E-mail prioritaire + WhatsApp</td><td>24 heures ouvrables</td></tr>
+    </table>
+  </div>
+
+  <!-- 10 -->
+  <div class="section" id="a10">
+    <div class="section-header"><div class="section-num">10</div><h2>Données médicales et secret professionnel</h2></div>
+    <p>L'Abonné, en qualité de professionnel de santé, demeure <strong>seul responsable de traitement</strong> au sens de la Loi n° 18-07 pour les données de santé de ses patients. Docline agit en qualité de <strong>sous-traitant technique</strong> et traite ces données exclusivement sur instruction de l'Abonné.</p>
+    <p>Les obligations de secret médical qui incombent à l'Abonné en vertu de la Loi n° 85-05 et des règles déontologiques du CNOM ne sont pas transférées à Docline du fait de l'utilisation de la Plateforme. L'Abonné est et demeure le garant du secret médical à l'égard de ses patients.</p>
+    <p>Un contrat de traitement de données (Data Processing Agreement) est réputé conclu entre Docline et l'Abonné par l'acceptation des présentes CGU, conformément aux articles 14 et suivants de la Loi n° 18-07. Ses termes essentiels sont décrits dans la <a href="/privacy">Politique de confidentialité</a>.</p>
+  </div>
+
+  <!-- 11 -->
+  <div class="section" id="a11">
+    <div class="section-header"><div class="section-num">11</div><h2>Propriété intellectuelle</h2></div>
+    <h3>11.1 — Droits de Docline</h3>
+    <p>La Plateforme Docline, incluant son interface, son code source, ses algorithmes, ses bases de données propres, ses marques, logos, et tout le contenu éditorial produit par Docline, est protégée par les droits de propriété intellectuelle applicables en Algérie et les conventions internationales. L'Abonné n'acquiert aucun droit de propriété sur ces éléments du fait de son abonnement.</p>
+    <h3>11.2 — Droits de l'Abonné sur son contenu</h3>
+    <p>L'Abonné conserve l'intégralité de la propriété de son Contenu Abonné (données patients, ordonnances, dossiers médicaux). Docline ne revendique aucun droit sur ce contenu au-delà de ce qui est strictement nécessaire à la fourniture du service. Docline n'utilise jamais le Contenu Abonné à des fins commerciales, d'entraînement de modèles d'IA, ou à tout autre usage non consenti.</p>
+    <h3>11.3 — Licence d'utilisation</h3>
+    <p>Docline accorde à l'Abonné une licence personnelle, non exclusive, non cessible et révocable d'utilisation de la Plateforme pour la durée de son abonnement, dans les limites fixées par les présentes CGU et le plan souscrit.</p>
+  </div>
+
+  <!-- 12 -->
+  <div class="section" id="a12">
+    <div class="section-header"><div class="section-num">12</div><h2>Disponibilité et maintenance</h2></div>
+    <p>Docline s'efforce de maintenir la Plateforme accessible 24h/24, 7j/7. Cependant, des interruptions peuvent survenir pour les raisons suivantes :</p>
+    <ul>
+      <li><strong>Maintenance planifiée :</strong> annoncée 48 heures à l'avance, effectuée en heures creuses.</li>
+      <li><strong>Incidents techniques :</strong> pannes chez les sous-traitants d'hébergement (Supabase, Netlify), cyberattaques, cas de force majeure.</li>
+      <li><strong>Mises à jour de sécurité urgentes :</strong> pouvant nécessiter une interruption immédiate sans préavis.</li>
+    </ul>
+    <p>En cas d'indisponibilité supérieure à <strong>4 heures consécutives</strong> hors maintenance planifiée, Docline s'engage à communiquer un bilan d'incident dans les 24 heures suivant le rétablissement du service.</p>
+    <div class="callout callout-info">
+      <div class="callout-title">Crédits de service</div>
+      Si la disponibilité mensuelle descend en dessous de 99,0 %, les Abonnés Pro et Clinique peuvent demander un avoir équivalent à 1 jour de service par heure d'indisponibilité excédentaire, plafonné à 7 jours par mois calendaire.
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="section" id="a13">
+    <div class="section-header"><div class="section-num">13</div><h2>Limitation de responsabilité</h2></div>
+    <h3>13.1 — Responsabilité médicale</h3>
+    <p>Docline est un <strong>outil logiciel</strong>. Il n'est en aucun cas un prestataire de soins de santé, un conseiller médical ou un acteur de la relation thérapeutique. Docline décline expressément toute responsabilité quant aux décisions médicales prises par les Abonnés, aux diagnostics établis, aux prescriptions émises, ou à tout préjudice subi par un patient en lien avec l'acte médical, quand bien même ces actes auraient été documentés ou facilités par la Plateforme.</p>
+    <h3>13.2 — Limitations générales</h3>
+    <p>La responsabilité de Docline à l'égard d'un Abonné, pour quelque cause que ce soit, est limitée au montant des sommes effectivement perçues par Docline au titre de l'abonnement concerné au cours des <strong>3 mois précédant le fait générateur</strong> du dommage.</p>
+    <p>Docline ne saurait être tenu responsable des dommages indirects, immatériels, perte d'exploitation, perte de données résultant d'une négligence de l'Abonné, préjudice de réputation, ou tout dommage consécutif ne résultant pas directement et exclusivement d'une faute prouvée de Docline.</p>
+    <h3>13.3 — Cas de force majeure</h3>
+    <p>Docline est exonéré de toute responsabilité en cas d'inexécution ou de retard résultant d'un événement de force majeure au sens de l'article 127 du Code civil algérien, incluant sans limitation : catastrophes naturelles, cyberattaques d'envergure nationale, coupures d'infrastructure internet, décisions gouvernementales, épidémies.</p>
+  </div>
+
+  <!-- 14 -->
+  <div class="section" id="a14">
+    <div class="section-header"><div class="section-num">14</div><h2>Suspension et résiliation</h2></div>
+    <h3>14.1 — Résiliation à l'initiative de l'Abonné</h3>
+    <p>L'Abonné peut résilier son abonnement à tout moment depuis les paramètres de son compte ou par e-mail à <a href="mailto:support@docline.health">support@docline.health</a>. La résiliation prend effet à la fin de la période en cours. L'accès aux données est maintenu en lecture seule pendant <strong>30 jours</strong> après la date d'effet, délai pendant lequel l'export des données reste possible.</p>
+    <h3>14.2 — Résiliation à l'initiative de Docline</h3>
+    <p>Docline peut résilier l'abonnement avec un préavis de <strong>30 jours</strong> (sauf manquement grave). En cas de résiliation à l'initiative de Docline sans faute de l'Abonné, le prorata de la période non consommée est remboursé.</p>
+    <h3>14.3 — Résiliation immédiate pour manquement grave</h3>
+    <p>Docline se réserve le droit de suspendre ou résilier immédiatement tout compte en cas de :</p>
+    <ul>
+      <li>Fraude documentaire avérée lors du KYC</li>
+      <li>Utilisation de la Plateforme à des fins illégales ou contraires à l'éthique médicale</li>
+      <li>Atteinte grave à la sécurité de la Plateforme ou des données des autres utilisateurs</li>
+      <li>Violation caractérisée et répétée des présentes CGU après mise en demeure restée sans effet</li>
+    </ul>
+    <p>Dans ces cas, aucun remboursement n'est dû et Docline se réserve le droit d'exercer tout recours légal approprié.</p>
+    <h3>14.4 — Sort des données après résiliation</h3>
+    <p>À l'expiration du délai de 30 jours post-résiliation, les données de l'Abonné sont supprimées des systèmes actifs de Docline. Les données soumises à obligation légale de conservation (facturation, KYC) sont archivées de manière sécurisée pour les durées prévues à l'article 8 de la Politique de confidentialité.</p>
+  </div>
+
+  <!-- 15 -->
+  <div class="section" id="a15">
+    <div class="section-header"><div class="section-num">15</div><h2>Modifications des CGU</h2></div>
+    <p>Docline se réserve le droit de modifier les présentes CGU afin de refléter les évolutions légales, réglementaires, techniques ou commerciales. Les modifications substantielles (modification des droits et obligations des parties, nouvelles exclusions de responsabilité, modifications tarifaires) sont notifiées par e-mail <strong>30 jours avant leur entrée en vigueur</strong>.</p>
+    <p>Si l'Abonné n'accepte pas les nouvelles conditions, il dispose d'un droit de résiliation sans frais pendant le délai de préavis. La poursuite de l'utilisation de la Plateforme après l'entrée en vigueur des nouvelles CGU vaut acceptation sans réserve de celles-ci.</p>
+    <p>L'historique des versions des CGU est disponible sur demande à <a href="mailto:legal@docline.health">legal@docline.health</a>.</p>
+  </div>
+
+  <!-- 16 -->
+  <div class="section" id="a16">
+    <div class="section-header"><div class="section-num">16</div><h2>Droit applicable et juridiction compétente</h2></div>
+    <p>Les présentes CGU sont régies par le <strong>droit algérien</strong>, notamment :</p>
+    <ul>
+      <li>L'Ordonnance n° 75-58 du 26 septembre 1975 portant Code civil algérien et ses modifications</li>
+      <li>La Loi n° 18-07 du 10 juin 2018 relative à la protection des données personnelles</li>
+      <li>La Loi n° 85-05 relative à la protection et à la promotion de la santé</li>
+      <li>Le Code de déontologie médicale algérien</li>
+    </ul>
+    <h3>16.1 — Règlement amiable</h3>
+    <p>En cas de litige entre Docline et un Abonné, les parties s'engagent à rechercher une solution amiable dans un délai de <strong>30 jours</strong> à compter de la notification du différend par lettre recommandée ou e-mail avec accusé de réception.</p>
+    <h3>16.2 — Juridiction compétente</h3>
+    <p>À défaut de règlement amiable, tout litige relatif à l'interprétation, l'exécution ou la résiliation des présentes CGU sera soumis à la compétence exclusive des <strong>tribunaux algériens compétents</strong>, sauf dispositions légales impératives contraires applicables aux consommateurs.</p>
+    <div class="callout callout-info">
+      <div class="callout-title">Langue de référence</div>
+      Les présentes CGU sont rédigées en langue française. En cas de traduction dans une autre langue à des fins de commodité, la version française prévaut en cas de divergence d'interprétation.
+    </div>
+  </div>
+
+  <!-- 17 -->
+  <div class="section" id="a17">
+    <div class="section-header"><div class="section-num">17</div><h2>Statut de la fonctionnalité IA — Non-dispositif médical</h2></div>
+    <div class="callout callout-danger">
+      <div class="callout-title">Déclaration de statut réglementaire — À lire attentivement</div>
+      DoclineAssist et toutes les fonctionnalités d'intelligence artificielle intégrées à la Plateforme ne constituent PAS des dispositifs médicaux au sens de la réglementation algérienne, ni au sens du Règlement européen (UE) 2017/745 relatif aux dispositifs médicaux (MDR), ni au sens de la directive américaine FDA sur les SaMD (Software as a Medical Device). Ils ne font l'objet d'aucune certification CE médicale, d'aucun marquage réglementaire spécifique aux dispositifs médicaux, et ne sont soumis à aucun protocole de validation clinique au sens des normes ISO 13485 ou ISO 14971.
+    </div>
+    <h3>17.1 — Nature et portée de DoclineAssist</h3>
+    <p>DoclineAssist est un <strong>outil d'aide documentaire et informationnelle</strong> destiné à faciliter la recherche d'informations médicales générales accessibles dans la littérature scientifique. Il génère des suggestions à caractère informatif uniquement. Ces suggestions :</p>
+    <ul>
+      <li>Ne constituent pas un diagnostic médical au sens de la Loi n° 85-05 ni du Code de déontologie médicale algérien ;</li>
+      <li>Ne remplacent en aucun cas le jugement clinique, l'examen physique du patient, ni l'expertise du professionnel de santé ;</li>
+      <li>Peuvent contenir des inexactitudes, des informations obsolètes ou inadaptées au contexte clinique spécifique du patient ;</li>
+      <li>Ne prennent pas en compte l'ensemble des paramètres individuels du patient que seul le médecin peut évaluer ;</li>
+      <li>Sont générées par un modèle d'IA tiers (Google Gemini) dont le comportement peut varier et qui n'est pas spécifiquement entraîné sur la réglementation pharmaceutique ou les protocoles thérapeutiques algériens.</li>
+    </ul>
+    <h3>17.2 — Responsabilité exclusive du professionnel de santé</h3>
+    <p>L'Abonné reconnaît expressément et irrévocablement que :</p>
+    <ul>
+      <li>Toute décision diagnostique, thérapeutique ou de prescription demeure sous sa <strong>responsabilité professionnelle exclusive</strong>, sans que la consultation de DoclineAssist puisse constituer une circonstance atténuante ou exonératoire ;</li>
+      <li>L'utilisation de DoclineAssist n'exonère pas le médecin de son obligation de formation continue, de mise à jour de ses connaissances médicales, ni de son devoir de s'informer auprès de sources médicales reconnues et validées ;</li>
+      <li>En cas de plainte ordinale, disciplinaire, civile ou pénale liée à un acte médical ayant fait usage — direct ou indirect — de suggestions générées par DoclineAssist, <strong>Docline ne peut être mis en cause</strong> comme co-responsable dudit acte médical.</li>
+    </ul>
+    <h3>17.3 — Mention légale obligatoire</h3>
+    <p>Conformément à l'engagement de Docline, chaque réponse générée par DoclineAssist est systématiquement accompagnée de la mention suivante, que l'Abonné s'engage à ne pas désactiver, masquer ou modifier : <em>« DoclineAssist est un outil d'aide à la décision clinique. Le diagnostic et la prescription restent sous la responsabilité exclusive du médecin traitant. »</em></p>
+  </div>
+
+  <!-- 18 -->
+  <div class="section" id="a18">
+    <div class="section-header"><div class="section-num">18</div><h2>Indemnisation par l'Abonné</h2></div>
+    <p>L'Abonné s'engage à défendre, indemniser et tenir indemne Docline, ses dirigeants, employés, prestataires et partenaires, de toute réclamation, plainte, action judiciaire, dommage, amende, pénalité ou frais (y compris les honoraires d'avocat raisonnables) résultant de ou liés à :</p>
+    <ul>
+      <li>L'utilisation de la Plateforme en violation des présentes CGU ou de toute loi algérienne applicable ;</li>
+      <li>Tout acte médical, diagnostic, prescription ou traitement effectué par l'Abonné dans le cadre de son exercice professionnel, qu'il ait ou non été documenté via la Plateforme ;</li>
+      <li>Toute violation du secret médical, de la vie privée des patients, ou de la réglementation sur les données de santé imputable à l'Abonné ;</li>
+      <li>Toute infraction au Code de déontologie médicale commise par l'Abonné ou le personnel qu'il a habilité sur la Plateforme ;</li>
+      <li>La fourniture de documents KYC falsifiés ou de fausses déclarations lors de l'inscription ;</li>
+      <li>Tout contenu illicite, diffamatoire ou portant atteinte aux droits de tiers importé ou créé par l'Abonné dans la Plateforme.</li>
+    </ul>
+    <div class="callout callout-warning">
+      <div class="callout-title">Protocole de réclamation obligatoire</div>
+      <strong>Avant tout recours judiciaire</strong> contre Docline, l'Abonné est tenu d'adresser une réclamation écrite détaillée à <a href="mailto:legal@docline.health" style="color:inherit;font-weight:700">legal@docline.health</a>, précisant les faits reprochés, le préjudice allégué et la réparation demandée. Docline dispose d'un délai de <strong>45 jours ouvrables</strong> pour répondre. Toute action judiciaire introduite sans respect préalable de cette procédure sera déclarée irrecevable sur le fond, et Docline se réserve le droit d'en demander la condamnation aux frais de la partie demanderesse.
+    </div>
+  </div>
+
+  <!-- 19 -->
+  <div class="section" id="a19">
+    <div class="section-header"><div class="section-num">19</div><h2>Dispositions générales</h2></div>
+    <h3>19.1 — Divisibilité</h3>
+    <p>Si une ou plusieurs stipulations des présentes CGU sont tenues pour non valides ou déclarées nulles en application d'une loi, d'un règlement ou à la suite d'une décision définitive d'une juridiction compétente, les autres stipulations garderont toute leur force et leur portée, sous réserve que le contrat ne soit pas dénaturé. Les parties s'engagent alors à négocier de bonne foi une clause de remplacement qui soit la plus proche possible de l'intention initiale.</p>
+    <h3>19.2 — Non-renonciation</h3>
+    <p>Le fait pour Docline de ne pas se prévaloir à un moment donné d'une stipulation des présentes CGU ne peut être interprété comme une renonciation à se prévaloir ultérieurement de ladite stipulation. La tolérance d'une situation ne crée ni droit acquis, ni précédent contractuel.</p>
+    <h3>19.3 — Intégralité de l'accord</h3>
+    <p>Les présentes CGU, conjointement avec la <a href="/privacy">Politique de confidentialité</a> et, le cas échéant, tout avenant signé entre les parties, constituent l'intégralité de l'accord entre Docline et l'Abonné. Elles annulent et remplacent tout accord, déclaration, proposition ou correspondance antérieure, verbale ou écrite, relative à leur objet.</p>
+    <h3>19.4 — Notification</h3>
+    <p>Toute notification ayant un effet juridique au titre des présentes CGU (mise en demeure, réclamation formelle, résiliation pour faute) doit être adressée par <strong>e-mail avec accusé de réception</strong> à <a href="mailto:legal@docline.health">legal@docline.health</a> ou par <strong>lettre recommandée avec avis de réception</strong> à l'adresse du siège social de Docline. Les communications ordinaires (support, questions générales) peuvent être adressées à <a href="mailto:support@docline.health">support@docline.health</a>.</p>
+    <h3>19.5 — Cession du contrat</h3>
+    <p>L'Abonné ne peut céder tout ou partie de ses droits et obligations issus des présentes CGU sans l'accord préalable et écrit de Docline. Docline peut céder les présentes CGU à toute entité lui succédant dans le cadre d'une fusion, acquisition ou cession de tout ou partie de ses actifs, sous réserve d'en informer l'Abonné par e-mail dans un délai de 30 jours, ce dernier pouvant résilier sans frais dans les 60 jours suivant cette notification s'il n'accepte pas le cessionnaire.</p>
+    <h3>19.6 — Force majeure</h3>
+    <p>Aucune des parties ne sera tenue responsable de l'inexécution de ses obligations contractuelles lorsque cette inexécution résulte d'un cas de force majeure au sens de l'article 127 de l'Ordonnance n° 75-58, incluant sans que cette liste soit limitative : catastrophes naturelles (séisme, inondation, tempête), pandémies et mesures sanitaires gouvernementales, conflits armés ou troubles civils, pannes d'infrastructure nationale (électricité, réseau internet), cyberattaques d'envergure nationale ou internationale, décisions gouvernementales ou réglementaires rendant l'exécution impossible ou illicite. La partie invoquant la force majeure doit notifier l'autre partie dans les <strong>72 heures</strong> suivant la survenance de l'événement.</p>
+    <h3>19.7 — Signalement aux autorités de régulation</h3>
+    <p>Docline se réserve expressément le droit, sans obligation d'en informer préalablement l'Abonné, de signaler aux autorités compétentes (Ordre des Médecins, Ministère de la Santé, services judiciaires) tout comportement de l'Abonné susceptible de constituer une infraction pénale, une violation grave du secret médical, ou un manquement caractérisé aux règles déontologiques, lorsque Docline en a connaissance dans le cadre de ses obligations légales ou de la protection des patients.</p>
+  </div>
+
+  <div class="doc-footer">
+    <p>© 2026 Docline · <a href="/terms">Conditions générales d'utilisation</a> · <a href="/privacy">Politique de confidentialité</a> · <a href="mailto:legal@docline.health">legal@docline.health</a></p>
+    <p style="margin-top:6px">Version 1.0 — 1er mai 2026 — Droit applicable : République Algérienne Démocratique et Populaire</p>
+  </div>
+
+</div>
+</body>
+</html>

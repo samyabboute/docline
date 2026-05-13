@@ -1,0 +1,2610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Trouver un médecin en Algérie — Docline</title>
+<meta name="description" content="Trouvez et prenez rendez-vous avec les meilleurs médecins en Algérie. Recherchez par spécialité, wilaya ou nom.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3B1772">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Docline">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+/* ── DESIGN TOKENS ─────────────────────────────────────────── */
+:root{
+  --brand:#3B1772;--brand-dark:#2D1259;
+  --brand-light:#EDE8FF;--brand-glow:rgba(59,23,114,.14);
+  --teal:#00B4D8;--teal-light:#E0F7FC;--teal-glow:rgba(0,180,216,.15);
+  --bg:#F7F9FF;--surface:#FFFFFF;--bg-subtle:#F0F4FF;
+  --text-1:#0C1025;--text-2:#3D4461;--text-3:#6B7299;--text-4:#9CA3C4;
+  --border:#E2E6F3;--border-strong:#C8CEEA;
+  --success:#10B981;--success-bg:#ECFDF5;--success-text:#065F46;
+  --warning:#F59E0B;--danger:#EF4444;--danger-bg:#FEF2F2;
+  --gold:#F59E0B;
+  --shadow-xs:0 1px 2px rgba(12,16,37,.05);
+  --shadow-sm:0 1px 4px rgba(12,16,37,.06),0 1px 2px rgba(12,16,37,.04);
+  --shadow-md:0 4px 16px rgba(12,16,37,.08),0 2px 4px rgba(12,16,37,.04);
+  --shadow-lg:0 12px 40px rgba(12,16,37,.10),0 4px 8px rgba(12,16,37,.05);
+  --shadow-card:0 2px 12px rgba(12,16,37,.06),0 1px 3px rgba(12,16,37,.04);
+  --shadow-hover:0 8px 32px rgba(12,16,37,.11),0 2px 8px rgba(59,23,114,.08);
+  --shadow-brand:0 4px 20px rgba(59,23,114,.28);
+  --r-xs:4px;--r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:20px;--r-2xl:28px;--r-full:9999px;
+  --t:200ms cubic-bezier(.4,0,.2,1);
+  --t-spring:400ms cubic-bezier(.34,1.56,.64,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
+
+/* ── TOP NAV ───────────────────────────────────────────────── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;height:64px;
+  background:#fff;border-bottom:1px solid var(--border);
+  transition:box-shadow var(--t)}
+.nav.scrolled{box-shadow:0 2px 16px rgba(12,16,37,.09)}
+.nav-inner{max-width:1240px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;gap:16px}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo svg{display:block;height:34px;width:auto}
+.nav-sep{flex:1}
+.nav-link{font-size:.8125rem;font-weight:600;color:var(--text-2);padding:6px 12px;border-radius:var(--r-md);transition:all var(--t)}
+.nav-link:hover{color:var(--brand);background:var(--brand-light)}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--brand);color:#fff;
+  border:none;border-radius:var(--r-md);padding:9px 20px;
+  font-weight:700;font-size:.8125rem;cursor:pointer;
+  transition:all var(--t);text-decoration:none;box-shadow:var(--shadow-brand)}
+.nav-cta:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
+@media(max-width:600px){.nav-link{display:none}}
+
+/* ── HERO — Dark Aurora (callaeryn-style) ───────────────────── */
+.hero{
+  padding:100px 24px 80px;
+  background:#07091A;
+  position:relative;overflow:hidden}
+
+/* Aurora animated blobs */
+.aurora-blob{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;will-change:transform}
+.blob-1{
+  width:640px;height:640px;
+  background:radial-gradient(circle at 40% 40%,#4C1D95 0%,#7C3AED 35%,transparent 70%);
+  top:-180px;right:-120px;opacity:.55;
+  animation:aurora1 20s ease-in-out infinite}
+.blob-2{
+  width:560px;height:560px;
+  background:radial-gradient(circle at 60% 60%,#1E3A8A 0%,#2563EB 35%,transparent 70%);
+  bottom:-180px;left:-120px;opacity:.5;
+  animation:aurora2 26s ease-in-out infinite}
+.blob-3{
+  width:420px;height:420px;
+  background:radial-gradient(circle at 50% 50%,#0C4A6E 0%,#0EA5E9 40%,transparent 70%);
+  top:30%;left:35%;opacity:.38;
+  animation:aurora3 18s ease-in-out infinite}
+.blob-4{
+  width:300px;height:300px;
+  background:radial-gradient(circle,#5B21B6 0%,#8B5CF6 40%,transparent 70%);
+  bottom:10%;right:15%;opacity:.3;
+  animation:aurora4 24s ease-in-out infinite}
+
+@keyframes aurora1{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(-50px,30px) scale(1.08)}
+  66%{transform:translate(30px,-50px) scale(.94)}}
+@keyframes aurora2{
+  0%,100%{transform:translate(0,0) scale(1)}
+  40%{transform:translate(60px,-40px) scale(1.1)}
+  75%{transform:translate(-30px,50px) scale(1.04)}}
+@keyframes aurora3{
+  0%,100%{transform:translate(0,0) scale(1)}
+  30%{transform:translate(40px,60px) scale(1.15)}
+  70%{transform:translate(-50px,-30px) scale(.9)}}
+@keyframes aurora4{
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(-40px,40px) scale(1.2)}}
+
+/* Grain noise overlay */
+.hero-grain{
+  position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.055;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-repeat:repeat;background-size:180px 180px}
+
+/* Subtle grid lines */
+.hero-grid{
+  position:absolute;inset:0;pointer-events:none;z-index:1;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 20%,transparent 80%)}
+
+.hero-inner{
+  max-width:1200px;margin:0 auto;position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr 480px;gap:64px;align-items:center}
+@media(max-width:960px){.hero-inner{grid-template-columns:1fr;gap:48px}}
+
+.hero-left{}
+.hero-badge{
+  display:inline-flex;align-items:center;
+  margin-bottom:24px;
+  filter:brightness(0) invert(1);opacity:.9}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(0,180,216,.4)}50%{box-shadow:0 0 0 5px rgba(0,180,216,.0)}}
+
+.hero-title{
+  font-size:clamp(2rem,4.5vw,3.25rem);font-weight:800;
+  color:#FFFFFF;line-height:1.12;letter-spacing:-.03em;margin-bottom:16px;
+  text-shadow:0 2px 40px rgba(124,58,237,.3)}
+.hero-title span{
+  background:linear-gradient(135deg,#A78BFA,#38BDF8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{
+  font-size:clamp(.9rem,1.6vw,1.0625rem);color:rgba(255,255,255,.6);
+  line-height:1.75;max-width:480px;margin-bottom:36px;font-weight:400}
+
+/* Search box — glassmorphism */
+.search-card{
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.15);border-radius:var(--r-2xl);
+  box-shadow:0 8px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.12);
+  padding:6px 6px 6px 0;
+  display:flex;align-items:stretch;flex-wrap:nowrap;gap:0;overflow:visible}
+.sf{flex:1;min-width:0;display:flex;align-items:center;gap:10px;
+  padding:11px 16px;border-right:1px solid rgba(255,255,255,.1);position:relative}
+.sf-icon{flex-shrink:0;color:rgba(255,255,255,.45)}
+.sf-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;display:block}
+.sf select,.sf input{
+  background:transparent;border:none;outline:none;
+  font-size:.875rem;color:#fff;width:100%;min-width:0;
+  font-family:'Sora',sans-serif;font-weight:500}
+.sf select option{color:var(--text-1);background:#1a1040}
+.sf select{color:rgba(255,255,255,.8)}
+.sf select:invalid,.sf select option[value=""]{color:rgba(255,255,255,.4)}
+.sf input::placeholder{color:rgba(255,255,255,.35)}
+
+/* Geo button inside ville field */
+.geo-btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);
+  padding:4px;border-radius:var(--r-md);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:color var(--t),background var(--t)}
+.geo-btn:hover{color:#fff;background:rgba(255,255,255,.1)}
+.geo-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.geo-btn.spinning svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.search-btn{
+  background:var(--brand);color:#fff;border:none;border-radius:var(--r-xl);
+  padding:11px 24px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9rem;
+  cursor:pointer;transition:all var(--t);display:flex;align-items:center;gap:8px;
+  white-space:nowrap;flex-shrink:0;margin:0 0 0 6px;align-self:center;
+  box-shadow:var(--shadow-brand)}
+.search-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
+.search-btn svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* Sub-row: RDV toggle */
+.search-sub{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;color:rgba(255,255,255,.55);font-size:.8rem}
+
+@media(max-width:680px){
+  .search-card{flex-wrap:wrap;padding:0}
+  .sf{flex:1 1 45%;min-width:140px;border-right:none;border-bottom:1px solid var(--border);padding:12px 14px}
+  .sf:last-of-type{border-bottom:none}
+  .search-btn{width:100%;justify-content:center;margin:0;border-radius:var(--r-xl);
+    padding:14px;font-size:.9375rem;border-top-left-radius:0;border-top-right-radius:0}
+  .search-sub{margin-top:8px}
+}
+
+/* Hero stats */
+.hero-stats{display:flex;gap:32px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+.hero-stat-val{font-size:1.5rem;font-weight:800;
+  background:linear-gradient(135deg,#A78BFA,#38BDF8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:-.02em}
+.hero-stat-lbl{font-size:.6875rem;font-weight:600;color:rgba(255,255,255,.45);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+
+/* Hero illustration */
+.hero-right{display:flex;align-items:center;justify-content:center}
+@media(max-width:960px){.hero-right{display:none}}
+.hero-illus svg{width:100%;height:auto;max-width:420px}
+
+/* ── SPECIALTY SECTION ─────────────────────────────────────── */
+.spec-section{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:32px 24px 24px}
+.spec-inner{max-width:1240px;margin:0 auto}
+.spec-label{font-size:.875rem;font-weight:700;color:var(--text-2);margin-bottom:20px}
+.spec-grid{
+  display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;
+  flex-wrap:nowrap}
+@media(min-width:900px){.spec-grid{flex-wrap:wrap}}
+.spec-grid::-webkit-scrollbar{display:none}
+
+.pill{
+  flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:14px 18px;border-radius:var(--r-lg);font-size:.6875rem;font-weight:700;
+  cursor:pointer;border:1.5px solid var(--border);background:#fff;
+  color:var(--text-2);transition:all var(--t);white-space:nowrap;min-width:86px;
+  box-shadow:var(--shadow-xs)}
+.pill:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.pill.active{color:#fff;border-color:transparent;box-shadow:var(--shadow-brand);transform:translateY(-2px)}
+.pill-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;transition:background var(--t);flex-shrink:0}
+.pill-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.pill-lbl{font-size:.6875rem;font-weight:700;text-align:center;line-height:1.2}
+
+/* Specialty pill colour theming */
+.pill[data-color="blue"]{--pc:#3B1772;--pc-bg:#EEF2FF}
+.pill[data-color="red"]{--pc:#DC2626;--pc-bg:#FEF2F2}
+.pill[data-color="orange"]{--pc:#D97706;--pc-bg:#FFFBEB}
+.pill[data-color="purple"]{--pc:#7C3AED;--pc-bg:#F5F3FF}
+.pill[data-color="green"]{--pc:#059669;--pc-bg:#ECFDF5}
+.pill[data-color="teal"]{--pc:#0891B2;--pc-bg:#E0F7FA}
+.pill[data-color="indigo"]{--pc:#4338CA;--pc-bg:#EEF2FF}
+.pill[data-color="amber"]{--pc:#B45309;--pc-bg:#FEF3C7}
+.pill[data-color="cyan"]{--pc:#0369A1;--pc-bg:#E0F2FE}
+.pill[data-color="violet"]{--pc:#6D28D9;--pc-bg:#F5F3FF}
+.pill[data-color="mint"]{--pc:#047857;--pc-bg:#D1FAE5}
+
+.pill .pill-ic{background:var(--pc-bg);color:var(--pc)}
+.pill:hover:not(.active){border-color:var(--pc);color:var(--pc);background:var(--pc-bg)}
+.pill.active{background:var(--pc);border-color:var(--pc)}
+.pill.active .pill-ic{background:rgba(255,255,255,.22);color:#fff}
+
+/* ── RESULTS BAR ───────────────────────────────────────────── */
+.results-bar{max-width:1240px;margin:0 auto;padding:28px 24px 0;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.results-count{font-size:.9375rem;font-weight:700;color:var(--text-1)}
+.results-count span{color:var(--brand)}
+.sort-select{border:1.5px solid var(--border);border-radius:var(--r-md);padding:8px 14px;
+  font-size:.8125rem;font-family:'Sora',sans-serif;background:#fff;
+  color:var(--text-2);outline:none;cursor:pointer;transition:border-color var(--t)}
+.sort-select:focus{border-color:var(--brand)}
+
+/* ── DOCTOR CARDS GRID ─────────────────────────────────────── */
+.cards-wrap{max-width:1240px;margin:0 auto;padding:20px 24px 64px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+@media(max-width:480px){.cards-grid{grid-template-columns:1fr;gap:14px}}
+
+/* Doctor card */
+.doctor-card{
+  background:#fff;border:1px solid var(--border);border-radius:var(--r-xl);
+  padding:0;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:var(--shadow-card);transition:transform var(--t),box-shadow var(--t),border-color var(--t);
+  animation:cardIn .35s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.doctor-card:hover{box-shadow:var(--shadow-hover);border-color:rgba(59,23,114,.14);transform:translateY(-3px)}
+.doctor-card::before{content:'';height:3px;background:linear-gradient(90deg,var(--brand),var(--teal));display:block;flex-shrink:0}
+.doctor-card.is-featured{border-color:rgba(245,158,11,.22)}
+.doctor-card.is-featured::before{background:linear-gradient(90deg,#F59E0B,#FBBF24)}
+
+/* Card sections */
+.card-top{display:flex;gap:16px;align-items:flex-start;padding:20px 20px 14px}
+.doctor-avatar{
+  width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.375rem;font-weight:800;color:#fff;flex-shrink:0;position:relative;
+  box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(59,23,114,.15)}
+.avatar-badge{
+  position:absolute;bottom:1px;right:1px;width:15px;height:15px;border-radius:50%;
+  background:var(--success);border:2.5px solid #fff;box-shadow:0 0 6px rgba(16,185,129,.4)}
+.doctor-info{flex:1;min-width:0}
+.card-name-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px}
+.doctor-name{font-size:1rem;font-weight:800;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.verified-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  background:var(--teal-light);color:var(--teal);
+  font-size:.625rem;font-weight:700;padding:2px 7px;border-radius:var(--r-full);
+  border:1px solid rgba(0,180,216,.2);flex-shrink:0}
+.verified-badge svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+.featured-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(135deg,#F59E0B,#FBBF24);
+  color:#fff;font-size:.6rem;font-weight:800;padding:3px 8px;
+  border-radius:var(--r-full);letter-spacing:.04em;text-transform:uppercase;
+  box-shadow:0 2px 8px rgba(245,158,11,.3);pointer-events:none}
+.featured-badge svg{width:9px;height:9px;fill:currentColor;stroke:none}
+.doctor-specialty{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--brand-light);color:var(--brand);
+  padding:4px 11px;border-radius:var(--r-full);
+  font-size:.6875rem;font-weight:700;letter-spacing:.02em;margin-bottom:9px}
+.doctor-meta{display:flex;flex-direction:column;gap:5px}
+.meta-row{display:flex;align-items:center;gap:7px;font-size:.8125rem;color:var(--text-3);font-weight:400}
+.meta-row svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;opacity:.65}
+
+/* Stars */
+.stars-row{display:flex;align-items:center;gap:6px;padding:0 20px 14px;flex-wrap:wrap}
+.stars{display:flex;gap:2px}
+.star{font-size:13px;color:#E2E6F3;line-height:1}
+.star.on{color:var(--gold)}
+.star.half{background:linear-gradient(90deg,var(--gold) 50%,#E2E6F3 50%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.rating-num{font-size:.75rem;font-weight:700;color:var(--text-2)}
+.rating-count{font-size:.6875rem;color:var(--text-4)}
+
+/* Bio */
+.card-bio{
+  margin:0 20px 14px;padding:10px 14px;
+  background:var(--bg-subtle);border-radius:var(--r-md);
+  font-size:.75rem;color:var(--text-3);line-height:1.6;
+  border-left:3px solid var(--brand-light)}
+
+/* Divider */
+.card-divider{height:1px;background:var(--border);margin:0 20px}
+
+/* Card bottom */
+.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px 20px}
+.card-price-val{font-size:1.125rem;font-weight:800;color:var(--text-1);letter-spacing:-.02em}
+.card-price-lbl{font-size:.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-4);margin-top:1px}
+.card-languages{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.lang-tag{background:var(--bg-subtle);color:var(--text-3);padding:2px 8px;
+  border-radius:var(--r-full);font-size:.625rem;font-weight:600;border:1px solid var(--border)}
+.card-rdv-btn{
+  background:var(--brand);color:#fff;border:none;border-radius:var(--r-lg);
+  padding:12px 22px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;
+  cursor:pointer;transition:all var(--t);white-space:nowrap;box-shadow:var(--shadow-brand);
+  display:flex;align-items:center;gap:7px;flex-shrink:0}
+.card-rdv-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
+.card-rdv-btn:active{transform:scale(.97)}
+.card-rdv-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+
+/* ── SKELETON LOADING ──────────────────────────────────────── */
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.skel{border-radius:var(--r-full);background:linear-gradient(90deg,#F0F4FF 25%,#E2E6F3 50%,#F0F4FF 75%);
+  background-size:600px 100%;animation:shimmer 1.4s ease-in-out infinite}
+.skel-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-xl);
+  padding:20px;box-shadow:var(--shadow-card)}
+.skel-card::before{display:none}
+
+/* ── STATE BOXES ───────────────────────────────────────────── */
+.state-box{text-align:center;padding:80px 24px;max-width:400px;margin:0 auto}
+.state-icon-wrap{width:72px;height:72px;border-radius:var(--r-xl);background:var(--brand-light);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.state-icon-wrap svg{width:32px;height:32px;fill:none;stroke:var(--brand);stroke-width:1.5;stroke-linecap:round}
+.state-title{font-size:1.125rem;font-weight:800;color:var(--text-1);margin-bottom:8px}
+.state-sub{font-size:.875rem;color:var(--text-3);line-height:1.65}
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:var(--r-md);
+  cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;padding:9px 18px;
+  font-size:.8125rem;transition:all var(--t);white-space:nowrap;line-height:1;text-decoration:none}
+.btn-ghost-light{background:var(--bg-subtle);color:var(--text-2);border:1.5px solid var(--border)}
+.btn-ghost-light:hover{background:var(--brand-light);color:var(--brand);border-color:var(--brand)}
+
+/* ── HOW IT WORKS ──────────────────────────────────────────── */
+.how-section{background:#fff;border-top:1px solid var(--border);padding:72px 24px}
+.how-inner{max-width:960px;margin:0 auto;text-align:center}
+.how-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:10px}
+.how-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:800;color:var(--text-1);margin-bottom:52px;letter-spacing:-.025em}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+@media(max-width:640px){.how-steps{grid-template-columns:1fr;gap:28px}}
+.how-step{display:flex;flex-direction:column;align-items:center;text-align:center}
+.how-num{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--brand);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.25rem;font-weight:800;margin-bottom:18px;
+  box-shadow:var(--shadow-brand)}
+.how-step-icon{width:48px;height:48px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:var(--brand-light);border-radius:var(--r-xl)}
+.how-step-icon svg{width:24px;height:24px;flex-shrink:0}
+.how-step-title{font-size:1rem;font-weight:700;color:var(--text-1);margin-bottom:8px}
+.how-step-desc{font-size:.875rem;color:var(--text-3);line-height:1.65}
+
+/* ── PRO SECTION (light card) ──────────────────────────────── */
+.pro-section{background:var(--bg);padding:72px 24px}
+.pro-inner{max-width:1120px;margin:0 auto;
+  background:linear-gradient(135deg,#EEF2FF 0%,#E0F7FA 100%);
+  border:1px solid rgba(59,23,114,.12);border-radius:var(--r-2xl);
+  padding:56px 64px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+@media(max-width:800px){.pro-inner{grid-template-columns:1fr;gap:36px;padding:36px 24px;text-align:center}}
+.pro-pill{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(59,23,114,.08);border:1px solid rgba(59,23,114,.18);
+  border-radius:var(--r-full);padding:5px 14px;font-size:.6875rem;font-weight:700;
+  color:var(--brand);letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px}
+.pro-title{font-size:clamp(1.625rem,3.5vw,2.25rem);font-weight:800;color:var(--text-1);
+  line-height:1.2;margin-bottom:14px;letter-spacing:-.03em}
+.pro-title span{color:var(--brand)}
+.pro-desc{font-size:.9375rem;color:var(--text-2);line-height:1.75;margin-bottom:28px;max-width:420px}
+@media(max-width:800px){.pro-desc{margin-left:auto;margin-right:auto}}
+.pro-ctas{display:flex;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.pro-ctas{justify-content:center}}
+.btn-pro-p{display:inline-flex;align-items:center;gap:8px;
+  background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);
+  padding:13px 26px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
+  cursor:pointer;text-decoration:none;box-shadow:var(--shadow-brand);transition:all var(--t)}
+.btn-pro-p:hover{background:var(--brand-dark);transform:translateY(-2px);box-shadow:0 8px 32px rgba(59,23,114,.36)}
+.btn-pro-s{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(59,23,114,.07);color:var(--brand);
+  border:1.5px solid rgba(59,23,114,.18);border-radius:var(--r-md);
+  padding:12px 24px;font-family:'Sora',sans-serif;font-weight:600;font-size:.875rem;
+  cursor:pointer;text-decoration:none;transition:all var(--t)}
+.btn-pro-s:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+.pro-features{display:flex;flex-direction:column;gap:14px}
+.pro-feat{display:flex;align-items:flex-start;gap:16px;
+  background:#fff;border:1px solid rgba(59,23,114,.1);
+  border-radius:var(--r-lg);padding:18px 20px;transition:box-shadow var(--t)}
+.pro-feat:hover{box-shadow:var(--shadow-sm)}
+.pro-feat-icon{width:42px;height:42px;border-radius:12px;
+  background:var(--brand-light);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pro-feat-icon svg{width:20px;height:20px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round}
+.pro-feat-body strong{font-size:.9375rem;font-weight:700;color:var(--text-1);display:block;margin-bottom:3px}
+.pro-feat-body p{font-size:.8125rem;color:var(--text-3);line-height:1.55}
+
+/* ── FOOTER ────────────────────────────────────────────────── */
+.footer{background:#040814;padding:52px 24px 32px}
+.footer-inner{max-width:1240px;margin:0 auto}
+.footer-grid{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:32px;margin-bottom:40px}
+@media(max-width:800px){.footer-grid{grid-template-columns:1fr 1fr;gap:24px}}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
+.footer-brand .logo{display:flex;align-items:center;margin-bottom:16px}
+.footer-brand .logo svg{height:40px;width:auto}
+.footer-brand p{font-size:.8125rem;color:rgba(255,255,255,.35);line-height:1.7;max-width:240px}
+.footer-col h4{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:rgba(255,255,255,.25);margin-bottom:14px}
+.footer-col a{display:block;font-size:.8125rem;color:rgba(255,255,255,.45);margin-bottom:9px;transition:color var(--t)}
+.footer-col a:hover{color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-bottom p{font-size:.75rem;color:rgba(255,255,255,.25)}
+.footer-bottom a{color:var(--teal);font-weight:600;font-size:.75rem}
+
+/* ── MODAL ─────────────────────────────────────────────────── */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(6,8,24,.55);backdrop-filter:blur(6px);
+  display:flex;align-items:flex-end;justify-content:center;
+  padding:0;opacity:0;pointer-events:none;transition:opacity var(--t)}
+@media(min-width:640px){.modal-backdrop{align-items:center;padding:20px}}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{
+  background:#fff;width:100%;max-width:560px;
+  border-radius:var(--r-2xl) var(--r-2xl) 0 0;
+  box-shadow:0 -8px 40px rgba(6,8,24,.15);
+  max-height:94svh;max-height:94vh;overflow-y:auto;
+  transform:translateY(40px);transition:transform var(--t)}
+@media(min-width:640px){.modal{border-radius:var(--r-2xl);transform:translateY(20px) scale(.97)}}
+.modal-backdrop.open .modal{transform:none}
+.modal-drag{width:36px;height:4px;border-radius:var(--r-full);background:var(--border-strong);margin:12px auto 0;display:block}
+@media(min-width:640px){.modal-drag{display:none}}
+.modal-head{padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.modal-doctor-info{display:flex;align-items:center;gap:14px}
+.modal-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:1.25rem;font-weight:800;color:#fff;flex-shrink:0;
+  box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(59,23,114,.12)}
+.modal-title{font-size:1rem;font-weight:800;color:var(--text-1)}
+.modal-sub{font-size:.75rem;color:var(--text-3);margin-top:2px}
+.modal-phone{font-size:.75rem;color:var(--teal);font-weight:600;margin-top:3px}
+.modal-close{background:var(--bg-subtle);border:none;cursor:pointer;color:var(--text-3);
+  padding:7px;border-radius:var(--r-full);flex-shrink:0;transition:all var(--t);line-height:0}
+.modal-close:hover{background:var(--border);color:var(--text-1)}
+.modal-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
+.modal-body{padding:20px 24px 28px}
+
+/* ── RDV MODAL REDESIGN ──────────────────────────────────────── */
+.rdv-modal-banner{
+  background:linear-gradient(135deg,var(--brand) 0%,#5B21B6 100%);
+  padding:18px 20px 16px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.rdv-modal-doc{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.rdv-modal-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.8125rem;font-weight:800;color:#fff;flex-shrink:0;
+  border:2px solid rgba(255,255,255,.3);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.rdv-modal-name{font-size:.9375rem;font-weight:800;color:#fff;line-height:1.2}
+.rdv-modal-spec-txt{font-size:.75rem;color:rgba(255,255,255,.65);margin-top:2px}
+.rdv-modal-headline{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.14);border-radius:var(--r-full);
+  padding:5px 12px;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.85)}
+.rdv-modal-headline svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+.rdv-block{padding:18px 22px;border-bottom:1px solid var(--border)}
+.rdv-block:last-child{border-bottom:none;padding-bottom:24px}
+.rdv-block-hd{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+.rdv-step-num{width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;
+  font-size:.625rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rdv-step-num.done{background:var(--success)}
+.rdv-block-title{font-size:.875rem;font-weight:700;color:var(--text-1)}
+
+/* Motif select */
+.rdv-motif-sel{
+  width:100%;border:1.5px solid var(--border);border-radius:var(--r-lg);
+  padding:11px 14px;font-size:.875rem;font-family:'Sora',sans-serif;
+  background:#fff;color:var(--text-1);outline:none;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239CA3C4' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;background-size:16px;
+  padding-right:36px;cursor:pointer;transition:all var(--t)}
+.rdv-motif-sel:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow)}
+
+/* Date navigator */
+.rdv-date-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  background:var(--bg-subtle);border-radius:var(--r-lg);padding:6px 8px}
+.rdv-date-arrow{width:34px;height:34px;border:none;background:#fff;border-radius:var(--r-md);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:1.125rem;font-weight:700;color:var(--text-2);flex-shrink:0;
+  transition:all var(--t);box-shadow:var(--shadow-xs);line-height:1}
+.rdv-date-arrow:hover:not(:disabled){background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
+.rdv-date-arrow:disabled{opacity:.3;cursor:not-allowed;box-shadow:none}
+.rdv-date-center{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  font-size:.9375rem;font-weight:700;color:var(--text-1)}
+.rdv-date-center svg{width:15px;height:15px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* Time slots */
+.rdv-slots-grid{display:flex;flex-wrap:wrap;gap:8px}
+.rdv-slot{
+  padding:9px 18px;border:1.5px solid var(--border);border-radius:var(--r-lg);
+  font-family:'Sora',sans-serif;font-size:.875rem;font-weight:700;color:var(--text-2);
+  background:#fff;cursor:pointer;transition:all var(--t);min-width:72px;text-align:center}
+.rdv-slot:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light);transform:translateY(-1px)}
+.rdv-slot.selected{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:var(--shadow-brand);transform:translateY(-1px)}
+.rdv-no-slots{width:100%;text-align:center;padding:20px 0;font-size:.8125rem;color:var(--text-4);font-style:italic}
+
+/* Patient info block */
+.rdv-patient-block{animation:dropIn .22s ease both}
+.rdv-slot-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--success-bg);color:var(--success-text);
+  border:1px solid #A7F3D0;border-radius:var(--r-full);
+  font-size:.75rem;font-weight:700;padding:5px 12px;margin-bottom:16px}
+.rdv-slot-badge svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+
+/* Confirm button */
+.rdv-confirm-btn{
+  width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--r-lg);
+  padding:15px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
+  cursor:pointer;transition:all var(--t);display:flex;align-items:center;
+  justify-content:center;gap:8px;margin-top:6px;box-shadow:var(--shadow-brand)}
+.rdv-confirm-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
+.rdv-confirm-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.rdv-confirm-btn svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+
+/* Form fields */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.6875rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--text-3);margin-bottom:6px}
+.field input,.field select,.field textarea{
+  width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);
+  padding:11px 14px;font-size:.875rem;font-family:'Sora',sans-serif;
+  background:#fff;color:var(--text-1);outline:none;transition:all var(--t)}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow);background:#fff}
+.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field-hint{font-size:.6875rem;color:var(--text-4);margin-top:5px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:400px){.form-row{grid-template-columns:1fr}}
+.form-submit{
+  width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--r-lg);
+  padding:14px;font-family:'Sora',sans-serif;font-weight:700;font-size:.9375rem;
+  cursor:pointer;transition:all var(--t);display:flex;align-items:center;
+  justify-content:center;gap:8px;margin-top:4px;box-shadow:var(--shadow-brand)}
+.form-submit:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
+.form-submit:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.form-submit svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+.form-error{display:none;margin-top:12px;padding:12px 14px;
+  background:var(--danger-bg);color:var(--danger);border-radius:var(--r-md);
+  font-size:.8125rem;border:1px solid rgba(239,68,68,.2);font-weight:500}
+
+/* Success state */
+.modal-success{text-align:center;padding:36px 24px 40px}
+.success-icon{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--brand),var(--teal));
+  display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+  box-shadow:0 8px 28px rgba(59,23,114,.25);
+  animation:successPop .5s var(--t-spring) both}
+@keyframes successPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-icon svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+.modal-success-title{font-size:1.25rem;font-weight:800;color:var(--text-1);margin-bottom:10px}
+.modal-success-sub{font-size:.875rem;color:var(--text-3);line-height:1.7;max-width:340px;margin:0 auto}
+.success-detail{margin-top:20px;padding:14px 16px;background:var(--bg-subtle);border-radius:var(--r-lg);text-align:left}
+.success-detail-row{display:flex;align-items:center;gap:10px;font-size:.8125rem;color:var(--text-2);padding:5px 0}
+.success-detail-row svg{width:15px;height:15px;fill:none;stroke:var(--teal);stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* ── TYPEWRITER CURSOR ─────────────────────────────────────── */
+.tw-cursor{
+  color:var(--brand);font-weight:300;
+  animation:blink-caret .72s step-end infinite}
+@keyframes blink-caret{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── PWA INSTALL BANNER ────────────────────────────────────── */
+#pwa-banner{
+  position:fixed;bottom:24px;left:50%;z-index:300;
+  transform:translateX(-50%) translateY(160px);
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 8px 40px rgba(59,23,114,.20),0 2px 12px rgba(12,16,37,.08);
+  padding:16px 18px;
+  width:calc(100% - 40px);max-width:420px;
+  transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+#pwa-banner.visible{transform:translateX(-50%) translateY(0)}
+#pwa-banner.floating{animation:pwa-float 3.5s ease-in-out infinite}
+@keyframes pwa-float{
+  0%,100%{transform:translateX(-50%) translateY(0)}
+  50%{transform:translateX(-50%) translateY(-7px)}}
+.pwa-inner{display:flex;align-items:center;gap:12px}
+.pwa-text{flex:1;min-width:0}
+.pwa-text strong{display:block;font-size:.875rem;font-weight:700;color:var(--text-1);line-height:1.3;margin-bottom:2px}
+.pwa-text span{font-size:.75rem;color:var(--text-3);line-height:1.4}
+.pwa-text .pwa-ios-hint{font-size:.75rem;color:var(--text-3);line-height:1.5}
+.pwa-text .pwa-ios-hint svg{display:inline;vertical-align:middle;margin:0 2px}
+.pwa-install-btn{
+  background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);
+  padding:9px 16px;font-family:'Sora',sans-serif;font-weight:700;font-size:.8125rem;
+  cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:var(--shadow-brand);
+  transition:all var(--t)}
+.pwa-install-btn:hover{background:var(--brand-dark);transform:translateY(-1px)}
+.pwa-dismiss{
+  background:none;border:none;cursor:pointer;color:var(--text-4);
+  padding:6px;font-size:1.125rem;flex-shrink:0;border-radius:var(--r-full);
+  line-height:1;transition:all var(--t)}
+.pwa-dismiss:hover{color:var(--text-1);background:var(--bg-subtle)}
+
+/* ── MOBILE HERO FLOATERS ──────────────────────────────────── */
+.hero-floaters{
+  display:none;
+  position:relative;margin-top:28px;height:148px;
+  pointer-events:none;user-select:none}
+@media(max-width:959px){.hero-floaters{display:block}}
+.hf{
+  position:absolute;
+  background:#fff;border:1px solid var(--border);border-radius:var(--r-xl);
+  box-shadow:var(--shadow-md);
+  display:inline-flex;align-items:center;gap:10px;
+  padding:10px 14px}
+.hf-1{left:0;top:0;animation:hfl 4s ease-in-out infinite}
+.hf-2{right:4px;top:24px;animation:hfl2 4.8s ease-in-out infinite .8s}
+.hf-3{left:12px;bottom:0;animation:hfl 5.2s ease-in-out infinite 1.6s}
+@keyframes hfl{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes hfl2{0%,100%{transform:translateY(0) rotate(2deg)}50%{transform:translateY(-7px) rotate(2deg)}}
+.hf-av{width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.625rem;font-weight:800;color:#fff;flex-shrink:0}
+.hf-nm{font-size:.75rem;font-weight:700;color:var(--text-1);line-height:1.2}
+.hf-sp{font-size:.625rem;color:var(--text-3);margin-top:2px}
+.hf-st{font-size:.625rem;color:#F59E0B;letter-spacing:1px;margin-top:1px}
+.hf-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:8px 13px;border-radius:var(--r-full);
+  font-size:.6875rem;font-weight:700;white-space:nowrap}
+.hf-pill-ok{background:var(--success-bg);color:var(--success-text);border:1px solid rgba(16,185,129,.2)}
+.hf-pill-live{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
+.hf-live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(16,185,129,.4);animation:pulse-dot 2s ease-in-out infinite}
+
+/* ── STICKY BOTTOM SEARCH BAR (désactivé) ──────────────────── */
+#sticky-bar{
+  display:none!important;
+  position:fixed;bottom:0;left:0;right:0;z-index:260;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  box-shadow:0 -4px 24px rgba(12,16,37,.10);
+  transform:translateY(110%);
+  transition:transform .38s cubic-bezier(.34,1.56,.64,1)}
+#sticky-bar.show{transform:translateY(0)}
+@media(max-width:640px){#sticky-bar{display:block}}
+.sbar-inner{display:flex;flex-direction:column;gap:8px;max-width:480px;margin:0 auto}
+.sbar-row{display:flex;gap:8px;align-items:center}
+.sbar-label{font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-4);margin-bottom:6px}
+.sbar-field{
+  flex:1;display:flex;align-items:center;gap:8px;
+  padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r-lg);
+  background:#fff;transition:border-color var(--t)}
+.sbar-field:focus-within{border-color:var(--brand)}
+.sbar-field svg{width:14px;height:14px;flex-shrink:0;stroke:var(--text-4);fill:none;stroke-width:2;stroke-linecap:round}
+.sbar-field select,.sbar-field input{
+  flex:1;border:none;outline:none;background:transparent;
+  font-family:'Sora',sans-serif;font-size:.8125rem;color:var(--text-2);min-width:0;
+  appearance:none;-webkit-appearance:none}
+.sbar-field select option{background:#fff;color:var(--text-1)}
+.sbar-btn{
+  background:var(--brand);color:#fff;border:none;border-radius:var(--r-lg);
+  padding:11px 20px;font-family:'Sora',sans-serif;font-weight:700;font-size:.875rem;
+  cursor:pointer;box-shadow:var(--shadow-brand);
+  transition:all var(--t);flex-shrink:0;
+  display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sbar-btn svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+.sbar-btn:active{transform:scale(.95)}
+
+/* ── SCROLL REVEAL ─────────────────────────────────────────── */
+.sr{opacity:0;transform:translateY(18px);
+    transition:opacity .5s ease,transform .5s ease}
+.sr.in{opacity:1;transform:none}
+.sr.d1{transition-delay:.07s}.sr.d2{transition-delay:.14s}.sr.d3{transition-delay:.21s}
+
+/* ── TOUCH ACTIVE STATES ───────────────────────────────────── */
+@media(hover:none){
+  .card-rdv-btn:active,.search-btn:active,.sbar-btn:active,.nav-cta:active{
+    transform:scale(.93)!important;transition:transform .08s!important}
+  .pill:active{transform:scale(.91)!important;transition:transform .08s!important}
+  .doctor-card:active{transform:scale(.985);box-shadow:var(--shadow-md);
+    transition:transform .1s,box-shadow .1s}
+}
+
+/* ── SPECIALTY PILLS: scroll fade hint ─────────────────────── */
+@media(max-width:899px){
+  .spec-inner{position:relative}
+  .spec-inner::after{
+    content:'';position:absolute;right:-24px;top:0;bottom:0;width:64px;
+    background:linear-gradient(to left,#fff 35%,transparent);
+    pointer-events:none;z-index:2}}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media(max-width:640px){
+  .hero{
+    padding:80px 16px 44px;
+    background:linear-gradient(160deg,#E4ECFF 0%,#EEF4FF 40%,#F8FAFF 100%)}
+  /* Centrage texte mobile */
+  .hero-left{text-align:center}
+  .hero-badge{margin-bottom:18px;margin-left:auto;margin-right:auto}
+  .hero-badge svg{height:46px}
+  .hero-title{font-size:1.875rem;letter-spacing:-.04em;
+    text-align:center;margin-left:auto;margin-right:auto}
+  /* Sous-titre supprimé sur mobile — page trop chargée */
+  .hero-sub{display:none}
+  .search-card{
+    padding:6px;border-radius:var(--r-xl);
+    box-shadow:0 8px 40px rgba(59,23,114,.14);
+    border-color:rgba(59,23,114,.14)}
+  .sf{flex:1 1 100%}
+  .search-btn{border-radius:var(--r-lg);padding:14px;font-size:.9375rem}
+  /* Toggle RDV visible sur mobile */
+  .search-sub{justify-content:center;margin-top:12px}
+  .rdv-label{
+    background:#fff;border:1.5px solid var(--border);
+    border-radius:var(--r-full);padding:9px 18px;
+    box-shadow:var(--shadow-sm)}
+  .rdv-label.active-rdv{background:#ECFDF5;border-color:#6EE7B7}
+  .toggle-track{width:38px;height:22px;border-radius:11px}
+  .toggle-thumb{width:16px;height:16px}
+  .toggle-track.on .toggle-thumb{transform:translateX(16px)}
+  .search-hint{display:none}
+  .hero-stats{gap:14px;margin-top:18px}
+  .hero-stat-val{font-size:1.25rem}
+  .spec-section{padding:22px 16px 18px}
+  .cards-wrap{padding:16px 16px 88px}
+  .modal-body{padding:16px 16px 24px}
+  .form-row{grid-template-columns:1fr}
+  .how-section{padding:48px 16px}
+  .how-steps{gap:14px}
+  .how-step{
+    background:#fff;border:1px solid var(--border);
+    border-radius:var(--r-xl);padding:20px 18px;
+    box-shadow:var(--shadow-xs);
+    flex-direction:row;align-items:flex-start;gap:16px;text-align:left}
+  .how-step-icon{display:none}
+  .how-num{width:44px;height:44px;font-size:1.125rem;flex-shrink:0;margin:0}
+  .pro-section{padding:48px 16px}
+}
+@media(max-width:400px){
+  .hero-title{font-size:1.625rem}
+  .hero-stats{flex-wrap:wrap;gap:8px 20px}
+}
+
+/* ── DESKTOP CENTERED HERO ≥ 860px ──────────────────────────── */
+@media(min-width:860px){
+  /* Hero centré, illustration cachée */
+  .hero{padding:96px 24px 72px}
+  .hero-inner{display:flex;flex-direction:column;align-items:center;
+    max-width:860px;margin:0 auto;text-align:center}
+  .hero-right,.hero-floaters{display:none!important}
+  .hero-left{width:100%;max-width:100%}
+  .hero-badge{display:inline-flex;margin-bottom:28px}
+  .hero-title{font-size:clamp(2.5rem,4vw,3.6rem);max-width:680px;margin-left:auto;margin-right:auto;text-align:center}
+  .hero-sub{max-width:540px;margin:0 auto 40px;font-size:1.0625rem;text-align:center}
+  .hero-stats{justify-content:center;gap:48px;margin-top:36px}
+
+  /* Search bar : pill pleine largeur centrée */
+  .search-card{
+    max-width:740px;width:100%;margin:0 auto;
+    border-radius:var(--r-full);
+    padding:6px;
+    box-shadow:0 8px 40px rgba(59,23,114,.14);
+    border:1.5px solid rgba(59,23,114,.1)}
+  .sf{padding:14px 24px;border-right:1px solid var(--border)}
+  .sf-smart{flex:1.8}
+  /* Arrondi sur le premier champ */
+  .sf-smart{border-radius:var(--r-full) 0 0 var(--r-full)}
+  .search-btn{
+    border-radius:var(--r-full);
+    padding:12px 32px;font-size:.9375rem;
+    margin:0 0 0 6px}
+  .search-sub{justify-content:center;margin-top:14px}
+  .smart-drop{border-radius:20px;top:calc(100% + 14px)}
+  .ville-drop{border-radius:20px;top:calc(100% + 14px);left:-18px;right:-18px}
+}
+
+/* ── SMART SEARCH DROPDOWN ─────────────────────────────────── */
+.search-card{position:relative}
+.sf-smart{flex:1.5;min-width:0}
+.sf-clear{background:rgba(107,114,128,.15);border:none;cursor:pointer;color:var(--text-3);
+  width:20px;height:20px;border-radius:50%;display:none;align-items:center;
+  justify-content:center;font-size:14px;line-height:1;flex-shrink:0;transition:all var(--t)}
+.sf-clear.show{display:flex}
+.sf-clear:hover{background:var(--brand);color:#fff}
+
+.smart-drop{
+  position:absolute;top:calc(100% + 10px);left:0;right:0;
+  background:#fff;border:1.5px solid rgba(59,23,114,.1);border-radius:20px;
+  box-shadow:0 24px 64px rgba(12,16,37,.18);z-index:600;
+  overflow:hidden;max-height:400px;overflow-y:auto;display:none}
+.smart-drop.open{display:block;animation:dropIn .15s cubic-bezier(.2,.8,.4,1)}
+@keyframes dropIn{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+.drop-cat{font-size:.625rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--text-4);padding:14px 18px 6px;user-select:none}
+.drop-item{display:flex;align-items:center;gap:12px;padding:9px 18px;
+  cursor:pointer;border:none;width:100%;text-align:left;background:none;
+  font-family:'Sora',sans-serif;transition:background .1s}
+.drop-item:hover,.drop-item.focused{background:var(--bg-subtle)}
+.drop-item-icon{width:38px;height:38px;border-radius:11px;background:var(--brand-light);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .1s}
+.drop-item:hover .drop-item-icon,.drop-item.focused .drop-item-icon{background:rgba(59,23,114,.15)}
+.drop-item-icon svg{width:18px;height:18px;fill:none;stroke:var(--brand);
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.drop-item-label{flex:1;font-size:.875rem;font-weight:600;color:var(--text-1);min-width:0}
+.drop-item-label mark{background:rgba(59,23,114,.12);color:var(--brand);
+  border-radius:3px;padding:0 2px;font-weight:800}
+.drop-item-sub{font-size:.6875rem;color:var(--text-4);margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drop-item-arr{width:15px;height:15px;fill:none;stroke:var(--text-4);
+  stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.drop-doc-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.625rem;font-weight:800;color:#fff;flex-shrink:0}
+.drop-divider{height:1px;background:var(--border);margin:6px 18px}
+.drop-empty{padding:28px 18px;text-align:center;font-size:.875rem;color:var(--text-4)}
+
+/* ── RDV TOGGLE (iOS switch) ────────────────────────────────── */
+.rdv-label{display:inline-flex;align-items:center;gap:10px;font-size:.8125rem;font-weight:600;color:var(--text-2);cursor:pointer;user-select:none;white-space:nowrap;flex-shrink:0}
+.toggle-track{width:42px;height:24px;border-radius:12px;background:#D1D5DB;position:relative;transition:background .22s;flex-shrink:0;border:none;padding:0;cursor:pointer;display:inline-block;vertical-align:middle}
+.toggle-track:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(5,150,105,.25)}
+.toggle-track.on{background:#059669}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .22s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.2);pointer-events:none}
+.toggle-track.on .toggle-thumb{transform:translateX(18px)}
+.search-hint{font-size:.75rem;color:var(--text-4)}
+
+/* ── FILTER CHIPS ────────────────────────────────────────────── */
+.chips-bar{max-width:1240px;margin:0 auto;padding:14px 24px 2px;
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:0}
+.chips-bar:empty{display:none}
+.f-chip{display:inline-flex;align-items:center;gap:5px;
+  background:var(--brand-light);color:var(--brand);
+  border:1px solid rgba(59,23,114,.2);border-radius:var(--r-full);
+  padding:4px 10px 4px 12px;font-size:.75rem;font-weight:700;
+  animation:chipIn .18s ease both}
+@keyframes chipIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.chip-x{background:rgba(59,23,114,.12);border:none;cursor:pointer;color:var(--brand);
+  width:16px;height:16px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:900;line-height:1;transition:all var(--t)}
+.chip-x:hover{background:var(--brand);color:#fff}
+.chip-clear{background:none;border:none;cursor:pointer;color:var(--text-4);
+  font-size:.75rem;font-weight:600;padding:4px 8px;border-radius:var(--r-full);
+  font-family:'Sora',sans-serif;transition:all var(--t)}
+.chip-clear:hover{color:#DC2626;background:#FEF2F2}
+
+/* ── VILLE DROPDOWN ──────────────────────────────────────────── */
+.sf-ville{position:relative}
+.ville-drop{
+  position:absolute;top:calc(100% + 8px);left:-12px;right:-12px;
+  background:#fff;border:1.5px solid rgba(59,23,114,.1);border-radius:20px;
+  box-shadow:0 24px 64px rgba(12,16,37,.18);z-index:601;
+  overflow:hidden;max-height:360px;overflow-y:auto;display:none}
+.ville-drop.open{display:block;animation:dropIn .15s cubic-bezier(.2,.8,.4,1)}
+.vdrop-cat{font-size:.625rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--text-4);padding:14px 18px 6px;user-select:none}
+.vdrop-item{display:flex;align-items:center;gap:12px;padding:9px 18px;
+  cursor:pointer;border:none;width:100%;text-align:left;background:none;
+  font-family:'Sora',sans-serif;transition:background .1s}
+.vdrop-item:hover,.vdrop-item.vfocused{background:var(--bg-subtle)}
+.vdrop-item-icon{width:34px;height:34px;border-radius:10px;background:var(--brand-light);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vdrop-item-icon svg{width:16px;height:16px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vdrop-item-label{flex:1;font-size:.875rem;font-weight:600;color:var(--text-1);min-width:0;text-align:left}
+.vdrop-item-label mark{background:rgba(59,23,114,.12);color:var(--brand);border-radius:3px;padding:0 2px;font-weight:800}
+.vdrop-item-count{font-size:.6875rem;color:var(--text-4);flex-shrink:0;white-space:nowrap}
+.vdrop-empty{padding:24px 18px;text-align:center;font-size:.875rem;color:var(--text-4)}
+
+/* ── CARD DISPONIBILITÉ BADGE ────────────────────────────────── */
+.avail-badge{display:inline-flex;align-items:center;gap:5px;
+  background:#ECFDF5;color:#059669;border:1px solid #A7F3D0;
+  border-radius:var(--r-full);font-size:.6875rem;font-weight:700;padding:2px 9px}
+.avail-dot{width:6px;height:6px;border-radius:50%;background:#059669;
+  flex-shrink:0;animation:avPulse 1.8s ease infinite}
+@keyframes avPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
+</style>
+<script src="loader.js"></script>
+  <!-- Sentry monitoring -->
+  <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
+  <script src="/js/sentry-config.js"></script>
+  <script src="/js/sentry-init.js"></script>
+</head>
+<body>
+
+<!-- ══ STICKY BOTTOM SEARCH (mobile ≤640px) ══════════════════ -->
+<div id="sticky-bar" aria-label="Recherche rapide">
+  <div class="sbar-inner">
+    <div class="sbar-row">
+      <!-- Spécialité -->
+      <div class="sbar-field">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <select id="sbar-spec">
+          <option value="">Spécialité</option>
+          <option>Médecine générale</option><option>Cardiologie</option>
+          <option>Dermatologie</option><option>Gynécologie-Obstétrique</option>
+          <option>Neurologie</option><option>Ophtalmologie</option>
+          <option>ORL</option><option>Orthopédie</option>
+          <option>Pédiatrie</option><option>Psychiatrie</option>
+          <option>Chirurgie dentaire</option><option>Pneumologie</option>
+        </select>
+      </div>
+      <!-- Ville -->
+      <div class="sbar-field">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <input type="text" id="sbar-ville" placeholder="Ville…" autocomplete="off">
+      </div>
+      <!-- Bouton -->
+      <button class="sbar-btn" onclick="sbarSearch()">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PWA INSTALL BANNER ════════════════════════════════════ -->
+<div id="pwa-banner" role="complementary" aria-label="Installer l'application">
+  <div class="pwa-inner">
+    <div class="pwa-text">
+      <strong>Installer Docline</strong>
+      <!-- Android/Chrome -->
+      <span id="pwa-sub-android">Accédez à vos médecins depuis votre écran d'accueil</span>
+      <!-- iOS Safari -->
+      <span id="pwa-sub-ios" class="pwa-ios-hint" style="display:none">
+        Appuyez sur
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><rect x="3" y="14" width="18" height="8" rx="2"/></svg>
+        puis <strong>« Sur l'écran d'accueil »</strong>
+      </span>
+    </div>
+    <button class="pwa-install-btn" id="pwa-install-btn" onclick="installPWA()">Installer</button>
+    <button class="pwa-dismiss" onclick="dismissPWA()" title="Fermer">✕</button>
+  </div>
+</div>
+
+<!-- ══ NAV ══════════════════════════════════════════════════ -->
+<nav class="nav" id="topnav">
+  <div class="nav-inner">
+    <a href="/find-doctor" class="nav-logo">
+      <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="height:34px;width:auto;display:block" role="img" aria-label="Docline"><g fill="#3B1772"><g><g><path d="M73,0.8c9.6-2,19.8,7.6,17,17.4c-1.9,9.1-14.1,12.8-21.3,7.5c-4.9-2.9-7.8-9.2-6.6-14.8C63.2,5.7,67.7,1.4,73,0.8z M73.9,7.9c-5.5,1.1-6.4,9.1-1.6,11.7c3.4,2.6,9.1,1.4,10.4-2.9C84.8,11.6,78.9,6.4,73.9,7.9z"/></g><g><path d="M37.2,15.5c5.7-0.9,11.7-0.2,16.5,3.1c6.5,4.4,10.5,11.7,13,19.1c8.6-3.8,17.7-7.3,27.2-6.9c7.7,0.4,14.7,5.6,17.4,12.7c2.2,8.9-2,17.7-7.1,24.7c-9.4,13-23.4,23.9-39.8,25.5c-5.3,4.8-13.3,7.6-20.2,4.6c-8.3-3.8-13.4-11.8-17.6-19.5c-6.5-13.5-9.9-28.9-7.6-43.8C20.8,25.7,27.4,16.8,37.2,15.5z M39.1,23.2c-7.9,1.1-12.2,9.6-12.6,16.9c-0.5,14.9,3.6,30,11.9,42.4c3.3,5,8.7,10.7,15.2,8.5c-0.5-2-3.3-2.4-4.4-4.1c-5.7-5.7-9.3-14-8-22.1c0.2-5.6,4.2-10.8,9.6-12.4c6.7-2.5,15.2,0.3,18.6,6.8c4.6,7.6,3.4,17.1,1,25.3c6.8-1.8,12.5-6.3,18-10.7c6.5-6.3,12.9-13.6,15.1-22.6c1.9-5.8-3-11.5-8.5-12.3c-11.8-2.1-21.4,5.7-31.9,9.2c-4.7,1-8.9-3.8-8.4-8.3c1.2-0.8,2.5-0.1,3.8-0.1C56.4,31.1,49.1,21.1,39.1,23.2z M53.9,59.8c-3,0.8-4.7,3.9-4.5,7c-0.7,7.4,4.1,15.5,11.3,17.6c4.4-6.3,4.8-15.5,1-22.2C59.7,60.1,56.8,59,53.9,59.8z"/></g></g><g><path d="M166.9,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-1,0-1.9-0.2-2.7-0.7c-0.8-0.5-1.4-1.1-1.9-1.8c-1.5,0.9-3.2,1.7-4.9,2.2c-1.8,0.5-3.6,0.8-5.5,0.8c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9c0-2.8,0.5-5.4,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c1.8,0,3.5,0.2,5.1,0.6c1.6,0.4,3.2,1,4.6,1.8V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z M137.6,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8v-0.4c-0.1-1.3-0.3-2.5-0.9-3.7c-0.5-1.1-1.2-2.1-2.1-2.9c-0.9-0.8-1.9-1.5-3-2c-1.2-0.5-2.4-0.7-3.7-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C136.9,58.8,137.1,60.1,137.6,61.3z"/><path d="M174.7,49.6c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.9,1.6c2.5,1.1,4.6,2.5,6.4,4.4c1.8,1.8,3.3,4,4.3,6.5c1.1,2.5,1.6,5.1,1.6,7.9c0,2.8-0.5,5.4-1.6,7.9c-1.1,2.5-2.5,4.6-4.3,6.5c-1.8,1.8-4,3.3-6.4,4.3c-2.5,1.1-5.1,1.6-7.9,1.6c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9C173.1,54.7,173.6,52,174.7,49.6z M184.4,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8c0-1.4-0.3-2.6-0.8-3.8c-0.5-1.2-1.2-2.2-2.1-3.1c-0.9-0.9-1.9-1.6-3.1-2.1c-1.2-0.5-2.5-0.7-3.8-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C183.7,58.8,183.9,60.1,184.4,61.3z"/><path d="M233.6,48.7c-1.1,0.6-2,1.3-2.8,2.2c-0.8,0.9-1.4,1.9-1.9,3.1c-0.5,1.1-0.7,2.3-0.7,3.5c0,1.1,0.2,2.3,0.7,3.4c0.5,1.1,1.1,2.1,1.9,3c0.8,0.9,1.7,1.6,2.8,2.2c1.1,0.6,2.3,0.9,3.6,0.9c1.2,0.1,2.3,0,3.4-0.3c1.1-0.3,2.2-0.9,3.4-1.8c0.5-0.4,1.1-0.8,1.7-1.2c0.6-0.4,1.3-0.7,2-0.8c0.7-0.2,1.5-0.1,2.2,0c0.8,0.2,1.6,0.6,2.5,1.4c0.6,0.5,1,1.1,1.3,1.7c0.3,0.7,0.4,1.3,0.4,2.1c0,0.7-0.2,1.4-0.5,2.2c-0.3,0.7-0.8,1.4-1.4,2c-1.8,1.8-3.9,3.2-6.3,4.1c-2.4,0.9-5,1.4-7.6,1.4c-2.9,0-5.6-0.5-8.1-1.6c-2.5-1-4.7-2.5-6.6-4.3c-1.9-1.8-3.4-3.9-4.5-6.4c-1.1-2.5-1.6-5.1-1.6-8c0-2.8,0.5-5.5,1.6-8c1.1-2.5,2.6-4.7,4.5-6.5c1.9-1.8,4.1-3.3,6.6-4.4c2.5-1.1,5.2-1.6,8.1-1.6c2.7,0,5.3,0.5,7.7,1.4c2.4,0.9,4.5,2.3,6.3,4.1c0.6,0.6,1.1,1.3,1.4,2c0.3,0.7,0.5,1.5,0.5,2.2c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.3,1.7c-0.9,0.7-1.7,1.2-2.5,1.4c-0.8,0.2-1.5,0.2-2.2,0c-0.7-0.2-1.4-0.5-2-0.9c-0.6-0.4-1.2-0.8-1.7-1.2c-1.2-0.9-2.3-1.5-3.4-1.7c-1.1-0.3-2.2-0.4-3.4-0.4C235.8,47.9,234.6,48.2,233.6,48.7z"/><path d="M270.7,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M279.2,25.7c0.3-0.7,0.7-1.3,1.2-1.8c0.5-0.5,1.1-0.9,1.8-1.2c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.1,2.2,0.4c0.7,0.3,1.3,0.7,1.8,1.2c0.5,0.5,0.9,1.1,1.2,1.8c0.3,0.7,0.4,1.4,0.4,2.2c0,0.8-0.1,1.5-0.4,2.2c-0.3,0.7-0.7,1.3-1.2,1.8c-0.5,0.5-1.1,0.9-1.8,1.2c-0.7,0.3-1.4,0.4-2.2,0.4c-0.8,0-1.5-0.1-2.2-0.4c-0.7-0.3-1.3-0.7-1.8-1.2c-0.5-0.5-0.9-1.1-1.2-1.8c-0.3-0.7-0.4-1.4-0.4-2.2C278.8,27.1,278.9,26.4,279.2,25.7z M289.8,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.2,0.6,1.6,1.1c0.5,0.5,0.8,1,1.1,1.7c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M303.7,37.1c1.2,0,2.2,0.4,3.1,1.1c0.9,0.7,1.5,1.6,1.8,2.7c1.4-1.2,2.9-2.1,4.5-2.7c1.6-0.7,3.2-1,5-1c2.5,0,4.8,0.5,6.9,1.5s3.9,2.4,5.4,4.2c1.5,1.8,2.7,3.9,3.5,6.3c0.8,2.4,1.3,5,1.3,7.7v15.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.7,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.7,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V56.9c0-1.3-0.2-2.5-0.6-3.6c-0.4-1.1-0.9-2.1-1.5-2.9c-0.7-0.8-1.4-1.5-2.4-2c-0.9-0.5-2-0.7-3.2-0.7c-1.2,0-2.2,0.2-3.2,0.6c-1,0.4-1.8,1-2.5,1.8c-0.7,0.8-1.3,1.7-1.7,2.7c-0.4,1.1-0.6,2.2-0.7,3.5v15.8c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1C302.3,37.2,303,37.1,303.7,37.1z"/><path d="M352.6,62.2c0.8,1.6,2,3,3.6,3.9c1.5,1,3.3,1.5,5.1,1.5c0.8,0,1.4,0,2-0.1c0.6-0.1,1-0.2,1.5-0.4c0.4-0.2,0.8-0.3,1.2-0.6c0.3-0.2,0.7-0.5,1-0.7c0.9-0.7,1.9-1.2,2.7-1.3c0.9-0.1,1.7,0,2.5,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.9,1.1,1.4c0.3,0.5,0.5,1.1,0.7,1.7c0.1,0.6,0.2,1.2,0.1,1.8c-0.1,0.6-0.3,1.2-0.6,1.8c-0.3,0.6-0.8,1.1-1.4,1.6c-0.6,0.5-1.2,1-2,1.4c-0.7,0.5-1.6,0.9-2.6,1.2c-1,0.4-2.1,0.6-3.3,0.9c-1.3,0.2-2.7,0.3-4.3,0.3c-2.8,0-5.5-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.9-1.8-3.3-4-4.4-6.4c-1.1-2.5-1.6-5.1-1.6-7.9s0.5-5.5,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.9-1.8,4-3.3,6.5-4.3c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.8,1.6c2.5,1,4.6,2.5,6.5,4.3c1.8,1.8,3.3,3.9,4.4,6.4c1.1,2.4,1.7,5,1.7,7.8c0,1.5-0.5,2.7-1.4,3.6c-1,0.9-2.2,1.4-3.8,1.4H352.6z M370.8,53.4c-0.7-1.9-1.9-3.4-3.6-4.5c-1.7-1.1-3.6-1.7-5.8-1.7c-1.1,0-2.1,0.2-3.1,0.5c-1,0.3-1.8,0.7-2.6,1.3c-0.8,0.6-1.5,1.2-2.1,2c-0.6,0.8-1.1,1.6-1.4,2.5H370.8z"/></g></g></svg>
+    </a>
+    <span style="flex:1"></span>
+    <a href="/login" class="nav-cta">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Espace Praticiens
+    </a>
+  </div>
+</nav>
+
+<!-- ══ HERO — Dark Aurora ══════════════════════════════════ -->
+<section class="hero">
+  <!-- Aurora blobs -->
+  <div class="aurora-blob blob-1" aria-hidden="true"></div>
+  <div class="aurora-blob blob-2" aria-hidden="true"></div>
+  <div class="aurora-blob blob-3" aria-hidden="true"></div>
+  <div class="aurora-blob blob-4" aria-hidden="true"></div>
+  <!-- Grain + grid overlays -->
+  <div class="hero-grain" aria-hidden="true"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-inner">
+
+    <!-- Left: text + search -->
+    <div class="hero-left">
+      <div class="hero-badge">
+        <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="height:64px;width:auto;display:block" role="img" aria-label="Votre médecin, à portée de cœur"><g fill="#3B1772"><path d="M92,32.4c-0.2,0-0.5,0.1-0.7,0.2c-2.5,1.1-5.1,1.6-7.7,2c-3,0.4-5.9,0.6-8.9,0.7c-2.4,0.1-4.8,0.2-7.3,0.2c-0.1,0-0.3,0-0.5-0.1c0-0.2,0.2-0.4,0.3-0.6c0.5-0.7,1-1.4,1.4-2.1c0.7-1,1.4-2.1,2-3.2c0.2-0.4,0.5-0.7,0.5-1.2c0.1-0.4-0.1-0.8-0.5-1c-0.3-0.1-0.7-0.1-1,0.3c-0.2,0.3-0.4,0.6-0.6,0.9c-0.3,0.5-0.7,1-1.1,1.4c-2.1,1.8-4.3,3.5-6.4,5.1c-0.3,0.2-0.6,0.4-1,0.4c-1.2,0-2.4-0.1-3.6-0.1c-3.1,0-6.1-0.1-9.2,0c0.3-0.3,0.5-0.6,0.8-0.9c2.4-2.6,4.6-5.4,7.3-7.8c0.1-0.1,0.2-0.2,0.1-0.4c-0.1-0.1-0.2-0.1-0.4,0c-0.1,0.1-0.2,0.2-0.4,0.3c-0.2,0.2-0.5,0.5-0.7,0.8c-1.9,2.1-3.8,4.1-5.7,6.2c-0.6,0.6-1.1,1.2-1.7,1.8c-2,0-4,0.1-6,0.3c-1.2,0.1-2.4,0.2-3.5,0.5c-0.2,0-0.4,0.1-0.5,0.2c-0.2,0.1-0.3,0.2-0.3,0.4c0,0.2,0.2,0.3,0.4,0.4c0.2,0.1,0.5,0.1,0.7,0.1c0.5,0.1,1.1,0.1,1.6,0.1c1.8,0.1,3.7,0.2,5.5,0.4c-0.5,0.5-0.9,1-1.4,1.5c-2,2.2-4,4.3-5.9,6.5c-1.6,1.7-3.2,3.5-4.8,5.2c-2.5,2.6-4.9,5.2-7.6,7.5c-1.1,0.9-2.4,1.9-3.7,2.5c-0.4,0.2-0.7,0.3-1.2,0.4c-0.5,0-0.7-0.1-0.8-0.5c-0.1-0.3-0.1-0.6-0.1-0.9c0-1,0.2-2,0.5-3c0.7-2.5,1.6-5,2.5-7.4c1.1-3.2,2.5-6.3,3.8-9.5c1-2.5,2-5.1,2.7-7.7c0.4-1.5,0.7-3,0.6-4.5c-0.1-2.3-1.3-3.8-3.5-4.2c-0.7-0.1-1.5-0.2-2.1-0.2c-1.4,0-2.6,0.2-3.8,0.5c-4.5,1-8.5,3.2-12.1,6.1c-0.8,0.7-1.6,1.5-2.1,2.4C5,33.7,5.2,35,6.5,35.9c0.3,0.2,0.6,0.5,1,0.7c1.2,0.7,2.6,1.3,4,1.9c1.4,0.6,2.8,1.2,4.1,2c0.9,0.5,1.5,1.1,1.8,2.1c0,0,0,0.1,0,0.1c0,0.1,0.1,0.1,0.2,0.1c0.1,0,0.2-0.1,0.1-0.2c0-0.5-0.2-1-0.6-1.5c-0.4-0.5-1-1-1.6-1.3c-1.3-0.8-2.7-1.4-4.1-2c-1.4-0.6-2.9-1.3-4.1-2.3c-1-0.8-1.2-1.6-0.4-2.7c0.5-0.6,1.1-1.2,1.7-1.7c1.9-1.4,3.8-2.6,5.9-3.5c2.7-1.2,5.4-2.1,8.4-2.4c1-0.1,2,0,3,0.2c1,0.2,1.6,0.9,1.8,1.9c0.2,1.2,0,2.3-0.2,3.5c-0.6,2.7-1.6,5.3-2.7,8c-1.4,3.5-2.8,6.9-4.1,10.4c-1,2.7-1.9,5.4-2.4,8.2c-0.2,1-0.3,2.1-0.1,3.2c0.4,1.7,1.4,2.4,3.1,1.8c0.9-0.3,1.6-0.7,2.3-1.2c1.9-1.3,3.5-2.8,5-4.4c3.2-3.3,6.2-6.7,9.3-10.1c2.6-2.9,5.3-5.9,7.9-8.8c0.4,0.1,0.9,0.1,1.3,0.2c2.6,0.4,5.1,0.9,7.6,1.8c0.2,0.1,0.5,0.1,0.7,0.4c-1.4,1.2-2.8,2.3-4.2,3.4c-0.2,0.1-0.4,0.2-0.6,0c-0.5-0.3-1-0.2-1.4-0.1c-0.6,0.2-1.2,0.4-1.7,0.7c-1.4,0.8-2.7,1.7-3.7,3.1c-0.6,0.7-0.9,1.6-0.9,2.5c0.1,1.6,1.2,2.7,2.9,2.7c0.6,0,1.1-0.1,1.6-0.3c1.2-0.5,2.3-1.2,3.2-2.1c1-0.9,1.7-2,2.1-3.4c0.2-1.1,0-2.1-1-2.7c0,0,0-0.1-0.1-0.1c1.4-1.1,2.7-2.2,4.1-3.3c0.1-0.1,0.2-0.1,0.4-0.1c0.6,0.1,1,0.7,0.8,1.3c-0.1,0.2-0.2,0.3,0,0.5c0.2,0.1,0.4-0.1,0.5-0.2c0.1-0.1,0.1-0.3,0.1-0.4c0.1-0.5-0.1-0.8-0.5-1.1c-0.5-0.4-0.5-0.5,0-0.9c1.1-0.9,2.1-1.7,3.2-2.6c0.5-0.4,1-0.6,1.6-0.6c0.4,0.1,0.8,0,1.2,0c0.3,0,0.7,0,1,0.1c0,0.2-0.1,0.4-0.2,0.5c-4.2,6.3-8.2,12.8-12.1,19.2c-3.1,5-6,10-8.5,15.3c-0.1,0.2-0.2,0.4-0.3,0.6c0,0.1,0,0.2,0.1,0.3s0.2,0,0.3,0c0.2-0.2,0.2-0.4,0.4-0.6c0.8-1.5,1.6-3.1,2.5-4.6c2.6-4.7,5.5-9.3,8.5-13.8c3.6-5.6,7.4-11,11.3-16.3c0.2-0.4,0.6-0.5,1-0.5c2.4,0,4.7,0.1,7.1,0c2.6,0,5.3,0,7.9-0.2c2-0.2,4-0.4,5.9-0.8c1.5-0.4,2.9-0.8,4.2-1.6c0.3-0.2,0.6-0.4,0.7-0.7c0.1-0.2,0.2-0.4,0.1-0.6C92.4,32.5,92.2,32.4,92,32.4z M51.9,45.7c0.1,0.6,0,1.2-0.3,1.7c-0.6,1.2-1.5,2.2-2.7,2.9c-0.9,0.5-1.8,1-2.8,1.1c-0.1,0-0.1,0-0.2,0c-1.2,0-1.9-0.8-1.4-2c0.2-0.6,0.6-1.2,1.1-1.7c1-1,2.1-1.8,3.4-2.4c0.2-0.1,0.4-0.1,0.6-0.2c0.5,0,0.9-0.1,1.2-0.5c0.2-0.2,0.4-0.1,0.6,0C51.8,45,51.9,45.3,51.9,45.7z M45.6,37c-1.8-0.3-3.7-0.4-5.6-0.4c-0.1,0-0.3,0-0.4,0c-0.2,0-0.5,0-0.8-0.1c0.9-0.2,1.8-0.2,2.7-0.3c1.7-0.1,3.3-0.2,5-0.2C46.2,36.4,45.9,36.7,45.6,37z M59.7,36.7c-1.2,0.9-2.4,1.8-3.5,2.8c-0.3,0.2-0.5,0.2-0.9,0.1c-2.7-1.1-5.6-1.9-8.5-2.4c-0.1,0-0.3,0-0.4-0.1c0.3-0.4,0.6-0.7,1-1.1c1.5,0,3.1,0,4.6,0c2.6,0,5.1,0.1,7.7,0.2c0.1,0,0.2,0,0.3,0.1C59.9,36.6,59.8,36.6,59.7,36.7z M65,35.1c-0.2,0.2-0.4,0.4-0.7,0.4c-0.7,0-1.4,0-2.1-0.1c1.9-1.5,3.7-3,5.6-4.6c0,0,0.1,0.1,0.1,0.1c-0.3,0.5-0.6,0.9-0.9,1.4C66.2,33.2,65.6,34.2,65,35.1z"/><path d="M84.5,49.6c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.1-0.1,0.3-0.2,0.4c-0.2,0.2-0.3,0.3-0.5,0.4c-0.7,0.3-1.4,0.5-2.1,0.4c-1.1,0-1.8-0.6-2-1.6c-0.1-0.5-0.1-0.9-0.1-1.4s0-0.9-0.2-1.4c-0.2-0.8-0.9-1-1.5-0.5c-0.5,0.3-0.9,0.7-1.3,1.1c-1,1.1-2,2.3-2.9,3.6c-0.5,0.7-0.9,1.4-1.5,1.9c0.2-0.6,0.6-1.1,0.9-1.6c0.7-1.1,1.4-2.1,2-3.2c0.1-0.2,0.3-0.5,0.3-0.8c0.1-0.6-0.4-0.9-0.9-0.7c-0.3,0.1-0.5,0.3-0.7,0.6c-0.6,0.6-1,1.4-1.5,2.1c-0.5,0.9-0.9,1.7-1.1,2.7c-0.1,0.5-0.1,0.9,0,1.4c0.2,0.5,0.5,0.6,0.9,0.3c0.1-0.1,0.3-0.2,0.4-0.4c0.2-0.3,0.5-0.6,0.7-1c0.9-1.2,1.8-2.5,2.8-3.7c0.5-0.5,1-1.1,1.6-1.5c0.5-0.4,0.6-0.3,0.7,0.4c0,0.1,0,0.2,0,0.3c0.1,0.6,0.1,1.3,0.4,1.9c0.3,0.9,0.9,1.5,1.9,1.8c1.3,0.4,2.5,0.1,3.5-0.6c-0.1,0.3-0.1,0.6-0.1,0.9c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2.1-0.8,4.2-1.9,6.2-3c0.1-0.1,0.2-0.1,0.2-0.3c-0.2,0-0.4,0.1-0.6,0.2C86.5,48.6,85.5,49.1,84.5,49.6z M77.9,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C77.7,47.7,77.7,47.5,77.9,47.3z"/><path d="M116.6,42.6c0.4-0.2,0.8-0.5,1.2-0.7c0.7-0.4,1.4-0.8,2.1-1.2c0.2-0.1,0.4-0.3,0.4-0.6c0-0.4-0.2-0.6-0.6-0.6c-0.2,0-0.4,0.2-0.5,0.4c-0.6,0.7-1.3,1.3-2.1,1.8c-0.2,0.2-0.5,0.4-0.7,0.6c-0.2,0.1-0.6,0.3-0.4,0.5C116.2,43,116.5,42.7,116.6,42.6z"/><path d="M168.4,43.4c0.2,0,0.4-0.1,0.6-0.2c0.5-0.2,1-0.5,1.5-0.6c0.2-0.1,0.5-0.1,0.7,0c0.2,0.1,0.4,0.1,0.5-0.1c0.1-0.2-0.1-0.3-0.2-0.4c-0.3-0.2-0.6-0.2-0.9-0.2c-0.8,0-1.6,0.2-2.3,0.5c-0.1,0-0.2,0.1-0.4,0.2c-0.2,0.2-0.3,0.4-0.2,0.6C167.9,43.2,168.1,43.4,168.4,43.4z"/><path d="M184.9,47.8c-0.1-0.1-0.2,0-0.2,0c-0.1,0.1-0.2,0.2-0.3,0.2c-0.6,0.7-1.3,1.3-2,2c-0.7,0.7-1.5,1.4-2.3,1.9c-0.5,0.3-1.1,0.6-1.7,0.6s-1-0.2-1-0.9c0-0.5,0.2-1,0.4-1.4c0.4-0.7,0.8-1.3,1.3-2c0.4-0.5,0.7-1,1-1.6c0.1-0.3,0.2-0.7,0.3-1c0.1-0.9-0.5-1.5-1.4-1.5c-0.4,0-0.7,0.2-1,0.4c-0.7,0.4-1.3,1-1.9,1.5c-1.1,1-2.1,2.1-3.1,3.2c0.6-1.1,1.3-2.1,2-3.2c0.1-0.2,0.3-0.5,0.4-0.7c0.2-0.6,0.2-1-0.2-1.2c-0.4-0.3-0.9-0.1-1.2,0.4c-0.3,0.4-0.6,0.9-0.9,1.4c-0.5,0.8-1,1.5-1.3,2.3c-1.7,1.7-3.4,3.5-5.3,5.2c-0.6,0.6-1.3,1.1-2.1,1.5c-0.4,0.2-0.9,0.4-1.2,0c-0.4-0.3-0.3-0.8-0.2-1.2c0.2-1.2,0.9-2.3,1.6-3.3c1-1.5,2-2.9,3.1-4.3c0.1-0.2,0.3-0.4,0.4-0.6c0.2-0.4,0.1-0.8-0.3-1.1c-0.3-0.2-0.6-0.2-1,0c-0.2,0.1-0.3,0.3-0.4,0.5c-0.5,0.6-1,1.3-1.4,2c-0.2,0.3-0.4,0.5-0.5,0.8c-1.5,0.7-2.9,1.4-4.4,2c-1.5,0.6-2.9,1.3-4.5,1.5c-0.6,0.1-1.2,0.1-1.7-0.1c-0.7-0.2-1-0.9-0.8-1.6c0.1-0.4,0.3-0.7,0.5-1c0.6-0.8,1.3-1.6,2.2-2.2c0.8-0.5,1.6-1.1,2.5-1.4c1-0.3,1.5,0,1.6,1c0,0.2,0,0.5,0.1,0.7c0,0.1,0,0.2,0.1,0.2c0.1,0,0.2,0,0.2-0.1c0-0.1,0.1-0.3,0.1-0.4c0-0.5-0.1-1.1-0.4-1.6c-0.3-0.6-0.8-1-1.5-1.1c-1-0.1-1.9,0.1-2.7,0.6c-1.1,0.6-2.1,1.4-2.9,2.4c-0.4,0.4-0.6,0.9-0.8,1.4c0,0,0,0,0,0c-1,0.5-2,1-3,1.5c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.1-0.1,0.2-0.2,0.4c-0.8,0.6-1.6,1.1-2.5,1.6c-1.1,0.7-2.2,1.5-3.4,2.1c-0.3,0.2-0.6,0.3-1,0.4c-0.6,0.1-0.9-0.1-0.9-0.7c0-0.5,0.1-1,0.4-1.4c0.8-1.6,1.9-3.1,3-4.5c0.1-0.1,0.1-0.3,0.3-0.3c0.1,0.5-0.2,1,0.2,1.4c0.3-0.3,0.2-0.6,0.2-0.9c0-0.8,0.2-1.5,0.8-2.2c1.3-1.4,2.5-2.9,3.7-4.3c2.4-2.6,4.7-5.3,6.9-8c0.6-0.7,1.2-1.5,1.6-2.4c0.2-0.5,0.4-0.9,0.5-1.4c0.1-1-0.6-1.6-1.6-1.4c-0.5,0.1-0.9,0.3-1.3,0.5c-2,1-3.6,2.4-5,4.1c-2.5,3.2-4.2,6.9-5.3,10.8c-0.1,0.4-0.2,0.7-0.4,1c-0.8,1-1.5,2-2.3,3c-0.1,0.1-0.1,0.4-0.4,0.4c-0.1-0.1-0.1-0.2-0.2-0.3c-0.3-0.7-0.8-1.1-1.6-1.2c-0.6,0-1.1,0-1.6,0.2c-1.4,0.6-2.6,1.4-3.7,2.4c-0.4,0.3-0.7,0.7-1.1,1.2c0,0,0,0,0,0c-1,0.5-2,1-3,1.5c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.2-0.2,0.4-0.3,0.7c-0.9,0.7-1.9,1.4-2.8,2c-0.6,0.4-1.3,0.8-2,1.1c-0.3,0.1-0.6,0.3-1,0.4c-0.8,0.1-1.1-0.2-0.9-1c0.1-0.2,0.1-0.4,0.2-0.5c0.1-0.3,0.3-0.6,0.5-0.9c0.1-0.2,0.2-0.4,0.2-0.6c0-0.4,0-0.7-0.4-0.9c-0.3-0.2-0.6-0.1-0.9,0.1c-1.1,0.8-2.1,1.8-2.9,2.9c-0.1,0.2-0.2,0.5-0.5,0.5c-0.1-0.2,0-0.4,0-0.5c0.2-0.8,0.6-1.5,1-2.2c0.5-0.9,1-1.8,1.6-2.7c0.2-0.4,0.4-0.8,0.5-1.3c0-0.3-0.1-0.6-0.4-0.8c-0.3-0.2-0.6,0-0.8,0.2c-0.1,0.1-0.3,0.3-0.4,0.5c-0.2,0.3-0.5,0.6-0.8,0.9c-1.6,1.5-3.2,3-4.7,4.6c-0.5,0.5-1,1-1.6,1.5c-0.1,0.1-0.2,0.2-0.5,0.1c0-0.2,0.1-0.4,0.2-0.5c0.9-1.5,1.7-3.1,2.8-4.5c0.1-0.2,0.3-0.4,0.4-0.6c0.2-0.4,0.1-0.8-0.1-1c-0.3-0.2-0.6-0.2-1,0c-0.4,0.2-0.6,0.5-0.8,0.8c-0.7,1-1.4,2-2,3.1c-0.4,0.6-0.6,1.3-0.7,2.1c0,0.3,0,0.5,0,0.8c0.2,0.8,0.7,1,1.4,0.6c0.2-0.1,0.5-0.3,0.7-0.5c0.4-0.4,0.8-0.7,1.1-1.1c1-1.1,2-2.1,3.1-3.2c0.4-0.4,0.9-0.8,1.3-1.2c0.1,0.1,0,0.2,0,0.3c-0.5,1.3-0.9,2.7-1.2,4.1c-0.1,0.4-0.1,0.7,0.1,1c0.2,0.5,0.6,0.5,1,0.2c0.2-0.2,0.4-0.5,0.6-0.7c0.5-0.7,1-1.4,1.7-1.9c0.2-0.1,0.3-0.3,0.6-0.2c0.1,0.2,0,0.4,0,0.5c-0.1,0.6-0.1,1.2,0.1,1.8c0.2,0.6,0.8,0.9,1.5,0.8c0.4-0.1,0.9-0.2,1.3-0.5c1.6-0.8,3.1-1.9,4.5-3c0,0.2-0.1,0.5-0.1,0.7c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c1.9-0.7,3.7-1.7,5.5-2.6c-0.3,0.4-0.4,0.9-0.4,1.4c0,1.1,0.6,1.6,1.7,1.2c0.6-0.2,1.2-0.5,1.7-0.9c1.4-0.8,2.7-1.8,4.1-2.7c0.2-0.1,0.3-0.3,0.5-0.3c0,0.2,0,0.3-0.1,0.4c-0.4,0.7-0.7,1.5-0.9,2.4c-0.1,0.6-0.1,1.1,0,1.7c0.2,0.7,0.7,1,1.5,0.8c0.7-0.1,1.3-0.5,1.9-0.9c1.7-1,3.2-2.1,4.8-3.2c-0.1,0.3-0.1,0.6-0.1,1c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2-0.8,3.9-1.8,5.7-2.8c0,0.1,0,0.1,0,0.2c-0.2,1.2,0.1,2.3,1.1,2.8c0.6,0.4,1.3,0.5,2,0.4c1.1-0.1,2.1-0.5,3.2-0.9c2-0.8,3.9-1.8,5.9-2.7c-0.8,1.4-1.4,2.9-1.8,4.4c-0.1,0.6-0.2,1.3,0,2c0.2,0.6,0.6,0.9,1.2,0.9c0.6,0,1.1-0.2,1.5-0.5c1-0.5,1.8-1.3,2.6-2.1c1.3-1.3,2.6-2.6,3.9-4c-0.2,0.7-0.3,1.5-0.1,2.2c0.1,0.5,0.4,0.6,0.8,0.2c0.2-0.3,0.5-0.6,0.7-0.9c1.1-1.6,2.4-3,3.8-4.3c0.5-0.4,0.9-0.8,1.5-1.1c0.2-0.1,0.5-0.3,0.6-0.1c0.2,0.2,0,0.4-0.1,0.6c-0.4,0.8-0.9,1.6-1.2,2.4c-0.5,1-0.8,2-0.7,3c0.1,1.6,1.1,2.3,2.6,1.7c0.8-0.3,1.5-0.8,2.1-1.3c0.8-0.6,1.5-1.4,2.3-2.1c0.5-0.4,0.9-0.9,1.3-1.3C184.9,48,185,47.9,184.9,47.8z M142.3,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C142.1,47.7,142.1,47.5,142.3,47.3z M137.3,40.5c1.1-3.3,2.5-6.5,4.7-9.3c1.2-1.5,2.5-2.7,4.2-3.7c0.5-0.2,0.9-0.5,1.4-0.6c0.2-0.1,0.5-0.2,0.7,0c0.2,0.2,0,0.5-0.2,0.7c-0.1,0.3-0.3,0.5-0.5,0.8c-1.4,2-3,3.8-4.6,5.6c-1.8,2-3.5,4.1-5.2,6.2c-0.1,0.2-0.3,0.4-0.5,0.5C137.2,40.7,137.3,40.6,137.3,40.5z M115.7,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C115.5,47.7,115.5,47.5,115.7,47.3z M126.7,50.3c-0.2,0.1-0.5,0.3-0.9,0.3c-0.2,0-0.4-0.1-0.2-0.4c0-0.1,0.1-0.2,0.2-0.3c1.6-1.9,3.5-3.4,5.8-4.2c0.2-0.1,0.3-0.1,0.5-0.1c0.4,0,0.7,0.3,0.7,0.7c0,0.2-0.1,0.3-0.3,0.4C130.7,47.9,128.8,49.3,126.7,50.3z"/><path d="M188.1,50.5c-0.3-0.1-0.6,0-0.8,0.2c-0.2,0.2-0.3,0.6-0.4,0.9c-0.2,0.8-0.6,1.4-1.1,2c-0.3,0.3-0.6,0.6-1,0.9c-0.1,0.1-0.2,0.2-0.1,0.4c0.1,0.1,0.2,0.2,0.4,0.2c0.2,0,0.4-0.1,0.6-0.3c0.5-0.4,0.9-0.7,1.4-1.1c0.5-0.5,1-1.1,1.3-1.9c0.1-0.2,0.1-0.4,0.2-0.5C188.5,50.9,188.4,50.6,188.1,50.5z"/><path d="M211.5,48.2c0.1-0.1,0.2-0.1,0.2-0.3c-0.2-0.1-0.4,0.1-0.5,0.2c-0.9,0.5-1.8,1.1-2.7,1.7c-1,0.6-2.1,1.2-3.2,1.7c-0.4,0.1-0.7,0.3-1.1,0.3c-0.5,0-0.6-0.2-0.5-0.7c0.1-0.3,0.3-0.6,0.5-0.9c0.5-0.7,1.1-1.3,1.7-2c0.2-0.2,0.5-0.5,0.5-0.8c0-0.6,0.1-1.3,0-1.9c-0.2-0.9-0.6-1.4-1.6-1.6c-0.8-0.1-1.5,0-2.2,0.3c-1.8,0.8-3.3,2-4.6,3.6c-0.6,0.7-0.9,1.5-0.8,2.5c0,0.7,0.5,1.1,1.2,1c0.2,0,0.5-0.1,0.7-0.2c0.5-0.2,1-0.5,1.5-0.9c1-0.6,2-1.3,3.1-1.9c0.1-0.1,0.2-0.1,0.4-0.2c-0.2,0.5-0.5,0.9-0.7,1.4c-0.2,0.5-0.4,1.1-0.4,1.6c0,0.8,0.5,1.2,1.3,1.2c0.5,0,0.9-0.2,1.3-0.4C207.6,50.8,209.5,49.5,211.5,48.2z M199.6,50.1c-0.3,0.2-0.7,0.4-1.1,0.5c-0.1,0.1-0.3,0.1-0.4,0c-0.1-0.1,0-0.2,0.1-0.4c0.1-0.1,0.1-0.2,0.2-0.2c1.6-1.9,3.3-3.5,5.7-4.4c0.2-0.1,0.4-0.1,0.6-0.2c0.1,0,0.2,0,0.2,0c0.5,0,1.1,0.7,0.9,1.2c0,0.1-0.1,0.1-0.1,0.2C203.6,47.7,201.6,48.9,199.6,50.1z"/><path d="M201.4,38.3c0.7,0.4,1.4,0.8,2.1,1.2c0.4,0.2,0.8,0.5,1.2,0.7c0.2,0.1,0.4,0.4,0.6,0.2c0.2-0.2-0.2-0.4-0.4-0.5c-0.2-0.2-0.5-0.4-0.8-0.6c-0.7-0.5-1.4-1.1-2.1-1.8c-0.1-0.2-0.3-0.3-0.5-0.4c-0.4,0-0.6,0.2-0.6,0.6C201,38,201.2,38.2,201.4,38.3z"/><path d="M296.9,30.5c-0.2,0.1-0.5,0.2-0.7,0.2c-1.4,0.6-2.9,1-4.5,1.4c-4,0.8-8.1,1.1-12.3,1.3c-2.2,0.1-4.4,0.2-6.7,0.1c-0.2,0-0.5,0-0.7-0.1c0-0.2,0.2-0.4,0.3-0.6c0.8-1.2,1.6-2.4,2.4-3.5c0.5-0.7,0.9-1.5,1.3-2.2c0.1-0.3,0.3-0.6,0.2-0.9c0-0.4-0.1-0.6-0.5-0.8c-0.3-0.2-0.6-0.1-0.9,0.2c-0.1,0.2-0.3,0.4-0.4,0.6c-1.3,2.4-2.8,4.6-4.4,6.8c-0.3,0.4-0.6,0.6-1.1,0.5c-2.3,0-4.6,0-6.9-0.1c-5.3-0.1-10.7-0.2-16.1,0.2c-1.2,0.1-2.4,0.2-3.5,0.5c-0.2,0.1-0.5,0.1-0.6,0.3c-0.2,0.2-0.2,0.4,0,0.6c0.1,0.1,0.3,0.1,0.4,0.1c0.7,0.2,1.4,0.2,2.1,0.2c2.6,0.1,5.1,0.3,7.6,0.7c2.5,0.4,4.9,0.9,7.3,1.7c0.6,0.2,1.3,0.5,1.9,0.9c0.6,0.4,0.6,0.6,0.4,1.2c-0.1,0.1-0.1,0.2,0,0.3c0.1,0.1,0.2,0,0.3-0.1c0.4-0.4,0.4-1,0.1-1.4c-0.3-0.4-0.6-0.6-1.1-0.9c-0.6-0.4-1.3-0.6-2-0.9c-4.4-1.5-8.9-2.3-13.6-2.4c-0.5,0-1,0-1.6-0.2c2-0.3,3.9-0.3,5.8-0.4c4.2-0.1,8.5,0,12.7,0.2c1.9,0.1,3.8,0.1,5.8,0.2c0.2,0,0.5-0.1,0.7,0.1c0,0.3-0.2,0.4-0.3,0.6c-1.1,1.6-2.2,3.2-3.2,4.9c-1.6,2.5-3.1,5-4.7,7.5c-0.1,0-0.1,0.1-0.2,0.1c-0.1,0.3-0.4,0.4-0.7,0.6c-0.7,0.3-1.4,0.5-2.1,0.4c-1.1,0-1.8-0.6-2-1.6c-0.1-0.5-0.1-0.9-0.1-1.4s0-0.9-0.2-1.4c-0.2-0.8-0.9-1-1.5-0.5c-0.5,0.3-0.9,0.7-1.3,1.1c-1,1.1-2,2.3-2.9,3.6c-0.5,0.7-0.9,1.4-1.5,1.9c0.2-0.6,0.6-1.1,0.9-1.6c0.7-1.1,1.4-2.1,2-3.2c0.1-0.2,0.3-0.5,0.3-0.8c0.1-0.6-0.4-0.9-0.9-0.7c-0.3,0.1-0.5,0.3-0.7,0.6c-0.6,0.6-1,1.4-1.5,2.1c-0.2,0.3-0.4,0.6-0.5,1c-0.3,0-0.5,0.1-0.8,0.2c-0.9,0.2-1.7,0.5-2.6,0.7c-0.4,0.1-0.8,0.1-1.2,0c-0.6-0.2-0.7-0.5-0.4-1c0.2-0.4,0.4-0.8,0.5-1.2c0.2-1.2-0.4-2.3-1.6-2.7c-0.6-0.2-1.2-0.2-1.7-0.1c-1.8,0.4-3.3,1.4-4.3,3c-0.2,0.3-0.4,0.7-0.5,1.1c0,0,0,0,0,0c-0.6,0-1.1,0.1-1.6,0.3c-0.8,0.3-1.6,0.6-2.4,0.9c-0.7,0.3-1.6,0.3-2.4,0.2c0.2-0.5,0.5-1,0.6-1.5c0.2-0.5,0.4-1.1,0.2-1.7c-0.2-0.8-0.8-1.2-1.6-1c-0.4,0.1-0.7,0.3-1,0.6c-0.5,0.4-1,0.7-1.5,1.2c-0.2,0.2-0.4,0.2-0.6,0c-0.4-0.3-0.7-0.6-1.1-0.8c-0.2-0.1-0.2-0.3-0.1-0.5c0.1-0.2,0.2-0.5,0.2-0.7c0.1-0.3,0-0.5-0.2-0.7c-0.2-0.1-0.5-0.1-0.7,0.1c-0.1,0.1-0.2,0.2-0.3,0.3c-0.2,0.4-0.6,0.4-1,0.3c-0.4-0.2-0.9-0.2-1.4-0.2c-1.4,0.1-2.4,0.9-3.1,2.1c-0.9,1.5-1,3.1-0.3,4.8c0.2,0.5,0.1,0.8-0.1,1.2c-2.1,3.2-4.1,6.4-6,9.7c-1.6,2.7-3.1,5.4-4.3,8.3c-0.5,1.1-0.9,2.2-1.2,3.4c0,0.2-0.1,0.5-0.1,0.8s0.3,0.4,0.5,0.2c0.2-0.1,0.4-0.4,0.5-0.6c0.6-0.9,1.1-1.7,1.7-2.6c3.1-4.7,6.3-9.4,9.4-14.1c0.7-1,1.4-2,2-3c0.2-0.4,0.5-0.5,1-0.4c0.2,0.1,0.5,0.1,0.7,0.1c1.2,0.1,2.3-0.4,3.3-1c1.5-0.9,2.8-2.1,3.8-3.5c0.3-0.4,0.6-0.5,1-0.4c0.2,0.1,0.5,0,0.8,0c0.9-0.1,1.7-0.4,2.6-0.8c0.9-0.4,1.8-0.8,2.8-0.9c-0.1,0.4-0.1,0.7-0.1,1.1c0,1,0.6,1.7,1.6,2c0.9,0.2,1.7,0,2.6-0.3c1-0.4,1.9-1,2.6-1.8c0.2-0.2,0.4-0.3,0.7-0.1c0.3,0.2,0.7,0.3,1.1,0.3c0.4,0,0.9-0.1,1.3-0.2c0.9-0.3,1.7-0.6,2.6-0.8c-0.2,0.4-0.3,0.9-0.4,1.3c-0.1,0.5-0.1,0.9,0,1.4c0.2,0.5,0.5,0.6,0.9,0.3c0.1-0.1,0.3-0.2,0.4-0.4c0.2-0.3,0.5-0.6,0.7-1c0.9-1.2,1.8-2.5,2.8-3.7c0.5-0.5,1-1.1,1.6-1.5c0.5-0.4,0.6-0.3,0.7,0.4c0,0.1,0,0.2,0,0.3c0.1,0.6,0.1,1.3,0.4,1.9c0.3,0.9,0.9,1.5,1.9,1.8c1.3,0.4,2.4,0.1,3.4-0.5c-1,1.6-2.1,3.3-3.1,4.9c-3.2,5.3-6.3,10.6-9,16.2c-0.1,0.2-0.1,0.4-0.2,0.5c0,0.1,0,0.2,0.1,0.3c0.1,0.1,0.2,0,0.3-0.1c0.2-0.1,0.2-0.4,0.4-0.5c0.6-1.1,1.2-2.3,1.9-3.5c2.9-5.3,6.1-10.4,9.4-15.4c3.5-5.4,7.2-10.7,11-15.9c0.2-0.4,0.5-0.5,1-0.5c2.4,0,4.8,0.1,7.2,0c2.6,0,5.2,0,7.7-0.3c2-0.2,4-0.4,5.9-0.8c1.4-0.3,2.7-0.7,4-1.5c0.3-0.2,0.6-0.4,0.9-0.7c0.2-0.2,0.3-0.5,0.1-0.7C297.5,30.5,297.2,30.4,296.9,30.5z M218.1,46.3c0.8-1,2-1.4,3.2-1c0.6,0.2,0.6,0.2,0.2,0.7c-1.1,1.4-2.1,2.8-3.1,4.3c-0.2,0.4-0.5,0.7-0.7,1c-0.1,0-0.2-0.1-0.2-0.2C216.7,49.5,216.9,47.8,218.1,46.3z M219,54.6c-0.5,0.7-0.9,1.4-1.4,2c-2,3-4,5.9-6,8.8c-1.8,2.6-3.5,5.2-5.2,7.9c-0.1,0.1-0.1,0.2-0.2,0.2c-0.1-0.2,0.1-0.3,0.1-0.5c1.8-4.1,4.1-7.9,6.5-11.7c1.6-2.4,3.1-4.8,4.8-7.1c0.5-0.7,0.5-0.7,1.2-0.2C219.3,54.3,219.3,54.3,219,54.6z M220.1,53.1c-0.1,0.1-0.2,0.3-0.5,0.3c-0.3,0-0.6-0.2-0.8-0.4c-0.1-0.1-0.1-0.2,0-0.3c0.1-0.2,0.2-0.4,0.4-0.6c1.2-1.7,2.5-3.4,3.7-5.2c0.2-0.4,0.3-0.4,0.7-0.1c0.2,0.2,0.5,0.4,0.8,0.6c0.2,0.2,0.2,0.4,0,0.6c0,0-0.1,0-0.1,0.1C222.8,49.6,221.5,51.3,220.1,53.1z M227,49.6c-1.3,1.7-2.8,3.1-4.9,3.9c-0.5,0.2-1.1,0.3-1.6,0.2c0-0.2,0-0.3,0.1-0.4c1.3-1.7,2.6-3.3,4.1-4.8c0.4-0.5,0.5-0.5,1-0.1c0.4,0.3,0.7,0.5,1.1,0.7C227.2,49.2,227.2,49.3,227,49.6z M228.6,46.5c-0.1,0.7-0.5,1.3-0.9,1.9c-0.1,0.2-0.3,0.2-0.5,0.1c-0.5-0.3-1-0.6-1.5-1.1c0.6-0.6,1.2-1,1.9-1.4c0.1-0.1,0.1-0.1,0.2-0.1C228.5,45.7,228.7,45.9,228.6,46.5z M242.5,47.3c-0.4,0.1-0.5,0.3-0.5,0.6c0,0.4-0.1,0.6-0.3,0.8c-0.8,0.9-1.8,1.5-3,1.8c-0.3,0.1-0.6,0.1-0.8,0.1c-0.1,0-0.1,0-0.1,0c-1.5,0-1.7-1-1.2-2c0.5-1.1,1.4-1.9,2.3-2.6c0.8-0.6,1.6-1,2.6-1.1c0.6-0.1,1.1,0.1,1.4,0.5c0.2,0.4,0.2,1.3-0.1,1.6C242.8,47.2,242.6,47.2,242.5,47.3z"/><path d="M269.3,42.6c0.4-0.2,0.8-0.5,1.2-0.7c0.7-0.4,1.4-0.8,2.1-1.2c0.2-0.1,0.4-0.3,0.4-0.6c0-0.4-0.2-0.6-0.6-0.6c-0.2,0-0.4,0.2-0.5,0.4c-0.6,0.7-1.3,1.3-2.1,1.8c-0.2,0.2-0.5,0.4-0.7,0.6c-0.2,0.1-0.6,0.3-0.4,0.5C268.9,43,269.2,42.7,269.3,42.6z"/><path d="M287,49.6c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.2-0.1,0.3-0.2,0.5c0,0,0,0,0,0c-1,0.5-2,1-3,1.5c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.3,0.6-0.5,1.2-0.4,1.9c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2-0.8,3.9-1.8,5.7-2.8c-0.1,0.3-0.1,0.6-0.1,1c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2.1-0.8,4.2-1.9,6.2-3c0.1-0.1,0.2-0.1,0.2-0.3c-0.2,0-0.4,0.1-0.6,0.2C289,48.6,288,49.1,287,49.6z M280.4,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C280.2,47.7,280.2,47.5,280.4,47.3z M268.4,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C268.2,47.7,268.2,47.5,268.4,47.3z"/><path d="M322.6,49.6c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.8-1.7c0.1-0.4,0.3-0.7,0.5-1c0.2-0.4,0.2-0.4,0.6-0.1c0.7,0.6,1.6,0.9,2.5,0.7c1.1-0.2,2.1-0.9,2.7-1.9c0.7-1.1,0.4-2.3-0.8-2.9c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.1-0.1,0.2-0.2,0.4c-0.8,0.6-1.6,1.1-2.5,1.6c-1.1,0.7-2.2,1.5-3.4,2.1c-0.3,0.2-0.6,0.3-1,0.4c-0.6,0.1-0.9-0.1-0.9-0.7c0-0.5,0.1-1,0.4-1.4c0.8-1.6,1.9-3.1,3-4.5c0.1-0.1,0.1-0.3,0.3-0.3c0.1,0.5-0.2,1,0.2,1.4c0.3-0.3,0.2-0.6,0.2-0.9c0-0.8,0.2-1.5,0.8-2.2c1.3-1.4,2.5-2.9,3.7-4.3c2.4-2.6,4.7-5.3,6.9-8c0.6-0.7,1.2-1.5,1.6-2.4c0.2-0.5,0.4-0.9,0.5-1.4c0.1-1-0.6-1.6-1.6-1.4c-0.5,0.1-0.9,0.3-1.3,0.5c-2,1-3.6,2.4-5,4.1c-2.5,3.2-4.2,6.9-5.3,10.8c-0.1,0.4-0.2,0.7-0.4,1c-0.8,1-1.5,2-2.3,3c-0.1,0.1-0.1,0.4-0.4,0.4c-0.1-0.1-0.1-0.2-0.2-0.3c-0.3-0.7-0.8-1.1-1.6-1.2c-0.6,0-1.1,0-1.6,0.2c-1.4,0.6-2.6,1.4-3.7,2.4c-0.5,0.5-1,1-1.4,1.6c-0.3,0.5-0.5,0.9-0.5,1.5c0,1.1,0.6,1.6,1.7,1.2c0.6-0.2,1.2-0.5,1.7-0.9c1.4-0.8,2.7-1.8,4.1-2.7c0.2-0.1,0.3-0.3,0.5-0.3c0,0.2,0,0.3-0.1,0.4c-0.4,0.7-0.7,1.5-0.9,2.4c-0.1,0.6-0.1,1.1,0,1.7c0.2,0.7,0.7,1,1.5,0.8c0.7-0.1,1.3-0.5,1.9-0.9c1.7-1,3.2-2.1,4.8-3.2c-0.1,0.3-0.1,0.6-0.1,1c0,1.1,0.6,1.9,1.7,2.3c0.4,0.1,0.7,0.2,1.1,0.2c1.2,0,2.4-0.2,3.6-0.7c2.1-0.8,4.2-1.9,6.2-3c0.1-0.1,0.2-0.1,0.2-0.3c-0.2,0-0.4,0.1-0.6,0.2C324.6,48.6,323.6,49.1,322.6,49.6z M316,47.3c1-0.9,2.1-1.6,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.6,0.7,1.1c-0.1,0.4-0.4,0.6-0.6,0.9c-0.6,0.6-1.4,1-2.5,1c-0.5,0.1-1-0.2-1.4-0.6C315.8,47.7,315.8,47.5,316,47.3z M311,40.5c1.1-3.3,2.5-6.5,4.7-9.3c1.2-1.5,2.5-2.7,4.2-3.7c0.5-0.2,0.9-0.5,1.4-0.6c0.2-0.1,0.5-0.2,0.7,0c0.2,0.2,0,0.5-0.2,0.7c-0.1,0.3-0.3,0.5-0.5,0.8c-1.4,2-3,3.8-4.6,5.6c-1.8,2-3.5,4.1-5.2,6.2c-0.1,0.2-0.3,0.4-0.5,0.5C310.9,40.7,311,40.6,311,40.5z M300.4,50.3c-0.2,0.1-0.5,0.3-0.9,0.3c-0.2,0-0.4-0.1-0.2-0.4c0-0.1,0.1-0.2,0.2-0.3c1.6-1.9,3.5-3.4,5.8-4.2c0.2-0.1,0.3-0.1,0.5-0.1c0.4,0,0.7,0.3,0.7,0.7c0,0.2-0.1,0.3-0.3,0.4C304.3,47.9,302.5,49.3,300.4,50.3z"/><path d="M394.9,47.7c-0.1-0.1-0.2,0-0.2,0.1c-0.1,0.3-0.4,0.4-0.7,0.6c-0.7,0.3-1.4,0.5-2.1,0.4c-1.1,0-1.8-0.6-2-1.6c-0.1-0.5-0.1-0.9-0.1-1.4s0-0.9-0.2-1.4c-0.2-0.8-0.9-1-1.5-0.5c-0.5,0.3-0.9,0.7-1.3,1.1c-1,1.1-2,2.3-2.9,3.6c-0.5,0.7-0.9,1.4-1.5,1.9c0.2-0.6,0.6-1.1,0.9-1.6c0.7-1.1,1.4-2.1,2-3.2c0.1-0.2,0.3-0.5,0.3-0.8c0.1-0.6-0.4-0.9-0.9-0.7c-0.3,0.1-0.5,0.3-0.7,0.6c-0.6,0.6-1,1.4-1.5,2.1c-0.2,0.3-0.4,0.6-0.5,1c0,0-0.1,0.1-0.1,0.1c-0.8,0.6-1.6,1.1-2.3,1.6c-0.7,0.5-1.4,0.9-2.1,1.2c-0.3,0.1-0.6,0.2-1,0.2c-0.4,0-0.6-0.2-0.6-0.6c0-0.2,0-0.4,0.1-0.6c0.1-0.6,0.3-1.2,0.6-1.7c0.4-0.8,0.9-1.6,1.3-2.4c0.1-0.2,0.2-0.5,0.2-0.7c0-0.3-0.1-0.5-0.4-0.6c-0.2-0.1-0.5-0.1-0.6,0c-0.2,0.1-0.3,0.2-0.4,0.4c-0.8,1.1-1.8,2.1-2.7,3.1c-0.7,0.8-1.5,1.6-2.4,2.2c-0.3,0.2-0.6,0.5-1,0.5c-0.4,0.1-0.5,0-0.5-0.4c0.1-0.5,0.3-1,0.6-1.4c0.6-0.9,1.2-1.9,1.7-2.8c0.2-0.3,0.4-0.6,0.5-1c0.1-0.4,0-0.7-0.2-0.9c-0.2-0.2-0.6-0.2-0.9,0c-0.1,0.1-0.2,0.2-0.3,0.3c-0.9,1.1-1.6,2.2-2.1,3.4c0,0-0.1,0-0.1,0c-0.4,0.2-0.9,0.5-1.3,0.7c-0.5,0.3-1.1,0.6-1.6,0.8c-1.1,0.6-2.2,1-3.4,1.4c-1,0.3-2,0.4-3,0.4c-0.3,0-0.6-0.1-0.9-0.2c-0.7-0.4-1-1-0.7-1.7c0.1-0.4,0.2-0.7,0.5-1c0,0,0,0,0,0c0.1,0,0.3-0.1,0.5-0.1l0.1,0.1c0.7,0.6,1.5,0.9,2.5,0.7c1.1-0.2,2-0.9,2.7-1.9c0.4-0.5,0.5-1.1,0.3-1.6s-0.5-0.9-1.1-1.2c-0.7-0.4-1.5-0.4-2.2-0.1c-1.7,0.6-3.1,1.8-4,3.5c-0.1,0.3-0.2,0.6-0.3,0.9c-0.4,0.1-0.9,0.2-1.3,0.4c-0.4,0.1-0.8,0.1-1.2,0c-0.6-0.2-0.7-0.5-0.4-1c0.2-0.4,0.4-0.8,0.5-1.2c0.2-1.3-0.3-2.2-1.6-2.7c-0.6-0.2-1.1-0.2-1.7-0.1c-1.8,0.4-3.2,1.4-4.3,3c-0.2,0.3-0.4,0.6-0.5,1c-1.4,0.6-2.8,1.3-4.2,1.9c-1.5,0.6-2.9,1.3-4.5,1.5c-0.6,0.1-1.2,0.1-1.7-0.1c-0.7-0.2-1-0.9-0.8-1.6c0.1-0.4,0.3-0.7,0.5-1c0.6-0.8,1.3-1.6,2.2-2.2c0.8-0.5,1.6-1.1,2.5-1.4c1-0.3,1.5,0,1.6,1c0,0.2,0,0.5,0.1,0.7c0,0.1,0,0.2,0.1,0.2c0.1,0,0.2,0,0.2-0.1c0-0.1,0.1-0.3,0.1-0.4c0-0.5-0.1-1.1-0.4-1.6c-0.3-0.6-0.8-1-1.5-1.1c-1-0.1-1.9,0.1-2.7,0.6c-1.1,0.6-2.1,1.4-2.9,2.4c-0.5,0.6-0.8,1.2-1,2c-0.2,1.2,0.1,2.3,1.1,2.8c0.6,0.4,1.3,0.5,2,0.4c1.1-0.1,2.1-0.5,3.2-0.9c2-0.8,3.9-1.8,5.9-2.7c-0.1,0.3-0.1,0.7-0.1,1.1c0.1,1,0.6,1.7,1.6,2c0.9,0.2,1.8,0.1,2.6-0.3c1-0.4,1.8-1,2.6-1.8c0.2-0.2,0.4-0.3,0.7-0.1c0.3,0.2,0.7,0.3,1.1,0.3c0.5,0,0.9-0.1,1.3-0.2l0.7-0.2c0,0.2,0,0.4,0,0.5c0.1,1.1,0.6,1.9,1.7,2.3c0.3,0.1,0.7,0.2,1.1,0.2c1.2,0,2.5-0.2,3.6-0.7c2-0.8,3.9-1.7,5.7-2.7c-0.2,0.6-0.4,1.2-0.3,1.9c0.1,1.1,0.9,1.5,1.9,1.1c0.6-0.2,1.2-0.7,1.7-1.1c0.9-0.9,1.7-1.8,2.6-2.8c0.1-0.1,0.1-0.2,0.3-0.2c-0.1,0.3-0.2,0.6-0.2,0.9c-0.1,0.3-0.1,0.6-0.2,1c-0.1,0.5-0.1,1.1,0.1,1.6c0.2,0.6,0.6,0.9,1.3,0.9c0.8,0,1.5-0.3,2.2-0.7c1.1-0.7,2.2-1.5,3.3-2.3c-0.1,0.3-0.3,0.7-0.3,1.1c-0.1,0.5-0.1,0.9,0,1.4c0.2,0.5,0.5,0.6,0.9,0.3c0.1-0.1,0.3-0.2,0.4-0.4c0.2-0.3,0.5-0.6,0.7-1c0.9-1.2,1.8-2.5,2.8-3.7c0.5-0.5,1-1.1,1.6-1.5c0.5-0.4,0.6-0.3,0.7,0.4c0,0.1,0,0.2,0,0.3c0.1,0.6,0.1,1.3,0.4,1.9c0.3,0.9,0.9,1.5,1.9,1.8c1.4,0.4,2.6,0,3.8-0.7c0.1-0.1,0.3-0.2,0.3-0.4C395,47.9,395,47.8,394.9,47.7z M359.7,47.3c0.9-0.9,2-1.5,3.3-1.9c0.2,0,0.4,0,0.6,0c0.6,0.1,0.8,0.5,0.6,1.1c-0.1,0.4-0.3,0.6-0.6,0.9c-0.6,0.6-1.5,1-2.5,1c-0.5,0-1-0.2-1.4-0.6C359.5,47.7,359.5,47.5,359.7,47.3z M353.8,47.3c-0.2,0-0.3,0.1-0.4,0.2c-0.1,0.1-0.1,0.2-0.1,0.4c0,0.3-0.1,0.6-0.3,0.8c-0.8,0.9-1.8,1.5-3,1.8c-0.2,0.1-0.5,0.1-0.7,0.1h-0.2c-0.7,0-1.2-0.2-1.4-0.6c-0.2-0.4-0.1-0.9,0.1-1.4c0.5-1,1.3-1.9,2.3-2.6c0.7-0.6,1.6-1,2.6-1.1c0.6-0.1,1.1,0.1,1.4,0.5c0.1,0.2,0.2,0.5,0.2,0.8c0,0.4-0.1,0.6-0.2,0.8C354,47.2,353.9,47.2,353.8,47.3z"/></g></svg>
+      </div>
+
+      <h1 class="hero-title">
+        Trouvez votre médecin<br>
+        <span id="tw-text">en Algérie</span><span class="tw-cursor" aria-hidden="true">|</span>
+      </h1>
+      <p class="hero-sub">Prenez rendez-vous en ligne avec les meilleurs spécialistes, sans attente.</p>
+
+      <!-- Search box -->
+      <div class="search-card">
+        <!-- Champ unifié : médecin + spécialité -->
+        <div class="sf sf-smart" id="sf-smart">
+          <div class="sf-icon">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <input type="text" id="s-smart" placeholder="Médecin, spécialité…" autocomplete="off"
+            style="flex:1;border:none;outline:none;font-family:'Sora',sans-serif;font-size:.875rem;background:transparent;color:var(--text-1);min-width:0">
+          <button class="sf-clear" id="sf-clear" title="Effacer">×</button>
+        </div>
+        <!-- Ville (recherche city + wilaya) -->
+        <div class="sf sf-ville" id="sf-ville-wrap">
+          <div class="sf-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <input type="text" id="s-ville" placeholder="Ville, wilaya…" autocomplete="off">
+          <button class="geo-btn" id="geo-btn" onclick="geoSearch()" title="Utiliser ma position">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 2" opacity=".4"/></svg>
+          </button>
+          <div class="ville-drop" id="ville-drop"></div>
+        </div>
+        <button class="search-btn" onclick="doSearch()">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Rechercher
+        </button>
+        <!-- Dropdown pleine largeur -->
+        <div class="smart-drop" id="smart-drop"></div>
+      </div>
+      <!-- Sub-row: toggle RDV -->
+      <div class="search-sub">
+        <label class="rdv-label">
+          <button class="toggle-track" id="rdv-toggle" onclick="toggleRdv()" type="button" aria-label="Filtrer RDV en ligne">
+            <div class="toggle-thumb"></div>
+          </button>
+          RDV en ligne
+        </label>
+        <span class="search-hint">Les résultats se mettent à jour en temps réel</span>
+      </div>
+
+      <!-- Mobile floating doctor preview cards (desktop: hidden) -->
+      <div class="hero-floaters" aria-hidden="true">
+        <div class="hf hf-1">
+          <div class="hf-av" style="background:linear-gradient(135deg,#3B1772,#23A7EA)">MA</div>
+          <div>
+            <div class="hf-nm">Dr. Amrani</div>
+            <div class="hf-sp">Cardiologue · Tizi Ouzou</div>
+            <div class="hf-st">★★★★★ 4.9</div>
+          </div>
+        </div>
+        <div class="hf hf-2">
+          <span class="hf-pill hf-pill-ok">
+            <span class="hf-live-dot"></span>
+            RDV disponible aujourd'hui
+          </span>
+        </div>
+        <div class="hf hf-3">
+          <span class="hf-pill hf-pill-live">
+            <svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            124 médecins inscrits
+          </span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-val" id="stat-docs">—</div>
+          <div class="hero-stat-lbl">Médecins inscrits</div>
+        </div>
+        <div>
+          <div class="hero-stat-val" id="stat-wilayas">—</div>
+          <div class="hero-stat-lbl">Wilayas couvertes</div>
+        </div>
+        <div>
+          <div class="hero-stat-val" style="color:var(--teal)">Gratuit</div>
+          <div class="hero-stat-lbl">Pour les patients</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: SVG Medical Illustration -->
+    <div class="hero-right">
+      <svg viewBox="0 0 420 480" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:420px;height:auto;filter:drop-shadow(0 12px 40px rgba(59,23,114,.10))">
+        <!-- Background circle -->
+        <circle cx="210" cy="240" r="185" fill="#EEF2FF"/>
+        <!-- Doctor coat body -->
+        <rect x="130" y="240" width="160" height="180" rx="20" fill="#fff" stroke="#3B1772" stroke-width="2.5"/>
+        <!-- Coat lapels -->
+        <path d="M175 240 L210 300 L245 240" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- Coat collar -->
+        <path d="M175 240 L185 200 L210 210 L235 200 L245 240" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="#f0f4ff"/>
+        <!-- Pocket -->
+        <rect x="148" y="290" width="36" height="28" rx="4" fill="#EEF2FF" stroke="#3B1772" stroke-width="1.5"/>
+        <!-- Pocket pen -->
+        <line x1="158" y1="290" x2="158" y2="305" stroke="#3B1772" stroke-width="2" stroke-linecap="round"/>
+        <line x1="166" y1="290" x2="166" y2="305" stroke="#00B4D8" stroke-width="2" stroke-linecap="round"/>
+        <!-- Doctor head -->
+        <circle cx="210" cy="165" r="52" fill="#FFD5B0" stroke="#3B1772" stroke-width="2"/>
+        <!-- Hair -->
+        <path d="M158 155 Q160 110 210 113 Q260 110 262 155 Q255 135 210 135 Q165 135 158 155z" fill="#1a1a2e"/>
+        <!-- Eyes -->
+        <circle cx="196" cy="160" r="4" fill="#1a1a2e"/>
+        <circle cx="224" cy="160" r="4" fill="#1a1a2e"/>
+        <circle cx="198" cy="158" r="1.5" fill="#fff"/>
+        <circle cx="226" cy="158" r="1.5" fill="#fff"/>
+        <!-- Smile -->
+        <path d="M196 176 Q210 186 224 176" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <!-- Ears -->
+        <ellipse cx="158" cy="165" rx="8" ry="11" fill="#FFD5B0" stroke="#3B1772" stroke-width="1.5"/>
+        <ellipse cx="262" cy="165" rx="8" ry="11" fill="#FFD5B0" stroke="#3B1772" stroke-width="1.5"/>
+        <!-- Stethoscope on neck -->
+        <path d="M185 212 Q180 230 175 245 Q168 265 178 278 Q188 292 205 292 Q222 292 232 278 Q242 265 235 245 Q230 230 225 212" stroke="#3B1772" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <!-- Stethoscope earpiece left -->
+        <path d="M185 212 L178 200 L175 190" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="174" cy="188" r="5" fill="#00B4D8" stroke="#3B1772" stroke-width="1.5"/>
+        <!-- Stethoscope earpiece right -->
+        <path d="M225 212 L232 200 L235 190" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="236" cy="188" r="5" fill="#00B4D8" stroke="#3B1772" stroke-width="1.5"/>
+        <!-- Stethoscope chest piece -->
+        <circle cx="205" cy="293" r="12" fill="#3B1772"/>
+        <circle cx="205" cy="293" r="7" fill="#00B4D8"/>
+        <!-- Arms -->
+        <rect x="90" y="245" width="44" height="100" rx="20" fill="#fff" stroke="#3B1772" stroke-width="2.5"/>
+        <rect x="286" y="245" width="44" height="100" rx="20" fill="#fff" stroke="#3B1772" stroke-width="2.5"/>
+        <!-- Hands -->
+        <ellipse cx="112" cy="348" rx="18" ry="14" fill="#FFD5B0" stroke="#3B1772" stroke-width="1.5"/>
+        <ellipse cx="308" cy="348" rx="18" ry="14" fill="#FFD5B0" stroke="#3B1772" stroke-width="1.5"/>
+
+        <!-- Floating calendar card (top right) -->
+        <g transform="translate(295, 90)">
+          <rect width="105" height="90" rx="14" fill="#fff" stroke="#3B1772" stroke-width="1.5" filter="url(#cardShadow)"/>
+          <rect width="105" height="26" rx="14" fill="#3B1772"/>
+          <rect y="16" width="105" height="10" fill="#3B1772"/>
+          <text x="52" y="18" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" font-weight="700" fill="#fff">Janvier 2026</text>
+          <!-- Calendar grid dots -->
+          <circle cx="20" cy="46" r="3" fill="#E2E6F3"/>
+          <circle cx="36" cy="46" r="3" fill="#E2E6F3"/>
+          <circle cx="52" cy="46" r="3" fill="#E2E6F3"/>
+          <circle cx="68" cy="46" r="3" fill="#E2E6F3"/>
+          <circle cx="84" cy="46" r="3" fill="#E2E6F3"/>
+          <circle cx="20" cy="60" r="3" fill="#E2E6F3"/>
+          <circle cx="36" cy="60" r="3" fill="#E2E6F3"/>
+          <circle cx="52" cy="60" r="4" fill="#3B1772"/>
+          <circle cx="68" cy="60" r="3" fill="#E2E6F3"/>
+          <circle cx="84" cy="60" r="3" fill="#E2E6F3"/>
+          <circle cx="20" cy="74" r="3" fill="#E2E6F3"/>
+          <circle cx="36" cy="74" r="3" fill="#E2E6F3"/>
+          <circle cx="52" cy="74" r="3" fill="#E2E6F3"/>
+          <circle cx="68" cy="74" r="3" fill="#E2E6F3"/>
+        </g>
+
+        <!-- Floating checkmark badge (bottom left) -->
+        <g transform="translate(20, 310)">
+          <rect width="88" height="54" rx="14" fill="#fff" stroke="#3B1772" stroke-width="1.5"/>
+          <circle cx="28" cy="27" r="14" fill="#EEF2FF"/>
+          <polyline points="21,27 26,33 35,20" stroke="#3B1772" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <rect x="50" y="14" width="28" height="7" rx="3" fill="#E2E6F3"/>
+          <rect x="50" y="26" width="20" height="7" rx="3" fill="#EEF2FF"/>
+          <rect x="50" y="38" width="24" height="7" rx="3" fill="#EEF2FF"/>
+        </g>
+
+        <!-- Small medical cross badge -->
+        <g transform="translate(340, 200)">
+          <circle cx="22" cy="22" r="22" fill="#3B1772"/>
+          <rect x="15" y="10" width="14" height="24" rx="4" fill="#fff"/>
+          <rect x="10" y="15" width="24" height="14" rx="4" fill="#fff"/>
+        </g>
+
+        <!-- Dashed connecting lines (decorative) -->
+        <line x1="340" y1="145" x2="310" y2="180" stroke="#3B1772" stroke-width="1.5" stroke-dasharray="4,4" opacity=".3"/>
+        <line x1="108" y1="310" x2="130" y2="290" stroke="#00B4D8" stroke-width="1.5" stroke-dasharray="4,4" opacity=".3"/>
+
+        <defs>
+          <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="130%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(12,16,37,.12)"/>
+          </filter>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ACTIVE FILTER CHIPS ════════════════════════════════════ -->
+<div class="chips-bar" id="chips-bar"></div>
+
+<!-- ══ SPECIALTY SECTION ══════════════════════════════════════ -->
+<div class="spec-section">
+  <div class="spec-inner">
+    <div class="spec-label">Consulter par spécialité</div>
+    <div class="spec-grid" id="pills">
+
+      <button class="pill active" data-color="blue" data-sp="" onclick="setPill(this,'')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <span class="pill-lbl">Tous</span>
+      </button>
+
+      <button class="pill" data-color="blue" data-sp="Médecine générale" onclick="setPill(this,'Médecine générale')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <span class="pill-lbl">Généraliste</span>
+      </button>
+
+      <button class="pill" data-color="red" data-sp="Cardiologie" onclick="setPill(this,'Cardiologie')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <span class="pill-lbl">Cardiologie</span>
+      </button>
+
+      <button class="pill" data-color="orange" data-sp="Pédiatrie" onclick="setPill(this,'Pédiatrie')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+        </div>
+        <span class="pill-lbl">Pédiatrie</span>
+      </button>
+
+      <button class="pill" data-color="purple" data-sp="Gynécologie-Obstétrique" onclick="setPill(this,'Gynécologie-Obstétrique')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M12 14v7m-3-3h6"/></svg>
+        </div>
+        <span class="pill-lbl">Gynécologie</span>
+      </button>
+
+      <button class="pill" data-color="green" data-sp="Dermatologie" onclick="setPill(this,'Dermatologie')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v0"/><path d="M14 10.5V4.5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v0"/><path d="M10 10.5V6.5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v3"/><path d="M6 14v0a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4v-3"/></svg>
+        </div>
+        <span class="pill-lbl">Dermatologie</span>
+      </button>
+
+      <button class="pill" data-color="teal" data-sp="Ophtalmologie" onclick="setPill(this,'Ophtalmologie')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <span class="pill-lbl">Ophtalmologie</span>
+      </button>
+
+      <button class="pill" data-color="indigo" data-sp="Neurologie" onclick="setPill(this,'Neurologie')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 9.5 2"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24A2.5 2.5 0 0 0 14.5 2"/></svg>
+        </div>
+        <span class="pill-lbl">Neurologie</span>
+      </button>
+
+      <button class="pill" data-color="amber" data-sp="Orthopédie" onclick="setPill(this,'Orthopédie')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><path d="M18.5 2.5a2.5 2.5 0 0 1 0 5L6 20a2.5 2.5 0 0 1-3.5-3.5L16 3a2.5 2.5 0 0 1 2.5-.5"/><path d="M5 5 4 4"/><path d="M18 18 19 19"/></svg>
+        </div>
+        <span class="pill-lbl">Orthopédie</span>
+      </button>
+
+      <button class="pill" data-color="cyan" data-sp="ORL" onclick="setPill(this,'ORL')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 0 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1l4.5 4.5"/></svg>
+        </div>
+        <span class="pill-lbl">ORL</span>
+      </button>
+
+      <button class="pill" data-color="violet" data-sp="Psychiatrie" onclick="setPill(this,'Psychiatrie')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/><path d="M8 3.5A9 9 0 0 1 20.5 12"/></svg>
+        </div>
+        <span class="pill-lbl">Psychiatrie</span>
+      </button>
+
+      <button class="pill" data-color="mint" data-sp="Chirurgie dentaire" onclick="setPill(this,'Chirurgie dentaire')">
+        <div class="pill-ic">
+          <svg viewBox="0 0 24 24"><path d="M12 5.5c1-1 3.5-2.5 5-1.5 1.5 1 2 3.5 1 5.5s-2 4-2 6.5c0 1.5-1 2-2 2s-2-.5-2-2c0-1.5-1-5-1-5s-1 3.5-1 5c0 1.5-1 2-2 2s-2-.5-2-2c0-2.5-1-4.5-2-6.5s-.5-4.5 1-5.5c1.5-1 4 .5 5 1.5z"/></svg>
+        </div>
+        <span class="pill-lbl">Dentiste</span>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESULTS ════════════════════════════════════════════════ -->
+<div class="results-bar" id="results-header" style="display:none">
+  <div class="results-count"><span id="result-count">0</span> médecin(s) trouvé(s)</div>
+  <select class="sort-select" onchange="sortResults(this.value)">
+    <option value="name">Trier : Nom A→Z</option>
+    <option value="price_asc">Prix croissant</option>
+    <option value="price_desc">Prix décroissant</option>
+  </select>
+</div>
+
+<div class="cards-wrap">
+  <!-- Loading skeleton -->
+  <div id="state-loading">
+    <div class="cards-grid" id="skel-grid"></div>
+  </div>
+  <!-- Empty -->
+  <div id="state-empty" style="display:none">
+    <div class="state-box">
+      <div class="state-icon-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <div class="state-title">Aucun médecin trouvé</div>
+      <div class="state-sub">Essayez avec d'autres critères ou une autre wilaya.</div>
+      <button class="btn btn-ghost-light" onclick="resetSearch()" style="margin-top:20px">Réinitialiser la recherche</button>
+    </div>
+  </div>
+  <!-- Coming soon -->
+  <div id="state-coming" style="display:none">
+    <div class="state-box">
+      <div class="state-icon-wrap">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="state-title">Les médecins arrivent bientôt !</div>
+      <div class="state-sub">Les médecins de votre région rejoignent Docline. Revenez dans quelques jours ou <a href="/login" style="color:var(--brand);font-weight:700">inscrivez votre cabinet</a>.</div>
+    </div>
+  </div>
+  <!-- Cards grid -->
+  <div class="cards-grid" id="cards-grid"></div>
+</div>
+
+<!-- ══ HOW IT WORKS ══════════════════════════════════════════ -->
+<section class="how-section">
+  <div class="how-inner">
+    <div class="how-label">Comment ça marche</div>
+    <h2 class="how-title">Prendre RDV en 3 étapes simples</h2>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div class="how-step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M8 11h6M11 8v6"/></svg>
+        </div>
+        <div class="how-step-title">Recherchez un médecin</div>
+        <div class="how-step-desc">Filtrez par spécialité, ville ou nom pour trouver le praticien qui vous convient.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div class="how-step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        </div>
+        <div class="how-step-title">Choisissez une date</div>
+        <div class="how-step-desc">Sélectionnez votre créneau horaire préféré et laissez vos coordonnées en quelques secondes.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div class="how-step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.89 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.8 1.2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="how-step-title">Confirmation sous 24h</div>
+        <div class="how-step-desc">Le médecin vous rappelle pour confirmer votre rendez-vous. Zéro attente au téléphone.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRO SECTION (light) ════════════════════════════════════ -->
+<section class="pro-section">
+  <div class="pro-inner">
+    <div>
+      <div class="pro-pill">
+        <svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Espace Praticiens
+      </div>
+      <h2 class="pro-title">Vous êtes<br><span>professionnel de santé ?</span></h2>
+      <p class="pro-desc">Rejoignez Docline et accédez à une suite complète d'outils cliniques — gestion des patients, agenda, ordonnances, rendez-vous en ligne — conçus pour les médecins algériens.</p>
+      <div class="pro-ctas">
+        <a href="/login" class="btn-pro-p">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Créer mon espace gratuit
+        </a>
+        <a href="/pricing" class="btn-pro-s">Voir les tarifs →</a>
+      </div>
+    </div>
+    <div class="pro-features">
+      <div class="pro-feat">
+        <div class="pro-feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="pro-feat-body">
+          <strong>Patientèle en ligne</strong>
+          <p>Les patients vous trouvent et réservent via votre fiche publique. Zéro appel manqué.</p>
+        </div>
+      </div>
+      <div class="pro-feat">
+        <div class="pro-feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+        </div>
+        <div class="pro-feat-body">
+          <strong>Agenda & File d'attente QR</strong>
+          <p>Patients scannent un QR, suivent leur numéro en temps réel depuis leur téléphone.</p>
+        </div>
+      </div>
+      <div class="pro-feat">
+        <div class="pro-feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="pro-feat-body">
+          <strong>Dossiers & Ordonnances</strong>
+          <p>Consultations, prescriptions, historique patient — centralisé et sécurisé.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="height:40px;width:auto;display:block" role="img" aria-label="Docline"><g fill="#ffffff"><g><g><path d="M79.1,1.3c9.2-1.9,18.9,7.3,16.2,16.6C93.5,26.6,81.9,30.1,75,25c-4.7-2.8-7.4-8.8-6.3-14.2C69.8,6,74.1,1.9,79.1,1.3z M80,8c-5.2,1-6.1,8.7-1.5,11.2c3.3,2.4,8.6,1.3,10-2.8C90.4,11.6,84.8,6.6,80,8z"/></g><g><path d="M45,15.4c5.4-0.9,11.2-0.2,15.8,2.9c6.2,4.2,10,11.2,12.4,18.2c8.2-3.7,16.9-7,26-6.6c7.4,0.4,14,5.3,16.6,12.2c2.1,8.5-2,16.9-6.8,23.6C100,78,86.5,88.5,70.9,90c-5,4.6-12.7,7.3-19.3,4.4c-7.9-3.6-12.8-11.2-16.8-18.7c-6.2-12.9-9.4-27.5-7.2-41.8C29.3,25.1,35.6,16.6,45,15.4z M46.8,22.6c-7.6,1.1-11.7,9.2-12,16.2C34.3,53,38.2,67.5,46.2,79.3c3.2,4.8,8.3,10.2,14.5,8.1c-0.4-1.9-3.2-2.3-4.2-3.9c-5.4-5.5-8.9-13.3-7.7-21.1c0.2-5.3,4-10.3,9.1-11.9c6.4-2.4,14.5,0.3,17.8,6.4c4.4,7.3,3.3,16.4,0.9,24.1c6.5-1.8,12-6.1,17.2-10.2c6.2-6,12.3-13,14.4-21.6c1.8-5.5-2.8-10.9-8.1-11.8c-11.2-2-20.4,5.5-30.5,8.7c-4.5,1-8.5-3.7-8-7.9c1.1-0.8,2.4-0.1,3.6-0.1C63.2,30.2,56.3,20.6,46.8,22.6z M60.9,57.6c-2.9,0.8-4.5,3.8-4.3,6.7c-0.7,7,3.9,14.8,10.8,16.8c4.2-6,4.6-14.8,0.9-21.2C66.4,57.9,63.6,56.9,60.9,57.6z"/></g></g><g><path d="M168,69.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.6c-0.5,0.4-1,0.8-1.6,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.9,0-1.8-0.2-2.5-0.7c-0.7-0.4-1.3-1-1.8-1.7c-1.5,0.9-3,1.6-4.7,2.1c-1.7,0.5-3.4,0.7-5.3,0.7c-2.7,0-5.2-0.5-7.5-1.5c-2.3-1-4.4-2.4-6.2-4.2c-1.8-1.7-3.2-3.8-4.2-6.2c-1-2.4-1.5-4.9-1.5-7.5c0-2.7,0.5-5.2,1.5-7.5c1-2.3,2.4-4.4,4.2-6.2c1.8-1.8,3.8-3.2,6.2-4.2c2.3-1,4.8-1.5,7.5-1.5c1.7,0,3.3,0.2,4.9,0.6c1.6,0.4,3,1,4.4,1.7V27.2c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.1,1.1-1.6c0.5-0.4,1-0.8,1.6-1.1c0.6-0.3,1.3-0.4,2-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.1,0.6,1.6,1.1c0.5,0.4,0.8,1,1.1,1.6c0.3,0.6,0.4,1.2,0.4,2V69.4z M140.1,59c0.5,1.1,1.2,2.1,2,3c0.8,0.8,1.8,1.5,3,2c1.1,0.5,2.3,0.7,3.6,0.7c1.3,0,2.5-0.2,3.6-0.7c1.1-0.5,2.1-1.1,2.9-2c0.8-0.8,1.5-1.8,2-3c0.5-1.1,0.7-2.3,0.7-3.6V55c-0.1-1.2-0.3-2.4-0.8-3.5c-0.5-1.1-1.2-2-2-2.8c-0.8-0.8-1.8-1.4-2.9-1.9c-1.1-0.5-2.3-0.7-3.5-0.7c-1.3,0-2.5,0.2-3.6,0.7c-1.1,0.5-2.1,1.1-3,2c-0.8,0.8-1.5,1.8-2,2.9c-0.5,1.1-0.7,2.3-0.7,3.6C139.3,56.7,139.6,57.9,140.1,59z"/><path d="M175.4,47.9c1-2.3,2.4-4.4,4.2-6.2c1.8-1.8,3.8-3.2,6.2-4.2c2.3-1,4.8-1.5,7.5-1.5c2.7,0,5.2,0.5,7.5,1.5c2.3,1,4.4,2.4,6.1,4.2c1.7,1.8,3.1,3.8,4.2,6.2c1,2.3,1.5,4.9,1.5,7.5c0,2.7-0.5,5.2-1.5,7.5c-1,2.4-2.4,4.4-4.2,6.2c-1.7,1.7-3.8,3.1-6.1,4.2c-2.3,1-4.9,1.5-7.5,1.5c-2.7,0-5.2-0.5-7.5-1.5c-2.3-1-4.4-2.4-6.2-4.2c-1.8-1.7-3.2-3.8-4.2-6.2c-1-2.4-1.5-4.9-1.5-7.5C173.9,52.7,174.4,50.2,175.4,47.9z M184.8,59c0.5,1.1,1.2,2.1,2,3c0.8,0.8,1.8,1.5,3,2c1.1,0.5,2.3,0.7,3.6,0.7c1.3,0,2.5-0.2,3.6-0.7c1.1-0.5,2.1-1.1,2.9-2c0.8-0.8,1.5-1.8,2-3c0.5-1.1,0.7-2.3,0.7-3.6c0-1.3-0.2-2.5-0.7-3.6c-0.5-1.1-1.1-2.1-2-2.9c-0.8-0.8-1.8-1.5-2.9-2c-1.1-0.5-2.3-0.7-3.6-0.7c-1.3,0-2.5,0.2-3.6,0.7c-1.1,0.5-2.1,1.1-3,2c-0.8,0.8-1.5,1.8-2,2.9c-0.5,1.1-0.7,2.3-0.7,3.6C184,56.7,184.3,57.9,184.8,59z"/><path d="M231.7,47.1c-1,0.5-1.9,1.2-2.7,2.1c-0.8,0.9-1.4,1.8-1.8,2.9c-0.4,1.1-0.7,2.2-0.7,3.3c0,1.1,0.2,2.2,0.7,3.2c0.4,1.1,1,2,1.8,2.9c0.8,0.9,1.7,1.6,2.7,2.1c1,0.6,2.2,0.8,3.4,0.9c1.1,0.1,2.2,0,3.3-0.3c1-0.3,2.1-0.8,3.3-1.7c0.5-0.4,1.1-0.8,1.6-1.2c0.6-0.4,1.2-0.6,1.9-0.8c0.7-0.1,1.4-0.1,2.1,0c0.7,0.2,1.5,0.6,2.3,1.3c0.5,0.5,0.9,1,1.2,1.7c0.3,0.6,0.4,1.3,0.4,2c0,0.7-0.2,1.4-0.5,2.1c-0.3,0.7-0.7,1.3-1.3,1.9c-1.7,1.7-3.7,3-6,3.9c-2.3,0.9-4.8,1.3-7.3,1.3c-2.7,0-5.3-0.5-7.7-1.5c-2.4-1-4.5-2.3-6.3-4.1c-1.8-1.7-3.2-3.8-4.3-6.1c-1-2.3-1.6-4.9-1.6-7.6c0-2.7,0.5-5.3,1.6-7.6c1-2.4,2.5-4.5,4.3-6.2c1.8-1.8,3.9-3.2,6.3-4.2c2.4-1,5-1.5,7.7-1.5c2.6,0,5,0.4,7.3,1.3c2.3,0.9,4.3,2.2,6,3.9c0.6,0.6,1,1.2,1.3,2c0.3,0.7,0.5,1.4,0.5,2.1c0,0.7-0.1,1.3-0.4,2c-0.3,0.6-0.7,1.2-1.2,1.7c-0.8,0.7-1.6,1.1-2.3,1.3c-0.7,0.2-1.5,0.2-2.1,0c-0.7-0.2-1.3-0.4-1.9-0.8c-0.6-0.4-1.1-0.8-1.6-1.2c-1.1-0.8-2.2-1.4-3.2-1.6c-1-0.3-2.1-0.4-3.3-0.3C233.8,46.2,232.7,46.5,231.7,47.1z"/><path d="M267.1,69.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.6c-0.5,0.4-1,0.8-1.6,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.1-0.6-1.6-1.1c-0.5-0.4-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.2-0.4-2V27.2c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.1,1.1-1.6c0.5-0.4,1-0.8,1.6-1.1c0.6-0.3,1.3-0.4,2-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.1,0.6,1.6,1.1c0.5,0.4,0.8,1,1.1,1.6c0.3,0.6,0.4,1.2,0.4,2V69.4z"/><path d="M275.3,25c0.3-0.7,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.2c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.7,0.3,1.2,0.7,1.7,1.2c0.5,0.5,0.9,1.1,1.2,1.7s0.4,1.4,0.4,2.1c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.2,1.7c-0.5,0.5-1.1,0.9-1.7,1.2c-0.7,0.3-1.4,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.7-0.3-1.2-0.7-1.7-1.2c-0.5-0.5-0.9-1.1-1.2-1.7c-0.3-0.7-0.4-1.4-0.4-2.1C274.8,26.4,275,25.7,275.3,25z M285.3,69.3c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.6c-0.5,0.5-1,0.8-1.6,1.1c-0.6,0.3-1.3,0.4-1.9,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.1-0.6-1.6-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.2-0.4-2V41c0-0.7,0.1-1.3,0.4-1.9c0.3-0.6,0.6-1.1,1.1-1.6c0.5-0.5,1-0.8,1.6-1.1c0.6-0.3,1.3-0.4,2-0.4c0.7,0,1.3,0.1,1.9,0.4c0.6,0.3,1.1,0.6,1.6,1.1c0.4,0.5,0.8,1,1,1.6c0.3,0.6,0.4,1.3,0.4,1.9V69.3z"/><path d="M298.6,36c1.1,0,2.1,0.3,3,1c0.9,0.7,1.4,1.5,1.7,2.6c1.4-1.1,2.8-2,4.3-2.6c1.5-0.6,3.1-0.9,4.7-0.9c2.4,0,4.6,0.5,6.6,1.5s3.7,2.3,5.1,4c1.4,1.7,2.5,3.7,3.3,6c0.8,2.3,1.2,4.7,1.2,7.3v14.7c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.5c-0.4,0.4-1,0.8-1.6,1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.3-0.1-1.9-0.4c-0.6-0.3-1.1-0.6-1.6-1c-0.4-0.4-0.8-0.9-1.1-1.5c-0.3-0.6-0.4-1.2-0.4-2V54.8c0-1.2-0.2-2.4-0.5-3.5c-0.3-1.1-0.8-2-1.4-2.8c-0.6-0.8-1.4-1.4-2.3-1.9c-0.9-0.5-1.9-0.7-3-0.7c-1.1,0-2.1,0.2-3.1,0.6c-0.9,0.4-1.7,1-2.4,1.7c-0.7,0.7-1.2,1.6-1.6,2.6c-0.4,1-0.6,2.1-0.6,3.3v15.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.1-1.1,1.6c-0.5,0.5-1,0.8-1.6,1.1c-0.6,0.3-1.3,0.4-1.9,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.1-0.6-1.6-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.2-0.4-2V41c0-0.7,0.1-1.3,0.4-1.9c0.3-0.6,0.6-1.1,1.1-1.6c0.5-0.5,1-0.8,1.6-1.1C297.3,36.1,297.9,36,298.6,36z"/><path d="M345.3,59.9c0.8,1.6,1.9,2.8,3.4,3.8c1.5,0.9,3.1,1.4,4.9,1.4c0.7,0,1.4,0,1.9-0.1c0.5-0.1,1-0.2,1.4-0.4c0.4-0.1,0.8-0.3,1.1-0.5c0.3-0.2,0.6-0.4,0.9-0.7c0.9-0.7,1.8-1.1,2.6-1.2c0.9-0.1,1.7,0,2.4,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.8,1.1,1.3c0.3,0.5,0.5,1,0.7,1.6c0.1,0.6,0.2,1.1,0.1,1.7c-0.1,0.6-0.3,1.2-0.6,1.7c-0.3,0.6-0.7,1.1-1.3,1.5c-0.5,0.5-1.2,0.9-1.9,1.3c-0.7,0.4-1.5,0.8-2.5,1.2c-0.9,0.3-2,0.6-3.2,0.8c-1.2,0.2-2.6,0.3-4.1,0.3c-2.7,0-5.2-0.5-7.6-1.5c-2.4-1-4.4-2.4-6.2-4.2c-1.8-1.7-3.2-3.8-4.2-6.1c-1-2.3-1.5-4.9-1.5-7.5s0.5-5.2,1.5-7.6c1-2.4,2.4-4.4,4.2-6.2c1.8-1.7,3.8-3.1,6.2-4.2c2.4-1,4.9-1.5,7.6-1.5c2.6,0,5.1,0.5,7.5,1.5c2.4,1,4.4,2.4,6.2,4.1c1.8,1.7,3.2,3.8,4.2,6.1c1,2.3,1.6,4.8,1.6,7.5c0,1.4-0.5,2.6-1.4,3.5c-0.9,0.9-2.1,1.3-3.6,1.3H345.3z M362.7,51.5c-0.7-1.8-1.9-3.2-3.4-4.3c-1.6-1.1-3.4-1.6-5.6-1.6c-1,0-2,0.1-2.9,0.4c-0.9,0.3-1.8,0.7-2.5,1.2c-0.7,0.5-1.4,1.2-2,1.9c-0.6,0.7-1,1.5-1.3,2.4H362.7z"/></g><g><path d="M164.3,91.8c-0.3-0.2-0.7-0.3-1.1-0.5c-0.4-0.1-0.8-0.2-1.2-0.3c-0.4-0.1-0.8-0.2-1.1-0.3c-0.3-0.1-0.6-0.3-0.8-0.5c-0.2-0.2-0.3-0.5-0.3-0.9c0-0.3,0.1-0.6,0.3-0.9c0.2-0.3,0.5-0.5,0.8-0.6c0.4-0.2,0.8-0.2,1.4-0.2c0.4,0,0.9,0.1,1.3,0.2c0.5,0.1,0.9,0.3,1.3,0.6l0.3-0.8c-0.4-0.3-0.8-0.5-1.4-0.6c-0.5-0.1-1.1-0.2-1.6-0.2c-0.8,0-1.5,0.1-2,0.4s-0.9,0.6-1.1,1c-0.2,0.4-0.4,0.8-0.4,1.3c0,0.5,0.1,0.9,0.3,1.2c0.2,0.3,0.5,0.6,0.8,0.8c0.3,0.2,0.7,0.3,1.1,0.5c0.4,0.1,0.8,0.2,1.2,0.3s0.8,0.2,1.1,0.3c0.3,0.1,0.6,0.3,0.8,0.5c0.2,0.2,0.3,0.5,0.3,0.9c0,0.3-0.1,0.6-0.3,0.8s-0.5,0.5-0.8,0.6c-0.4,0.1-0.9,0.2-1.5,0.2c-0.6,0-1.2-0.1-1.8-0.3c-0.6-0.2-1-0.5-1.4-0.8l-0.4,0.8c0.4,0.4,0.9,0.7,1.5,0.9c0.6,0.2,1.3,0.3,2,0.3c0.8,0,1.5-0.1,2-0.4c0.5-0.2,0.9-0.6,1.2-1c0.3-0.4,0.4-0.8,0.4-1.3c0-0.5-0.1-0.9-0.3-1.2C164.9,92.3,164.6,92,164.3,91.8z"/><path d="M169.9,89.1c-0.6,0-1.1,0.1-1.6,0.3c-0.5,0.2-0.9,0.4-1.3,0.7l0.4,0.7c0.3-0.3,0.6-0.5,1.1-0.6c0.4-0.2,0.9-0.2,1.3-0.2c0.7,0,1.2,0.2,1.5,0.5c0.3,0.3,0.5,0.8,0.5,1.4v0.4h-2.3c-0.7,0-1.2,0.1-1.6,0.3c-0.4,0.2-0.7,0.4-0.9,0.7c-0.2,0.3-0.3,0.6-0.3,1c0,0.4,0.1,0.8,0.3,1.1c0.2,0.3,0.5,0.6,0.9,0.7c0.4,0.2,0.9,0.3,1.4,0.3c0.7,0,1.2-0.1,1.7-0.4c0.3-0.2,0.6-0.5,0.8-0.8v1.2h0.9v-4.4c0-0.9-0.3-1.6-0.8-2.1C171.5,89.3,170.8,89.1,169.9,89.1z M171,95.2c-0.4,0.2-0.9,0.4-1.4,0.4c-0.6,0-1-0.1-1.3-0.4c-0.3-0.2-0.5-0.6-0.5-1c0-0.4,0.1-0.7,0.4-0.9c0.3-0.2,0.7-0.4,1.4-0.4h2.2v1.2C171.6,94.6,171.4,95,171,95.2z"/><path d="M180.6,89.4c-0.4-0.2-0.9-0.3-1.5-0.3c-0.7,0-1.3,0.1-1.8,0.4c-0.4,0.2-0.7,0.6-0.9,1v-1.4h-0.9v7.1h1v-3.7c0-0.5,0.1-1,0.3-1.4s0.5-0.7,0.9-0.9s0.8-0.3,1.3-0.3c0.7,0,1.2,0.2,1.6,0.6c0.4,0.4,0.6,1,0.6,1.7v4h1v-4.1c0-0.7-0.1-1.3-0.4-1.7C181.4,90,181,89.7,180.6,89.4z"/><path d="M187,95.5c-0.4,0-0.7-0.1-0.9-0.3c-0.2-0.2-0.3-0.5-0.3-1V90h2.2v-0.8h-2.2v-1.6h-1v1.6h-1.3V90h1.3v4.3c0,0.7,0.2,1.2,0.5,1.5c0.4,0.4,0.9,0.5,1.5,0.5c0.3,0,0.6,0,0.8-0.1s0.5-0.2,0.7-0.4l-0.3-0.7C187.7,95.4,187.4,95.5,187,95.5z"/><polygon points="194.9,86.4 193.6,86.4 191.7,88.1 192.7,88.1"/><path d="M194.4,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.2,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C195.3,90.3,194.9,89.9,194.4,89.6z M190.4,91.2c0.2-0.4,0.5-0.7,0.9-1c0.4-0.2,0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C190.1,91.9,190.2,91.5,190.4,91.2z"/><path d="M203.2,90.3c0.4-0.2,0.9-0.3,1.4-0.3c0.4,0,0.8,0.1,1.2,0.3c0.4,0.2,0.7,0.4,0.9,0.8l0.7-0.5c-0.3-0.5-0.7-0.8-1.2-1.1c-0.5-0.2-1-0.4-1.6-0.4c-0.7,0-1.3,0.2-1.9,0.5c-0.6,0.3-1,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,1.9,0.5c0.6,0,1.2-0.1,1.6-0.4c0.5-0.2,0.9-0.6,1.2-1.1l-0.7-0.5c-0.2,0.4-0.5,0.6-0.9,0.8c-0.4,0.2-0.8,0.3-1.2,0.3c-0.5,0-1-0.1-1.4-0.3c-0.4-0.2-0.7-0.6-1-1c-0.2-0.4-0.4-0.9-0.4-1.5c0-0.6,0.1-1.1,0.4-1.5C202.5,90.8,202.8,90.5,203.2,90.3z"/><path d="M213.9,89.6c-0.5-0.3-1.2-0.5-1.9-0.5c-0.7,0-1.3,0.2-1.9,0.5c-0.5,0.3-1,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.7,1,1.3,1.3c0.5,0.3,1.2,0.5,1.9,0.5c0.7,0,1.3-0.2,1.9-0.5c0.6-0.3,1-0.7,1.3-1.3c0.3-0.5,0.5-1.2,0.5-1.9c0-0.7-0.2-1.3-0.5-1.9C214.9,90.3,214.5,89.9,213.9,89.6z M214.4,94.2c-0.2,0.4-0.5,0.7-0.9,1c-0.4,0.2-0.9,0.3-1.4,0.3c-0.5,0-0.9-0.1-1.3-0.3c-0.4-0.2-0.7-0.6-1-1c-0.2-0.4-0.4-0.9-0.4-1.5c0-0.6,0.1-1.1,0.4-1.5c0.2-0.4,0.6-0.7,1-1c0.4-0.2,0.9-0.3,1.4-0.3c0.5,0,1,0.1,1.4,0.3c0.4,0.2,0.7,0.6,0.9,1c0.2,0.4,0.3,0.9,0.3,1.5C214.7,93.3,214.6,93.8,214.4,94.2z"/><path d="M222.8,89.4c-0.4-0.2-0.9-0.3-1.5-0.3c-0.7,0-1.3,0.1-1.8,0.4c-0.4,0.2-0.7,0.6-0.9,1v-1.4h-0.9v7.1h1v-3.7c0-0.5,0.1-1,0.3-1.4s0.5-0.7,0.9-0.9c0.4-0.2,0.8-0.3,1.3-0.3c0.7,0,1.2,0.2,1.6,0.6c0.4,0.4,0.6,1,0.6,1.7v4h1v-4.1c0-0.7-0.1-1.3-0.4-1.7C223.6,90,223.3,89.7,222.8,89.4z"/><path d="M232,89.4c-0.4-0.2-0.9-0.3-1.5-0.3c-0.7,0-1.3,0.1-1.8,0.4c-0.4,0.2-0.7,0.6-0.9,1v-1.4h-0.9v7.1h1v-3.7c0-0.5,0.1-1,0.3-1.4s0.5-0.7,0.9-0.9c0.4-0.2,0.8-0.3,1.3-0.3c0.7,0,1.2,0.2,1.6,0.6c0.4,0.4,0.6,1,0.6,1.7v4h1v-4.1c0-0.7-0.1-1.3-0.4-1.7C232.8,90,232.4,89.7,232,89.4z"/><path d="M240.6,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C241.5,90.3,241.1,89.9,240.6,89.6z M236.6,91.2c0.2-0.4,0.5-0.7,0.9-1c0.4-0.2,0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C236.3,91.9,236.4,91.5,236.6,91.2z"/><path d="M245.8,90.3c0.4-0.2,0.9-0.3,1.4-0.3c0.4,0,0.8,0.1,1.2,0.3c0.4,0.2,0.7,0.4,0.9,0.8l0.7-0.5c-0.3-0.5-0.7-0.8-1.2-1.1c-0.5-0.2-1-0.4-1.6-0.4c-0.7,0-1.3,0.2-1.9,0.5c-0.6,0.3-1,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,1.9,0.5c0.6,0,1.2-0.1,1.6-0.4c0.5-0.2,0.9-0.6,1.2-1.1l-0.7-0.5c-0.2,0.4-0.5,0.6-0.9,0.8c-0.4,0.2-0.8,0.3-1.2,0.3c-0.5,0-1-0.1-1.4-0.3c-0.4-0.2-0.7-0.6-1-1c-0.2-0.4-0.4-0.9-0.4-1.5c0-0.6,0.1-1.1,0.4-1.5C245.1,90.8,245.4,90.5,245.8,90.3z"/><path d="M254.3,95.5c-0.4,0-0.7-0.1-0.9-0.3c-0.2-0.2-0.3-0.5-0.3-1V90h2.2v-0.8h-2.2v-1.6h-1v1.6h-1.3V90h1.3v4.3c0,0.7,0.2,1.2,0.5,1.5c0.4,0.4,0.9,0.5,1.5,0.5c0.3,0,0.6,0,0.8-0.1c0.3-0.1,0.5-0.2,0.7-0.4l-0.3-0.7C255.1,95.4,254.7,95.5,254.3,95.5z"/><polygon points="262.2,86.4 260.9,86.4 259.1,88.1 260,88.1"/><path d="M261.8,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C262.7,90.3,262.3,89.9,261.8,89.6z M257.8,91.2c0.2-0.4,0.5-0.7,0.9-1s0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C257.5,91.9,257.6,91.5,257.8,91.2z"/><path d="M270,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C270.9,90.3,270.5,89.9,270,89.6z M266,91.2c0.2-0.4,0.5-0.7,0.9-1s0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C265.7,91.9,265.8,91.5,266,91.2z"/><path d="M281.7,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C282.7,90.3,282.3,89.9,281.7,89.6z M277.7,91.2c0.2-0.4,0.5-0.7,0.9-1s0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C277.5,91.9,277.5,91.5,277.7,91.2z"/><path d="M290.5,89.4c-0.4-0.2-0.9-0.3-1.5-0.3c-0.7,0-1.3,0.1-1.8,0.4c-0.4,0.2-0.7,0.6-0.9,1v-1.4h-0.9v7.1h1v-3.7c0-0.5,0.1-1,0.3-1.4c0.2-0.4,0.5-0.7,0.9-0.9c0.4-0.2,0.8-0.3,1.3-0.3c0.7,0,1.2,0.2,1.6,0.6c0.4,0.4,0.6,1,0.6,1.7v4h1v-4.1c0-0.7-0.1-1.3-0.4-1.7C291.3,90,291,89.7,290.5,89.4z"/><path d="M301.1,86.8l-4.3,9.5h1l1.1-2.5h5.3l1.1,2.5h1.1l-4.3-9.5H301.1z M299.3,92.9l2.3-5.1l2.3,5.1H299.3z"/><rect x="307.9" y="86.2" width="1" height="10.1"/><path d="M317.2,90.5c-0.3-0.4-0.7-0.8-1.1-1c-0.5-0.3-1.1-0.4-1.7-0.4c-0.7,0-1.3,0.1-1.8,0.4c-0.5,0.3-1,0.7-1.3,1.2c-0.3,0.5-0.5,1.1-0.5,1.8c0,0.7,0.2,1.3,0.5,1.8c0.3,0.5,0.7,0.9,1.3,1.2c0.5,0.3,1.2,0.4,1.8,0.4c0.6,0,1.2-0.1,1.7-0.4c0.4-0.2,0.8-0.6,1.1-1v0.9c0,0.9-0.2,1.5-0.6,2c-0.4,0.4-1.1,0.6-2,0.6c-0.6,0-1.1-0.1-1.6-0.3c-0.5-0.2-0.9-0.4-1.2-0.7l-0.5,0.7c0.4,0.4,0.9,0.6,1.5,0.8c0.6,0.2,1.2,0.3,1.9,0.3c1.2,0,2.1-0.3,2.7-0.9c0.6-0.6,0.9-1.5,0.9-2.7v-6.3h-0.9V90.5z M315.9,94.8c-0.4,0.2-0.9,0.3-1.4,0.3c-0.5,0-1-0.1-1.4-0.3s-0.7-0.5-1-0.9c-0.2-0.4-0.3-0.8-0.3-1.4c0-0.5,0.1-1,0.3-1.4c0.2-0.4,0.6-0.7,1-0.9c0.4-0.2,0.9-0.3,1.4-0.3c0.5,0,1,0.1,1.4,0.3c0.4,0.2,0.7,0.5,1,0.9c0.2,0.4,0.4,0.8,0.4,1.4c0,0.5-0.1,1-0.4,1.4C316.6,94.3,316.3,94.6,315.9,94.8z"/><path d="M325.4,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C326.3,90.3,325.9,89.9,325.4,89.6z M321.4,91.2c0.2-0.4,0.5-0.7,0.9-1c0.4-0.2,0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C321.1,91.9,321.2,91.5,321.4,91.2z"/><polygon points="325.8,86.4 324.6,86.4 322.7,88.1 323.6,88.1"/><path d="M329.9,90.6v-1.4H329v7.1h1v-3.6c0-0.8,0.2-1.5,0.6-1.9c0.4-0.5,1-0.7,1.8-0.7c0,0,0.1,0,0.1,0s0.1,0,0.1,0v-0.9c-0.7,0-1.3,0.1-1.8,0.4C330.4,89.8,330.1,90.1,329.9,90.6z"/><path d="M334.8,86.2c-0.2,0-0.4,0.1-0.5,0.2c-0.1,0.1-0.2,0.3-0.2,0.5c0,0.2,0.1,0.4,0.2,0.5c0.1,0.1,0.3,0.2,0.5,0.2c0.2,0,0.4-0.1,0.5-0.2c0.1-0.1,0.2-0.3,0.2-0.5c0-0.2-0.1-0.3-0.2-0.5C335.2,86.3,335,86.2,334.8,86.2z"/><rect x="334.4" y="89.2" width="1" height="7.1"/><path d="M342.6,89.6c-0.5-0.3-1.1-0.5-1.8-0.5c-0.7,0-1.3,0.2-1.8,0.5c-0.5,0.3-0.9,0.7-1.3,1.3c-0.3,0.5-0.5,1.2-0.5,1.9c0,0.7,0.2,1.3,0.5,1.9c0.3,0.5,0.8,1,1.3,1.3c0.6,0.3,1.2,0.5,2,0.5c0.6,0,1.1-0.1,1.6-0.3c0.5-0.2,0.9-0.5,1.2-0.9l-0.5-0.6c-0.3,0.3-0.6,0.6-1,0.7c-0.4,0.2-0.8,0.2-1.2,0.2c-0.6,0-1-0.1-1.5-0.3c-0.4-0.2-0.8-0.6-1-1c-0.2-0.3-0.3-0.7-0.3-1.2h6c0-0.1,0-0.1,0-0.2c0,0,0-0.1,0-0.1c0-0.7-0.1-1.3-0.4-1.9C343.5,90.3,343.1,89.9,342.6,89.6z M338.6,91.2c0.2-0.4,0.5-0.7,0.9-1s0.8-0.3,1.3-0.3c0.5,0,0.9,0.1,1.3,0.3c0.4,0.2,0.7,0.5,0.9,0.9c0.2,0.3,0.3,0.7,0.3,1.1h-5C338.3,91.9,338.4,91.5,338.6,91.2z"/><path d="M346.8,95.1c-0.1-0.1-0.3-0.2-0.5-0.2s-0.4,0.1-0.5,0.2c-0.1,0.1-0.2,0.3-0.2,0.5c0,0.2,0.1,0.4,0.2,0.5c0.1,0.1,0.3,0.2,0.5,0.2s0.4-0.1,0.5-0.2c0.1-0.1,0.2-0.3,0.2-0.5C347,95.4,347,95.2,346.8,95.1z"/></g></g></svg>
+        </div>
+        <p>La plateforme de santé connectée qui rapproche patients et praticiens en Algérie.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Patients</h4>
+        <a href="/find-doctor">Trouver un médecin</a>
+        <a href="/find-doctor">Prendre RDV</a>
+        <a href="/find-doctor">Spécialités</a>
+        <a href="/find-doctor">Wilayas</a>
+      </div>
+      <div class="footer-col">
+        <h4>Praticiens</h4>
+        <a href="/login">Créer un compte</a>
+        <a href="/login">Se connecter</a>
+        <a href="/pricing">Tarifs</a>
+      </div>
+      <div class="footer-col">
+        <h4>Légal</h4>
+        <a href="/privacy">Confidentialité</a>
+        <a href="/terms">CGU</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 <strong style="color:rgba(255,255,255,.4)">Docline</strong> — Santé connectée en Algérie</p>
+      <a href="/login">Portail Praticiens →</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ══ BOOKING MODAL ══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="modal" onclick="handleBackdrop(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-drag"></div>
+
+    <!-- ── Form view ──────────────────────────────────────── -->
+    <div id="modal-form-view">
+
+      <!-- Bannière médecin + titre -->
+      <div class="rdv-modal-banner">
+        <div>
+          <div class="rdv-modal-doc">
+            <div class="rdv-modal-av" id="m-avatar"></div>
+            <div>
+              <div class="rdv-modal-name" id="m-name">—</div>
+              <div class="rdv-modal-spec-txt" id="m-spec">—</div>
+            </div>
+          </div>
+          <div class="rdv-modal-headline">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Prendre rendez-vous avec ce médecin
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal()" style="background:rgba(255,255,255,.18);color:#fff;flex-shrink:0">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Bloc 1 : Motif de consultation -->
+      <div class="rdv-block">
+        <div class="rdv-block-hd">
+          <span class="rdv-step-num">1</span>
+          <span class="rdv-block-title">Motif de consultation</span>
+        </div>
+        <select id="p-motif" class="rdv-motif-sel">
+          <option value="">Choisissez un motif…</option>
+          <option>Consultation générale</option>
+          <option>Première consultation</option>
+          <option>Suivi de traitement</option>
+          <option>Renouvellement d'ordonnance</option>
+          <option>Résultats d'examens</option>
+          <option>Bilan de santé</option>
+          <option>Urgence / Douleur aiguë</option>
+          <option>Autre</option>
+        </select>
+      </div>
+
+      <!-- Bloc 2 : Date & Créneaux -->
+      <div class="rdv-block">
+        <div class="rdv-block-hd">
+          <span class="rdv-step-num">2</span>
+          <span class="rdv-block-title">Choisir un créneau</span>
+        </div>
+        <div class="rdv-date-row">
+          <button class="rdv-date-arrow" id="rdv-prev-btn" onclick="rdvPrevDate()" title="Jour précédent">‹</button>
+          <div class="rdv-date-center">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="rdv-date-label">—</span>
+          </div>
+          <button class="rdv-date-arrow" onclick="rdvNextDate()" title="Jour suivant">›</button>
+        </div>
+        <div class="rdv-slots-grid" id="rdv-slots"></div>
+      </div>
+
+      <!-- Bloc 3 : Infos patient (apparaît après sélection créneau) -->
+      <div class="rdv-block rdv-patient-block" id="rdv-patient-block" style="display:none">
+        <div class="rdv-block-hd">
+          <span class="rdv-step-num done">3</span>
+          <span class="rdv-block-title">Vos informations</span>
+        </div>
+        <!-- Badge créneau sélectionné -->
+        <div class="rdv-slot-badge" id="rdv-slot-badge">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          <span id="rdv-slot-badge-text">Créneau sélectionné</span>
+        </div>
+        <input type="hidden" id="p-time-selected">
+        <input type="hidden" id="p-date-selected">
+        <div class="form-row">
+          <div class="field">
+            <label>Prénom et nom *</label>
+            <input type="text" id="p-name" placeholder="Ahmed Benali">
+          </div>
+          <div class="field">
+            <label>Téléphone *</label>
+            <input type="tel" id="p-phone" placeholder="0555 123 456">
+          </div>
+        </div>
+        <div class="field">
+          <label>Email <span style="font-weight:400;text-transform:none;letter-spacing:0">(optionnel)</span></label>
+          <input type="email" id="p-email" placeholder="votre@email.com">
+          <div class="field-hint">Pour recevoir la confirmation</div>
+        </div>
+        <button class="rdv-confirm-btn" id="submit-btn" onclick="submitBooking()">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Confirmer le rendez-vous
+        </button>
+        <div class="form-error" id="form-error"></div>
+      </div>
+    </div>
+
+    <!-- ── Vue succès ──────────────────────────────────────── -->
+    <div id="modal-success-view" style="display:none">
+      <div class="modal-success">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="modal-success-title">Rendez-vous demandé !</div>
+        <div class="modal-success-sub">
+          Votre demande a été transmise au <strong id="m-name-success"></strong>.<br>
+          Le médecin vous contactera dans les <strong>24 heures</strong> pour confirmer.
+        </div>
+        <div class="success-detail">
+          <div class="success-detail-row">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="m-success-slot">—</span>
+          </div>
+          <div class="success-detail-row">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.21 15a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Rappel de confirmation sous 24h
+          </div>
+          <div class="success-detail-row">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Vos données sont protégées
+          </div>
+        </div>
+        <button class="btn btn-ghost-light" onclick="closeModal()" style="margin-top:24px;width:100%;justify-content:center">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
+var _allDoctors = [];
+var _filtered   = [];
+var _bookingDoc = null;
+
+/* ── Wilaya → Villes mapping ─────────────────────────────── */
+var WILAYA_CITIES = {
+  'Tizi Ouzou':['Tizi Ouzou','Azazga','Fréha','Draâ Ben Khedda','Tigzirt','Boghni','Larbaa Nath Irathen','Ain El Hammam','Makouda','Ouaguenoun','Iferhounène','Bouzeguène','Aïn Zaouïa','Timizart','Tizi Rached','Azeffoun','Iflissen','Ouadhias','Tizi Ghennif'],
+  'Alger':['Alger Centre','Bab El Oued','El Harrach','Kouba','Birmandreis','Chéraga','Hydra','Birkhadem','Dar El Beïda','Bab Ezzouar','Rouiba','Réghaïa','El Biar','Bordj El Bahri','Hussein Dey','Ain Taya','Draria','Staouéli','Zeralda'],
+  'Oran':['Oran','Es Senia','Bir El Djir','Arzew','Ain El Turck','Boutlélis','Oued Tlélat','Gdyel','Sidi Chami'],
+  'Constantine':['Constantine','El Khroub','Hamma Bouziane','Ain Smara','Didouche Mourad','Zighoud Youcef','Ibn Ziad'],
+  'Béjaïa':['Béjaïa','Akbou','Amizour','Kherrata','Sidi Aïch','Tichy','El Kseur','Aokas','Souk El Tenine','Tazmalt'],
+  'Blida':['Blida','Boufarik','Larbaa','Meftah','Bouinan','Chiffa','Bougara','Soumaa','Ben Khellil'],
+  'Sétif':['Sétif','El Eulma','Ain Oulmane','Guelta Zerga','Bougaa','Aïn Arnat','Bir El Arch'],
+  'Annaba':['Annaba','El Hadjar','Drean','El Bouni','Berrahal','Chetaïbi'],
+  'Batna':['Batna','Aïn Touta','Barika','Tazoult','Timgad','Arris','Merouana'],
+  'Boumerdès':['Boumerdès','Boudouaou','Khemis El Khechna','Thénia','Corso','Zemmouri','Bordj Menaïel'],
+  'Bouira':['Bouira','Lakhdaria','Sour El Ghozlane','Ain Bessem','Kadiria','Bordj Okhriss'],
+  'Tlemcen':['Tlemcen','Maghnia','Ghazaouet','Remchi','Sebdou','Bensekrane','Nedroma'],
+  'Tipaza':['Tipaza','Koléa','Bou Ismaïl','Hadjout','Cherchell','Aïn Tagourait','Boudouaou El Bahri'],
+  'Médéa':['Médéa','Berrouaghia','Ksar El Boukhari','Tablat','Chelalet El Adhaoura'],
+  'Mostaganem':['Mostaganem','Aïn Tédelès','Sidi Ali','Mazagran','Mesra'],
+  'Skikda':['Skikda','Azzaba','El Harrouch','Collo','Tamalous','Ben Azzouz'],
+  'Jijel':['Jijel','El Milia','Taher','Chekfa','Sidi Maarouf'],
+  'Guelma':['Guelma','Bouchegouf','Oued Zenati','Ain Makhlouf','Heliopolis'],
+  'Mascara':['Mascara','Sig','Mohammadia','Tighennif','Oued El Abtal'],
+  'Tiaret':['Tiaret','Ksar Chellala','Sougueur','Frenda','Mehdia'],
+  'Sidi Bel Abbès':['Sidi Bel Abbès','Telagh','Ras El Ma','Sfisef','Mostefa Ben Brahim'],
+  'M\'Sila':['M\'Sila','Bou Saâda','Sidi Aïssa','Aïn El Melh','Magra'],
+  'Ouargla':['Ouargla','Hassi Messaoud','Rouissat','Ain Beida','Sidi Khouiled'],
+  'Ghardaïa':['Ghardaïa','Berriane','El Menia','Metlili','Guerrara'],
+  'Biskra':['Biskra','Tolga','Sidi Okba','El Kantara','Zeribet El Oued'],
+  'Oum El Bouaghi':['Oum El Bouaghi','Aïn Beïda','Aïn Fakroun','Meskiana'],
+  'Souk Ahras':['Souk Ahras','Sedrata','Taoura','Mechroha'],
+  'El Oued':['El Oued','Guemar','Robbah','Debila','Hassi Khalifa'],
+  'Laghouat':['Laghouat','Aflou','Aïn Mahdi','Hassi R\'Mel'],
+  'Relizane':['Relizane','Djidiouia','Mazouna','Oued Rhiou'],
+  'Naâma':['Naâma','Mecheria','Aïn Sefra','Sfissifa'],
+  'Khenchela':['Khenchela','Aïn Touta','Babar','Chechar'],
+  'Illizi':['Illizi','Djanet','In Amenas'],
+};
+
+/* ── Nav scroll effect ────────────────────────────────────── */
+window.addEventListener('scroll', function(){
+  document.getElementById('topnav').classList.toggle('scrolled', window.scrollY > 60);
+}, {passive:true});
+
+/* ── Wilaya → Villes dynamique ───────────────────────────── */
+function onWilayaChange(wilaya) {
+  var cityField  = document.getElementById('sf-city');
+  var citySelect = document.getElementById('s-city');
+  var cities     = wilaya ? (WILAYA_CITIES[wilaya] || []) : [];
+
+  if (cities.length) {
+    citySelect.innerHTML = '<option value="">Toutes les villes</option>'
+      + cities.map(function(c){ return '<option value="'+c+'">'+c+'</option>'; }).join('');
+    cityField.classList.add('visible');
+  } else {
+    citySelect.innerHTML = '<option value="">Toutes les villes</option>';
+    cityField.classList.remove('visible');
+  }
+  doSearch();
+}
+
+/* ── Skeleton loading cards ──────────────────────────────── */
+(function buildSkeleton(){
+  var grid = document.getElementById('skel-grid');
+  var html = '';
+  for(var i=0;i<6;i++){
+    html += '<div class="skel-card" style="animation:cardIn .3s ease '+i*.06+'s both">'
+      +'<div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px">'
+      +'<div class="skel" style="width:64px;height:64px;border-radius:50%;flex-shrink:0"></div>'
+      +'<div style="flex:1">'
+      +'<div class="skel" style="height:14px;width:60%;margin-bottom:8px"></div>'
+      +'<div class="skel" style="height:11px;width:40%;margin-bottom:10px"></div>'
+      +'<div class="skel" style="height:10px;width:75%"></div>'
+      +'</div></div>'
+      +'<div class="skel" style="height:1px;margin-bottom:14px"></div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+      +'<div class="skel" style="height:18px;width:30%"></div>'
+      +'<div class="skel" style="height:38px;width:38%;border-radius:12px"></div>'
+      +'</div></div>';
+  }
+  grid.innerHTML = html;
+})();
+
+/* ── Avatar helpers ──────────────────────────────────────── */
+var AVATAR_GRADIENTS = [
+  'linear-gradient(135deg,#3B1772,#23A7EA)',
+  'linear-gradient(135deg,#6D28D9,#A855F7)',
+  'linear-gradient(135deg,#059669,#10B981)',
+  'linear-gradient(135deg,#DC2626,#F87171)',
+  'linear-gradient(135deg,#D97706,#FBBF24)',
+  'linear-gradient(135deg,#0891B2,#22D3EE)',
+  'linear-gradient(135deg,#C026D3,#E879F9)',
+  'linear-gradient(135deg,#0D6EFD,#60A5FA)',
+];
+function avatarGrad(name){var h=0;for(var i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+(h<<5)-h;return AVATAR_GRADIENTS[Math.abs(h)%AVATAR_GRADIENTS.length];}
+function initials(name){return(name||'?').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');}
+
+/* Deterministic star rating 4.1 – 5.0 */
+function starRating(name){var h=0;for(var i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+(h<<5)-h;return(4.1+(Math.abs(h)%10)*.089).toFixed(1);}
+function renderStars(rating){
+  var r=parseFloat(rating),html='<div class="stars">';
+  for(var i=1;i<=5;i++){
+    if(i<=Math.floor(r))html+='<span class="star on">&#9733;</span>';
+    else if(i===Math.ceil(r)&&r%1>=.4)html+='<span class="star half">&#9733;</span>';
+    else html+='<span class="star">&#9733;</span>';
+  }
+  return html+'</div>';}
+
+/* ── Load doctors ────────────────────────────────────────── */
+(async function(){
+  try {
+    var { data, error } = await _supa.from('profiles')
+      .select('id,full_name,is_clinic,clinic_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured')
+      .not('full_name','is',null)
+      .not('specialty','is',null)
+      .order('featured', { ascending: false, nullsFirst: false })
+      .order('full_name');
+    if (error) throw error;
+    _allDoctors = data || [];
+    buildVilleIndex();
+    var wilayas = [...new Set(_allDoctors.map(function(d){return d.wilaya;}).filter(Boolean))];
+    document.getElementById('stat-docs').textContent = _allDoctors.length;
+    document.getElementById('stat-wilayas').textContent = wilayas.length;
+    document.getElementById('state-loading').style.display = 'none';
+    if (!_allDoctors.length){ document.getElementById('state-coming').style.display='block'; return; }
+    renderCards(_allDoctors);
+  } catch(e){
+    document.getElementById('state-loading').style.display = 'none';
+    document.getElementById('state-coming').style.display = 'block';
+    console.error('Erreur chargement médecins:', e);
+  }
+})();
+
+/* ── Specialty icons ─────────────────────────────────────── */
+var SPEC_ICONS = {
+  'Médecine générale':       '<path d="M3 2a1 1 0 0 0-1 1v5a7 7 0 0 0 14 0V3a1 1 0 0 0-1-1"/><path d="M7 12v1a5 5 0 0 0 10 0v-1"/><circle cx="19" cy="9" r="2"/>',
+  'Cardiologie':             '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><polyline points="3.5 11 7 11 9.5 7 13 15 15.5 11 18.5 11"/>',
+  'Pédiatrie':               '<circle cx="12" cy="8" r="5"/><path d="M8.56 13.9A9 9 0 0 0 3 21h18a9 9 0 0 0-5.56-7.1"/><path d="M10 8h4M12 6v4"/>',
+  'Gynécologie-Obstétrique': '<circle cx="12" cy="7" r="5"/><path d="M12 12v10M9 19h6"/>',
+  'Dermatologie':            '<path d="M17 10c0 4.97-2.24 9-5 9s-5-4.03-5-9a5 5 0 0 1 10 0Z"/><path d="M12 1v4"/><path d="M4.22 4.22 7.05 7.05M19.78 4.22l-2.83 2.83"/>',
+  'Ophtalmologie':           '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  'ORL':                     '<path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 0 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 0 0 4 0"/>',
+  'Orthopédie':              '<path d="M18 20h-4l-4-4-2 2H4M6 4h4l4 4 2-2h4M4 20l4-4M16 4l4 4"/>',
+  'Neurologie':              '<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>',
+  'Psychiatrie':             '<circle cx="12" cy="10" r="8"/><path d="M9 10h.01M15 10h.01M9.5 14.5s.833 1 2.5 1 2.5-1 2.5-1"/><path d="M12 18v4M9 22h6"/>',
+  'Chirurgie dentaire':      '<path d="M12 5.5c-1-2-3-3.5-5-3.5A5 5 0 0 0 2 7c0 6 7 14 10 14s10-8 10-14a5 5 0 0 0-5-5c-2 0-4 1.5-5 3.5z"/><path d="M12 5.5v6"/>',
+  'Pneumologie':             '<path d="M12 2v6"/><path d="M5 8a4 4 0 0 0-1 7.8V20a2 2 0 0 0 4 0v-1.2A4 4 0 0 0 9 11V8H5z"/><path d="M19 8a4 4 0 0 1 1 7.8V20a2 2 0 0 1-4 0v-1.2A4 4 0 0 1 15 11V8h4z"/>',
+  'Gastro-entérologie':      '<path d="M18 6a6 6 0 0 0-12 0c0 4 2 7 2 10h8c0-3 2-6 2-10z"/><path d="M9 22h6M12 16v6"/>',
+  'Endocrinologie':          '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M8.5 8.5l1 1M15.5 15.5l1 1M8.5 15.5l1-1M15.5 8.5l1-1"/>',
+  'Urologie':                '<path d="M7 2a5 5 0 0 0-5 5v3a5 5 0 0 0 3 4.58V21a1 1 0 0 0 2 0v-6.42A5 5 0 0 0 10 10V7a5 5 0 0 0-3-4.58"/><path d="M14 10a2 2 0 0 0 4 0V7a2 2 0 0 0-4 0v3z"/><path d="M16 14v7"/>',
+  'Rhumatologie':            '<circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M6 15A9 9 0 0 1 15 6"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+  'Oncologie':               '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+  'Infectiologie':           '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  'Radiologie':              '<rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><path d="M12 6h.01M9 6h.01M15 6h.01"/>',
+  'Néphrologie':             '<path d="M12 2C9.79 2 8 5.58 8 10c0 2.21.45 4.21 1.17 5.71C7.88 16.83 7 18.33 7 20a2 2 0 0 0 4 0v-3a1 1 0 0 1 2 0v3a2 2 0 0 0 4 0c0-1.67-.88-3.17-2.17-4.29C15.55 14.21 16 12.21 16 10c0-4.42-1.79-8-4-8z"/>',
+  'Médecine interne':        '<rect x="3" y="2" width="7" height="9" rx="1"/><rect x="14" y="2" width="7" height="5" rx="1"/><rect x="14" y="11" width="7" height="9" rx="1"/><rect x="3" y="15" width="7" height="5" rx="1"/>',
+  'Chirurgie générale':      '<path d="m14.5 12.5-8 8a2.12 2.12 0 0 1-3-3l8-8"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/>',
+  'Médecine du travail':     '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>',
+  "Médecine d'urgence":      '<path d="M8 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-2"/><path d="M8 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2H8z"/><path d="M9 14h6M12 11v6"/>',
+  'Anesthésie-Réanimation':  '<path d="m18 2 4 4-14 14H4v-4L18 2z"/><path d="m14 6 4 4"/><circle cx="5" cy="19" r="2"/>',
+};
+var SPECIALTIES = Object.keys(SPEC_ICONS);
+
+/* ── State ───────────────────────────────────────────────── */
+var _rdvOnly     = false;
+var _dropIdx     = -1;
+var _vDropIdx    = -1;
+var _availWilayas = [];
+var _availCities  = [];
+
+function buildVilleIndex(){
+  var wMap = {};
+  _availCities = [];
+  _allDoctors.forEach(function(d){
+    if(d.wilaya) wMap[d.wilaya] = (wMap[d.wilaya]||0)+1;
+    if(d.city && _availCities.indexOf(d.city)===-1) _availCities.push(d.city);
+  });
+  _availWilayas = Object.keys(wMap)
+    .sort(function(a,b){ return wMap[b]-wMap[a]; })
+    .map(function(w){ return {name:w, count:wMap[w]}; });
+}
+
+/* ── Debounce ────────────────────────────────────────────── */
+function debounce(fn, ms){
+  var t;
+  return function(){var a=arguments;clearTimeout(t);t=setTimeout(function(){fn.apply(null,a);},ms);};
+}
+
+/* ── RDV toggle ──────────────────────────────────────────── */
+function toggleRdv(){
+  _rdvOnly = !_rdvOnly;
+  var btn = document.getElementById('rdv-toggle');
+  btn.classList.toggle('on', _rdvOnly);
+  doSearch();
+}
+
+/* ── Géolocalisation ─────────────────────────────────────── */
+function geoSearch(){
+  if(!navigator.geolocation){ return; }
+  var btn = document.getElementById('geo-btn');
+  btn.classList.add('spinning');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    fetch('https://nominatim.openstreetmap.org/reverse?lat='+pos.coords.latitude+'&lon='+pos.coords.longitude+'&format=json&accept-language=fr', {headers:{'Accept-Language':'fr'}})
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var addr = data.address || {};
+        var city = addr.city || addr.town || addr.suburb || addr.village || addr.county || '';
+        if(city){ document.getElementById('s-ville').value = city; villeDropClose(); doSearch(); }
+        btn.classList.remove('spinning');
+      })
+      .catch(function(){ btn.classList.remove('spinning'); });
+  }, function(){ btn.classList.remove('spinning'); }, {timeout:8000});
+}
+
+/* ── Smart dropdown helpers ──────────────────────────────── */
+function escAttr(s){ return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function hiLight(text, q){
+  if(!q) return text;
+  return text.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),
+    '<mark>$1</mark>');
+}
+
+function renderSpecRow(name, q){
+  var icon = SPEC_ICONS[name] || '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>';
+  return '<button class="drop-item" onclick="pickSpec(\''+escAttr(name)+'\')">'
+    +'<div class="drop-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+icon+'</svg></div>'
+    +'<div style="flex:1;min-width:0;text-align:left"><div class="drop-item-label">'+hiLight(name,q)+'</div></div>'
+    +'<svg class="drop-item-arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>'
+    +'</button>';
+}
+
+function renderDocRow(d, q){
+  var nm = d.full_name||'Médecin';
+  var disp = 'Dr. '+(nm.startsWith('Dr')?nm.replace(/^Dr\.?\s*/i,''):nm);
+  return '<button class="drop-item" onclick="pickDoc(\''+escAttr(d.id)+'\')">'
+    +'<div class="drop-doc-av" style="background:'+avatarGrad(nm)+';flex-shrink:0">'+initials(nm)+'</div>'
+    +'<div style="flex:1;min-width:0;text-align:left"><div class="drop-item-label">'+hiLight(disp,q)+'</div>'
+    +'<div class="drop-item-sub">'+(d.specialty||'')+(d.wilaya?' · '+d.wilaya:'')+'</div></div>'
+    +'<svg class="drop-item-arr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>'
+    +'</button>';
+}
+
+function smartDrop(val){
+  var drop = document.getElementById('smart-drop');
+  var q = (val||'').trim();
+  var html = '';
+  _dropIdx = -1;
+
+  if(!q){
+    // Popular specialties
+    var popular = ['Médecine générale','Cardiologie','Pédiatrie','Gynécologie-Obstétrique',
+      'Ophtalmologie','Dermatologie','Neurologie','Chirurgie dentaire'];
+    html += '<div class="drop-cat">Spécialités populaires</div>';
+    html += popular.map(function(n){ return renderSpecRow(n,''); }).join('');
+  } else {
+    var ql = q.toLowerCase();
+    var specs = SPECIALTIES.filter(function(n){ return n.toLowerCase().includes(ql); });
+    var docs  = _allDoctors.filter(function(d){ return (d.full_name||'').toLowerCase().includes(ql); }).slice(0,4);
+    if(specs.length){
+      html += '<div class="drop-cat">Spécialités</div>';
+      html += specs.slice(0,7).map(function(n){ return renderSpecRow(n,q); }).join('');
+    }
+    if(specs.length && docs.length) html += '<div class="drop-divider"></div>';
+    if(docs.length){
+      html += '<div class="drop-cat">Médecins</div>';
+      html += docs.map(function(d){ return renderDocRow(d,q); }).join('');
+    }
+    if(!specs.length && !docs.length){
+      html = '<div class="drop-empty">Aucun résultat pour « '+q+' »</div>';
+    }
+  }
+  drop.innerHTML = html;
+  drop.classList.add('open');
+}
+
+function smartClose(){
+  document.getElementById('smart-drop').classList.remove('open');
+  _dropIdx = -1;
+}
+
+function clearSmart(){
+  document.getElementById('s-smart').value = '';
+  document.getElementById('sf-clear').classList.remove('show');
+  smartClose();
+  doSearch();
+}
+
+function pickSpec(name){
+  document.getElementById('s-smart').value = name;
+  document.getElementById('sf-clear').classList.add('show');
+  smartClose();
+  doSearch();
+}
+
+function pickDoc(id){
+  var d = _allDoctors.find(function(x){return x.id===id;});
+  if(!d) return;
+  var nm = d.full_name||'';
+  document.getElementById('s-smart').value = nm;
+  document.getElementById('sf-clear').classList.add('show');
+  smartClose();
+  doSearch();
+}
+
+/* ── Ville dropdown ──────────────────────────────────────── */
+function renderVilleDrop(val){
+  var drop = document.getElementById('ville-drop');
+  if(!drop) return;
+  var q  = (val||'').trim();
+  var ql = q.toLowerCase();
+  var html = '';
+  _vDropIdx = -1;
+
+  var pinSvg = '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  var homeSvg = '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
+
+  if(!q){
+    if(_availWilayas.length){
+      html += '<div class="vdrop-cat">Wilayas disponibles</div>';
+      html += _availWilayas.map(function(w){
+        return '<button class="vdrop-item" onclick="pickVille(\''+escAttr(w.name)+'\')">'
+          +'<div class="vdrop-item-icon">'+pinSvg+'</div>'
+          +'<div class="vdrop-item-label">'+w.name+'</div>'
+          +'<span class="vdrop-item-count">'+w.count+' médecin'+(w.count>1?'s':'')+'</span>'
+          +'</button>';
+      }).join('');
+    } else {
+      html = '<div class="vdrop-empty">Aucun médecin disponible pour l\'instant</div>';
+    }
+  } else {
+    var matchW = _availWilayas.filter(function(w){ return w.name.toLowerCase().includes(ql); });
+    var matchC = _availCities.filter(function(c){ return c.toLowerCase().includes(ql); }).slice(0,6);
+
+    if(matchW.length){
+      html += '<div class="vdrop-cat">Wilayas</div>';
+      html += matchW.map(function(w){
+        return '<button class="vdrop-item" onclick="pickVille(\''+escAttr(w.name)+'\')">'
+          +'<div class="vdrop-item-icon">'+pinSvg+'</div>'
+          +'<div class="vdrop-item-label">'+hiLight(w.name,q)+'</div>'
+          +'<span class="vdrop-item-count">'+w.count+' médecin'+(w.count>1?'s':'')+'</span>'
+          +'</button>';
+      }).join('');
+    }
+    if(matchW.length && matchC.length) html += '<div class="drop-divider"></div>';
+    if(matchC.length){
+      html += '<div class="vdrop-cat">Villes</div>';
+      html += matchC.map(function(c){
+        return '<button class="vdrop-item" onclick="pickVille(\''+escAttr(c)+'\')">'
+          +'<div class="vdrop-item-icon">'+homeSvg+'</div>'
+          +'<div class="vdrop-item-label">'+hiLight(c,q)+'</div>'
+          +'</button>';
+      }).join('');
+    }
+    if(!matchW.length && !matchC.length){
+      html = '<div class="vdrop-empty">Aucun résultat pour « '+q+' »</div>';
+    }
+  }
+  drop.innerHTML = html;
+  drop.classList.add('open');
+}
+
+function villeDropClose(){
+  var drop = document.getElementById('ville-drop');
+  if(drop) drop.classList.remove('open');
+  _vDropIdx = -1;
+}
+
+function pickVille(name){
+  document.getElementById('s-ville').value = name;
+  villeDropClose();
+  doSearch();
+}
+
+/* ── Active filter chips ─────────────────────────────────── */
+function renderChips(){
+  var bar  = document.getElementById('chips-bar');
+  var chips = [];
+  var smart = document.getElementById('s-smart').value.trim();
+  var vil   = document.getElementById('s-ville').value.trim();
+  if(smart) chips.push({label:smart, clear:function(){clearSmart();}});
+  if(vil)   chips.push({label:'Lieu : '+vil, clear:function(){document.getElementById('s-ville').value='';doSearch();}});
+  if(_rdvOnly) chips.push({label:'RDV en ligne', clear:function(){_rdvOnly=false;document.getElementById('rdv-toggle').classList.remove('on');doSearch();}});
+  if(!chips.length){ bar.innerHTML=''; return; }
+  bar.innerHTML = chips.map(function(c,i){
+    return '<span class="f-chip" id="chip-'+i+'">'+c.label
+      +'<button class="chip-x" aria-label="Supprimer">×</button></span>';
+  }).join('')+(chips.length>1?'<button class="chip-clear" onclick="resetSearch()">Tout effacer</button>':'');
+  chips.forEach(function(c,i){
+    var x = bar.querySelector('#chip-'+i+' .chip-x');
+    if(x) x.addEventListener('click', c.clear);
+  });
+}
+
+/* ── Search ──────────────────────────────────────────────── */
+function doSearch(){
+  var smart = document.getElementById('s-smart').value.trim().toLowerCase();
+  var vil   = document.getElementById('s-ville').value.trim().toLowerCase();
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.classList.toggle('active', smart ? p.dataset.sp.toLowerCase()===smart : p.dataset.sp==='');
+  });
+  _filtered = _allDoctors.filter(function(d){
+    var specOk = !smart || (d.specialty||'').toLowerCase().includes(smart);
+    var nameOk = !smart || (d.full_name||'').toLowerCase().includes(smart);
+    var locOk  = !vil   || (d.city||'').toLowerCase().includes(vil)
+                        || (d.wilaya||'').toLowerCase().includes(vil)
+                        || (d.address||'').toLowerCase().includes(vil);
+    return (specOk||nameOk) && locOk && (!_rdvOnly || d.accepts_rdv);
+  });
+  _filtered.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0); });
+  renderChips();
+  if(!_filtered.length){
+    document.getElementById('cards-grid').innerHTML='';
+    document.getElementById('results-header').style.display='none';
+    document.getElementById('state-empty').style.display='block';
+  } else {
+    document.getElementById('state-empty').style.display='none';
+    renderCards(_filtered);
+  }
+}
+
+var _doSearchLive = debounce(doSearch, 280);
+
+
+function setPill(btn, sp){
+  document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active');});
+  btn.classList.add('active');
+  document.getElementById('s-smart').value = sp;
+  document.getElementById('sf-clear').classList.toggle('show', !!sp);
+  smartClose();
+  doSearch();
+}
+
+function resetSearch(){
+  document.getElementById('s-smart').value='';
+  document.getElementById('s-ville').value='';
+  document.getElementById('sf-clear').classList.remove('show');
+  _rdvOnly = false;
+  document.getElementById('rdv-toggle').classList.remove('on');
+  smartClose();
+  villeDropClose();
+  document.querySelectorAll('.pill').forEach(function(p){p.classList.toggle('active',p.dataset.sp==='');});
+  document.getElementById('state-empty').style.display='none';
+  document.getElementById('chips-bar').innerHTML='';
+  renderCards(_allDoctors);
+}
+
+function sortResults(by){
+  var docs=_filtered.length?_filtered:_allDoctors;
+  if(by==='name') docs.sort(function(a,b){return(a.full_name||'').localeCompare(b.full_name||'');});
+  else if(by==='price_asc') docs.sort(function(a,b){return(a.consultation_price||0)-(b.consultation_price||0);});
+  else if(by==='price_desc') docs.sort(function(a,b){return(b.consultation_price||0)-(a.consultation_price||0);});
+  renderCards(docs);
+}
+
+/* ── Render cards ────────────────────────────────────────── */
+function renderCards(docs){
+  document.getElementById('state-loading').style.display='none';
+  document.getElementById('state-coming').style.display='none';
+  document.getElementById('results-header').style.display='flex';
+  document.getElementById('result-count').textContent=docs.length;
+
+  var grid=document.getElementById('cards-grid');
+  grid.innerHTML=docs.map(function(d,i){
+    var name   = (d.is_clinic && d.clinic_name) ? d.clinic_name : (d.full_name||'Médecin');
+    var grad   = avatarGrad(name);
+    var inits  = initials(name);
+    var rating = starRating(name);
+    var price  = d.consultation_price?new Intl.NumberFormat('fr-DZ').format(d.consultation_price)+' DA':'Sur demande';
+    var langs  = (d.languages||['Arabe']).map(function(l){return '<span class="lang-tag">'+l+'</span>';}).join('');
+
+    var displayName = (d.is_clinic && d.clinic_name) ? name : (name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name);
+    var cardClass   = 'doctor-card'+(d.featured?' is-featured':'');
+
+    return '<div class="'+cardClass+'" style="animation-delay:'+i*.04+'s">'
+      // accent line via ::before, card starts with card-top
+      +'<div class="card-top">'
+      +'<div class="doctor-avatar" style="background:'+grad+'">'
+      +inits
+      +'<div class="avatar-badge"></div>'
+      +'</div>'
+      +'<div class="doctor-info">'
+      +'<div class="card-name-row">'
+      +'<div class="doctor-name">Dr. '+displayName+'</div>'
+      +'<span class="verified-badge"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Vérifié</span>'
+      +(d.featured?'<span class="featured-badge"><svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:currentColor;stroke:none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>En vedette</span>':'')
+      +'</div>'
+      +'<div class="doctor-specialty">'+(d.specialty||'Médecin')+'</div>'
+      +'<div class="doctor-meta">'
+      +(d.wilaya?'<div class="meta-row"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+(d.city?d.city+', ':'')+d.wilaya+'</div>':'')
+      +'</div></div></div>'
+      // Stars
+      +'<div class="stars-row">'+renderStars(rating)+'<span class="rating-num">'+rating+'</span><span class="rating-count">(vérifié)</span></div>'
+      // Bio
+      +(d.bio?'<div class="card-bio">'+d.bio.substring(0,110)+(d.bio.length>110?'…':'')+'</div>':'')
+      // Divider + bottom
+      +'<div class="card-divider"></div>'
+      +'<div class="card-bottom">'
+      +'<div>'
+      +'<div class="card-price-val">'+price+'</div>'
+      +'<div class="card-price-lbl">Consultation</div>'
+      +(d.accepts_rdv?'<div class="avail-badge" style="margin-top:6px"><span class="avail-dot"></span>Disponible</div>':'')
+      +(langs?'<div class="card-languages" style="margin-top:5px">'+langs+'</div>':'')
+      +'</div>'
+      // RDV button
+      +(d.accepts_rdv
+        ? '<a class="card-rdv-btn" href="/book?doctor='+d.id+'">'
+          +'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+          +'Prendre RDV</a>'
+        : '<button class="card-rdv-btn" onclick="openModal(\''+d.id+'\')" style="opacity:.7">'
+          +'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+          +'Contacter</button>')
+      +'</div></div>';
+  }).join('');
+
+  window._docsMap={};
+  docs.forEach(function(d){window._docsMap[d.id]=d;});
+}
+
+/* ── RDV date & créneaux ─────────────────────────────────── */
+var _rdvDate    = new Date();
+var _rdvMinDate = new Date();
+var RDV_DAYS    = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+var RDV_MONTHS  = ['janvier','février','mars','avril','mai','juin',
+                   'juillet','août','septembre','octobre','novembre','décembre'];
+
+function updateRdvDateLabel(){
+  var d   = _rdvDate;
+  var lbl = RDV_DAYS[d.getDay()]+' '+d.getDate()+' '+RDV_MONTHS[d.getMonth()];
+  document.getElementById('rdv-date-label').textContent = lbl;
+  var prev = document.getElementById('rdv-prev-btn');
+  if(prev){
+    var cmp = new Date(_rdvDate); cmp.setHours(0,0,0,0);
+    var min = new Date(_rdvMinDate); min.setHours(0,0,0,0);
+    prev.disabled = cmp <= min;
+  }
+  generateSlots();
+}
+
+function rdvPrevDate(){
+  var d = new Date(_rdvDate); d.setDate(d.getDate()-1);
+  var min = new Date(_rdvMinDate); min.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  if(d < min) return;
+  _rdvDate = d; updateRdvDateLabel();
+}
+function rdvNextDate(){
+  var d = new Date(_rdvDate); d.setDate(d.getDate()+1);
+  _rdvDate = d; updateRdvDateLabel();
+}
+
+// Build "HH:MM" slot list from start/end times (in DB format "HH:MM:SS") and duration in minutes
+function _buildSlotsFromRange(startStr, endStr, durMin){
+  var [sh,sm] = startStr.split(':').map(Number);
+  var [eh,em] = endStr.split(':').map(Number);
+  var startM = sh*60 + sm;
+  var endM   = eh*60 + em;
+  var slots = [];
+  for(var t = startM; t + durMin <= endM; t += durMin){
+    var h = Math.floor(t/60), m = t%60;
+    slots.push(String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'));
+  }
+  return slots;
+}
+
+// Generate real available slots for the booking modal.
+// 1. Look up doctor's availability for the selected day_of_week
+// 2. Apply override for that exact date if any (off OR custom hours)
+// 3. Subtract slots already booked (status pending/confirmed)
+async function generateSlots(){
+  var grid = document.getElementById('rdv-slots');
+  grid.innerHTML = '<div class="rdv-no-slots">Chargement des créneaux…</div>';
+  document.getElementById('rdv-patient-block').style.display = 'none';
+
+  if(!_bookingDoc || !_bookingDoc.id){
+    grid.innerHTML = '<div class="rdv-no-slots">Médecin introuvable</div>';
+    return;
+  }
+
+  var dateRef = new Date(_rdvDate); // snapshot to detect race
+  var dateStr = dateRef.getFullYear()+'-'+
+    String(dateRef.getMonth()+1).padStart(2,'0')+'-'+
+    String(dateRef.getDate()).padStart(2,'0');
+  // JS getDay(): 0=Sun, 1=Mon … 6=Sat. SQL day_of_week: 0=Mon … 6=Sun.
+  var dow = (dateRef.getDay() + 6) % 7;
+
+  try{
+    // Parallel queries: weekly availability + override for this date + booked slots
+    var [avR, ovR, apR] = await Promise.all([
+      _supa.from('doctor_availability')
+        .select('start_time,end_time,slot_duration_minutes,is_active')
+        .eq('doctor_id', _bookingDoc.id)
+        .eq('day_of_week', dow)
+        .maybeSingle(),
+      _supa.from('doctor_availability_overrides')
+        .select('is_off,custom_start,custom_end')
+        .eq('doctor_id', _bookingDoc.id)
+        .eq('override_date', dateStr)
+        .maybeSingle(),
+      _supa.from('appointments')
+        .select('requested_time')
+        .eq('doctor_id', _bookingDoc.id)
+        .eq('requested_date', dateStr)
+        .in('status', ['pending','confirmed'])
+    ]);
+
+    // Race guard: if user changed date while we waited, ignore stale response
+    if(_rdvDate.getTime() !== dateRef.getTime()) return;
+
+    // Resolve effective hours
+    var startTime, endTime, durMin;
+    var override = ovR && ovR.data;
+    if(override && override.is_off){
+      grid.innerHTML = '<div class="rdv-no-slots">Le médecin est indisponible ce jour</div>';
+      return;
+    }
+    var weekly = avR && avR.data;
+    if(!weekly || !weekly.is_active){
+      grid.innerHTML = '<div class="rdv-no-slots">Aucun créneau ce jour — essayez un autre jour</div>';
+      return;
+    }
+    if(override && override.custom_start && override.custom_end){
+      startTime = override.custom_start;
+      endTime   = override.custom_end;
+      durMin    = weekly.slot_duration_minutes || 30;
+    } else {
+      startTime = weekly.start_time;
+      endTime   = weekly.end_time;
+      durMin    = weekly.slot_duration_minutes || 30;
+    }
+
+    var allSlots = _buildSlotsFromRange(startTime, endTime, durMin);
+
+    // Mark already-booked slots
+    var booked = {};
+    (apR.data||[]).forEach(function(r){
+      if(r.requested_time){ booked[r.requested_time.slice(0,5)] = true; }
+    });
+
+    // Filter past times if booking for today
+    var now = new Date();
+    var isToday = dateRef.toDateString() === now.toDateString();
+    var nowHM = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+
+    var available = allSlots.filter(function(s){
+      if(isToday && s <= nowHM) return false;
+      return !booked[s];
+    });
+
+    if(!available.length){
+      grid.innerHTML = '<div class="rdv-no-slots">Aucun créneau disponible — essayez un autre jour</div>';
+      return;
+    }
+
+    grid.innerHTML = available.map(function(s){
+      return '<button class="rdv-slot" onclick="selectSlot(this,\''+s+'\')">'+s+'</button>';
+    }).join('');
+  }catch(err){
+    console.error('[generateSlots]', err);
+    grid.innerHTML = '<div class="rdv-no-slots">Erreur de chargement — réessayez</div>';
+  }
+}
+
+function selectSlot(btn, time){
+  document.querySelectorAll('.rdv-slot').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  var d       = _rdvDate;
+  var dateLbl = RDV_DAYS[d.getDay()]+' '+d.getDate()+' '+RDV_MONTHS[d.getMonth()];
+  var dateStr = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  document.getElementById('p-time-selected').value = time;
+  document.getElementById('p-date-selected').value = dateStr;
+  document.getElementById('rdv-slot-badge-text').textContent = dateLbl+' à '+time;
+  document.getElementById('m-success-slot').textContent = dateLbl+' à '+time;
+  var block = document.getElementById('rdv-patient-block');
+  block.style.display = 'block';
+  setTimeout(function(){ block.scrollIntoView({behavior:'smooth',block:'nearest'}); }, 80);
+}
+
+/* ── Modal open / close ──────────────────────────────────── */
+function openModal(docId){
+  var d=window._docsMap&&window._docsMap[docId];
+  if(!d){ d=_allDoctors.find(function(x){return x.id===docId;}); }
+  if(!d) return;
+  _bookingDoc=d;
+  var isClinic = !!(d.is_clinic && d.clinic_name);
+  var name = isClinic ? d.clinic_name : (d.full_name||'Médecin');
+
+  var av=document.getElementById('m-avatar');
+  av.style.background=avatarGrad(name); av.textContent=initials(name);
+
+  var displayName = isClinic ? name : ('Dr. '+(name.startsWith('Dr')?name.replace(/^Dr\.?\s*/i,''):name));
+  document.getElementById('m-name').textContent=displayName;
+  document.getElementById('m-spec').textContent=(d.specialty||'')+(d.wilaya?' · '+d.wilaya:'');
+  document.getElementById('m-name-success').textContent=displayName;
+
+  // Reset champs
+  ['p-name','p-phone','p-email'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('p-motif').value='';
+  document.getElementById('p-time-selected').value='';
+  document.getElementById('p-date-selected').value='';
+  document.getElementById('form-error').style.display='none';
+  document.getElementById('rdv-patient-block').style.display='none';
+
+  // Init date = demain
+  var tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  _rdvDate=new Date(tomorrow); _rdvMinDate=new Date(tomorrow);
+  updateRdvDateLabel();
+
+  document.getElementById('modal-form-view').style.display='block';
+  document.getElementById('modal-success-view').style.display='none';
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleBackdrop(e){if(e.target===e.currentTarget)closeModal();}
+
+async function submitBooking(){
+  var name  = document.getElementById('p-name').value.trim();
+  var phone = document.getElementById('p-phone').value.trim();
+  var email = document.getElementById('p-email').value.trim();
+  var date  = document.getElementById('p-date-selected').value;
+  var time  = document.getElementById('p-time-selected').value;
+  var motif = document.getElementById('p-motif').value;
+  var errEl = document.getElementById('form-error');
+  errEl.style.display='none';
+
+  if(!name) { errEl.textContent='Veuillez saisir votre nom.'; errEl.style.display='block'; return; }
+  if(!phone){ errEl.textContent='Veuillez saisir votre numéro de téléphone.'; errEl.style.display='block'; return; }
+  if(!date||!time){ errEl.textContent='Veuillez sélectionner un créneau disponible.'; errEl.style.display='block'; return; }
+
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Envoi en cours…';
+
+  try {
+    var {error} = await _supa.from('appointments').insert({
+      doctor_id:_bookingDoc.id, patient_name:name, patient_phone:phone,
+      patient_email:email||null, requested_date:date, requested_time:time,
+      notes:motif||null, status:'pending',
+    });
+    if(error) throw error;
+    document.getElementById('modal-form-view').style.display='none';
+    document.getElementById('modal-success-view').style.display='block';
+  } catch(e){
+    errEl.textContent='Erreur : '+(e.message||'Réessayez dans quelques instants.');
+    errEl.style.display='block';
+  } finally {
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirmer le rendez-vous';
+  }
+}
+
+/* ── Live search listeners ───────────────────────────────── */
+(function(){
+  // Ville dropdown
+  var villeInp = document.getElementById('s-ville');
+  var _doVilleLive = debounce(function(){ renderVilleDrop(villeInp.value); }, 180);
+  villeInp.addEventListener('focus', function(){ renderVilleDrop(this.value); });
+  villeInp.addEventListener('input', function(){
+    _doVilleLive();
+    _doSearchLive();
+  });
+  villeInp.addEventListener('keydown', function(e){
+    var drop = document.getElementById('ville-drop');
+    var items = drop ? drop.querySelectorAll('.vdrop-item') : [];
+    if(e.key==='ArrowDown'){
+      e.preventDefault();
+      _vDropIdx = Math.min(_vDropIdx+1, items.length-1);
+      items.forEach(function(el,i){ el.classList.toggle('vfocused', i===_vDropIdx); });
+    } else if(e.key==='ArrowUp'){
+      e.preventDefault();
+      _vDropIdx = Math.max(_vDropIdx-1, 0);
+      items.forEach(function(el,i){ el.classList.toggle('vfocused', i===_vDropIdx); });
+    } else if(e.key==='Enter'){
+      if(_vDropIdx>=0 && items[_vDropIdx]){ items[_vDropIdx].click(); }
+      else { villeDropClose(); doSearch(); }
+    } else if(e.key==='Escape'){ villeDropClose(); }
+  });
+
+  // Smart field
+  var inp = document.getElementById('s-smart');
+  inp.addEventListener('focus', function(){ smartDrop(this.value); });
+  inp.addEventListener('input', function(){
+    var v = this.value;
+    document.getElementById('sf-clear').classList.toggle('show', !!v.trim());
+    smartDrop(v);
+    _doSearchLive();
+  });
+  inp.addEventListener('keydown', function(e){
+    var drop = document.getElementById('smart-drop');
+    var items = drop.querySelectorAll('.drop-item');
+    if(e.key==='ArrowDown'){
+      e.preventDefault();
+      _dropIdx = Math.min(_dropIdx+1, items.length-1);
+      items.forEach(function(el,i){ el.classList.toggle('focused', i===_dropIdx); });
+    } else if(e.key==='ArrowUp'){
+      e.preventDefault();
+      _dropIdx = Math.max(_dropIdx-1, 0);
+      items.forEach(function(el,i){ el.classList.toggle('focused', i===_dropIdx); });
+    } else if(e.key==='Enter'){
+      if(_dropIdx>=0 && items[_dropIdx]){ items[_dropIdx].click(); }
+      else { smartClose(); doSearch(); }
+    } else if(e.key==='Escape'){ smartClose(); }
+  });
+
+  // Close on outside click
+  document.addEventListener('click', function(e){
+    var card = document.querySelector('.search-card');
+    if(card && !card.contains(e.target)){ smartClose(); villeDropClose(); }
+  });
+})();
+
+/* ── Sticky bottom bar ───────────────────────────────────── */
+(function(){
+  var bar  = document.getElementById('sticky-bar');
+  var hero = document.querySelector('.hero');
+  if(!bar || !hero) return;
+  var visible = false;
+  function check(){
+    var shouldShow = hero.getBoundingClientRect().bottom < 0;
+    if(shouldShow !== visible){
+      visible = shouldShow;
+      bar.classList.toggle('show', visible);
+    }
+  }
+  window.addEventListener('scroll', check, {passive:true});
+  check();
+})();
+
+function sbarSearch(){
+  var sp  = document.getElementById('sbar-spec').value;
+  var vil = document.getElementById('sbar-ville').value.trim();
+  if(sp){
+    document.getElementById('s-smart').value = sp;
+    document.getElementById('sf-clear').classList.add('show');
+  }
+  if(vil) document.getElementById('s-ville').value = vil;
+  smartClose();
+  doSearch();
+  var target = document.querySelector('.cards-wrap');
+  if(target) window.scrollTo({top: target.offsetTop - 72, behavior:'smooth'});
+}
+
+/* ── Scroll reveal on cards & steps ─────────────────────── */
+(function(){
+  if(!window.IntersectionObserver) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); }
+    });
+  }, {threshold:.1, rootMargin:'0px 0px -40px 0px'});
+
+  // Apply to doctor cards as they load via renderCards()
+  window._srObserver = obs;
+
+  // Static elements
+  document.querySelectorAll('.how-step,.pro-feat').forEach(function(el,i){
+    el.classList.add('sr');
+    if(i%3===1) el.classList.add('d1');
+    if(i%3===2) el.classList.add('d2');
+    obs.observe(el);
+  });
+})();
+
+// Patch renderCards to apply scroll reveal on injected cards
+var _origRenderCards = renderCards;
+renderCards = function(docs){
+  _origRenderCards(docs);
+  if(!window._srObserver) return;
+  document.querySelectorAll('.doctor-card:not(.sr-done)').forEach(function(el,i){
+    el.classList.add('sr','sr-done');
+    if(i%3===1) el.classList.add('d1');
+    if(i%3===2) el.classList.add('d2');
+    window._srObserver.observe(el);
+  });
+};
+
+/* ── Typewriter hero animation ───────────────────────────── */
+(function(){
+  var phrases = [
+    'en Algérie','à Tizi-Ouzou','Dentiste','à Azazga',
+    'Cardiologue','à Fréha','Pédiatre','à Alger',
+    'Dermatologue','à Béjaïa','Ophtalmologue','en Algérie'
+  ];
+  var el      = document.getElementById('tw-text');
+  var idx     = 0;
+  var charIdx = phrases[0].length; // start fully written
+  var phase   = 'pause';           // pause | erase | gap | type
+  var delay   = 2200;              // first pause on initial text
+
+  function tick(){
+    switch(phase){
+      case 'pause':
+        phase = 'erase';
+        setTimeout(tick, delay);
+        return;
+
+      case 'erase':
+        charIdx--;
+        el.textContent = phrases[idx].substring(0, charIdx);
+        if(charIdx === 0){
+          idx = (idx + 1) % phrases.length;
+          phase = 'gap';
+          setTimeout(tick, 320);
+        } else {
+          setTimeout(tick, 38);
+        }
+        return;
+
+      case 'gap':
+        phase = 'type';
+        setTimeout(tick, 50);
+        return;
+
+      case 'type':
+        charIdx++;
+        el.textContent = phrases[idx].substring(0, charIdx);
+        if(charIdx === phrases[idx].length){
+          phase = 'pause';
+          delay = idx === phrases.length - 1 ? 3000 : 1900;
+          setTimeout(tick, delay);
+        } else {
+          setTimeout(tick, 68);
+        }
+        return;
+    }
+  }
+
+  setTimeout(tick, 2500); // initial pause before first erase
+})();
+
+/* ── Animated search placeholder ────────────────────────── */
+(function(){
+  var hints = [
+    'Médecin, spécialité…',
+    'Cardiologie…',
+    'Dr. Boudjemaa…',
+    'Pédiatre…',
+    'Dr. Amrani…',
+    'Ophtalmologue…',
+    'Médecin généraliste…',
+    'Neurologie…',
+  ];
+  var el  = document.getElementById('s-smart');
+  var idx = 0;
+  setInterval(function(){
+    if(document.activeElement === el) return;
+    idx = (idx + 1) % hints.length;
+    el.setAttribute('placeholder', hints[idx]);
+  }, 2600);
+})();
+
+/* ── PWA install prompt ──────────────────────────────────── */
+var _deferredInstall = null;
+
+function _showPWABanner(){
+  var banner = document.getElementById('pwa-banner');
+  banner.style.display = 'block';
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      banner.classList.add('visible');
+      // start gentle float after entry animation completes
+      setTimeout(function(){ banner.classList.add('floating'); }, 500);
+    });
+  });
+}
+
+function _hidePWABanner(){
+  var banner = document.getElementById('pwa-banner');
+  banner.classList.remove('visible','floating');
+  setTimeout(function(){ banner.style.display='none'; }, 450);
+}
+
+// Android / Chrome — standard install prompt
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredInstall = e;
+  setTimeout(_showPWABanner, 1500);
+});
+
+// iOS Safari — no beforeinstallprompt, show manual instructions
+(function(){
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isSafari = /safari/i.test(navigator.userAgent) && !/chrome|chromium|crios|fxios|edgios/i.test(navigator.userAgent);
+  var isStandalone = ('standalone' in navigator) && navigator.standalone;
+  if(isIOS && isSafari && !isStandalone){
+    document.getElementById('pwa-sub-android').style.display = 'none';
+    document.getElementById('pwa-sub-ios').style.display = 'inline';
+    document.getElementById('pwa-install-btn').style.display = 'none';
+    setTimeout(_showPWABanner, 1500);
+  }
+})();
+
+function installPWA(){
+  if(!_deferredInstall) return;
+  _deferredInstall.prompt();
+  _deferredInstall.userChoice.then(function(){
+    _deferredInstall = null;
+    _hidePWABanner();
+  });
+}
+
+function dismissPWA(){ _hidePWABanner(); }
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js')
+      .then(function(reg){ console.log('[SW] registered', reg.scope); })
+      .catch(function(err){ console.warn('[SW] registration failed', err); });
+  });
+}
+</script>
+</body>
+</html>
