@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Redirection — Docline</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#F8FAFF;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#6B7280;font-size:14px}
+  .dot{width:10px;height:10px;border-radius:50%;background:#3B1772;display:inline-block;animation:blink .8s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div>
+  <span class="dot"></span>
+  <span class="dot" style="animation-delay:.15s;margin:0 4px"></span>
+  <span class="dot" style="animation-delay:.3s"></span>
+</div>
+<script>
+// GitHub Pages 404 router — maps clean URLs → .html files under /docline/
+(function() {
+  var base = '/docline';
+  var fullPath = window.location.pathname; // e.g. /docline/login
+  var path = fullPath.replace(base, '') || '/'; // e.g. /login
+  var search = window.location.search;
+  var hash   = window.location.hash;
+
+  var routeMap = {
+    '/':              base + '/find-doctor.html',
+    '/find-doctor':   base + '/find-doctor.html',
+    '/login':         base + '/login.html',
+    '/dashboard':     base + '/app.html',
+    '/app':           base + '/app.html',
+    '/admin':         base + '/admin.html',
+    '/patients':      base + '/patients.html',
+    '/clients':       base + '/clients.html',
+    '/calendar':      base + '/calendar.html',
+    '/invoices':      base + '/invoices.html',
+    '/proposals':     base + '/proposals.html',
+    '/pricing':       base + '/pricing.html',
+    '/privacy':       base + '/privacy.html',
+    '/terms':         base + '/terms.html',
+    '/timer':         base + '/timer.html',
+    '/book':          base + '/book.html',
+    '/mes-rdv':       base + '/mes-rdv.html',
+    '/consultations': base + '/consultations.html',
+    '/ordonnances':   base + '/ordonnances.html',
+    '/queue':         base + '/queue.html',
+    '/labo':          base + '/labo.html',
+    '/staff':         base + '/staff.html',
+    '/onboarding':    base + '/onboarding.html',
+    '/profil-public': base + '/profil-public.html',
+    '/confirm':       base + '/confirm.html',
+    '/disponibilites':base + '/disponibilites.html',
+    '/results-view':  base + '/results-view.html',
+  };
+
+  var dest = routeMap[path];
+
+  // Fallback : essayer path + '.html'
+  if (!dest) {
+    dest = base + path + '.html';
+  }
+
+  window.location.replace(dest + search + hash);
+})();
+</script>
+</body>
+</html>
