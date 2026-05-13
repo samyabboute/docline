@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -373,10 +373,10 @@ function renderSidebar() {
 (async function(){
   renderSidebar();
   var { data: { session } } = await _supa.auth.getSession();
-  if (!session) { window.location.href = '/login'; return; }
+  if (!session) { window.location.href=ghpNav('/login'); return; }
   var email = (session.user.email || '').toLowerCase();
   var admins = (typeof DOCLINE_CONFIG !== 'undefined' ? (DOCLINE_CONFIG.ADMIN_EMAILS||[]) : []).map(function(e){return e.toLowerCase();});
-  if (!admins.includes(email)) { window.location.href = '/dashboard'; return; }
+  if (!admins.includes(email)) { window.location.href=ghpNav('/dashboard'); return; }
   var sbName = document.getElementById('sb-name');
   if (sbName) sbName.textContent = session.user.email.split('@')[0];
   document.getElementById('hamburger').addEventListener('click', function(){
@@ -540,7 +540,7 @@ async function toggleVisibility(id, current) {
 /* ── SIGN OUT ────────────────────────────────────────────── */
 async function signOut() {
   await _supa.auth.signOut();
-  window.location.href = '/login';
+  window.location.href=ghpNav('/login');
 }
 
 /* ── TOAST ───────────────────────────────────────────────── */

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
@@ -451,7 +451,7 @@ var _modalRdv = null;
 /* ── Auth guard ──────────────────────────────────────────────── */
 _sb.auth.getSession().then(function(r){
   var sess = r && r.data && r.data.session;
-  if(!sess){ window.location.href = '/login'; return; }
+  if(!sess){ window.location.href=ghpNav('/login'); return; }
   _uid = sess.user.id;
   var email = sess.user.email || '';
   var meta  = sess.user.user_metadata || {};

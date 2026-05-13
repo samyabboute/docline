@@ -377,7 +377,7 @@ function toast(msg, type) {
 (async function init() {
   try {
     var session = await _supa.auth.getSession();
-    if (!session.data.session) { window.location.href = '/login'; return; }
+    if (!session.data.session) { window.location.href=ghpNav('/login'); return; }
     _uid = session.data.session.user.id;
     var user = session.data.session.user;
     var meta = user.user_metadata || {};

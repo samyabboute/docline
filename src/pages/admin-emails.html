@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -304,7 +304,7 @@ async function init() {
   }
   _supa = supabase.createClient(DOCLINE_CONFIG.SUPABASE_URL, DOCLINE_CONFIG.SUPABASE_ANON_KEY);
   const { data: { session } } = await _supa.auth.getSession();
-  if (!session) { window.location.href = '/admin'; return; }
+  if (!session) { window.location.href=ghpNav('/admin'); return; }
   _session = session;
 
   document.getElementById('admin-email-badge').textContent = session.user.email;

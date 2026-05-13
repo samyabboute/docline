@@ -189,7 +189,7 @@ function spawnConfetti() {
 (async function() {
   var s = await _supa.auth.getSession();
   if (!s.data.session) {
-    window.location.href = '/login';
+    window.location.href=ghpNav('/login');
     return;
   }
 
