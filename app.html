@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -358,7 +358,7 @@ button{font-family:inherit;cursor:pointer}
             <div class="upgrade-banner-title">Passez en Pro — File d'attente QR illimitée</div>
             <div class="upgrade-banner-sub">Patients illimités, ordonnances, rappels automatiques. À partir de 2 900 DA/mois.</div>
           </div>
-          <button class="upgrade-banner-btn" onclick="window.location.href='/pricing'">Voir les offres</button>
+          <button class="upgrade-banner-btn" onclick="window.location.href=ghpNav('/pricing')">Voir les offres</button>
         </div>
 
         <!-- KPIs -->
@@ -370,15 +370,15 @@ button{font-family:inherit;cursor:pointer}
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nouveau patient
           </button>
-          <button class="qa-btn" onclick="window.location.href='/queue'">
+          <button class="qa-btn" onclick="window.location.href=ghpNav('/queue')">
             <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             File d'attente
           </button>
-          <button class="qa-btn" onclick="window.location.href='/ordonnances'">
+          <button class="qa-btn" onclick="window.location.href=ghpNav('/ordonnances')">
             <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
             Ordonnance
           </button>
-          <button class="qa-btn" onclick="window.location.href='/calendar'">
+          <button class="qa-btn" onclick="window.location.href=ghpNav('/calendar')">
             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Agenda
           </button>
@@ -875,7 +875,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAddP
 
 // ── MAIN LOAD ──────────────────────────────────────────
 var Auth = {
-  signOut: async function() { await _supa.auth.signOut(); window.location.href = '/login'; }
+  signOut: async function() { await _supa.auth.signOut(); window.location.href=ghpNav('/login'); }
 };
 
 async function load() {
@@ -910,7 +910,7 @@ async function load() {
 // ── INIT ───────────────────────────────────────────────
 (async function() {
   var { data: { session } } = await _supa.auth.getSession();
-  if (!session) { window.location.href = '/login'; return; }
+  if (!session) { window.location.href=ghpNav('/login'); return; }
 
   _uid   = session.user.id;
   _email = session.user.email || '';

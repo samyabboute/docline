@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -410,7 +410,7 @@ function toggleSidebar(){
   document.getElementById('sidebar-overlay').classList.toggle('open');
 }
 
-async function signOut(){ await _supa.auth.signOut(); window.location.href='/login'; }
+async function signOut(){ await _supa.auth.signOut(); window.location.href=ghpNav('/login'); }
 
 // ── SETTINGS ────────────────────────────────────────────────────────
 
@@ -427,9 +427,9 @@ let _session  = null;
 
 (async () => {
   const { data: { session } } = await _supa.auth.getSession();
-  if (!session) { window.location.href = '/login'; return; }
+  if (!session) { window.location.href=ghpNav('/login'); return; }
   if (!_adminEmails.includes((session.user.email||'').toLowerCase())) {
-    window.location.href = '/dashboard'; return;
+    window.location.href=ghpNav('/dashboard'); return;
   }
   _session = session;
   AdminSidebar.init('settings');

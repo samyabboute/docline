@@ -429,7 +429,7 @@ const AdminAuth = {
   },
   async requireAdmin() {
     const session = await this.init();
-    if (!session) { window.location.href = '/login'; return null; }
+    if (!session) { window.location.href=ghpNav('/login'); return null; }
     // Check admin whitelist
     if (!_adminEmails.includes((session.user.email || '').toLowerCase())) {
       // Log unauthorized access attempt
@@ -438,13 +438,13 @@ const AdminAuth = {
         event: 'admin.unauthorized_access',
         metadata: { page: window.location.pathname, attempted_at: new Date().toISOString() }
       }).catch(()=>{});
-      window.location.href = '/dashboard';
+      window.location.href=ghpNav('/dashboard');
       return null;
     }
     return session;
   },
   getToken() { return this._session?.access_token ?? null; },
-  async signOut() { await _supa.auth.signOut(); localStorage.clear(); window.location.href = '/login'; }
+  async signOut() { await _supa.auth.signOut(); localStorage.clear(); window.location.href=ghpNav('/login'); }
 };
 
 const Toast = (() => {

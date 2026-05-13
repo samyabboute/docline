@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -60,24 +60,24 @@ p{color:#7B8194;font-size:14.5px;line-height:1.65;margin-bottom:32px}
 var _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
 
 async function goToDashboard() {
-  window.location.href = '/dashboard';
+  window.location.href=ghpNav('/dashboard');
 }
 
 // Auto-redirect après session confirmée
 (async function() {
   var s = await _supa.auth.getSession();
   if (s.data && s.data.session) {
-    setTimeout(function(){ window.location.href = '/dashboard'; }, 2500);
+    setTimeout(function(){ window.location.href=ghpNav('/dashboard'); }, 2500);
   } else {
     var redirected = false;
     var sub = _supa.auth.onAuthStateChange(function(event, session) {
       if (redirected || !session) return;
       redirected = true;
       sub.data && sub.data.subscription && sub.data.subscription.unsubscribe();
-      setTimeout(function(){ window.location.href = '/dashboard'; }, 2500);
+      setTimeout(function(){ window.location.href=ghpNav('/dashboard'); }, 2500);
     });
     setTimeout(function(){
-      if (!redirected) { redirected = true; window.location.href = '/login'; }
+      if (!redirected) { redirected = true; window.location.href=ghpNav('/login'); }
     }, 8000);
   }
 })();

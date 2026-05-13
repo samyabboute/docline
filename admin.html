@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -843,7 +843,7 @@ function applyRoleRestrictions() {
 }
 
 function redirect() {
-  window.location.href = '/login';
+  window.location.href=ghpNav('/login');
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1494,7 +1494,7 @@ async function toggleActive(doctorId, currentlyActive) {
 ═══════════════════════════════════════════════════════════ */
 async function signOut() {
   await _sb.auth.signOut();
-  window.location.href = '/login';
+  window.location.href=ghpNav('/login');
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1670,7 +1670,7 @@ function toggleUserMenu() {
 
 function openAsDoctor() {
   document.getElementById('userDropdown').classList.remove('open');
-  _sb.auth.signOut().then(() => { window.location.href = '/login'; });
+  _sb.auth.signOut().then(() => { window.location.href=ghpNav('/login'); });
 }
 
 document.addEventListener('click', function(e) {

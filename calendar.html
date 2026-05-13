@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -730,7 +730,7 @@ document.addEventListener('keydown',function(e){
 (async function(){
   try{
     var s=await _supa.auth.getSession();
-    if(!s.data.session){window.location.href='/login';return;}
+    if(!s.data.session){window.location.href=ghpNav('/login');return;}
     _uid=s.data.session.user.id;
 
     var u=s.data.session.user;

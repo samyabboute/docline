@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -444,7 +444,7 @@ window.onAvatarChange = onAvatarChange;
   try {
     var r = await _supa.auth.getSession();
     var session = r && r.data && r.data.session;
-    if (!session) { window.location.href = '/login?return=profil-public.html'; return; }
+    if (!session) { window.location.href=ghpNav('/login')+'?return=profil-public.html'; return; }
     _uid   = session.user.id;
     _email = session.user.email;
 

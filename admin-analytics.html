@@ -150,7 +150,7 @@ function fmt(n){return new Intl.NumberFormat('fr-FR').format(n);}
 
 (async function(){
   var s=await _supa.auth.getSession();
-  if(!s.data.session){window.location.href='/login';return;}
+  if(!s.data.session){window.location.href=ghpNav('/login');return;}
 
   // Load all data in parallel
   var [profRes,subRes,fbRes,auditRes] = await Promise.all([

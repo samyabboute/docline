@@ -16,6 +16,34 @@ var EDGE_BASE    = DOCLINE_CONFIG.EDGE_BASE;
 var APP_URL      = DOCLINE_CONFIG.APP_URL;
 var ADMIN_EMAILS = DOCLINE_CONFIG.ADMIN_EMAILS;
 
+// ── GitHub Pages base path (site sous /docline/ sur GHP, / sur Netlify) ──
+var _GHP_BASE = (function() {
+  try { return window.location.pathname.startsWith('/docline') ? '/docline' : ''; }
+  catch(e) { return ''; }
+})();
+
+// Convertit un chemin absolu propre vers son équivalent GHP (/login → /docline/login.html)
+// Sur Netlify (_GHP_BASE='') retourne le chemin inchangé.
+function ghpNav(path) {
+  if (!_GHP_BASE) return path;
+  var MAP = {
+    '/login':'/login.html', '/dashboard':'/app.html', '/app':'/app.html',
+    '/admin':'/admin.html', '/pricing':'/pricing.html',
+    '/patients':'/patients.html', '/clients':'/clients.html',
+    '/calendar':'/calendar.html', '/mes-rdv':'/mes-rdv.html',
+    '/book':'/book.html', '/find-doctor':'/find-doctor.html',
+    '/consultations':'/consultations.html', '/ordonnances':'/ordonnances.html',
+    '/queue':'/queue.html', '/labo':'/labo.html', '/staff':'/staff.html',
+    '/onboarding':'/onboarding.html', '/timer':'/timer.html',
+    '/privacy':'/privacy.html', '/terms':'/terms.html',
+    '/invoices':'/invoices.html', '/proposals':'/proposals.html',
+  };
+  var base = path.split('?')[0];
+  var qs   = path.includes('?') ? path.slice(path.indexOf('?')) : '';
+  return _GHP_BASE + (MAP[base] || base + '.html') + qs;
+}
+
 function getRedirectUrl(email) {
-  return ADMIN_EMAILS.indexOf((email||'').toLowerCase()) !== -1 ? '/admin' : '/dashboard';
+  var path = ADMIN_EMAILS.indexOf((email||'').toLowerCase()) !== -1 ? '/admin' : '/dashboard';
+  return ghpNav(path);
 }
