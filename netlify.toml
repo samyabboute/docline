@@ -1,16 +1,9 @@
 [build]
   publish = "src/pages"
 
-# ── Production (branche main) ─────────────────────────────────────────────────
+# ── Production uniquement (branche main → docline.health) ────────────────────
+# Beta est géré par GitHub Pages (GitHub Actions) — pas de build Netlify pour beta
 [context.production]
-  publish = "src/pages"
-
-# ── Staging / Beta (branche beta) ────────────────────────────────────────────
-[context.beta]
-  publish = "src/pages"
-
-# ── Branch deploys (toutes les autres branches) ───────────────────────────────
-[context.branch-deploy]
   publish = "src/pages"
 
 # ── Security headers on all pages ────────────────────────────────────────────
