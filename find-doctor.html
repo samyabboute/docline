@@ -69,116 +69,66 @@ button,input,select,textarea{font-family:inherit}
 .nav-cta:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
 @media(max-width:600px){.nav-link{display:none}}
 
-/* ── HERO — Dark Aurora (callaeryn-style) ───────────────────── */
+/* ── HERO (LIGHT — Doctolib style) ─────────────────────────── */
 .hero{
-  padding:100px 24px 80px;
-  background:#07091A;
+  padding:100px 24px 72px;
+  background:linear-gradient(135deg,#F0F4FF 0%,#FFFFFF 60%,#F7F9FF 100%);
   position:relative;overflow:hidden}
-
-/* Aurora animated blobs */
-.aurora-blob{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;will-change:transform}
-.blob-1{
-  width:640px;height:640px;
-  background:radial-gradient(circle at 40% 40%,#4C1D95 0%,#7C3AED 35%,transparent 70%);
-  top:-180px;right:-120px;opacity:.55;
-  animation:aurora1 20s ease-in-out infinite}
-.blob-2{
-  width:560px;height:560px;
-  background:radial-gradient(circle at 60% 60%,#1E3A8A 0%,#2563EB 35%,transparent 70%);
-  bottom:-180px;left:-120px;opacity:.5;
-  animation:aurora2 26s ease-in-out infinite}
-.blob-3{
-  width:420px;height:420px;
-  background:radial-gradient(circle at 50% 50%,#0C4A6E 0%,#0EA5E9 40%,transparent 70%);
-  top:30%;left:35%;opacity:.38;
-  animation:aurora3 18s ease-in-out infinite}
-.blob-4{
-  width:300px;height:300px;
-  background:radial-gradient(circle,#5B21B6 0%,#8B5CF6 40%,transparent 70%);
-  bottom:10%;right:15%;opacity:.3;
-  animation:aurora4 24s ease-in-out infinite}
-
-@keyframes aurora1{
-  0%,100%{transform:translate(0,0) scale(1)}
-  33%{transform:translate(-50px,30px) scale(1.08)}
-  66%{transform:translate(30px,-50px) scale(.94)}}
-@keyframes aurora2{
-  0%,100%{transform:translate(0,0) scale(1)}
-  40%{transform:translate(60px,-40px) scale(1.1)}
-  75%{transform:translate(-30px,50px) scale(1.04)}}
-@keyframes aurora3{
-  0%,100%{transform:translate(0,0) scale(1)}
-  30%{transform:translate(40px,60px) scale(1.15)}
-  70%{transform:translate(-50px,-30px) scale(.9)}}
-@keyframes aurora4{
-  0%,100%{transform:translate(0,0) scale(1)}
-  50%{transform:translate(-40px,40px) scale(1.2)}}
-
-/* Grain noise overlay */
-.hero-grain{
-  position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.055;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  background-repeat:repeat;background-size:180px 180px}
-
-/* Subtle grid lines */
-.hero-grid{
-  position:absolute;inset:0;pointer-events:none;z-index:1;
-  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
-  background-size:72px 72px;
-  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 20%,transparent 80%)}
+.hero::before{
+  content:'';position:absolute;top:-120px;right:-80px;
+  width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(59,23,114,.06) 0%,transparent 70%);
+  pointer-events:none}
+.hero::after{
+  content:'';position:absolute;bottom:-60px;left:-60px;
+  width:380px;height:380px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,180,216,.07) 0%,transparent 70%);
+  pointer-events:none}
 
 .hero-inner{
-  max-width:1200px;margin:0 auto;position:relative;z-index:2;
+  max-width:1200px;margin:0 auto;position:relative;z-index:1;
   display:grid;grid-template-columns:1fr 480px;gap:64px;align-items:center}
 @media(max-width:960px){.hero-inner{grid-template-columns:1fr;gap:48px}}
 
 .hero-left{}
 .hero-badge{
   display:inline-flex;align-items:center;
-  margin-bottom:24px;
-  filter:brightness(0) invert(1);opacity:.9}
+  margin-bottom:24px}
 @keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(0,180,216,.4)}50%{box-shadow:0 0 0 5px rgba(0,180,216,.0)}}
 
 .hero-title{
   font-size:clamp(2rem,4.5vw,3.25rem);font-weight:800;
-  color:#FFFFFF;line-height:1.12;letter-spacing:-.03em;margin-bottom:16px;
-  text-shadow:0 2px 40px rgba(124,58,237,.3)}
-.hero-title span{
-  background:linear-gradient(135deg,#A78BFA,#38BDF8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  color:var(--text-1);line-height:1.12;letter-spacing:-.03em;margin-bottom:16px}
+.hero-title span{color:var(--brand)}
 .hero-sub{
-  font-size:clamp(.9rem,1.6vw,1.0625rem);color:rgba(255,255,255,.6);
+  font-size:clamp(.9rem,1.6vw,1.0625rem);color:var(--text-3);
   line-height:1.75;max-width:480px;margin-bottom:36px;font-weight:400}
 
-/* Search box — glassmorphism */
+/* Search box — white card */
 .search-card{
-  background:rgba(255,255,255,.08);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border:1px solid rgba(255,255,255,.15);border-radius:var(--r-2xl);
-  box-shadow:0 8px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.12);
-  padding:6px 6px 6px 0;
+  background:#fff;border:1.5px solid var(--border);border-radius:var(--r-2xl);
+  box-shadow:var(--shadow-md);padding:6px 6px 6px 0;
   display:flex;align-items:stretch;flex-wrap:nowrap;gap:0;overflow:visible}
 .sf{flex:1;min-width:0;display:flex;align-items:center;gap:10px;
-  padding:11px 16px;border-right:1px solid rgba(255,255,255,.1);position:relative}
-.sf-icon{flex-shrink:0;color:rgba(255,255,255,.45)}
+  padding:11px 16px;border-right:1px solid var(--border);position:relative}
+.sf-icon{flex-shrink:0;color:var(--text-4)}
 .sf-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round;display:block}
 .sf select,.sf input{
   background:transparent;border:none;outline:none;
-  font-size:.875rem;color:#fff;width:100%;min-width:0;
+  font-size:.875rem;color:var(--text-1);width:100%;min-width:0;
   font-family:'Sora',sans-serif;font-weight:500}
-.sf select option{color:var(--text-1);background:#1a1040}
-.sf select{color:rgba(255,255,255,.8)}
-.sf select:invalid,.sf select option[value=""]{color:rgba(255,255,255,.4)}
-.sf input::placeholder{color:rgba(255,255,255,.35)}
+.sf select option{color:var(--text-1);background:#fff}
+.sf select{color:var(--text-2)}
+.sf select:invalid,.sf select option[value=""]{color:var(--text-3)}
+.sf input::placeholder{color:var(--text-4)}
 
 /* Geo button inside ville field */
-.geo-btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);
+.geo-btn{background:none;border:none;cursor:pointer;color:var(--text-4);
   padding:4px;border-radius:var(--r-md);flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
   transition:color var(--t),background var(--t)}
-.geo-btn:hover{color:#fff;background:rgba(255,255,255,.1)}
+.geo-btn:hover{color:var(--brand);background:var(--brand-light)}
 .geo-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .geo-btn.spinning svg{animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -193,7 +143,7 @@ button,input,select,textarea{font-family:inherit}
 .search-btn svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 
 /* Sub-row: RDV toggle */
-.search-sub{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;color:rgba(255,255,255,.55);font-size:.8rem}
+.search-sub{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
 
 @media(max-width:680px){
   .search-card{flex-wrap:wrap;padding:0}
@@ -206,11 +156,8 @@ button,input,select,textarea{font-family:inherit}
 
 /* Hero stats */
 .hero-stats{display:flex;gap:32px;margin-top:28px;flex-wrap:wrap;justify-content:center}
-.hero-stat-val{font-size:1.5rem;font-weight:800;
-  background:linear-gradient(135deg,#A78BFA,#38BDF8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  letter-spacing:-.02em}
-.hero-stat-lbl{font-size:.6875rem;font-weight:600;color:rgba(255,255,255,.45);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+.hero-stat-val{font-size:1.5rem;font-weight:800;color:var(--brand);letter-spacing:-.02em}
+.hero-stat-lbl{font-size:.6875rem;font-weight:600;color:var(--text-3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
 
 /* Hero illustration */
 .hero-right{display:flex;align-items:center;justify-content:center}
@@ -991,16 +938,8 @@ button,input,select,textarea{font-family:inherit}
   </div>
 </nav>
 
-<!-- ══ HERO — Dark Aurora ══════════════════════════════════ -->
+<!-- ══ HERO (LIGHT, TWO-COLUMN) ══════════════════════════════ -->
 <section class="hero">
-  <!-- Aurora blobs -->
-  <div class="aurora-blob blob-1" aria-hidden="true"></div>
-  <div class="aurora-blob blob-2" aria-hidden="true"></div>
-  <div class="aurora-blob blob-3" aria-hidden="true"></div>
-  <div class="aurora-blob blob-4" aria-hidden="true"></div>
-  <!-- Grain + grid overlays -->
-  <div class="hero-grain" aria-hidden="true"></div>
-  <div class="hero-grid" aria-hidden="true"></div>
   <div class="hero-inner">
 
     <!-- Left: text + search -->
