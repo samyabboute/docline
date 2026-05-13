@@ -2544,6 +2544,54 @@ if('serviceWorker' in navigator){
       .catch(function(err){ console.warn('[SW] registration failed', err); });
   });
 }
+
+// ── GitHub Pages link rewriter ────────────────────────────────
+// Active uniquement quand le site tourne sous /docline/ (GitHub Pages)
+// Sur Netlify (root /) les liens restent inchangés.
+(function ghPagesRewrite() {
+  if (!window.location.pathname.startsWith('/docline')) return;
+  var BASE = '/docline';
+  var MAP = {
+    '/login':       BASE + '/login.html',
+    '/find-doctor': BASE + '/find-doctor.html',
+    '/pricing':     BASE + '/pricing.html',
+    '/privacy':     BASE + '/privacy.html',
+    '/terms':       BASE + '/terms.html',
+    '/book':        BASE + '/book.html',
+    '/dashboard':   BASE + '/app.html',
+    '/app':         BASE + '/app.html',
+    '/admin':       BASE + '/admin.html',
+    '/patients':    BASE + '/patients.html',
+    '/clients':     BASE + '/clients.html',
+    '/calendar':    BASE + '/calendar.html',
+    '/mes-rdv':     BASE + '/mes-rdv.html',
+    '/onboarding':  BASE + '/onboarding.html',
+  };
+  function rewriteHref(el) {
+    var raw = el.getAttribute('href') || '';
+    var path = raw.split('?')[0];
+    var qs   = raw.includes('?') ? raw.slice(raw.indexOf('?')) : '';
+    if (MAP[path]) { el.setAttribute('href', MAP[path] + qs); return; }
+    // Fallback : tout chemin absolu /xxx → /docline/xxx.html
+    if (path.startsWith('/') && !path.startsWith('/docline') && path !== '/') {
+      el.setAttribute('href', BASE + path + '.html' + qs);
+    }
+  }
+  // Réécrire les liens déjà dans le DOM
+  document.querySelectorAll('a[href]').forEach(rewriteHref);
+  // Réécrire les liens injectés dynamiquement (cartes médecins)
+  var _orig = document.createElement;
+  var obs = new MutationObserver(function(muts) {
+    muts.forEach(function(m) {
+      m.addedNodes.forEach(function(n) {
+        if (n.nodeType !== 1) return;
+        n.querySelectorAll && n.querySelectorAll('a[href]').forEach(rewriteHref);
+        if (n.tagName === 'A' && n.getAttribute('href')) rewriteHref(n);
+      });
+    });
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+})();
 </script>
 </body>
 </html>
