@@ -1,0 +1,122 @@
+﻿/* Docline Shared Animation System v5 */
+/* Fallback vars for pages that don't load shell.js */
+:root{
+  --bg-subtle: var(--surface2, #F3F4F6);
+  --bg-hover:  var(--surface,  #FFFFFF);
+}
+
+  /* ── APPLE-STYLE ANIMATIONS ─────────────────────────────── */
+  @keyframes fadeIn    { from{opacity:0}                        to{opacity:1} }
+  @keyframes fadeInUp  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeInDown{ from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes scaleIn   { from{opacity:0;transform:scale(.96)}  to{opacity:1;transform:scale(1)} }
+  @keyframes slideInRight{from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes slideInLeft {from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes shimmer   { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+  @keyframes popIn     { 0%{transform:scale(.8);opacity:0} 60%{transform:scale(1.04)} 100%{transform:scale(1);opacity:1} }
+  @keyframes float     { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+  /* Animation utility classes */
+  .anim-fade-in     { animation:fadeIn .4s var(--ease) both }
+  .anim-fade-up     { animation:fadeInUp .5s var(--ease) both }
+  .anim-fade-down   { animation:fadeInDown .4s var(--ease) both }
+  .anim-scale-in    { animation:scaleIn .35s var(--ease) both }
+  .anim-slide-right { animation:slideInRight .4s var(--ease) both }
+  .anim-slide-left  { animation:slideInLeft .4s var(--ease) both }
+  .anim-pop         { animation:popIn .45s var(--ease) both }
+
+  /* Stagger delays */
+  .delay-50  { animation-delay:.05s } .delay-100 { animation-delay:.1s }
+  .delay-150 { animation-delay:.15s } .delay-200 { animation-delay:.2s }
+  .delay-300 { animation-delay:.3s }  .delay-400 { animation-delay:.4s }
+
+  /* Apple easing variable */
+  :root { --ease: cubic-bezier(.25,.46,.45,.94); }
+
+  /* Skeleton loading shimmer */
+  .skeleton { background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-hover) 50%,var(--bg-subtle) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; }
+
+  /* Smooth hover lifts */
+  .hover-lift { transition:transform .2s var(--ease),box-shadow .2s var(--ease) }
+  .hover-lift:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.1) }
+  [data-theme="dark"] .hover-lift:hover { box-shadow:0 8px 24px rgba(0,0,0,.3) }
+
+  /* Card entrance — used on dashboard load */
+  .card-enter { opacity:0; transform:translateY(12px); transition:opacity .5s var(--ease),transform .5s var(--ease) }
+  .card-enter.visible { opacity:1; transform:translateY(0) }
+
+  /* Button press feedback */
+  .btn, button { transition:transform .1s,opacity .15s,box-shadow .2s; }
+  .btn:active, button:active { transform:scale(.97) !important; }
+
+  /* Page transition */
+  body { animation:fadeIn .3s var(--ease); }
+
+  /* Topbar scroll shadow */
+  .topbar { transition:box-shadow .25s var(--ease); }
+  .topbar.scrolled { box-shadow:0 1px 12px rgba(0,0,0,.08); }
+  [data-theme="dark"] .topbar.scrolled { box-shadow:0 1px 12px rgba(0,0,0,.3); }
+
+  /* Stat card number count-up effect */
+  .stat-num { display:inline-block; }
+
+  /* Toast entrance */
+  .toast-enter { animation:fadeInUp .3s var(--ease) }
+
+  /* Modal backdrop blur */
+  .overlay { backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+
+  /* Kanban card drag feel */
+  .lead-card { transition:transform .15s var(--ease),box-shadow .15s var(--ease),opacity .15s; }
+  .lead-card:hover { transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,.1); }
+  [data-theme="dark"] .lead-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.3); }
+
+  /* Input focus animation */
+  .form-input, input, select, textarea {
+    transition:border-color .15s,box-shadow .15s;
+  }
+
+  /* Mobile responsive base */
+  @media (max-width:768px) {
+    .sidebar { transform:translateX(-100%); transition:transform .3s var(--ease); position:fixed !important; z-index:200; height:100vh; }
+    .sidebar.mobile-open { transform:translateX(0); }
+    .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:199; backdrop-filter:blur(4px); }
+    .sidebar-backdrop.show { display:block; }
+    .main-content { margin-left:0 !important; }
+    .topbar { padding:0 16px; }
+    .mobile-menu-btn { display:flex !important; }
+    .stat-grid { grid-template-columns:1fr 1fr !important; }
+    .kanban-board { grid-template-columns:1fr !important; overflow-x:auto; }
+    .page-header { flex-direction:column; align-items:flex-start; gap:12px; }
+    .page-header .header-actions { width:100%; }
+    .page-header .header-actions .btn { width:100%; justify-content:center; }
+    .table-wrap { overflow-x:auto; }
+    table { min-width:600px; }
+    .modal-inner { width:calc(100vw - 32px) !important; margin:16px; }
+    .admin-grid { grid-template-columns:1fr !important; }
+    .invoice-header-grid { grid-template-columns:1fr !important; }
+    .invoice-line-grid { grid-template-columns:1fr 80px 80px 100px 32px !important; }
+  }
+  /* Respect user motion preferences — disable all animations */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    body { animation: none; }
+    .anim-fade-in, .anim-fade-up, .anim-fade-down,
+    .anim-scale-in, .anim-slide-right, .anim-slide-left,
+    .anim-pop { animation: none; opacity: 1; transform: none; }
+    .hover-lift:hover { transform: none; }
+    .skeleton { animation: none; background: var(--bg-subtle); }
+  }
+
+  @media (max-width:480px) {
+    .stat-grid { grid-template-columns:1fr !important; }
+    .form-row-2 { grid-template-columns:1fr !important; }
+    .hero-ctas { flex-direction:column; }
+    .plan-grid { grid-template-columns:1fr !important; }
+  }
+  .mobile-menu-btn { display:none; background:none; border:none; cursor:pointer; padding:6px; color:var(--text-primary); border-radius:8px; }
+  .mobile-menu-btn svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }

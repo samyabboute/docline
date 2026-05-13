@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="X-Frame-Options" content="DENY"><meta http-equiv="X-Content-Type-Options" content="nosniff">
+<title>Paramètres — Docline Admin</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;--brand-glow:rgba(59,23,114,.14);
+  --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(59,23,114,.14);--sidebar-border:rgba(255,255,255,.07);
+  --bg:#FAFBFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
+  --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
+  --border:#E4E7F0;--border-strong:#C8CCE0;
+  --success:#12B76A;--success-bg:#ECFDF5;--success-border:rgba(18,183,106,.2);
+  --warning:#F79009;--warning-bg:#FFFAEB;--warning-border:rgba(247,144,9,.2);
+  --danger:#F04438;--danger-bg:#FEF3F2;--danger-border:rgba(240,68,56,.2);
+  --info:#2E90FA;--info-bg:#EFF8FF;--info-border:rgba(46,144,250,.2);
+  --sidebar-w:252px;--topbar-h:56px;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --shadow-xs:0 1px 2px rgba(13,15,20,.06);--shadow-sm:0 1px 3px rgba(13,15,20,.08);
+  --shadow-md:0 4px 8px rgba(13,15,20,.08);--shadow-lg:0 12px 24px rgba(13,15,20,.1);
+  --shadow-brand:0 4px 14px rgba(59,23,114,.28);
+  --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Sora',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+img,svg{display:block;max-width:100%}
+ul,ol{list-style:none}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;min-height:100vh}
+.sidebar{grid-row:1/-1;background:var(--sidebar-bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--sidebar-border);z-index:200}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(13,15,20,.5);z-index:199;display:none}
+.sidebar-overlay.open{display:block}
+.topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:1rem;font-weight:700}
+.topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--r-md);color:var(--text-secondary)}
+.hamburger svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.main{overflow-y:auto}
+.page{padding:28px;max-width:960px}
+.page-header{margin-bottom:28px}
+.page-title{font-size:1.1875rem;font-weight:800;letter-spacing:-.3px}
+.page-sub{font-size:.8125rem;color:var(--text-muted);margin-top:3px}
+/* CARD */
+.card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)}
+.card-icon{width:34px;height:34px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card-title{font-size:.9375rem;font-weight:700}
+.card-sub{font-size:.75rem;color:var(--text-muted);margin-top:1px}
+.card-body{padding:20px}
+/* TOGGLE SWITCH */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-info{display:flex;flex-direction:column;gap:2px}
+.setting-label{font-size:.8125rem;font-weight:600;color:var(--text-primary)}
+.setting-desc{font-size:.75rem;color:var(--text-muted)}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:var(--border-strong);border-radius:var(--r-full);cursor:pointer;transition:background var(--t-base)}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform var(--t-base);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked + .toggle-slider{background:var(--success)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(20px)}
+.toggle input:disabled + .toggle-slider{opacity:.5;cursor:not-allowed}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Sora',sans-serif;font-size:.8125rem;font-weight:600;padding:9px 18px;transition:all var(--t-fast);white-space:nowrap;line-height:1}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
+.btn-primary:hover:not(:disabled){background:var(--brand-dark)}
+.btn-secondary{background:var(--bg-subtle);color:var(--text-secondary);border:1px solid var(--border)}
+.btn-secondary:hover:not(:disabled){background:var(--bg-hover)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.btn-danger:hover:not(:disabled){background:var(--danger);color:#fff}
+.btn-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.btn-success:hover:not(:disabled){background:var(--success);color:#fff}
+.btn-sm{padding:6px 12px;font-size:.75rem;border-radius:var(--r-sm)}
+.btn-xs{padding:3px 8px;font-size:.6875rem;border-radius:var(--r-sm)}
+/* FORM */
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:.8125rem;font-family:inherit;outline:none;background:var(--bg-raised);color:var(--text-primary);transition:border-color var(--t-fast)}
+.form-input:focus{border-color:var(--brand)}
+.form-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:5px}
+.field{margin-bottom:14px}
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--r-full);letter-spacing:.3px}
+.badge-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.badge-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.badge-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
+.badge-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);border-bottom:1px solid var(--border);background:var(--bg-subtle)}
+.data-table td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover td{background:var(--bg-hover)}
+/* TOASTS */
+.toasts{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{display:flex;align-items:flex-start;gap:12px;background:var(--text-primary);color:#fff;border-radius:var(--r-lg);padding:13px 16px;font-size:.6875rem;font-weight:500;box-shadow:var(--shadow-lg);min-width:260px;animation:toastIn 280ms cubic-bezier(.22,1,.36,1);pointer-events:all}
+@keyframes toastIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+.toast-icon{width:16px;height:16px;flex-shrink:0;margin-top:1px}
+.toast-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.toast.success .toast-icon svg{stroke:#6EE7B7}
+.toast.error   .toast-icon svg{stroke:#FCA5A5}
+.toast.info    .toast-icon svg{stroke:#93C5FD}
+.toast-title{font-weight:700;font-size:.6875rem}
+.toast-msg{opacity:.75;margin-top:2px;font-size:.6875rem}
+/* ADMIN NAV */
+.admin-nav-item{display:flex;align-items:center;gap:10px;padding:8px 14px;margin:1px 8px;border-radius:var(--r-md);color:rgba(255,255,255,.55);font-size:.8125rem;font-weight:500;cursor:pointer;transition:all var(--t-fast);border:none;background:transparent;text-decoration:none;width:calc(100% - 16px);text-align:left;position:relative}
+.admin-nav-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.8)}
+.admin-nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600}
+.admin-nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:#F79009;border-radius:0 var(--r-full) var(--r-full) 0}
+.admin-nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
+.admin-nav-item:hover svg,.admin-nav-item.active svg{opacity:1}
+.sidebar-section{padding:18px 16px 6px;font-size:.6875rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.22)}
+.sidebar-footer{margin-top:auto;border-top:1px solid var(--sidebar-border);padding:12px 8px}
+.sidebar-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-md);cursor:pointer;transition:background var(--t-fast)}
+.sidebar-user:hover{background:var(--sidebar-hover)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#F79009,#F04438);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:.6875rem;font-weight:600;color:rgba(255,255,255,.8)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35);margin-top:1px}
+/* STATUS INDICATOR */
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:.6875rem;font-weight:600;padding:3px 10px;border-radius:var(--r-full)}
+.status-pill.on{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.status-pill.off{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.status-pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+/* SECTION GRID */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:900px){.settings-grid{grid-template-columns:1fr}}
+@media(max-width:768px){
+  :root{--sidebar-w:0px}
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;transform:translateX(-100%);transition:transform var(--t-base);box-shadow:var(--shadow-lg)}
+  .sidebar.open{transform:translateX(0)}
+  .hamburger{display:flex}
+  .page{padding:16px}
+}
+/* BANNER PREVIEW */
+.banner-preview{background:var(--brand);color:#fff;border-radius:var(--r-md);padding:12px 18px;font-size:.8125rem;font-weight:600;text-align:center;margin-bottom:12px;min-height:42px;display:flex;align-items:center;justify-content:center}
+/* PROMO CODE TABLE */
+.code-active{background:var(--success-bg);color:var(--success)}
+.code-inactive{background:var(--bg-subtle);color:var(--text-muted)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner-sm{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+</style>
+</head>
+<body>
+<div class="toasts" id="toasts"></div>
+<div class="app">
+  <nav class="sidebar" id="admin-sidebar"></nav>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <header class="topbar">
+    <button class="hamburger" onclick="toggleSidebar()">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="topbar-title">Paramètres & Marketing</div>
+    <div class="topbar-actions">
+      <a href="/admin" class="btn btn-secondary btn-sm">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Retour
+      </a>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page">
+      <div class="page-header">
+        <div class="page-title">Paramètres & Marketing</div>
+        <div class="page-sub">Gérez les modes de paiement, les codes promo et la communication.</div>
+      </div>
+
+      <div class="settings-grid">
+
+        <!-- ── MODES DE PAIEMENT ──────────────────────────────── -->
+        <div>
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon" style="background:rgba(59,23,114,.08);color:var(--brand)">
+                <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              </div>
+              <div>
+                <div class="card-title">Modes de paiement</div>
+                <div class="card-sub">Activez ou désactivez chaque méthode au niveau de la plateforme.</div>
+              </div>
+            </div>
+
+            <div id="payment-methods-loading" style="padding:32px;text-align:center;color:var(--text-muted)">Chargement…</div>
+            <div id="payment-methods-body" style="display:none">
+              <!-- rows injected by JS -->
+            </div>
+
+            <div style="padding:14px 20px;border-top:1px solid var(--border);background:var(--bg-subtle)">
+              <div style="font-size:.75rem;color:var(--text-muted)">Les changements s'appliquent immédiatement aux nouvelles sessions de paiement. Les paiements en cours ne sont pas affectés.</div>
+            </div>
+          </div>
+
+          <!-- ── MODE MAINTENANCE ──── -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon" style="background:rgba(240,68,56,.08);color:var(--danger)">
+                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <div>
+                <div class="card-title">Contrôles d'urgence</div>
+                <div class="card-sub">Agissez immédiatement sur l'état de la plateforme.</div>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-label">Mode maintenance</div>
+                <div class="setting-desc">Bloque l'accès public — seuls les admins peuvent se connecter.</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-maintenance" onchange="setSetting('maintenance_mode', this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-label">Nouvelles inscriptions</div>
+                <div class="setting-desc">Désactivez pour geler les créations de compte.</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-signups" checked onchange="setSetting('new_signups', this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── MARKETING ─────────────────────────────────────── -->
+        <div>
+          <!-- BANNIÈRE D'ANNONCE -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon" style="background:rgba(247,144,9,.08);color:var(--warning)">
+                <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.42 2 2 0 0 1 3.62 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg>
+              </div>
+              <div>
+                <div class="card-title">Bannière d'annonce</div>
+                <div class="card-sub">Message affiché à tous les utilisateurs connectés.</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="banner-preview" id="banner-preview">Chargement…</div>
+              <div class="field">
+                <label class="form-label">Texte de la bannière</label>
+                <input type="text" class="form-input" id="banner-text" placeholder="Ex : Nouvelles fonctionnalités disponibles !" maxlength="120">
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-primary btn-sm" onclick="saveBanner()">
+                  <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Enregistrer
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="clearBanner()">Effacer</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CODES PROMO -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon" style="background:rgba(18,183,106,.08);color:var(--success)">
+                <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              </div>
+              <div>
+                <div class="card-title">Codes promo</div>
+                <div class="card-sub">Créez des codes d'accès à durée limitée pour vos campagnes.</div>
+              </div>
+            </div>
+            <div class="card-body" style="padding-bottom:12px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+                <div class="field" style="margin:0">
+                  <label class="form-label">Code</label>
+                  <input type="text" class="form-input" id="promo-code" placeholder="LANCEMENT2025" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+                </div>
+                <div class="field" style="margin:0">
+                  <label class="form-label">Plan offert</label>
+                  <select class="form-input" id="promo-plan">
+                    <option value="pro">Pro Médecin</option>
+                    <option value="enterprise">Institution</option>
+                  </select>
+                </div>
+                <div class="field" style="margin:0">
+                  <label class="form-label">Durée (jours)</label>
+                  <input type="number" class="form-input" id="promo-days" value="60" min="1" max="365">
+                </div>
+                <div class="field" style="margin:0">
+                  <label class="form-label">Utilisations max</label>
+                  <input type="number" class="form-input" id="promo-max" value="10" min="1">
+                </div>
+              </div>
+              <button class="btn btn-success btn-sm" onclick="createPromo()" style="width:100%">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Créer le code promo
+              </button>
+            </div>
+            <div id="promo-table-wrap">
+              <table class="data-table">
+                <thead><tr>
+                  <th>Code</th><th>Plan</th><th>Utilisations</th><th>Expire</th><th>Statut</th><th></th>
+                </tr></thead>
+                <tbody id="promo-tbody">
+                  <tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Chargement…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- STATISTIQUES MARKETING -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon" style="background:rgba(46,144,250,.08);color:var(--info)">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </div>
+              <div>
+                <div class="card-title">Funnel lancement</div>
+                <div class="card-sub">Aperçu de la conversion depuis le lancement.</div>
+              </div>
+            </div>
+            <div class="card-body" id="funnel-body">
+              <div style="color:var(--text-muted)">Chargement…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const _supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
+  auth: { storage: localStorage, autoRefreshToken: true, persistSession: true }
+});
+
+const _adminEmails = (DOCLINE_CONFIG.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+
+function sanitize(s){ const d=document.createElement('div');d.textContent=s??'';return d.innerHTML; }
+function formatDate(s){ if(!s) return '—'; return new Date(s).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}); }
+
+const Toast = (() => {
+  function show(title,msg,type='info',ms=4000){
+    let c=document.getElementById('toasts');
+    if(!c){c=document.createElement('div');c.id='toasts';c.className='toasts';document.body.appendChild(c);}
+    const icons={success:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',error:'<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',info:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'};
+    const el=document.createElement('div'); el.className=`toast ${type}`;
+    el.innerHTML=`<div class="toast-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icons[type]||icons.info}</svg></div><div><div class="toast-title">${sanitize(title)}</div>${msg?`<div class="toast-msg">${sanitize(msg)}</div>`:''}</div>`;
+    c.appendChild(el); setTimeout(()=>el.remove(),ms);
+  }
+  return { success:(t,m)=>show(t,m,'success'), error:(t,m)=>show(t,m,'error'), info:(t,m)=>show(t,m,'info') };
+})();
+
+const LOGO_WHITE_SVG = `<img src="docline-logo-white.svg" style="height:26px;width:auto;display:block;flex-shrink:0" alt="Docline">`;
+const LOGO_WHITE_SVG_OLD = `<svg style="height:22px;width:auto;display:block;flex-shrink:0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 187.3"><path fill="#ffffff" d="M112.46,9.26C103.11,3.64,92.46.82,80.51.82c-17.66,0-31.86,5.89-42.59,17.66l-2.6-15.06H0v183.89h40.78v-68.05c10.56,10.05,23.8,15.06,39.74,15.06,11.95,0,22.6-2.81,31.95-8.44,9.35-5.63,16.62-13.5,21.82-23.64,5.19-10.13,7.79-21.68,7.79-34.67s-2.6-24.54-7.79-34.67c-5.19-10.13-12.47-18.01-21.82-23.64ZM92.98,91.07c-5.71,5.97-13.08,8.96-22.08,8.96s-16.32-3.03-21.95-9.09c-5.63-6.06-8.44-13.85-8.44-23.38s2.81-17.31,8.44-23.37c5.63-6.06,12.94-9.09,21.95-9.09s16.36,2.99,22.08,8.96c5.71,5.97,8.57,13.81,8.57,23.5s-2.86,17.53-8.57,23.51Z"/><path fill="#ffffff" d="M394.97,32.51c-5.71-10.04-13.94-17.88-24.68-23.51-10.74-5.63-23.2-8.44-37.4-8.44s-26.62,2.82-37.27,8.44c-10.65,5.63-18.83,13.46-24.54,23.51-5.71,10.04-8.57,21.73-8.57,35.06s2.86,25.02,8.57,35.06c5.71,10.04,13.9,17.88,24.54,23.5,10.65,5.63,23.07,8.44,37.27,8.44s26.66-2.82,37.4-8.44c10.73-5.62,18.96-13.46,24.68-23.5,5.71-10.04,8.57-21.73,8.57-35.06s-2.86-25.02-8.57-35.06Z"/></svg>`;
+
+const AdminSidebar = {
+  render(activePage) {
+    const nav = [
+      ['/admin','overview','Overview','<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
+      ['admin-users.html','users','Users','<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+      ['admin-revenue.html','revenue','Revenue','<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
+      ['admin-security.html','security','Security &amp; Logs','<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
+      ['admin-featured.html','featured','En Vedette','<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
+      ['admin-settings.html','settings','Paramètres &amp; Marketing','<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>'],
+      ['admin-emails.html','emails','Emails','<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
+    ];
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 16px;border-bottom:1px solid var(--sidebar-border)">
+        <div style="display:flex;align-items:center;gap:10px">${LOGO_WHITE_SVG}
+          <span style="background:rgba(247,144,9,.2);color:#F79009;border:1px solid rgba(247,144,9,.3);font-size:10px;font-weight:700;padding:2px 7px;border-radius:var(--r-full)">ADMIN</span>
+        </div>
+      </div>
+      <div style="padding:8px 8px 0">
+        <div class="sidebar-section">Admin Panel</div>
+        ${nav.map(([href,key,label,icon])=>`
+        <a href="${href}" class="admin-nav-item${activePage===key?' active':''}">
+          <svg viewBox="0 0 24 24">${icon}</svg>${label}
+        </a>`).join('')}
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" onclick="signOut()">
+          <div class="user-avatar">F</div>
+          <div><div class="user-name">Founder</div><div class="user-role">Admin access</div></div>
+        </div>
+      </div>`;
+  },
+  init(page) {
+    const el = document.getElementById('admin-sidebar');
+    if (el) el.innerHTML = this.render(page);
+    const ham = document.querySelector('.hamburger');
+    const ov  = document.getElementById('sidebar-overlay');
+    const sb  = document.getElementById('admin-sidebar');
+    if(ham&&sb){
+      ham.addEventListener('click',()=>{sb.classList.toggle('open');ov?.classList.toggle('open');});
+      ov?.addEventListener('click',()=>{sb.classList.remove('open');ov?.classList.remove('open');});
+    }
+  }
+};
+
+function toggleSidebar(){
+  document.getElementById('admin-sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+
+async function signOut(){ await _supa.auth.signOut(); window.location.href='/login'; }
+
+// ── SETTINGS ────────────────────────────────────────────────────────
+
+const PAYMENT_METHODS = [
+  { key:'payment_cib',       label:'CIB / Carte interbancaire', icon:'💳', desc:'Carte CIB pour les paiements en ligne.' },
+  { key:'payment_edahabia',  label:'Edahabia (Algérie Poste)',  icon:'📮', desc:'Carte Edahabia via Algérie Poste.' },
+  { key:'payment_baridimob', label:'BaridiMob',                 icon:'📱', desc:'Paiement mobile via l\'application BaridiMob.' },
+  { key:'payment_virement',  label:'Virement bancaire',         icon:'🏦', desc:'Virement manuel — confirmé par l\'admin.' },
+  { key:'payment_cash',      label:'Paiement en espèces',       icon:'💵', desc:'Remise en main propre — confirmée par l\'admin.' },
+];
+
+let _settings = {};
+let _session  = null;
+
+(async () => {
+  const { data: { session } } = await _supa.auth.getSession();
+  if (!session) { window.location.href = '/login'; return; }
+  if (!_adminEmails.includes((session.user.email||'').toLowerCase())) {
+    window.location.href = '/dashboard'; return;
+  }
+  _session = session;
+  AdminSidebar.init('settings');
+  await loadSettings();
+  await loadPromoCodes();
+  await loadFunnel();
+})();
+
+async function loadSettings() {
+  const { data } = await _supa.from('app_settings').select('key,value');
+  if (data) data.forEach(row => { _settings[row.key] = row.value; });
+  renderPaymentMethods();
+  renderControls();
+  renderBanner();
+}
+
+function renderPaymentMethods() {
+  const body = document.getElementById('payment-methods-body');
+  const loading = document.getElementById('payment-methods-loading');
+  if (loading) loading.style.display = 'none';
+  if (!body) return;
+  body.style.display = 'block';
+  body.innerHTML = PAYMENT_METHODS.map(m => {
+    const isOn = _settings[m.key] !== false && _settings[m.key] !== 'false';
+    return `<div class="setting-row">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:20px">${m.icon}</span>
+        <div class="setting-info">
+          <div class="setting-label">${m.label}</div>
+          <div class="setting-desc">${m.desc}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="status-pill ${isOn?'on':'off'}"><span class="dot"></span>${isOn?'Actif':'Inactif'}</span>
+        <label class="toggle">
+          <input type="checkbox" ${isOn?'checked':''} onchange="setSetting('${m.key}', this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderControls() {
+  const maint = document.getElementById('toggle-maintenance');
+  const signups = document.getElementById('toggle-signups');
+  if (maint) maint.checked = _settings['maintenance_mode'] === true || _settings['maintenance_mode'] === 'true';
+  if (signups) signups.checked = _settings['new_signups'] !== false && _settings['new_signups'] !== 'false';
+}
+
+function renderBanner() {
+  let text = '';
+  const raw = _settings['launch_banner'];
+  if (typeof raw === 'string') text = raw.replace(/^"|"$/g, '');
+  else if (raw) text = String(raw);
+  const preview = document.getElementById('banner-preview');
+  const input   = document.getElementById('banner-text');
+  if (preview) preview.textContent = text || '(Aucune bannière active)';
+  if (input)   input.value = text;
+}
+
+async function setSetting(key, value) {
+  _settings[key] = value;
+  const { error } = await _supa.from('app_settings').upsert({
+    key, value: JSON.stringify(value), updated_at: new Date().toISOString(), updated_by: _session?.user?.email
+  }, { onConflict: 'key' });
+  if (error) { Toast.error('Erreur', error.message); return; }
+  if (key.startsWith('payment_')) renderPaymentMethods();
+  Toast.success('Enregistré', key + ' → ' + value);
+}
+
+async function saveBanner() {
+  const text = document.getElementById('banner-text').value.trim();
+  await setSetting('launch_banner', text);
+  renderBanner();
+}
+
+async function clearBanner() {
+  document.getElementById('banner-text').value = '';
+  await saveBanner();
+}
+
+// ── PROMO CODES ─────────────────────────────────────────────────────
+
+let _promos = [];
+
+async function loadPromoCodes() {
+  const { data } = await _supa.from('promo_codes').select('*').order('created_at', { ascending: false });
+  _promos = data || [];
+  renderPromos();
+}
+
+function renderPromos() {
+  const tb = document.getElementById('promo-tbody');
+  if (!tb) return;
+  if (!_promos.length) {
+    tb.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Aucun code promo créé.</td></tr>`;
+    return;
+  }
+  const PLAN_LABELS = { pro: 'Pro Médecin', enterprise: 'Institution' };
+  tb.innerHTML = _promos.map(p => {
+    const isActive = p.active && (!p.expires_at || new Date(p.expires_at) > new Date());
+    const isFull   = p.max_uses && p.uses >= p.max_uses;
+    return `<tr>
+      <td style="font-family:'DM Mono',monospace;font-weight:700;font-size:.75rem">${sanitize(p.code)}</td>
+      <td><span class="badge badge-neutral">${PLAN_LABELS[p.plan]||p.plan}</span></td>
+      <td style="font-size:.75rem">${p.uses}${p.max_uses?' / '+p.max_uses:''}</td>
+      <td style="font-size:.75rem;color:var(--text-muted)">${p.expires_at?formatDate(p.expires_at):'Illimitée'}</td>
+      <td><span class="badge ${isActive&&!isFull?'badge-success':'badge-danger'}">${isFull?'Épuisé':isActive?'Actif':'Inactif'}</span></td>
+      <td>
+        <button class="btn btn-xs btn-danger" onclick="deactivatePromo('${p.id}')">Désactiver</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function createPromo() {
+  const code = document.getElementById('promo-code').value.trim().toUpperCase();
+  const plan = document.getElementById('promo-plan').value;
+  const days = parseInt(document.getElementById('promo-days').value) || 60;
+  const max  = parseInt(document.getElementById('promo-max').value)  || null;
+  if (!code) { Toast.error('Code requis', ''); return; }
+
+  const { error } = await _supa.from('promo_codes').insert({
+    code, plan, duration_days: days, max_uses: max, active: true
+  });
+  if (error) { Toast.error('Erreur', error.message); return; }
+  Toast.success('Code créé', code + ' — ' + days + ' jours');
+  document.getElementById('promo-code').value = '';
+  await loadPromoCodes();
+}
+
+async function deactivatePromo(id) {
+  if (!confirm('Désactiver ce code promo ?')) return;
+  await _supa.from('promo_codes').update({ active: false }).eq('id', id);
+  Toast.info('Désactivé', '');
+  await loadPromoCodes();
+}
+
+// ── FUNNEL ──────────────────────────────────────────────────────────
+
+async function loadFunnel() {
+  const el = document.getElementById('funnel-body');
+  const [users, subs, trials] = await Promise.all([
+    _supa.from('profiles').select('id', { count: 'exact', head: true }),
+    _supa.from('subscriptions').select('plan,status'),
+    _supa.from('profiles').select('id', { count: 'exact', head: true }).not('trial_ends_at', 'is', null),
+  ]);
+  const total   = users.count || 0;
+  const paying  = (subs.data||[]).filter(s=>s.plan!=='free'&&s.status==='active').length;
+  const trialN  = trials.count || 0;
+  const conv    = total ? Math.round((paying/total)*100) : 0;
+  const steps = [
+    { label:'Visiteurs → Inscriptions', value: total,  color:'var(--brand)',   note:'médecins créés' },
+    { label:'Inscriptions → Essai offert', value: trialN, color:'var(--warning)', note:'accès lancement' },
+    { label:'Essai → Abonnement payant',  value: paying, color:'var(--success)', note: conv+'% conversion' },
+  ];
+  el.innerHTML = steps.map((s,i)=>`
+    <div style="margin-bottom:${i<steps.length-1?'16px':'0'}">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:.75rem;font-weight:600;color:var(--text-secondary)">${s.label}</span>
+        <span style="font-size:.75rem;font-weight:800;color:var(--text-primary)">${s.value} <span style="font-weight:400;color:var(--text-muted)">${s.note}</span></span>
+      </div>
+      <div style="height:8px;background:var(--bg-subtle);border-radius:var(--r-full);overflow:hidden">
+        <div style="height:100%;width:${total?Math.round((s.value/total)*100):0}%;background:${s.color};border-radius:var(--r-full);transition:width .6s ease"></div>
+      </div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
