@@ -1241,7 +1241,7 @@ async function analyzeWithAI() {
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || json.message || 'Erreur edge function');
 
-    renderAiResult(json);
+    renderAiResult(json.analysis || json);
     showToast('success', 'Analyse terminée', 'Résultat IA disponible ci-dessous');
   } catch (err) {
     console.error('AI analyze error', err);
@@ -1260,7 +1260,11 @@ function renderAiResult(data) {
     'verifier_manuellement': '<span class="badge badge-warning">⚠ Vérifier manuellement</span>'
   }[rec] || `<span class="badge badge-neutral">${esc(rec)}</span>`;
 
-  const confidence = parseFloat(data.confidence || data.confiance || 0);
+  const rawConf = data.confidence || data.confiance || 0;
+  const confLevelMap = { 'high': 0.88, 'medium': 0.55, 'low': 0.25 };
+  const confidence = typeof rawConf === 'string'
+    ? (confLevelMap[rawConf.toLowerCase()] ?? parseFloat(rawConf) || 0)
+    : parseFloat(rawConf) || 0;
   const confPercent = Math.round(confidence * 100);
 
   const remarques = data.remarks || data.remarques || '';
@@ -1300,6 +1304,7 @@ function renderAiResult(data) {
         </div>
       </div>
       ${remarques ? `<div class="ai-remarques"><div class="ai-remarques-label">Remarques</div><div class="ai-remarques-text">${esc(remarques)}</div></div>` : ''}
+      ${(Array.isArray(data.alertes) && data.alertes.length) ? `<div class="ai-remarques" style="background:rgba(220,38,38,.06);border-top:1px solid rgba(220,38,38,.18)"><div class="ai-remarques-label" style="color:var(--danger)">⚠ Alertes</div><div class="ai-remarques-text">${data.alertes.map(function(a){return '<div>• '+esc(String(a))+'</div>';}).join('')}</div></div>` : ''}
     </div>
   `;
 }
