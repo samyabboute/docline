@@ -904,6 +904,11 @@ async function load() {
     if (!_isPro) document.getElementById('upgrade-banner').style.display = 'flex';
   } catch(e) {
     toast('Erreur de chargement : ' + e.message, 'error');
+    // Remplacer les spinners résiduels pour ne pas rester bloqué
+    var pl = document.getElementById('patients-list');
+    if (pl && pl.querySelector('.card-empty')) pl.innerHTML = '<div class="card-empty">Impossible de charger les patients.</div>';
+    var al = document.getElementById('agenda-list');
+    if (al && al.querySelector('.card-empty')) al.innerHTML = '<div class="card-empty">Impossible de charger l\'agenda.</div>';
   }
 }
 
