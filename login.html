@@ -669,6 +669,17 @@ async function register(){
 
     // Supabase a retourné une session immédiatement (confirmation email désactivée) → dashboard
     if(r.data && r.data.session){
+      // Auto-send welcome email (best-effort, non-blocking)
+      try{
+        fetch(EDGE_BASE + '/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + r.data.session.access_token
+          },
+          body: JSON.stringify({ type: 'welcome', payload: {} })
+        });
+      }catch(_){}
       window.location.href = getRedirectUrl(email);
       return;
     }

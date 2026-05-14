@@ -343,40 +343,63 @@ var AdminNav = [
   ['admin-emails.html',  'emails',    'Emails',                '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
 ];
 
-function renderSidebar() {
+function renderSidebar(userEmail) {
+  var email    = userEmail || '';
+  var initials = email.slice(0,2).toUpperCase() || 'AD';
+  var handle   = email.split('@')[0] || 'Admin';
   var el = document.getElementById('admin-sidebar');
   el.innerHTML = '<div class="sidebar-head">'
     +'<div style="display:flex;align-items:center;gap:10px">'
     +'<img src="docline-logo-white.svg" style="height:26px;width:auto;display:block;flex-shrink:0" alt="Docline">'
-    +'<span style="background:rgba(245,158,11,.2);color:#F59E0B;border:1px solid rgba(245,158,11,.3);font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px">ADMIN</span>'
+    +'<span style="background:rgba(245,158,11,.18);color:#F59E0B;border:1px solid rgba(245,158,11,.28);font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px">ADMIN</span>'
     +'</div></div>'
-    +'<div style="padding:8px 8px 0"><div class="sidebar-section">Administration</div>'
+    +'<div style="padding:8px 8px 0"><div class="sidebar-section">Navigation</div>'
     + AdminNav.map(function(n){
         var isStar = n[1]==='featured';
         var svgStyle = isStar ? 'fill:#F59E0B;stroke:none' : '';
-        return '<a href="'+n[0]+'" class="nav-item'+(n[1]==='featured'?' active':'')+'">'
+        var href = (typeof ghpNav==='function') ? ghpNav('/'+n[0].replace('.html','')) : n[0];
+        return '<a href="'+href+'" class="nav-item'+(n[1]==='featured'?' active':'')+'">'
           +'<svg viewBox="0 0 24 24" style="'+svgStyle+'">'+n[3]+'</svg>'
           +n[2]+'</a>';
       }).join('')
     +'</div>'
     +'<div style="padding:8px 8px 0;margin-top:4px"><div class="sidebar-section">Application</div>'
-    +'<a href="/find-doctor" target="_blank" class="nav-item">'
-    +'<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Voir le site patient</a></div>'
-    +'<div class="sidebar-footer"><div class="sidebar-user" onclick="signOut()">'
-    +'<div class="user-avatar">F</div>'
-    +'<div><div class="user-name" id="sb-name">Fondateur</div><div class="user-role">Accès total</div></div>'
-    +'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:2;margin-left:auto"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+    +'<a href="'+(typeof ghpNav==='function'?ghpNav('/find-doctor'):'find-doctor.html')+'" target="_blank" class="nav-item" style="color:rgba(255,255,255,.45)">'
+    +'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Voir le site patient</a></div>'
+    +'<div class="sidebar-footer" style="position:relative">'
+    +'<div id="sb-user-menu" style="display:none;position:absolute;bottom:calc(100% + 4px);left:8px;right:8px;background:#1C1F28;border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:6px;box-shadow:0 -12px 32px rgba(0,0,0,.5);z-index:300">'
+    +'<div style="padding:10px 12px 8px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:4px">'
+    +'<div style="font-size:.6875rem;font-weight:700;color:rgba(255,255,255,.8)">'+email+'</div>'
+    +'<div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px">Super Admin · Accès total</div>'
+    +'</div>'
+    +'<a href="'+(typeof ghpNav==='function'?ghpNav('/dashboard'):'app.html')+'" class="nav-item" style="color:rgba(255,255,255,.6)">'
+    +'<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Voir l\'app médecin</a>'
+    +'<div style="height:1px;background:rgba(255,255,255,.07);margin:4px 8px"></div>'
+    +'<button onclick="signOut()" class="nav-item" style="color:rgba(240,68,56,.8);width:100%;text-align:left;border:none;cursor:pointer;background:transparent;font-family:inherit">'
+    +'<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Déconnexion</button>'
+    +'</div>'
+    +'<div class="sidebar-user" onclick="toggleSbMenu()" style="cursor:pointer">'
+    +'<div class="user-avatar" style="background:linear-gradient(135deg,#3B1772 0%,#7C3AED 100%)">'+initials+'</div>'
+    +'<div><div class="user-name">'+handle+'</div><div class="user-role">Super Admin</div></div>'
+    +'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:2;margin-left:auto"><polyline points="9 18 15 12 9 6"/></svg>'
     +'</div></div>';
+  document.addEventListener('click', function(e){
+    var btn=document.querySelector('.sidebar-user'), menu=document.getElementById('sb-user-menu');
+    if(menu&&btn&&!btn.contains(e.target)&&!menu.contains(e.target)) menu.style.display='none';
+  });
+}
+function toggleSbMenu(){
+  var m=document.getElementById('sb-user-menu'); if(m) m.style.display=m.style.display==='none'?'block':'none';
 }
 
 /* ── AUTH ────────────────────────────────────────────────── */
 (async function(){
-  renderSidebar();
   var { data: { session } } = await _supa.auth.getSession();
   if (!session) { window.location.href=ghpNav('/login'); return; }
   var email = (session.user.email || '').toLowerCase();
   var admins = (typeof DOCLINE_CONFIG !== 'undefined' ? (DOCLINE_CONFIG.ADMIN_EMAILS||[]) : []).map(function(e){return e.toLowerCase();});
   if (!admins.includes(email)) { window.location.href=ghpNav('/dashboard'); return; }
+  renderSidebar(session.user.email);
   var sbName = document.getElementById('sb-name');
   if (sbName) sbName.textContent = session.user.email.split('@')[0];
   document.getElementById('hamburger').addEventListener('click', function(){
