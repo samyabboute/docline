@@ -320,6 +320,7 @@ var DEFAULT_ACCESS = {
   var meta = user.user_metadata || {};
   var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().then(function(r){return r.data;}).catch(function(){return null;});
   var isPro = sub && (sub.plan==='pro'||sub.plan==='clinic') && sub.status==='active';
+  if (!isPro) { window.location.href = ghpNav('/pricing'); return; }
   Shell.init({ page:'staff', title:'Personnel', isPro:isPro, plan:sub&&sub.plan||'free', userName:Shell.displayName(meta,user.email), userEmail:user.email||'' });
   buildPermGrid();
   loadStaff();
