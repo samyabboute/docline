@@ -32,34 +32,34 @@ var Shell = (function () {
 
     // ── Activité du jour
     { section: 'Activité du jour' },
-    { href:'queue.html',          key:'queue',          label:"File d'attente", featured:true, pro:true,
+    { href:'/queue',              key:'queue',          label:"File d'attente", featured:true, pro:true,
       icon:'<path d="M9 12h.01M12 12h.01M15 12h.01M12 8c-4.418 0-8 1.79-8 4s3.582 4 8 4 8-1.79 8-4-3.582-4-8-4z"/><path d="M4 12v4c0 2.21 3.582 4 8 4s8-1.79 8-4v-4"/>' },
     { href:'/calendar',           key:'calendar',       label:'Agenda',
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
-    { href:'consultations.html',  key:'consultations',  label:'Consultations',
+    { href:'/consultations',      key:'consultations',  label:'Consultations',
       icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>' },
 
     // ── Dossiers médicaux
     { section: 'Dossiers médicaux' },
     { href:'/patients',           key:'clients',        label:'Patients',
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
-    { href:'ordonnances.html',    key:'ordonnances',    label:'Ordonnances',
+    { href:'/ordonnances',        key:'ordonnances',    label:'Ordonnances',
       icon:'<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/>' },
-    { href:'labo.html',           key:'labo',           label:'Laboratoire',  pro:true,
+    { href:'/labo',               key:'labo',           label:'Laboratoire',  pro:true,
       icon:'<path d="M6 2v6l-2 4v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8l-2-4V2"/><line x1="6" y1="10" x2="14" y2="10"/>' },
 
     // ── Prise de rendez-vous
     { section: 'Rendez-vous en ligne' },
     { href:'/mes-rdv',            key:'mes-rdv',        label:'Mes Rendez-vous',
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/>' },
-    { href:'disponibilites.html', key:'disponibilites', label:'Disponibilités',
+    { href:'/disponibilites',     key:'disponibilites', label:'Disponibilités',
       icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
-    { href:'profil-public.html',  key:'profil-public',  label:'Profil public',
+    { href:'/profil-public',      key:'profil-public',  label:'Profil public',
       icon:'<rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/>' },
 
     // ── Mon équipe
     { section: 'Mon équipe' },
-    { href:'staff.html',          key:'staff',          label:'Personnel',    pro:true,
+    { href:'/staff',              key:'staff',          label:'Personnel',    pro:true,
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/>' },
   ];
 
@@ -644,6 +644,9 @@ button{font-family:inherit;cursor:pointer}
   0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.6);transform:scale(1)}
   50%  {box-shadow:0 0 0 6px rgba(220,38,38,.0);transform:scale(1.08)}
 }
+/* ── PAGE TRANSITION BAR ── */
+#shell-progress{position:fixed;top:0;left:0;width:0;height:3px;background:linear-gradient(90deg,#3B1772,#7C3AED);z-index:9999;transition:width .4s ease,opacity .3s ease;border-radius:0 3px 3px 0;pointer-events:none;opacity:0}
+#shell-progress.running{opacity:1}
 </style>`;
 
   // ── INJECT CSS ────────────────────────────────────────────────
@@ -787,7 +790,7 @@ button{font-family:inherit;cursor:pointer}
       +     'Mon profil public'
       +   '</a>'
       /* Modifier le logo */
-      +   '<a href="profil-public.html#logo" class="sb-pop-item" id="sb-pop-logo">'
+      +   '<a href="/profil-public#logo" class="sb-pop-item" id="sb-pop-logo">'
       +     '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/><polyline points="16 16 12 12 8 16"/></svg>'
       +     'Modifier le logo / avatar'
       +   '</a>'
@@ -959,7 +962,7 @@ button{font-family:inherit;cursor:pointer}
           + '<rect x="36" y="100" width="108" height="12" rx="6" fill="#EDE8FF"/>'
           + '<rect x="36" y="100" width="72" height="12" rx="6" fill="#3B1772" opacity=".7"/>'
           + '</svg>',
-      href: 'profil-public.html',
+      href: '/profil-public',
     },
     {
       chip: 'Étape 2 — Disponibilités',
@@ -984,7 +987,7 @@ button{font-family:inherit;cursor:pointer}
           + '<rect x="124" y="74" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
           + '<rect x="34" y="98" width="114" height="8" rx="4" fill="#EDE8FF"/>'
           + '</svg>',
-      href: 'disponibilites.html',
+      href: '/disponibilites',
     },
     {
       chip: 'Étape 3 — Booking',
@@ -1121,6 +1124,33 @@ button{font-family:inherit;cursor:pointer}
   }
 
   // ── INIT ──────────────────────────────────────────────────────
+  // ── PROGRESS BAR ─────────────────────────────────────────────
+  (function() {
+    var bar = document.createElement('div');
+    bar.id = 'shell-progress';
+    document.body.appendChild(bar);
+    // Show on navigation start
+    document.addEventListener('click', function(e) {
+      var a = e.target.closest('a[href]');
+      if (!a) return;
+      var href = a.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('javascript:') || a.target === '_blank') return;
+      bar.style.width = '0';
+      bar.classList.add('running');
+      // Animate to 80% quickly, the rest completes on load
+      requestAnimationFrame(function() {
+        bar.style.transition = 'width 2s ease';
+        bar.style.width = '80%';
+      });
+    });
+    // Complete on load
+    window.addEventListener('pageshow', function() {
+      bar.style.transition = 'width .2s ease';
+      bar.style.width = '100%';
+      setTimeout(function() { bar.classList.remove('running'); bar.style.width = '0'; bar.style.transition = ''; }, 300);
+    });
+  })();
+
   function init(opts) {
     var sbEl  = document.getElementById('shell-sidebar');
     var tbEl  = document.getElementById('shell-topbar');
@@ -1412,16 +1442,16 @@ button{font-family:inherit;cursor:pointer}
   // ── STAFF ACCESS CONTROL ──────────────────────────────────────
   // Pages accessibles par clé → fichier HTML
   var _PAGE_HREFS = {
-    'queue':        'queue.html',
+    'queue':        '/queue',
     'clients':      '/patients',
     'calendar':     '/calendar',
     'mes-rdv':      '/mes-rdv',
-    'consultations':'consultations.html',
-    'labo':         'labo.html',
-    'ordonnances':  'ordonnances.html',
-    'staff':        'staff.html',
-    'disponibilites':'disponibilites.html',
-    'profil-public':'profil-public.html',
+    'consultations':'/consultations',
+    'labo':         '/labo',
+    'ordonnances':  '/ordonnances',
+    'staff':        '/staff',
+    'disponibilites':'/disponibilites',
+    'profil-public':'/profil-public',
   };
   // Ordre de priorité pour la redirection automatique depuis le dashboard
   var _REDIRECT_PRIORITY = ['queue','clients','calendar','mes-rdv','consultations','labo','ordonnances','staff'];
