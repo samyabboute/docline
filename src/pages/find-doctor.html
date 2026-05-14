@@ -1646,6 +1646,7 @@ function renderStars(rating){
       .not('full_name','is',null)
       .not('specialty','is',null)
       .neq('is_public', false)
+      .neq('is_active', false)
       .order('featured', { ascending: false, nullsFirst: false })
       .order('full_name');
     if (error) throw error;

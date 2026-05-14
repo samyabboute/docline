@@ -1536,17 +1536,23 @@ async function signOut() {
    DELETE DOCTOR
 ═══════════════════════════════════════════════════════════ */
 async function deleteDoctor(doctorId, email) {
-  if (!confirm('⚠️ Supprimer définitivement le compte de ' + (email || doctorId) + ' ?\n\nCette action est irréversible. Toutes les données seront perdues.')) return;
+  if (!confirm('⚠️ Supprimer / masquer le compte de ' + (email || doctorId) + ' ?\n\nLe médecin sera désactivé et retiré de l\'annuaire public immédiatement.\n(Suppression complète de la base disponible dans Supabase Dashboard)')) return;
   try {
-    const { session } = (await _sb.auth.getSession()).data;
-    const resp = await fetch(EDGE + '/admin-manage-users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
-      body: JSON.stringify({ action: 'delete_user', user_id: doctorId })
-    });
-    const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || 'Erreur suppression');
-    showToast('success', 'Compte supprimé', (email || doctorId) + ' a été supprimé.');
+    // 1. Désactiver et masquer du profil public
+    const { error: profErr } = await _sb.from('profiles')
+      .update({ is_active: false, is_public: false })
+      .eq('id', doctorId);
+    if (profErr) throw new Error('Profil: ' + profErr.message);
+
+    // 2. Désactiver la souscription
+    await _sb.from('subscriptions')
+      .update({ status: 'suspended' })
+      .eq('user_id', doctorId);
+
+    // 3. Désactiver via edge function (toggle_active)
+    try { await kycAction(doctorId, 'toggle_active'); } catch(e) { /* ignore si déjà inactif */ }
+
+    showToast('success', 'Compte désactivé', (email || doctorId) + ' est retiré de l\'annuaire.');
     _doctorsData = _doctorsData.filter(d => d.id !== doctorId);
     renderDoctorsTable();
   } catch (err) {
