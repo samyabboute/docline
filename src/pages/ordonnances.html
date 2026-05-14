@@ -642,9 +642,12 @@ function initPatientAC() {
 
 async function loadOrds() {
   var { data, error } = await _supa.from('proposals').select('*').eq('user_id',_uid).order('created_at',{ascending:false});
-  if (error) { toast('Erreur de chargement','error'); return; }
+  if (error) {
+    console.error('[loadOrds] Supabase error:', error.code, error.message);
+    toast('Erreur chargement ordonnances : ' + error.message, 'error');
+  }
   _ords = data || [];
-  updateStats();
+  updateStats();  // toujours appeler pour afficher 0 au lieu de —
   renderList();
 }
 

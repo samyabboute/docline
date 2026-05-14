@@ -525,7 +525,7 @@ document.addEventListener('click', function(e) {
 
 async function loadConsults() {
   var { data, error } = await _supa.from('consultations').select('*').eq('user_id',_uid).order('consult_date',{ascending:false});
-  if (error) { toast('Erreur de chargement','error'); return; }
+  if (error) { console.error('[loadConsults]', error.code, error.message); toast('Erreur chargement : ' + error.message, 'error'); }
   _consults = data || [];
   updateStats();
   renderList();
