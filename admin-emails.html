@@ -298,11 +298,11 @@ const TEMPLATE_META = {
 document.getElementById('sidebar').innerHTML = AdminSidebar.render('emails');
 
 async function init() {
-  if (typeof DOCLINE_CONFIG === 'undefined' || !DOCLINE_CONFIG.SUPABASE_URL) {
+  if (typeof DOCLINE_CONFIG === 'undefined' || !DOCLINE_CONFIG.SUPA_URL) {
     document.getElementById('tmpl-grid').innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--danger)">Configuration manquante (config.js)</div>';
     return;
   }
-  _supa = supabase.createClient(DOCLINE_CONFIG.SUPABASE_URL, DOCLINE_CONFIG.SUPABASE_ANON_KEY);
+  _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
   const { data: { session } } = await _supa.auth.getSession();
   if (!session) { window.location.href=ghpNav('/admin'); return; }
   _session = session;
