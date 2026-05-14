@@ -808,6 +808,7 @@ function playSound(priority) {
   generateQR();
 
   // Real-time: new patient joins via QR
+  // ── Canal postgres_changes (si RLS le permet) ──
   _supa.channel('queue-mgmt-' + _uid)
     .on('postgres_changes', {event:'INSERT', schema:'public', table:'queue_entries', filter:'clinic_id=eq.'+_uid}, function(payload) {
       var e = payload.new;
@@ -815,14 +816,54 @@ function playSound(priority) {
         var already = _queue.find(function(p){return p.id===e.id;});
         if (!already) {
           _queue.push(dbToLocal(e));
-          renderQueue();
-          updateStats();
+          renderQueue(); updateStats();
           toast('Nouveau patient : ' + e.patient_name + ' — N°' + e.number, e.priority === 'critique' ? 'critique' : e.priority === 'urgente' ? 'urgent' : 'success');
           playNewPatient();
         }
       }
     })
+    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'queue_entries', filter:'clinic_id=eq.'+_uid}, function(payload) {
+      var e = payload.new;
+      var idx = _queue.findIndex(function(p){return p.id===e.id;});
+      if (idx !== -1) { _queue[idx] = dbToLocal(e); renderQueue(); updateStats(); }
+    })
     .subscribe();
+
+  // ── Canal Broadcast — mise à jour instantanée garantie ──
+  _supa.channel('queue-live-' + _uid)
+    .on('broadcast', { event: 'new_patient' }, function(msg) {
+      var e = msg.payload;
+      if (!e || e.queue_date !== _todayKey) return;
+      var already = _queue.find(function(p){ return p.id === e.id; });
+      if (!already) {
+        _queue.push({ id:e.id, num:e.number, name:e.patient_name, status:e.status||'waiting', priority:e.priority||'normale', arrived_at:e.created_at, room:null, notes:null });
+        renderQueue(); updateStats();
+        toast('Nouveau patient : ' + e.patient_name + ' — N°' + e.number, e.priority === 'critique' ? 'critique' : e.priority === 'urgente' ? 'urgent' : 'success');
+        playNewPatient();
+      }
+    })
+    .subscribe();
+
+  // ── Polling de secours toutes les 10s (RLS peut bloquer realtime) ──
+  setInterval(async function() {
+    var r = await _supa.from('queue_entries').select('*').eq('clinic_id',_uid).eq('queue_date',_todayKey).order('number');
+    if (!r.data) return;
+    var fresh = r.data.map(dbToLocal);
+    var changed = false;
+    fresh.forEach(function(e) {
+      var existing = _queue.find(function(p){return p.id===e.id;});
+      if (!existing) {
+        _queue.push(e);
+        changed = true;
+        toast('Nouveau patient : ' + e.name + ' — N°' + e.num, 'success');
+        playNewPatient();
+      } else if (existing.status !== e.status) {
+        Object.assign(existing, e);
+        changed = true;
+      }
+    });
+    if (changed) { renderQueue(); updateStats(); }
+  }, 10000);
 })();
 
 function dbToLocal(e) {

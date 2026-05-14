@@ -1642,10 +1642,10 @@ function renderStars(rating){
 (async function(){
   try {
     var { data, error } = await _supa.from('profiles')
-      .select('id,full_name,is_clinic,clinic_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured')
+      .select('id,full_name,is_clinic,clinic_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured,is_public')
       .not('full_name','is',null)
       .not('specialty','is',null)
-      .neq('is_active', false)
+      .neq('is_public', false)
       .order('featured', { ascending: false, nullsFirst: false })
       .order('full_name');
     if (error) throw error;
