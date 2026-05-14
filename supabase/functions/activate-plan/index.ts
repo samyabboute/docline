@@ -71,6 +71,21 @@ serve(async (req) => {
     const { error } = await admin.from("subscriptions").upsert(upsertData, { onConflict: "user_id" });
     if (error) throw error;
 
+    // Auto-send trial_granted email when a trial is activated (best-effort)
+    if (is_trial && plan !== "free") {
+      try {
+        const SEND_EMAIL_URL = Deno.env.get("SUPABASE_URL")! + "/functions/v1/send-email";
+        await fetch(SEND_EMAIL_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${jwt}`,
+          },
+          body: JSON.stringify({ type: "trial_granted", payload: {} }),
+        });
+      } catch (_) { /* non-blocking */ }
+    }
+
     return new Response(
       JSON.stringify({ ok: true, expires_at: trialEnd.toISOString() }),
       { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
