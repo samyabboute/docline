@@ -257,6 +257,18 @@
   .form-row{grid-template-columns:1fr}
   .med-row{grid-template-columns:1fr auto}
   .toolbar{flex-direction:column;align-items:stretch}
+  /* Modal mobile */
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal{border-radius:20px 20px 0 0;max-height:92vh;max-width:100%}
+  .modal-body{padding:14px 16px}
+  .modal-head{padding:16px 16px 12px}
+  .modal-footer{padding:10px 16px 16px}
+  .new-patient-box{padding:12px 12px}
+  /* Stack new-patient fields always on mobile */
+  .new-patient-box .form-row{grid-template-columns:1fr !important}
+  .med-header span:last-child{display:none}
+  .med-row{grid-template-columns:1fr auto}
+  .btn-ghost,.btn-save{padding:10px 16px;font-size:13px}
   .search-box{max-width:100%}
   .shell-page{padding-bottom:80px}
 }
@@ -452,7 +464,7 @@
 
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
-var _uid = null, _ords = [], _patients = [], _editId = null, _selPatientId = null;
+var _uid = null, _isPro = false, _ords = [], _patients = [], _editId = null, _selPatientId = null;
 var _activeFilter = 'all', _searchQ = '';
 
 // ── Liste médicaments DCI (Algérie / France) ──────────────────
@@ -511,8 +523,8 @@ var PAC_PAL = [
   var meta = user.user_metadata || {};
   var name = Shell.displayName(meta, user.email);
   var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).single().then(function(r){return r.data;}).catch(function(){return null;});
-  var isPro = sub && (sub.plan==='pro'||sub.plan==='clinic') && sub.status==='active';
-  Shell.init({ page:'ordonnances', title:'Ordonnances', isPro:isPro, plan:sub?.plan||'free', userName:name, userEmail:user.email||'' });
+  _isPro = !!(sub && (sub.plan==='pro'||sub.plan==='clinic') && sub.status==='active');
+  Shell.init({ page:'ordonnances', title:'Ordonnances', isPro:_isPro, plan:sub?.plan||'free', userName:name, userEmail:user.email||'' });
   if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
   if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'ordonnances', 'Ordonnances');
   document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
@@ -895,11 +907,13 @@ function getMeds() {
 }
 
 async function saveOrd() {
+  var btn = document.getElementById('btn-save');
+  try {
   var patient = document.getElementById('f-patient').value.trim();
   if (!patient) { toast('Nom du patient requis.','error'); return; }
 
   // ── Limite 5 ordonnances/mois pour le plan gratuit ──
-  if (!_editId && !isPro) {
+  if (!_editId && !_isPro) {
     var now = new Date();
     var firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     var { count } = await _supa.from('proposals')
@@ -938,7 +952,6 @@ async function saveOrd() {
     patient = prenom + ' ' + nom;
   }
 
-  var btn = document.getElementById('btn-save');
   btn.disabled = true; btn.textContent = 'Enregistrement…';
   var meds = getMeds();
   var payload = {
@@ -962,6 +975,12 @@ async function saveOrd() {
   if (error) { toast('Erreur : '+error.message,'error'); return; }
   toast(_editId?'Ordonnance mise à jour.':'Ordonnance créée.','success');
   closeModal(); loadOrds();
+  } catch(e) {
+    console.error('[saveOrd]', e);
+    toast('Erreur inattendue : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Enregistrer';
+  }
 }
 
 async function deleteOrd(id) {
