@@ -2,11 +2,13 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "docline",
   "compatibility_date": "2026-05-14",
+  "main": "worker.js",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "src/pages"
+    "directory": "src/pages",
+    "binding": "ASSETS"
   },
   "compatibility_flags": [
     "nodejs_compat"
