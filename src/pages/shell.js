@@ -17,7 +17,9 @@ window.addEventListener('unhandledrejection', function (e) {
   }
 });
 
-var Shell = (function () {
+var Shell;
+try {
+Shell = (function () {
   'use strict';
 
   // ── LOGO ──────────────────────────────────────────────────────
@@ -1553,3 +1555,16 @@ button{font-family:inherit;cursor:pointer}
 
   return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, guard: guard, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
 })();
+} catch(e) {
+  console.error('[Shell] Crash lors de l\'initialisation du module:', e);
+  // Stub minimal pour que les pages ne plantent pas entièrement
+  Shell = {
+    init: function() {},
+    render: function() { return { sidebar: '', topbar: '', mobileNav: '' }; },
+    displayName: function(meta, email) { return (meta && (meta.full_name || meta.name)) || (email ? String(email).split('@')[0] : '') || ''; },
+    guard: function() { return true; },
+    checkStaff: function() {},
+    setRdvBadge: function() {},
+    resetOnboarding: function() {}
+  };
+}
