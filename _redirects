@@ -75,7 +75,7 @@
 /dr/*                     /dr.html              200
 
 # ── Sitemap dynamique ─────────────────────────────────────────────────────────
-/sitemap.xml              https://ferkzwzypmdtuypxribz.supabase.co/functions/v1/sitemap  200
+/sitemap.xml              https://ferkzwzypmdtuypxribz.supabase.co/functions/v1/sitemap  301
 
 # ── Racine ────────────────────────────────────────────────────────────────────
 /                         /find-doctor.html     200
