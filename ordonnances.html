@@ -212,6 +212,39 @@
   padding:20px 16px;text-align:center;font-size:13px;
   color:var(--text4);display:flex;align-items:center;justify-content:center;gap:8px;
 }
+.pdrop-add{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  cursor:pointer;border-top:1.5px dashed var(--brand-border);
+  color:var(--brand);font-size:13px;font-weight:700;
+  transition:background .1s;
+}
+.pdrop-add:hover{background:var(--brand-subtle,#F3EFFF)}
+.pdrop-add svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
+
+/* Nouveau patient section */
+.new-patient-box{
+  background:var(--brand-subtle,#F3EFFF);border:1.5px solid var(--brand-border);
+  border-radius:12px;padding:14px 16px;margin-top:10px;
+  animation:dpIn .18s ease both;
+}
+.new-patient-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--brand);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.new-patient-title svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+
+/* Medication autocomplete */
+.med-ac-wrap{position:relative;flex:1}
+.med-ac-drop{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:700;
+  background:var(--surface);border:1.5px solid var(--brand);
+  border-radius:12px;overflow:hidden;max-height:200px;overflow-y:auto;
+  box-shadow:0 8px 24px rgba(59,23,114,.15);animation:dpIn .12s ease both;
+}
+.mac-item{
+  padding:8px 12px;font-size:13px;color:var(--text);cursor:pointer;
+  border-bottom:1px solid var(--border);transition:background .1s;
+}
+.mac-item:last-child{border-bottom:none}
+.mac-item:hover,.mac-item.hi{background:var(--brand-subtle,#F3EFFF);color:var(--brand);font-weight:600}
+.mac-item mark{background:none;color:var(--brand);font-weight:900}
 
 /* Toast */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1E3A5F;color:#fff;padding:11px 22px;border-radius:var(--rfull);font-size:13px;font-weight:600;opacity:0;transition:all .26s var(--ease);z-index:9999;white-space:nowrap;max-width:90vw;box-shadow:0 6px 20px rgba(0,0,0,.2)}
@@ -318,6 +351,53 @@
               </div>
               <div class="patient-dropdown" id="patient-dropdown" style="display:none"></div>
             </div>
+            <!-- Nouveau patient -->
+            <div id="new-patient-box" class="new-patient-box" style="display:none">
+              <div class="new-patient-title">
+                <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                Nouveau patient — compléter le dossier
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Prénom *</label>
+                  <input class="form-input" id="np-prenom" type="text" placeholder="Prénom" maxlength="60">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nom *</label>
+                  <input class="form-input" id="np-nom" type="text" placeholder="Nom" maxlength="60">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Date de naissance</label>
+                  <input class="form-input" id="np-dob" type="date">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Téléphone</label>
+                  <input class="form-input" id="np-phone" type="tel" placeholder="0555 000 000" maxlength="20">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Sexe</label>
+                  <select class="form-select" id="np-sexe">
+                    <option value="">Non précisé</option>
+                    <option value="M">Masculin</option>
+                    <option value="F">Féminin</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Groupe sanguin</label>
+                  <select class="form-select" id="np-blood">
+                    <option value="">Non précisé</option>
+                    <option>A+</option><option>A-</option>
+                    <option>B+</option><option>B-</option>
+                    <option>AB+</option><option>AB-</option>
+                    <option>O+</option><option>O-</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Date</label>
@@ -374,6 +454,46 @@
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _uid = null, _ords = [], _patients = [], _editId = null, _selPatientId = null;
 var _activeFilter = 'all', _searchQ = '';
+
+// ── Liste médicaments DCI (Algérie / France) ──────────────────
+var MEDS_DCI = [
+  'Amoxicilline','Amoxicilline + Acide clavulanique','Ampicilline','Azithromycine',
+  'Céfixime','Céfuroxime','Ciprofloxacine','Clarithromycine','Clindamycine',
+  'Doxycycline','Érythromycine','Lévofloxacine','Métronidazole','Spiramycine',
+  'Paracétamol','Ibuprofène','Aspirine','Kétoprofène','Naproxène','Diclofénac',
+  'Tramadol','Codéine','Acide méfénamique','Phloroglucinol',
+  'Oméprazole','Pantoprazole','Ésoméprazole','Lansoprazole','Rabéprazole',
+  'Métoclopramide','Dompéridone','Ondansétron','Lopéramide','Trimébutine',
+  'Salbutamol','Terbutaline','Ipratropium','Béclométasone','Fluticasone','Budésonide',
+  'Prednisolone','Prednisone','Dexaméthasone','Méthylprednisolone','Bétaméthasone',
+  'Métformine','Glibenclamide','Gliclazide','Glipizide','Insuline NPH','Insuline rapide',
+  'Amlodipine','Nifédipine','Vérapamil','Diltiazem',
+  'Aténolol','Métoprolol','Bisoprolol','Propranolol','Carvédilol','Nébivolol',
+  'Lisinopril','Ramipril','Énalapril','Captopril','Périndopril',
+  'Losartan','Valsartan','Irbesartan','Candésartan','Telmisartan',
+  'Hydrochlorothiazide','Furosémide','Spironolactone','Indapamide','Torasémide',
+  'Atorvastatine','Simvastatine','Rosuvastatine','Pravastatine',
+  'Clopidogrel','Warfarine','Acenocoumarol','Héparine',
+  'Lévothyroxine','Carbimazole',
+  'Diazépam','Alprazolam','Lorazépam','Clonazépam','Bromazépam',
+  'Sertraline','Fluoxétine','Paroxétine','Citalopram','Escitalopram',
+  'Amitriptyline','Clomipramine','Venlafaxine','Mirtazapine',
+  'Halopéridol','Rispéridone','Olanzapine','Quétiapine','Aripiprazole',
+  'Carbamazépine','Phénytoïne','Valproate de sodium','Lévétiracétam','Lamotrigine',
+  'Chlorphénamine','Cétirizine','Loratadine','Desloratadine','Fexofénadine','Bilastine',
+  'Fer (sulfate ferreux)','Acide folique','Vitamine D3','Vitamine C','Zinc','Magnésium','Calcium',
+  'Cotrimoxazole','Quinine','Artémisinine + Luméfantrine','Chloroquine',
+  'Fluconazole','Kétoconazole','Clotrimazole','Nystatine','Griséofulvine',
+  'Aciclovir','Valaciclovir',
+  'Mébendazole','Albendazole','Ivermectine',
+  'Tramadol + Paracétamol','Ibuprofène + Codéine','Acide acétylsalicylique',
+  'Chlorhexidine','Povidone iodée',
+  'Colchicine','Allopurinol',
+  'Calcium + Vitamine D3','Alendronate',
+  'Sildenafil','Tadalafil',
+  'Doxazosine','Tamsulosine','Finastéride',
+  'Hydroxychloroquine','Sulfasalazine','Méthotrexate',
+];
 var _clinicProfile = null;
 var MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
 var PAC_PAL = [
@@ -437,7 +557,11 @@ function initPatientAC() {
       drop.innerHTML = '<div class="pdrop-empty">'
         +'<svg viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
         +(_patients.length ? 'Aucun patient trouvé' : 'Aucun patient enregistré')
-        +'</div>';
+        +'</div>'
+        +(q2 ? '<div class="pdrop-add" id="pdrop-add-btn">'
+          +'<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+          +'Créer le patient "'+esc2(inp.value.trim())+'"'
+          +'</div>' : '');
     } else {
       drop.innerHTML = list.map(function(p, i) {
         var pal  = PAC_PAL[i % PAC_PAL.length];
@@ -463,6 +587,7 @@ function initPatientAC() {
     inp.value = name;
     _selPatientId = id || null;
     closeDrop();
+    hideNewPatientBox();
   }
 
   function setHi(idx) {
@@ -493,7 +618,9 @@ function initPatientAC() {
 
   drop.addEventListener('mousedown', function(e) {
     var item = e.target.closest('.pdrop-item');
-    if (item){ e.preventDefault(); selectItem(item.dataset.pid, item.dataset.name); }
+    if (item){ e.preventDefault(); selectItem(item.dataset.pid, item.dataset.name); return; }
+    var addBtn = e.target.closest('#pdrop-add-btn');
+    if (addBtn) { e.preventDefault(); showNewPatientBox(inp.value.trim()); closeDrop(); }
   });
 
   document.addEventListener('click', function(e) {
@@ -638,19 +765,123 @@ function openModal(id) {
   document.getElementById('modal-overlay').classList.add('open');
   setTimeout(function(){ document.getElementById('f-patient').focus(); }, 200);
 }
-function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); _editId = null; }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); _editId = null; hideNewPatientBox(); }
+
+// ── Nouveau patient box ───────────────────────────────────────
+function showNewPatientBox(fullName) {
+  _selPatientId = null;
+  var box = document.getElementById('new-patient-box');
+  box.style.display = 'block';
+  // Pré-remplir prénom/nom si possible
+  var parts = (fullName || '').trim().split(/\s+/);
+  if (parts.length >= 2) {
+    document.getElementById('np-prenom').value = parts[0];
+    document.getElementById('np-nom').value = parts.slice(1).join(' ');
+  } else {
+    document.getElementById('np-prenom').value = fullName || '';
+    document.getElementById('np-nom').value = '';
+  }
+  document.getElementById('np-prenom').focus();
+}
+function hideNewPatientBox() {
+  document.getElementById('new-patient-box').style.display = 'none';
+  ['np-prenom','np-nom','np-dob','np-phone'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('np-sexe').value = '';
+  document.getElementById('np-blood').value = '';
+}
+
+// ── Medication autocomplete ───────────────────────────────────
+function initMedAC(inp) {
+  var wrap = inp.parentNode;
+  var drop = document.createElement('div');
+  drop.className = 'med-ac-drop';
+  drop.style.display = 'none';
+  wrap.appendChild(drop);
+  var _hi = -1;
+
+  function esc2(s){ var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML; }
+  function highlight(t,q){
+    if(!q) return esc2(t);
+    return esc2(t).replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');
+  }
+
+  function renderMedDrop(q) {
+    var q2 = (q||'').trim().toLowerCase();
+    if (!q2 || q2.length < 2) { drop.style.display='none'; return; }
+    var list = MEDS_DCI.filter(function(m){ return m.toLowerCase().includes(q2); }).slice(0,10);
+    if (!list.length) { drop.style.display='none'; return; }
+    drop.innerHTML = list.map(function(m,i){
+      return '<div class="mac-item" data-val="'+esc2(m)+'">'+highlight(m,q2)+'</div>';
+    }).join('');
+    _hi = -1;
+    drop.style.display = 'block';
+  }
+
+  function closeMedDrop(){ drop.style.display='none'; _hi=-1; }
+  function setMedHi(idx){
+    var items=drop.querySelectorAll('.mac-item');
+    if(!items.length) return;
+    _hi=Math.max(0,Math.min(idx,items.length-1));
+    items.forEach(function(el,i){el.classList.toggle('hi',i===_hi);});
+    if(items[_hi]) items[_hi].scrollIntoView({block:'nearest'});
+  }
+
+  inp.addEventListener('input', function(){ renderMedDrop(inp.value); });
+  inp.addEventListener('keydown', function(e){
+    if(drop.style.display==='none') return;
+    if(e.key==='ArrowDown'){e.preventDefault();setMedHi(_hi+1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();setMedHi(_hi-1);}
+    else if(e.key==='Enter'&&_hi>=0){
+      e.preventDefault();
+      var items=drop.querySelectorAll('.mac-item');
+      if(items[_hi]){inp.value=items[_hi].dataset.val;closeMedDrop();}
+    }
+    else if(e.key==='Escape'){closeMedDrop();}
+  });
+  drop.addEventListener('mousedown', function(e){
+    var item=e.target.closest('.mac-item');
+    if(item){e.preventDefault();inp.value=item.dataset.val;closeMedDrop();}
+  });
+  document.addEventListener('click', function(e){
+    if(!wrap.contains(e.target)) closeMedDrop();
+  });
+}
 
 function addMedRow(name, posologie) {
   var builder = document.getElementById('meds-builder');
   var row = document.createElement('div');
   row.className = 'med-row';
-  row.innerHTML =
-    '<input type="text" placeholder="Amoxicilline 500mg, Doliprane 1g…" value="'+esc(name||'')+'" maxlength="120">'+
-    '<input type="text" placeholder="1 cp × 3/j — 7 jours" value="'+esc(posologie||'')+'" maxlength="120">'+
-    '<button class="btn-del-med" onclick="this.parentNode.remove()" title="Supprimer">'+
-      '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'+
-    '</button>';
+
+  // Wrap pour l'autocomplete médicament
+  var acWrap = document.createElement('div');
+  acWrap.className = 'med-ac-wrap';
+  var medInp = document.createElement('input');
+  medInp.type = 'text';
+  medInp.placeholder = 'Amoxicilline 500mg, Paracétamol 1g…';
+  medInp.value = name || '';
+  medInp.maxLength = 120;
+  medInp.autocomplete = 'off';
+  acWrap.appendChild(medInp);
+
+  var posInp = document.createElement('input');
+  posInp.type = 'text';
+  posInp.placeholder = '1 cp × 3/j — 7 jours';
+  posInp.value = posologie || '';
+  posInp.maxLength = 120;
+
+  var delBtn = document.createElement('button');
+  delBtn.className = 'btn-del-med';
+  delBtn.title = 'Supprimer';
+  delBtn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  delBtn.onclick = function(){ row.remove(); };
+
+  row.appendChild(acWrap);
+  row.appendChild(posInp);
+  row.appendChild(delBtn);
   builder.appendChild(row);
+
+  // Activer l'autocomplete sur ce champ
+  initMedAC(medInp);
 }
 function getMeds() {
   var meds = [];
@@ -683,11 +914,36 @@ async function saveOrd() {
     }
   }
 
+  // ── Nouveau patient : créer dans clients si nécessaire ──
+  if (!_selPatientId && document.getElementById('new-patient-box').style.display !== 'none') {
+    var prenom = document.getElementById('np-prenom').value.trim();
+    var nom    = document.getElementById('np-nom').value.trim();
+    if (!prenom || !nom) { toast('Veuillez saisir le prénom et le nom du nouveau patient.', 'error'); return; }
+    var dobVal    = document.getElementById('np-dob').value   || null;
+    var phoneVal  = document.getElementById('np-phone').value.trim() || null;
+    var sexeVal   = document.getElementById('np-sexe').value  || null;
+    var bloodVal  = document.getElementById('np-blood').value || null;
+    var { data: newP, error: pErr } = await _supa.from('clients').insert({
+      user_id: _uid,
+      first_name: prenom,
+      last_name: nom,
+      date_naissance: dobVal,
+      phone: phoneVal,
+      sexe: sexeVal,
+      groupe_sanguin: bloodVal,
+    }).select().single();
+    if (pErr) { toast('Erreur création patient : ' + pErr.message, 'error'); return; }
+    _selPatientId = newP.id;
+    _patients.push(newP);
+    patient = prenom + ' ' + nom;
+  }
+
   var btn = document.getElementById('btn-save');
   btn.disabled = true; btn.textContent = 'Enregistrement…';
   var meds = getMeds();
   var payload = {
     user_id: _uid, client_name: patient,
+    client_id: _selPatientId || null,
     client_email: patient.toLowerCase().replace(/\s+/g,'.')+'@patient.dz',
     project_title: document.getElementById('f-title').value.trim()||'Ordonnance',
     project_type: 'ordonnance',
