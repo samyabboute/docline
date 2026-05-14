@@ -1311,8 +1311,7 @@ async function deleteRoom(id) {
 
 // ── QR CODE ───────────────────────────────────────────────────
 function generateQR() {
-  var _appBase = (typeof APP_URL !== 'undefined' && APP_URL) ? APP_URL : window.location.origin;
-  _qrJoinUrl = _appBase + '/queue-join.html?c=' + _uid;
+  _qrJoinUrl = 'https://docline.health/queue-join?c=' + _uid;
   var container = document.getElementById('qr-code');
   container.innerHTML = '';
   try {
