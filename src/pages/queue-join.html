@@ -766,10 +766,24 @@ async function joinQueue() {
 
     if(error) throw error;
 
-    // ── Broadcast au médecin pour mise à jour instantanée ──
+    // ── Broadcast au médecin — subscribe d'abord, puis envoie ──
     try {
-      await _supa.channel('queue-live-' + _clinicId)
-        .send({ type: 'broadcast', event: 'new_patient', payload: { id: entry.id, number: nextNum, patient_name: name, priority: _myPriority, queue_date: today, status: 'waiting', created_at: entry.created_at } });
+      var _bch = _supa.channel('queue-live-' + _clinicId);
+      await new Promise(function(resolve) {
+        _bch.subscribe(function(status) {
+          if (status === 'SUBSCRIBED') {
+            _bch.send({ type: 'broadcast', event: 'new_patient', payload: {
+              id: entry.id, number: nextNum, patient_name: name,
+              priority: _myPriority, queue_date: today,
+              status: 'waiting', created_at: entry.created_at
+            }}).then(function() {
+              setTimeout(function(){ try{_bch.unsubscribe();}catch(e){} }, 1000);
+              resolve();
+            }).catch(resolve);
+          }
+        });
+        setTimeout(resolve, 4000); // timeout fallback
+      });
     } catch(_) {}
 
     _myNumber = nextNum;

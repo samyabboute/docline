@@ -811,21 +811,22 @@ function playSound(priority) {
 
   // Real-time: new patient joins via QR
   // ── Canal postgres_changes (si RLS le permet) ──
+  // postgres_changes sans filter (évite le conflit RLS), filtrage côté client
   _supa.channel('queue-mgmt-' + _uid)
-    .on('postgres_changes', {event:'INSERT', schema:'public', table:'queue_entries', filter:'clinic_id=eq.'+_uid}, function(payload) {
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'queue_entries'}, function(payload) {
       var e = payload.new;
-      if (e.queue_date === _todayKey) {
-        var already = _queue.find(function(p){return p.id===e.id;});
-        if (!already) {
-          _queue.push(dbToLocal(e));
-          renderQueue(); updateStats();
-          toast('Nouveau patient : ' + e.patient_name + ' — N°' + e.number, e.priority === 'critique' ? 'critique' : e.priority === 'urgente' ? 'urgent' : 'success');
-          playNewPatient();
-        }
+      if (e.clinic_id !== _uid || e.queue_date !== _todayKey) return;
+      var already = _queue.find(function(p){return p.id===e.id;});
+      if (!already) {
+        _queue.push(dbToLocal(e));
+        renderQueue(); updateStats();
+        toast('Nouveau patient : ' + e.patient_name + ' — N°' + e.number, e.priority === 'critique' ? 'critique' : e.priority === 'urgente' ? 'urgent' : 'success');
+        playNewPatient();
       }
     })
-    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'queue_entries', filter:'clinic_id=eq.'+_uid}, function(payload) {
+    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'queue_entries'}, function(payload) {
       var e = payload.new;
+      if (e.clinic_id !== _uid) return;
       var idx = _queue.findIndex(function(p){return p.id===e.id;});
       if (idx !== -1) { _queue[idx] = dbToLocal(e); renderQueue(); updateStats(); }
     })
@@ -865,7 +866,7 @@ function playSound(priority) {
       }
     });
     if (changed) { renderQueue(); updateStats(); }
-  }, 10000);
+  }, 5000);
 })();
 
 function dbToLocal(e) {
