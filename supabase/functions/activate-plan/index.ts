@@ -31,35 +31,48 @@ serve(async (req) => {
       if (!roleRow) return new Response(JSON.stringify({ error: "FORBIDDEN" }), { status: 403, headers: { ...CORS, "Content-Type": "application/json" } });
     }
 
-    const { target_user_id, plan, billing = "monthly", months = 1 } = await req.json();
+    const { target_user_id, plan, billing = "monthly", months = 1, is_trial = false } = await req.json();
 
     if (!target_user_id || !plan) {
       return new Response(JSON.stringify({ error: "MISSING_FIELDS" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
     }
 
-    const validPlans = ["free", "pro", "enterprise"];
+    // Accept 'pro' and 'clinic' (schema allows free/pro/clinic)
+    const validPlans = ["free", "pro", "clinic"];
     if (!validPlans.includes(plan)) {
       return new Response(JSON.stringify({ error: "INVALID_PLAN" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
     }
 
     const now = new Date();
-    const expires = new Date(now);
-    if (plan !== "free") expires.setMonth(expires.getMonth() + Number(months));
+    const trialEnd = new Date(now);
+    if (plan !== "free") trialEnd.setMonth(trialEnd.getMonth() + Number(months));
 
-    const { error } = await admin.from("subscriptions").upsert({
+    // trial_end is the correct column name (schema: trial_end timestamptz)
+    const upsertData: Record<string, unknown> = {
       user_id:    target_user_id,
       plan,
-      status:     plan === "free" ? "free" : "active",
-      billing,
-      trial_ends_at: null,
-      expires_at: plan !== "free" ? expires.toISOString() : null,
+      status:     is_trial ? "trialing" : (plan === "free" ? "active" : "active"),
       updated_at: now.toISOString(),
-    }, { onConflict: "user_id" });
+    };
 
+    if (plan !== "free") {
+      upsertData.trial_end         = trialEnd.toISOString();
+      upsertData.current_period_start = now.toISOString();
+      upsertData.current_period_end   = trialEnd.toISOString();
+    } else {
+      upsertData.trial_end = null;
+    }
+
+    // billing column may not exist in schema — only set if provided and plan is paid
+    if (plan !== "free" && billing) {
+      upsertData.billing = billing;
+    }
+
+    const { error } = await admin.from("subscriptions").upsert(upsertData, { onConflict: "user_id" });
     if (error) throw error;
 
     return new Response(
-      JSON.stringify({ ok: true, expires_at: expires.toISOString() }),
+      JSON.stringify({ ok: true, expires_at: trialEnd.toISOString() }),
       { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
     );
   } catch (e) {

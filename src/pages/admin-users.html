@@ -650,7 +650,7 @@ function renderKPIs(){
   const free = _subs.filter(s=>s.plan==='free');
   const can  = _subs.filter(s=>s.status==='canceled');
   const tw   = _users.filter(u=>new Date(u.created_at)>new Date(now-7*86400000));
-  const trial= _users.filter(u=>u.trial_ends_at && new Date(u.trial_ends_at)>new Date(now));
+  const trial= _users.filter(u=>u.trial_end && new Date(u.trial_end)>new Date(now));
   const active24h = _users.filter(u=>u.last_seen_at && new Date(u.last_seen_at)>new Date(now-86400000));
   document.getElementById('user-kpis').innerHTML = [
     ['Médecins inscrits',   _users.length, '+'+tw.length+' cette semaine',           'up',      'brand'],
@@ -699,14 +699,14 @@ function renderTable(){
     const planClass = isEnt ? 'badge-brand' : isPro ? 'badge-brand' : isCan ? 'badge-danger' : 'badge-neutral';
 
     // Trial
-    const trialEnd = u.trial_ends_at ? new Date(u.trial_ends_at) : null;
+    const trialEnd = u.trial_end ? new Date(u.trial_end) : null;
     const onTrial  = trialEnd && trialEnd > new Date(now);
     const trialExpired = trialEnd && trialEnd <= new Date(now);
     const trialCell = onTrial
       ? `<span style="display:inline-flex;align-items:center;gap:4px;background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px">
-           <span style="width:6px;height:6px;border-radius:50%;background:#F97316;flex-shrink:0"></span>Essai · expire ${formatDate(u.trial_ends_at)}</span>`
+           <span style="width:6px;height:6px;border-radius:50%;background:#F97316;flex-shrink:0"></span>Essai · expire ${formatDate(u.trial_end)}</span>`
       : trialExpired
-        ? `<span style="font-size:10px;color:var(--text-faint)">Expiré ${formatDate(u.trial_ends_at)}</span>`
+        ? `<span style="font-size:10px;color:var(--text-faint)">Expiré ${formatDate(u.trial_end)}</span>`
         : `<button class="btn btn-xs btn-secondary" onclick="event.stopPropagation();grantTrial('${u.id}','${sanitize(u.email)}')" title="Donner 2 mois d'accès gratuit">+ Essai 2 mois</button>`;
 
     // Last seen
@@ -748,18 +748,18 @@ async function grantTrialByEmail() {
 
 function renderTrialList() {
   const now = Date.now();
-  const trialUsers = _users.filter(u => u.trial_ends_at);
-  const active = trialUsers.filter(u => new Date(u.trial_ends_at) > new Date(now));
+  const trialUsers = _users.filter(u => u.trial_end);
+  const active = trialUsers.filter(u => new Date(u.trial_end) > new Date(now));
   const el = document.getElementById('trial-counter');
   if (el) el.textContent = active.length + ' / 10 offerts';
   const list = document.getElementById('trial-list');
   if (!list) return;
   if (!trialUsers.length) { list.innerHTML = '<span style="font-size:.6875rem;color:var(--text-faint)">Aucun accès offert pour l\'instant.</span>'; return; }
   list.innerHTML = trialUsers.map(u => {
-    const isActive = new Date(u.trial_ends_at) > new Date(now);
+    const isActive = new Date(u.trial_end) > new Date(now);
     return `<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.6875rem;font-weight:600;background:${isActive?'#FFF7ED':'var(--bg-subtle)'};border:1px solid ${isActive?'#FED7AA':'var(--border)'};color:${isActive?'#C2410C':'var(--text-muted)'}">
       <span style="width:6px;height:6px;border-radius:50%;background:${isActive?'#F97316':'var(--text-faint)'}"></span>
-      ${sanitize(u.email)} · ${isActive?'expire '+formatDate(u.trial_ends_at):'expiré'}
+      ${sanitize(u.email)} · ${isActive?'expire '+formatDate(u.trial_end):'expiré'}
       ${isActive?`<button onclick="revokeTrial('${u.id}','${sanitize(u.email)}')" style="background:none;border:none;cursor:pointer;color:#F04438;font-size:11px;padding:0;margin-left:2px;font-family:inherit">✕</button>`:''}
     </span>`;
   }).join('');
@@ -779,8 +779,7 @@ async function grantTrial(userId, email) {
     if (!resp.ok) throw new Error(data.error || 'Erreur activation');
     // Also mark trial_ends_at in profile
     await _supa.from('profiles').update({
-      trial_ends_at: data.expires_at,
-      trial_granted_by: session.user.email
+      trial_end: data.expires_at
     }).eq('id', userId);
     Toast.success('Accès offert', `${email} — Pro gratuit jusqu'au ${formatDate(data.expires_at)}`);
     await load();
