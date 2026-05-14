@@ -438,6 +438,24 @@
           <div id="pr-empty" style="display:none;padding:40px;text-align:center;color:var(--text-muted);font-size:var(--text-sm)">Aucune demande en attente </div>
         </div>
 
+        <!-- KYC VERIFICATIONS -->
+        <div class="card" style="margin-top:24px">
+          <div class="card-header">
+            <div class="section-title">Vérifications KYC en attente</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadKyc()">Actualiser</button>
+          </div>
+          <div id="kyc-loading" style="padding:32px;text-align:center;color:var(--text-muted);font-size:var(--text-sm)">Chargement…</div>
+          <div class="table-wrap" id="kyc-table-wrap" style="display:none">
+            <table class="data-table">
+              <thead><tr>
+                <th>Médecin</th><th>Email</th><th>Document</th><th>Soumis le</th><th>Score IA</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="kyc-tbl"></tbody>
+            </table>
+          </div>
+          <div id="kyc-empty" style="display:none;padding:40px;text-align:center;color:var(--text-muted);font-size:var(--text-sm)">Aucune vérification KYC en attente ✓</div>
+        </div>
+
         <!-- MANUAL ACTIVATION -->
         <div class="card" style="margin-top:24px;margin-bottom:32px">
           <div class="card-header">
@@ -658,6 +676,7 @@ let _users=[], _subs=[], _filtered=[], _selectedUser=null;
   AdminSidebar.init('users', s.user);
   await load();
   loadPaymentRequests();
+  loadKyc();
   document.getElementById('plan-filter').addEventListener('click',e=>{
     const p=e.target.closest('.filter-pill'); if(!p) return;
     document.querySelectorAll('.filter-pill').forEach(x=>x.classList.remove('active'));
@@ -1027,6 +1046,64 @@ function showActMsg(msg, ok) {
 }
 function hideActMsg() {
   document.getElementById('act-msg').style.display = 'none';
+}
+
+// ── KYC VERIFICATIONS ─────────────────────────────────────────
+async function loadKyc() {
+  const loading = document.getElementById('kyc-loading');
+  const wrap    = document.getElementById('kyc-table-wrap');
+  const empty   = document.getElementById('kyc-empty');
+  const tbl     = document.getElementById('kyc-tbl');
+  if (!loading) return;
+  loading.style.display = 'block'; wrap.style.display = 'none'; empty.style.display = 'none';
+
+  const { data, error } = await _supa
+    .from('kyc_submissions')
+    .select('id,user_id,document_url,submitted_at,ai_score,ai_verdict,status,profiles(full_name,email)')
+    .eq('status', 'pending')
+    .order('submitted_at', { ascending: true });
+
+  loading.style.display = 'none';
+  if (error || !data || !data.length) { empty.style.display = 'block'; return; }
+
+  wrap.style.display = 'block';
+  tbl.innerHTML = data.map(k => {
+    const name  = k.profiles?.full_name || '—';
+    const email = k.profiles?.email || k.user_id?.slice(0,8) + '…';
+    const date  = k.submitted_at ? new Date(k.submitted_at).toLocaleDateString('fr-FR') : '—';
+    const score = k.ai_score != null ? Math.round(k.ai_score * 100) + '%' : '—';
+    const verdict = k.ai_verdict || '—';
+    const docUrl = k.document_url ? `<a href="${k.document_url}" target="_blank" style="color:var(--brand);text-decoration:underline">Voir doc</a>` : '—';
+    return `<tr>
+      <td><strong>${name}</strong></td>
+      <td style="color:var(--text-muted)">${email}</td>
+      <td>${docUrl}</td>
+      <td>${date}</td>
+      <td><span style="font-weight:700;color:${k.ai_score>=0.8?'var(--success)':k.ai_score>=0.5?'var(--warning)':'var(--danger)'}">${score}</span> <span style="font-size:11px;color:var(--text-muted)">${verdict}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-success btn-sm" onclick="kycAction('${k.id}','${k.user_id}','approve')">✓ Approuver</button>
+        <button class="btn btn-danger btn-sm" onclick="kycAction('${k.id}','${k.user_id}','reject')">✗ Rejeter</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function kycAction(kycId, userId, action) {
+  const label = action === 'approve' ? 'approuver' : 'rejeter';
+  if (!confirm(`Voulez-vous ${label} cette vérification KYC ?`)) return;
+  try {
+    const { data: { session } } = await _supa.auth.getSession();
+    const res = await fetch(EDGE_BASE + '/admin-kyc-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ kyc_id: kycId, user_id: userId, action })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    Toast.success('KYC ' + (action === 'approve' ? 'approuvé' : 'rejeté'), 'Le statut a été mis à jour.');
+    loadKyc();
+  } catch(e) {
+    Toast.error('Erreur', e.message);
+  }
 }
 
   // Global error handler - catches unhandled async errors

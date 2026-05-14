@@ -666,6 +666,23 @@ function getMeds() {
 async function saveOrd() {
   var patient = document.getElementById('f-patient').value.trim();
   if (!patient) { toast('Nom du patient requis.','error'); return; }
+
+  // ── Limite 5 ordonnances/mois pour le plan gratuit ──
+  if (!_editId && !isPro) {
+    var now = new Date();
+    var firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    var { count } = await _supa.from('proposals')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', _uid)
+      .eq('project_type', 'ordonnance')
+      .gte('created_at', firstDay);
+    if (count >= 5) {
+      toast('Limite atteinte : 5 ordonnances/mois sur le plan Gratuit. Passez en Pro pour des ordonnances illimitées.', 'error');
+      window.location.href = ghpNav('/pricing');
+      return;
+    }
+  }
+
   var btn = document.getElementById('btn-save');
   btn.disabled = true; btn.textContent = 'Enregistrement…';
   var meds = getMeds();

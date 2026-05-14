@@ -32,7 +32,7 @@ var Shell = (function () {
 
     // ── Activité du jour
     { section: 'Activité du jour' },
-    { href:'queue.html',          key:'queue',          label:"File d'attente", featured:true,
+    { href:'queue.html',          key:'queue',          label:"File d'attente", featured:true, pro:true,
       icon:'<path d="M9 12h.01M12 12h.01M15 12h.01M12 8c-4.418 0-8 1.79-8 4s3.582 4 8 4 8-1.79 8-4-3.582-4-8-4z"/><path d="M4 12v4c0 2.21 3.582 4 8 4s8-1.79 8-4v-4"/>' },
     { href:'/calendar',           key:'calendar',       label:'Agenda',
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
@@ -45,7 +45,7 @@ var Shell = (function () {
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
     { href:'ordonnances.html',    key:'ordonnances',    label:'Ordonnances',
       icon:'<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/>' },
-    { href:'labo.html',           key:'labo',           label:'Laboratoire',
+    { href:'labo.html',           key:'labo',           label:'Laboratoire',  pro:true,
       icon:'<path d="M6 2v6l-2 4v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8l-2-4V2"/><line x1="6" y1="10" x2="14" y2="10"/>' },
 
     // ── Prise de rendez-vous
@@ -59,7 +59,7 @@ var Shell = (function () {
 
     // ── Mon équipe
     { section: 'Mon équipe' },
-    { href:'staff.html',          key:'staff',          label:'Personnel',
+    { href:'staff.html',          key:'staff',          label:'Personnel',    pro:true,
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/>' },
   ];
 
@@ -676,15 +676,22 @@ button{font-family:inherit;cursor:pointer}
     // ── Sidebar nav
     var navHTML = NAV.map(function (n) {
       if (n.section) return '<div class="sb-section">' + n.section + '</div>';
-      var cls = 'sb-item' + (n.featured ? ' featured' : '') + (n.key === page ? ' active' : '');
+      var isLocked = n.pro && !isPro;
+      var cls = 'sb-item' + (n.featured ? ' featured' : '') + (n.key === page ? ' active' : '') + (isLocked ? ' locked-clickable' : '');
       var rdvBadge = n.key === 'mes-rdv'
         ? '<span class="sb-rdv-dot" id="sb-rdv-dot" style="display:none"></span>'
         : '';
+      if (isLocked) {
+        return '<a href="' + ghpNav('/pricing') + '" class="' + cls + '" data-key="' + n.key + '" title="Fonctionnalité Pro — Mettre à niveau">'
+          + '<svg viewBox="0 0 24 24">' + n.icon + '</svg>'
+          + '<span class="sb-lbl">' + n.label + '</span>'
+          + '<svg class="sb-lock-ico" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+          + '</a>';
+      }
       return '<a href="' + n.href + '" class="' + cls + '" data-key="' + n.key + '">'
         + '<svg viewBox="0 0 24 24">' + n.icon + '</svg>'
         + '<span class="sb-lbl">' + n.label + '</span>'
         + rdvBadge
-        + '<svg class="sb-lock-ico" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
         + '</a>';
     }).join('');
 
