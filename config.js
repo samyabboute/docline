@@ -28,7 +28,11 @@ function ghpNav(path) {
   if (!_GHP_BASE) return path;
   var MAP = {
     '/login':'/login.html', '/dashboard':'/app.html', '/app':'/app.html',
-    '/admin':'/admin.html', '/pricing':'/pricing.html',
+    '/admin':'/admin.html', '/admin-users':'/admin-users.html',
+    '/admin-featured':'/admin-featured.html', '/admin-emails':'/admin-emails.html',
+    '/admin-revenue':'/admin-revenue.html', '/admin-security':'/admin-security.html',
+    '/admin-settings':'/admin-settings.html', '/admin-analytics':'/admin-analytics.html',
+    '/pricing':'/pricing.html',
     '/patients':'/patients.html', '/clients':'/clients.html',
     '/calendar':'/calendar.html', '/mes-rdv':'/mes-rdv.html',
     '/book':'/book.html', '/find-doctor':'/find-doctor.html',
@@ -44,6 +48,7 @@ function ghpNav(path) {
 }
 
 function getRedirectUrl(email) {
-  var path = ADMIN_EMAILS.indexOf((email||'').toLowerCase()) !== -1 ? '/admin' : '/dashboard';
+  // Admins → nouveau panel admin-users (admin.html redirige aussi vers admin-users)
+  var path = ADMIN_EMAILS.indexOf((email||'').toLowerCase()) !== -1 ? '/admin-users' : '/dashboard';
   return ghpNav(path);
 }
