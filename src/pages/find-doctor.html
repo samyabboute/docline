@@ -963,7 +963,7 @@ button,input,select,textarea{font-family:inherit}
           </div>
           <input type="text" id="s-smart" placeholder="Médecin, spécialité…" autocomplete="off"
             style="flex:1;border:none;outline:none;font-family:'Sora',sans-serif;font-size:.875rem;background:transparent;color:var(--text-1);min-width:0">
-          <button class="sf-clear" id="sf-clear" title="Effacer">×</button>
+          <button class="sf-clear" id="sf-clear" title="Effacer" onclick="clearSmart()">×</button>
         </div>
         <!-- Ville (recherche city + wilaya) -->
         <div class="sf sf-ville" id="sf-ville-wrap">
@@ -971,6 +971,7 @@ button,input,select,textarea{font-family:inherit}
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
           <input type="text" id="s-ville" placeholder="Ville, wilaya…" autocomplete="off">
+          <button class="sf-clear" id="sv-clear" title="Effacer la ville" onclick="clearVille()" style="display:none">×</button>
           <button class="geo-btn" id="geo-btn" onclick="geoSearch()" title="Utiliser ma position">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 2" opacity=".4"/></svg>
           </button>
@@ -1645,8 +1646,8 @@ function renderStars(rating){
       .select('id,full_name,is_clinic,clinic_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured,is_public')
       .not('full_name','is',null)
       .not('specialty','is',null)
-      .neq('is_public', false)
-      .neq('is_active', false)
+      .eq('is_public', true)
+      .eq('is_active', true)
       .order('featured', { ascending: false, nullsFirst: false })
       .order('full_name');
     if (error) throw error;
@@ -1739,7 +1740,7 @@ function geoSearch(){
       .then(function(data){
         var addr = data.address || {};
         var city = addr.city || addr.town || addr.suburb || addr.village || addr.county || '';
-        if(city){ document.getElementById('s-ville').value = city; villeDropClose(); doSearch(); }
+        if(city){ document.getElementById('s-ville').value = city; var _sv=document.getElementById('sv-clear'); if(_sv)_sv.style.display='flex'; villeDropClose(); doSearch(); }
         btn.classList.remove('spinning');
       })
       .catch(function(){ btn.classList.remove('spinning'); });
@@ -1816,6 +1817,14 @@ function clearSmart(){
   document.getElementById('s-smart').value = '';
   document.getElementById('sf-clear').classList.remove('show');
   smartClose();
+  doSearch();
+}
+
+function clearVille(){
+  document.getElementById('s-ville').value = '';
+  var svClear = document.getElementById('sv-clear');
+  if(svClear) svClear.style.display = 'none';
+  villeDropClose();
   doSearch();
 }
 
@@ -1901,6 +1910,8 @@ function villeDropClose(){
 
 function pickVille(name){
   document.getElementById('s-ville').value = name;
+  var svClear = document.getElementById('sv-clear');
+  if(svClear) svClear.style.display = name ? 'flex' : 'none';
   villeDropClose();
   doSearch();
 }
@@ -1968,6 +1979,8 @@ function resetSearch(){
   document.getElementById('s-smart').value='';
   document.getElementById('s-ville').value='';
   document.getElementById('sf-clear').classList.remove('show');
+  var svClear = document.getElementById('sv-clear');
+  if(svClear) svClear.style.display = 'none';
   _rdvOnly = false;
   document.getElementById('rdv-toggle').classList.remove('on');
   smartClose();
@@ -2293,6 +2306,8 @@ async function submitBooking(){
   var _doVilleLive = debounce(function(){ renderVilleDrop(villeInp.value); }, 180);
   villeInp.addEventListener('focus', function(){ renderVilleDrop(this.value); });
   villeInp.addEventListener('input', function(){
+    var svClear = document.getElementById('sv-clear');
+    if(svClear) svClear.style.display = this.value.trim() ? 'flex' : 'none';
     _doVilleLive();
     _doSearchLive();
   });

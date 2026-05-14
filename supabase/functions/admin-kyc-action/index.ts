@@ -34,7 +34,7 @@ serve(async (req) => {
     }
 
     const { doctorId, action, note } = await req.json();
-    // action: "approve" | "reject" | "set_plan" | "toggle_active"
+    // action: "approve" | "reject" | "set_plan" | "toggle_active" | "deactivate"
     if (!doctorId || !action) {
       return new Response(JSON.stringify({ error: "MISSING_FIELDS" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
     }
@@ -68,6 +68,12 @@ serve(async (req) => {
       const newVal = !(p?.is_active ?? true);
       await admin.from("profiles").update({ is_active: newVal }).eq("id", doctorId);
       await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: newVal ? "activated" : "deactivated", note: null });
+
+    } else if (action === "deactivate") {
+      // Force-deactivate: always sets is_active=false AND is_public=false (no toggle risk)
+      await admin.from("profiles").update({ is_active: false, is_public: false }).eq("id", doctorId);
+      await admin.from("subscriptions").update({ status: "suspended" }).eq("user_id", doctorId);
+      await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "deactivated", note: note ?? null });
 
     } else {
       return new Response(JSON.stringify({ error: "UNKNOWN_ACTION" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });

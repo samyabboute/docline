@@ -1538,19 +1538,8 @@ async function signOut() {
 async function deleteDoctor(doctorId, email) {
   if (!confirm('⚠️ Supprimer / masquer le compte de ' + (email || doctorId) + ' ?\n\nLe médecin sera désactivé et retiré de l\'annuaire public immédiatement.\n(Suppression complète de la base disponible dans Supabase Dashboard)')) return;
   try {
-    // 1. Désactiver et masquer du profil public
-    const { error: profErr } = await _sb.from('profiles')
-      .update({ is_active: false, is_public: false })
-      .eq('id', doctorId);
-    if (profErr) throw new Error('Profil: ' + profErr.message);
-
-    // 2. Désactiver la souscription
-    await _sb.from('subscriptions')
-      .update({ status: 'suspended' })
-      .eq('user_id', doctorId);
-
-    // 3. Désactiver via edge function (toggle_active)
-    try { await kycAction(doctorId, 'toggle_active'); } catch(e) { /* ignore si déjà inactif */ }
+    // Désactiver via edge function (service role — bypasse RLS, force is_active=false ET is_public=false)
+    await kycAction(doctorId, 'deactivate');
 
     showToast('success', 'Compte désactivé', (email || doctorId) + ' est retiré de l\'annuaire.');
     _doctorsData = _doctorsData.filter(d => d.id !== doctorId);
