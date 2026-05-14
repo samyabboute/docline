@@ -538,12 +538,25 @@ function runLockCountdown(){
 
 // ── SESSION CHECK ─────────────────────────────────────────────
 (async function(){
-  var s = await _supa.auth.getSession();
-  if(s.data.session){ window.location.href = getRedirectUrl(s.data.session.user.email); return; }
-
+  var params = new URLSearchParams(location.search);
   var h = window.location.hash;
-  if(h.includes('access_token')){
-    showMsg('ok','Email confirmé ! Connexion en cours…');
+
+  // ── Supabase v2 PKCE : ?code=... (email confirmation, magic link, OAuth)
+  var code = params.get('code');
+  if (code) {
+    showMsg('ok', 'Confirmation en cours…');
+    try {
+      var ex = await _supa.auth.exchangeCodeForSession(code);
+      if (ex.data && ex.data.session) {
+        window.location.href = getRedirectUrl(ex.data.session.user.email);
+        return;
+      }
+    } catch(e) { /* ignore — fall through to login form */ }
+  }
+
+  // ── Supabase v1 legacy : #access_token=... (ancien format)
+  if (h.includes('access_token')) {
+    showMsg('ok', 'Email confirmé ! Connexion en cours…');
     var done = false;
     var sub = _supa.auth.onAuthStateChange(function(event, session){
       if(done) return;
@@ -556,8 +569,12 @@ function runLockCountdown(){
     return;
   }
 
-  if(h==='#register' || location.search.includes('register')) switchTab('register');
-  var email = new URLSearchParams(location.search).get('email');
+  // ── Déjà connecté → dashboard
+  var s = await _supa.auth.getSession();
+  if(s.data.session){ window.location.href = getRedirectUrl(s.data.session.user.email); return; }
+
+  if(h==='#register' || params.has('register')) switchTab('register');
+  var email = params.get('email');
   if(email) document.getElementById('li-email').value = decodeURIComponent(email);
 })();
 
