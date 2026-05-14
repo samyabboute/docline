@@ -1123,13 +1123,23 @@ button{font-family:inherit;cursor:pointer}
     }, 600);
   }
 
-  // ── INIT ──────────────────────────────────────────────────────
   // ── PROGRESS BAR ─────────────────────────────────────────────
+  // Doit s'initialiser APRÈS que document.body existe (shell.js est en <head>)
   (function() {
     var bar = document.createElement('div');
     bar.id = 'shell-progress';
-    document.body.appendChild(bar);
-    // Show on navigation start
+
+    function attachBar() {
+      if (document.body) {
+        document.body.appendChild(bar);
+      } else {
+        document.addEventListener('DOMContentLoaded', function() {
+          document.body.appendChild(bar);
+        });
+      }
+    }
+    attachBar();
+
     document.addEventListener('click', function(e) {
       var a = e.target.closest('a[href]');
       if (!a) return;
@@ -1137,13 +1147,11 @@ button{font-family:inherit;cursor:pointer}
       if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('javascript:') || a.target === '_blank') return;
       bar.style.width = '0';
       bar.classList.add('running');
-      // Animate to 80% quickly, the rest completes on load
       requestAnimationFrame(function() {
         bar.style.transition = 'width 2s ease';
         bar.style.width = '80%';
       });
     });
-    // Complete on load
     window.addEventListener('pageshow', function() {
       bar.style.transition = 'width .2s ease';
       bar.style.width = '100%';
