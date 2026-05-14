@@ -1,8 +1,3 @@
-/**
- * Docline — Cloudflare Worker routing
- * Maps clean URLs to .html files via internal rewrite (no redirect)
- */
-
 const ROUTES = {
   '/':                  '/find-doctor.html',
   '/find-doctor':       '/find-doctor.html',
@@ -46,27 +41,22 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // /dr/:slug → dr.html (SEO pages médecin)
+    // /dr/:slug → dr.html
     if (path.startsWith('/dr/') && path.length > 4) {
-      url.pathname = '/dr.html';
-      return env.ASSETS.fetch(new Request(url.toString(), request));
+      return env.ASSETS.fetch(new URL('/dr.html', request.url).href);
     }
 
-    // /sitemap.xml → Supabase Edge Function
+    // /sitemap.xml → Supabase
     if (path === '/sitemap.xml') {
-      return fetch(
-        'https://ferkzwzypmdtuypxribz.supabase.co/functions/v1/sitemap',
-        { headers: request.headers }
-      );
+      return fetch('https://ferkzwzypmdtuypxribz.supabase.co/functions/v1/sitemap');
     }
 
-    // Clean URL → .html rewrite
+    // Clean URL → .html
     if (ROUTES[path]) {
-      url.pathname = ROUTES[path];
-      return env.ASSETS.fetch(new Request(url.toString(), request));
+      return env.ASSETS.fetch(new URL(ROUTES[path], request.url).href);
     }
 
-    // Serve static asset as-is (.html, .js, .css, images…)
-    return env.ASSETS.fetch(request);
+    // Fichier statique direct (.html, .js, .css, images…)
+    return env.ASSETS.fetch(request.url);
   },
 };
