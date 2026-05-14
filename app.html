@@ -909,43 +909,57 @@ async function load() {
 
 // ── INIT ───────────────────────────────────────────────
 (async function() {
-  var { data: { session } } = await _supa.auth.getSession();
-  if (!session) { window.location.href=ghpNav('/login'); return; }
+  try {
+    var { data: { session } } = await _supa.auth.getSession();
+    if (!session) { window.location.href=ghpNav('/login'); return; }
 
-  _uid   = session.user.id;
-  _email = session.user.email || '';
-  _name  = Shell.displayName(session.user.user_metadata || {}, _email);
+    _uid   = session.user.id;
+    _email = session.user.email || '';
+    _name  = Shell.displayName(session.user.user_metadata || {}, _email);
 
-  // Charger le vrai nom + statut KYC depuis profiles
-  var { data: prof } = await _supa.from('profiles').select('full_name,first_name,last_name,clinic_name,is_clinic,kyc_status,kyc_reject_reason').eq('id', _uid).single();
-  if (prof) {
-    if (prof.is_clinic && prof.clinic_name) _name = prof.clinic_name;
-    else if (prof.full_name) _name = prof.full_name;
-    else if (prof.first_name || prof.last_name) _name = ((prof.first_name||'') + ' ' + (prof.last_name||'')).trim();
-    showKycBanner(prof.kyc_status, prof.kyc_reject_reason);
+    // Charger le vrai nom + statut KYC depuis profiles
+    try {
+      var { data: prof } = await _supa.from('profiles').select('full_name,first_name,last_name,clinic_name,is_clinic,kyc_status,kyc_reject_reason').eq('id', _uid).single();
+      if (prof) {
+        if (prof.is_clinic && prof.clinic_name) _name = prof.clinic_name;
+        else if (prof.full_name) _name = prof.full_name;
+        else if (prof.first_name || prof.last_name) _name = ((prof.first_name||'') + ' ' + (prof.last_name||'')).trim();
+        showKycBanner(prof.kyc_status, prof.kyc_reject_reason);
+      }
+    } catch(e) { console.warn('[Dashboard] profiles fetch error:', e.message); }
+
+    // Sub check
+    var sub = null;
+    try {
+      var { data: subData } = await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id', _uid).single();
+      sub = subData;
+    } catch(e) { console.warn('[Dashboard] subscriptions fetch error:', e.message); }
+    _isPro = sub && sub.plan !== 'free' && sub.status === 'active'
+      && (!sub.expires_at || new Date(sub.expires_at) > new Date());
+
+    Shell.init({
+      page:    'dashboard',
+      title:   'Tableau de bord',
+      isPro:   _isPro,
+      plan:    sub?.plan || 'free',
+      userName:  _name,
+      userEmail: _email,
+    });
+    if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+    if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'dashboard', 'Tableau de bord');
+
+    renderGreeting();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display  = 'block';
+
+    await load();
+  } catch(e) {
+    console.error('[Dashboard] Erreur critique init:', e);
+    // Afficher quand même le contenu pour ne pas rester bloqué sur le spinner
+    try { document.getElementById('loading').style.display = 'none'; } catch(_){}
+    try { document.getElementById('content').style.display = 'block'; } catch(_){}
+    toast('Erreur de chargement. Réessayez ou reconnectez-vous.', 'error');
   }
-
-  // Sub check
-  var { data: sub } = await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id', _uid).single();
-  _isPro = sub && sub.plan !== 'free' && sub.status === 'active'
-    && (!sub.expires_at || new Date(sub.expires_at) > new Date());
-
-  Shell.init({
-    page:    'dashboard',
-    title:   'Tableau de bord',
-    isPro:   _isPro,
-    plan:    sub?.plan || 'free',
-    userName:  _name,
-    userEmail: _email,
-  });
-  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
-  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'dashboard', 'Tableau de bord');
-
-  renderGreeting();
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('content').style.display  = 'block';
-
-  await load();
 
   // Realtime queue updates
   _supa.channel('queue-dash')
