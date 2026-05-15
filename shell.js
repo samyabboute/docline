@@ -61,6 +61,11 @@ var Shell = (function () {
     { section: 'Mon équipe' },
     { href:'/staff',              key:'staff',          label:'Personnel',    pro:true,
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/>' },
+
+    // ── Clinique
+    { section: 'Clinique' },
+    { href:'/clinic-agenda',      key:'clinic-agenda',  label:'Agenda partagé', clinic:true,
+      icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>' },
   ];
 
   // ── CSS ───────────────────────────────────────────────────────
@@ -667,6 +672,7 @@ button{font-family:inherit;cursor:pointer}
     var title     = opts.title    || 'Tableau de bord';
     var isPro     = opts.isPro    || false;
     var plan      = opts.plan     || (isPro ? 'pro' : 'free');
+    var isClinic  = (plan === 'clinic');
     var userName  = opts.userName || '';
     var userEmail = opts.userEmail|| '';
     var initials  = (userName
@@ -678,7 +684,13 @@ button{font-family:inherit;cursor:pointer}
 
     // ── Sidebar nav
     var navHTML = NAV.map(function (n) {
-      if (n.section) return '<div class="sb-section">' + n.section + '</div>';
+      if (n.section) {
+        // Masquer la section "Clinique" entièrement si pas clinic
+        if (n.section === 'Clinique' && !isClinic) return '';
+        return '<div class="sb-section">' + n.section + '</div>';
+      }
+      // Items clinic-only : masqués si pas clinic
+      if (n.clinic && !isClinic) return '';
       var isLocked = n.pro && !isPro;
       var cls = 'sb-item' + (n.featured ? ' featured' : '') + (n.key === page ? ' active' : '') + (isLocked ? ' locked-clickable' : '');
       var rdvBadge = n.key === 'mes-rdv'
