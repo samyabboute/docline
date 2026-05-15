@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "docline",
-  "compatibility_date": "2026-05-14",
+  "name": "docline-beta",
+  "compatibility_date": "2026-05-15",
   "main": "worker.js",
   "observability": {
     "enabled": true

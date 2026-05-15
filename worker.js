@@ -25,6 +25,7 @@ const ROUTES = {
   '/ordonnances':       '/ordonnances.html',
   '/labo':              '/labo.html',
   '/staff':             '/staff.html',
+  '/clinic-agenda':     '/clinic-agenda.html',
   '/profil-public':     '/profil-public.html',
   '/queue':             '/queue.html',
   '/queue-display':     '/queue-display.html',
