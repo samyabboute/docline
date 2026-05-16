@@ -219,6 +219,7 @@
                 </div>
               </div>
               <label class="toggle"><input type="checkbox" id="t-public" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+
             </div>
             <div class="toggle-row">
               <div class="toggle-left">
@@ -231,6 +232,7 @@
                 </div>
               </div>
               <label class="toggle"><input type="checkbox" id="t-rdv" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+
             </div>
           </div>
 
@@ -303,7 +305,7 @@
                   </select>
                 </div>
                 <div class="field">
-                  <label>Ville / Commune</label>
+                  <label>Ville / Commune *</label>
                   <input type="text" id="f-city" placeholder="Ex : Hydra" oninput="updatePreview()">
                 </div>
               </div>
@@ -325,12 +327,12 @@
             <div class="card-body">
               <div class="field-row">
                 <div class="field">
-                  <label>Téléphone public</label>
+                  <label>Téléphone public <span id="phone-req-hint" style="font-size:.7rem;color:#F04438;display:none">* requis si RDV activé</span></label>
                   <input type="tel" id="f-phone" placeholder="0555 123 456">
                 </div>
                 <div class="field">
-                  <label>Tarif consultation (DA)</label>
-                  <input type="number" id="f-price" placeholder="Ex : 2000" min="0" oninput="updatePreview()">
+                  <label>Tarif consultation (DA) <span id="price-req-hint" style="font-size:.7rem;color:#F04438;display:none">* requis si profil public</span></label>
+                  <input type="number" id="f-price" placeholder="Ex : 2000 — mettez 0 si gratuit" min="0" oninput="updatePreview()">
                 </div>
               </div>
             </div>
@@ -553,6 +555,14 @@ function applyKycGate() {
 /* ── Preview ────────────────────────────────────────────────── */
 var COLORS = ['#3B1772','#0D6EFD','#7C3AED','#059669','#DC2626','#D97706'];
 function updatePreview() {
+  /* Hints conditionnels sur téléphone et tarif */
+  var rdvOn = document.getElementById('t-rdv') && document.getElementById('t-rdv').checked;
+  var pubOn = document.getElementById('t-public') && document.getElementById('t-public').checked;
+  var phoneHint = document.getElementById('phone-req-hint');
+  var priceHint = document.getElementById('price-req-hint');
+  if (phoneHint) phoneHint.style.display = rdvOn ? 'inline' : 'none';
+  if (priceHint) priceHint.style.display = pubOn ? 'inline' : 'none';
+
   var name   = getVal('f-name') || 'Votre Nom';
   var spec   = getVal('f-specialty') || 'Spécialité';
   var wilaya = getVal('f-wilaya');
@@ -608,16 +618,48 @@ window.saveProfile = async function() {
     return;
   }
 
-  // ── Validation : wilaya obligatoire ──
-  var wilayaEl = document.getElementById('f-wilaya');
-  if (!getVal('f-wilaya')) {
-    showToast('La wilaya est obligatoire pour enregistrer votre profil.', 'err');
-    if (wilayaEl) {
-      wilayaEl.style.borderColor = '#F04438';
-      wilayaEl.focus();
-      wilayaEl.addEventListener('change', function onchg(){
-        wilayaEl.style.borderColor = ''; wilayaEl.removeEventListener('change', onchg);
-      });
+  // ── Validation des champs obligatoires ────────────────────────────
+  var _validErrors = [];
+  function _req(id, msg, isSelect) {
+    var el  = document.getElementById(id);
+    var val = el ? el.value.trim() : '';
+    if (!val) {
+      _validErrors.push({ el: el, msg: msg });
+      if (el) {
+        el.style.borderColor = '#F04438';
+        var evName = isSelect ? 'change' : 'input';
+        el.addEventListener(evName, function _fix(){ el.style.borderColor=''; el.removeEventListener(evName,_fix); });
+      }
+    } else {
+      if (el) el.style.borderColor = '';
+    }
+  }
+
+  _req('f-name',     'Le nom complet est obligatoire.');
+  _req('f-specialty','La spécialité est obligatoire.', true);
+  _req('f-wilaya',   'La wilaya est obligatoire.', true);
+  _req('f-city',     'La ville / commune est obligatoire.');
+
+  if (wantsRdv) {
+    _req('f-phone', 'Le téléphone est obligatoire si vous acceptez des RDV en ligne.');
+  }
+
+  if (wantsPublic) {
+    var priceEl = document.getElementById('f-price');
+    if (!priceEl || priceEl.value === '') {
+      _validErrors.push({ el: priceEl, msg: 'Le tarif de consultation est obligatoire (mettez 0 si consultation gratuite).' });
+      if (priceEl) {
+        priceEl.style.borderColor = '#F04438';
+        priceEl.addEventListener('input', function _fixp(){ priceEl.style.borderColor=''; priceEl.removeEventListener('input',_fixp); });
+      }
+    }
+  }
+
+  if (_validErrors.length > 0) {
+    showToast(_validErrors[0].msg, 'err');
+    if (_validErrors[0].el) {
+      _validErrors[0].el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(function(){ _validErrors[0].el.focus(); }, 250);
     }
     return;
   }

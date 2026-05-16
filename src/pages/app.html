@@ -531,7 +531,7 @@ button{font-family:inherit;cursor:pointer}
         <div class="field"><label>Nom</label><input id="p-lastname" type="text" placeholder="Benali" autocomplete="off"></div>
       </div>
       <div class="field-row">
-        <div class="field"><label>Téléphone</label><input id="p-phone" type="tel" placeholder="0555 000 000"></div>
+        <div class="field"><label>Téléphone *</label><input id="p-phone" type="tel" placeholder="0555 000 000"></div>
         <div class="field">
           <label>Mutuelle</label>
           <select id="p-insurance">
@@ -847,7 +847,9 @@ async function savePatient() {
   var btn = document.getElementById('btn-save-patient');
   var fn = document.getElementById('p-firstname').value.trim();
   var ln = document.getElementById('p-lastname').value.trim();
+  var ph = document.getElementById('p-phone').value.trim();
   if (!fn && !ln) { toast('Prénom ou nom requis', 'error'); return; }
+  if (!ph) { toast('Le numéro de téléphone est requis', 'error'); document.getElementById('p-phone').focus(); return; }
 
   btn.classList.add('loading'); btn.disabled = true;
   try {
