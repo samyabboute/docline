@@ -807,8 +807,12 @@ button{font-family:inherit;cursor:pointer}
       +     '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
       +     'Contacter le support'
       +   '</a>'
+      +   '<button class="sb-pop-item" id="sb-pop-account">'
+      +     '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+      +     'G\u00e9rer mon compte'
+      +   '</button>'
       +   '<div class="sb-pop-sep"></div>'
-      /* Déconnexion */
+      /* D\u00e9connexion */
       +   '<button class="sb-pop-item danger" id="sb-pop-signout">'
       +     '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
       +     'Se déconnecter'
@@ -1249,6 +1253,16 @@ button{font-family:inherit;cursor:pointer}
               if (typeof Auth !== 'undefined') Auth.signOut();
             });
           }
+
+          // G\u00e9rer mon compte button
+          var accountBtn = document.getElementById('sb-pop-account');
+          if (accountBtn) {
+            accountBtn.addEventListener('click', function() {
+              _openAccountModal(popOpts);
+              var pop = document.getElementById('sb-profile-pop');
+              if (pop) pop.remove();
+            });
+          }
         }
       }
 
@@ -1553,7 +1567,154 @@ button{font-family:inherit;cursor:pointer}
     if (main) main.style.visibility = 'hidden';
   }
 
-  return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, guard: guard, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
+    // ACCOUNT MODAL
+  function _openAccountModal(opts) {
+    if (document.getElementById("acct-bg")) return;
+    var o = opts || {};
+    var initials = o.initials || (o.userEmail ? o.userEmail.slice(0,2).toUpperCase() : "??");
+    var planCls = o.plan==="pro" ? "pro" : o.plan==="clinic" ? "clinic" : "free";
+    var planLbl = o.plan==="clinic" ? "CLINIC" : o.plan==="pro" ? "PRO" : "FREE";
+    var uName = o.userName || (o.userEmail||"").split("@")[0];
+    var uEmail = o.userEmail || "";
+    var d = document.createElement("div");
+    d.id = "acct-bg";
+    d.className = "acct-bg";
+    d.addEventListener("click", function(e){ if(e.target===d) window._closeAccountModal(); });
+    d.innerHTML = [
+      "<div class=\"acct-modal\">",
+        "<div class=\"acct-head\">",
+          "<div class=\"acct-head-av\">" + initials + "</div>",
+          "<div class=\"acct-head-info\">",
+            "<div class=\"acct-head-name\">" + uName + "</div>",
+            "<div class=\"acct-head-email\">" + uEmail + "</div>",
+          "</div>",
+          "<button class=\"acct-head-close\" id=\"acct-close-btn\" title=\"Fermer\">",
+            "<svg viewBox=\"0 0 24 24\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"/><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"/></svg>",
+          "</button>",
+        "</div>",
+        "<div class=\"acct-body\">",
+          "<div class=\"acct-sec\">",
+            "<div class=\"acct-sec-label\">Abonnement</div>",
+            "<div class=\"acct-plan-row\">",
+              "<span class=\"acct-plan-badge " + planCls + "\">" + planLbl + "</span>",
+              "<span class=\"acct-plan-since\" id=\"acct-since\">Chargement...</span>",
+            "</div>",
+          "</div>",
+          "<div class=\"acct-sec\">",
+            "<div class=\"acct-sec-label\">Adresse email</div>",
+            "<div class=\"acct-field\">",
+              "<input type=\"email\" id=\"acct-email-val\" value=\"" + uEmail + "\" placeholder=\"votre@email.com\">",
+              "<button class=\"acct-btn primary\" id=\"acct-email-btn\">Modifier</button>",
+            "</div>",
+            "<div class=\"acct-status\" id=\"acct-email-status\"></div>",
+          "</div>",
+          "<div class=\"acct-sec\">",
+            "<div class=\"acct-sec-label\">Mot de passe</div>",
+            "<button class=\"acct-btn ghost\" id=\"acct-pwd-btn\">Envoyer un lien de r\u00e9initialisation par email</button>",
+            "<div class=\"acct-status\" id=\"acct-pwd-status\"></div>",
+          "</div>",
+          "<div class=\"acct-sec\">",
+            "<div class=\"acct-sec-label\" style=\"color:#DC2626\">Zone de danger</div>",
+            "<button class=\"acct-btn danger-outline\" id=\"acct-del-btn\">",
+              "<svg viewBox=\"0 0 24 24\" style=\"width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round\"><polyline points=\"3 6 5 6 21 6\"/><path d=\"M19 6l-1 14H6L5 6\"/><path d=\"M9 6V4h6v2\"/></svg>",
+              "Supprimer mon compte",
+            "</button>",
+            "<div class=\"acct-status\" id=\"acct-del-status\"></div>",
+          "</div>",
+        "</div>",
+      "</div>"
+    ].join("");
+    document.body.appendChild(d);
+    // Wire buttons
+    var closeBtn = document.getElementById("acct-close-btn");
+    if (closeBtn) closeBtn.addEventListener("click", window._closeAccountModal);
+    var emailBtn = document.getElementById("acct-email-btn");
+    if (emailBtn) emailBtn.addEventListener("click", window._updateAccountEmail);
+    var pwdBtn = document.getElementById("acct-pwd-btn");
+    if (pwdBtn) pwdBtn.addEventListener("click", window._resetAccountPassword);
+    var delBtn = document.getElementById("acct-del-btn");
+    if (delBtn) delBtn.addEventListener("click", window._requestAccountDeletion);
+    // Load subscription date
+    if (_rdvClient) {
+      _rdvClient.auth.getSession().then(function(r) {
+        var uid = r&&r.data&&r.data.session ? r.data.session.user.id : null;
+        if (!uid) return;
+        _rdvClient.from("subscriptions").select("plan,status,created_at,expires_at").eq("user_id",uid).order("created_at",{ascending:false}).limit(1).then(function(res) {
+          var el = document.getElementById("acct-since");
+          if (!el) return;
+          var sub = res&&res.data&&res.data[0];
+          if (sub&&sub.created_at) {
+            var dt = new Date(sub.created_at);
+            var lbl = "Depuis le " + dt.toLocaleDateString("fr-DZ",{day:"numeric",month:"long",year:"numeric"});
+            if (sub.expires_at) lbl += " • Expire le " + new Date(sub.expires_at).toLocaleDateString("fr-DZ",{day:"numeric",month:"short",year:"numeric"});
+            el.textContent = lbl;
+          } else { el.textContent = "Plan Free — aucun abonnement actif"; }
+        });
+      });
+    }
+    function _escH(e) { if(e.key==="Escape"){ window._closeAccountModal(); document.removeEventListener("keydown",_escH); } }
+    document.addEventListener("keydown", _escH);
+  }
+
+  window._closeAccountModal = function() {
+    var bg = document.getElementById("acct-bg"); if (bg) bg.remove();
+  };
+
+  window._updateAccountEmail = function() {
+    var input = document.getElementById("acct-email-val");
+    var status = document.getElementById("acct-email-status");
+    if (!input||!status) return;
+    var newEmail = input.value.trim();
+    if (!newEmail||!/^[^@]+@[^@]+\.[^@]+$/.test(newEmail)) { status.textContent="Email invalide."; status.className="acct-status err"; return; }
+    status.textContent="Mise à jour…"; status.className="acct-status";
+    if (_rdvClient) _rdvClient.auth.updateUser({email:newEmail}).then(function(r) {
+      if (!status) return;
+      if (r.error) { status.textContent="Erreur : "+r.error.message; status.className="acct-status err"; }
+      else { status.textContent="Email de confirmation envoyé à "+newEmail; status.className="acct-status ok"; }
+    });
+  };
+
+  window._resetAccountPassword = function() {
+    var status = document.getElementById("acct-pwd-status");
+    if (status) { status.textContent="Envoi…"; status.className="acct-status"; }
+    if (_rdvClient) _rdvClient.auth.getSession().then(function(r) {
+      var email = r&&r.data&&r.data.session ? r.data.session.user.email : null;
+      if (!email) { if(status){status.textContent="Session expirée.";status.className="acct-status err";} return; }
+      var redir = (typeof APP_URL!=="undefined"?APP_URL:window.location.origin)+"/login";
+      _rdvClient.auth.resetPasswordForEmail(email,{redirectTo:redir}).then(function(res) {
+        if (!status) return;
+        if (res.error) { status.textContent="Erreur : "+res.error.message; status.className="acct-status err"; }
+        else { status.textContent="Lien envoyé à "+email; status.className="acct-status ok"; }
+      });
+    });
+  };
+
+  window._requestAccountDeletion = function() {
+    var status = document.getElementById("acct-del-status");
+    if (!confirm("Supprimer votre compte ?\nVotre compte sera conservé 30 jours puis supprimé définitivement.\nPour annuler, contactez contact@docline.health")) return;
+    if (status) { status.textContent="Envoi…"; status.className="acct-status"; }
+    if (_rdvClient) _rdvClient.auth.getSession().then(function(r) {
+      var session = r&&r.data ? r.data.session : null;
+      if (!session) { if(status){status.textContent="Session expirée.";status.className="acct-status err";} return; }
+      _rdvClient.from("profiles").select("full_name,first_name,last_name,plan").eq("id",session.user.id).single().then(function(pr) {
+        var prof = pr&&pr.data;
+        var name = prof?(prof.full_name||((prof.first_name||"")+" "+(prof.last_name||"")).trim()):"";
+        var plan = prof?(prof.plan||"free"):"free";
+        _rdvClient.from("account_deletion_requests").insert({
+          user_id:session.user.id, doctor_email:session.user.email||"",
+          doctor_name:name||null, plan:plan, reason:null, status:"pending"
+        }).then(function(res) {
+          if (!status) return;
+          if (res.error) { status.textContent="Erreur : "+res.error.message; status.className="acct-status err"; }
+          else {
+            status.textContent="Demande enregistrée. Suppression dans 30 jours."; status.className="acct-status ok";
+            setTimeout(function() { window._closeAccountModal(); if(typeof Auth!=="undefined") Auth.signOut(); }, 3000);
+          }
+        });
+      });
+    });
+  };
+return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, guard: guard, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
 })();
 } catch(e) {
   console.error('[Shell] Crash lors de l\'initialisation du module:', e);
