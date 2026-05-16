@@ -291,11 +291,19 @@ body{font-family:'Sora',sans-serif;background:#F4F7FF;color:#0C0E14;min-height:1
       document.getElementById('bio-card').style.display = '';
     }
 
+    // ── Maps URL ──────────────────────────────────────────────────────────────
+    var mapsQuery = [d.address, d.city, d.wilaya, 'Algérie'].filter(Boolean).join(', ');
+    var mapsUrl   = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapsQuery);
+
     // ── Info rows ─────────────────────────────────────────────────────────────
     var rows = '';
     if (d.address) rows += infoRow('Adresse', esc(d.address));
     if (d.wilaya)  rows += infoRow('Wilaya', esc(d.wilaya));
     if (d.city)    rows += infoRow('Ville', esc(d.city));
+    if (d.address || d.wilaya) rows += '<div class="info-row" style="padding-top:14px;border-top:1px solid #F4F7FF">'
+      + '<a href="' + mapsUrl + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;background:#3B1772;color:#fff;border-radius:8px;padding:8px 16px;font-size:.78rem;font-weight:700;text-decoration:none;transition:all .15s" onmouseover="this.style.background=\'#2d1259\'" onmouseout="this.style.background=\'#3B1772\'">'
+      + '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+      + 'Voir sur Google Maps</a></div>';
     if (d.languages) {
       var langs = d.languages.split(',').map(function(l){return l.trim();}).filter(Boolean);
       if (langs.length) {

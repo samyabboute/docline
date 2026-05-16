@@ -608,6 +608,20 @@ window.saveProfile = async function() {
     return;
   }
 
+  // ── Validation : wilaya obligatoire ──
+  var wilayaEl = document.getElementById('f-wilaya');
+  if (!getVal('f-wilaya')) {
+    showToast('La wilaya est obligatoire pour enregistrer votre profil.', 'err');
+    if (wilayaEl) {
+      wilayaEl.style.borderColor = '#F04438';
+      wilayaEl.focus();
+      wilayaEl.addEventListener('change', function onchg(){
+        wilayaEl.style.borderColor = ''; wilayaEl.removeEventListener('change', onchg);
+      });
+    }
+    return;
+  }
+
   btn.disabled = true;
   spin.style.display = 'block';
 

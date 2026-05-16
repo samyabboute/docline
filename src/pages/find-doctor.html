@@ -2033,7 +2033,9 @@ function renderCards(docs){
       +'</div>'
       +'<div class="doctor-specialty">'+(d.specialty||'Médecin')+'</div>'
       +'<div class="doctor-meta">'
-      +(d.wilaya?'<div class="meta-row"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+(d.city?d.city+', ':'')+d.wilaya+'</div>':'')
+      +(d.wilaya?'<div class="meta-row" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:7px"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+(d.city?d.city+', ':'')+d.wilaya+'</div>'
+        +'<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([d.address,d.city,d.wilaya,'Algérie'].filter(Boolean).join(', '))+'" target="_blank" rel="noopener" title="Voir sur Google Maps" style="display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:600;color:var(--brand);text-decoration:none;border:1px solid rgba(59,23,114,.2);border-radius:6px;padding:3px 8px;transition:all .15s;flex-shrink:0" onmouseover="this.style.background=\'rgba(59,23,114,.06)\'" onmouseout="this.style.background=\'\'"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Maps</a>'
+        +'</div>':'')
       +'</div></div></div>'
       // Stars
       +'<div class="stars-row">'+renderStars(rating)+'<span class="rating-num">'+rating+'</span><span class="rating-count">(vérifié)</span></div>'
