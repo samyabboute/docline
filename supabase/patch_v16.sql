@@ -14,11 +14,11 @@ ON public.app_settings
 FOR ALL
 USING (
   auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
-  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
 )
 WITH CHECK (
   auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
-  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
 );
 
 -- ── 2. FIX promo_codes RLS (admin write) ──────────────────────
@@ -29,11 +29,11 @@ ON public.promo_codes
 FOR ALL
 USING (
   auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
-  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
 )
 WITH CHECK (
   auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
-  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
 );
 
 -- ── 3. Add trial_ends_at column alias (patch_v15 used trial_end) ─
@@ -72,20 +72,23 @@ CREATE TABLE IF NOT EXISTS public.account_deletion_requests (
 
 ALTER TABLE public.account_deletion_requests ENABLE ROW LEVEL SECURITY;
 
--- Doctor can see and create their own request
-CREATE POLICY "doctor can manage own deletion request"
-ON public.account_deletion_requests
-FOR ALL
-USING  (user_id = auth.uid())
-WITH CHECK (user_id = auth.uid());
+-- Drop any previous attempts to avoid conflicts
+DROP POLICY IF EXISTS "doctor can manage own deletion request"  ON public.account_deletion_requests;
+DROP POLICY IF EXISTS "admins can manage all deletion requests" ON public.account_deletion_requests;
 
--- Admin can see all deletion requests
-CREATE POLICY "admins can manage all deletion requests"
+-- Unified policy: doctor sees own row, admin sees all
+CREATE POLICY "manage deletion requests"
 ON public.account_deletion_requests
 FOR ALL
 USING (
-  auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
-  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE user_id = auth.uid())
+  user_id = auth.uid()
+  OR auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
+)
+WITH CHECK (
+  user_id = auth.uid()
+  OR auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
 );
 
 -- ── 5. Password reset log (audit) ─────────────────────────────
@@ -105,7 +108,7 @@ ON public.admin_password_resets
 FOR ALL
 USING (
   auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
-  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
 );
 
 -- ── 6. Marketing offers table ─────────────────────────────────
@@ -130,7 +133,7 @@ ON public.marketing_offers
 FOR ALL
 USING (
   auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
-  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
 );
 
 -- ── 7. Seed additional app_settings if missing ────────────────
