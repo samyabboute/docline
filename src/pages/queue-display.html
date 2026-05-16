@@ -594,6 +594,8 @@ var WILAYA_COORDS = {
 /* ── STATE ── */
 var _supa       = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _clinicId   = null;
+var _clinicWilaya = '';
+var _clinicCity   = '';
 var _weatherLat = null;
 var _weatherLon = null;
 var _weatherTimer = null;
@@ -602,7 +604,7 @@ var _lastCurrentId = null;
 var _audioCtx   = null;
 
 /* Video */
-var _videos     = [];          // [{url,title,duration_s,slot}]
+var _videos     = [];          // [{url,title,duration_s,id}]
 var _vidIdx     = 0;           // index de la prochaine vidéo à jouer
 var _vidPlayed  = [];          // indices déjà joués (pour les dots)
 var _mode       = 'queue';     // 'queue' | 'video' | 'interrupt'
@@ -725,13 +727,16 @@ function wmoDesc(code) {
 async function loadClinicInfo() {
   try {
     var r = await _supa.from('profiles')
-      .select('first_name,last_name,clinic_name,wilaya')
+      .select('first_name,last_name,clinic_name,wilaya,city')
       .eq('id', _clinicId).single();
     if (r.data) {
       var name = r.data.clinic_name
         || ((r.data.first_name || '') + ' ' + (r.data.last_name || '')).trim()
         || 'Cabinet médical';
       document.getElementById('clinic-name').textContent = name;
+
+      _clinicWilaya = r.data.wilaya || '';
+      _clinicCity   = r.data.city   || '';
 
       /* Météo depuis la wilaya du cabinet (sauf si coords forcées dans l'URL) */
       if (!_weatherLat && r.data.wilaya) {
@@ -766,19 +771,30 @@ function initWeatherFromWilaya(wilaya) {
 ═══════════════════════════════════════════════════════════════════ */
 async function loadDisplayVideos() {
   try {
-    var r = await _supa.from('display_videos')
-      .select('slot,title,video_url,duration_s,active')
+    var today = new Date().toISOString().slice(0, 10);
+    var r = await _supa.from('ad_campaigns')
+      .select('id,title,video_url,clip_duration_s,target_scope,target_wilayas,target_cities,starts_at,ends_at')
       .eq('active', true)
-      .order('slot');
-    _videos = (r.data || []).filter(function(v){ return v.video_url && v.video_url.trim(); });
-    updateTickerDots();
+      .or('starts_at.is.null,starts_at.lte.' + today)
+      .or('ends_at.is.null,ends_at.gte.' + today)
+      .order('created_at');
 
-    /* Démarrer le cycle d'affichage si des vidéos existent */
-    if (_videos.length > 0) {
-      scheduleNextVideo();
-    }
+    var all = r.data || [];
+
+    /* Client-side targeting filter */
+    _videos = all.filter(function(c) {
+      if (c.target_scope === 'national') return true;
+      if (c.target_scope === 'wilaya' && _clinicWilaya && c.target_wilayas && c.target_wilayas.indexOf(_clinicWilaya) !== -1) return true;
+      if (c.target_scope === 'city'   && _clinicCity   && c.target_cities  && c.target_cities.indexOf(_clinicCity)   !== -1) return true;
+      return false;
+    }).map(function(c) {
+      return { url: c.video_url, title: c.title, duration_s: c.clip_duration_s, id: c.id };
+    });
+
+    updateTickerDots();
+    if (_videos.length > 0) scheduleNextVideo();
   } catch(e) {
-    console.warn('[display] Erreur chargement vidéos:', e);
+    console.warn('[display] Erreur chargement campagnes:', e);
   }
 }
 
@@ -818,7 +834,7 @@ function startNextVideo() {
   var v = _videos[_vidIdx % _videos.length];
   _vidIdx++;
 
-  var slot = v.slot - 1; /* 0-indexed */
+  var slot = _vidIdx % 3; /* 0-indexed slot for dots */
   _vidPlayed.push(slot);
   /* Réinitialiser les dots après un cycle complet */
   if (_vidPlayed.length > _videos.length) _vidPlayed = [slot];
@@ -828,7 +844,7 @@ function startNextVideo() {
 
   /* Affecter la source et jouer */
   var videoEl = document.getElementById('main-video');
-  videoEl.src = v.video_url;
+  videoEl.src = v.url;
   videoEl.load();
 
   document.getElementById('video-overlay').classList.add('active');

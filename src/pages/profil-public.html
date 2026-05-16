@@ -331,7 +331,7 @@
                   <input type="tel" id="f-phone" placeholder="0555 123 456">
                 </div>
                 <div class="field">
-                  <label>Tarif consultation (DA) <span id="price-req-hint" style="font-size:.7rem;color:#F04438;display:none">* requis si profil public</span></label>
+                  <label>Tarif consultation (DA)</label>
                   <input type="number" id="f-price" placeholder="Ex : 2000 — mettez 0 si gratuit" min="0" oninput="updatePreview()">
                 </div>
               </div>
@@ -555,13 +555,10 @@ function applyKycGate() {
 /* ── Preview ────────────────────────────────────────────────── */
 var COLORS = ['#3B1772','#0D6EFD','#7C3AED','#059669','#DC2626','#D97706'];
 function updatePreview() {
-  /* Hints conditionnels sur téléphone et tarif */
+  /* Hints conditionnels sur téléphone */
   var rdvOn = document.getElementById('t-rdv') && document.getElementById('t-rdv').checked;
-  var pubOn = document.getElementById('t-public') && document.getElementById('t-public').checked;
   var phoneHint = document.getElementById('phone-req-hint');
-  var priceHint = document.getElementById('price-req-hint');
   if (phoneHint) phoneHint.style.display = rdvOn ? 'inline' : 'none';
-  if (priceHint) priceHint.style.display = pubOn ? 'inline' : 'none';
 
   var name   = getVal('f-name') || 'Votre Nom';
   var spec   = getVal('f-specialty') || 'Spécialité';
@@ -642,17 +639,6 @@ window.saveProfile = async function() {
 
   if (wantsRdv) {
     _req('f-phone', 'Le téléphone est obligatoire si vous acceptez des RDV en ligne.');
-  }
-
-  if (wantsPublic) {
-    var priceEl = document.getElementById('f-price');
-    if (!priceEl || priceEl.value === '') {
-      _validErrors.push({ el: priceEl, msg: 'Le tarif de consultation est obligatoire (mettez 0 si consultation gratuite).' });
-      if (priceEl) {
-        priceEl.style.borderColor = '#F04438';
-        priceEl.addEventListener('input', function _fixp(){ priceEl.style.borderColor=''; priceEl.removeEventListener('input',_fixp); });
-      }
-    }
   }
 
   if (_validErrors.length > 0) {
