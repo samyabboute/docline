@@ -1381,7 +1381,7 @@ ul,ol{list-style:none}
 /* ═══════════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════════ */
-const ADMIN_EMAIL = 'samyabboute5@gmail.com';
+const ADMIN_EMAILS_LIST = ['samyabboute5@gmail.com','contact@docline.health'];
 var _sb = null;
 var _session = null;
 var _adminRole = null;
@@ -1417,7 +1417,7 @@ async function init() {
   const userEmail = session.user.email;
 
   // Determine role: hardcoded super_admin or check admin_roles table
-  if (userEmail === ADMIN_EMAIL) {
+  if (ADMIN_EMAILS_LIST.indexOf(userEmail) !== -1) {
     _adminRole = 'super_admin';
   } else {
     const { data: roleRow } = await _sb.from('admin_roles').select('role').eq('email', userEmail).single();
@@ -1441,7 +1441,7 @@ async function init() {
   if (_adminRole === 'kyc_agent') {
     showSection('kyc');
   } else {
-    loadDashboard();
+    showSection('dashboard');
   }
 }
 
@@ -2192,8 +2192,8 @@ async function loadDeletionRequests() {
         '<td style="font-size:.75rem"><div>'+new Date(r.requested_at).toLocaleDateString('fr-DZ')+'</div><div style="color:var(--danger);font-size:.6875rem">Supp. le: '+date30+'</div></td>'+
         '<td>'+statusBadge+'</td>'+
         '<td><div class="td-actions">'+
-          (r.status==='pending'?'<button class="btn btn-ghost btn-xs" onclick="processDeletionRequest(''+r.id+'','cancel')" title="Annuler la demande" style="color:var(--success)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg></button>':'') +
-          (r.status==='pending'?'<button class="btn btn-ghost btn-xs" onclick="processDeletionRequest(''+r.id+'','process')" title="Marquer comme traitée" style="color:var(--danger)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>':'') +
+          (r.status==='pending'?'<button class="btn btn-ghost btn-xs" onclick="processDeletionRequest(this.dataset.id,\'cancel\')" data-id="'+r.id+'" title="Annuler la demande" style="color:var(--success)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg></button>':'') +
+          (r.status==='pending'?'<button class="btn btn-ghost btn-xs" onclick="processDeletionRequest(this.dataset.id,\'process\')" data-id="'+r.id+'" title="Marquer comme traitee" style="color:var(--danger)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>':'') +
         '</div></td>'+
       '</tr>';
     }).join('');
