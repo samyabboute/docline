@@ -521,6 +521,11 @@ ul,ol{list-style:none}
       Revenus
     </button>
 
+    <button class="nav-item" id="nav-marketing" onclick="showSection('marketing')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Marketing &amp; Sales
+    </button>
+
     <button class="nav-item" id="nav-emails" onclick="showSection('emails')">
       <svg class="ni-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       Emails & Modèles
@@ -813,6 +818,26 @@ ul,ol{list-style:none}
       </div>
     </div>
 
+      <!-- DEMANDES DE SUPPRESSION -->
+      <div class="card" style="margin-top:20px;border-left:3px solid var(--danger)">
+        <div class="card-header" style="border-bottom:1px solid var(--border)">
+          <div class="card-title" style="color:var(--danger)">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+            Demandes de suppression de compte
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="loadDeletionRequests()">
+            <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Rafraîchir
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Médecin</th><th>Email</th><th>Plan</th><th>Raison</th><th>Demandé le</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="del-requests-tbody"><tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)">Cliquez Rafraîchir pour charger…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
     <!-- ══════════════════ PARAMÈTRES ══════════════════ -->
     <div class="section page" id="section-parametres">
       <div class="page-header">
@@ -1079,6 +1104,108 @@ ul,ol{list-style:none}
       </div>
     </div>
 
+    <!-- ══════════════════ MARKETING & SALES ══════════════════ -->
+    <div class="section page" id="section-marketing">
+      <div class="page-header">
+        <div class="page-title">Marketing &amp; Sales</div>
+        <div class="page-sub">Offres commerciales, suivi des ventes et envoi d'offres aux médecins</div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid" id="mkt-kpi-grid">
+        <div class="kpi kpi-brand"><div class="kpi-label">Offres envoyées</div><div class="kpi-value" id="mkt-kpi-sent">—</div><div class="kpi-sub">total cumulé</div><div class="kpi-icon">📨</div></div>
+        <div class="kpi kpi-success"><div class="kpi-label">Taux conversion</div><div class="kpi-value" id="mkt-kpi-conv">—</div><div class="kpi-sub">offre → abonnement</div><div class="kpi-icon">📈</div></div>
+        <div class="kpi kpi-warning"><div class="kpi-label">Free en attente</div><div class="kpi-value" id="mkt-kpi-free">—</div><div class="kpi-sub">médecins sans abonnement</div><div class="kpi-icon">⏳</div></div>
+        <div class="kpi kpi-info"><div class="kpi-label">Offres actives</div><div class="kpi-value" id="mkt-kpi-active">—</div><div class="kpi-sub">en cours</div><div class="kpi-icon">🏷️</div></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="scope-tabs" style="margin-bottom:20px">
+        <button class="scope-tab active" id="mkt-tab-offers" onclick="mktShowTab('offers')">🏷️ Offres</button>
+        <button class="scope-tab" id="mkt-tab-send" onclick="mktShowTab('send')">📨 Envoyer une offre</button>
+        <button class="scope-tab" id="mkt-tab-history" onclick="mktShowTab('history')">📋 Historique</button>
+      </div>
+
+      <!-- TAB: Offres -->
+      <div id="mkt-tab-content-offers">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Offres disponibles</div>
+            <button class="btn btn-primary btn-sm" onclick="mktOpenOfferModal()">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Créer une offre
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Titre</th><th>Type</th><th>Réduction</th><th>Cible</th><th>Envois</th><th>Créé le</th><th>Actions</th></tr></thead>
+              <tbody id="mkt-offers-tbody"><tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)">Chargement…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Envoyer offre -->
+      <div id="mkt-tab-content-send" style="display:none">
+        <div class="card" style="padding:24px">
+          <div style="font-weight:700;font-size:.9375rem;margin-bottom:16px">📨 Envoyer une offre aux médecins</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="field">
+              <label class="form-label">Offre à envoyer <span style="color:var(--danger)">*</span></label>
+              <select id="mkt-send-offer" class="form-input"><option value="">Sélectionner une offre…</option></select>
+            </div>
+            <div class="field">
+              <label class="form-label">Segment cible</label>
+              <select id="mkt-send-segment" class="form-input">
+                <option value="all">Tous les médecins</option>
+                <option value="free">Plan Free uniquement</option>
+                <option value="pro">Plan Pro uniquement</option>
+                <option value="clinic">Plan Clinic uniquement</option>
+                <option value="inactive">Inactifs (sans connexion 30j+)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:16px">
+            <label class="form-label">Message personnalisé (optionnel)</label>
+            <textarea id="mkt-send-msg" class="form-input" rows="3" placeholder="Ajoutez un message personnalisé qui sera inclus dans l'email…" style="resize:vertical"></textarea>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn btn-primary" onclick="mktSendOffer()" id="mkt-send-btn">
+              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Envoyer
+            </button>
+            <div id="mkt-send-status" style="font-size:.8125rem;color:var(--text-muted)"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px;padding:24px">
+          <div style="font-weight:700;font-size:.9375rem;margin-bottom:12px">🎯 Aperçu du segment</div>
+          <div id="mkt-segment-preview" style="font-size:.8125rem;color:var(--text-muted)">Sélectionnez un segment pour voir le nombre de destinataires.</div>
+          <button class="btn btn-secondary btn-sm" style="margin-top:12px" onclick="mktPreviewSegment()">
+            Calculer les destinataires
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB: Historique -->
+      <div id="mkt-tab-content-history" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Historique des envois</div>
+            <button class="btn btn-secondary btn-sm" onclick="mktLoadHistory()">
+              <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Rafraîchir
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Offre</th><th>Segment</th><th>Envois</th><th>Date</th><th>Envoyé par</th></tr></thead>
+              <tbody id="mkt-history-tbody"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Chargement…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ══════════════════ SÉCURITÉ & LOGS ══════════════════ -->
     <div class="section page" id="section-securite">
       <div class="page-header">
@@ -1321,10 +1448,10 @@ async function init() {
 function applyRoleRestrictions() {
   const role = _adminRole;
   // Sections only super_admin can access
-  const superAdminOnly = ['nav-featured','nav-ads','nav-revenus','nav-emails','nav-securite','nav-equipe','nav-parametres'];
+  const superAdminOnly = ['nav-featured','nav-ads','nav-revenus','nav-marketing','nav-emails','nav-securite','nav-equipe','nav-parametres'];
   // Support can see: dashboard, kyc, medecins
   if (role === 'kyc_agent') {
-    ['nav-dashboard','nav-medecins','nav-parametres','nav-featured','nav-ads','nav-revenus','nav-emails','nav-securite','nav-equipe'].forEach(id => {
+    ['nav-dashboard','nav-medecins','nav-parametres','nav-featured','nav-ads','nav-revenus','nav-marketing','nav-emails','nav-securite','nav-equipe'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
@@ -1365,7 +1492,8 @@ var sectionTitles = {
   revenus:    'Revenus',
   emails:     'Emails & Modèles',
   securite:   'Sécurité & Logs',
-  equipe:     'Mon Équipe'
+  equipe:     'Mon Équipe',
+  marketing:  'Marketing & Sales'
 };
 
 function showSection(name) {
@@ -1382,7 +1510,7 @@ function showSection(name) {
 
   // Lazy load
   if (name === 'kyc')       loadKyc();
-  if (name === 'medecins')  loadDoctors();
+  if (name === 'medecins')  { loadDoctors(); loadDeletionRequests(); }
   if (name === 'dashboard') loadDashboard();
   if (name === 'parametres')loadAdminUsers();
   if (name === 'featured')  loadFeaturedDoctors();
@@ -1390,6 +1518,7 @@ function showSection(name) {
   if (name === 'revenus')   loadRevenuSection();
   if (name === 'securite')  loadSecuriteSection();
   if (name === 'equipe')    loadEquipeSection();
+  if (name === 'marketing') loadMarketingSection();
 
   closeSidebar();
 }
@@ -1953,6 +2082,9 @@ function renderDoctorsTable() {
               ? '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="16" cy="12" r="3" fill="currentColor"/></svg>'
               : '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="8" cy="12" r="3" fill="currentColor"/></svg>'}
           </button>
+          <button class="btn btn-ghost btn-xs" onclick="adminSendPasswordReset('${esc(r.email||'')}',event)" title="Envoyer lien réinitialisation MDP" style="color:var(--brand)">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </button>
           <button class="btn btn-ghost btn-xs" onclick="deleteDoctor('${r.id}','${esc(r.email||'')}')" title="Supprimer le compte" style="color:var(--danger)">
             <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
           </button>
@@ -2028,6 +2160,88 @@ async function deleteDoctor(doctorId, email) {
     renderDoctorsTable();
   } catch (err) {
     showToast('error', 'Erreur suppression', err.message);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DELETION REQUESTS
+═══════════════════════════════════════════════════════════ */
+async function loadDeletionRequests() {
+  var tbody = document.getElementById('del-requests-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)">Chargement…</td></tr>';
+  try {
+    var { data, error } = await _sb.from('account_deletion_requests').select('*').order('requested_at',{ascending:false}).limit(100);
+    if (error) throw error;
+    if (!data||!data.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)">Aucune demande de suppression</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(function(r){
+      var statusBadge = r.status==='pending'
+        ? '<span class="badge badge-warning">En attente</span>'
+        : r.status==='processed'
+          ? '<span class="badge badge-success">Traitée</span>'
+          : '<span class="badge badge-neutral">Annulée</span>';
+      var date30 = r.requested_at ? new Date(new Date(r.requested_at).getTime()+30*24*60*60*1000).toLocaleDateString('fr-DZ') : '—';
+      return '<tr class="trow">'+
+        '<td><span style="font-weight:600">'+esc(r.doctor_name||'—')+'</span></td>'+
+        '<td style="font-size:.8125rem">'+esc(r.doctor_email||'—')+'</td>'+
+        '<td>'+planBadge(r.plan)+'</td>'+
+        '<td style="font-size:.75rem;color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(r.reason||'')+'">'+esc(r.reason||'—')+'</td>'+
+        '<td style="font-size:.75rem"><div>'+new Date(r.requested_at).toLocaleDateString('fr-DZ')+'</div><div style="color:var(--danger);font-size:.6875rem">Supp. le: '+date30+'</div></td>'+
+        '<td>'+statusBadge+'</td>'+
+        '<td><div class="td-actions">'+
+          (r.status==='pending'?'<button class="btn btn-ghost btn-xs" onclick="processDeletionRequest(''+r.id+'','cancel')" title="Annuler la demande" style="color:var(--success)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg></button>':'') +
+          (r.status==='pending'?'<button class="btn btn-ghost btn-xs" onclick="processDeletionRequest(''+r.id+'','process')" title="Marquer comme traitée" style="color:var(--danger)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>':'') +
+        '</div></td>'+
+      '</tr>';
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--danger)">Erreur: '+esc(e.message)+'</td></tr>';
+  }
+}
+
+async function processDeletionRequest(id, action) {
+  var newStatus = action==='cancel' ? 'cancelled' : 'processed';
+  var label = action==='cancel' ? 'Annuler la demande' : 'Marquer comme traitée';
+  if (!confirm(label+' ?')) return;
+  try {
+    var { data: { session } } = await _sb.auth.getSession();
+    var { error } = await _sb.from('account_deletion_requests').update({
+      status: newStatus,
+      processed_at: new Date().toISOString(),
+      processed_by: session&&session.user?session.user.email:'admin'
+    }).eq('id',id);
+    if (error) throw error;
+    showToast('success','Demande mise à jour','Statut : '+newStatus);
+    loadDeletionRequests();
+  } catch(e) { showToast('error','Erreur',e.message); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PASSWORD RESET (admin → doctor)
+═══════════════════════════════════════════════════════════ */
+async function adminSendPasswordReset(email, evt) {
+  if (evt) evt.stopPropagation();
+  if (!email) return;
+  if (!confirm('Envoyer un lien de réinitialisation de mot de passe à ' + email + ' ?')) return;
+  try {
+    const redirectTo = (typeof APP_URL !== 'undefined' ? APP_URL : window.location.origin) + '/login';
+    const { error } = await _sb.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) throw error;
+    // Log in audit table
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      await _sb.from('admin_password_resets').insert({
+        target_email: email,
+        reset_type: 'email_link',
+        requested_by: session?.user?.email || 'admin'
+      });
+    } catch (_) { /* non-critical */ }
+    showToast('success', 'Email envoyé', 'Lien de réinitialisation envoyé à ' + email);
+  } catch (err) {
+    showToast('error', 'Erreur réinitialisation', err.message);
   }
 }
 
@@ -2623,6 +2837,202 @@ function adsSaveCampaign() {
   } else { doSave(videoUrl); }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   MARKETING & SALES
+═══════════════════════════════════════════════════════════ */
+var _mktOffers = [];
+
+async function loadMarketingSection() {
+  await Promise.all([mktLoadOffers(), mktLoadKPIs()]);
+}
+
+async function mktLoadKPIs() {
+  try {
+    var res = await _sb.from('marketing_offers').select('id,sent_count,created_at');
+    var offers = res.data || [];
+    var totalSent = offers.reduce(function(a,o){return a+(o.sent_count||0);},0);
+    var activeCount = offers.filter(function(o){return o.sent_count>0;}).length;
+    var fc = await _sb.from('profiles').select('id',{count:'exact',head:true}).eq('plan','free').eq('role','doctor');
+    setEl('mkt-kpi-sent', totalSent);
+    setEl('mkt-kpi-conv', '-');
+    setEl('mkt-kpi-free', fc.count||0);
+    setEl('mkt-kpi-active', activeCount);
+  } catch(e) { console.warn('mktLoadKPIs',e); }
+}
+
+async function mktLoadOffers() {
+  try {
+    var res = await _sb.from('marketing_offers').select('*').order('created_at',{ascending:false});
+    if (res.error) throw res.error;
+    _mktOffers = res.data || [];
+    mktRenderOffers();
+    var sel = document.getElementById('mkt-send-offer');
+    if (sel) {
+      sel.innerHTML = '<option value="">Selectionner une offre...</option>' +
+        _mktOffers.map(function(o){ return '<option value="'+o.id+'">'+esc(o.title)+'</option>'; }).join('');
+    }
+  } catch(e) {
+    var tb = document.getElementById('mkt-offers-tbody');
+    if (tb) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--danger)">Erreur: '+esc(e.message)+'</td></tr>';
+  }
+}
+
+function mktRenderOffers() {
+  var tbody = document.getElementById('mkt-offers-tbody');
+  if (!tbody) return;
+  if (!_mktOffers.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Aucune offre creee</p></div></td></tr>';
+    return;
+  }
+  var typeLabels = {discount:'Reduction',free_trial:'Essai gratuit',feature:'Fonctionnalite',custom:'Personnalise'};
+  tbody.innerHTML = _mktOffers.map(function(o){
+    var delBtn = '<button class="btn btn-ghost btn-xs" onclick="mktDeleteOffer(\''+o.id+'\',\''+esc(o.title)+'\')" title="Supprimer" style="color:var(--danger)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>';
+    var sendBtn = '<button class="btn btn-ghost btn-xs" onclick="mktSendOfferDirect(\''+o.id+'\')" title="Envoyer" style="color:var(--brand)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
+    return '<tr class="trow">'+
+      '<td><span style="font-weight:600">'+esc(o.title)+'</span><div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">'+esc((o.body||'').slice(0,60))+(o.body&&o.body.length>60?'...':'')+'</div></td>'+
+      '<td><span class="badge badge-info">'+esc(typeLabels[o.offer_type]||o.offer_type)+'</span></td>'+
+      '<td>'+(o.discount_pct?'<strong>-'+o.discount_pct+'%</strong>':'<span style="color:var(--text-muted)">-</span>')+'</td>'+
+      '<td><span class="badge badge-neutral">'+esc(o.target_plan==='all'?'Tous':o.target_plan)+'</span></td>'+
+      '<td style="font-weight:700;text-align:center">'+o.sent_count+'</td>'+
+      '<td style="font-size:.75rem;color:var(--text-muted)">'+new Date(o.created_at).toLocaleDateString('fr-DZ')+'</td>'+
+      '<td><div class="td-actions">'+sendBtn+delBtn+'</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function mktShowTab(tab) {
+  ['offers','send','history'].forEach(function(t){
+    var btn = document.getElementById('mkt-tab-'+t);
+    var c = document.getElementById('mkt-tab-content-'+t);
+    if (btn) btn.classList.toggle('active', t===tab);
+    if (c) c.style.display = t===tab ? '' : 'none';
+  });
+  if (tab==='history') mktLoadHistory();
+  if (tab==='send') mktLoadOffers();
+}
+
+async function mktLoadHistory() {
+  var tbody = document.getElementById('mkt-history-tbody');
+  if (!tbody) return;
+  try {
+    var res = await _sb.from('marketing_offers').select('title,target_plan,sent_count,sent_at,created_by').gt('sent_count',0).order('sent_at',{ascending:false});
+    if (res.error) throw res.error;
+    var data = res.data||[];
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Aucun envoi</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(function(r){
+      return '<tr class="trow">'+
+        '<td><strong>'+esc(r.title)+'</strong></td>'+
+        '<td><span class="badge badge-neutral">'+esc(r.target_plan==='all'?'Tous':r.target_plan)+'</span></td>'+
+        '<td style="font-weight:700;text-align:center">'+r.sent_count+'</td>'+
+        '<td style="font-size:.75rem;color:var(--text-muted)">'+(r.sent_at?new Date(r.sent_at).toLocaleDateString('fr-DZ'):'-')+'</td>'+
+        '<td style="font-size:.75rem">'+esc(r.created_by||'admin')+'</td>'+
+      '</tr>';
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--danger)">Erreur: '+esc(e.message)+'</td></tr>';
+  }
+}
+
+function mktOpenOfferModal() {
+  var title = prompt('Titre de l\'offre :');
+  if (!title||!title.trim()) return;
+  var body = prompt('Description / corps du message :');
+  if (!body||!body.trim()) return;
+  var typeOpts = ['discount','free_trial','feature','custom'];
+  var typeStr = prompt('Type :\n1 = Reduction\n2 = Essai gratuit\n3 = Fonctionnalite\n4 = Personnalise\n(entrez le numero)','1');
+  var offerType = typeOpts[(parseInt(typeStr,10)||1)-1] || 'discount';
+  var discPct = null;
+  if (offerType==='discount') {
+    var dp = prompt('Pourcentage de reduction (ex: 20) :');
+    discPct = dp ? parseInt(dp,10) : null;
+  }
+  var planOpts = ['all','free','pro','clinic'];
+  var planStr = prompt('Plan cible :\n1 = Tous\n2 = Free\n3 = Pro\n4 = Clinic\n(entrez le numero)','1');
+  var targetPlan = planOpts[(parseInt(planStr,10)||1)-1]||'all';
+  mktCreateOffer(title.trim(), body.trim(), offerType, discPct, targetPlan);
+}
+
+async function mktCreateOffer(title, body, offerType, discountPct, targetPlan) {
+  try {
+    var sess = await _sb.auth.getSession();
+    var email = sess && sess.data && sess.data.session && sess.data.session.user ? sess.data.session.user.email : 'admin';
+    var insert = { title:title, body:body, offer_type:offerType, target_plan:targetPlan, created_by:email };
+    if (discountPct) insert.discount_pct = discountPct;
+    var res = await _sb.from('marketing_offers').insert(insert);
+    if (res.error) throw res.error;
+    showToast('success','Offre creee','"'+title+'" ajoutee');
+    mktLoadOffers(); mktLoadKPIs();
+  } catch(e) { showToast('error','Erreur creation offre',e.message); }
+}
+
+async function mktDeleteOffer(id, title) {
+  if (!confirm('Supprimer cette offre ?')) return;
+  try {
+    var res = await _sb.from('marketing_offers').delete().eq('id',id);
+    if (res.error) throw res.error;
+    showToast('success','Offre supprimee','');
+    mktLoadOffers(); mktLoadKPIs();
+  } catch(e) { showToast('error','Erreur suppression',e.message); }
+}
+
+async function mktPreviewSegment() {
+  var seg = (document.getElementById('mkt-send-segment')||{}).value||'all';
+  var el = document.getElementById('mkt-segment-preview');
+  if (!el) return;
+  el.textContent = 'Calcul en cours...';
+  try {
+    var q = _sb.from('profiles').select('id',{count:'exact',head:true}).eq('role','doctor');
+    if (seg==='free') q=q.eq('plan','free');
+    else if (seg==='pro') q=q.eq('plan','pro');
+    else if (seg==='clinic') q=q.eq('plan','clinic');
+    else if (seg==='inactive') q=q.eq('is_active',false);
+    var fc = await q;
+    el.textContent = (fc.count||0)+' medecin(s) dans ce segment.';
+  } catch(e) { el.textContent = 'Erreur: '+e.message; }
+}
+
+async function mktSendOffer() {
+  var offerId = (document.getElementById('mkt-send-offer')||{}).value;
+  var segment = (document.getElementById('mkt-send-segment')||{}).value||'all';
+  var statusEl = document.getElementById('mkt-send-status');
+  var btn = document.getElementById('mkt-send-btn');
+  if (!offerId) { showToast('error','Offre requise','Selectionnez une offre.'); return; }
+  var offer = _mktOffers.find(function(o){return o.id===offerId;});
+  if (!offer) return;
+  if (!confirm('Envoyer cette offre au segment "'+segment+'" ?\nUn email sera envoye a tous les medecins du segment.')) return;
+  btn.disabled = true;
+  if (statusEl) statusEl.textContent = 'Calcul des destinataires...';
+  try {
+    var q = _sb.from('profiles').select('id,email').eq('role','doctor');
+    if (segment==='free') q=q.eq('plan','free');
+    else if (segment==='pro') q=q.eq('plan','pro');
+    else if (segment==='clinic') q=q.eq('plan','clinic');
+    else if (segment==='inactive') q=q.eq('is_active',false);
+    var dc = await q.limit(500);
+    if (dc.error) throw dc.error;
+    var count = (dc.data||[]).length;
+    var ur = await _sb.from('marketing_offers').update({
+      sent_count: (offer.sent_count||0)+count,
+      sent_at: new Date().toISOString()
+    }).eq('id',offerId);
+    if (ur.error) throw ur.error;
+    showToast('success','Envoi enregistre',count+' destinataire(s). Connectez votre outil email pour l\'envoi reel.');
+    if (statusEl) statusEl.textContent = count+' destinataire(s) enregistres.';
+    mktLoadOffers(); mktLoadKPIs();
+  } catch(e) {
+    showToast('error','Erreur envoi',e.message);
+    if (statusEl) statusEl.textContent = 'Erreur: '+e.message;
+  } finally { btn.disabled=false; }
+}
+
+function mktSendOfferDirect(offerId) {
+  var sel = document.getElementById('mkt-send-offer');
+  if (sel) sel.value = offerId;
+  mktShowTab('send');
+}
 /* ═══════════════════════════════════════════════════════════
    REVENUS
 ═══════════════════════════════════════════════════════════ */

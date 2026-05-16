@@ -456,6 +456,27 @@ button{font-family:inherit;cursor:pointer}
           </div>
         </div>
 
+
+        <!-- ═══ GESTION DU COMPTE ═══ -->
+        <div class="card" style="margin-top:16px;border:1px solid var(--border);border-radius:var(--r-lg)">
+          <div class="card-head" style="padding:16px 20px 12px">
+            <div class="card-title" style="font-size:.9375rem">
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Gestion du compte
+            </div>
+          </div>
+          <div style="padding:0 20px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+              <div style="font-size:.8125rem;color:var(--text-2);line-height:1.5">
+                Vous pouvez demander la suppression de votre compte à tout moment. Votre compte sera conservé pendant <strong>30 jours</strong> avant suppression définitive, vous pouvez annuler durant cette période en contactant le support.
+              </div>
+            </div>
+            <button onclick="openDeleteAccountModal()" style="flex-shrink:0;padding:9px 18px;background:transparent;border:1.5px solid var(--danger);color:var(--danger);border-radius:var(--r);font-size:.8125rem;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap" onmouseover="this.style.background='var(--danger-bg)'" onmouseout="this.style.background='transparent'">
+              Supprimer mon compte
+            </button>
+          </div>
+        </div>
+
       </div><!-- /content -->
     </div>
   </main>
@@ -976,6 +997,106 @@ async function load() {
     .subscribe();
 })();
 </script>
+
+<!-- MODAL: Suppression du compte -->
+<div id="deleteAccountModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden">
+    <div style="padding:24px 24px 0;display:flex;align-items:flex-start;gap:16px">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--danger-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--danger);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:1.0625rem;color:var(--text);margin-bottom:6px">Supprimer mon compte</div>
+        <div style="font-size:.8125rem;color:var(--text-2);line-height:1.6">
+          Votre compte et toutes vos données seront <strong>conservés pendant 30 jours</strong>, puis supprimés définitivement. Pendant cette période, vous pouvez annuler en contactant le support à <strong>contact@docline.health</strong>.
+          <br><br>
+          Cette action est <strong style="color:var(--danger)">irréversible</strong> après le délai de 30 jours.
+        </div>
+      </div>
+    </div>
+    <div style="padding:20px 24px">
+      <label style="display:block;font-size:.8125rem;font-weight:600;color:var(--text-2);margin-bottom:6px">Raison (optionnel)</label>
+      <select id="del-reason" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:.8125rem;background:#fff;color:var(--text);margin-bottom:12px">
+        <option value="">Sélectionner une raison…</option>
+        <option value="Je n'utilise plus l'application">Je n'utilise plus l'application</option>
+        <option value="Je préfère un autre service">Je préfère un autre service</option>
+        <option value="Problèmes techniques récurrents">Problèmes techniques récurrents</option>
+        <option value="Trop cher">Trop cher</option>
+        <option value="Autre">Autre</option>
+      </select>
+      <div style="display:flex;gap:10px">
+        <button onclick="closeDeleteAccountModal()" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;font-size:.875rem;font-weight:600;cursor:pointer;color:var(--text-2)">Annuler</button>
+        <button id="del-confirm-btn" onclick="confirmDeleteAccount()" style="flex:1;padding:10px;border:none;border-radius:var(--r);background:var(--danger);color:#fff;font-size:.875rem;font-weight:600;cursor:pointer">
+          Confirmer la suppression
+        </button>
+      </div>
+      <div id="del-status" style="margin-top:10px;font-size:.8125rem;color:var(--text-2);text-align:center;display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openDeleteAccountModal() {
+  var m = document.getElementById('deleteAccountModal');
+  if (m) { m.style.display = 'flex'; }
+}
+function closeDeleteAccountModal() {
+  var m = document.getElementById('deleteAccountModal');
+  if (m) { m.style.display = 'none'; }
+  var s = document.getElementById('del-status');
+  if (s) { s.style.display = 'none'; s.textContent = ''; }
+  var btn = document.getElementById('del-confirm-btn');
+  if (btn) { btn.disabled = false; btn.textContent = 'Confirmer la suppression'; }
+}
+async function confirmDeleteAccount() {
+  var btn = document.getElementById('del-confirm-btn');
+  var statusEl = document.getElementById('del-status');
+  var reason = (document.getElementById('del-reason') || {}).value || '';
+  btn.disabled = true;
+  btn.textContent = 'Envoi…';
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--text-2)';
+  statusEl.textContent = 'Enregistrement de votre demande…';
+  try {
+    var { data: { session } } = await _supa.auth.getSession();
+    if (!session) throw new Error('Session expirée. Reconnectez-vous.');
+    // Load profile info
+    var { data: prof } = await _supa.from('profiles').select('full_name,first_name,last_name,plan').eq('id', session.user.id).single();
+    var doctorName = '';
+    if (prof) {
+      doctorName = prof.full_name || ((prof.first_name||'') + ' ' + (prof.last_name||'')).trim();
+    }
+    var plan = (prof && prof.plan) || 'free';
+    // Create deletion request
+    var { error } = await _supa.from('account_deletion_requests').insert({
+      user_id:      session.user.id,
+      doctor_email: session.user.email || '',
+      doctor_name:  doctorName || null,
+      plan:         plan,
+      reason:       reason || null,
+      status:       'pending'
+    });
+    if (error) throw error;
+    // Sign out the user
+    statusEl.style.color = 'var(--success)';
+    statusEl.textContent = 'Demande enregistrée. Votre compte sera supprimé dans 30 jours. Vous allez être déconnecté…';
+    btn.textContent = 'Demande envoyée ✓';
+    setTimeout(async function() {
+      try { await _supa.auth.signOut(); } catch(_) {}
+      window.location.href = ghpNav('/login');
+    }, 3000);
+  } catch(e) {
+    statusEl.style.color = 'var(--danger)';
+    statusEl.textContent = 'Erreur : ' + (e.message || 'Veuillez réessayer.');
+    btn.disabled = false;
+    btn.textContent = 'Confirmer la suppression';
+  }
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDeleteAccountModal();
+});
+</script>
+
 </body>
 </html>
 

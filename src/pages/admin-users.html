@@ -387,14 +387,26 @@
             </div>
             <div id="trial-counter" style="font-size:.75rem;font-weight:700;color:#F79009;white-space:nowrap">0 / 10 offerts</div>
           </div>
-          <div style="padding:16px 20px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:flex-end">
+          <div style="padding:16px 20px;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:flex-end">
             <div>
               <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);display:block;margin-bottom:5px">Email du médecin</label>
               <input type="email" id="trial-email" placeholder="docteur@exemple.dz" style="width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:var(--text-sm);font-family:inherit;outline:none;background:var(--bg-raised);color:var(--text-primary)" onfocus="this.style.borderColor='#F79009'" onblur="this.style.borderColor='var(--border)'">
             </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);display:block;margin-bottom:5px">Durée</label>
+              <select id="trial-months" style="border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:var(--text-sm);font-family:inherit;outline:none;background:var(--bg-raised);color:var(--text-primary)" onchange="trialMonthsChange(this)">
+                <option value="1">1 mois</option>
+                <option value="2" selected>2 mois</option>
+                <option value="3">3 mois</option>
+                <option value="6">6 mois</option>
+                <option value="12">12 mois</option>
+                <option value="custom">Personnalisé…</option>
+              </select>
+              <input type="number" id="trial-months-custom" min="1" max="24" placeholder="nb" style="display:none;width:80px;margin-top:4px;border:1.5px solid #F79009;border-radius:var(--r-sm);padding:7px 10px;font-size:var(--text-sm);font-family:inherit;outline:none;background:var(--bg-raised);color:var(--text-primary)">
+            </div>
             <button class="btn btn-warning btn-sm" id="trial-btn" onclick="grantTrialByEmail()">
               <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              Offrir 2 mois Pro
+              Offrir accès Pro
             </button>
           </div>
           <div id="trial-list" style="padding:0 20px 16px;display:flex;flex-wrap:wrap;gap:6px"></div>
@@ -502,8 +514,9 @@
     </div>
     <div class="modal-body" id="modal-body"></div>
     <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-      <button class="btn btn-danger" id="block-btn" onclick="blockUser()">Block User</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Fermer</button>
+      <button class="btn btn-secondary btn-sm" onclick="sendPasswordReset(document.getElementById('modal-email').textContent)">🔑 Réinitialiser MDP</button>
+      <button class="btn btn-danger btn-sm" id="block-btn" onclick="blockUser()">⛔ Désactiver</button>
     </div>
   </div>
 </div>
@@ -699,19 +712,39 @@ async function load(){
 function renderKPIs(){
   const now  = Date.now();
   const pro  = _subs.filter(s=>s.plan!=='free'&&s.status==='active');
+  const enterprise = _subs.filter(s=>s.plan==='enterprise'&&s.status==='active');
   const free = _subs.filter(s=>s.plan==='free');
   const can  = _subs.filter(s=>s.status==='canceled');
   const tw   = _users.filter(u=>new Date(u.created_at)>new Date(now-7*86400000));
-  const trial= _users.filter(u=>u.trial_end && new Date(u.trial_end)>new Date(now));
+  const trial= _users.filter(u=>(u.trial_end||u.trial_ends_at) && new Date(u.trial_end||u.trial_ends_at)>new Date(now));
+  const trialExpired = _users.filter(u=>(u.trial_end||u.trial_ends_at) && new Date(u.trial_end||u.trial_ends_at)<=new Date(now));
   const active24h = _users.filter(u=>u.last_seen_at && new Date(u.last_seen_at)>new Date(now-86400000));
-  document.getElementById('user-kpis').innerHTML = [
-    ['Médecins inscrits',   _users.length, '+'+tw.length+' cette semaine',           'up',      'brand'],
-    ['Abonnés payants',     pro.length,    Math.round((pro.length/(_users.length||1))*100)+'% conversion','up','success'],
-    ['Essai lancement',     trial.length,  trial.length+'/10 accès offerts',          trial.length>=10?'down':'neutral','warning'],
-    ['Actifs (24 h)',        active24h.length, free.length+' sur plan gratuit',        'neutral', 'info'],
-  ].map(([l,v,d,dir,t])=>`
-    <div class="kpi kpi-${t}"><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-    <div class="kpi-value">${v}</div><div class="kpi-label">${l}</div><div class="kpi-delta ${dir}">${d}</div></div>`).join('');
+  const activeWeek = _users.filter(u=>u.last_seen_at && new Date(u.last_seen_at)>new Date(now-7*86400000));
+  const kyc_pending = _users.filter(u=>u.kyc_status==='pending_review');
+  // MRR estimate (DA): pro=2500/mois, enterprise=6500/mois
+  const mrr = (pro.length - enterprise.length) * 2500 + enterprise.length * 6500;
+  const mrrFmt = mrr >= 1000000 ? (mrr/1000000).toFixed(1)+'M' : mrr >= 1000 ? (mrr/1000).toFixed(0)+'k' : mrr;
+
+  const grid = document.getElementById('user-kpis');
+  if (!grid) return;
+  // 8 KPIs in 4-col grid (wraps to 2 rows)
+  grid.style.gridTemplateColumns = 'repeat(4,1fr)';
+  grid.innerHTML = [
+    ['Médecins inscrits',   _users.length,    '+'+tw.length+' cette semaine',             'up',      'brand',   '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'],
+    ['Abonnés payants',     pro.length,       Math.round((pro.length/(_users.length||1))*100)+'% conversion', 'up','success','<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
+    ['MRR estimé (DA)',     mrrFmt,           pro.length+' Pro · '+enterprise.length+' Clinic', 'up', 'success','<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>'],
+    ['Essai lancement',     trial.length,     trial.length+'/10 actifs · '+trialExpired.length+' expirés', trial.length>=10?'down':'neutral','warning','<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'],
+    ['Actifs (24 h)',       active24h.length, activeWeek.length+' actifs cette semaine',    'neutral', 'info',   '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'],
+    ['KYC en attente',      kyc_pending.length, kyc_pending.length?'À examiner':'Aucun en attente', kyc_pending.length?'down':'up','warning','<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'],
+    ['Résiliations',        can.length,       'comptes résiliés',                           can.length?'down':'neutral','danger','<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'],
+    ['Sans connexion',      _users.filter(u=>!u.last_seen_at).length, 'jamais connectés', 'neutral','info','<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/>'],
+  ].map(([l,v,d,dir,t,icon])=>`
+    <div class="kpi kpi-${t}" style="cursor:default">
+      <div class="kpi-icon"><svg viewBox="0 0 24 24">${icon}</svg></div>
+      <div class="kpi-value">${v}</div>
+      <div class="kpi-label">${l}</div>
+      <div class="kpi-delta ${dir}">${d}</div>
+    </div>`).join('');
 }
 
 function applyFilter(plan, search){
@@ -776,7 +809,10 @@ function renderTable(){
       <td>${trialCell}</td>
       <td style="font-size:.6875rem;color:var(--text-muted)">${lastSeen}</td>
       <td style="font-size:.6875rem;color:var(--text-muted)">${formatDate(u.created_at)}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewUser('${u.id}')">Voir</button></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewUser('${u.id}')">Voir</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();sendPasswordReset('${sanitize(u.email)}')" title="Envoyer un lien de réinitialisation" style="margin-left:4px">🔑 MDP</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -789,12 +825,28 @@ function timeAgo(s) {
   return Math.floor(d/86400) + ' j';
 }
 
+function trialMonthsChange(sel) {
+  const custom = document.getElementById('trial-months-custom');
+  if (sel.value === 'custom') { custom.style.display = 'block'; custom.focus(); }
+  else { custom.style.display = 'none'; }
+}
+
+function getTrialMonths() {
+  const sel = document.getElementById('trial-months');
+  if (sel.value === 'custom') {
+    const v = parseInt(document.getElementById('trial-months-custom').value) || 2;
+    return Math.max(1, Math.min(24, v));
+  }
+  return parseInt(sel.value) || 2;
+}
+
 async function grantTrialByEmail() {
-  const email = document.getElementById('trial-email').value.trim();
+  const email  = document.getElementById('trial-email').value.trim();
+  const months = getTrialMonths();
   if (!email) { Toast.error('Email requis', ''); return; }
   const u = _users.find(x => x.email === email);
   if (!u) { Toast.error('Introuvable', 'Aucun compte avec cet email.'); return; }
-  await grantTrial(u.id, u.email);
+  await grantTrial(u.id, u.email, months);
   document.getElementById('trial-email').value = '';
 }
 
@@ -817,21 +869,24 @@ function renderTrialList() {
   }).join('');
 }
 
-async function grantTrial(userId, email) {
-  if (!confirm(`Donner 2 mois d'accès Pro gratuit à ${email} ?`)) return;
+async function grantTrial(userId, email, months) {
+  months = months || getTrialMonths();
+  if (!confirm(`Donner ${months} mois d'accès Pro gratuit à ${email} ?`)) return;
   const session = AdminAuth._session;
   if (!session) return;
   try {
     const resp = await fetch(SUPA_URL + '/functions/v1/activate-plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-      body: JSON.stringify({ target_user_id: userId, plan: 'pro', billing: 'monthly', months: 2, is_trial: true })
+      body: JSON.stringify({ target_user_id: userId, plan: 'pro', billing: 'monthly', months: months, is_trial: true })
     });
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.error || 'Erreur activation');
     // Also mark trial_ends_at in profile
     await _supa.from('profiles').update({
-      trial_end: data.expires_at
+      trial_end: data.expires_at,
+      trial_ends_at: data.expires_at,
+      trial_granted_months: months
     }).eq('id', userId);
     Toast.success('Accès offert', `${email} — Pro gratuit jusqu'au ${formatDate(data.expires_at)}`);
     await load();
@@ -882,16 +937,39 @@ function closeModal(){document.getElementById('user-modal').classList.remove('op
 
 async function blockUser(){
   if(!_selectedUser) return;
-  const ok = confirm('This will disable the user\'s session. Are you sure?');
+  const u = _users.find(x=>x.id===_selectedUser);
+  const email = u ? u.email : _selectedUser;
+  const ok = confirm('Désactiver le compte de '+email+' ?\n\nLe médecin sera masqué de l\'annuaire et ne pourra plus accepter de rendez-vous.');
   if(!ok) return;
-  // Log to audit trail
-  await _supa.from('audit_log').insert({
-    user_id: _selectedUser,
-    event: 'admin.user_blocked',
-    metadata: { blocked_by: (await _supa.auth.getUser()).data?.user?.id }
-  });
-  Toast.success('Action logged','Contact Supabase to fully disable the account if needed.');
+  try {
+    const { error } = await _supa.from('profiles').update({ is_active: false, is_public: false }).eq('id', _selectedUser);
+    if (error) throw error;
+    Toast.success('Compte désactivé', email+' est retiré de l\'annuaire.');
+    await load();
+  } catch(e) {
+    Toast.error('Erreur', e.message||'Impossible de désactiver.');
+  }
   closeModal();
+}
+
+async function sendPasswordReset(email) {
+  if (!email) return;
+  if (!confirm('Envoyer un lien de réinitialisation de mot de passe à '+email+' ?')) return;
+  try {
+    const { error } = await _supa.auth.resetPasswordForEmail(email, {
+      redirectTo: (typeof APP_URL !== 'undefined' ? APP_URL : 'https://docline.health') + '/login'
+    });
+    if (error) throw error;
+    // Log the reset
+    await _supa.from('admin_password_resets').insert({
+      target_email: email,
+      reset_type: 'email_link',
+      requested_by: AdminAuth._session?.user?.email || 'admin'
+    }).then(()=>{});
+    Toast.success('Email envoyé ✉️', 'Lien de réinitialisation envoyé à '+email);
+  } catch(e) {
+    Toast.error('Erreur', e.message||'Impossible d\'envoyer le lien.');
+  }
 }
 
 function exportCSV(){
