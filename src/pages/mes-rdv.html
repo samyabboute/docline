@@ -457,20 +457,35 @@ _sb.auth.getSession().then(function(r){
   var meta  = sess.user.user_metadata || {};
   var name  = Shell.displayName(meta, email);
 
-  /* Shell */
-  Shell.init({
-    page:'mes-rdv',
-    title:'Mes Rendez-vous',
-    isPro: false,
-    userName: name,
-    userEmail: email
-  });
-  if (typeof Shell.guard === 'function' && !Shell.guard(null)) return;
-  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_sb, 'mes-rdv', 'Mes Rendez-vous');
+  /* Fetch plan from subscriptions */
+  _sb.from('subscriptions').select('plan,status,expires_at').eq('user_id', _uid).single()
+    .then(function(subRes){
+      var sub  = subRes && subRes.data;
+      var isPro = !!(sub && sub.plan !== 'free' && sub.status === 'active'
+        && (!sub.expires_at || new Date(sub.expires_at) > new Date()));
+      var plan = (sub && sub.plan) || 'free';
 
-  document.getElementById('page-content').style.display = 'block';
-  loadProfile();
-  loadRdv();
+      try {
+        Shell.init({
+          page:'mes-rdv',
+          title:'Mes Rendez-vous',
+          isPro: isPro,
+          plan:  plan,
+          userName: name,
+          userEmail: email
+        });
+      } catch(e) { console.error('[mes-rdv] Shell.init error:', e); }
+
+      if (typeof Shell.guard === 'function' && !Shell.guard(null)) return;
+      if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_sb, 'mes-rdv', 'Mes Rendez-vous');
+
+      document.getElementById('page-content').style.display = 'block';
+      loadProfile();
+      loadRdv();
+    });
+}).catch(function(e){
+  console.error('[mes-rdv] Auth error:', e);
+  window.location.href = ghpNav('/login');
 });
 
 /* ── Load profile (check is_public) ─────────────────────────── */
@@ -648,7 +663,7 @@ async function sendSmsReminder(id) {
   if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
 
   var { data: sessionData } = await _sb.auth.getSession();
-  var jwt = sessionData?.session?.access_token;
+  var jwt = sessionData && sessionData.session && sessionData.session.access_token;
   if (!jwt) { showToast('Session expirée', 'err'); return; }
 
   try {
@@ -692,7 +707,7 @@ async function quickCancel(id){
 
   // Récupérer le JWT du médecin pour l'Edge Function
   var { data: sessionData } = await _sb.auth.getSession();
-  var jwt = sessionData?.session?.access_token;
+  var jwt = sessionData && sessionData.session && sessionData.session.access_token;
   if(!jwt){ showToast('Session expirée, reconnectez-vous', 'err'); return; }
 
   showToast('Annulation en cours…', 'ok');
