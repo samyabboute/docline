@@ -277,8 +277,118 @@ ul,ol{list-style:none}
 .empty-state svg{width:40px;height:40px;stroke:var(--text-faint);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 12px}
 .empty-state p{font-size:.875rem}
 
+/* ── FORM INPUT / SELECT ────────────────────────────────────── */
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);padding:8px 12px;font-size:.8125rem;font-family:inherit;background:var(--bg-raised);color:var(--text-primary);outline:none;transition:border-color var(--t-fast)}
+.form-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow)}
+.filter-select{border:1.5px solid var(--border);border-radius:var(--r-md);padding:7px 12px;font-size:.8125rem;font-family:inherit;background:var(--bg-raised);color:var(--text-primary);outline:none;cursor:pointer;transition:border-color var(--t-fast)}
+.filter-select:focus{border-color:var(--brand)}
+.search-input-field{flex:1;min-width:180px;border:1.5px solid var(--border);border-radius:var(--r-md);padding:8px 12px 8px 36px;font-size:.8125rem;font-family:inherit;background:var(--bg-raised);color:var(--text-primary);outline:none;transition:border-color var(--t-fast)}
+.search-input-field:focus{border-color:var(--brand)}
+.search-wrap2{position:relative;flex:1;min-width:180px}
+.search-wrap2 svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:2;pointer-events:none}
+
+/* ── KPI gold/teal for featured ────────────────────────────── */
+.kpi-gold::before{background:linear-gradient(90deg,#F59E0B,#FBBF24)}
+.kpi-teal::before{background:linear-gradient(90deg,#00B896,#00D4AA)}
+.kpi-gold .kpi-icon{background:#FFFBEB}
+.kpi-teal .kpi-icon{background:#E6FAF5}
+.kpi-gold .kpi-icon svg{stroke:#F59E0B}
+.kpi-teal .kpi-icon svg{stroke:#00B896}
+
+/* ── TOGGLE ─────────────────────────────────────────────────── */
+.toggle{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:#CBD5E1;border-radius:var(--r-full);transition:background var(--t-fast);cursor:pointer}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;background:#fff;border-radius:50%;transition:transform var(--t-fast);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked + .toggle-slider{background:var(--brand)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(18px)}
+
+/* ── FEATURED TABLE ─────────────────────────────────────────── */
+.doc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:#fff;flex-shrink:0}
+.trow.is-featured td:first-child{position:relative}
+.trow.is-featured td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#F59E0B}
+.toggle-featured{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:var(--r-md);font-size:.75rem;font-weight:600;cursor:pointer;border:none;transition:all var(--t-fast)}
+.toggle-featured svg{width:14px;height:14px;flex-shrink:0}
+.toggle-featured.on{background:#FFFBEB;color:#F59E0B}
+.toggle-featured.on:hover{background:#FEF3C7}
+.toggle-featured.off{background:var(--bg-subtle);color:var(--text-muted)}
+.toggle-featured.off:hover{background:var(--bg-hover);color:var(--text-secondary)}
+.vis-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:var(--r-md);font-size:.75rem;font-weight:600;cursor:pointer;border:none;transition:all var(--t-fast)}
+.vis-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.vis-btn.public{background:var(--success-bg);color:var(--success)}
+.vis-btn.public:hover{background:var(--success);color:#fff}
+.vis-btn.private{background:var(--bg-subtle);color:var(--text-muted)}
+.vis-btn.private:hover{background:var(--bg-hover)}
+.badge-teal{background:#E6FAF5;color:#00B896;border:1px solid rgba(0,184,150,.2);display:inline-flex;align-items:center;padding:3px 9px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700}
+.badge-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border);display:inline-flex;align-items:center;padding:3px 9px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700}
+
+/* ── ADS / CAMPAIGNS ────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.stat-val{font-size:1.75rem;font-weight:800;letter-spacing:-.5px;line-height:1;margin-bottom:4px}
+.stat-label{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)}
+.campaigns-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.camp-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);transition:box-shadow var(--t-fast)}
+.camp-card:hover{box-shadow:var(--shadow-md)}
+.camp-thumb{height:160px;background:#0D0F14;position:relative;overflow:hidden}
+.camp-thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.camp-thumb-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)}
+.camp-play-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--t-fast)}
+.camp-play-btn:hover{background:#fff}
+.camp-body{padding:14px 16px}
+.camp-title{font-weight:700;font-size:.875rem;color:var(--text-primary);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camp-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.camp-tag{display:inline-flex;align-items:center;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-full);padding:2px 8px;font-size:.6875rem;font-weight:600;color:var(--text-secondary)}
+.camp-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ── MODAL ──────────────────────────────────────────────────── */
+.modal-bg{position:fixed;inset:0;background:rgba(13,15,20,.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--bg-raised);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);width:100%;max-width:580px;max-height:90vh;display:flex;flex-direction:column;border:1px solid var(--border)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-title{font-size:.9375rem;font-weight:800;color:var(--text-primary)}
+.modal-body{padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:16px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+.field{}
+.form-label{display:block;font-size:.75rem;font-weight:700;color:var(--text-secondary);margin-bottom:5px}
+.btn-icon{width:30px;height:30px;border:none;background:var(--bg-subtle);border-radius:var(--r-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all var(--t-fast)}
+.btn-icon:hover{background:var(--bg-hover);color:var(--text-primary)}
+.btn-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+
+/* ── SCOPE TABS ─────────────────────────────────────────────── */
+.scope-tabs{display:flex;gap:4px;background:var(--bg-subtle);border-radius:var(--r-md);padding:3px;margin-bottom:10px}
+.scope-tab{flex:1;text-align:center;padding:6px 8px;border-radius:var(--r-sm);font-size:.75rem;font-weight:600;color:var(--text-muted);cursor:pointer;border:none;background:transparent;transition:all var(--t-fast)}
+.scope-tab.active{background:var(--bg-raised);color:var(--text-primary);box-shadow:var(--shadow-xs)}
+
+/* ── WILAYA GRID ────────────────────────────────────────────── */
+.wilaya-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;max-height:200px;overflow-y:auto;padding:4px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--bg-subtle)}
+.wilaya-chip{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:var(--r-sm);cursor:pointer;font-size:.75rem;font-weight:500;color:var(--text-secondary);transition:background var(--t-fast)}
+.wilaya-chip:hover{background:var(--bg-hover)}
+.wilaya-chip input{accent-color:var(--brand);cursor:pointer;flex-shrink:0}
+
+/* ── CITY TAGS ──────────────────────────────────────────────── */
+.city-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.city-tag-chip{display:inline-flex;align-items:center;gap:5px;background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15);border-radius:var(--r-full);padding:3px 8px;font-size:.75rem;font-weight:600}
+.city-tag-chip button{background:none;border:none;cursor:pointer;color:var(--brand);font-size:14px;line-height:1;padding:0;opacity:.6}
+.city-tag-chip button:hover{opacity:1}
+
+/* ── UPLOAD ─────────────────────────────────────────────────── */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer;transition:all var(--t-fast);background:var(--bg-subtle)}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--brand);background:var(--brand-light)}
+.upload-zone input{display:none}
+.upload-bar-wrap{height:4px;background:var(--border);border-radius:var(--r-full);overflow:hidden;margin-top:8px}
+.upload-bar{height:100%;background:var(--brand);border-radius:var(--r-full);width:0;transition:width .3s}
+.upload-preview{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#000;aspect-ratio:16/9}
+.upload-preview video{width:100%;height:100%;object-fit:contain}
+.upload-preview-rm{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.6);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background var(--t-fast)}
+.upload-preview-rm:hover{background:rgba(0,0,0,.85)}
+
+/* ── REVENUS SECTION ────────────────────────────────────────── */
+.rev-placeholder{text-align:center;padding:60px 24px;color:var(--text-muted)}
+.rev-placeholder svg{width:48px;height:48px;stroke:var(--text-faint);fill:none;stroke-width:1.5;stroke-linecap:round;margin:0 auto 16px}
+
 /* ── RESPONSIVE ────────────────────────────────────────────── */
-@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)};.stats-row{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:960px){
   .app{grid-template-columns:1fr}
   .sidebar{position:fixed;left:calc(-1 * var(--sidebar-w) - 10px);height:100vh;transition:left var(--t-base)}
@@ -290,6 +400,7 @@ ul,ol{list-style:none}
 }
 @media(max-width:600px){
   .kpi-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr 1fr}
   .page{padding:16px}
   .info-grid{grid-template-columns:1fr}
   .ai-grid{grid-template-columns:1fr}
@@ -389,6 +500,42 @@ ul,ol{list-style:none}
     <button class="nav-item" id="nav-parametres" onclick="showSection('parametres')">
       <svg class="ni-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
       Paramètres
+    </button>
+
+    <div class="sidebar-section">Publicité & Contenu</div>
+
+    <button class="nav-item" id="nav-featured" onclick="showSection('featured')">
+      <svg class="ni-icon" viewBox="0 0 24 24" style="fill:#F59E0B;stroke:none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Médecins En Vedette
+    </button>
+
+    <button class="nav-item" id="nav-ads" onclick="showSection('ads')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      Régie Publicitaire
+    </button>
+
+    <div class="sidebar-section">Finance & Opérations</div>
+
+    <button class="nav-item" id="nav-revenus" onclick="showSection('revenus')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Revenus
+    </button>
+
+    <button class="nav-item" id="nav-emails" onclick="showSection('emails')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Emails & Modèles
+    </button>
+
+    <button class="nav-item" id="nav-securite" onclick="showSection('securite')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Sécurité & Logs
+    </button>
+
+    <div class="sidebar-section">Administration</div>
+
+    <button class="nav-item" id="nav-equipe" onclick="showSection('equipe')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Mon Équipe
     </button>
 
     <div class="sidebar-footer">
@@ -786,7 +933,321 @@ ul,ol{list-style:none}
       </div>
     </div>
 
+    <!-- ══════════════════ MÉDECINS EN VEDETTE ══════════════════ -->
+    <div class="section page" id="section-featured">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+        <div>
+          <div class="page-title">Médecins En Vedette</div>
+          <div class="page-sub">Gérez la mise en avant des médecins et leur visibilité publique</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadFeaturedDoctors()">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Rafraîchir
+        </button>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi kpi-gold"><div class="kpi-label">En vedette</div><div class="kpi-value" id="f-kpi-featured">—</div><div class="kpi-sub">médecins sponsorisés</div><div class="kpi-icon"><svg viewBox="0 0 24 24" style="fill:#F59E0B;stroke:none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div></div>
+        <div class="kpi kpi-teal"><div class="kpi-label">RDV activés</div><div class="kpi-value" id="f-kpi-rdv">—</div><div class="kpi-sub">acceptent les réservations</div><div class="kpi-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div></div>
+        <div class="kpi kpi-brand"><div class="kpi-label">Profils publics</div><div class="kpi-value" id="f-kpi-public">—</div><div class="kpi-sub">visibles sur Docline</div><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div></div>
+        <div class="kpi kpi-success"><div class="kpi-label">Total inscrits</div><div class="kpi-value" id="f-kpi-total">—</div><div class="kpi-sub">médecins sur la plateforme</div><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap2">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input-field" id="f-search" type="text" placeholder="Rechercher par nom, spécialité, wilaya…" oninput="filterFeaturedTable()">
+        </div>
+        <select class="filter-select" id="f-filter-feat" onchange="filterFeaturedTable()">
+          <option value="all">Tous les médecins</option>
+          <option value="featured">En vedette</option>
+          <option value="not-featured">Pas en vedette</option>
+        </select>
+        <select class="filter-select" id="f-filter-vis" onchange="filterFeaturedTable()">
+          <option value="all">Toute visibilité</option>
+          <option value="public">Profils publics</option>
+          <option value="private">Profils privés</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span id="f-table-count">—</span> médecin(s) affichés
+          </div>
+          <div style="font-size:.6875rem;color:var(--text-muted)">⭐ = vedette · 👁 = visibilité publique</div>
+        </div>
+        <div id="f-loading" style="padding:40px;text-align:center"><div class="spinner" style="margin:auto"></div></div>
+        <div class="table-wrap" id="f-table-wrap" style="display:none">
+          <table class="data-table">
+            <thead><tr>
+              <th>Médecin</th><th>Spécialité</th><th>Localisation</th>
+              <th>Visibilité</th><th>RDV</th><th style="text-align:center">En vedette</th><th>Prix</th>
+            </tr></thead>
+            <tbody id="f-tbody"></tbody>
+          </table>
+          <div id="f-empty" class="empty-state" style="display:none">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <p>Aucun médecin trouvé — modifiez les filtres</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ RÉGIE PUBLICITAIRE ══════════════════ -->
+    <div class="section page" id="section-ads">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+        <div>
+          <div class="page-title">Régie Publicitaire</div>
+          <div class="page-sub">Gérez les campagnes vidéo diffusées sur les écrans de salle d'attente des cliniques</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAdsCampaignModal(null)">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nouvelle campagne
+        </button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-val" id="ads-stat-total">—</div><div class="stat-label">Total campagnes</div></div>
+        <div class="stat-card"><div class="stat-val" id="ads-stat-active" style="color:var(--success)">—</div><div class="stat-label">Actives</div></div>
+        <div class="stat-card"><div class="stat-val" id="ads-stat-national" style="color:var(--brand)">—</div><div class="stat-label">Nationales</div></div>
+        <div class="stat-card"><div class="stat-val" id="ads-stat-targeted" style="color:var(--warning)">—</div><div class="stat-label">Ciblées</div></div>
+      </div>
+      <div id="ads-campaigns-wrap">
+        <div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><p>Chargement…</p></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ REVENUS ══════════════════ -->
+    <div class="section page" id="section-revenus">
+      <div class="page-header">
+        <div class="page-title">Revenus</div>
+        <div class="page-sub">Suivi des abonnements et des paiements de la plateforme</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi kpi-success"><div class="kpi-label">MRR (estimé)</div><div class="kpi-value" id="rev-mrr">—</div><div class="kpi-sub">revenu mensuel récurrent</div><div class="kpi-icon">💰</div></div>
+        <div class="kpi kpi-brand"><div class="kpi-label">Abonnés Pro</div><div class="kpi-value" id="rev-pro">—</div><div class="kpi-sub">plan Pro actif</div><div class="kpi-icon">⭐</div></div>
+        <div class="kpi kpi-warning"><div class="kpi-label">Abonnés Clinic</div><div class="kpi-value" id="rev-clinic">—</div><div class="kpi-sub">plan Clinic actif</div><div class="kpi-icon">🏥</div></div>
+        <div class="kpi kpi-info"><div class="kpi-label">Gratuits</div><div class="kpi-value" id="rev-free">—</div><div class="kpi-sub">plan Free</div><div class="kpi-icon">🔓</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Répartition des plans</div>
+        </div>
+        <div class="card-body" id="rev-plan-tbody">
+          <div class="empty-state" style="padding:30px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Chargement des données…</p></div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:16px 20px;background:var(--info-bg);border:1px solid var(--info-border);border-radius:var(--r-lg);font-size:.8125rem;color:var(--info)">
+        <strong>💡 Revenus Stripe :</strong> Consultez le tableau de bord Stripe pour les revenus en temps réel, les factures et les remboursements.
+        <a href="https://dashboard.stripe.com" target="_blank" rel="noopener" style="font-weight:700;text-decoration:underline;margin-left:8px">Ouvrir Stripe →</a>
+      </div>
+    </div>
+
+    <!-- ══════════════════ EMAILS & MODÈLES ══════════════════ -->
+    <div class="section page" id="section-emails">
+      <div class="page-header">
+        <div class="page-title">Emails & Modèles</div>
+        <div class="page-sub">Gestion des emails transactionnels et des modèles de communication</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px">
+        <div class="card" style="padding:20px">
+          <div style="font-size:1.5rem;margin-bottom:10px">📧</div>
+          <div style="font-weight:700;font-size:.875rem;margin-bottom:6px">Emails de bienvenue</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:14px">Envoyés à l'inscription d'un nouveau médecin</div>
+          <span class="badge badge-success">Actif via Supabase Auth</span>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="font-size:1.5rem;margin-bottom:10px">✅</div>
+          <div style="font-weight:700;font-size:.875rem;margin-bottom:6px">Confirmation KYC</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:14px">Notification d'approbation ou rejet du dossier</div>
+          <span class="badge badge-success">Actif via Edge Function</span>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="font-size:1.5rem;margin-bottom:10px">📅</div>
+          <div style="font-weight:700;font-size:.875rem;margin-bottom:6px">Rappels de RDV</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:14px">Envoyés 24h avant le rendez-vous</div>
+          <span class="badge badge-info">Configurable</span>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="font-size:1.5rem;margin-bottom:10px">💳</div>
+          <div style="font-weight:700;font-size:.875rem;margin-bottom:6px">Confirmations de paiement</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:14px">Reçus automatiques via Stripe</div>
+          <span class="badge badge-success">Actif via Stripe</span>
+        </div>
+      </div>
+      <div style="padding:16px 20px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-lg);font-size:.8125rem;color:var(--text-secondary)">
+        <strong>Gestion avancée :</strong> Pour modifier les templates d'emails transactionnels, accédez au panel dédié.
+        <a href="admin-emails.html" style="font-weight:700;color:var(--brand);margin-left:8px">Ouvrir les modèles d'emails →</a>
+      </div>
+    </div>
+
+    <!-- ══════════════════ SÉCURITÉ & LOGS ══════════════════ -->
+    <div class="section page" id="section-securite">
+      <div class="page-header">
+        <div class="page-title">Sécurité & Logs</div>
+        <div class="page-sub">Surveillance des accès et journaux d'activité</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi kpi-success"><div class="kpi-label">Connexions (30j)</div><div class="kpi-value" id="sec-logins">—</div><div class="kpi-sub">sessions ouvertes</div><div class="kpi-icon">🔐</div></div>
+        <div class="kpi kpi-danger"><div class="kpi-label">Tentatives échouées</div><div class="kpi-value" id="sec-failed">—</div><div class="kpi-sub">tentatives de connexion</div><div class="kpi-icon">🚫</div></div>
+        <div class="kpi kpi-warning"><div class="kpi-label">Comptes désactivés</div><div class="kpi-value" id="sec-disabled">—</div><div class="kpi-sub">par l'administrateur</div><div class="kpi-icon">⛔</div></div>
+        <div class="kpi kpi-brand"><div class="kpi-label">Admins actifs</div><div class="kpi-value" id="sec-admins">—</div><div class="kpi-sub">accès panel admin</div><div class="kpi-icon">🛡️</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Médecins désactivés</div>
+          <button class="btn btn-secondary btn-sm" onclick="loadSecuriteSection()">
+            <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Rafraîchir
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Médecin</th><th>Email</th><th>Statut KYC</th><th>Inscrit le</th><th>Actions</th></tr></thead>
+            <tbody id="sec-disabled-tbody"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Chargement…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:16px 20px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-lg);font-size:.8125rem;color:var(--text-secondary)">
+        <strong>Logs Supabase :</strong> Pour les journaux d'accès détaillés et les alertes de sécurité, consultez le Dashboard Supabase.
+        <a href="https://supabase.com/dashboard/project/ferkzwzypmdtuypxribz/logs/explorer" target="_blank" rel="noopener" style="font-weight:700;color:var(--brand);margin-left:8px">Ouvrir les logs →</a>
+      </div>
+    </div>
+
+    <!-- ══════════════════ MON ÉQUIPE ══════════════════ -->
+    <div class="section page" id="section-equipe">
+      <div class="page-header">
+        <div class="page-title">Mon Équipe</div>
+        <div class="page-sub">Gestion des accès administrateurs et des rôles de l'équipe</div>
+      </div>
+      <div class="param-block" id="equipe-acces-block">
+        <div class="param-block-head">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Ajouter un membre de l'équipe
+        </div>
+        <div style="padding:0 20px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:200px">
+            <label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px">Email</label>
+            <input type="email" id="equipe-email" class="form-input" placeholder="agent@exemple.com">
+          </div>
+          <div>
+            <label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px">Rôle</label>
+            <select id="equipe-role" class="form-input" style="width:auto">
+              <option value="support">Support (KYC + Médecins)</option>
+              <option value="kyc_agent">Agent KYC (KYC uniquement)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addEquipeMember()" id="btn-add-equipe">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Inviter
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Membres de l'équipe
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Email</th><th>Rôle</th><th>Ajouté le</th><th>Actions</th></tr></thead>
+            <tbody id="equipe-tbody"><tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted)">Chargement…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="param-block" style="margin-top:16px">
+        <div class="param-block-head">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Niveaux d'accès
+        </div>
+        <div class="param-row"><span class="param-key">Super Admin</span><span style="font-size:.8125rem;color:var(--text-muted)">Accès total — toutes les sections</span></div>
+        <div class="param-row"><span class="param-key">Support</span><span style="font-size:.8125rem;color:var(--text-muted)">KYC + Médecins + Dashboard</span></div>
+        <div class="param-row"><span class="param-key">Agent KYC</span><span style="font-size:.8125rem;color:var(--text-muted)">Vérifications KYC uniquement</span></div>
+      </div>
+    </div>
+
   </main>
+</div>
+
+<!-- ADS CAMPAIGN MODAL -->
+<div class="modal-bg" id="ads-modal" onclick="if(event.target===this)closeAdsCampaignModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div class="modal-title" id="ads-modal-title">Nouvelle campagne</div>
+      <button class="btn-icon" onclick="closeAdsCampaignModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="form-label">Titre <span style="color:var(--danger)">*</span></label>
+        <input type="text" class="form-input" id="ads-m-title" placeholder="Ex : Campagne Sanofi — Ramadan 2026" maxlength="120">
+      </div>
+      <div class="field">
+        <label class="form-label">Vidéo (MP4 / WebM)</label>
+        <div id="ads-upload-zone-wrap">
+          <div class="upload-zone" id="ads-upload-zone" onclick="adsTriggerFileInput()" ondragover="adsHandleDragOver(event)" ondragleave="adsHandleDragLeave(event)" ondrop="adsHandleDrop(event)">
+            <input type="file" id="ads-video-file-input" accept="video/mp4,video/webm,video/ogg" onchange="adsHandleFileSelect(this.files[0])" style="display:none">
+            <svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--text-muted);fill:none;stroke-width:1.5;margin:0 auto 10px"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            <div style="font-weight:600;color:var(--text-secondary);margin-bottom:4px">Glisser-déposer ou cliquer pour choisir</div>
+            <div style="font-size:.75rem;color:var(--text-muted)">MP4, WebM, OGG — max 200 MB</div>
+          </div>
+          <div class="upload-bar-wrap" id="ads-upload-bar-wrap" style="display:none"><div class="upload-bar" id="ads-upload-bar"></div></div>
+        </div>
+        <div id="ads-video-preview-wrap" style="display:none">
+          <div class="upload-preview">
+            <video id="ads-video-preview-el" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:contain"></video>
+            <button class="upload-preview-rm" onclick="adsRemoveVideoPreview()" title="Supprimer">
+              <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="upload-bar-wrap" id="ads-upload-bar-wrap2" style="display:none"><div class="upload-bar" id="ads-upload-bar2"></div></div>
+        </div>
+        <input type="hidden" id="ads-m-video-url">
+      </div>
+      <div class="field">
+        <label class="form-label">Durée du clip (secondes)</label>
+        <input type="number" class="form-input" id="ads-m-duration" value="30" min="5" max="300" style="max-width:140px">
+        <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px">Auto-détectée depuis la vidéo. Ajustez si nécessaire.</div>
+      </div>
+      <div class="field">
+        <label class="form-label">Ciblage</label>
+        <div class="scope-tabs">
+          <div class="scope-tab active" id="ads-scope-national" onclick="adsSetScope('national')">🌍 Tout le pays</div>
+          <div class="scope-tab" id="ads-scope-wilaya" onclick="adsSetScope('wilaya')">📍 Par wilaya</div>
+          <div class="scope-tab" id="ads-scope-city" onclick="adsSetScope('city')">🏙️ Par ville</div>
+        </div>
+        <div id="ads-target-wilaya-wrap" style="display:none">
+          <div class="wilaya-grid" id="ads-wilaya-grid"></div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:6px" id="ads-wilaya-count-label">0 wilaya(s) sélectionnée(s)</div>
+        </div>
+        <div id="ads-target-city-wrap" style="display:none">
+          <div class="city-tags" id="ads-city-tags"></div>
+          <input type="text" class="form-input" id="ads-city-input" placeholder="Tapez une ville et appuyez sur Entrée" style="margin-top:4px" onkeydown="adsHandleCityKeydown(event)">
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px">Appuyez sur Entrée ou virgule pour ajouter.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="form-label">Période de diffusion</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label class="form-label" style="margin-bottom:3px">Début</label><input type="date" class="form-input" id="ads-m-starts-at"></div>
+          <div><label class="form-label" style="margin-bottom:3px">Fin (optionnel)</label><input type="date" class="form-input" id="ads-m-ends-at"></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border)">
+        <div>
+          <div style="font-size:.8125rem;font-weight:600">Campagne active</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">Diffuser immédiatement si la période le permet</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="ads-m-active" checked><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary btn-sm" onclick="closeAdsCampaignModal()">Annuler</button>
+      <button class="btn btn-primary btn-sm" id="ads-modal-save-btn" onclick="adsSaveCampaign()">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Enregistrer
+      </button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -859,21 +1320,31 @@ async function init() {
 
 function applyRoleRestrictions() {
   const role = _adminRole;
+  // Sections only super_admin can access
+  const superAdminOnly = ['nav-featured','nav-ads','nav-revenus','nav-emails','nav-securite','nav-equipe','nav-parametres'];
+  // Support can see: dashboard, kyc, medecins
   if (role === 'kyc_agent') {
-    const el = document.getElementById('nav-dashboard');
-    if (el) el.style.display = 'none';
-    const el2 = document.getElementById('nav-medecins');
-    if (el2) el2.style.display = 'none';
-    const el3 = document.getElementById('nav-parametres');
-    if (el3) el3.style.display = 'none';
+    ['nav-dashboard','nav-medecins','nav-parametres','nav-featured','nav-ads','nav-revenus','nav-emails','nav-securite','nav-equipe'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    // Also hide section headers
+    document.querySelectorAll('.sidebar-section').forEach(el => { if (el.textContent.trim() !== 'Navigation') el.style.display = 'none'; });
   } else if (role === 'support') {
-    const el = document.getElementById('nav-parametres');
-    if (el) el.style.display = 'none';
+    superAdminOnly.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    document.querySelectorAll('.sidebar-section').forEach(el => {
+      if (el.textContent.trim() !== 'Navigation') el.style.display = 'none';
+    });
   }
   // super_admin: everything visible
   if (role !== 'super_admin') {
     const accesBlock = document.getElementById('acces-block');
     if (accesBlock) accesBlock.style.display = 'none';
+    const equipBlock = document.getElementById('equipe-acces-block');
+    if (equipBlock) equipBlock.style.display = 'none';
   }
 }
 
@@ -885,10 +1356,16 @@ function redirect() {
    NAVIGATION
 ═══════════════════════════════════════════════════════════ */
 var sectionTitles = {
-  dashboard: 'Dashboard',
-  kyc: 'Vérifications KYC',
-  medecins: 'Médecins',
-  parametres: 'Paramètres'
+  dashboard:  'Dashboard',
+  kyc:        'Vérifications KYC',
+  medecins:   'Médecins',
+  parametres: 'Paramètres',
+  featured:   'Médecins En Vedette',
+  ads:        'Régie Publicitaire',
+  revenus:    'Revenus',
+  emails:     'Emails & Modèles',
+  securite:   'Sécurité & Logs',
+  equipe:     'Mon Équipe'
 };
 
 function showSection(name) {
@@ -904,10 +1381,15 @@ function showSection(name) {
   setEl('topbar-title', sectionTitles[name] || name);
 
   // Lazy load
-  if (name === 'kyc') loadKyc();
-  if (name === 'medecins') loadDoctors();
+  if (name === 'kyc')       loadKyc();
+  if (name === 'medecins')  loadDoctors();
   if (name === 'dashboard') loadDashboard();
-  if (name === 'parametres') loadAdminUsers();
+  if (name === 'parametres')loadAdminUsers();
+  if (name === 'featured')  loadFeaturedDoctors();
+  if (name === 'ads')       loadAdsCampaigns();
+  if (name === 'revenus')   loadRevenuSection();
+  if (name === 'securite')  loadSecuriteSection();
+  if (name === 'equipe')    loadEquipeSection();
 
   closeSidebar();
 }
@@ -1747,6 +2229,533 @@ async function changeAdminRole(email, role) {
     showToast('error', 'Erreur', e.message);
     loadAdminUsers();
   }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MÉDECINS EN VEDETTE
+═══════════════════════════════════════════════════════════ */
+var _featDoctors  = [];
+var _featFiltered = [];
+
+async function loadFeaturedDoctors() {
+  const loading = document.getElementById('f-loading');
+  const wrap    = document.getElementById('f-table-wrap');
+  if (loading) loading.style.display = 'block';
+  if (wrap)    wrap.style.display    = 'none';
+  try {
+    const { data, error } = await _sb
+      .from('profiles')
+      .select('id,full_name,email,specialty,wilaya,city,is_public,accepts_rdv,consultation_price,featured,created_at')
+      .eq('role','doctor')
+      .order('featured', { ascending: false, nullsFirst: false })
+      .order('full_name');
+    if (error) throw error;
+    _featDoctors = data || [];
+    updateFeaturedKPIs();
+    filterFeaturedTable();
+  } catch(e) {
+    showToast('error', 'Erreur chargement médecins', e.message);
+  } finally {
+    if (loading) loading.style.display = 'none';
+    if (wrap)    wrap.style.display    = 'block';
+  }
+}
+
+function updateFeaturedKPIs() {
+  setEl('f-kpi-featured', _featDoctors.filter(d => d.featured).length);
+  setEl('f-kpi-rdv',      _featDoctors.filter(d => d.accepts_rdv).length);
+  setEl('f-kpi-public',   _featDoctors.filter(d => d.is_public).length);
+  setEl('f-kpi-total',    _featDoctors.length);
+}
+
+function filterFeaturedTable() {
+  const q    = (document.getElementById('f-search')     || {value:''}).value.toLowerCase();
+  const fF   = (document.getElementById('f-filter-feat')|| {value:'all'}).value;
+  const fV   = (document.getElementById('f-filter-vis') || {value:'all'}).value;
+  _featFiltered = _featDoctors.filter(d => {
+    const nm  = (d.full_name||'').toLowerCase();
+    const sp  = (d.specialty||'').toLowerCase();
+    const wi  = (d.wilaya||'').toLowerCase();
+    const okQ = !q || nm.includes(q) || sp.includes(q) || wi.includes(q);
+    const okF = fF==='all' || (fF==='featured'&&d.featured) || (fF==='not-featured'&&!d.featured);
+    const okV = fV==='all' || (fV==='public'&&d.is_public) || (fV==='private'&&!d.is_public);
+    return okQ && okF && okV;
+  });
+  renderFeaturedTable();
+}
+
+var _FEAT_GRADS = ['linear-gradient(135deg,#3B1772,#0066FF)','linear-gradient(135deg,#6D28D9,#A855F7)','linear-gradient(135deg,#059669,#10B981)','linear-gradient(135deg,#DC2626,#F87171)','linear-gradient(135deg,#D97706,#FBBF24)','linear-gradient(135deg,#0891B2,#22D3EE)'];
+function _featGrad(n) { var h=0; for(var i=0;i<(n||'').length;i++) h=n.charCodeAt(i)+((h<<5)-h); return _FEAT_GRADS[Math.abs(h)%_FEAT_GRADS.length]; }
+function _featInits(n) { return (n||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
+
+function renderFeaturedTable() {
+  const tbody = document.getElementById('f-tbody');
+  const empty = document.getElementById('f-empty');
+  const cnt   = document.getElementById('f-table-count');
+  if (cnt) cnt.textContent = _featFiltered.length;
+  if (!_featFiltered.length) {
+    if (tbody) tbody.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  tbody.innerHTML = _featFiltered.map(d => {
+    const nm    = d.full_name || '—';
+    const price = d.consultation_price ? new Intl.NumberFormat('fr-DZ').format(d.consultation_price)+' DA' : '—';
+    const fCls  = d.featured  ? 'on'      : 'off';
+    const fLbl  = d.featured  ? 'En vedette' : 'Mettre en avant';
+    const fIcon = d.featured
+      ? '<svg viewBox="0 0 24 24" style="fill:#F59E0B;stroke:none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+      : '<svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    const vCls  = d.is_public ? 'public'  : 'private';
+    const vLbl  = d.is_public ? 'Public'  : 'Privé';
+    const vIcon = d.is_public
+      ? '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+      : '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+    const rdvB  = d.accepts_rdv ? '<span class="badge-teal">RDV</span>' : '<span class="badge-neutral">Appel</span>';
+    return `<tr class="trow${d.featured?' is-featured':''}">
+      <td><div style="display:flex;align-items:center;gap:10px">
+        <div class="doc-avatar" style="background:${_featGrad(nm)}">${_featInits(nm)}</div>
+        <div><div style="font-weight:700">Dr. ${esc(nm.replace(/^Dr\.?\s*/i,''))}</div><div style="font-size:.6875rem;color:var(--text-muted)">${esc(d.email||'')}</div></div>
+      </div></td>
+      <td><span style="font-weight:500">${esc(d.specialty||'—')}</span></td>
+      <td><div style="font-weight:500">${esc(d.wilaya||'—')}</div>${d.city?`<div style="font-size:.6875rem;color:var(--text-muted)">${esc(d.city)}</div>`:''}</td>
+      <td><button class="vis-btn ${vCls}" onclick="toggleFeaturedVisibility('${d.id}',${d.is_public})">${vIcon} ${vLbl}</button></td>
+      <td>${rdvB}</td>
+      <td style="text-align:center"><button class="toggle-featured ${fCls}" onclick="toggleFeaturedStar('${d.id}',${!!d.featured})">${fIcon} ${fLbl}</button></td>
+      <td style="font-weight:600">${price}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function toggleFeaturedStar(id, current) {
+  const newVal = !current;
+  _featDoctors = _featDoctors.map(d => d.id===id ? Object.assign({},d,{featured:newVal}) : d);
+  updateFeaturedKPIs(); filterFeaturedTable();
+  try {
+    const { error } = await _sb.from('profiles').update({ featured: newVal }).eq('id', id);
+    if (error) throw error;
+    showToast('success', newVal ? 'Médecin En Vedette ⭐' : 'Retiré des vedettes', '');
+  } catch(e) {
+    _featDoctors = _featDoctors.map(d => d.id===id ? Object.assign({},d,{featured:current}) : d);
+    updateFeaturedKPIs(); filterFeaturedTable();
+    showToast('error', 'Erreur', e.message);
+  }
+}
+
+async function toggleFeaturedVisibility(id, current) {
+  const newVal = !current;
+  _featDoctors = _featDoctors.map(d => d.id===id ? Object.assign({},d,{is_public:newVal}) : d);
+  updateFeaturedKPIs(); filterFeaturedTable();
+  try {
+    const { error } = await _sb.from('profiles').update({ is_public: newVal }).eq('id', id);
+    if (error) throw error;
+    showToast('success', newVal ? 'Profil rendu public' : 'Profil masqué', '');
+  } catch(e) {
+    _featDoctors = _featDoctors.map(d => d.id===id ? Object.assign({},d,{is_public:current}) : d);
+    updateFeaturedKPIs(); filterFeaturedTable();
+    showToast('error', 'Erreur', e.message);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RÉGIE PUBLICITAIRE
+═══════════════════════════════════════════════════════════ */
+var _adsCampaigns  = [];
+var _adsEditingId  = null;
+var _adsPendingFile= null;
+var _adsScope      = 'national';
+var _adsCityTags   = [];
+var _ADS_WILAYAS   = ['Adrar','Chlef','Laghouat','Oum El Bouaghi','Batna','Béjaïa','Biskra','Béchar','Blida','Bouira','Tamanrasset','Tébessa','Tlemcen','Tiaret','Tizi Ouzou','Alger','Djelfa','Jijel','Sétif','Saïda','Skikda','Sidi Bel Abbès','Annaba','Guelma','Constantine','Médéa','Mostaganem','M\'Sila','Mascara','Ouargla','Oran','El Bayadh','Illizi','Bordj Bou Arreridj','Boumerdès','El Tarf','Tissemsilt','El Oued','Khenchela','Souk Ahras','Tipaza','Mila','Aïn Defla','Naâma','Aïn Témouchent','Ghardaïa','Relizane','Touggourt','Timimoun','Bordj Badji Mokhtar','Ouled Djellal','Béni Abbès','In Salah','In Guezzam','El M\'Ghair','El Meniaa','Tamanrasset Sud'];
+
+/* Build wilaya grid when section first shown */
+function adsBuildWilayaGrid() {
+  var grid = document.getElementById('ads-wilaya-grid');
+  if (!grid || grid.children.length > 0) return;
+  var html = '';
+  for (var i = 0; i < _ADS_WILAYAS.length; i++) {
+    var w = esc(_ADS_WILAYAS[i]);
+    html += '<label class="wilaya-chip"><input type="checkbox" value="'+_ADS_WILAYAS[i]+'" onchange="adsUpdateWilayaCount()"><span>'+w+'</span></label>';
+  }
+  grid.innerHTML = html;
+}
+
+async function loadAdsCampaigns() {
+  adsBuildWilayaGrid();
+  const wrap = document.getElementById('ads-campaigns-wrap');
+  if (wrap) wrap.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><p>Chargement…</p></div>';
+  try {
+    const { data, error } = await _sb.from('ad_campaigns').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    _adsCampaigns = data || [];
+    renderAdsStats();
+    renderAdsCampaigns();
+  } catch(e) {
+    showToast('error', 'Erreur campagnes', e.message);
+  }
+}
+
+function renderAdsStats() {
+  const today = new Date().toISOString().slice(0,10);
+  var total=0, active=0, national=0, targeted=0;
+  _adsCampaigns.forEach(c => {
+    total++;
+    const isActive = c.active && (!c.starts_at||c.starts_at<=today) && (!c.ends_at||c.ends_at>=today);
+    if (isActive) active++;
+    if (c.target_scope==='national') national++; else targeted++;
+  });
+  setEl('ads-stat-total',    total);
+  setEl('ads-stat-active',   active);
+  setEl('ads-stat-national', national);
+  setEl('ads-stat-targeted', targeted);
+}
+
+function renderAdsCampaigns() {
+  const wrap = document.getElementById('ads-campaigns-wrap');
+  if (!wrap) return;
+  if (!_adsCampaigns.length) {
+    wrap.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><p>Aucune campagne — créez-en une !</p></div>';
+    return;
+  }
+  const today = new Date().toISOString().slice(0,10);
+  wrap.innerHTML = '<div class="campaigns-grid">' + _adsCampaigns.map(c => adsRenderCampCard(c, today)).join('') + '</div>';
+}
+
+function adsCampStatus(c, today) {
+  if (!c.active) return '<span class="badge badge-neutral">En pause</span>';
+  if (c.starts_at && c.starts_at > today) return '<span class="badge badge-info">Programmé</span>';
+  if (c.ends_at   && c.ends_at   < today) return '<span class="badge badge-danger">Expiré</span>';
+  return '<span class="badge badge-success">Actif</span>';
+}
+function adsCampTarget(c) {
+  if (c.target_scope==='national') return '<span class="camp-tag">🌍 National</span>';
+  if (c.target_scope==='wilaya')   { const w=c.target_wilayas||[]; return '<span class="camp-tag">📍 '+(w[0]||'?')+(w.length>1?' (+'+( w.length-1)+')':'')+' </span>'; }
+  if (c.target_scope==='city')     { const ci=c.target_cities||[];  return '<span class="camp-tag">🏙️ '+(ci[0]||'?')+(ci.length>1?' (+'+(ci.length-1)+')':'')+' </span>'; }
+  return '';
+}
+function adsRenderCampCard(c, today) {
+  const hasV = c.video_url && c.video_url.trim();
+  const thumb = hasV
+    ? '<video src="'+esc(c.video_url)+'" muted preload="metadata" style="width:100%;height:100%;object-fit:cover;opacity:.85"></video>'
+    : '<div class="camp-thumb-placeholder"><svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>';
+  const isAct = c.active && (!c.starts_at||c.starts_at<=today) && (!c.ends_at||c.ends_at>=today);
+  const pauseBtn = isAct
+    ? '<button class="btn btn-xs btn-warning" onclick="adsToggleActive(\''+c.id+'\',false)">⏸ Pause</button>'
+    : '<button class="btn btn-xs btn-success" onclick="adsToggleActive(\''+c.id+'\',true)">▶ Activer</button>';
+  const daysLeft = c.ends_at ? (function(){ var d=Math.round((new Date(c.ends_at)-new Date())/86400000); return d>0?d+' j. restants':'Expiré'; })() : 'Illimitée';
+  return '<div class="camp-card">'
+    +'<div class="camp-thumb">'+thumb+'</div>'
+    +'<div class="camp-body">'
+    +'<div class="camp-title" title="'+esc(c.title)+'">'+esc(c.title||'(Sans titre)')+'</div>'
+    +'<div class="camp-meta">'+adsCampStatus(c,today)+adsCampTarget(c)+'<span class="camp-tag">'+c.clip_duration_s+'s · '+esc(daysLeft)+'</span></div>'
+    +'<div class="camp-actions">'
+    +'<button class="btn btn-xs btn-secondary" onclick="openAdsCampaignModal(\''+c.id+'\')">✏️ Modifier</button>'
+    +pauseBtn
+    +'<button class="btn btn-xs btn-danger" onclick="adsDeleteCampaign(\''+c.id+'\',\''+esc(c.video_url||'')+'\')">🗑 Suppr.</button>'
+    +'</div></div></div>';
+}
+
+function adsToggleActive(id, state) {
+  _sb.from('ad_campaigns').update({ active: state }).eq('id', id).then(res => {
+    if (res.error) { showToast('error','Erreur',res.error.message); return; }
+    showToast('success', state ? 'Campagne activée' : 'Campagne en pause', '');
+    loadAdsCampaigns();
+  });
+}
+
+function adsDeleteCampaign(id, videoUrl) {
+  if (!confirm('Supprimer cette campagne ? Cette action est irréversible.')) return;
+  var del = Promise.resolve();
+  if (videoUrl && videoUrl.indexOf('/ad-videos/') !== -1) {
+    var parts = videoUrl.split('/ad-videos/');
+    if (parts.length > 1) { var path = parts[1].split('?')[0]; del = _sb.storage.from('ad-videos').remove([path]).then(()=>{}); }
+  }
+  del.then(() => _sb.from('ad_campaigns').delete().eq('id', id)).then(res => {
+    if (res.error) { showToast('error','Erreur suppression',res.error.message); return; }
+    showToast('success','Campagne supprimée','');
+    loadAdsCampaigns();
+  });
+}
+
+function openAdsCampaignModal(id) {
+  adsBuildWilayaGrid();
+  _adsEditingId   = id || null;
+  _adsPendingFile = null;
+  _adsCityTags    = [];
+  const flds = ['ads-m-title','ads-m-video-url'];
+  flds.forEach(f => { const e=document.getElementById(f); if(e) e.value=''; });
+  const durEl = document.getElementById('ads-m-duration'); if(durEl) durEl.value=30;
+  const actEl = document.getElementById('ads-m-active');   if(actEl) actEl.checked=true;
+  const stEl  = document.getElementById('ads-m-starts-at');if(stEl)  stEl.value=new Date().toISOString().slice(0,10);
+  const enEl  = document.getElementById('ads-m-ends-at');  if(enEl)  enEl.value='';
+  adsSetScope('national'); adsResetWilayas(); adsRenderCityTags();
+  adsHideVideoPreview();
+  if (id) {
+    const c = _adsCampaigns.find(x=>x.id===id);
+    if (c) {
+      setEl('ads-modal-title','Modifier la campagne');
+      const t=document.getElementById('ads-m-title'); if(t) t.value=c.title||'';
+      const d=document.getElementById('ads-m-duration'); if(d) d.value=c.clip_duration_s||30;
+      const s=document.getElementById('ads-m-starts-at'); if(s) s.value=c.starts_at||'';
+      const e=document.getElementById('ads-m-ends-at'); if(e) e.value=c.ends_at||'';
+      const a=document.getElementById('ads-m-active'); if(a) a.checked=!!c.active;
+      const u=document.getElementById('ads-m-video-url'); if(u) u.value=c.video_url||'';
+      if (c.video_url) adsShowVideoPreview(c.video_url);
+      adsSetScope(c.target_scope||'national');
+      if (c.target_scope==='wilaya'&&c.target_wilayas) adsSetWilayas(c.target_wilayas);
+      if (c.target_scope==='city'&&c.target_cities)   { _adsCityTags=c.target_cities.slice(); adsRenderCityTags(); }
+    }
+  } else { setEl('ads-modal-title','Nouvelle campagne'); }
+  const modal = document.getElementById('ads-modal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeAdsCampaignModal() {
+  const modal = document.getElementById('ads-modal');
+  if (modal) modal.classList.remove('open');
+  _adsPendingFile = null;
+}
+
+function adsSetScope(scope) {
+  _adsScope = scope;
+  ['national','wilaya','city'].forEach(s => {
+    const t = document.getElementById('ads-scope-'+s);
+    if (t) t.classList.toggle('active', s===scope);
+  });
+  const wi = document.getElementById('ads-target-wilaya-wrap');
+  const ci = document.getElementById('ads-target-city-wrap');
+  if (wi) wi.style.display = scope==='wilaya' ? 'block' : 'none';
+  if (ci) ci.style.display = scope==='city'   ? 'block' : 'none';
+}
+
+function adsResetWilayas() {
+  document.querySelectorAll('#ads-wilaya-grid input[type=checkbox]').forEach(i=>{ i.checked=false; });
+  adsUpdateWilayaCount();
+}
+function adsSetWilayas(sel) {
+  document.querySelectorAll('#ads-wilaya-grid input[type=checkbox]').forEach(i=>{ i.checked=sel.indexOf(i.value)!==-1; });
+  adsUpdateWilayaCount();
+}
+function adsUpdateWilayaCount() {
+  const n = document.querySelectorAll('#ads-wilaya-grid input[type=checkbox]:checked').length;
+  setEl('ads-wilaya-count-label', n+' wilaya(s) sélectionnée(s)');
+}
+function adsGetSelectedWilayas() {
+  return Array.from(document.querySelectorAll('#ads-wilaya-grid input[type=checkbox]:checked')).map(i=>i.value);
+}
+function adsHandleCityKeydown(e) {
+  if (e.key!=='Enter'&&e.key!==',') return;
+  e.preventDefault();
+  const input = document.getElementById('ads-city-input');
+  const val = (input ? input.value.trim().replace(/,$/,'') : '');
+  if (val && _adsCityTags.indexOf(val)===-1) { _adsCityTags.push(val); adsRenderCityTags(); }
+  if (input) input.value = '';
+}
+function adsRemoveCity(city) { _adsCityTags=_adsCityTags.filter(c=>c!==city); adsRenderCityTags(); }
+function adsRenderCityTags() {
+  const wrap = document.getElementById('ads-city-tags');
+  if (!wrap) return;
+  wrap.innerHTML = _adsCityTags.map(c=>'<span class="city-tag-chip">'+esc(c)+'<button type="button" onclick="adsRemoveCity(\''+esc(c)+'\')">×</button></span>').join('');
+}
+function adsTriggerFileInput() { const i=document.getElementById('ads-video-file-input'); if(i) i.click(); }
+function adsHandleDragOver(e) { e.preventDefault(); document.getElementById('ads-upload-zone').classList.add('drag-over'); }
+function adsHandleDragLeave(e) { document.getElementById('ads-upload-zone').classList.remove('drag-over'); }
+function adsHandleDrop(e) { e.preventDefault(); document.getElementById('ads-upload-zone').classList.remove('drag-over'); var f=e.dataTransfer&&e.dataTransfer.files; if(f&&f[0]) adsHandleFileSelect(f[0]); }
+function adsHandleFileSelect(file) {
+  if (!file) return;
+  if (!file.type.match(/^video\//)) { showToast('error','Fichier invalide','Choisissez un fichier vidéo MP4 ou WebM.'); return; }
+  if (file.size > 200*1024*1024) { showToast('error','Fichier trop grand','Limite 200 MB.'); return; }
+  _adsPendingFile = file;
+  const zw=document.getElementById('ads-upload-zone-wrap'), pw=document.getElementById('ads-video-preview-wrap'), v=document.getElementById('ads-video-preview-el');
+  if(zw) zw.style.display='none'; if(pw) pw.style.display='block';
+  if(v) { v.src=URL.createObjectURL(file); v.onloadedmetadata=function(){ var d=Math.round(v.duration); var el=document.getElementById('ads-m-duration'); if(el&&!isNaN(d)) el.value=d; }; }
+}
+function adsShowVideoPreview(url) {
+  const zw=document.getElementById('ads-upload-zone-wrap'), pw=document.getElementById('ads-video-preview-wrap'), v=document.getElementById('ads-video-preview-el');
+  if(zw) zw.style.display='none'; if(pw) pw.style.display='block'; if(v) v.src=url;
+}
+function adsHideVideoPreview() {
+  const zw=document.getElementById('ads-upload-zone-wrap'), pw=document.getElementById('ads-video-preview-wrap'), v=document.getElementById('ads-video-preview-el');
+  if(zw) zw.style.display='block'; if(pw) pw.style.display='none'; if(v) v.src=''; _adsPendingFile=null;
+  const inp=document.getElementById('ads-video-file-input'); if(inp) inp.value='';
+}
+function adsRemoveVideoPreview() { adsHideVideoPreview(); const u=document.getElementById('ads-m-video-url'); if(u) u.value=''; }
+
+function adsUploadVideo(file, cid) {
+  const ext  = (file.name.split('.').pop()||'mp4').toLowerCase();
+  const path = 'campaigns/'+cid+'.'+ext;
+  const bw = document.getElementById('ads-upload-bar-wrap2')||document.getElementById('ads-upload-bar-wrap');
+  const b  = document.getElementById('ads-upload-bar2')    ||document.getElementById('ads-upload-bar');
+  if(bw) bw.style.display='block'; if(b) b.style.width='10%';
+  return _sb.storage.from('ad-videos').upload(path, file, { upsert:true, contentType:file.type }).then(res => {
+    if(res.error) { if(bw) bw.style.display='none'; throw res.error; }
+    if(b) b.style.width='100%';
+    return _sb.storage.from('ad-videos').getPublicUrl(path).data.publicUrl;
+  });
+}
+
+function adsSaveCampaign() {
+  const title   = (document.getElementById('ads-m-title')    ||{}).value && document.getElementById('ads-m-title').value.trim();
+  const dur     = parseInt((document.getElementById('ads-m-duration')||{value:'30'}).value)||30;
+  const starts  = (document.getElementById('ads-m-starts-at')||{}).value||null;
+  const ends    = (document.getElementById('ads-m-ends-at')  ||{}).value||null;
+  const active  = !!(document.getElementById('ads-m-active') &&document.getElementById('ads-m-active').checked);
+  const videoUrl= (document.getElementById('ads-m-video-url')||{}).value||'';
+  if (!title) { showToast('error','Titre requis','Saisissez un titre pour cette campagne.'); return; }
+  const saveBtn = document.getElementById('ads-modal-save-btn');
+  if (saveBtn) { saveBtn.disabled=true; saveBtn.textContent='Enregistrement…'; }
+  const wilayas = _adsScope==='wilaya' ? adsGetSelectedWilayas() : [];
+  const cities  = _adsScope==='city'   ? _adsCityTags.slice()    : [];
+  const cid = _adsEditingId || ('cam-'+Date.now()+'-'+Math.random().toString(36).slice(2));
+  function doSave(finalUrl) {
+    const payload = { title, video_url:finalUrl, clip_duration_s:dur, active, target_scope:_adsScope, target_wilayas:wilayas, target_cities:cities, starts_at:starts||null, ends_at:ends||null };
+    const p = _adsEditingId ? _sb.from('ad_campaigns').update(payload).eq('id',_adsEditingId) : _sb.from('ad_campaigns').insert(payload);
+    p.then(res => {
+      if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Enregistrer'; }
+      if(res.error){ showToast('error','Erreur',res.error.message); return; }
+      showToast('success', _adsEditingId?'Campagne mise à jour':'Campagne créée', title);
+      closeAdsCampaignModal();
+      loadAdsCampaigns();
+    }).catch(err => { if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Enregistrer'; } showToast('error','Erreur',err.message||'Impossible d\'enregistrer.'); });
+  }
+  if (_adsPendingFile) {
+    adsUploadVideo(_adsPendingFile, cid).then(url => doSave(url)).catch(err => { if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Enregistrer'; } showToast('error','Erreur upload',err.message||'Upload échoué.'); });
+  } else { doSave(videoUrl); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REVENUS
+═══════════════════════════════════════════════════════════ */
+async function loadRevenuSection() {
+  try {
+    const { data, error } = await _sb.from('profiles').select('plan').eq('role','doctor');
+    if (error) throw error;
+    const rows = data || [];
+    const pro    = rows.filter(r=>r.plan==='pro').length;
+    const clinic = rows.filter(r=>r.plan==='clinic').length;
+    const free   = rows.filter(r=>!r.plan||r.plan==='free').length;
+    const mrr    = pro * 2500 + clinic * 6500; // tarifs estimatifs DA
+    setEl('rev-mrr',    new Intl.NumberFormat('fr-DZ').format(mrr)+' DA');
+    setEl('rev-pro',    pro);
+    setEl('rev-clinic', clinic);
+    setEl('rev-free',   free);
+    const tb = document.getElementById('rev-plan-tbody');
+    if (tb) tb.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center">
+        <div style="padding:20px;background:var(--success-bg);border-radius:var(--r-lg)">
+          <div style="font-size:2rem;font-weight:800;color:var(--success)">${pro}</div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--success);margin-top:4px">Plan Pro</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">~2 500 DA/mois</div>
+        </div>
+        <div style="padding:20px;background:var(--warning-bg);border-radius:var(--r-lg)">
+          <div style="font-size:2rem;font-weight:800;color:var(--warning)">${clinic}</div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--warning);margin-top:4px">Plan Clinic</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">~6 500 DA/mois</div>
+        </div>
+        <div style="padding:20px;background:var(--bg-subtle);border-radius:var(--r-lg)">
+          <div style="font-size:2rem;font-weight:800;color:var(--text-muted)">${free}</div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--text-muted);margin-top:4px">Plan Gratuit</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">0 DA</div>
+        </div>
+      </div>`;
+  } catch(e) { showToast('error','Erreur revenus',e.message); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SÉCURITÉ & LOGS
+═══════════════════════════════════════════════════════════ */
+async function loadSecuriteSection() {
+  try {
+    const { data: disabled, count: cntDis } = await _sb.from('profiles').select('id,full_name,email,kyc_status,created_at', {count:'exact'}).eq('is_active',false).eq('role','doctor');
+    const { count: cntAdm } = await _sb.from('admin_roles').select('id',{count:'exact',head:true});
+    setEl('sec-disabled', cntDis || 0);
+    setEl('sec-admins',   cntAdm || 1);
+    setEl('sec-logins',   '—');
+    setEl('sec-failed',   '—');
+    const tbody = document.getElementById('sec-disabled-tbody');
+    if (!tbody) return;
+    if (!disabled || !disabled.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Aucun compte désactivé</td></tr>';
+      return;
+    }
+    tbody.innerHTML = disabled.map(d => `<tr class="trow">
+      <td><span class="td-name">${esc(d.full_name||'—')}</span></td>
+      <td><span class="td-muted">${esc(d.email||'—')}</span></td>
+      <td>${kycBadge(d.kyc_status)}</td>
+      <td><span class="td-muted">${fmtDate(d.created_at)}</span></td>
+      <td><button class="btn btn-success btn-xs" onclick="toggleActive('${d.id}',false)">Réactiver</button></td>
+    </tr>`).join('');
+  } catch(e) { console.error('securite section',e); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MON ÉQUIPE
+═══════════════════════════════════════════════════════════ */
+async function loadEquipeSection() {
+  if (_adminRole !== 'super_admin') return;
+  const tbody = document.getElementById('equipe-tbody');
+  if (!tbody) return;
+  try {
+    const res = await fetch(EDGE + '/admin-manage-users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _session.access_token },
+      body: JSON.stringify({ action: 'list' })
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    const rows = json.data || [];
+    const roleBadges = { super_admin:'<span class="badge badge-brand">Super Admin</span>', support:'<span class="badge badge-info">Support</span>', kyc_agent:'<span class="badge badge-neutral">Agent KYC</span>' };
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted)">Aucun membre</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(r => {
+      const isSelf = r.email === ADMIN_EMAIL;
+      const roleHtml = isSelf ? (roleBadges[r.role]||r.role) : `<select class="form-input" style="padding:4px 8px;font-size:.75rem;width:auto" onchange="changeAdminRole('${esc(r.email)}',this.value)"><option value="support"${r.role==='support'?' selected':''}>Support</option><option value="kyc_agent"${r.role==='kyc_agent'?' selected':''}>Agent KYC</option></select>`;
+      return `<tr class="trow">
+        <td><span class="td-name">${esc(r.email)}</span></td>
+        <td>${roleHtml}</td>
+        <td><span class="td-muted">${fmtDate(r.created_at)}</span></td>
+        <td>${isSelf ? '<span class="td-muted">—</span>' : `<button class="btn btn-sm btn-danger" onclick="removeEquipeMember('${esc(r.email)}')">Retirer</button>`}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">Erreur de chargement</td></tr>';
+  }
+}
+
+async function addEquipeMember() {
+  const email = (document.getElementById('equipe-email').value||'').trim().toLowerCase();
+  const role  = document.getElementById('equipe-role').value;
+  if (!email) { showToast('error','Email requis',''); return; }
+  const btn = document.getElementById('btn-add-equipe');
+  setLoading(btn, true);
+  try {
+    const res = await fetch(EDGE + '/admin-manage-users', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+_session.access_token},
+      body: JSON.stringify({ action:'add', email, role })
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    document.getElementById('equipe-email').value = '';
+    showToast('success','Membre invité',email+' peut maintenant accéder au panel admin.');
+    loadEquipeSection();
+  } catch(e) { showToast('error','Erreur',e.message||'Impossible d\'ajouter'); }
+  finally { setLoading(btn, false); }
+}
+
+async function removeEquipeMember(email) {
+  if (!confirm('Retirer l\'accès admin de '+email+' ?')) return;
+  try {
+    const res = await fetch(EDGE + '/admin-manage-users', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+_session.access_token},
+      body: JSON.stringify({ action:'remove', email })
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    showToast('success','Accès retiré',email);
+    loadEquipeSection();
+  } catch(e) { showToast('error','Erreur',e.message); }
 }
 
 /* ═══════════════════════════════════════════════════════════
