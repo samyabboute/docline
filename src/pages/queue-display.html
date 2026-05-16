@@ -1,249 +1,434 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Salle d'attente — Affichage</title>
+<title>Salle d'attente — Docline</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+/* ══════════════════════════════════════════════════════════════
+   DOCLINE QUEUE DISPLAY v3 — Charte graphique officielle
+   Fond sombre violet · Broadcast pub centralisé · Météo
+══════════════════════════════════════════════════════════════ */
 :root{
   --brand:#3B1772;
-  --bg:#060D1F;
+  --brand-mid:#5A2BA8;
+  --brand-light:#9B6FE8;
+  --bg:#080410;
+  --border:rgba(107,63,200,.18);
+  --text:rgba(255,255,255,1);
+  --text2:rgba(255,255,255,.65);
+  --text3:rgba(255,255,255,.35);
   --ease:cubic-bezier(.25,.46,.45,.94);
-  /* Priority accent colors (change dynamically) */
-  --accent: #2563EB;
-  --accent-glow: rgba(37,99,235,.35);
 }
+*{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;background:var(--bg);color:#fff;display:flex;flex-direction:column}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
+     background:var(--bg);color:var(--text);display:flex;flex-direction:column}
 
-/* ── ANIMATED BACKGROUND ── */
+/* ── FOND ANIMÉ ──────────────────────────────────────────────── */
 .bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.bg-blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:0;transition:background .8s,opacity .8s}
-.bg-blob-1{width:900px;height:900px;top:-20%;left:-15%;animation:blob1 18s ease-in-out infinite}
-.bg-blob-2{width:700px;height:700px;bottom:-15%;right:-10%;animation:blob2 22s ease-in-out infinite}
-@keyframes blob1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,40px) scale(1.08)}66%{transform:translate(-30px,60px) scale(.95)}}
-@keyframes blob2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-50px,-30px) scale(1.06)}66%{transform:translate(40px,-50px) scale(.97)}}
-.grid-lines{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:70px 70px;z-index:0;pointer-events:none}
+.bg-blob{position:absolute;border-radius:50%;filter:blur(130px)}
+.bg-blob-1{width:900px;height:900px;top:-25%;left:-15%;
+  background:radial-gradient(circle,rgba(59,23,114,.55),transparent 70%);
+  animation:blob1 22s ease-in-out infinite}
+.bg-blob-2{width:650px;height:650px;bottom:-15%;right:-8%;
+  background:radial-gradient(circle,rgba(90,43,168,.4),transparent 70%);
+  animation:blob2 26s ease-in-out infinite}
+@keyframes blob1{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(50px,30px) scale(1.1)}70%{transform:translate(-20px,55px) scale(.94)}}
+@keyframes blob2{0%,100%{transform:translate(0,0) scale(1)}35%{transform:translate(-45px,-28px) scale(1.09)}65%{transform:translate(38px,-42px) scale(.96)}}
+/* Couleurs urgence overrides */
+.bg-blob-1.urgente{background:radial-gradient(circle,rgba(124,45,18,.55),transparent 70%)}
+.bg-blob-2.urgente{background:radial-gradient(circle,rgba(249,115,22,.3),transparent 70%)}
+.bg-blob-1.critique{background:radial-gradient(circle,rgba(127,29,29,.6),transparent 70%)}
+.bg-blob-2.critique{background:radial-gradient(circle,rgba(239,68,68,.35),transparent 70%)}
+.grid-lines{position:fixed;inset:0;
+  background-image:linear-gradient(rgba(107,63,200,.035) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(107,63,200,.035) 1px,transparent 1px);
+  background-size:64px 64px;z-index:0;pointer-events:none}
 
-/* ── TOPBAR ── */
-.topbar{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:18px 44px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:20px}
-.brand{display:flex;align-items:center;gap:12px}
-.brand-mark{width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff;transition:background .8s;flex-shrink:0}
-.brand-name{font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px}
-.clinic-block{text-align:center}
-.clinic-name{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.3px}
-.clinic-date{font-size:13px;color:rgba(255,255,255,.45);margin-top:3px}
+/* ── TOPBAR ──────────────────────────────────────────────────── */
+.topbar{position:relative;z-index:10;display:flex;align-items:center;
+  justify-content:space-between;padding:13px 36px;
+  border-bottom:1px solid var(--border);flex-shrink:0;gap:16px;
+  background:rgba(8,4,16,.7);backdrop-filter:blur(16px)}
+
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand-mark{width:34px;height:34px;
+  background:linear-gradient(135deg,#3B1772 0%,#7B4FC8 100%);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;box-shadow:0 4px 18px rgba(59,23,114,.55)}
+.brand-name{font-size:16px;font-weight:800;letter-spacing:-.3px;
+  background:linear-gradient(135deg,#fff 40%,#C4B5FD 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.topbar-center{text-align:center;flex:1;min-width:0}
+.clinic-name{font-size:19px;font-weight:800;color:#fff;letter-spacing:-.3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clinic-date{font-size:12px;color:var(--text3);margin-top:2px}
+
+.topbar-right{display:flex;align-items:center;gap:18px;flex-shrink:0}
+
+/* Météo — subtil */
+.weather{display:flex;align-items:center;gap:7px;
+  background:rgba(59,23,114,.15);border:1px solid rgba(107,63,200,.2);
+  border-radius:99px;padding:5px 13px;font-size:12px;color:var(--text2);
+  transition:opacity .4s}
+.weather.hidden{opacity:0;pointer-events:none}
+.w-icon{font-size:15px;line-height:1}
+.w-temp{font-weight:700;color:#fff;font-size:13px}
+.w-desc{font-size:10px;color:var(--text3);max-width:70px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 .clock-block{text-align:right}
-.clock{font-size:36px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-1px;color:#fff;line-height:1}
-.clock-label{font-size:11px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+.clock{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;
+  letter-spacing:-1px;line-height:1;
+  background:linear-gradient(135deg,#fff 50%,#C4B5FD 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.clock-label{font-size:10px;color:var(--text3);text-transform:uppercase;
+  letter-spacing:.12em;margin-top:1px}
 
-/* ── MAIN LAYOUT ── */
-.main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr 360px;overflow:hidden}
+/* ── MAIN ────────────────────────────────────────────────────── */
+.main{position:relative;z-index:1;flex:1;
+  display:grid;grid-template-columns:1fr 340px;overflow:hidden}
 
-/* ── LEFT: CURRENT PATIENT ── */
-.panel-current{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;border-right:1px solid rgba(255,255,255,.06);gap:0;position:relative}
+/* ── PANEL NUMBER ────────────────────────────────────────────── */
+.panel-current{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:32px;border-right:1px solid var(--border);
+  gap:0;position:relative}
 
-.current-label{font-size:13px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.16em;margin-bottom:20px}
+.current-label{font-size:11px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.22em;margin-bottom:14px}
 
-/* Priority indicator */
-.priority-ribbon{display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:6px 18px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:rgba(255,255,255,.9);opacity:0;transition:all .4s;min-height:34px}
-.priority-ribbon.show{opacity:1}
-.priority-ribbon.urgente{background:rgba(234,88,12,.2);border-color:rgba(234,88,12,.4);color:#FED7AA}
-.priority-ribbon.critique{background:rgba(220,38,38,.2);border-color:rgba(220,38,38,.4);color:#FECACA;animation:ribbon-pulse 1.5s ease-in-out infinite}
-@keyframes ribbon-pulse{0%,100%{box-shadow:0 0 0 rgba(220,38,38,0)}50%{box-shadow:0 0 24px rgba(220,38,38,.4)}}
-.priority-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
-.priority-ribbon.urgente .priority-dot{animation:dot-blink 1.5s ease-in-out infinite}
-.priority-ribbon.critique .priority-dot{animation:dot-blink .8s ease-in-out infinite}
+/* Priority ribbon */
+.prio-ribbon{display:inline-flex;align-items:center;gap:8px;
+  border-radius:99px;padding:5px 16px;font-size:11px;font-weight:800;
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;
+  border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);
+  color:rgba(255,255,255,.85);opacity:0;transition:all .4s;min-height:32px}
+.prio-ribbon.show{opacity:1}
+.prio-ribbon.urgente{background:rgba(234,88,12,.18);border-color:rgba(234,88,12,.35);color:#FED7AA}
+.prio-ribbon.critique{background:rgba(220,38,38,.2);border-color:rgba(220,38,38,.38);
+  color:#FECACA;animation:ribbon-pulse 1.5s ease-in-out infinite}
+@keyframes ribbon-pulse{0%,100%{box-shadow:0 0 0 rgba(220,38,38,0)}50%{box-shadow:0 0 24px rgba(220,38,38,.35)}}
+.prio-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.prio-ribbon.urgente .prio-dot{animation:dot-blink 1.5s ease-in-out infinite}
+.prio-ribbon.critique .prio-dot{animation:dot-blink .8s ease-in-out infinite}
 @keyframes dot-blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* Big number */
-.current-num-wrap{position:relative;margin-bottom:12px}
+/* Grand numéro */
 .current-num{
-  font-size:clamp(140px,22vw,240px);
-  font-weight:900;
-  line-height:1;
-  letter-spacing:-6px;
-  font-variant-numeric:tabular-nums;
-  background:linear-gradient(160deg,#FFFFFF 0%,rgba(255,255,255,.8) 50%,var(--accent) 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  transition:background 1s;
-  position:relative;
-}
-.current-num.animate-in{animation:num-in .55s cubic-bezier(.34,1.56,.64,1)}
-@keyframes num-in{from{opacity:0;transform:scale(.7) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
-
-/* Shine sweep on number change */
-.current-num::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.25) 50%,transparent 60%);
-  background-size:200%;
-  background-position:200%;
-  border-radius:4px;
-  pointer-events:none;
-}
+  font-size:clamp(120px,19vw,210px);font-weight:900;line-height:1;
+  letter-spacing:-5px;font-variant-numeric:tabular-nums;position:relative;
+  background:linear-gradient(155deg,#FFFFFF 0%,rgba(255,255,255,.82) 38%,#A78BFA 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 45px rgba(107,63,200,.45));
+  margin-bottom:6px}
+.current-num.urgente{
+  background:linear-gradient(155deg,#FED7AA 0%,#FB923C 55%,#EA580C 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 0 45px rgba(234,88,12,.5))}
+.current-num.critique{
+  background:linear-gradient(155deg,#FECACA 0%,#F87171 55%,#DC2626 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 0 50px rgba(220,38,38,.6))}
+.current-num.animate-in{animation:num-in .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes num-in{from{opacity:0;transform:scale(.65) translateY(28px)}to{opacity:1;transform:none}}
 .current-num.shine::after{animation:shine-sweep .6s ease-out}
+.current-num::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(108deg,transparent 40%,rgba(255,255,255,.22) 50%,transparent 60%);
+  background-size:200%;background-position:200%;border-radius:4px;pointer-events:none}
 @keyframes shine-sweep{from{background-position:200%}to{background-position:-200%}}
 
-.current-name{font-size:clamp(20px,2.5vw,32px);font-weight:600;color:rgba(255,255,255,.85);min-height:40px;text-align:center;max-width:480px;line-height:1.3;transition:opacity .4s}
+.current-name{font-size:clamp(16px,2vw,26px);font-weight:600;color:var(--text2);
+  min-height:34px;text-align:center;max-width:400px;line-height:1.3;margin-bottom:2px}
 
-/* Room badge */
-.room-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:8px 22px;font-size:16px;font-weight:700;color:rgba(255,255,255,.9);margin-top:14px;transition:all .4s}
-.room-badge svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;opacity:.7}
+.room-badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(59,23,114,.22);border:1px solid rgba(107,63,200,.28);
+  border-radius:99px;padding:6px 18px;font-size:14px;font-weight:700;
+  color:rgba(255,255,255,.88);margin-top:10px;transition:all .4s}
+.room-badge svg{width:13px;height:13px;fill:none;stroke:currentColor;
+  stroke-width:2.5;stroke-linecap:round;opacity:.7}
 .room-badge.hidden-el{opacity:0;pointer-events:none}
 
-/* Status badge */
-.status-badge{display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:10px 24px;font-size:14px;font-weight:600;margin-top:20px;transition:all .6s}
-.status-badge.serving{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#6EE7B7}
-.status-badge.waiting{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)}
-.status-dot{width:10px;height:10px;border-radius:50%;background:currentColor}
+.status-badge{display:inline-flex;align-items:center;gap:7px;border-radius:99px;
+  padding:8px 20px;font-size:12px;font-weight:600;margin-top:16px;transition:all .6s}
+.status-badge.serving{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.28);color:#6EE7B7}
+.status-badge.waiting{background:rgba(59,23,114,.1);border:1px solid rgba(107,63,200,.18);color:var(--text3)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
 .status-badge.serving .status-dot{animation:status-blink 1.8s ease-in-out infinite}
-@keyframes status-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+@keyframes status-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
 
-/* Stats pills */
-.stats-row{display:flex;gap:16px;margin-top:36px}
-.stat-pill{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 22px;text-align:center;min-width:100px;transition:all .4s}
-.stat-val{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
-.stat-lbl{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
-.stat-pill.blue .stat-val{color:#60A5FA}
-.stat-pill.green .stat-val{color:#34D399}
+.stats-row{display:flex;gap:12px;margin-top:28px}
+.stat-pill{background:rgba(59,23,114,.1);border:1px solid rgba(107,63,200,.14);
+  border-radius:14px;padding:11px 18px;text-align:center;min-width:85px}
+.stat-val{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.stat-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-top:3px}
 .stat-pill.amber .stat-val{color:#FCD34D}
+.stat-pill.green .stat-val{color:#34D399}
 .stat-pill.red .stat-val{color:#F87171}
 
-/* ── RIGHT: QUEUE LIST ── */
-.panel-queue{display:flex;flex-direction:column;background:rgba(0,0,0,.25);overflow:hidden}
-.queue-hdr{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
-.queue-hdr-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em}
-.queue-hdr-count{font-size:12px;color:rgba(255,255,255,.3);font-weight:500}
-.queue-list{flex:1;overflow-y:auto;padding:10px 12px;gap:6px;display:flex;flex-direction:column}
-.queue-list::-webkit-scrollbar{width:3px}
-.queue-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+/* ── PANEL QUEUE (droite) ────────────────────────────────────── */
+.panel-queue{display:flex;flex-direction:column;background:rgba(0,0,0,.32);overflow:hidden}
+.queue-hdr{padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between}
+.queue-hdr-title{font-size:10px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.12em}
+.queue-hdr-count{font-size:10px;color:var(--text3);font-weight:500}
+.queue-list{flex:1;overflow-y:auto;padding:7px 9px;gap:5px;display:flex;flex-direction:column}
+.queue-list::-webkit-scrollbar{width:2px}
+.queue-list::-webkit-scrollbar-thumb{background:rgba(107,63,200,.18);border-radius:2px}
 
-.q-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;transition:all .4s var(--ease)}
-.q-item.current{background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14)}
+.q-item{display:flex;align-items:center;gap:11px;padding:11px 13px;
+  border-radius:11px;transition:all .4s var(--ease)}
+.q-item.current{background:linear-gradient(135deg,rgba(59,23,114,.32),rgba(107,63,200,.1));
+  border:1px solid rgba(107,63,200,.32)}
 .q-item.waiting{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
-.q-item.done{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.1);opacity:.55}
+.q-item.done{background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.1);opacity:.48}
 .q-item.new{animation:item-slide .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes item-slide{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes item-slide{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.q-item.prio-urgente{border-left:3px solid rgba(234,88,12,.58)}
+.q-item.prio-critique{border-left:3px solid rgba(220,38,38,.68);background:rgba(220,38,38,.04)!important}
 
-/* Priority left border */
-.q-item.prio-urgente{border-left:3px solid rgba(234,88,12,.6)}
-.q-item.prio-critique{border-left:3px solid rgba(220,38,38,.7);background:rgba(220,38,38,.04)!important}
-
-.q-num-box{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;flex-shrink:0;font-variant-numeric:tabular-nums}
-.q-item.current .q-num-box{background:rgba(255,255,255,.12);color:#fff}
-.q-item.waiting.prio-normale .q-num-box{background:rgba(37,99,235,.15);color:#93C5FD}
+.q-num-box{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;font-variant-numeric:tabular-nums}
+.q-item.current .q-num-box{background:rgba(107,63,200,.3);color:#C4B5FD}
+.q-item.waiting.prio-normale .q-num-box{background:rgba(59,23,114,.2);color:#A78BFA}
 .q-item.waiting.prio-urgente .q-num-box{background:rgba(234,88,12,.15);color:#FED7AA}
 .q-item.waiting.prio-critique .q-num-box{background:rgba(220,38,38,.15);color:#FECACA}
 .q-item.done .q-num-box{background:rgba(16,185,129,.12);color:#6EE7B7}
 
 .q-info{flex:1;min-width:0}
-.q-name{font-size:15px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.q-status{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px;display:flex;align-items:center;gap:6px}
-.q-prio-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.prio-normale .q-prio-dot{background:#60A5FA}
+.q-name{font-size:13px;font-weight:600;color:#fff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-sub{font-size:11px;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:5px}
+.q-prio-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.prio-normale .q-prio-dot{background:#A78BFA}
 .prio-urgente .q-prio-dot{background:#FB923C;animation:dot-blink 1.5s ease-in-out infinite}
 .prio-critique .q-prio-dot{background:#F87171;animation:dot-blink .8s ease-in-out infinite}
-.q-time{font-size:11px;color:rgba(255,255,255,.25);flex-shrink:0}
+.q-time{font-size:10px;color:var(--text3);flex-shrink:0}
 
-.queue-empty-display{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;padding:32px;text-align:center}
-.queue-empty-icon-big{font-size:48px;opacity:.4}
-.queue-empty-text{font-size:15px;font-weight:600;color:rgba(255,255,255,.3)}
-.queue-empty-sub{font-size:12px;color:rgba(255,255,255,.2);line-height:1.6;max-width:200px}
+.queue-empty-display{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;height:100%;gap:8px;padding:24px;text-align:center}
+.queue-empty-ico{width:52px;height:52px;fill:none;stroke:rgba(107,63,200,.25);
+  stroke-width:1.2;stroke-linecap:round;margin-bottom:4px}
+.queue-empty-title{font-size:13px;font-weight:600;color:var(--text3)}
+.queue-empty-sub{font-size:11px;color:rgba(255,255,255,.18);line-height:1.6;max-width:170px}
 
-/* ── FOOTER ── */
-.footer{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:12px 44px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
-.footer-qr{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.3)}
-.footer-qr-icon{width:32px;height:32px;background:rgba(255,255,255,.07);border-radius:8px;display:flex;align-items:center;justify-content:center}
-.footer-qr-icon svg{width:16px;height:16px;stroke:rgba(255,255,255,.5);fill:none;stroke-width:2;stroke-linecap:round}
-.footer-brand{font-size:12px;color:rgba(255,255,255,.2)}
-.footer-brand span{color:var(--accent);transition:color .8s}
+/* ── FOOTER ──────────────────────────────────────────────────── */
+.footer{position:relative;z-index:10;display:flex;align-items:center;
+  justify-content:space-between;padding:9px 36px;
+  border-top:1px solid var(--border);flex-shrink:0;
+  background:rgba(8,4,16,.7);backdrop-filter:blur(16px)}
+.footer-qr{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3)}
+.footer-qr-ico{width:26px;height:26px;background:rgba(59,23,114,.2);border-radius:7px;
+  display:flex;align-items:center;justify-content:center}
+.footer-qr-ico svg{width:13px;height:13px;stroke:rgba(155,111,232,.65);fill:none;
+  stroke-width:2;stroke-linecap:round}
+.footer-brand{font-size:11px;color:var(--text3)}
+.footer-brand strong{color:#9B6FE8;font-weight:700}
 
-/* ── LOADING ── */
-.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;gap:16px;transition:opacity .6s}
+/* ══════════════════════════════════════════════════════════════
+   VIDEO AD OVERLAY
+══════════════════════════════════════════════════════════════ */
+.video-overlay{
+  position:fixed;inset:0;z-index:20;
+  background:#000;
+  display:none;flex-direction:column;
+  transition:opacity .4s}
+.video-overlay.active{display:flex}
+
+/* Topbar de la vidéo (même style que le topbar principal) */
+.video-topbar{
+  position:absolute;top:0;left:0;right:0;z-index:22;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 36px;
+  background:linear-gradient(to bottom,rgba(8,4,16,.88) 0%,transparent 100%);
+  pointer-events:none}
+.video-topbar-brand{display:flex;align-items:center;gap:9px}
+.video-topbar-brand .brand-mark{width:30px;height:30px;
+  background:linear-gradient(135deg,#3B1772,#7B4FC8);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 12px rgba(59,23,114,.5)}
+.video-topbar-name{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.2px}
+.video-topbar-right{display:flex;align-items:center;gap:16px}
+.video-clock{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;
+  letter-spacing:-1px;color:#fff;opacity:.9}
+
+/* Lecteur vidéo centré */
+.video-wrap{flex:1;position:relative;overflow:hidden;display:flex;
+  align-items:center;justify-content:center}
+.video-el{width:100%;height:100%;object-fit:contain;background:#000;display:block}
+
+/* Barre de progression vidéo */
+.video-progress-bar{
+  position:absolute;top:0;left:0;right:0;z-index:23;height:3px;
+  background:rgba(255,255,255,.12)}
+.video-progress-fill{height:100%;width:0%;
+  background:linear-gradient(90deg,#7B4FC8,#C4B5FD);
+  transition:width .5s linear;border-radius:0 2px 2px 0}
+
+/* Ticker bas de vidéo */
+.video-ticker{
+  position:absolute;bottom:0;left:0;right:0;z-index:22;
+  background:linear-gradient(to top,rgba(8,4,16,.92) 0%,transparent 100%);
+  padding:28px 36px 14px;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  pointer-events:none}
+
+.ticker-left{}
+.ticker-calling-label{font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.16em;color:rgba(255,255,255,.35);margin-bottom:4px}
+.ticker-num{font-size:32px;font-weight:900;font-variant-numeric:tabular-nums;
+  color:#fff;letter-spacing:-1px}
+.ticker-num.none{font-size:13px;font-weight:500;color:rgba(255,255,255,.28);
+  letter-spacing:0;margin-top:0}
+.ticker-waiting{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px}
+
+.ticker-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.ticker-slot-label{font-size:9px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.12em;color:rgba(255,255,255,.3)}
+.ticker-dots{display:flex;gap:5px}
+.ticker-dot{width:7px;height:7px;border-radius:50%;
+  background:rgba(255,255,255,.15);transition:all .4s}
+.ticker-dot.active{background:#9B6FE8;box-shadow:0 0 6px rgba(155,111,232,.5)}
+.ticker-dot.played{background:rgba(155,111,232,.35)}
+
+/* ══════════════════════════════════════════════════════════════
+   OVERLAY INTERRUPTION APPEL (priorité absolue)
+══════════════════════════════════════════════════════════════ */
+.call-interrupt{
+  position:fixed;inset:0;z-index:30;
+  background:rgba(8,4,16,.96);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px}
+.call-interrupt.show{display:flex;animation:interrupt-in .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes interrupt-in{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:none}}
+
+.interrupt-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);
+  text-transform:uppercase;letter-spacing:.22em;margin-bottom:14px}
+
+.interrupt-num{
+  font-size:clamp(110px,17vw,200px);font-weight:900;line-height:1;
+  letter-spacing:-5px;font-variant-numeric:tabular-nums;
+  background:linear-gradient(155deg,#FFFFFF 0%,rgba(255,255,255,.82) 38%,#A78BFA 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:num-in .5s cubic-bezier(.34,1.56,.64,1);
+  filter:drop-shadow(0 0 50px rgba(107,63,200,.5))}
+.interrupt-num.urgente{
+  background:linear-gradient(155deg,#FED7AA,#FB923C 55%,#EA580C 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 0 50px rgba(234,88,12,.55))}
+.interrupt-num.critique{
+  background:linear-gradient(155deg,#FECACA,#F87171 55%,#DC2626 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 0 55px rgba(220,38,38,.65))}
+
+.interrupt-name{font-size:clamp(18px,2.2vw,26px);font-weight:600;color:var(--text2);
+  margin-top:8px;text-align:center}
+.interrupt-room{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(59,23,114,.2);border:1px solid rgba(107,63,200,.28);
+  border-radius:99px;padding:6px 18px;font-size:13px;font-weight:700;
+  color:rgba(255,255,255,.8);margin-top:10px}
+.interrupt-room.hidden{display:none}
+
+/* Barre de retour (compte à rebours) */
+.interrupt-countdown{width:280px;height:3px;background:rgba(255,255,255,.1);
+  border-radius:3px;overflow:hidden;margin-top:28px}
+.interrupt-countdown-fill{height:100%;width:100%;
+  background:linear-gradient(90deg,#7B4FC8,#C4B5FD);border-radius:3px;
+  animation:countdown-drain var(--interrupt-duration,8s) linear forwards}
+@keyframes countdown-drain{from{width:100%}to{width:0%}}
+
+/* ── FLASH ────────────────────────────────────────────────────── */
+.call-flash{position:fixed;inset:0;pointer-events:none;z-index:40;opacity:0}
+.call-flash.flash-normal{animation:flash-purple .65s ease-out}
+.call-flash.flash-urgente{animation:flash-orange .65s ease-out}
+.call-flash.flash-critique{animation:flash-red .65s ease-out}
+@keyframes flash-purple{0%{opacity:.22;background:rgba(107,63,200,1)}100%{opacity:0}}
+@keyframes flash-orange{0%{opacity:.24;background:rgba(234,88,12,1)}100%{opacity:0}}
+@keyframes flash-red{0%{opacity:.3;background:rgba(220,38,38,1)}100%{opacity:0}}
+
+/* ── LOADING ─────────────────────────────────────────────────── */
+.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;
+  z-index:200;gap:14px;transition:opacity .6s}
 .loading-overlay.hidden{opacity:0;pointer-events:none}
-.loader{width:40px;height:40px;border:3px solid rgba(255,255,255,.08);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.loader{width:34px;height:34px;border:3px solid rgba(107,63,200,.15);
+  border-top-color:#7B4FC8;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loader-text{font-size:14px;color:rgba(255,255,255,.35)}
+.loader-text{font-size:12px;color:var(--text3)}
 
-/* ── CALL FLASH OVERLAY ── */
-.call-flash{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:0}
-.call-flash.flash-normal{animation:flash-blue .6s ease-out}
-.call-flash.flash-urgente{animation:flash-orange .6s ease-out}
-.call-flash.flash-critique{animation:flash-red .6s ease-out}
-@keyframes flash-blue{0%{opacity:.18;background:rgba(37,99,235,1)}100%{opacity:0}}
-@keyframes flash-orange{0%{opacity:.22;background:rgba(234,88,12,1)}100%{opacity:0}}
-@keyframes flash-red{0%{opacity:.28;background:rgba(220,38,38,1)}100%{opacity:0}}
-
-/* ── RESPONSIVE ── */
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
 @media(max-width:900px){
   .main{grid-template-columns:1fr}
   .panel-queue{display:none}
-  .topbar{padding:14px 20px}
-  .footer{padding:10px 20px}
+  .topbar,.footer{padding:10px 16px}
+  .video-topbar{padding:10px 16px}
 }
 </style>
-<script src="loader.js"></script>
-  <!-- Sentry monitoring -->
-  <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
-  <script src="/js/sentry-config.js"></script>
-  <script src="/js/sentry-init.js"></script>
 </head>
 <body>
 
+<!-- Loading -->
 <div class="loading-overlay" id="loading-overlay">
   <div class="loader"></div>
-  <div class="loader-text">Chargement de la file d'attente…</div>
+  <div class="loader-text">Chargement de la salle d'attente…</div>
 </div>
 
+<!-- Flash appel -->
 <div class="call-flash" id="call-flash"></div>
 
+<!-- Fond animé -->
 <div class="bg-canvas">
   <div class="bg-blob bg-blob-1" id="bg-blob-1"></div>
   <div class="bg-blob bg-blob-2" id="bg-blob-2"></div>
 </div>
 <div class="grid-lines"></div>
 
-<!-- TOPBAR -->
+<!-- ════════════════ TOPBAR ════════════════ -->
 <div class="topbar">
   <div class="brand">
-    <div class="brand-mark" id="brand-mark">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:22px;height:22px">
+    <div class="brand-mark">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:20px;height:20px">
         <path fill="white" d="M290.5,38.7c42.2-8.9,87.4,33.7,74.9,76.8c-8.5,40.2-61.9,56.3-94.1,32.9c-21.7-12.9-34.3-40.4-28.9-65.3C247.4,60.5,267.4,41.6,290.5,38.7z M294.6,70c-24.1,4.7-28.1,40.2-7.1,51.6c15.1,11.3,39.9,6.1,46-12.7C342.5,86.3,316.5,63.5,294.6,70z"/>
-        <path fill="white" d="M132.9,103.8c25-4.1,51.6-1.1,72.7,13.6c28.8,19.6,46.3,51.6,57.4,84c37.8-16.9,77.9-32.3,119.9-30.6c33.9,1.6,64.8,24.5,76.5,56.1c9.8,39.1-9,77.8-31.4,108.8C386.7,393,324.7,441.1,252.5,448c-23.2,21.2-58.8,33.5-88.9,20.2c-36.5-16.8-59.2-51.9-77.6-86.1c-28.8-59.4-43.6-127.1-33.3-192.9C60.5,148.6,89.8,109.4,132.9,103.8z M141.3,137.4c-34.9,4.9-54,42.3-55.4,74.6c-2.2,65.6,15.8,132.4,52.6,186.9c14.6,21.9,38.2,47,67.1,37.5c-2-8.7-14.6-10.7-19.5-17.9c-24.9-25.2-41-61.6-35.4-97.3c1-24.6,18.4-47.7,42.1-54.8c29.6-11,67,1.4,82,29.8c20.5,33.5,15.1,75.5,4.3,111.3c30.1-8.1,55.2-27.9,79.2-46.9c28.7-27.6,56.7-60,66.5-99.5c8.2-25.4-13.1-50.5-37.4-54.4c-51.9-9.3-94.3,25.2-140.6,40.3c-20.9,4.6-39.4-16.8-36.9-36.6c5.2-3.5,11.1-0.3,16.8-0.4C217.3,172.5,185,128.2,141.3,137.4z M206.4,298.9c-13.3,3.7-20.9,17.4-19.7,30.8c-3.1,32.5,18.1,68.3,49.9,77.4c19.2-27.9,21.2-68.2,4.3-98C231.8,300.1,219,295.3,206.4,298.9z"/>
+        <path fill="white" d="M132.9,103.8c25-4.1,51.6-1.1,72.7,13.6c28.8,19.6,46.3,51.6,57.4,84c37.8-16.9,77.9-32.3,119.9-30.6c33.9,1.6,64.8,24.5,76.5,56.1c9.8,39.1-9,77.8-31.4,108.8C386.7,393,324.7,441.1,252.5,448c-23.2,21.2-58.8,33.5-88.9,20.2c-36.5-16.8-59.2-51.9-77.6-86.1c-28.8-59.4-43.6-127.1-33.3-192.9C60.5,148.6,89.8,109.4,132.9,103.8z"/>
       </svg>
     </div>
     <div class="brand-name">Docline</div>
   </div>
-  <div class="clinic-block">
+  <div class="topbar-center">
     <div class="clinic-name" id="clinic-name">Cabinet médical</div>
     <div class="clinic-date" id="clinic-date"></div>
   </div>
-  <div class="clock-block">
-    <div class="clock" id="clock">--:--</div>
-    <div class="clock-label">Heure</div>
+  <div class="topbar-right">
+    <!-- Météo (discrète) -->
+    <div class="weather hidden" id="weather-widget">
+      <span class="w-icon" id="w-icon">⛅</span>
+      <span class="w-temp" id="w-temp">--°C</span>
+      <span class="w-desc" id="w-desc"></span>
+    </div>
+    <!-- Horloge -->
+    <div class="clock-block">
+      <div class="clock" id="clock">--:--</div>
+      <div class="clock-label">Heure</div>
+    </div>
   </div>
 </div>
 
-<!-- MAIN -->
+<!-- ════════════════ MAIN ════════════════ -->
 <div class="main">
 
-  <!-- LEFT -->
+  <!-- Panneau numéro (gauche) -->
   <div class="panel-current">
     <div class="current-label">Numéro appelé</div>
 
-    <div class="priority-ribbon" id="priority-ribbon">
-      <div class="priority-dot"></div>
-      <span id="priority-text">URGENTE</span>
+    <div class="prio-ribbon" id="prio-ribbon">
+      <div class="prio-dot"></div>
+      <span id="prio-text">URGENTE</span>
     </div>
 
-    <div class="current-num-wrap">
-      <div class="current-num" id="current-num">--</div>
-    </div>
-
+    <div class="current-num" id="current-num">--</div>
     <div class="current-name" id="current-name"></div>
 
     <div class="room-badge hidden-el" id="room-badge">
@@ -272,7 +457,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
     </div>
   </div>
 
-  <!-- RIGHT -->
+  <!-- File d'attente (droite) -->
   <div class="panel-queue">
     <div class="queue-hdr">
       <div class="queue-hdr-title">File d'attente</div>
@@ -280,48 +465,446 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
     </div>
     <div class="queue-list" id="queue-list">
       <div class="queue-empty-display">
-        <div class="queue-empty-icon-big"><svg viewBox="0 0 24 24" style="width:60px;height:60px;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round;opacity:.3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-        <div class="queue-empty-text">File vide</div>
+        <svg class="queue-empty-ico" viewBox="0 0 24 24">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <div class="queue-empty-title">File vide</div>
         <div class="queue-empty-sub">Les patients rejoignent en scannant le QR Code</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FOOTER -->
+<!-- ════════════════ FOOTER ════════════════ -->
 <div class="footer">
   <div class="footer-qr">
-    <div class="footer-qr-icon">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <div class="footer-qr-ico">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="5" width="3" height="3" fill="currentColor"/><rect x="16" y="5" width="3" height="3" fill="currentColor"/><rect x="5" y="16" width="3" height="3" fill="currentColor"/></svg>
     </div>
     Scannez le QR Code à l'entrée pour rejoindre la file
   </div>
-  <div class="footer-brand">Propulsé par <span>Docline</span> · Cabinet médical </div>
+  <div class="footer-brand">Propulsé par <strong>Docline</strong> · Cabinet médical</div>
+</div>
+
+<!-- ════════════════════════════════════════
+     OVERLAY VIDÉO PUBLICITAIRE
+════════════════════════════════════════ -->
+<div class="video-overlay" id="video-overlay">
+
+  <!-- Barre de progression -->
+  <div class="video-progress-bar">
+    <div class="video-progress-fill" id="video-progress-fill"></div>
+  </div>
+
+  <!-- Topbar dans la vidéo -->
+  <div class="video-topbar">
+    <div class="video-topbar-brand">
+      <div class="brand-mark">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:18px;height:18px">
+          <path fill="white" d="M290.5,38.7c42.2-8.9,87.4,33.7,74.9,76.8c-8.5,40.2-61.9,56.3-94.1,32.9c-21.7-12.9-34.3-40.4-28.9-65.3C247.4,60.5,267.4,41.6,290.5,38.7z"/>
+          <path fill="white" d="M132.9,103.8c25-4.1,51.6-1.1,72.7,13.6c28.8,19.6,46.3,51.6,57.4,84c37.8-16.9,77.9-32.3,119.9-30.6c33.9,1.6,64.8,24.5,76.5,56.1c9.8,39.1-9,77.8-31.4,108.8C386.7,393,324.7,441.1,252.5,448c-23.2,21.2-58.8,33.5-88.9,20.2c-36.5-16.8-59.2-51.9-77.6-86.1c-28.8-59.4-43.6-127.1-33.3-192.9C60.5,148.6,89.8,109.4,132.9,103.8z"/>
+        </svg>
+      </div>
+      <span class="video-topbar-name">Docline</span>
+    </div>
+    <div class="video-topbar-right">
+      <div class="video-clock" id="video-clock">--:--</div>
+    </div>
+  </div>
+
+  <!-- Lecteur vidéo -->
+  <div class="video-wrap">
+    <video class="video-el" id="main-video" muted playsinline preload="auto"></video>
+  </div>
+
+  <!-- Ticker bas -->
+  <div class="video-ticker">
+    <div class="ticker-left">
+      <div class="ticker-calling-label">Numéro en cours</div>
+      <div class="ticker-num none" id="ticker-num">Aucun appel en cours</div>
+      <div class="ticker-waiting" id="ticker-waiting"></div>
+    </div>
+    <div class="ticker-right">
+      <div class="ticker-slot-label">Publicité</div>
+      <div class="ticker-dots" id="ticker-dots">
+        <div class="ticker-dot" id="tdot-0"></div>
+        <div class="ticker-dot" id="tdot-1"></div>
+        <div class="ticker-dot" id="tdot-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     OVERLAY INTERRUPTION APPEL
+     (s'affiche par-dessus la vidéo pendant ~8s)
+════════════════════════════════════════ -->
+<div class="call-interrupt" id="call-interrupt">
+  <div class="interrupt-label">Numéro appelé</div>
+  <div class="interrupt-num" id="interrupt-num">--</div>
+  <div class="interrupt-name" id="interrupt-name"></div>
+  <div class="interrupt-room hidden" id="interrupt-room">
+    <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span id="interrupt-room-text"></span>
+  </div>
+  <div class="interrupt-countdown">
+    <div class="interrupt-countdown-fill" id="interrupt-countdown-fill"></div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-/* ═══════════════════════════════════════════════════════════
-   DOCLINE — QUEUE DISPLAY v2
-   Écran salle d'attente — plein écran, temps réel, sons
-═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   DOCLINE QUEUE DISPLAY v3
+   - Charte graphique Docline (violet / brand purple)
+   - Broadcast vidéo pub centralisé (géré par l'admin Docline)
+   - Météo discrète (Open-Meteo, sans clé API)
+   - Interruption prioritaire : appel patient > vidéo pub
+═══════════════════════════════════════════════════════════════════ */
 
-var _supa  = supabase.createClient(SUPA_URL, SUPA_KEY);
-var _clinicId = null;
-var _queue = [];
+/* ── DURÉES ── */
+var QUEUE_DISPLAY_DURATION = 25000; // 25s d'affichage file avant pub
+var INTERRUPT_DURATION     = 9000;  // 9s d'overlay quand patient appelé pendant vidéo
+var WEATHER_REFRESH        = 15 * 60 * 1000; // météo toutes les 15min
+
+/* ── STATE ── */
+var _supa       = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _clinicId   = null;
+var _queue      = [];
 var _lastCurrentId = null;
-var _audioCtx = null;
+var _audioCtx   = null;
 
-/* ── PRIORITY COLOR PALETTE ── */
-var PRIORITY_COLORS = {
-  normale:  { accent:'#2563EB', glow:'rgba(37,99,235,.35)',  blob1:'#1E3A8A', blob2:'#0EA5E9' },
-  urgente:  { accent:'#EA580C', glow:'rgba(234,88,12,.35)',  blob1:'#7C2D12', blob2:'#F97316' },
-  critique: { accent:'#DC2626', glow:'rgba(220,38,38,.4)',   blob1:'#7F1D1D', blob2:'#EF4444' },
-  none:     { accent:'#2563EB', glow:'rgba(37,99,235,.2)',   blob1:'#0F2056', blob2:'#0369A1' }
-};
+/* Video */
+var _videos     = [];          // [{url,title,duration_s,slot}]
+var _vidIdx     = 0;           // index de la prochaine vidéo à jouer
+var _vidPlayed  = [];          // indices déjà joués (pour les dots)
+var _mode       = 'queue';     // 'queue' | 'video' | 'interrupt'
+var _queueTimer = null;
+var _interruptTimer = null;
+var _videoProgressTimer = null;
+var _videoStartTime = 0;
 
-/* ── SOUND ENGINE ── */
+/* ═══════════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════════ */
+(function init() {
+  var params = new URLSearchParams(window.location.search);
+  _clinicId = params.get('c');
+
+  tickClock();
+  setInterval(tickClock, 1000);
+  updateDate();
+
+  /* Météo */
+  var lat = params.get('lat') || '36.74';  /* Défaut: Azazga, Algérie */
+  var lon = params.get('lon') || '4.35';
+  loadWeather(lat, lon);
+  setInterval(function(){ loadWeather(lat, lon); }, WEATHER_REFRESH);
+
+  if (!_clinicId) {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.getElementById('status-text').textContent = 'Ajoutez ?c=CLINIC_ID dans l\'URL';
+    return;
+  }
+
+  loadClinicInfo();
+  loadDisplayVideos();
+  loadQueue();
+  startRealtime();
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   HORLOGE & DATE
+═══════════════════════════════════════════════════════════════════ */
+function tickClock() {
+  var n = new Date();
+  var hh = String(n.getHours()).padStart(2,'0');
+  var mm = String(n.getMinutes()).padStart(2,'0');
+  var t  = hh + ':' + mm;
+  document.getElementById('clock').textContent = t;
+  var vc = document.getElementById('video-clock');
+  if (vc) vc.textContent = t;
+}
+
+function updateDate() {
+  var n = new Date();
+  var DAYS   = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août',
+                'septembre','octobre','novembre','décembre'];
+  document.getElementById('clinic-date').textContent =
+    DAYS[n.getDay()] + ' ' + n.getDate() + ' ' + MONTHS[n.getMonth()] + ' ' + n.getFullYear();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MÉTÉO (Open-Meteo, sans clé API, gratuit)
+═══════════════════════════════════════════════════════════════════ */
+async function loadWeather(lat, lon) {
+  try {
+    var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat
+      + '&longitude=' + lon
+      + '&current=temperature_2m,weathercode&timezone=Africa%2FAlgiers';
+    var res  = await fetch(url);
+    var data = await res.json();
+    if (!data.current) return;
+
+    var temp  = Math.round(data.current.temperature_2m);
+    var code  = data.current.weathercode;
+    var icon  = wmoIcon(code);
+    var desc  = wmoDesc(code);
+
+    document.getElementById('w-icon').textContent = icon;
+    document.getElementById('w-temp').textContent = temp + '°C';
+    document.getElementById('w-desc').textContent = desc;
+    document.getElementById('weather-widget').classList.remove('hidden');
+  } catch(e) {
+    /* météo non disponible — reste caché */
+  }
+}
+
+function wmoIcon(code) {
+  if (code === 0)           return '☀️';
+  if (code <= 1)            return '🌤️';
+  if (code <= 2)            return '⛅';
+  if (code <= 3)            return '☁️';
+  if (code <= 48)           return '🌫️';
+  if (code <= 57)           return '🌦️';
+  if (code <= 67)           return '🌧️';
+  if (code <= 77)           return '❄️';
+  if (code <= 82)           return '🌧️';
+  if (code <= 99)           return '⛈️';
+  return '🌡️';
+}
+
+function wmoDesc(code) {
+  if (code === 0)           return 'Ciel dégagé';
+  if (code <= 2)            return 'Peu nuageux';
+  if (code <= 3)            return 'Nuageux';
+  if (code <= 48)           return 'Brouillard';
+  if (code <= 57)           return 'Bruine';
+  if (code <= 67)           return 'Pluie';
+  if (code <= 77)           return 'Neige';
+  if (code <= 82)           return 'Averses';
+  if (code <= 99)           return 'Orage';
+  return '';
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CLINIQUE INFO
+═══════════════════════════════════════════════════════════════════ */
+async function loadClinicInfo() {
+  try {
+    var r = await _supa.from('profiles')
+      .select('first_name,last_name,clinic_name')
+      .eq('id', _clinicId).single();
+    if (r.data) {
+      var name = r.data.clinic_name
+        || ((r.data.first_name || '') + ' ' + (r.data.last_name || '')).trim()
+        || 'Cabinet médical';
+      document.getElementById('clinic-name').textContent = name;
+    }
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VIDÉOS PUB (chargement depuis Supabase — géré par l'admin)
+═══════════════════════════════════════════════════════════════════ */
+async function loadDisplayVideos() {
+  try {
+    var r = await _supa.from('display_videos')
+      .select('slot,title,video_url,duration_s,active')
+      .eq('active', true)
+      .order('slot');
+    _videos = (r.data || []).filter(function(v){ return v.video_url && v.video_url.trim(); });
+    updateTickerDots();
+
+    /* Démarrer le cycle d'affichage si des vidéos existent */
+    if (_videos.length > 0) {
+      scheduleNextVideo();
+    }
+  } catch(e) {
+    console.warn('[display] Erreur chargement vidéos:', e);
+  }
+}
+
+/* Mettre à jour les points indicateurs de slot */
+function updateTickerDots() {
+  for (var i = 0; i < 3; i++) {
+    var dot = document.getElementById('tdot-' + i);
+    if (!dot) continue;
+    dot.className = 'ticker-dot';
+    if (i < _videos.length) {
+      if (_vidPlayed.indexOf(i) !== -1) dot.classList.add('played');
+    } else {
+      dot.style.opacity = '0.15';
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VIDEO PLAYER — Machine à états : queue ↔ video ↔ interrupt
+═══════════════════════════════════════════════════════════════════ */
+
+/* Planifie la prochaine vidéo après N secondes en mode queue */
+function scheduleNextVideo() {
+  clearTimeout(_queueTimer);
+  if (!_videos.length) return;
+  _queueTimer = setTimeout(function() {
+    if (_mode === 'queue') {
+      startNextVideo();
+    }
+  }, QUEUE_DISPLAY_DURATION);
+}
+
+/* Lance la prochaine vidéo dans la rotation */
+function startNextVideo() {
+  if (!_videos.length) return;
+
+  var v = _videos[_vidIdx % _videos.length];
+  _vidIdx++;
+
+  var slot = v.slot - 1; /* 0-indexed */
+  _vidPlayed.push(slot);
+  /* Réinitialiser les dots après un cycle complet */
+  if (_vidPlayed.length > _videos.length) _vidPlayed = [slot];
+
+  _mode = 'video';
+  _videoStartTime = Date.now();
+
+  /* Affecter la source et jouer */
+  var videoEl = document.getElementById('main-video');
+  videoEl.src = v.video_url;
+  videoEl.load();
+
+  document.getElementById('video-overlay').classList.add('active');
+  updateTickerDots();
+  activateTickerDot(slot);
+  updateVideoTicker();
+  startVideoProgress(v.duration_s * 1000 || 30000);
+
+  videoEl.play().catch(function(err) {
+    console.warn('[display] Autoplay bloqué:', err);
+    videoEnded();
+  });
+
+  videoEl.onended = videoEnded;
+}
+
+function activateTickerDot(slotIdx) {
+  for (var i = 0; i < 3; i++) {
+    var dot = document.getElementById('tdot-' + i);
+    if (dot) {
+      dot.className = 'ticker-dot';
+      if (i === slotIdx) dot.classList.add('active');
+      else if (_vidPlayed.indexOf(i) !== -1) dot.classList.add('played');
+    }
+  }
+}
+
+/* Barre de progression vidéo */
+function startVideoProgress(durationMs) {
+  clearInterval(_videoProgressTimer);
+  var fill = document.getElementById('video-progress-fill');
+  fill.style.width = '0%';
+  _videoProgressTimer = setInterval(function() {
+    var elapsed = Date.now() - _videoStartTime;
+    var pct     = Math.min(100, (elapsed / durationMs) * 100);
+    fill.style.width = pct + '%';
+    if (pct >= 100) {
+      clearInterval(_videoProgressTimer);
+    }
+  }, 200);
+}
+
+/* Ticker bas : numéro en cours pendant la vidéo */
+function updateVideoTicker() {
+  var current = _queue.find(function(e){ return e.status === 'current'; });
+  var waiting  = _queue.filter(function(e){ return e.status === 'waiting'; });
+  var numEl    = document.getElementById('ticker-num');
+  var waitEl   = document.getElementById('ticker-waiting');
+
+  if (current) {
+    numEl.className = 'ticker-num';
+    numEl.textContent = 'N°' + String(current.number).padStart(2,'0');
+    waitEl.textContent = waiting.length + ' patient' + (waiting.length !== 1 ? 's' : '') + ' en attente';
+  } else {
+    numEl.className = 'ticker-num none';
+    numEl.textContent = 'Aucun appel en cours';
+    waitEl.textContent = waiting.length > 0 ? waiting.length + ' patient' + (waiting.length !== 1 ? 's' : '') + ' en attente' : '';
+  }
+}
+
+/* Fin naturelle de la vidéo → retour au mode queue */
+function videoEnded() {
+  clearInterval(_videoProgressTimer);
+  _mode = 'queue';
+  document.getElementById('video-overlay').classList.remove('active');
+  var videoEl = document.getElementById('main-video');
+  videoEl.pause();
+  videoEl.src = '';
+  document.getElementById('video-progress-fill').style.width = '0%';
+
+  /* Reprendre le cycle après l'affichage de la file */
+  scheduleNextVideo();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   INTERRUPTION APPEL — priorité absolue sur la vidéo
+═══════════════════════════════════════════════════════════════════ */
+function interruptVideoForCall(entry) {
+  /* Couper la vidéo immédiatement si elle joue */
+  if (_mode === 'video') {
+    clearInterval(_videoProgressTimer);
+    var videoEl = document.getElementById('main-video');
+    videoEl.pause();
+    videoEl.src = '';
+    document.getElementById('video-progress-fill').style.width = '0%';
+    document.getElementById('video-overlay').classList.remove('active');
+  }
+
+  clearTimeout(_queueTimer);
+  clearTimeout(_interruptTimer);
+  _mode = 'interrupt';
+
+  var prio = entry.priority || 'normale';
+
+  /* Remplir l'overlay */
+  var numEl  = document.getElementById('interrupt-num');
+  var nameEl = document.getElementById('interrupt-name');
+  var roomEl = document.getElementById('interrupt-room');
+  var ov     = document.getElementById('call-interrupt');
+
+  numEl.textContent   = String(entry.number).padStart(2,'0');
+  numEl.className     = 'interrupt-num' + (prio !== 'normale' ? ' ' + prio : '');
+  nameEl.textContent  = entry.patient_name || '';
+
+  if (entry.room) {
+    document.getElementById('interrupt-room-text').textContent = entry.room;
+    roomEl.classList.remove('hidden');
+  } else {
+    roomEl.classList.add('hidden');
+  }
+
+  /* Compte à rebours CSS */
+  var fill = document.getElementById('interrupt-countdown-fill');
+  fill.style.setProperty('--interrupt-duration', (INTERRUPT_DURATION / 1000) + 's');
+  fill.style.animation = 'none';
+  void fill.offsetWidth;
+  fill.style.animation = '';
+
+  ov.classList.add('show');
+
+  /* Retour au mode queue après INTERRUPT_DURATION */
+  _interruptTimer = setTimeout(function() {
+    ov.classList.remove('show');
+    _mode = 'queue';
+    scheduleNextVideo();
+  }, INTERRUPT_DURATION);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SOUNDS
+═══════════════════════════════════════════════════════════════════ */
 function getAudioCtx() {
   if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return _audioCtx;
@@ -331,161 +914,146 @@ function playCallNormal() {
   try {
     var ctx = getAudioCtx();
     [[523,.0],[659,.15],[784,.30],[1047,.50]].forEach(function(x){
-      var o=ctx.createOscillator(), g=ctx.createGain();
+      var o = ctx.createOscillator(), g = ctx.createGain();
       o.connect(g); g.connect(ctx.destination);
-      o.type='sine'; o.frequency.value=x[0];
-      var t=ctx.currentTime+x[1];
-      g.gain.setValueAtTime(0,t);
-      g.gain.linearRampToValueAtTime(.22,t+.06);
-      g.gain.exponentialRampToValueAtTime(.001,t+.65);
+      o.type = 'sine'; o.frequency.value = x[0];
+      var t = ctx.currentTime + x[1];
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(.22, t+.06);
+      g.gain.exponentialRampToValueAtTime(.001, t+.65);
       o.start(t); o.stop(t+.7);
     });
-  } catch(e){}
+  } catch(e) {}
 }
 
 function playCallUrgent() {
   try {
     var ctx = getAudioCtx();
     [0,.25,.5].forEach(function(delay){
-      var o=ctx.createOscillator(), g=ctx.createGain();
+      var o = ctx.createOscillator(), g = ctx.createGain();
       o.connect(g); g.connect(ctx.destination);
-      o.type='sawtooth';
-      o.frequency.setValueAtTime(440,ctx.currentTime+delay);
-      o.frequency.linearRampToValueAtTime(880,ctx.currentTime+delay+.18);
-      g.gain.setValueAtTime(.25,ctx.currentTime+delay);
-      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay+.35);
-      o.start(ctx.currentTime+delay); o.stop(ctx.currentTime+delay+.4);
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(440, ctx.currentTime + delay);
+      o.frequency.linearRampToValueAtTime(880, ctx.currentTime + delay + .18);
+      g.gain.setValueAtTime(.25, ctx.currentTime + delay);
+      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + delay + .35);
+      o.start(ctx.currentTime + delay); o.stop(ctx.currentTime + delay + .4);
     });
-  } catch(e){}
+  } catch(e) {}
 }
 
 function playCallCritique() {
   try {
     var ctx = getAudioCtx();
     [0,.18,.36,.54,.72].forEach(function(delay){
-      var o=ctx.createOscillator(), g=ctx.createGain();
+      var o = ctx.createOscillator(), g = ctx.createGain();
       o.connect(g); g.connect(ctx.destination);
-      o.type='square'; o.frequency.value=660;
-      g.gain.setValueAtTime(.28,ctx.currentTime+delay);
-      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay+.16);
-      o.start(ctx.currentTime+delay); o.stop(ctx.currentTime+delay+.18);
+      o.type = 'square'; o.frequency.value = 660;
+      g.gain.setValueAtTime(.28, ctx.currentTime + delay);
+      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + delay + .16);
+      o.start(ctx.currentTime + delay); o.stop(ctx.currentTime + delay + .18);
     });
-  } catch(e){}
-}
-
-/* ── COLOR THEME ── */
-function applyTheme(priority) {
-  var c = PRIORITY_COLORS[priority||'none'];
-  document.documentElement.style.setProperty('--accent', c.accent);
-  document.documentElement.style.setProperty('--accent-glow', c.glow);
-  var b1 = document.getElementById('bg-blob-1');
-  var b2 = document.getElementById('bg-blob-2');
-  b1.style.background = 'radial-gradient(circle,'+c.blob1+',transparent)';
-  b2.style.background = 'radial-gradient(circle,'+c.blob2+',transparent)';
-  b1.style.opacity = priority && priority!=='none' ? '0.18' : '0.1';
-  b2.style.opacity = priority && priority!=='none' ? '0.15' : '0.08';
-  document.getElementById('brand-mark').style.background = c.accent;
-  document.querySelector('.footer-brand span').style.color = c.accent;
-}
-
-/* ── FLASH OVERLAY ── */
-function flashScreen(priority) {
-  var el = document.getElementById('call-flash');
-  el.className = 'call-flash';
-  void el.offsetWidth;
-  el.className = 'call-flash flash-' + (priority||'normal');
-}
-
-/* ── INIT ── */
-(function init() {
-  var params = new URLSearchParams(window.location.search);
-  _clinicId = params.get('c');
-
-  tickClock(); setInterval(tickClock, 1000);
-  updateDate();
-
-  if (!_clinicId) {
-    document.getElementById('loading-overlay').classList.add('hidden');
-    applyTheme('none');
-    document.getElementById('status-text').textContent = 'Aucun cabinet connecté — ajoutez ?c=CLINIC_ID dans l\'URL';
-    return;
-  }
-
-  loadClinicInfo();
-  loadQueue();
-  startRealtime();
-})();
-
-function tickClock() {
-  var n = new Date();
-  document.getElementById('clock').textContent =
-    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
-}
-
-function updateDate() {
-  var n = new Date();
-  var DAYS   = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-  var MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  document.getElementById('clinic-date').textContent =
-    DAYS[n.getDay()] + ' ' + n.getDate() + ' ' + MONTHS[n.getMonth()] + ' ' + n.getFullYear();
-}
-
-async function loadClinicInfo() {
-  try {
-    var r = await _supa.from('profiles').select('first_name,last_name,clinic_name').eq('id',_clinicId).single();
-    if (r.data) {
-      var name = r.data.clinic_name || ((r.data.first_name||'') + ' ' + (r.data.last_name||'')).trim() || 'Cabinet médical';
-      document.getElementById('clinic-name').textContent = name;
-    }
   } catch(e) {}
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   THÈME COULEUR SELON PRIORITÉ
+═══════════════════════════════════════════════════════════════════ */
+function applyTheme(prio) {
+  var b1 = document.getElementById('bg-blob-1');
+  var b2 = document.getElementById('bg-blob-2');
+  b1.className = 'bg-blob bg-blob-1' + (prio && prio !== 'normale' ? ' ' + prio : '');
+  b2.className = 'bg-blob bg-blob-2' + (prio && prio !== 'normale' ? ' ' + prio : '');
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FLASH ÉCRAN
+═══════════════════════════════════════════════════════════════════ */
+function flashScreen(type) {
+  var el = document.getElementById('call-flash');
+  el.className = 'call-flash';
+  void el.offsetWidth;
+  el.className = 'call-flash flash-' + type;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CHARGEMENT DE LA FILE
+═══════════════════════════════════════════════════════════════════ */
 async function loadQueue() {
   var today = new Date().toISOString().split('T')[0];
   try {
-    var r = await _supa.from('queue_entries').select('*').eq('clinic_id',_clinicId).eq('queue_date',today).order('number');
+    var r = await _supa.from('queue_entries').select('*')
+      .eq('clinic_id', _clinicId).eq('queue_date', today).order('number');
     _queue = r.data || [];
-    renderDisplay();
+    renderDisplay(false);
   } catch(e) {
-    console.warn('Queue load error:', e);
+    console.warn('[display] Erreur chargement file:', e);
   } finally {
     document.getElementById('loading-overlay').classList.add('hidden');
   }
 }
 
-function renderDisplay(animated) {
-  var current = _queue.find(function(e){return e.status==='current';});
-  var waiting  = _queue.filter(function(e){return e.status==='waiting';});
-  var done     = _queue.filter(function(e){return e.status==='done';});
-  var urgents  = waiting.filter(function(e){return e.priority==='urgente'||e.priority==='critique';});
+async function loadQueueAnimated() {
+  var today = new Date().toISOString().split('T')[0];
+  try {
+    var r = await _supa.from('queue_entries').select('*')
+      .eq('clinic_id', _clinicId).eq('queue_date', today).order('number');
+    _queue = r.data || [];
+    renderDisplay(true);
+  } catch(e) {}
+}
 
-  /* -- Stats -- */
+/* ═══════════════════════════════════════════════════════════════════
+   RENDU AFFICHAGE
+═══════════════════════════════════════════════════════════════════ */
+function renderDisplay(animated) {
+  var current = _queue.find(function(e){ return e.status === 'current'; });
+  var waiting  = _queue.filter(function(e){ return e.status === 'waiting'; });
+  var done     = _queue.filter(function(e){ return e.status === 'done'; });
+  var urgents  = waiting.filter(function(e){ return e.priority === 'urgente' || e.priority === 'critique'; });
+
+  /* Stats */
   document.getElementById('stat-waiting').textContent = waiting.length;
   document.getElementById('stat-done').textContent    = done.length;
   document.getElementById('stat-urgent').textContent  = urgents.length;
 
-  /* -- Current patient -- */
+  /* Numéro actuel */
   var numEl    = document.getElementById('current-num');
   var nameEl   = document.getElementById('current-name');
   var roomEl   = document.getElementById('room-badge');
   var statusEl = document.getElementById('status-badge');
-  var ribbonEl = document.getElementById('priority-ribbon');
+  var ribbonEl = document.getElementById('prio-ribbon');
+  var isNew    = animated && current && current.id !== _lastCurrentId;
 
   if (current) {
-    var isNew = animated && current.id !== _lastCurrentId;
-    _lastCurrentId = current.id;
+    var prio = current.priority || 'normale';
 
-    /* Number */
-    numEl.textContent = String(current.number).padStart(2,'0');
+    /* Nouveau patient appelé */
     if (isNew) {
-      numEl.classList.remove('animate-in','shine'); void numEl.offsetWidth;
+      _lastCurrentId = current.id;
+
+      /* Numéro principal */
+      numEl.classList.remove('animate-in','shine');
+      void numEl.offsetWidth;
       numEl.classList.add('animate-in','shine');
+
+      /* Sons et flash */
+      if (prio === 'critique')    { flashScreen('critique'); playCallCritique(); }
+      else if (prio === 'urgente'){ flashScreen('urgente');  playCallUrgent();   }
+      else                        { flashScreen('normal');   playCallNormal();   }
+
+      /* Interruption vidéo si elle joue */
+      if (_mode === 'video') {
+        interruptVideoForCall(current);
+      }
     }
 
-    /* Name */
+    numEl.textContent = String(current.number).padStart(2,'0');
+    numEl.className   = 'current-num' + (prio !== 'normale' ? ' ' + prio : '');
+
     nameEl.textContent = current.patient_name || '';
 
-    /* Room */
+    /* Salle */
     if (current.room) {
       document.getElementById('room-text').textContent = current.room;
       roomEl.classList.remove('hidden-el');
@@ -493,92 +1061,101 @@ function renderDisplay(animated) {
       roomEl.classList.add('hidden-el');
     }
 
-    /* Status */
+    /* Status badge */
     statusEl.className = 'status-badge serving';
     document.getElementById('status-text').textContent = 'Consultation en cours';
 
     /* Priority ribbon */
-    var prio = current.priority || 'normale';
     if (prio !== 'normale') {
-      ribbonEl.className = 'priority-ribbon show ' + prio;
-      document.getElementById('priority-text').textContent = prio.toUpperCase();
+      ribbonEl.className = 'prio-ribbon show ' + prio;
+      document.getElementById('prio-text').textContent = prio.toUpperCase();
     } else {
-      ribbonEl.className = 'priority-ribbon';
+      ribbonEl.className = 'prio-ribbon';
     }
 
-    /* Theme */
     applyTheme(prio);
-
-    /* Sounds + flash on change */
-    if (isNew) {
-      flashScreen(prio==='critique'?'critique':prio==='urgente'?'urgente':'normal');
-      if (prio==='critique')     playCallCritique();
-      else if (prio==='urgente') playCallUrgent();
-      else                       playCallNormal();
-    }
 
   } else {
     _lastCurrentId = null;
-    numEl.textContent = '--';
-    nameEl.textContent = waiting.length > 0 ? 'Prochain : N°' + String(waiting[0].number).padStart(2,'0') : '';
+    numEl.textContent  = '--';
+    numEl.className    = 'current-num';
+    nameEl.textContent = waiting.length > 0
+      ? 'Prochain : N°' + String(waiting[0].number).padStart(2,'0')
+      : '';
     roomEl.classList.add('hidden-el');
-    ribbonEl.className = 'priority-ribbon';
+    ribbonEl.className = 'prio-ribbon';
     statusEl.className = 'status-badge waiting';
     document.getElementById('status-text').textContent =
-      waiting.length > 0 ? waiting.length + ' patient' + (waiting.length>1?'s':'') + ' en attente' : 'En attente du premier patient';
+      waiting.length > 0
+        ? waiting.length + ' patient' + (waiting.length > 1 ? 's' : '') + ' en attente'
+        : 'En attente du premier patient';
     applyTheme('none');
   }
 
-  /* -- Queue list (right panel) -- */
-  var listEl = document.getElementById('queue-list');
-  var items  = [].concat(
-    _queue.filter(function(e){return e.status==='current';}),
-    _queue.filter(function(e){return e.status==='waiting';}),
+  /* Mettre à jour le ticker pendant la vidéo */
+  if (_mode === 'video') updateVideoTicker();
+
+  /* ── Liste file (panneau droite) ── */
+  var listEl  = document.getElementById('queue-list');
+  var display = [].concat(
+    _queue.filter(function(e){ return e.status === 'current'; }),
+    _queue.filter(function(e){ return e.status === 'waiting'; }),
     done.slice(-4)
   );
 
-  document.getElementById('queue-hdr-count').textContent = _queue.length + ' patient' + (_queue.length!==1?'s':'');
+  document.getElementById('queue-hdr-count').textContent =
+    _queue.length + ' patient' + (_queue.length !== 1 ? 's' : '');
 
-  if (!items.length) {
-    listEl.innerHTML = '<div class="queue-empty-display"><div class="queue-empty-icon-big"><svg viewBox="0 0 24 24" style="width:60px;height:60px;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round;opacity:.3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="queue-empty-text">File vide</div><div class="queue-empty-sub">Les patients rejoignent en scannant le QR Code</div></div>';
+  if (!display.length) {
+    listEl.innerHTML = '<div class="queue-empty-display">'
+      + '<svg class="queue-empty-ico" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>'
+      + '<div class="queue-empty-title">File vide</div>'
+      + '<div class="queue-empty-sub">Les patients rejoignent en scannant le QR Code</div>'
+      + '</div>';
     return;
   }
 
-  listEl.innerHTML = items.map(function(e) {
-    var prio = e.priority || 'normale';
-    var statusLabel = e.status==='current'?'En consultation':e.status==='done'?'Consulté ✓':'En attente';
-    if (e.status==='current' && e.room) statusLabel = 'Salle : ' + esc(e.room);
-    var timeStr = e.created_at ? new Date(e.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
-    return '<div class="q-item ' + e.status + ' prio-' + prio + '">' +
-      '<div class="q-num-box">' + String(e.number).padStart(2,'0') + '</div>' +
-      '<div class="q-info">' +
-        '<div class="q-name">' + esc(e.patient_name||'Patient') + '</div>' +
-        '<div class="q-status"><span class="q-prio-dot"></span>' + statusLabel + '</div>' +
-      '</div>' +
-      '<div class="q-time">' + timeStr + '</div>' +
-    '</div>';
+  listEl.innerHTML = display.map(function(e) {
+    var prio       = e.priority || 'normale';
+    var statusText = e.status === 'current' ? 'En consultation'
+                   : e.status === 'done'    ? 'Consulté ✓'
+                   : 'En attente';
+    if (e.status === 'current' && e.room) statusText = 'Salle : ' + esc(e.room);
+    var timeStr = e.created_at
+      ? new Date(e.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})
+      : '';
+    return '<div class="q-item ' + e.status + ' prio-' + prio + '">'
+      + '<div class="q-num-box">' + String(e.number).padStart(2,'0') + '</div>'
+      + '<div class="q-info">'
+      +   '<div class="q-name">' + esc(e.patient_name || 'Patient') + '</div>'
+      +   '<div class="q-sub"><span class="q-prio-dot"></span>' + statusText + '</div>'
+      + '</div>'
+      + '<div class="q-time">' + timeStr + '</div>'
+      + '</div>';
   }).join('');
 }
 
-/* ── REALTIME ── */
+/* ═══════════════════════════════════════════════════════════════════
+   REALTIME SUPABASE
+═══════════════════════════════════════════════════════════════════ */
 function startRealtime() {
-  _supa.channel('display-v2-' + _clinicId)
-    .on('postgres_changes', {event:'*', schema:'public', table:'queue_entries', filter:'clinic_id=eq.'+_clinicId},
-      function() { loadQueueAnimated(); })
+  _supa.channel('qd-v3-' + _clinicId)
+    .on('postgres_changes', {
+      event: '*', schema: 'public',
+      table: 'queue_entries',
+      filter: 'clinic_id=eq.' + _clinicId
+    }, function() {
+      loadQueueAnimated();
+    })
     .subscribe();
 }
 
-async function loadQueueAnimated() {
-  var today = new Date().toISOString().split('T')[0];
-  try {
-    var r = await _supa.from('queue_entries').select('*').eq('clinic_id',_clinicId).eq('queue_date',today).order('number');
-    _queue = r.data || [];
-    renderDisplay(true);
-  } catch(e) {}
-}
-
+/* ═══════════════════════════════════════════════════════════════════
+   HELPER
+═══════════════════════════════════════════════════════════════════ */
 function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>

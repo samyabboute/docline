@@ -134,6 +134,8 @@ ul,ol{list-style:none}
 /* SECTION GRID */
 .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:900px){.settings-grid{grid-template-columns:1fr}}
+@media(max-width:900px){#video-slots-grid{grid-template-columns:1fr!important}}
+@media(min-width:601px) and (max-width:900px){#video-slots-grid{grid-template-columns:1fr 1fr!important}}
 @media(max-width:768px){
   :root{--sidebar-w:0px}
   .app{grid-template-columns:1fr}
@@ -332,6 +334,35 @@ ul,ol{list-style:none}
           </div>
         </div>
       </div>
+
+      <!-- ── VIDÉOS SALLE D'ATTENTE ───────────────────────────────── -->
+      <div class="card" style="margin-top:4px">
+        <div class="card-head">
+          <div class="card-icon" style="background:rgba(90,43,168,.1);color:#7C3AED">
+            <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <div style="flex:1">
+            <div class="card-title">Vidéos publicitaires — Salle d'attente</div>
+            <div class="card-sub">Ces vidéos sont diffusées automatiquement sur TOUS les écrans de file d'attente de toutes les cliniques.</div>
+          </div>
+          <a href="queue-display.html" target="_blank" class="btn btn-secondary btn-sm">
+            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Prévisualiser l'écran
+          </a>
+        </div>
+        <div class="card-body">
+          <div style="background:rgba(90,43,168,.06);border:1px solid rgba(90,43,168,.15);border-radius:var(--r-md);padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;stroke:#7C3AED;fill:none;stroke-width:2;stroke-linecap:round;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div style="font-size:.75rem;color:var(--text-secondary);line-height:1.6">
+              <strong>Comment ça marche :</strong> Uploadez vos vidéos MP4 dans Supabase Storage (bucket <code style="background:var(--bg-subtle);padding:1px 5px;border-radius:3px">display-videos</code>), copiez l'URL publique, et collez-la ici. Les écrans chargent les vidéos actives automatiquement, dans l'ordre des slots.
+            </div>
+          </div>
+          <div id="video-slots-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+            <div style="text-align:center;padding:40px;color:var(--text-muted);grid-column:1/-1">Chargement des slots vidéo…</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 </div>
@@ -475,6 +506,7 @@ let _session  = null;
   await loadSettings();
   await loadPromoCodes();
   await loadFunnel();
+  await loadDisplayVideos();
 })();
 
 async function loadSettings() {
@@ -606,6 +638,98 @@ async function deactivatePromo(id) {
   await _supa.from('promo_codes').update({ active: false }).eq('id', id);
   Toast.info('Désactivé', '');
   await loadPromoCodes();
+}
+
+// ── DISPLAY VIDEOS ──────────────────────────────────────────────────
+
+let _videoSlots = [];
+
+async function loadDisplayVideos() {
+  const { data, error } = await _supa.from('display_videos').select('*').order('slot');
+  if (error) { console.error('[display_videos]', error); return; }
+  _videoSlots = data || [];
+  renderVideoSlots();
+}
+
+function renderVideoSlots() {
+  const grid = document.getElementById('video-slots-grid');
+  if (!grid) return;
+  if (!_videoSlots.length) {
+    grid.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text-muted);grid-column:1/-1">Aucun slot trouvé. Exécutez patch_v14.sql dans Supabase.</div>`;
+    return;
+  }
+  const SLOT_COLORS = ['#7C3AED','#5A2BA8','#3B1772'];
+  grid.innerHTML = _videoSlots.map((v, i) => {
+    const isActive = v.active;
+    const hasUrl   = v.video_url && v.video_url.trim() !== '';
+    return `<div style="background:var(--bg-subtle);border:1.5px solid ${isActive?'rgba(90,43,168,.3)':'var(--border)'};border-radius:var(--r-lg);padding:18px;position:relative;transition:border-color .2s">
+      <!-- SLOT HEADER -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="width:32px;height:32px;border-radius:var(--r-md);background:${SLOT_COLORS[i]};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;flex-shrink:0">S${v.slot}</div>
+        <div style="flex:1">
+          <div style="font-size:.8125rem;font-weight:700">Slot ${v.slot}</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:1px">${v.duration_s}s · ${isActive?'<span style="color:var(--success);font-weight:600">Actif</span>':'<span style="color:var(--text-muted)">Inactif</span>'}</div>
+        </div>
+        <label class="toggle" title="${isActive?'Désactiver':'Activer'}">
+          <input type="checkbox" id="vid-active-${v.slot}" ${isActive?'checked':''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- FIELDS -->
+      <div class="field" style="margin-bottom:10px">
+        <label class="form-label">Titre (usage interne)</label>
+        <input type="text" class="form-input" id="vid-title-${v.slot}" value="${sanitize(v.title||'')}" placeholder="Ex : Pub Sanofi 30s">
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label class="form-label">URL vidéo (MP4 / WebM)</label>
+        <input type="url" class="form-input" id="vid-url-${v.slot}" value="${sanitize(v.video_url||'')}" placeholder="https://…/video.mp4">
+      </div>
+      <div class="field" style="margin-bottom:16px">
+        <label class="form-label">Durée approx. (secondes)</label>
+        <input type="number" class="form-input" id="vid-dur-${v.slot}" value="${v.duration_s||30}" min="5" max="120" step="5">
+      </div>
+
+      <!-- ACTIONS -->
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" style="flex:1" onclick="saveVideoSlot(${v.slot})">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+          Enregistrer
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="previewVideoSlot(${v.slot})" ${!hasUrl?'disabled title="Aucune URL renseignée"':''}>
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        </button>
+      </div>
+
+      ${isActive&&hasUrl?`<div style="margin-top:10px;padding:7px 10px;background:rgba(18,183,106,.06);border:1px solid rgba(18,183,106,.15);border-radius:var(--r-sm);font-size:.6875rem;color:var(--success);font-weight:600;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0"></span>Diffusé sur tous les écrans</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function saveVideoSlot(slot) {
+  const title    = (document.getElementById('vid-title-'+slot)?.value || '').trim();
+  const videoUrl = (document.getElementById('vid-url-'+slot)?.value   || '').trim();
+  const dur      = parseInt(document.getElementById('vid-dur-'+slot)?.value) || 30;
+  const active   = document.getElementById('vid-active-'+slot)?.checked ?? false;
+
+  if (active && !videoUrl) {
+    Toast.error('URL manquante', 'Ajoutez une URL vidéo avant d\'activer ce slot.');
+    return;
+  }
+
+  const { error } = await _supa.from('display_videos')
+    .update({ title, video_url: videoUrl, duration_s: dur, active, updated_at: new Date().toISOString() })
+    .eq('slot', slot);
+
+  if (error) { Toast.error('Erreur', error.message); return; }
+  Toast.success('Slot ' + slot + ' enregistré', active ? 'Vidéo en diffusion' : 'Slot désactivé');
+  await loadDisplayVideos();
+}
+
+function previewVideoSlot(slot) {
+  const url = (document.getElementById('vid-url-'+slot)?.value || '').trim();
+  if (!url) { Toast.error('Aucune URL', 'Renseignez l\'URL vidéo d\'abord.'); return; }
+  window.open(url, '_blank', 'noopener');
 }
 
 // ── FUNNEL ──────────────────────────────────────────────────────────
