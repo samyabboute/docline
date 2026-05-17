@@ -68,3 +68,8 @@
   from   = "/terms"
   to     = "/terms.html"
   status = 200
+
+[[redirects]]
+  from   = "/paiement"
+  to     = "/paiement.html"
+  status = 200

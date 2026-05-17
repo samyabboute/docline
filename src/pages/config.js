@@ -33,6 +33,7 @@ function ghpNav(path) {
     '/admin-featured':'/admin-featured.html', '/admin-emails':'/admin-emails.html',
     '/admin-revenue':'/admin-revenue.html', '/admin-security':'/admin-security.html',
     '/admin-settings':'/admin-settings.html', '/admin-analytics':'/admin-analytics.html',
+    '/admin-ads':'/admin-ads.html',
     '/pricing':'/pricing.html',
     '/patients':'/patients.html', '/clients':'/clients.html',
     '/calendar':'/calendar.html', '/mes-rdv':'/mes-rdv.html',
@@ -40,7 +41,7 @@ function ghpNav(path) {
     '/consultations':'/consultations.html', '/ordonnances':'/ordonnances.html',
     '/queue':'/queue.html', '/labo':'/labo.html', '/staff':'/staff.html',
     '/onboarding':'/onboarding.html', '/timer':'/timer.html',
-    '/privacy':'/privacy.html', '/terms':'/terms.html',
+    '/paiement':'/paiement.html', '/privacy':'/privacy.html', '/terms':'/terms.html',
     '/invoices':'/invoices.html', '/proposals':'/proposals.html',
   };
   var base = path.split('?')[0];
