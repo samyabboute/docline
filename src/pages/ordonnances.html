@@ -152,31 +152,157 @@
 
 /* ── PRINT ─────────────────────────────────────────── */
 @media print {
+  @page { size: A5 portrait; margin: 0; }
   body>*:not(#print-area){display:none !important}
   #print-area{display:block !important}
-  .print-page{font-family:'Times New Roman',serif;font-size:11pt;padding:15mm 20mm;max-width:none;box-sizing:border-box}
-  .print-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;margin-bottom:16px;border-bottom:2.5px solid #3B1772}
-  .print-doctor{font-size:14pt;font-weight:bold;color:#3B1772;margin-bottom:3px}
-  .print-info{font-size:8.5pt;color:#555;line-height:1.6}
-  .print-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-  .print-ord-title{font-size:18pt;font-weight:bold;color:#3B1772;letter-spacing:1px}
-  .print-date-box{font-size:9pt;color:#555;text-align:right;border:1px solid #ccd;border-radius:6px;padding:8px 12px;background:#f8f8ff}
-  .print-patient-box{background:#f0f4ff;border:1px solid #c7d2f0;border-radius:8px;padding:12px 16px;margin-bottom:18px}
-  .print-patient-label{font-size:8.5pt;color:#666;margin-bottom:3px;font-weight:bold;text-transform:uppercase;letter-spacing:.05em}
-  .print-patient-name{font-size:13pt;font-weight:bold}
-  .print-meds-title{font-size:9pt;font-weight:bold;text-transform:uppercase;letter-spacing:.05em;color:#3B1772;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #ccd}
-  .print-meds-table{width:100%;border-collapse:collapse;margin-bottom:14px}
-  .print-meds-table th{background:#3B1772;color:#fff;padding:7px 10px;font-size:9pt;text-align:left;font-weight:bold}
-  .print-meds-table td{padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:10pt;vertical-align:top}
-  .print-meds-table tr:last-child td{border-bottom:none}
-  .print-meds-table td:first-child{font-weight:bold}
-  .print-instructions{background:#fafafa;border:1px solid #ddd;border-radius:6px;padding:12px 14px;font-size:10pt;line-height:1.7;margin-bottom:14px}
-  .print-instructions-label{font-weight:bold;color:#3B1772;margin-bottom:4px}
-  .print-signature{margin-top:30px;display:flex;justify-content:flex-end}
-  .print-sig-box{text-align:center;width:180px}
-  .print-sig-line{height:60px;border-bottom:1px solid #999;margin-bottom:8px}
-  .print-sig-label{font-size:8pt;color:#888}
-  .print-footer{margin-top:20px;padding-top:10px;border-top:1px solid #ddd;font-size:7.5pt;color:#aaa;text-align:center}
+
+  /* ── A5 page ── */
+  .print-page{
+    font-family:'Times New Roman',Georgia,serif;
+    font-size:10pt;
+    width:148mm;
+    min-height:210mm;
+    padding:10mm 12mm 8mm 12mm;
+    box-sizing:border-box;
+    position:relative;
+    background:#fff;
+    color:#111;
+  }
+
+  /* ── Header ── */
+  .print-header{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:8mm;
+    padding-bottom:4mm;
+    margin-bottom:4mm;
+    border-bottom:1.5pt solid #3B1772;
+  }
+  .print-doc-name{font-size:13pt;font-weight:bold;color:#3B1772;margin-bottom:1.5mm}
+  .print-doc-specialty{font-size:9pt;color:#555;margin-bottom:1mm;font-style:italic}
+  .print-doc-info{font-size:8pt;color:#555;line-height:1.7}
+  .print-header-right{text-align:right;min-width:32mm}
+  .print-clinic-name{font-size:9pt;font-weight:bold;color:#3B1772}
+  .print-header-badge{
+    display:inline-block;
+    background:#3B1772;
+    color:#fff;
+    font-size:7.5pt;
+    font-weight:bold;
+    padding:1.5mm 3mm;
+    border-radius:3mm;
+    letter-spacing:.04em;
+    margin-bottom:2mm;
+  }
+
+  /* ── Title row ── */
+  .print-title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:4mm;
+    padding-bottom:3mm;
+    border-bottom:0.5pt solid #ddd;
+  }
+  .print-ord-title{
+    font-size:16pt;
+    font-weight:bold;
+    color:#3B1772;
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .print-date-box{
+    font-size:8.5pt;
+    color:#333;
+    text-align:right;
+    border:0.5pt solid #bbb;
+    border-radius:2mm;
+    padding:2mm 3mm;
+    line-height:1.5;
+  }
+  .print-date-label{font-size:7pt;color:#888;text-transform:uppercase;letter-spacing:.06em}
+
+  /* ── Patient ── */
+  .print-patient-row{
+    display:flex;
+    align-items:baseline;
+    gap:3mm;
+    margin-bottom:4mm;
+    padding:2.5mm 4mm;
+    background:#F3EFFF;
+    border-radius:2mm;
+    border-left:2pt solid #3B1772;
+  }
+  .print-patient-label{font-size:8pt;color:#3B1772;font-weight:bold;white-space:nowrap;text-transform:uppercase;letter-spacing:.06em}
+  .print-patient-name{font-size:12pt;font-weight:bold;color:#111}
+
+  /* ── Rx body ── */
+  .print-rx-header{
+    display:flex;
+    align-items:center;
+    gap:3mm;
+    margin-bottom:3mm;
+  }
+  .print-rx-symbol{
+    font-size:18pt;
+    font-weight:bold;
+    color:#3B1772;
+    font-style:italic;
+    line-height:1;
+  }
+  .print-rx-line{flex:1;border-bottom:0.5pt solid #ccc}
+
+  /* ── Medications ── */
+  .print-med-item{
+    margin-bottom:4mm;
+    padding-left:6mm;
+    position:relative;
+  }
+  .print-med-num{
+    position:absolute;left:0;top:0;
+    font-size:9pt;font-weight:bold;color:#3B1772;
+  }
+  .print-med-name{font-size:10.5pt;font-weight:bold;color:#111;margin-bottom:0.5mm}
+  .print-med-dosage{font-size:9pt;color:#333;font-style:italic;padding-left:4mm}
+  .print-med-dosage::before{content:'→ ';color:#3B1772}
+
+  /* ── Instructions ── */
+  .print-instructions{
+    margin-top:3mm;
+    padding:3mm 4mm;
+    border:0.5pt solid #ddd;
+    border-radius:2mm;
+    font-size:9pt;
+    line-height:1.6;
+    color:#333;
+  }
+  .print-instructions-label{font-weight:bold;color:#3B1772;margin-bottom:1mm;font-size:8pt;text-transform:uppercase;letter-spacing:.05em}
+
+  /* ── Signature ── */
+  .print-signature{
+    position:absolute;
+    bottom:12mm;
+    left:12mm;
+    right:12mm;
+    display:flex;
+    justify-content:flex-end;
+  }
+  .print-sig-box{width:45mm;text-align:center}
+  .print-sig-area{height:18mm;border-bottom:1pt solid #333;margin-bottom:1.5mm}
+  .print-sig-label{font-size:7.5pt;color:#666;text-align:center}
+
+  /* ── Footer ── */
+  .print-footer{
+    position:absolute;
+    bottom:5mm;
+    left:12mm;
+    right:12mm;
+    font-size:6.5pt;
+    color:#aaa;
+    text-align:center;
+    border-top:0.5pt solid #eee;
+    padding-top:1.5mm;
+  }
 }
 
 /* ── PATIENT AUTOCOMPLETE ─────────────────────────── */
@@ -1001,56 +1127,87 @@ function printOrd(id) {
   var meds = [];
   try { meds = typeof o.line_items==='string'?JSON.parse(o.line_items):(o.line_items||[]); } catch(e){}
   var clinic = _clinicProfile || {};
-  var clinicName = clinic.clinic_name || clinic.full_name || 'Cabinet médical';
-  var doctorName = 'Dr. '+(clinic.first_name||'').trim()+' '+(clinic.last_name||'').trim();
-  var speciality = clinic.speciality || clinic.specialty || '';
-  var address = [clinic.address, clinic.wilaya].filter(Boolean).join(', ');
-  var phone = clinic.phone || '';
+  var firstName = (clinic.first_name||'').trim();
+  var lastName  = (clinic.last_name||'').trim();
+  var doctorName = 'Dr. ' + (firstName + ' ' + lastName).trim();
+  var speciality = clinic.speciality || clinic.specialty || 'Médecin';
+  var clinicName = clinic.clinic_name || '';
+  var address    = [clinic.address, clinic.city, clinic.wilaya].filter(Boolean).join(', ');
+  var phone      = clinic.phone_public || clinic.phone || '';
   var d = o.due_date ? new Date(o.due_date+'T00:00:00') : new Date(o.created_at);
   var dateStr = d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();
 
+  var medsHTML = meds.map(function(m, i) {
+    var name    = esc(m.name || m.description || '');
+    var dosage  = esc(m.quantity || m.posologie || '');
+    return '<div class="print-med-item">'
+      + '<span class="print-med-num">'+(i+1)+'.</span>'
+      + '<div class="print-med-name">'+name+'</div>'
+      + (dosage ? '<div class="print-med-dosage">'+dosage+'</div>' : '')
+      + '</div>';
+  }).join('');
+
+  var instructHTML = o.description
+    ? '<div class="print-instructions">'
+      + '<div class="print-instructions-label">Instructions au patient</div>'
+      + esc(o.description)
+      + '</div>'
+    : '';
+
   document.getElementById('print-area').innerHTML =
-    '<div class="print-page">'+
-    '<div class="print-header">'+
-      '<div>'+
-        '<div class="print-doctor">'+esc(doctorName)+'</div>'+
-        (speciality?'<div class="print-info">'+esc(speciality)+'</div>':'')+
-        (address?'<div class="print-info">'+esc(address)+'</div>':'')+
-        (phone?'<div class="print-info">Tél : '+esc(phone)+'</div>':'')+
-      '</div>'+
-      '<div style="text-align:right">'+
-        '<div class="print-info" style="font-size:10pt;font-weight:bold;color:#3B1772">'+esc(clinicName)+'</div>'+
-        '<div class="print-info">Médecine Générale · DZ</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="print-title-row">'+
-      '<div class="print-ord-title">ORDONNANCE</div>'+
-      '<div class="print-date-box">'+
-        '<div style="font-size:7.5pt;font-weight:bold;color:#666;margin-bottom:3px">DATE</div>'+
-        '<div style="font-size:10pt">'+dateStr+'</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="print-patient-box">'+
-      '<div class="print-patient-label">Patient</div>'+
-      '<div class="print-patient-name">'+esc(o.client_name||'')+'</div>'+
-    '</div>'+
-    (o.project_title&&o.project_title!=='Ordonnance'?'<div style="margin-bottom:12px;font-size:9.5pt;color:#374151"><strong>Objet :</strong> '+esc(o.project_title)+'</div>':'')+
-    (meds.length?
-      '<div class="print-meds-title">Médicaments prescrits</div>'+
-      '<table class="print-meds-table"><thead><tr><th>#</th><th>Médicament / DCI</th><th>Posologie &amp; Durée</th></tr></thead><tbody>'+
-      meds.map(function(m,i){
-        return '<tr><td style="color:#999;width:28px">'+(i+1)+'</td><td>'+esc(m.name||m.description||'')+'</td><td>'+esc(m.quantity||m.posologie||'')+'</td></tr>';
-      }).join('')+
-      '</tbody></table>':'')+
-    (o.description?'<div class="print-instructions"><div class="print-instructions-label">Instructions au patient :</div>'+esc(o.description)+'</div>':'')+
-    '<div class="print-signature">'+
-      '<div class="print-sig-box">'+
-        '<div class="print-sig-line"></div>'+
-        '<div class="print-sig-label">Signature &amp; cachet du médecin</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="print-footer">Docline — Gestion de cabinet médical </div>'+
-    '</div>';
+    '<div class="print-page">'
+
+    // ── Header ──
+    + '<div class="print-header">'
+    +   '<div>'
+    +     '<div class="print-doc-name">'+esc(doctorName)+'</div>'
+    +     '<div class="print-doc-specialty">'+esc(speciality)+'</div>'
+    +     (address ? '<div class="print-doc-info">'+esc(address)+'</div>' : '')
+    +     (phone   ? '<div class="print-doc-info">Tél : '+esc(phone)+'</div>' : '')
+    +   '</div>'
+    +   '<div class="print-header-right">'
+    +     (clinicName ? '<div class="print-header-badge">'+esc(clinicName)+'</div><br>' : '')
+    +     '<div class="print-clinic-name">Algérie</div>'
+    +   '</div>'
+    + '</div>'
+
+    // ── Title row ──
+    + '<div class="print-title-row">'
+    +   '<div class="print-ord-title">Ordonnance</div>'
+    +   '<div class="print-date-box">'
+    +     '<div class="print-date-label">Date</div>'
+    +     '<div>'+dateStr+'</div>'
+    +   '</div>'
+    + '</div>'
+
+    // ── Patient ──
+    + '<div class="print-patient-row">'
+    +   '<span class="print-patient-label">Patient :</span>'
+    +   '<span class="print-patient-name">'+esc(o.client_name||'')+'</span>'
+    + '</div>'
+
+    // ── Rx + medications ──
+    + '<div class="print-rx-header">'
+    +   '<span class="print-rx-symbol">&#8478;</span>'
+    +   '<div class="print-rx-line"></div>'
+    + '</div>'
+    + (meds.length ? medsHTML : '<div style="font-size:9pt;color:#999;font-style:italic;padding-left:6mm">Aucun médicament prescrit</div>')
+
+    // ── Instructions ──
+    + instructHTML
+
+    // ── Signature ──
+    + '<div class="print-signature">'
+    +   '<div class="print-sig-box">'
+    +     '<div class="print-sig-area"></div>'
+    +     '<div class="print-sig-label">Signature &amp; cachet du médecin</div>'
+    +   '</div>'
+    + '</div>'
+
+    // ── Footer ──
+    + '<div class="print-footer">Document à conserver — Généré via Docline</div>'
+
+    + '</div>';
 
   document.getElementById('print-area').style.display = 'block';
   window.print();
