@@ -59,8 +59,26 @@ serve(async (req) => {
       await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "rejected", note: note ?? null });
 
     } else if (action === "set_plan") {
-      const { plan } = await req.json().catch(() => ({}));
+      // Update profiles.plan
       await admin.from("profiles").update({ plan: note }).eq("id", doctorId);
+      // Update subscriptions table (this is what the doctor's app reads)
+      const { data: existingSub } = await admin
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", doctorId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single()
+        .catch(() => ({ data: null }));
+      if (existingSub) {
+        await admin.from("subscriptions")
+          .update({ plan: note, status: note === "free" ? "cancelled" : "active" })
+          .eq("user_id", doctorId);
+      } else if (note !== "free") {
+        await admin.from("subscriptions").insert({
+          user_id: doctorId, plan: note, status: "active", created_at: now,
+        });
+      }
       await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: `set_plan:${note}`, note: null });
 
     } else if (action === "toggle_active") {

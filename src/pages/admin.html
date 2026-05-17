@@ -1544,7 +1544,7 @@ async function loadDashboard() {
     const { count: totalDoctors } = await _sb
       .from('profiles')
       .select('id', { count: 'exact', head: true })
-      .eq('role', 'doctor');
+      .eq('is_active', true);
 
     // Pending KYC
     const { count: pendingCount } = await _sb
@@ -2019,6 +2019,7 @@ async function loadDoctors() {
     const { data, error } = await _sb
       .from('profiles')
       .select('id, first_name, last_name, full_name, email, plan, kyc_status, is_active')
+      .eq('is_active', true)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -2114,7 +2115,7 @@ async function changePlan(doctorId, selectEl) {
   const newPlan = selectEl.value;
   try {
     await kycAction(doctorId, 'set_plan', newPlan);
-    showToast('success', 'Plan mis à jour', 'Plan changé en ' + newPlan);
+    showToast('success', 'Plan mis à jour', 'Plan changé en ' + newPlan + ' — le médecin verra le changement à la prochaine connexion');
     // Update local data
     const doc = _doctorsData.find(d => d.id === doctorId);
     if (doc) doc.plan = newPlan;
