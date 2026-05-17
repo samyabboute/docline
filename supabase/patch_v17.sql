@@ -3,12 +3,19 @@
 -- Run in Supabase SQL Editor
 -- ════════════════════════════════════════════════════════════════════
 
--- ── 0. PROPOSALS — add client_id column (links ordonnance to patient) ─
+-- ── 0a. PROPOSALS — add client_id column (links ordonnance to patient) ─
 -- Fixes: "Could not find the 'client_id' column of 'proposals'"
 ALTER TABLE public.proposals
   ADD COLUMN IF NOT EXISTS client_id uuid REFERENCES public.profiles(id) ON DELETE SET NULL;
 
 CREATE INDEX IF NOT EXISTS idx_proposals_client_id ON public.proposals(client_id);
+
+-- ── 0b. CLIENTS — add missing columns used by ordonnances new-patient form ─
+-- Fixes: "Could not find the 'sexe' column of 'clients'"
+ALTER TABLE public.clients
+  ADD COLUMN IF NOT EXISTS sexe text CHECK (sexe IN ('M','F','autre')),
+  ADD COLUMN IF NOT EXISTS antecedents text,
+  ADD COLUMN IF NOT EXISTS allergies   text;
 
 -- ── HELPER: identify admins ────────────────────────────────────────
 -- Reused in every policy below
