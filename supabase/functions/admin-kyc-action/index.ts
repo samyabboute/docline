@@ -33,7 +33,7 @@ serve(async (req) => {
       if (!roleRow) return new Response(JSON.stringify({ error: "FORBIDDEN" }), { status: 403, headers: { ...CORS, "Content-Type": "application/json" } });
     }
 
-    const { doctorId, action, note } = await req.json();
+    const { doctorId, action, note, interval, adminGrant } = await req.json();
     // action: "approve" | "reject" | "set_plan" | "toggle_active" | "deactivate"
     if (!doctorId || !action) {
       return new Response(JSON.stringify({ error: "MISSING_FIELDS" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
@@ -73,25 +73,50 @@ serve(async (req) => {
 
       if (note === "free") {
         // Downgrade: just update plan to 'free', keep existing status
-        // (avoids CHECK constraint issues with 'canceled' variants)
         if (existingSub) {
           const { error: subErr } = await admin.from("subscriptions")
-            .update({ plan: "free", status: "active" })
+            .update({ plan: "free", status: "active", invoice_notes: null })
             .eq("user_id", doctorId);
           if (subErr) throw new Error("subscriptions downgrade failed: " + subErr.message);
         }
-        // no existing row + free → nothing to do
       } else {
         // Upgrade to pro/clinic
+        // If adminGrant: mark as paid with invoice_notes='admin_grant'
+        const subInterval = interval || "month";
+        const subPaymentStatus = adminGrant ? "paid" : "pending";
+        const subNotes = adminGrant ? "admin_grant" : null;
+
+        // Compute expiry for admin grants
+        let expiresAt: string | null = null;
+        if (adminGrant) {
+          const exp = new Date();
+          if (subInterval === "year") exp.setFullYear(exp.getFullYear() + 1);
+          else exp.setMonth(exp.getMonth() + 1);
+          expiresAt = exp.toISOString();
+        }
+
         if (existingSub) {
-          const { error: subErr } = await admin.from("subscriptions")
-            .update({ plan: note, status: "active" })
-            .eq("user_id", doctorId);
+          const updatePayload: Record<string, unknown> = {
+            plan: note, status: "active",
+            interval: subInterval,
+            payment_status: subPaymentStatus,
+            invoice_notes: subNotes,
+          };
+          if (expiresAt) updatePayload.expires_at = expiresAt;
+          if (adminGrant) updatePayload.paid_at = now;
+          const { error: subErr } = await admin.from("subscriptions").update(updatePayload).eq("user_id", doctorId);
           if (subErr) throw new Error("subscriptions update failed: " + subErr.message);
         } else {
-          const { error: subErr } = await admin.from("subscriptions").insert({
-            user_id: doctorId, plan: note, status: "active", created_at: now,
-          });
+          const insertPayload: Record<string, unknown> = {
+            user_id: doctorId, plan: note, status: "active",
+            interval: subInterval,
+            payment_status: subPaymentStatus,
+            invoice_notes: subNotes,
+            created_at: now,
+          };
+          if (expiresAt) insertPayload.expires_at = expiresAt;
+          if (adminGrant) insertPayload.paid_at = now;
+          const { error: subErr } = await admin.from("subscriptions").insert(insertPayload);
           if (subErr) throw new Error("subscriptions insert failed: " + subErr.message);
         }
       }

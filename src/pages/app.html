@@ -948,17 +948,21 @@ async function load() {
   }
 
   // Sub check
-  var { data: sub } = await _supa.from('subscriptions').select('plan,status,expires_at,interval,payment_status,trial_end_date').eq('user_id', _uid).maybeSingle();
+  var { data: sub } = await _supa.from('subscriptions').select('plan,status,expires_at,interval,payment_status,trial_end_date,invoice_notes').eq('user_id', _uid).maybeSingle();
   _isPro = sub && sub.plan !== 'free' && sub.status === 'active'
     && (!sub.expires_at || new Date(sub.expires_at) > new Date());
 
-  // Payment reminder popup
-  var _paymentStatus = sub ? (sub.payment_status || 'paid') : 'paid'; // default paid for legacy accounts
+  // Payment reminder popup vs accès exclusif admin
+  var _paymentStatus = sub ? (sub.payment_status || 'paid') : 'paid';
+  var _isAdminGrant  = sub && sub.invoice_notes === 'admin_grant';
   var _trialEndDate  = sub && sub.trial_end_date ? new Date(sub.trial_end_date) : null;
   var _isTrialOver   = _trialEndDate ? (_trialEndDate < new Date()) : false;
   var _needsPayment  = sub && sub.plan !== 'free' && _paymentStatus === 'pending';
 
-  if (_needsPayment) {
+  if (_isAdminGrant && sub.plan !== 'free') {
+    // Bannière accès exclusif accordé par Docline
+    _showAdminGrantBanner(sub);
+  } else if (_needsPayment) {
     _showPaymentPopup(sub, _isTrialOver);
   }
 
@@ -986,6 +990,38 @@ async function load() {
     })
     .subscribe();
 })();
+
+// ── ADMIN GRANT BANNER ───────────────────────────────────────
+function _showAdminGrantBanner(sub) {
+  var PLAN_LABELS = { pro: 'Pro', clinic: 'Clinique' };
+  var plan          = sub ? sub.plan : 'pro';
+  var interval      = sub ? (sub.interval || 'month') : 'month';
+  var label         = PLAN_LABELS[plan] || plan;
+  var intervalLabel = interval === 'year' ? '12 mois' : '1 mois';
+
+  var banner = document.createElement('div');
+  banner.id = 'admin-grant-banner';
+  banner.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:8000;background:linear-gradient(135deg,#1a0e2e,#3b1772);color:#fff;border-radius:14px;padding:18px 22px;max-width:320px;box-shadow:0 8px 32px rgba(59,23,114,.35);animation:slideInRight .35s ease';
+  banner.innerHTML = ''
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
+    +   '<span style="font-size:22px">🎁</span>'
+    +   '<span style="font-weight:800;font-size:14px">Accès exclusif activé</span>'
+    +   '<button onclick="document.getElementById(\'admin-grant-banner\').remove()" style="margin-left:auto;background:rgba(255,255,255,.15);border:none;border-radius:6px;color:#fff;padding:2px 8px;cursor:pointer;font-size:13px">✕</button>'
+    + '</div>'
+    + '<div style="font-size:13px;opacity:.9;line-height:1.5">'
+    +   'Vous bénéficiez d\'un accès <strong>' + label + '</strong> offert par Docline.'
+    +   '<br>Durée : <strong>' + intervalLabel + '</strong>'
+    + '</div>';
+
+  document.body.appendChild(banner);
+
+  // Auto-dismiss after 8s
+  setTimeout(function() {
+    var b = document.getElementById('admin-grant-banner');
+    if (b) b.style.animation = 'fadeOut .4s ease forwards';
+    setTimeout(function() { var b2 = document.getElementById('admin-grant-banner'); if (b2) b2.remove(); }, 400);
+  }, 8000);
+}
 
 // ── PAYMENT POPUP ────────────────────────────────────────────
 var _payPopupDismissed = false;

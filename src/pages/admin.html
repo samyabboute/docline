@@ -1447,11 +1447,12 @@ async function rejectKYC() {
   }
 }
 
-async function kycAction(doctorId, action, note) {
+async function kycAction(doctorId, action, note, extra) {
   const token = _session?.access_token;
   const edgeBase = (typeof EDGE_BASE !== 'undefined') ? EDGE_BASE : (SUPA_URL + '/functions/v1');
   const body = { doctorId, action };
   if (note !== undefined) body.note = note;
+  if (extra) Object.assign(body, extra);
 
   const res = await fetch(edgeBase + '/admin-kyc-action', {
     method: 'POST',
@@ -1563,18 +1564,58 @@ function setDocSkeleton() {
 
 async function changePlan(doctorId, selectEl) {
   const newPlan = selectEl.value;
+  const doc = _doctorsData.find(d => d.id === doctorId);
+
+  // Free plan — no interval needed
+  if (newPlan === 'free') {
+    try {
+      await kycAction(doctorId, 'set_plan', 'free');
+      showToast('success', 'Plan mis à jour', 'Basculé en Free');
+      if (doc) doc.plan = 'free';
+    } catch (err) {
+      showToast('error', 'Erreur changement plan', err.message);
+      if (doc) selectEl.value = doc.plan;
+    }
+    return;
+  }
+
+  // Pro / Clinic — ask for interval
+  _pendingPlanChange = { doctorId, newPlan, selectEl };
+  document.getElementById('modal-plan-title').textContent =
+    'Accès ' + (newPlan === 'pro' ? 'Pro' : 'Clinique') + ' — choisir la durée';
+  document.getElementById('modal-plan-interval').value = 'month';
+  document.getElementById('modal-plan-overlay').style.display = 'flex';
+}
+
+var _pendingPlanChange = null;
+
+async function confirmPlanChange() {
+  if (!_pendingPlanChange) return;
+  const { doctorId, newPlan, selectEl } = _pendingPlanChange;
+  const interval = document.getElementById('modal-plan-interval').value;
+  _pendingPlanChange = null;
+  document.getElementById('modal-plan-overlay').style.display = 'none';
   try {
-    await kycAction(doctorId, 'set_plan', newPlan);
-    showToast('success', 'Plan mis à jour', 'Plan changé en ' + newPlan);
-    // Update local data
+    await kycAction(doctorId, 'set_plan', newPlan, { interval, adminGrant: true });
+    const label = (newPlan === 'pro' ? 'Pro' : 'Clinique') + ' ' + (interval === 'year' ? 'Annuel' : 'Mensuel');
+    showToast('success', 'Accès accordé', label + ' activé');
     const doc = _doctorsData.find(d => d.id === doctorId);
     if (doc) doc.plan = newPlan;
   } catch (err) {
     showToast('error', 'Erreur changement plan', err.message);
-    // Revert select
     const doc = _doctorsData.find(d => d.id === doctorId);
     if (doc) selectEl.value = doc.plan;
   }
+}
+
+function cancelPlanChange() {
+  if (_pendingPlanChange) {
+    const { selectEl } = _pendingPlanChange;
+    const doc = _doctorsData.find(d => d.id === _pendingPlanChange.doctorId);
+    if (doc) selectEl.value = doc.plan;
+    _pendingPlanChange = null;
+  }
+  document.getElementById('modal-plan-overlay').style.display = 'none';
 }
 
 async function deleteDoctor(doctorId, name) {
@@ -1940,5 +1981,22 @@ function renderPaymentTable(rows) {
 }
 
 </script>
+
+<!-- Modal : choisir intervalle lors du changement de plan par l'admin -->
+<div id="modal-plan-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--surface,#fff);border-radius:16px;padding:28px 32px;width:360px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,.18)">
+    <h3 id="modal-plan-title" style="margin:0 0 18px;font-size:15px;font-weight:700;color:var(--text-primary,#1a0e2e)">Choisir la durée</h3>
+    <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted,#7b6da0);margin-bottom:6px">Durée d'accès</label>
+    <select id="modal-plan-interval" style="width:100%;padding:10px 12px;border:1.5px solid var(--border,#e4d9f7);border-radius:10px;font-size:14px;background:var(--bg-raised,#f8f5ff);color:var(--text-primary,#1a0e2e);margin-bottom:20px">
+      <option value="month">Mensuel (1 mois)</option>
+      <option value="year">Annuel (12 mois)</option>
+    </select>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="cancelPlanChange()" style="padding:9px 18px;border:1.5px solid var(--border,#e4d9f7);border-radius:9px;background:none;font-size:13px;cursor:pointer;color:var(--text-muted,#7b6da0)">Annuler</button>
+      <button onclick="confirmPlanChange()" style="padding:9px 20px;border:none;border-radius:9px;background:var(--brand,#3b1772);color:#fff;font-size:13px;font-weight:700;cursor:pointer">Accorder l'accès</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
