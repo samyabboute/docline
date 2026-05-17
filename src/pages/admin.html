@@ -402,6 +402,7 @@ ul,ol{list-style:none}
         <div style="flex:1;min-width:0">
           <div class="user-name" id="admin-email-sidebar">—</div>
           <div class="user-role" id="admin-role-sidebar">—</div>
+          <div id="admin-employee-id" style="display:none;font-size:10px;color:rgba(255,255,255,.35);font-family:monospace;margin-top:1px">—</div>
         </div>
         <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
@@ -847,6 +848,7 @@ const ADMIN_EMAIL = 'samyabboute5@gmail.com';
 var _sb = null;
 var _session = null;
 var _adminRole = null;
+var _symphonyStaff = null; // { employee_id, role, full_name }
 var _kycData = [];
 var _doctorsData = [];
 var _kycFilter = 'all';
@@ -889,12 +891,37 @@ async function init() {
 
   _session = session;
 
+  // Load Symphony staff profile (employee_id + role)
+  try {
+    const edgeBase = (typeof EDGE_BASE !== 'undefined') ? EDGE_BASE : (url + '/functions/v1');
+    const spRes = await fetch(edgeBase + '/symphony-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ action: 'get_staff_profile' })
+    });
+    const spJson = await spRes.json();
+    if (spJson.ok && spJson.staff) {
+      _symphonyStaff = spJson.staff;
+      // Override _adminRole with Symphony role
+      _adminRole = spJson.staff.role;
+    }
+  } catch(_) {}
+
   // Show email + role in UI
   setEl('admin-email-sidebar', userEmail);
   setEl('admin-email-top', userEmail);
   setEl('admin-avatar', userEmail.substring(0, 2).toUpperCase());
-  const roleLabels = { super_admin: 'Super Admin', support: 'Support', kyc_agent: 'Agent KYC' };
+  const roleLabels = {
+    super_admin: 'Super Admin',
+    l3: 'Agent L3', l2: 'Agent L2', l1: 'Agent L1',
+    support: 'Support', kyc_agent: 'Agent KYC'
+  };
   setEl('admin-role-sidebar', roleLabels[_adminRole] || _adminRole);
+  // Show employee ID if available
+  if (_symphonyStaff?.employee_id) {
+    const empEl = document.getElementById('admin-employee-id');
+    if (empEl) { empEl.textContent = _symphonyStaff.employee_id; empEl.style.display = 'inline'; }
+  }
 
   // Apply section visibility based on role
   applyRoleRestrictions();
@@ -1537,7 +1564,7 @@ function renderDoctorsTable() {
           <button class="btn btn-ghost btn-xs" onclick="toggleActive('${r.id}', ${r.is_active})" title="${r.is_active ? 'Désactiver' : 'Activer'}">
             ${r.is_active ? '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="16" cy="12" r="3" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="8" cy="12" r="3" fill="currentColor"/></svg>'}
           </button>
-          <button class="btn btn-ghost btn-xs" onclick="deleteDoctor('${r.id}', '${esc(doctorName(r))}')" title="Supprimer le compte" style="color:var(--danger)">
+          <button class="btn btn-ghost btn-xs" onclick="deleteDoctor('${r.id}','${esc(doctorName(r))}','${esc(r.email||'')}')" title="Supprimer le compte [L3]" style="color:var(--danger)">
             <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
           </button>
         </div>
@@ -1587,6 +1614,58 @@ async function changePlan(doctorId, selectEl) {
   document.getElementById('modal-plan-overlay').style.display = 'flex';
 }
 
+// ── Symphony L3 gate ─────────────────────────────────────────
+var _l3Pending = null;
+
+async function symphonyAction(action, payload) {
+  const token = _session?.access_token;
+  const edgeBase = (typeof EDGE_BASE !== 'undefined') ? EDGE_BASE : (SUPA_URL + '/functions/v1');
+  const res = await fetch(edgeBase + '/symphony-action', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify(payload)
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || json.error || 'Erreur Symphony');
+  return json;
+}
+
+async function confirmL3Action() {
+  const empId = (document.getElementById('l3-employee-input').value || '').trim().toUpperCase();
+  if (!empId) { document.getElementById('l3-modal-error').textContent = 'Saisissez votre numéro employé'; return; }
+  if (!_l3Pending) return;
+
+  const btn = document.getElementById('l3-confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'Vérification…';
+  document.getElementById('l3-modal-error').textContent = '';
+
+  try {
+    await symphonyAction(_l3Pending.action, {
+      action: _l3Pending.action,
+      employeeId: empId,
+      targetId: _l3Pending.targetId,
+      targetEmail: _l3Pending.targetEmail,
+    });
+    document.getElementById('l3-modal-overlay').style.display = 'none';
+    _l3Pending.onSuccess && _l3Pending.onSuccess();
+    _l3Pending = null;
+  } catch (err) {
+    document.getElementById('l3-modal-error').textContent =
+      err.message.includes('INVALID_EMPLOYEE_ID') ? 'Numéro employé incorrect' :
+      err.message.includes('INSUFFICIENT_ROLE') ? 'Votre rôle ne permet pas cette action' :
+      err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Confirmer';
+  }
+}
+
+function cancelL3Action() {
+  _l3Pending = null;
+  document.getElementById('l3-modal-overlay').style.display = 'none';
+}
+
 var _pendingPlanChange = null;
 
 async function confirmPlanChange() {
@@ -1618,16 +1697,27 @@ function cancelPlanChange() {
   document.getElementById('modal-plan-overlay').style.display = 'none';
 }
 
-async function deleteDoctor(doctorId, name) {
-  if (!confirm('⚠️ Supprimer définitivement le compte de ' + name + ' ?\n\nCette action est irréversible : profil, abonnement et accès seront supprimés.')) return;
-  try {
-    await kycAction(doctorId, 'delete_user');
-    _doctorsData = _doctorsData.filter(d => d.id !== doctorId);
-    renderDoctorsTable();
-    showToast('success', 'Compte supprimé', name);
-  } catch (err) {
-    showToast('error', 'Erreur suppression', err.message);
+function deleteDoctor(doctorId, name, email) {
+  // L3 check — only l3 and super_admin can delete
+  const role = _symphonyStaff?.role || _adminRole;
+  if (role !== 'l3' && role !== 'super_admin') {
+    showToast('error', 'Accès refusé', 'La suppression requiert le rôle L3');
+    return;
   }
+  // Show L3 confirmation modal
+  _l3Pending = { action: 'delete_user', targetId: doctorId, targetEmail: email,
+    label: 'Supprimer ' + name,
+    onSuccess: function() {
+      _doctorsData = _doctorsData.filter(d => d.id !== doctorId);
+      renderDoctorsTable();
+      showToast('success', 'Compte supprimé', name);
+    }
+  };
+  document.getElementById('l3-modal-target').textContent = name + (email ? ' (' + email + ')' : '');
+  document.getElementById('l3-modal-action-label').textContent = 'Suppression définitive du compte';
+  document.getElementById('l3-employee-input').value = '';
+  document.getElementById('l3-modal-overlay').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('l3-employee-input').focus(); }, 100);
 }
 
 async function toggleActive(doctorId, currentlyActive) {
@@ -1981,6 +2071,40 @@ function renderPaymentTable(rows) {
 }
 
 </script>
+
+<!-- ═══ MODAL L3 — Confirmation action sensible ═══════════════ -->
+<div id="l3-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center">
+  <div style="background:var(--surface,#fff);border-radius:16px;padding:32px;width:400px;max-width:92vw;box-shadow:0 12px 48px rgba(0,0,0,.22)">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div style="width:40px;height:40px;border-radius:10px;background:#FEE2E2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#DC2626;fill:none;stroke-width:2;stroke-linecap:round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div>
+        <div style="font-weight:800;font-size:15px;color:var(--text-primary,#1a0e2e)">Action sensible — Niveau L3</div>
+        <div id="l3-modal-action-label" style="font-size:12px;color:var(--text-muted,#7b6da0);margin-top:2px">Suppression définitive</div>
+      </div>
+    </div>
+    <!-- Target -->
+    <div style="background:#FEF9C3;border:1px solid #FDE047;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:13px;color:#713F12">
+      <strong>Cible :</strong> <span id="l3-modal-target">—</span>
+    </div>
+    <!-- Employee ID input -->
+    <label style="display:block;font-size:12px;font-weight:700;color:var(--text-muted,#7b6da0);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">
+      Votre numéro employé
+    </label>
+    <input id="l3-employee-input" type="text" placeholder="EMP-000000"
+      style="width:100%;padding:12px 14px;border:2px solid var(--border,#e4d9f7);border-radius:10px;font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;box-sizing:border-box;font-family:monospace;margin-bottom:8px"
+      onkeydown="if(event.key==='Enter')confirmL3Action()"
+      oninput="document.getElementById('l3-modal-error').textContent=''">
+    <div id="l3-modal-error" style="color:#DC2626;font-size:12px;min-height:18px;margin-bottom:14px"></div>
+    <!-- Buttons -->
+    <div style="display:flex;gap:10px">
+      <button onclick="cancelL3Action()" style="flex:1;padding:11px;border:1.5px solid var(--border,#e4d9f7);border-radius:10px;background:none;font-size:13px;cursor:pointer;color:var(--text-muted,#7b6da0)">Annuler</button>
+      <button id="l3-confirm-btn" onclick="confirmL3Action()" style="flex:2;padding:11px;border:none;border-radius:10px;background:#DC2626;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Confirmer</button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal : choisir intervalle lors du changement de plan par l'admin -->
 <div id="modal-plan-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center">
