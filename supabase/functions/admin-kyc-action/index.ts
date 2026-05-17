@@ -142,6 +142,15 @@ serve(async (req) => {
       if (subErr2) throw new Error("Payment rejection failed: " + subErr2.message);
       try { await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "reject_payment", note: note ?? null }); } catch(_) {}
 
+    } else if (action === "delete_user") {
+      // 1. Delete all related data
+      await admin.from("kyc_audit_log").delete().eq("doctor_id", doctorId);
+      await admin.from("subscriptions").delete().eq("user_id", doctorId);
+      await admin.from("profiles").delete().eq("id", doctorId);
+      // 2. Delete from Supabase Auth (frees the email for re-registration)
+      const { error: authErr } = await admin.auth.admin.deleteUser(doctorId);
+      if (authErr) throw new Error("auth delete failed: " + authErr.message);
+
     } else {
       return new Response(JSON.stringify({ error: "UNKNOWN_ACTION" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
     }
