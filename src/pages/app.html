@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="config.js"></script>
-<script src="shell.js?v=4"></script>
+<script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── PAGE STYLES (complètent shell.js) ─────────────────── */
@@ -28,6 +28,28 @@
   --shadow-md:0 4px 12px rgba(0,0,0,.08);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ── PAYMENT POPUP ── */
+.pay-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+.pay-overlay.blocking{background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
+.pay-overlay.soft{background:rgba(0,0,0,.35)}
+.pay-modal{background:#fff;border-radius:20px;padding:28px 28px 24px;max-width:440px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.18);position:relative;animation:payIn .3s cubic-bezier(.25,.46,.45,.94) both}
+@keyframes payIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.pay-modal-close{position:absolute;top:16px;right:16px;border:none;background:none;cursor:pointer;color:#9CA3AF;font-size:20px;line-height:1;padding:2px;transition:color .15s}
+.pay-modal-close:hover{color:#374151}
+.pay-modal-icon{font-size:36px;margin-bottom:10px}
+.pay-modal-title{font-size:18px;font-weight:800;color:#0C0E14;letter-spacing:-.3px;margin-bottom:4px}
+.pay-modal-sub{font-size:13px;color:#7B8194;margin-bottom:16px;line-height:1.5}
+.pay-modal-plan-badge{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);border:1px solid var(--brand-border);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--brand);margin-bottom:16px}
+.pay-modal-price{font-size:24px;font-weight:900;color:var(--brand);letter-spacing:-.4px;margin-bottom:4px}
+.pay-modal-interval{font-size:12px;color:#9CA3AF;margin-bottom:16px}
+.pay-modal-bank{background:#F8FAFF;border:1px solid #E8EAF0;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:12px;color:#374151}
+.pay-modal-bank strong{color:#0C0E14}
+.pay-modal-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-bottom:8px}
+.pay-modal-btn:hover{background:#1D4ED8;transform:translateY(-1px)}
+.pay-modal-dismiss{width:100%;text-align:center;font-size:12px;color:#9CA3AF;background:none;border:none;cursor:pointer;font-family:inherit;transition:color .15s;padding:4px}
+.pay-modal-dismiss:hover{color:#374151}
+.content-blur{filter:blur(2px);pointer-events:none;user-select:none}
+
 html{-webkit-font-smoothing:antialiased}
 body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text)}
 a{color:inherit;text-decoration:none}
@@ -356,9 +378,9 @@ button{font-family:inherit;cursor:pointer}
           <div class="upgrade-banner-icon" style="display:flex;align-items:center;color:inherit"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
           <div class="upgrade-banner-text">
             <div class="upgrade-banner-title">Passez en Pro — File d'attente QR illimitée</div>
-            <div class="upgrade-banner-sub">Patients illimités, ordonnances, rappels automatiques. À partir de 5 900 DA/mois.</div>
+            <div class="upgrade-banner-sub">Patients illimités, ordonnances, rappels automatiques. À partir de 2 900 DA/mois.</div>
           </div>
-          <button class="upgrade-banner-btn" onclick="window.location.href=ghpNav('/pricing')">Voir les offres</button>
+          <button class="upgrade-banner-btn" onclick="window.location.href='/pricing'">Voir les offres</button>
         </div>
 
         <!-- KPIs -->
@@ -370,15 +392,15 @@ button{font-family:inherit;cursor:pointer}
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nouveau patient
           </button>
-          <button class="qa-btn" onclick="window.location.href=ghpNav('/queue')">
+          <button class="qa-btn" onclick="window.location.href='/queue'">
             <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             File d'attente
           </button>
-          <button class="qa-btn" onclick="window.location.href=ghpNav('/ordonnances')">
+          <button class="qa-btn" onclick="window.location.href='/ordonnances'">
             <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
             Ordonnance
           </button>
-          <button class="qa-btn" onclick="window.location.href=ghpNav('/calendar')">
+          <button class="qa-btn" onclick="window.location.href='/calendar'">
             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Agenda
           </button>
@@ -456,9 +478,6 @@ button{font-family:inherit;cursor:pointer}
           </div>
         </div>
 
-
-
-
       </div><!-- /content -->
     </div>
   </main>
@@ -534,7 +553,7 @@ button{font-family:inherit;cursor:pointer}
         <div class="field"><label>Nom</label><input id="p-lastname" type="text" placeholder="Benali" autocomplete="off"></div>
       </div>
       <div class="field-row">
-        <div class="field"><label>Téléphone *</label><input id="p-phone" type="tel" placeholder="0555 000 000"></div>
+        <div class="field"><label>Téléphone</label><input id="p-phone" type="tel" placeholder="0555 000 000"></div>
         <div class="field">
           <label>Mutuelle</label>
           <select id="p-insurance">
@@ -850,9 +869,7 @@ async function savePatient() {
   var btn = document.getElementById('btn-save-patient');
   var fn = document.getElementById('p-firstname').value.trim();
   var ln = document.getElementById('p-lastname').value.trim();
-  var ph = document.getElementById('p-phone').value.trim();
   if (!fn && !ln) { toast('Prénom ou nom requis', 'error'); return; }
-  if (!ph) { toast('Le numéro de téléphone est requis', 'error'); document.getElementById('p-phone').focus(); return; }
 
   btn.classList.add('loading'); btn.disabled = true;
   try {
@@ -880,7 +897,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAddP
 
 // ── MAIN LOAD ──────────────────────────────────────────
 var Auth = {
-  signOut: async function() { await _supa.auth.signOut(); window.location.href=ghpNav('/login'); }
+  signOut: async function() { await _supa.auth.signOut(); window.location.href = '/login'; }
 };
 
 async function load() {
@@ -909,67 +926,58 @@ async function load() {
     if (!_isPro) document.getElementById('upgrade-banner').style.display = 'flex';
   } catch(e) {
     toast('Erreur de chargement : ' + e.message, 'error');
-    // Remplacer les spinners résiduels pour ne pas rester bloqué
-    var pl = document.getElementById('patients-list');
-    if (pl && pl.querySelector('.card-empty')) pl.innerHTML = '<div class="card-empty">Impossible de charger les patients.</div>';
-    var al = document.getElementById('agenda-list');
-    if (al && al.querySelector('.card-empty')) al.innerHTML = '<div class="card-empty">Impossible de charger l\'agenda.</div>';
   }
 }
 
 // ── INIT ───────────────────────────────────────────────
 (async function() {
-  try {
-    var { data: { session } } = await _supa.auth.getSession();
-    if (!session) { window.location.href=ghpNav('/login'); return; }
+  var { data: { session } } = await _supa.auth.getSession();
+  if (!session) { window.location.href = '/login'; return; }
 
-    _uid   = session.user.id;
-    _email = session.user.email || '';
-    _name  = Shell.displayName(session.user.user_metadata || {}, _email);
+  _uid   = session.user.id;
+  _email = session.user.email || '';
+  _name  = Shell.displayName(session.user.user_metadata || {}, _email);
 
-    // Charger le vrai nom + statut KYC depuis profiles
-    try {
-      var { data: prof } = await _supa.from('profiles').select('full_name,first_name,last_name,clinic_name,is_clinic,kyc_status,kyc_reject_reason').eq('id', _uid).single();
-      if (prof) {
-        if (prof.is_clinic && prof.clinic_name) _name = prof.clinic_name;
-        else if (prof.full_name) _name = prof.full_name;
-        else if (prof.first_name || prof.last_name) _name = ((prof.first_name||'') + ' ' + (prof.last_name||'')).trim();
-        showKycBanner(prof.kyc_status, prof.kyc_reject_reason);
-      }
-    } catch(e) { console.warn('[Dashboard] profiles fetch error:', e.message); }
-
-    // Sub check
-    var sub = null;
-    try {
-      var { data: subData } = await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id', _uid).single();
-      sub = subData;
-    } catch(e) { console.warn('[Dashboard] subscriptions fetch error:', e.message); }
-    _isPro = sub && sub.plan !== 'free' && sub.status === 'active'
-      && (!sub.expires_at || new Date(sub.expires_at) > new Date());
-
-    Shell.init({
-      page:    'dashboard',
-      title:   'Tableau de bord',
-      isPro:   _isPro,
-      plan:    sub?.plan || 'free',
-      userName:  _name,
-      userEmail: _email,
-    });
-    if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
-    if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'dashboard', 'Tableau de bord');
-
-    renderGreeting();
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('content').style.display  = 'block';
-
-    await load();
-  } catch(e) {
-    console.error('[Dashboard] Erreur critique init:', e);
-    // Afficher quand même le contenu pour ne pas rester bloqué sur le spinner
-    try { document.getElementById('loading').style.display = 'none'; } catch(_){}
-    try { document.getElementById('content').style.display = 'block'; } catch(_){}
-    toast('Erreur de chargement. Réessayez ou reconnectez-vous.', 'error');
+  // Charger le vrai nom + statut KYC depuis profiles
+  var { data: prof } = await _supa.from('profiles').select('full_name,first_name,last_name,clinic_name,is_clinic,kyc_status,kyc_reject_reason').eq('id', _uid).single();
+  if (prof) {
+    if (prof.is_clinic && prof.clinic_name) _name = prof.clinic_name;
+    else if (prof.full_name) _name = prof.full_name;
+    else if (prof.first_name || prof.last_name) _name = ((prof.first_name||'') + ' ' + (prof.last_name||'')).trim();
+    showKycBanner(prof.kyc_status, prof.kyc_reject_reason);
   }
+
+  // Sub check
+  var { data: sub } = await _supa.from('subscriptions').select('plan,status,expires_at,interval,payment_status,trial_end_date').eq('user_id', _uid).maybeSingle();
+  _isPro = sub && sub.plan !== 'free' && sub.status === 'active'
+    && (!sub.expires_at || new Date(sub.expires_at) > new Date());
+
+  // Payment reminder popup
+  var _paymentStatus = sub ? (sub.payment_status || 'paid') : 'paid'; // default paid for legacy accounts
+  var _trialEndDate  = sub && sub.trial_end_date ? new Date(sub.trial_end_date) : null;
+  var _isTrialOver   = _trialEndDate ? (_trialEndDate < new Date()) : false;
+  var _needsPayment  = sub && sub.plan !== 'free' && _paymentStatus === 'pending';
+
+  if (_needsPayment) {
+    _showPaymentPopup(sub, _isTrialOver);
+  }
+
+  Shell.init({
+    page:    'dashboard',
+    title:   'Tableau de bord',
+    isPro:   _isPro,
+    plan:    sub?.plan || 'free',
+    userName:  _name,
+    userEmail: _email,
+  });
+  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'dashboard', 'Tableau de bord');
+
+  renderGreeting();
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('content').style.display  = 'block';
+
+  await load();
 
   // Realtime queue updates
   _supa.channel('queue-dash')
@@ -978,9 +986,60 @@ async function load() {
     })
     .subscribe();
 })();
+
+// ── PAYMENT POPUP ────────────────────────────────────────────
+var _payPopupDismissed = false;
+
+function _showPaymentPopup(sub, isBlocking) {
+  if (_payPopupDismissed && !isBlocking) return;
+
+  var PLAN_LABELS = { pro: 'Pro', clinic: 'Clinique', free: 'Gratuit' };
+  var PLAN_PRICES = {
+    pro:    { month: 5900, year: 59000 },
+    clinic: { month: 13900, year: 139000 },
+  };
+
+  var plan     = sub ? sub.plan : 'pro';
+  var interval = sub ? (sub.interval || 'month') : 'month';
+  var label    = PLAN_LABELS[plan] || plan;
+  var prices   = PLAN_PRICES[plan] || {};
+  var price    = prices[interval] || 0;
+  var intervalLabel = interval === 'year' ? 'Annuel' : 'Mensuel';
+
+  var payUrl = (typeof ghpNav === 'function' ? ghpNav('/paiement') : '/paiement')
+    + '?plan=' + plan + '&interval=' + interval;
+
+  var overlay = document.createElement('div');
+  overlay.className = 'pay-overlay ' + (isBlocking ? 'blocking' : 'soft');
+  overlay.id = 'pay-popup-overlay';
+
+  var closeBtn = isBlocking ? '' :
+    '<button class="pay-modal-close" onclick="document.getElementById(\'pay-popup-overlay\').remove();_payPopupDismissed=true;" title="Fermer">\u2715</button>';
+
+  overlay.innerHTML = '<div class="pay-modal">'
+    + closeBtn
+    + '<div class="pay-modal-icon">\uD83D\uDCB3</div>'
+    + '<div class="pay-modal-title">' + (isBlocking ? 'P\u00e9riode d\'essai termin\u00e9e' : 'Finalisez votre abonnement') + '</div>'
+    + '<div class="pay-modal-sub">' + (isBlocking
+        ? 'Votre essai gratuit est termin\u00e9. Activez votre plan pour continuer \u00e0 utiliser Docline.'
+        : 'Vous b\u00e9n\u00e9ficiez d\'un essai gratuit de 7 jours. Pensez \u00e0 activer votre plan.') + '</div>'
+    + '<div class="pay-modal-plan-badge">\u2726 Plan ' + label + ' \u00b7 ' + intervalLabel + '</div><br>'
+    + '<div class="pay-modal-price">' + price.toLocaleString('fr-DZ') + ' DA</div>'
+    + '<div class="pay-modal-interval">par ' + (interval === 'year' ? 'an' : 'mois') + '</div>'
+    + '<div class="pay-modal-bank"><strong>Virement BEA :</strong> RIB 00100 42801 00010000000 97 \u2014 SAS Docline<br>R\u00e9f\u00e9rence : votre email</div>'
+    + '<button class="pay-modal-btn" onclick="window.location.href=\'' + payUrl + '\'">Payer maintenant \u2192</button>'
+    + (isBlocking ? '' : '<button class="pay-modal-dismiss" onclick="document.getElementById(\'pay-popup-overlay\').remove();_payPopupDismissed=true;">Me rappeler plus tard</button>')
+    + '</div>';
+
+  document.body.appendChild(overlay);
+
+  if (isBlocking) {
+    var main = document.getElementById('content');
+    if (main) main.classList.add('content-blur');
+  }
+}
+
 </script>
-
-
 </body>
 </html>
 

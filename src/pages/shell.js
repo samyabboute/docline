@@ -299,6 +299,24 @@ button{font-family:inherit;cursor:pointer}
   transition:box-shadow var(--t);
 }
 .tb-avatar-btn:hover{box-shadow:0 0 0 2px var(--brand)}
+.tb-avatar-btn.pop-open{box-shadow:0 0 0 2px var(--brand);background:var(--brand);color:#fff}
+.tb-user-pop{position:absolute;top:calc(100% + 10px);right:0;min-width:220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-md);z-index:9998;overflow:hidden;animation:fadeInDown .15s ease}
+.tb-user-pop-head{display:flex;align-items:center;gap:10px;padding:14px 14px 10px}
+.tb-user-pop-av{width:38px;height:38px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.tb-user-pop-info{min-width:0;flex:1}
+.tb-user-pop-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-user-pop-num{font-size:10.5px;color:var(--brand);font-weight:600;margin-top:1px;letter-spacing:.5px}
+.tb-user-pop-email{font-size:10.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-user-pop-sep{height:1px;background:var(--border);margin:0 10px}
+.tb-user-pop-signout{display:flex;align-items:center;gap:8px;width:100%;padding:10px 14px;background:none;border:none;cursor:pointer;color:var(--danger);font-size:12.5px;font-weight:600;text-align:left}
+.tb-user-pop-signout:hover{background:var(--danger-bg)}
+.tb-user-pop-signout svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.tb-user-pop-sub{padding:8px 14px 10px;display:flex;flex-direction:column;gap:2px}
+.tb-user-pop-plan{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;display:inline-block;width:fit-content}
+.tb-user-pop-plan.pro{background:rgba(5,150,105,.12);color:#059669}
+.tb-user-pop-plan.free{background:var(--surface-hover);color:var(--text-3)}
+.tb-sub-interval{font-size:10px;background:rgba(124,58,237,.1);color:var(--brand);border-radius:99px;padding:1px 7px;font-weight:600}
+.tb-actions{position:relative}
 
 /* ── MAIN CONTENT ── */
 .shell-main{grid-row:2;grid-column:2;min-width:0;overflow-x:hidden}
@@ -1285,8 +1303,12 @@ button{font-family:inherit;cursor:pointer}
           // Signout button inside the popover
           var signoutBtn = document.getElementById('sb-pop-signout');
           if (signoutBtn) {
-            signoutBtn.addEventListener('click', function() {
-              if (typeof Auth !== 'undefined') Auth.signOut();
+            signoutBtn.addEventListener('click', async function() {
+              try {
+                if (_rdvClient) await _rdvClient.auth.signOut();
+                else if (typeof Auth !== 'undefined') { await Auth.signOut(); return; }
+              } catch(e) {}
+              window.location.href = typeof ghpNav === 'function' ? ghpNav('/login') : '/login';
             });
           }
 
@@ -1303,6 +1325,8 @@ button{font-family:inherit;cursor:pointer}
       }
 
       userBtn.addEventListener('click', _togglePop);
+
+
 
       // Fermeture au clic en dehors
       document.addEventListener('click', function(e) {
@@ -1321,6 +1345,132 @@ button{font-family:inherit;cursor:pointer}
         }
       });
     }
+
+    // ── Top-bar avatar click → mini-popover ──────────────────────────
+    (function() {
+      var tbAv2 = document.getElementById('tb-avatar');
+      if (!tbAv2) return;
+
+      function _tbFmtNum(uid) {
+        if (!uid) return 'DOC-000000';
+        return 'DOC-' + uid.replace(/-/g,'').toUpperCase().slice(0,6);
+      }
+      function _tbDaysLeft(ds) {
+        if (!ds) return null;
+        return Math.ceil((new Date(ds) - new Date()) / 86400000);
+      }
+      function _tbBuild(ini,name,email,numDoc,sub) {
+        var planLabel = ({free:'Gratuit',pro:'Pro Médecin',clinic:'Clinique'})[sub.plan] || 'Gratuit';
+        var planCls   = (sub.plan==='pro'||sub.plan==='clinic') ? 'pro' : 'free';
+        var subHtml   = '';
+        if (sub.plan !== 'free') {
+          var interval = sub.interval === 'year' ? 'Annuel' : 'Mensuel';
+          var started  = sub.created_at ? new Date(sub.created_at).toLocaleDateString('fr-DZ',{day:'2-digit',month:'short',year:'numeric'}) : '';
+          var days     = _tbDaysLeft(sub.expires_at);
+          var daysHtml = days !== null ? '<span style="font-size:10px;font-weight:700;color:' + (days<=7?'#e53e3e':days<=30?'#d97706':'#059669') + '">' + (days>0?days+' j restants':'Expiré') + '</span>' : '';
+          subHtml = '<div class="tb-user-pop-sub">'
+            + '<span class="tb-user-pop-plan '+planCls+'">'+planLabel+'</span>'
+            + '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'
+            + '<span class="tb-sub-interval">'+interval+'</span>'
+            + (started?'<span style="font-size:10px;color:var(--text-3)">depuis '+started+'</span>':'')
+            + daysHtml
+            + '</div></div>';
+        } else {
+          subHtml = '<div class="tb-user-pop-sub"><span class="tb-user-pop-plan free">'+planLabel+'</span></div>';
+        }
+        return '<div class="tb-user-pop" id="tb-user-pop">'
+          + '<div class="tb-user-pop-head">'
+          +   '<div class="tb-user-pop-av">'+ini+'</div>'
+          +   '<div class="tb-user-pop-info">'
+          +     '<div class="tb-user-pop-name">'+name+'</div>'
+          +     '<div class="tb-user-pop-num">N° '+numDoc+'</div>'
+          +     '<div class="tb-user-pop-email">'+email+'</div>'
+          +   '</div>'
+          + '</div>'
+          + subHtml
+          + '<div class="tb-user-pop-sep"></div>'
+          + '<button class="tb-user-pop-signout" id="tb-pop-signout">'
+          +   '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+          +   'Se déconnecter'
+          + '</button>'
+          + '</div>';
+      }
+      function _tbClose() {
+        var p = document.getElementById('tb-user-pop'); if (p) p.remove();
+        tbAv2.classList.remove('pop-open');
+      }
+      function _tbSignout(cl) {
+        var btn = document.getElementById('tb-pop-signout');
+        if (!btn) return;
+        btn.addEventListener('click', async function() {
+          try { if (cl) await cl.auth.signOut(); } catch(e) {}
+          window.location.href = typeof ghpNav==='function' ? ghpNav('/login') : '/login';
+        });
+      }
+
+      tbAv2.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (document.getElementById('tb-user-pop')) { _tbClose(); return; }
+
+        // Get supabase creds
+        var url = typeof SUPA_URL!=='undefined' ? SUPA_URL : (typeof DOCLINE_CONFIG!=='undefined' ? DOCLINE_CONFIG.SUPA_URL : null);
+        var key = typeof SUPA_KEY!=='undefined' ? SUPA_KEY : (typeof DOCLINE_CONFIG!=='undefined' ? DOCLINE_CONFIG.SUPA_KEY : null);
+
+        // Show popup immediately with opts data (no async needed for basic info)
+        var tbActEl = tbAv2.closest('.tb-actions') || tbAv2.parentElement;
+        var ini     = opts.userName
+          ? opts.userName.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2)
+          : ((opts.userEmail||'?')[0].toUpperCase());
+        var sub0 = { plan: opts.plan||'free', interval:null, created_at:null, expires_at:null };
+        tbActEl.insertAdjacentHTML('beforeend', _tbBuild(ini, opts.userName||opts.userEmail||'Médecin', opts.userEmail||'', 'DOC-......', sub0));
+        tbAv2.classList.add('pop-open');
+
+        // If we have supabase, fetch real data and update popup
+        if (url && key) {
+          if (!_rdvClient) _rdvClient = supabase.createClient(url, key);
+          _rdvClient.auth.getSession().then(function(r) {
+            var sess = r&&r.data&&r.data.session ? r.data.session : null;
+            if (!sess) { _tbSignout(_rdvClient); return; }
+            var uid = sess.user.id;
+            var email = sess.user.email || opts.userEmail || '';
+            var numDoc = _tbFmtNum(uid);
+            Promise.all([
+              _rdvClient.from('profiles').select('full_name,first_name,last_name').eq('id',uid).maybeSingle().catch(function(){return{data:null};}),
+              _rdvClient.from('subscriptions').select('plan,status,created_at,expires_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(1).maybeSingle().catch(function(){return{data:null};})
+            ]).then(function(res) {
+              var pr = res[0].data; var sub = res[1].data;
+              var name = opts.userName||email.split('@')[0]||'Médecin';
+              if (pr) {
+                if (pr.full_name) name=pr.full_name;
+                else if (pr.first_name||pr.last_name) name=((pr.first_name||'')+' '+(pr.last_name||'')).trim();
+              }
+              ini = name.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2)||ini;
+              var subInfo = { plan: opts.plan||'free', interval:null, created_at:null, expires_at:null };
+              if (sub && sub.plan && sub.plan!=='free') {
+                subInfo = { plan:sub.plan, created_at:sub.created_at, expires_at:sub.expires_at, interval:null };
+                if (sub.created_at && sub.expires_at) {
+                  var months = (new Date(sub.expires_at)-new Date(sub.created_at))/(1000*60*60*24*30);
+                  subInfo.interval = months>=11 ? 'year' : 'month';
+                }
+              }
+              // Re-render with real data
+              var old = document.getElementById('tb-user-pop');
+              if (old) old.remove();
+              tbActEl.insertAdjacentHTML('beforeend', _tbBuild(ini, name, email, numDoc, subInfo));
+              _tbSignout(_rdvClient);
+            }).catch(function(){ _tbSignout(_rdvClient); });
+          }).catch(function(){ _tbSignout(_rdvClient); });
+        } else {
+          _tbSignout(null);
+        }
+      });
+
+      document.addEventListener('click', function(e) {
+        var p = document.getElementById('tb-user-pop');
+        if (p && !tbAv2.contains(e.target) && !p.contains(e.target)) _tbClose();
+      });
+      document.addEventListener('keydown', function(e) { if (e.key==='Escape') _tbClose(); });
+    })();
 
     // ── Peek arrow (créé une fois, commun desktop + mobile) ───────────
     var _peek = document.getElementById('sb-peek');
