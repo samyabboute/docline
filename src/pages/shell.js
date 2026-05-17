@@ -1364,15 +1364,20 @@ button{font-family:inherit;cursor:pointer}
         var planCls   = (sub.plan==='pro'||sub.plan==='clinic') ? 'pro' : 'free';
         var subHtml   = '';
         if (sub.plan !== 'free') {
-          var interval = sub.interval === 'year' ? 'Annuel' : 'Mensuel';
-          var started  = sub.created_at ? new Date(sub.created_at).toLocaleDateString('fr-DZ',{day:'2-digit',month:'short',year:'numeric'}) : '';
-          var days     = _tbDaysLeft(sub.expires_at);
-          var daysHtml = days !== null ? '<span style="font-size:10px;font-weight:700;color:' + (days<=7?'#e53e3e':days<=30?'#d97706':'#059669') + '">' + (days>0?days+' j restants':'Expiré') + '</span>' : '';
+          var intervalVal  = sub.interval || null; // null if unknown
+          var intervalLabel = intervalVal === 'year' ? 'Annuel' : (intervalVal === 'month' ? 'Mensuel' : null);
+          var totalDays    = intervalVal === 'year' ? 365 : 30;
+          var days         = _tbDaysLeft(sub.expires_at);
+          var daysHtml     = '';
+          if (days !== null) {
+            var color = days <= 7 ? '#e53e3e' : days <= 30 ? '#d97706' : '#059669';
+            var daysText = days > 0 ? (days + 'j / ' + totalDays) : 'Expiré';
+            daysHtml = '<span style="font-size:10px;font-weight:700;color:' + color + '">' + daysText + '</span>';
+          }
           subHtml = '<div class="tb-user-pop-sub">'
             + '<span class="tb-user-pop-plan '+planCls+'">'+planLabel+'</span>'
             + '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'
-            + '<span class="tb-sub-interval">'+interval+'</span>'
-            + (started?'<span style="font-size:10px;color:var(--text-3)">depuis '+started+'</span>':'')
+            + (intervalLabel ? '<span class="tb-sub-interval">'+intervalLabel+'</span>' : '')
             + daysHtml
             + '</div></div>';
         } else {
