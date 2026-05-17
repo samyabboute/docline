@@ -70,16 +70,23 @@ serve(async (req) => {
         .limit(1)
         .single()
         .catch(() => ({ data: null }));
+      const newStatus = note === "free" ? "canceled" : "active"; // "canceled" = 1 L (CHECK constraint)
       if (existingSub) {
         await admin.from("subscriptions")
-          .update({ plan: note, status: note === "free" ? "cancelled" : "active" })
+          .update({ plan: note, status: newStatus, updated_at: now })
           .eq("user_id", doctorId);
       } else if (note !== "free") {
         await admin.from("subscriptions").insert({
-          user_id: doctorId, plan: note, status: "active", created_at: now,
+          user_id: doctorId, plan: note, status: "active", created_at: now, updated_at: now,
         });
       }
-      await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: `set_plan:${note}`, note: null });
+      // Also handle free plan: if row exists, mark as canceled
+      else if (note === "free" && existingSub) {
+        await admin.from("subscriptions")
+          .update({ plan: "free", status: "canceled", updated_at: now })
+          .eq("user_id", doctorId);
+      }
+      await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: `set_plan:${note}`, note: null }).catch(() => {});
 
     } else if (action === "toggle_active") {
       const { data: p } = await admin.from("profiles").select("is_active").eq("id", doctorId).single();
