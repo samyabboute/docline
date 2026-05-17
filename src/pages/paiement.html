@@ -94,7 +94,9 @@
 
     <div id="page-paid" style="display:none">
       <div class="success-card">
-        <div class="success-icon">✅</div>
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24" style="width:48px;height:48px;stroke:#12B76A;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
         <div class="success-title">Paiement validé</div>
         <div class="success-sub">Votre abonnement est actif. Merci !</div>
       </div>
@@ -105,7 +107,7 @@
       <div class="pay-sub">Choisissez votre mode de paiement pour activer votre plan</div>
 
       <div class="trial-badge" id="trial-badge" style="display:none">
-        ⏱ Essai gratuit en cours — paiement requis à la fin de la période
+        Essai gratuit en cours — paiement requis à la fin de la période
       </div>
 
       <!-- Summary -->
@@ -131,7 +133,7 @@
       <div class="method-card" id="method-online" onclick="selectMethod('online')">
         <div class="method-radio"></div>
         <div class="method-head">
-          <span class="method-emoji">💳</span>
+          <span class="method-emoji"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
           <div>
             <div class="method-name">En ligne</div>
             <div class="method-desc">CIB · Edahabia · Stripe — paiement sécurisé instantané</div>
@@ -139,7 +141,7 @@
         </div>
         <div class="method-detail">
           <button class="pay-btn pay-btn-brand" onclick="payOnline()">
-            Payer en ligne maintenant →
+            Payer en ligne maintenant
           </button>
         </div>
       </div>
@@ -148,7 +150,7 @@
       <div class="method-card" id="method-transfer" onclick="selectMethod('transfer')">
         <div class="method-radio"></div>
         <div class="method-head">
-          <span class="method-emoji">🏦</span>
+          <span class="method-emoji"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg></span>
           <div>
             <div class="method-name">Virement bancaire</div>
             <div class="method-desc">BEA — validé sous 24–48h ouvrées après réception</div>
@@ -170,10 +172,10 @@
             </tr>
           </table>
           <div class="bank-note">
-            📌 Mentionnez votre adresse email (<strong id="vir-email">—</strong>) en référence du virement.
+            Mentionnez votre adresse email (<strong id="vir-email">—</strong>) en référence du virement.
           </div>
           <a id="btn-virement" href="#" class="pay-btn pay-btn-outline" style="text-decoration:none">
-            J'ai effectué le virement → envoyer le reçu
+            J'ai effectué le virement — envoyer le reçu
           </a>
         </div>
       </div>
@@ -182,7 +184,7 @@
       <div class="method-card" id="method-cash" onclick="selectMethod('cash')">
         <div class="method-radio"></div>
         <div class="method-head">
-          <span class="method-emoji">💵</span>
+          <span class="method-emoji"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><rect x="1" y="4" width="22" height="16" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M1 10h3M20 10h3M1 14h3M20 14h3"/></svg></span>
           <div>
             <div class="method-name">Espèces (Cash)</div>
             <div class="method-desc">Contactez notre équipe commerciale en agence</div>
@@ -192,7 +194,7 @@
           <div class="cash-note">
             Rapprochez-vous de notre équipe commerciale. Votre accès sera activé manuellement après confirmation du paiement.
             <br><br>
-            📞 Contactez-nous : <strong>facturation@docline.health</strong>
+            Contactez-nous : <strong>facturation@docline.health</strong>
           </div>
         </div>
       </div>

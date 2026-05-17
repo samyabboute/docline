@@ -297,6 +297,72 @@ ul,ol{list-style:none}
   .ai-field:nth-last-child(-n+2){border-bottom:1px solid var(--border)}
   .ai-field:last-child{border-bottom:none}
 }
+
+/* ── ANIMATIONS ────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity:0; } to { opacity:1; }
+}
+@keyframes slideInRight {
+  from { opacity:0; transform:translateX(20px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+@keyframes pulseDot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.5; transform:scale(.85); }
+}
+@keyframes countUp {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.anim-fade-up   { animation: fadeInUp .35s cubic-bezier(.4,0,.2,1) both; }
+.anim-fade      { animation: fadeIn .25s ease both; }
+.anim-slide-r   { animation: slideInRight .3s cubic-bezier(.4,0,.2,1) both; }
+
+/* Staggered children */
+.stagger > *:nth-child(1) { animation-delay:.04s }
+.stagger > *:nth-child(2) { animation-delay:.08s }
+.stagger > *:nth-child(3) { animation-delay:.12s }
+.stagger > *:nth-child(4) { animation-delay:.16s }
+.stagger > *:nth-child(5) { animation-delay:.20s }
+.stagger > *:nth-child(6) { animation-delay:.24s }
+
+/* Live indicator dot */
+.live-dot {
+  display:inline-block; width:7px; height:7px;
+  border-radius:50%; background:var(--success);
+  animation: pulseDot 2s ease infinite;
+  margin-right:6px; vertical-align:middle;
+}
+
+/* KPI card improvements */
+.kpi-card {
+  transition: transform var(--t-base), box-shadow var(--t-base);
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.kpi-value {
+  animation: countUp .4s ease both;
+}
+
+/* Table row hover */
+.trow {
+  transition: background var(--t-fast);
+}
+.trow:hover { background: var(--bg-hover); }
+
+/* Section transition */
+.section.active { animation: fadeInUp .3s cubic-bezier(.4,0,.2,1) both; }
+
+/* Topbar shadow on scroll */
+.topbar { transition: box-shadow var(--t-base); }
+.topbar.scrolled { box-shadow: 0 2px 12px rgba(13,15,20,.08); }
 </style>
   <!-- Sentry monitoring -->
   <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
@@ -466,43 +532,43 @@ ul,ol{list-style:none}
         <div>
           <strong id="pending-alert-count">0</strong> demande(s) KYC en attente de vérification
         </div>
-        <span style="margin-left:auto;font-size:.75rem;color:var(--warning);font-weight:600">Examiner →</span>
+        <span style="margin-left:auto;font-size:.75rem;color:var(--warning);font-weight:600;display:flex;align-items:center;gap:4px">Examiner <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
       </div>
 
       <!-- KPI GRID -->
-      <div class="kpi-grid" id="kpi-grid">
-        <div class="kpi kpi-brand">
+      <div class="kpi-grid anim-fade-up stagger" id="kpi-grid">
+        <div class="kpi kpi-brand kpi-card">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <div class="kpi-label">Médecins inscrits</div>
           <div class="kpi-value" id="kpi-total">—</div>
           <div class="kpi-sub">profils médecins actifs</div>
         </div>
-        <div class="kpi kpi-warning">
+        <div class="kpi kpi-warning kpi-card">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
           <div class="kpi-label">KYC en attente</div>
           <div class="kpi-value" id="kpi-pending">—</div>
           <div class="kpi-sub">à vérifier</div>
         </div>
-        <div class="kpi kpi-success">
+        <div class="kpi kpi-success kpi-card">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
           <div class="kpi-label">KYC approuvés</div>
           <div class="kpi-value" id="kpi-approved">—</div>
           <div class="kpi-sub">médecins vérifiés</div>
         </div>
-        <div class="kpi kpi-info">
+        <div class="kpi kpi-info kpi-card">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <div class="kpi-label">RDV aujourd'hui</div>
           <div class="kpi-value" id="kpi-rdv">—</div>
           <div class="kpi-sub">rendez-vous prévus</div>
         </div>
-        <div class="kpi kpi-warning">
-          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="kpi kpi-warning kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div class="kpi-label">Paiements en attente</div>
           <div class="kpi-value" id="kpi-pay-pending">—</div>
           <div class="kpi-sub">abonnements non réglés</div>
         </div>
-        <div class="kpi kpi-success">
-          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/></svg></div>
+        <div class="kpi kpi-success kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
           <div class="kpi-label">Validés ce mois</div>
           <div class="kpi-value" id="kpi-pay-paid">—</div>
           <div class="kpi-sub">paiements confirmés</div>
@@ -519,7 +585,7 @@ ul,ol{list-style:none}
               <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               KYC en attente
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="showSection('kyc')">Voir tout →</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSection('kyc')">Voir tout</button>
           </div>
           <div class="table-wrap">
             <table class="data-table">
@@ -545,7 +611,7 @@ ul,ol{list-style:none}
               <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               Dernières inscriptions
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="showSection('medecins')">Voir tout →</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSection('medecins')">Voir tout</button>
           </div>
           <div class="table-wrap">
             <table class="data-table">
@@ -783,27 +849,27 @@ ul,ol{list-style:none}
       </div>
 
       <!-- KPI ROW -->
-      <div class="kpi-grid" style="margin-bottom:20px">
-        <div class="kpi kpi-warning">
-          <div class="kpi-icon">⏳</div>
+      <div class="kpi-grid anim-fade-up stagger" style="margin-bottom:20px">
+        <div class="kpi kpi-warning kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div class="kpi-label">En attente</div>
           <div class="kpi-value" id="pay-kpi-pending">—</div>
           <div class="kpi-sub">paiements non réglés</div>
         </div>
-        <div class="kpi kpi-success">
-          <div class="kpi-icon">✅</div>
+        <div class="kpi kpi-success kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
           <div class="kpi-label">Validés ce mois</div>
           <div class="kpi-value" id="pay-kpi-month">—</div>
           <div class="kpi-sub">paiements confirmés</div>
         </div>
-        <div class="kpi kpi-brand">
-          <div class="kpi-icon">📈</div>
+        <div class="kpi kpi-brand kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
           <div class="kpi-label">MRR</div>
           <div class="kpi-value" id="pay-kpi-mrr">—</div>
           <div class="kpi-sub">revenu mensuel récurrent</div>
         </div>
-        <div class="kpi kpi-info">
-          <div class="kpi-icon">💳</div>
+        <div class="kpi kpi-info kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
           <div class="kpi-label">Méthodes</div>
           <div class="kpi-value" id="pay-kpi-methods">—</div>
           <div class="kpi-sub">en ligne / virement / cash</div>
@@ -859,7 +925,7 @@ ul,ol{list-style:none}
   </div>
 
   <!-- KPIs -->
-  <div class="kpi-grid" id="staff-kpi-grid" style="margin-bottom:24px">
+  <div class="kpi-grid anim-fade-up stagger" id="staff-kpi-grid" style="margin-bottom:24px">
     <div class="kpi-card" style="border-top:3px solid var(--brand)">
       <div class="kpi-label">TOTAL AGENTS</div>
       <div class="kpi-value" id="kpi-staff-total">—</div>
@@ -1380,7 +1446,7 @@ async function openKycPanel(doctorId) {
         <div class="info-row"><span class="info-key">Type document</span><span class="info-val">${esc(doctor.kyc_document_type || '—')}</span></div>
         <div class="info-row"><span class="info-key">N° Ordre</span><span class="info-val">${esc(doctor.kyc_order_number || '—')}</span></div>
         <div class="info-row"><span class="info-key">Soumis le</span><span class="info-val">${fmtDate(doctor.kyc_submitted_at)}</span></div>
-        <div class="info-row"><span class="info-key">Compte actif</span><span class="info-val">${doctor.is_active ? '✓ Oui' : '✗ Non'}</span></div>
+        <div class="info-row"><span class="info-key">Compte actif</span><span class="info-val">${doctor.is_active ? '<span class="badge badge-success">Oui</span>' : '<span class="badge badge-neutral">Non</span>'}</span></div>
       </div>
       ${doctor.kyc_reject_reason ? `<div style="margin-top:12px;padding:10px 14px;background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:var(--r-md);font-size:.8125rem;color:var(--danger)"><strong>Raison de rejet :</strong> ${esc(doctor.kyc_reject_reason)}</div>` : ''}
     </div>
@@ -1509,9 +1575,9 @@ async function analyzeWithAI() {
 function renderAiResult(data) {
   const rec = data.recommendation || data.recommandation || '';
   const recBadge = {
-    'approuver': '<span class="badge badge-success">✓ Approuver</span>',
-    'rejeter': '<span class="badge badge-danger">✗ Rejeter</span>',
-    'verifier_manuellement': '<span class="badge badge-warning">⚠ Vérifier manuellement</span>'
+    'approuver': '<span class="badge badge-success"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;margin-right:3px;display:inline-block;vertical-align:middle"><polyline points="20 6 9 17 4 12"/></svg>Approuver</span>',
+    'rejeter': '<span class="badge badge-danger"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;margin-right:3px;display:inline-block;vertical-align:middle"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Rejeter</span>',
+    'verifier_manuellement': '<span class="badge badge-warning"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;margin-right:3px;display:inline-block;vertical-align:middle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Vérifier manuellement</span>'
   }[rec] || `<span class="badge badge-neutral">${esc(rec)}</span>`;
 
   const confidence = parseFloat(data.confidence || data.confiance || 0);
@@ -1867,10 +1933,10 @@ var DEPT_LABELS = {
   billing:'Facturation', marketing:'Marketing', rd:'R&D', devops:'DevOps', ops:'Ops'
 };
 var ROLE_COLORS = {
-  super_admin:'background:linear-gradient(135deg,#3b1772,#7c3aed);color:#fff',
-  l3:'background:#FEE2E2;color:#991B1B',
-  l2:'background:#FEF3C7;color:#92400E',
-  l1:'background:#EFF8FF;color:#1D4ED8'
+  super_admin:'background:linear-gradient(135deg,#3b1772,#7c3aed);color:#fff;font-weight:700',
+  l3:'background:#FEE2E2;color:#991B1B;font-weight:700',
+  l2:'background:#FEF3C7;color:#92400E;font-weight:700',
+  l1:'background:#EFF8FF;color:#1D4ED8;font-weight:700'
 };
 
 async function loadStaffSection() {
@@ -1951,19 +2017,20 @@ function renderStaffTable() {
         </button>
       </div>` : '<span style="color:var(--text-faint);font-size:11px">—</span>';
 
+    var liveDot = s.is_active ? '<span class="live-dot"></span>' : '';
     return `<tr class="trow">
       <td>
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:32px;height:32px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">${ini}</div>
           <div>
-            <div style="font-weight:600;font-size:13px">${esc(s.full_name||'—')}</div>
+            <div style="font-weight:600;font-size:13px">${liveDot}${esc(s.full_name||'—')}</div>
             <div style="font-size:11px;color:var(--text-muted)">${esc(s.email||'—')}</div>
           </div>
         </div>
       </td>
-      <td><code style="font-size:12px;background:var(--bg-subtle);padding:3px 8px;border-radius:6px;font-weight:700;letter-spacing:.5px">${esc(s.employee_id||'—')}</code></td>
+      <td><code style="font-size:12px;background:var(--brand-light);color:var(--brand);padding:4px 10px;border-radius:6px;font-weight:700;letter-spacing:.6px;border:1px solid rgba(59,23,114,.12)">${esc(s.employee_id||'—')}</code></td>
       <td><span style="font-size:12px;color:var(--text-secondary)">${deptLabel}</span></td>
-      <td><span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;${roleStyle}">${(s.role||'').toUpperCase()}</span></td>
+      <td><span style="font-size:11px;padding:3px 10px;border-radius:99px;${roleStyle}">${(s.role||'').toUpperCase()}</span></td>
       <td>${statusBadge}</td>
       <td><span class="td-muted" style="font-size:11px">—</span></td>
       <td>${actions}</td>
@@ -1996,10 +2063,15 @@ async function loadAuditLog() {
     tbody.innerHTML = logs.map(function(l) {
       var dt = new Date(l.created_at).toLocaleString('fr-DZ', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
       var sevStyle = severityStyle[l.severity] || severityStyle.normal;
-      return `<tr class="trow">
+      var rowBorderStyle = l.severity === 'critical'
+        ? 'border-left:3px solid var(--danger)'
+        : l.severity === 'elevated'
+          ? 'border-left:3px solid var(--warning)'
+          : '';
+      return `<tr class="trow" style="${rowBorderStyle}">
         <td style="font-size:11px;color:var(--text-muted);white-space:nowrap">${dt}</td>
         <td style="font-size:12px;font-weight:600">${esc(l.employee_name||'—')}</td>
-        <td><code style="font-size:11px;background:var(--bg-subtle);padding:2px 6px;border-radius:4px">${esc(l.employee_id||'—')}</code></td>
+        <td><code style="font-size:11px;background:var(--brand-light);color:var(--brand);padding:2px 8px;border-radius:4px;border:1px solid rgba(59,23,114,.12)">${esc(l.employee_id||'—')}</code></td>
         <td style="font-size:12px">${actionLabels[l.action]||l.action}</td>
         <td><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;${sevStyle}">${(l.severity||'').toUpperCase()}</span></td>
         <td style="font-size:11px;color:var(--text-muted)">${esc(l.target_email||l.target_id||'—')}</td>
@@ -2392,6 +2464,12 @@ function filterPayments(btn, filter) {
   renderPaymentTable(filtered);
 }
 
+// Topbar scroll shadow
+window.addEventListener('scroll', function() {
+  var tb = document.querySelector('.topbar');
+  if (tb) tb.classList.toggle('scrolled', window.scrollY > 4);
+}, { passive: true });
+
 function renderPaymentTable(rows) {
   var tbody = document.getElementById('pay-table-body');
   if (!tbody) return;
@@ -2418,8 +2496,8 @@ function renderPaymentTable(rows) {
     var paidStr = s.paid_at ? new Date(s.paid_at).toLocaleDateString('fr-DZ') : '';
     var doctorId = s.user_id;
     var actions = s.payment_status === 'pending'
-      ? '<button class="btn btn-secondary btn-sm" onclick="kycAction(\'' + doctorId + '\', \'approve_payment\', \'transfer\').then(()=>loadPayments()).catch(e=>alert(e.message))" style="color:#059669;border-color:#059669;margin-right:4px">✓ Valider</button>'
-        + '<button class="btn btn-secondary btn-sm" onclick="kycAction(\'' + doctorId + '\', \'reject_payment\').then(()=>loadPayments()).catch(e=>alert(e.message))" style="color:#DC2626;border-color:#DC2626">✗ Rejeter</button>'
+      ? '<button class="btn btn-secondary btn-sm" onclick="kycAction(\'' + doctorId + '\', \'approve_payment\', \'transfer\').then(()=>loadPayments()).catch(e=>alert(e.message))" style="color:#059669;border-color:#059669;margin-right:4px">Valider</button>'
+        + '<button class="btn btn-secondary btn-sm" onclick="kycAction(\'' + doctorId + '\', \'reject_payment\').then(()=>loadPayments()).catch(e=>alert(e.message))" style="color:#DC2626;border-color:#DC2626">Rejeter</button>'
       : (paidStr ? 'Payé le ' + paidStr : '—');
     return '<tr>'
       + '<td><div style="font-weight:600">' + name.replace(/</g,'&lt;') + '</div><div style="font-size:11px;color:var(--text-muted)">' + email.replace(/</g,'&lt;') + '</div></td>'

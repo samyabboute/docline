@@ -488,7 +488,9 @@ button{font-family:inherit;cursor:pointer}
   <div class="kyc-modal">
     <div class="kyc-modal-head">
       <div>
-        <div class="kyc-modal-title">🔐 Vérification médicale requise</div>
+        <div class="kyc-modal-title">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--brand,#3B1772);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle;margin-right:6px;margin-bottom:2px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Vérification médicale requise
+        </div>
         <div class="kyc-modal-sub">Pour activer votre profil public et recevoir des RDV en ligne</div>
       </div>
       <button class="modal-close" onclick="closeKycModal()" title="Plus tard"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -1004,7 +1006,7 @@ function _showAdminGrantBanner(sub) {
   banner.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:8000;background:linear-gradient(135deg,#1a0e2e,#3b1772);color:#fff;border-radius:14px;padding:18px 22px;max-width:320px;box-shadow:0 8px 32px rgba(59,23,114,.35);animation:slideInRight .35s ease';
   banner.innerHTML = ''
     + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
-    +   '<span style="font-size:22px">🎁</span>'
+    +   '<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#F79009;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'
     +   '<span style="font-weight:800;font-size:14px">Accès exclusif activé</span>'
     +   '<button onclick="document.getElementById(\'admin-grant-banner\').remove()" style="margin-left:auto;background:rgba(255,255,255,.15);border:none;border-radius:6px;color:#fff;padding:2px 8px;cursor:pointer;font-size:13px">✕</button>'
     + '</div>'
@@ -1054,12 +1056,12 @@ function _showPaymentPopup(sub, isBlocking) {
 
   overlay.innerHTML = '<div class="pay-modal">'
     + closeBtn
-    + '<div class="pay-modal-icon">\uD83D\uDCB3</div>'
+    + '<div class="pay-modal-icon"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--brand,#3B1772);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>'
     + '<div class="pay-modal-title">' + (isBlocking ? 'P\u00e9riode d\'essai termin\u00e9e' : 'Finalisez votre abonnement') + '</div>'
     + '<div class="pay-modal-sub">' + (isBlocking
         ? 'Votre essai gratuit est termin\u00e9. Activez votre plan pour continuer \u00e0 utiliser Docline.'
         : 'Vous b\u00e9n\u00e9ficiez d\'un essai gratuit de 7 jours. Pensez \u00e0 activer votre plan.') + '</div>'
-    + '<div class="pay-modal-plan-badge">\u2726 Plan ' + label + ' \u00b7 ' + intervalLabel + '</div><br>'
+    + '<div class="pay-modal-plan-badge">Plan ' + label + ' \u00b7 ' + intervalLabel + '</div><br>'
     + '<div class="pay-modal-price">' + price.toLocaleString('fr-DZ') + ' DA</div>'
     + '<div class="pay-modal-interval">par ' + (interval === 'year' ? 'an' : 'mois') + '</div>'
     + '<div class="pay-modal-bank"><strong>Virement BEA :</strong> RIB 00100 42801 00010000000 97 \u2014 SAS Docline<br>R\u00e9f\u00e9rence : votre email</div>'
