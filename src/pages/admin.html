@@ -1593,6 +1593,7 @@ async function loadDashboard() {
       .from('profiles')
       .select('id, first_name, last_name, full_name, kyc_document_type, kyc_submitted_at, kyc_status')
       .eq('kyc_status', 'pending_review')
+      .eq('is_active', true)
       .order('kyc_submitted_at', { ascending: false })
       .limit(5);
 
@@ -1602,6 +1603,7 @@ async function loadDashboard() {
     const { data: recentSignups } = await _sb
       .from('profiles')
       .select('id, first_name, last_name, full_name, plan, kyc_status, created_at')
+      .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(5);
 
