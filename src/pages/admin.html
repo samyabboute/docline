@@ -391,6 +391,11 @@ ul,ol{list-style:none}
       Paiements
     </button>
 
+    <button class="nav-item" id="nav-equipe" onclick="showSection('equipe')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Équipe Symphony
+    </button>
+
         <button class="nav-item" id="nav-parametres" onclick="showSection('parametres')">
       <svg class="ni-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
       Paramètres
@@ -837,6 +842,124 @@ ul,ol{list-style:none}
         </div>
       </div>
     </div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION : ÉQUIPE SYMPHONY
+═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-equipe" style="display:none">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Équipe Symphony</h2>
+      <p class="section-sub">Gestion des accès et des rôles de votre équipe interne</p>
+    </div>
+    <button class="btn btn-primary" id="btn-add-staff" onclick="openAddStaffModal()" style="display:none">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-right:6px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter un agent
+    </button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="staff-kpi-grid" style="margin-bottom:24px">
+    <div class="kpi-card" style="border-top:3px solid var(--brand)">
+      <div class="kpi-label">TOTAL AGENTS</div>
+      <div class="kpi-value" id="kpi-staff-total">—</div>
+      <div class="kpi-sub" id="kpi-staff-active">actifs</div>
+    </div>
+    <div class="kpi-card" style="border-top:3px solid var(--success)">
+      <div class="kpi-label">AGENTS L3</div>
+      <div class="kpi-value" id="kpi-staff-l3">—</div>
+      <div class="kpi-sub">accès sensible</div>
+    </div>
+    <div class="kpi-card" style="border-top:3px solid var(--warning)">
+      <div class="kpi-label">ACTIONS CE MOIS</div>
+      <div class="kpi-value" id="kpi-staff-actions">—</div>
+      <div class="kpi-sub">dans l'audit log</div>
+    </div>
+    <div class="kpi-card" style="border-top:3px solid var(--danger)">
+      <div class="kpi-label">ACTIONS CRITIQUES</div>
+      <div class="kpi-value" id="kpi-staff-critical">—</div>
+      <div class="kpi-sub">ce mois</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+    <input type="text" id="staff-search" placeholder="Rechercher par nom, email, EMP-ID…"
+      style="flex:1;min-width:200px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-md);font-size:13px;background:var(--bg-raised)"
+      oninput="renderStaffTable()">
+    <select id="staff-filter-dept" onchange="renderStaffTable()"
+      style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-md);font-size:13px;background:var(--bg-raised)">
+      <option value="">Tous les départements</option>
+      <option value="direction">Direction</option>
+      <option value="sales">Sales & BD</option>
+      <option value="customer_success">Customer Success</option>
+      <option value="billing">Facturation</option>
+      <option value="marketing">Marketing</option>
+      <option value="rd">R&D</option>
+      <option value="devops">DevOps</option>
+      <option value="ops">Ops</option>
+    </select>
+    <select id="staff-filter-role" onchange="renderStaffTable()"
+      style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-md);font-size:13px;background:var(--bg-raised)">
+      <option value="">Tous les rôles</option>
+      <option value="super_admin">Super Admin</option>
+      <option value="l3">L3</option>
+      <option value="l2">L2</option>
+      <option value="l1">L1</option>
+    </select>
+  </div>
+
+  <!-- Staff table -->
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Agent</th>
+          <th>N° Employé</th>
+          <th>Département</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Dernière action</th>
+          <th style="text-align:center">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="staff-tbody">
+        <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Chargement…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Audit log section -->
+  <div style="margin-top:32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h3 style="font-size:14px;font-weight:700;color:var(--text-primary)">Journal d'audit Symphony</h3>
+      <select id="audit-filter-severity" onchange="loadAuditLog()"
+        style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--r-md);font-size:12px;background:var(--bg-raised)">
+        <option value="">Toutes les actions</option>
+        <option value="critical">Critiques uniquement</option>
+        <option value="elevated">Élevées+</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Agent</th>
+            <th>N° Employé</th>
+            <th>Action</th>
+            <th>Sévérité</th>
+            <th>Cible</th>
+            <th>IP</th>
+          </tr>
+        </thead>
+        <tbody id="audit-tbody">
+          <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Sélectionnez la section pour charger…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
   </main>
 </div>
 
@@ -966,6 +1089,7 @@ var sectionTitles = {
   kyc: 'Vérifications KYC',
   medecins: 'Médecins',
   paiements: 'Paiements',
+  equipe: 'Équipe Symphony',
   parametres: 'Paramètres'
 };
 
@@ -987,6 +1111,7 @@ function showSection(name) {
   if (name === 'dashboard') loadDashboard();
   if (name === 'parametres') loadAdminUsers();
   if (name === 'paiements') loadPayments();
+  if (name === 'equipe') loadStaffSection();
 
   closeSidebar();
 }
@@ -1733,6 +1858,244 @@ async function toggleActive(doctorId, currentlyActive) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   ÉQUIPE SYMPHONY
+═══════════════════════════════════════════════════════════ */
+var _staffData = [];
+
+var DEPT_LABELS = {
+  direction:'Direction', sales:'Sales & BD', customer_success:'Customer Success',
+  billing:'Facturation', marketing:'Marketing', rd:'R&D', devops:'DevOps', ops:'Ops'
+};
+var ROLE_COLORS = {
+  super_admin:'background:linear-gradient(135deg,#3b1772,#7c3aed);color:#fff',
+  l3:'background:#FEE2E2;color:#991B1B',
+  l2:'background:#FEF3C7;color:#92400E',
+  l1:'background:#EFF8FF;color:#1D4ED8'
+};
+
+async function loadStaffSection() {
+  try {
+    // Load staff list
+    const { data: staff } = await _sb.from('symphony_staff').select('*').order('created_at', { ascending: true });
+    _staffData = staff || [];
+
+    // KPIs
+    const active = _staffData.filter(s => s.is_active);
+    setEl('kpi-staff-total', _staffData.length);
+    setEl('kpi-staff-active', active.length + ' actifs');
+    setEl('kpi-staff-l3', _staffData.filter(s => s.role === 'l3' || s.role === 'super_admin').length);
+
+    // Audit log KPIs
+    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+    const { count: actionsCount } = await _sb.from('symphony_audit_log')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', monthStart.toISOString());
+    const { count: critCount } = await _sb.from('symphony_audit_log')
+      .select('*', { count: 'exact', head: true })
+      .eq('severity', 'critical')
+      .gte('created_at', monthStart.toISOString());
+    setEl('kpi-staff-actions', actionsCount || 0);
+    setEl('kpi-staff-critical', critCount || 0);
+
+    // Show add button only for super_admin
+    const addBtn = document.getElementById('btn-add-staff');
+    if (addBtn && (_symphonyStaff?.role === 'super_admin' || _adminRole === 'super_admin')) {
+      addBtn.style.display = 'flex';
+    }
+
+    renderStaffTable();
+    loadAuditLog();
+  } catch (err) {
+    showToast('error', 'Erreur chargement équipe', err.message);
+  }
+}
+
+function renderStaffTable() {
+  const search = (document.getElementById('staff-search')?.value || '').toLowerCase();
+  const deptFilter = document.getElementById('staff-filter-dept')?.value || '';
+  const roleFilter = document.getElementById('staff-filter-role')?.value || '';
+
+  let rows = _staffData;
+  if (search) rows = rows.filter(s =>
+    (s.full_name||'').toLowerCase().includes(search) ||
+    (s.email||'').toLowerCase().includes(search) ||
+    (s.employee_id||'').toLowerCase().includes(search)
+  );
+  if (deptFilter) rows = rows.filter(s => s.department === deptFilter);
+  if (roleFilter) rows = rows.filter(s => s.role === roleFilter);
+
+  const tbody = document.getElementById('staff-tbody');
+  if (!tbody) return;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Aucun agent trouvé</td></tr>';
+    return;
+  }
+
+  const isSuperAdmin = _symphonyStaff?.role === 'super_admin' || _adminRole === 'super_admin';
+
+  tbody.innerHTML = rows.map(function(s) {
+    var ini = (s.full_name||'?').split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2);
+    var roleStyle = ROLE_COLORS[s.role] || 'background:var(--bg-subtle);color:var(--text-secondary)';
+    var deptLabel = DEPT_LABELS[s.department] || s.department;
+    var statusBadge = s.is_active
+      ? '<span class="badge badge-success">Actif</span>'
+      : '<span class="badge badge-neutral">Inactif</span>';
+    var actions = isSuperAdmin && s.role !== 'super_admin' ? `
+      <div style="display:flex;gap:6px;justify-content:center">
+        <button class="btn btn-ghost btn-xs" onclick="openEditStaffModal('${s.id}')" title="Modifier">
+          <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-xs" onclick="toggleStaffActive('${s.id}','${esc(s.email)}',${s.is_active})" title="${s.is_active ? 'Désactiver' : 'Activer'}" style="color:${s.is_active ? 'var(--danger)' : 'var(--success)'}">
+          <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><rect x="1" y="5" width="22" height="14" rx="7"/><circle cx="${s.is_active ? '16' : '8'}" cy="12" r="3" fill="currentColor"/></svg>
+        </button>
+      </div>` : '<span style="color:var(--text-faint);font-size:11px">—</span>';
+
+    return `<tr class="trow">
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">${ini}</div>
+          <div>
+            <div style="font-weight:600;font-size:13px">${esc(s.full_name||'—')}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${esc(s.email||'—')}</div>
+          </div>
+        </div>
+      </td>
+      <td><code style="font-size:12px;background:var(--bg-subtle);padding:3px 8px;border-radius:6px;font-weight:700;letter-spacing:.5px">${esc(s.employee_id||'—')}</code></td>
+      <td><span style="font-size:12px;color:var(--text-secondary)">${deptLabel}</span></td>
+      <td><span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;${roleStyle}">${(s.role||'').toUpperCase()}</span></td>
+      <td>${statusBadge}</td>
+      <td><span class="td-muted" style="font-size:11px">—</span></td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadAuditLog() {
+  const severity = document.getElementById('audit-filter-severity')?.value || '';
+  const tbody = document.getElementById('audit-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">Chargement…</td></tr>';
+  try {
+    let q = _sb.from('symphony_audit_log').select('*').order('created_at', { ascending: false }).limit(50);
+    if (severity === 'critical') q = q.eq('severity', 'critical');
+    else if (severity === 'elevated') q = q.in('severity', ['elevated','critical']);
+    const { data: logs } = await q;
+    if (!logs || !logs.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Aucune action enregistrée</td></tr>';
+      return;
+    }
+    var severityStyle = { critical:'background:#FEE2E2;color:#991B1B', elevated:'background:#FEF3C7;color:#92400E', normal:'background:#ECFDF5;color:#065F46' };
+    var actionLabels = {
+      delete_user:'Suppression utilisateur', suspend_user:'Suspension compte',
+      set_plan:'Changement plan', approve_payment:'Paiement approuvé',
+      reject_payment:'Paiement rejeté', approve_kyc:'KYC approuvé',
+      reject_kyc:'KYC rejeté', add_staff:'Ajout agent', remove_staff:'Suppression agent',
+      update_staff:'Modification agent', export_data:'Export données', grant_access:'Accès accordé'
+    };
+    tbody.innerHTML = logs.map(function(l) {
+      var dt = new Date(l.created_at).toLocaleString('fr-DZ', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+      var sevStyle = severityStyle[l.severity] || severityStyle.normal;
+      return `<tr class="trow">
+        <td style="font-size:11px;color:var(--text-muted);white-space:nowrap">${dt}</td>
+        <td style="font-size:12px;font-weight:600">${esc(l.employee_name||'—')}</td>
+        <td><code style="font-size:11px;background:var(--bg-subtle);padding:2px 6px;border-radius:4px">${esc(l.employee_id||'—')}</code></td>
+        <td style="font-size:12px">${actionLabels[l.action]||l.action}</td>
+        <td><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;${sevStyle}">${(l.severity||'').toUpperCase()}</span></td>
+        <td style="font-size:11px;color:var(--text-muted)">${esc(l.target_email||l.target_id||'—')}</td>
+        <td style="font-size:11px;color:var(--text-muted);font-family:monospace">${esc(l.ip_address||'—')}</td>
+      </tr>`;
+    }).join('');
+  } catch(err) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--danger)">Erreur : ' + err.message + '</td></tr>';
+  }
+}
+
+function openAddStaffModal() {
+  document.getElementById('staff-edit-id').value = '';
+  document.getElementById('modal-staff-title').textContent = 'Ajouter un agent';
+  document.getElementById('staff-form-name').value = '';
+  document.getElementById('staff-form-email').value = '';
+  document.getElementById('staff-form-dept').value = 'customer_success';
+  document.getElementById('staff-form-role').value = 'l1';
+  document.getElementById('staff-form-notes').value = '';
+  document.getElementById('staff-form-error').textContent = '';
+  document.getElementById('staff-form-email').disabled = false;
+  document.getElementById('modal-staff-overlay').style.display = 'flex';
+}
+
+function openEditStaffModal(staffId) {
+  var s = _staffData.find(function(x){ return x.id === staffId; });
+  if (!s) return;
+  document.getElementById('staff-edit-id').value = s.id;
+  document.getElementById('modal-staff-title').textContent = 'Modifier — ' + s.full_name;
+  document.getElementById('staff-form-name').value = s.full_name || '';
+  document.getElementById('staff-form-email').value = s.email || '';
+  document.getElementById('staff-form-email').disabled = true;
+  document.getElementById('staff-form-dept').value = s.department || 'customer_success';
+  document.getElementById('staff-form-role').value = s.role || 'l1';
+  document.getElementById('staff-form-notes').value = s.notes || '';
+  document.getElementById('staff-form-error').textContent = '';
+  document.getElementById('modal-staff-overlay').style.display = 'flex';
+}
+
+function closeStaffModal() {
+  document.getElementById('modal-staff-overlay').style.display = 'none';
+}
+
+async function submitStaffForm() {
+  var editId = document.getElementById('staff-edit-id').value;
+  var name = document.getElementById('staff-form-name').value.trim();
+  var email = document.getElementById('staff-form-email').value.trim();
+  var dept = document.getElementById('staff-form-dept').value;
+  var role = document.getElementById('staff-form-role').value;
+  var notes = document.getElementById('staff-form-notes').value.trim();
+  var errEl = document.getElementById('staff-form-error');
+  var btn = document.getElementById('staff-form-submit');
+
+  if (!name || (!editId && !email)) { errEl.textContent = 'Nom et email obligatoires'; return; }
+
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  errEl.textContent = '';
+  try {
+    if (editId) {
+      await symphonyAction('update_staff', {
+        action: 'update_staff',
+        payload: { staffId: editId, updates: { full_name: name, department: dept, role: role, notes: notes || null } }
+      });
+      showToast('success', 'Agent modifié', name);
+    } else {
+      const res = await symphonyAction('add_staff', {
+        action: 'add_staff',
+        payload: { email, fullName: name, department: dept, role }
+      });
+      showToast('success', 'Agent ajouté', 'N° ' + (res.employee_id || ''));
+    }
+    closeStaffModal();
+    await loadStaffSection();
+  } catch(err) {
+    errEl.textContent = err.message.includes('already') ? 'Cet email est déjà enregistré' : err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Enregistrer';
+  }
+}
+
+async function toggleStaffActive(staffId, email, currentlyActive) {
+  var label = currentlyActive ? 'Désactiver' : 'Activer';
+  if (!confirm(label + ' l\'agent ' + email + ' ?')) return;
+  try {
+    await symphonyAction('update_staff', {
+      action: 'update_staff',
+      payload: { staffId, updates: { is_active: !currentlyActive } }
+    });
+    showToast('success', 'Statut mis à jour', email + (currentlyActive ? ' désactivé' : ' activé'));
+    await loadStaffSection();
+  } catch(err) {
+    showToast('error', 'Erreur', err.message);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
    AUTH
 ═══════════════════════════════════════════════════════════ */
 async function signOut() {
@@ -2118,6 +2481,66 @@ function renderPaymentTable(rows) {
     <div style="display:flex;gap:10px;justify-content:flex-end">
       <button onclick="cancelPlanChange()" style="padding:9px 18px;border:1.5px solid var(--border,#e4d9f7);border-radius:9px;background:none;font-size:13px;cursor:pointer;color:var(--text-muted,#7b6da0)">Annuler</button>
       <button onclick="confirmPlanChange()" style="padding:9px 20px;border:none;border-radius:9px;background:var(--brand,#3b1772);color:#fff;font-size:13px;font-weight:700;cursor:pointer">Accorder l'accès</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : Ajouter / Modifier un agent Symphony -->
+<div id="modal-staff-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;align-items:center;justify-content:center">
+  <div style="background:var(--bg-raised);border-radius:16px;padding:32px;width:480px;max-width:94vw;box-shadow:0 12px 40px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <h3 id="modal-staff-title" style="font-size:16px;font-weight:800;color:var(--text-primary)">Ajouter un agent</h3>
+      <button onclick="closeStaffModal()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:20px">✕</button>
+    </div>
+
+    <input type="hidden" id="staff-edit-id">
+
+    <div style="display:grid;gap:16px">
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Nom complet *</label>
+        <input id="staff-form-name" type="text" placeholder="Prénom Nom"
+          style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px">
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Email *</label>
+        <input id="staff-form-email" type="email" placeholder="agent@docline.health"
+          style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Département *</label>
+          <select id="staff-form-dept" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px;background:var(--bg-raised)">
+            <option value="direction">Direction</option>
+            <option value="sales">Sales & BD</option>
+            <option value="customer_success">Customer Success</option>
+            <option value="billing">Facturation</option>
+            <option value="marketing">Marketing</option>
+            <option value="rd">R&D</option>
+            <option value="devops">DevOps</option>
+            <option value="ops">Ops</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Niveau d'accès *</label>
+          <select id="staff-form-role" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px;background:var(--bg-raised)">
+            <option value="l1">L1 — Lecture</option>
+            <option value="l2">L2 — Opérations</option>
+            <option value="l3">L3 — Actions sensibles</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Notes internes</label>
+        <textarea id="staff-form-notes" rows="2" placeholder="Optionnel…"
+          style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px;resize:vertical"></textarea>
+      </div>
+    </div>
+
+    <div id="staff-form-error" style="color:var(--danger);font-size:12px;margin-top:12px;min-height:16px"></div>
+
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+      <button onclick="closeStaffModal()" style="padding:10px 20px;border:1.5px solid var(--border);border-radius:var(--r-md);background:none;font-size:13px;cursor:pointer;color:var(--text-muted)">Annuler</button>
+      <button id="staff-form-submit" onclick="submitStaffForm()" style="padding:10px 24px;border:none;border-radius:var(--r-md);background:var(--brand);color:#fff;font-size:13px;font-weight:700;cursor:pointer">Enregistrer</button>
     </div>
   </div>
 </div>
