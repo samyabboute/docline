@@ -3047,7 +3047,7 @@ async function loadRevenuSection() {
     const pro    = rows.filter(r=>r.plan==='pro').length;
     const clinic = rows.filter(r=>r.plan==='clinic').length;
     const free   = rows.filter(r=>!r.plan||r.plan==='free').length;
-    const mrr    = pro * 2500 + clinic * 6500; // tarifs estimatifs DA
+    const mrr    = pro * 5900 + clinic * 13900; // tarifs estimatifs DA
     setEl('rev-mrr',    new Intl.NumberFormat('fr-DZ').format(mrr)+' DA');
     setEl('rev-pro',    pro);
     setEl('rev-clinic', clinic);
@@ -3058,12 +3058,12 @@ async function loadRevenuSection() {
         <div style="padding:20px;background:var(--success-bg);border-radius:var(--r-lg)">
           <div style="font-size:2rem;font-weight:800;color:var(--success)">${pro}</div>
           <div style="font-size:.75rem;font-weight:600;color:var(--success);margin-top:4px">Plan Pro</div>
-          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">~2 500 DA/mois</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">~5 900 DA/mois</div>
         </div>
         <div style="padding:20px;background:var(--warning-bg);border-radius:var(--r-lg)">
           <div style="font-size:2rem;font-weight:800;color:var(--warning)">${clinic}</div>
           <div style="font-size:.75rem;font-weight:600;color:var(--warning);margin-top:4px">Plan Clinic</div>
-          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">~6 500 DA/mois</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">~13 900 DA/mois</div>
         </div>
         <div style="padding:20px;background:var(--bg-subtle);border-radius:var(--r-lg)">
           <div style="font-size:2rem;font-weight:800;color:var(--text-muted)">${free}</div>

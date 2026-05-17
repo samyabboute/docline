@@ -27,3 +27,15 @@ ALTER TABLE public.kyc_audit_log
 ALTER TABLE public.kyc_audit_log
   ADD CONSTRAINT kyc_audit_log_action_check
   CHECK (action IN ('submitted','approved','rejected','resubmitted','ai_analysis'));
+
+-- ── Fix plan prices in app_settings ───────────────────────────────
+-- Update to correct prices: Pro = 5900 DA, Clinic = 13900 DA
+INSERT INTO public.app_settings (key, value, updated_at, updated_by)
+VALUES
+  ('plan_price_pro_monthly',    '5900',  now(), 'system'),
+  ('plan_price_pro_yearly',     '59000', now(), 'system'),
+  ('plan_price_clinic_monthly', '13900', now(), 'system'),
+  ('plan_price_clinic_yearly',  '139000',now(), 'system'),
+  ('cancellation_fee_pro',      '5900',  now(), 'system'),
+  ('cancellation_fee_clinic',   '13900', now(), 'system')
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now();
