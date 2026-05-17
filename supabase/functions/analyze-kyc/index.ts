@@ -135,13 +135,15 @@ Réponds UNIQUEMENT en JSON valide, sans texte avant ou après :
       if (jsonMatch) analysis = JSON.parse(jsonMatch[0]);
     } catch (_) { /* garder raw */ }
 
-    // Sauvegarder le résultat dans kyc_audit_log
-    await admin.from("kyc_audit_log").insert({
-      doctor_id:    doctorId,
-      action:       "ai_analysis",
-      document_url: profile.kyc_document_url,
-      note:         JSON.stringify(analysis).slice(0, 1000),
-    });
+    // Sauvegarder le résultat dans kyc_audit_log (best-effort, ne bloque pas l'analyse)
+    try {
+      await admin.from("kyc_audit_log").insert({
+        doctor_id:    doctorId,
+        action:       "ai_analysis",
+        document_url: profile.kyc_document_url,
+        note:         JSON.stringify(analysis).slice(0, 1000),
+      });
+    } catch (_logErr) { /* ne pas bloquer si le log échoue */ }
 
     return new Response(JSON.stringify({ ok: true, analysis }), {
       status: 200, headers: { ...CORS, "Content-Type": "application/json" }

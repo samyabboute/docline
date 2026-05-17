@@ -17,3 +17,13 @@ ALTER TABLE public.proposals
   FOREIGN KEY (client_id)
   REFERENCES public.clients(id)
   ON DELETE SET NULL;
+
+-- ── Fix kyc_audit_log CHECK constraint — add 'ai_analysis' action ─
+-- The analyze-kyc edge function logs with action='ai_analysis'
+-- but the original CHECK only allowed: submitted|approved|rejected|resubmitted
+ALTER TABLE public.kyc_audit_log
+  DROP CONSTRAINT IF EXISTS kyc_audit_log_action_check;
+
+ALTER TABLE public.kyc_audit_log
+  ADD CONSTRAINT kyc_audit_log_action_check
+  CHECK (action IN ('submitted','approved','rejected','resubmitted','ai_analysis'));

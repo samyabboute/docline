@@ -1889,7 +1889,7 @@ async function analyzeWithAI() {
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || json.message || 'Erreur edge function');
 
-    renderAiResult(json);
+    renderAiResult(json.analysis || json);
     showToast('success', 'Analyse terminée', 'Résultat IA disponible ci-dessous');
   } catch (err) {
     console.error('AI analyze error', err);
