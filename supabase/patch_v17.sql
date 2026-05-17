@@ -73,7 +73,26 @@ WITH CHECK (
   OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
 );
 
--- ── 6. ENSURE is_active column default is true for existing rows ───
+-- ── 6. ACCOUNT_DELETION_REQUESTS — admin read + doctor insert ────
+-- Table is created in patch_v16.sql but the policy may be missing
+-- if patch_v16 was run partially. Re-drop and recreate to be safe.
+DROP POLICY IF EXISTS "manage deletion requests" ON public.account_deletion_requests;
+
+CREATE POLICY "manage deletion requests"
+ON public.account_deletion_requests
+FOR ALL
+USING (
+  user_id = auth.uid()
+  OR auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
+)
+WITH CHECK (
+  user_id = auth.uid()
+  OR auth.email() IN ('samyabboute5@gmail.com', 'contact@docline.health')
+  OR EXISTS (SELECT 1 FROM public.admin_roles WHERE email = auth.email())
+);
+
+-- ── 7. ENSURE is_active column default is true for existing rows ───
 -- (safety: make sure no existing doctors were wrongly marked inactive)
 UPDATE public.profiles
 SET is_active = true
