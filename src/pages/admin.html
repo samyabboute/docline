@@ -460,7 +460,6 @@ ul,ol{list-style:none}
 .clickable-row td{position:relative}
 
 /* ── HOVER-COLLAPSE SIDEBAR ─────────────────────────────────── */
-/* Desktop: sidebar collapses to 64px, expands on hover */
 @media(min-width:961px) {
   :root { --sidebar-w: 64px }
   .app { grid-template-columns: 64px 1fr }
@@ -468,58 +467,73 @@ ul,ol{list-style:none}
   .sidebar {
     width: 64px;
     overflow: hidden;
-    transition: width 240ms cubic-bezier(.4,0,.2,1), box-shadow 240ms ease;
+    transition: width 260ms cubic-bezier(.4,0,.2,1), box-shadow 260ms ease;
   }
   .sidebar:hover {
     width: 240px;
-    box-shadow: 8px 0 32px rgba(0,0,0,.22);
+    box-shadow: 8px 0 40px rgba(0,0,0,.28);
     z-index: 250;
   }
 
-  /* Hide text labels when collapsed */
-  .sidebar-logo-text,
-  .sidebar-logo-sub,
-  .sidebar-section,
-  .nav-item span:not(.nav-badge),
-  .user-name,
-  .user-role,
-  #admin-employee-id,
-  .user-chevron,
-  .sidebar-footer svg:last-child {
-    opacity: 0;
-    transition: opacity 180ms ease;
+  /* ── Nav items: icon centered, text hidden via font-size trick ── */
+  .nav-item {
+    font-size: 0;          /* hides direct text node cleanly */
+    justify-content: center;
+    padding: 10px 0;
+    margin: 2px auto;
+    width: 44px;
+    border-radius: var(--r-md);
     white-space: nowrap;
-    overflow: hidden;
-    pointer-events: none;
   }
-  .sidebar:hover .sidebar-logo-text,
-  .sidebar:hover .sidebar-logo-sub,
-  .sidebar:hover .sidebar-section,
-  .sidebar:hover .nav-item span:not(.nav-badge),
+  .nav-item .ni-icon { opacity: .7; width: 18px; height: 18px }
+  .nav-item:hover .ni-icon, .nav-item.active .ni-icon { opacity: 1 }
+  .nav-badge { display: none }
+
+  .sidebar:hover .nav-item {
+    font-size: .8125rem;
+    justify-content: flex-start;
+    padding: 8px 14px;
+    margin: 1px 8px;
+    width: calc(100% - 16px);
+  }
+  .sidebar:hover .nav-badge { display: inline-flex }
+
+  /* ── Section labels: collapse height when narrow ── */
+  .sidebar-section {
+    font-size: 0;
+    padding: 4px 0;
+    overflow: hidden;
+    transition: font-size 200ms, padding 200ms;
+  }
+  .sidebar:hover .sidebar-section {
+    font-size: .625rem;
+    padding: 18px 16px 6px;
+  }
+
+  /* ── Logo: show only icon ── */
+  .sidebar-head { justify-content: center; padding: 16px 0 14px; gap: 0 }
+  .sidebar-logo-text, .sidebar-logo-sub {
+    opacity: 0; max-width: 0; overflow: hidden;
+    transition: opacity 200ms, max-width 200ms;
+    white-space: nowrap;
+  }
+  .sidebar:hover .sidebar-head { justify-content: flex-start; padding: 18px 16px 14px; gap: 10px }
+  .sidebar:hover .sidebar-logo-text { opacity: 1; max-width: 160px }
+  .sidebar:hover .sidebar-logo-sub  { opacity: 1; max-width: 160px }
+
+  /* ── Footer user: show only avatar ── */
+  .sidebar-user-menu { justify-content: center; padding: 10px 0 }
+  .user-name, .user-role, #admin-employee-id {
+    opacity: 0; max-width: 0; overflow: hidden;
+    transition: opacity 200ms; white-space: nowrap;
+  }
+  .sidebar-footer > div > svg { opacity: 0; transition: opacity 200ms }
+
+  .sidebar:hover .sidebar-user-menu { justify-content: flex-start; padding: 10px 12px }
   .sidebar:hover .user-name,
   .sidebar:hover .user-role,
-  .sidebar:hover #admin-employee-id,
-  .sidebar:hover .sidebar-footer svg:last-child {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  /* Center icons when collapsed */
-  .nav-item { justify-content: center; padding: 9px 0; margin: 1px 4px }
-  .sidebar:hover .nav-item { justify-content: flex-start; padding: 9px 14px; margin: 1px 8px }
-
-  .sidebar-head { justify-content: center; padding: 18px 0 14px }
-  .sidebar:hover .sidebar-head { justify-content: flex-start; padding: 18px 16px 14px }
-
-  .sidebar-user-menu { justify-content: center; padding: 10px 0 }
-  .sidebar:hover .sidebar-user-menu { justify-content: flex-start; padding: 10px 12px }
-
-  /* Nav badge hidden unless sidebar wide */
-  .nav-badge { display: none }
-  .sidebar:hover .nav-badge { display: inline-block }
-
-  /* User dropdown always shown when hover+click */
-  .user-dropdown.open { display: block }
+  .sidebar:hover #admin-employee-id { opacity: 1; max-width: 140px }
+  .sidebar:hover .sidebar-footer > div > svg { opacity: 1 }
 }
 
 /* ── DOCTOR CRM PANEL ───────────────────────────────────────── */
