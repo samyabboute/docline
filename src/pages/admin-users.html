@@ -585,13 +585,15 @@ const AdminAuth = {
     if (!session) { window.location.href=ghpNav('/login'); return null; }
     // Check admin whitelist
     if (!_adminEmails.includes((session.user.email || '').toLowerCase())) {
-      // Log unauthorized access attempt
-      await _supa.from('audit_log').insert({
-        user_id: session.user.id,
-        event: 'admin.unauthorized_access',
-        metadata: { page: window.location.pathname, attempted_at: new Date().toISOString() }
-      }).catch(()=>{});
-      window.location.href=ghpNav('/dashboard');
+      // Log unauthorized access attempt (ne doit jamais bloquer la redirection)
+      try {
+        await _supa.from('audit_log').insert({
+          user_id: session.user.id,
+          event: 'admin.unauthorized_access',
+          metadata: { page: window.location.pathname, attempted_at: new Date().toISOString() }
+        });
+      } catch(_) {}
+      window.location.href = ghpNav('/dashboard');
       return null;
     }
     return session;
