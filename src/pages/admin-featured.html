@@ -53,6 +53,10 @@ button,input,select{font-family:inherit}
 .nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:#F59E0B;border-radius:0 var(--r-full) var(--r-full) 0}
 .nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
 .nav-item:hover svg,.nav-item.active svg{opacity:1}
+.sidebar-logo-icon{width:32px;height:32px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--brand) 0%,#7C3AED 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-logo-text{font-size:.8125rem;font-weight:700;color:#fff;line-height:1.2}
+.sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
 
 /* ── TOPBAR ──────────────────────────────────────────────── */
 .topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:100}
@@ -333,57 +337,60 @@ var _doctors = [];
 var _filtered = [];
 
 /* ── SIDEBAR ─────────────────────────────────────────────── */
-var AdminNav = [
-  ['admin-users.html',         'overview',  'Vue d\'ensemble',     '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
-  ['admin-users.html',   'users',     'Médecins & Cliniques', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
-  ['admin-featured.html','featured',  'En Vedette',           '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
-  ['admin-revenue.html', 'revenue',   'Revenus',              '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
-  ['admin-security.html','security',  'Sécurité & Logs',      '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
-  ['admin-ads.html',     'ads',       'Régie Publicitaire',   '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'],
-  ['admin-settings.html','settings',  'Paramètres & Marketing','<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>'],
-  ['admin-emails.html',  'emails',    'Emails',                '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
-];
-
 function renderSidebar(userEmail) {
   var email    = userEmail || '';
   var initials = email.slice(0,2).toUpperCase() || 'AD';
   var handle   = email.split('@')[0] || 'Admin';
-  var el = document.getElementById('admin-sidebar');
-  el.innerHTML = '<div class="sidebar-head">'
-    +'<div style="display:flex;align-items:center;gap:10px">'
-    +'<img src="docline-logo-white.svg" style="height:26px;width:auto;display:block;flex-shrink:0" alt="Docline">'
-    +'<span style="background:rgba(245,158,11,.18);color:#F59E0B;border:1px solid rgba(245,158,11,.28);font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px">ADMIN</span>'
-    +'</div></div>'
-    +'<div style="padding:8px 8px 0"><div class="sidebar-section">Navigation</div>'
-    + AdminNav.map(function(n){
-        var isStar = n[1]==='featured';
-        var svgStyle = isStar ? 'fill:#F59E0B;stroke:none' : '';
-        var href = (typeof ghpNav==='function') ? ghpNav('/'+n[0].replace('.html','')) : n[0];
-        return '<a href="'+href+'" class="nav-item'+(n[1]==='featured'?' active':'')+'">'
-          +'<svg viewBox="0 0 24 24" style="'+svgStyle+'">'+n[3]+'</svg>'
-          +n[2]+'</a>';
-      }).join('')
-    +'</div>'
-    +'<div style="padding:8px 8px 0;margin-top:4px"><div class="sidebar-section">Application</div>'
-    +'<a href="'+(typeof ghpNav==='function'?ghpNav('/find-doctor'):'find-doctor.html')+'" target="_blank" class="nav-item" style="color:rgba(255,255,255,.45)">'
-    +'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Voir le site patient</a></div>'
-    +'<div class="sidebar-footer" style="position:relative">'
+  var sections = [
+    { label: 'Vue générale', items: [
+      ['/admin',           'dashboard', 'Dashboard',           '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
+      ['/admin-analytics', 'analytics', 'Analytics',           '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'],
+    ]},
+    { label: 'Clients', items: [
+      ['/admin',           'kyc',       'Vérifications KYC',   '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'],
+      ['/admin',           'medecins',  'Médecins & Cliniques', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'],
+      ['/admin-featured',  'featured',  'Médecins En Vedette',  '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
+      ['/admin-users',     'users',     'Gestion Utilisateurs', '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>'],
+    ]},
+    { label: 'Revenus', items: [
+      ['/admin',           'paiements', 'Paiements',            '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>'],
+      ['/admin-revenue',   'revenue',   'Revenus & Finance',    '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/>'],
+    ]},
+    { label: 'Marketing', items: [
+      ['/admin-ads',       'ads',       'Régie Publicitaire',   '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'],
+      ['/admin-emails',    'emails',    'Emails & Modèles',     '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
+    ]},
+    { label: 'Système', items: [
+      ['/admin-security',  'security',  'Sécurité & Logs',      '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
+    ]},
+  ];
+  var html = '<div class="sidebar-head"><div class="sidebar-logo-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><div class="sidebar-logo-text">Symphony</div><div class="sidebar-logo-sub">Docline — Back Office</div></div></div>';
+  sections.forEach(function(sec) {
+    html += '<div class="sidebar-section">' + sec.label + '</div>';
+    sec.items.forEach(function(item) {
+      var active = window.location.pathname === item[0] || window.location.pathname.startsWith(item[0] + '/');
+      html += '<a href="' + item[0] + '" class="nav-item' + (active ? ' active' : '') + '"><svg viewBox="0 0 24 24">' + item[3] + '</svg>' + item[2] + '</a>';
+    });
+  });
+  html += '<div class="sidebar-footer" style="position:relative">'
     +'<div id="sb-user-menu" style="display:none;position:absolute;bottom:calc(100% + 4px);left:8px;right:8px;background:#1C1F28;border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:6px;box-shadow:0 -12px 32px rgba(0,0,0,.5);z-index:300">'
     +'<div style="padding:10px 12px 8px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:4px">'
     +'<div style="font-size:.6875rem;font-weight:700;color:rgba(255,255,255,.8)">'+email+'</div>'
-    +'<div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px">Super Admin · Accès total</div>'
+    +'<div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px">Symphony Admin</div>'
     +'</div>'
-    +'<a href="'+(typeof ghpNav==='function'?ghpNav('/dashboard'):'app.html')+'" class="nav-item" style="color:rgba(255,255,255,.6)">'
-    +'<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Voir l\'app médecin</a>'
+    +'<a href="/dashboard" class="nav-item" style="color:rgba(255,255,255,.6)">'
+    +'<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>App médecin</a>'
     +'<div style="height:1px;background:rgba(255,255,255,.07);margin:4px 8px"></div>'
     +'<button onclick="signOut()" class="nav-item" style="color:rgba(240,68,56,.8);width:100%;text-align:left;border:none;cursor:pointer;background:transparent;font-family:inherit">'
     +'<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Déconnexion</button>'
     +'</div>'
     +'<div class="sidebar-user" onclick="toggleSbMenu()" style="cursor:pointer">'
     +'<div class="user-avatar" style="background:linear-gradient(135deg,#3B1772 0%,#7C3AED 100%)">'+initials+'</div>'
-    +'<div><div class="user-name">'+handle+'</div><div class="user-role">Super Admin</div></div>'
+    +'<div><div class="user-name">'+handle+'</div><div class="user-role">Symphony Admin</div></div>'
     +'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:2;margin-left:auto"><polyline points="9 18 15 12 9 6"/></svg>'
     +'</div></div>';
+  var el = document.getElementById('admin-sidebar');
+  if (el) el.innerHTML = html;
   document.addEventListener('click', function(e){
     var btn=document.querySelector('.sidebar-user'), menu=document.getElementById('sb-user-menu');
     if(menu&&btn&&!btn.contains(e.target)&&!menu.contains(e.target)) menu.style.display='none';
@@ -418,18 +425,37 @@ function toggleSbMenu(){
 async function loadDoctors() {
   document.getElementById('table-loading').style.display = 'block';
   document.getElementById('table-wrap').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'none';
   try {
+    // Essai 1 : avec featured (si la colonne existe)
     var { data, error } = await _supa
       .from('profiles')
-      .select('id,full_name,specialty,wilaya,city,is_public,accepts_rdv,consultation_price,featured,created_at,email')
+      .select('id,full_name,specialty,wilaya,city,is_public,accepts_rdv,consultation_price,featured,created_at')
       .order('featured', { ascending: false, nullsFirst: false })
       .order('full_name');
+
+    // Si la colonne featured n'existe pas, on réessaie sans
+    if (error && (error.message || '').toLowerCase().includes('featured')) {
+      var res2 = await _supa
+        .from('profiles')
+        .select('id,full_name,specialty,wilaya,city,is_public,accepts_rdv,consultation_price,created_at')
+        .order('full_name');
+      data  = res2.data;
+      error = res2.error;
+    }
+
     if (error) throw error;
-    _doctors = data || [];
+    _doctors = (data || []).map(function(d){ return Object.assign({ featured: false, is_public: false, accepts_rdv: false }, d); });
     updateKPIs();
     filterTable();
   } catch(e) {
-    toast('Erreur chargement : ' + e.message, 'error');
+    // Affichage d'erreur persistent dans le tableau
+    document.getElementById('doctors-tbody').innerHTML =
+      '<tr><td colspan="8" style="padding:32px;text-align:center;color:var(--danger);font-weight:600">'
+      + '⚠ Erreur de chargement : ' + (e.message || String(e))
+      + '<br><span style="font-size:.6875rem;font-weight:400;color:var(--text-muted);margin-top:6px;display:block">Vérifiez la table <code>profiles</code> et les policies RLS dans Supabase.</span>'
+      + '</td></tr>';
+    toast('Erreur chargement : ' + (e.message || ''), 'error');
   } finally {
     document.getElementById('table-loading').style.display = 'none';
     document.getElementById('table-wrap').style.display = 'block';
@@ -504,15 +530,16 @@ function renderTable() {
       ? '<span class="badge badge-teal">RDV activé</span>'
       : '<span class="badge badge-neutral">Appel</span>';
 
+    var cityLine = d.city ? '<div style="font-size:.6875rem;color:var(--text-muted)">'+d.city+'</div>' : '';
     return '<tr class="trow'+(d.featured?' is-featured':'')+'">'
       +'<td><div style="display:flex;align-items:center;gap:10px">'
       +'<div class="doc-avatar" style="background:'+grad+'">'+inits+'</div>'
       +'<div><div style="font-weight:700;color:var(--text-primary)">Dr. '+name.replace(/^Dr\.?\s*/i,'')+'</div>'
-      +'<div style="font-size:.6875rem;color:var(--text-muted)">'+d.email+'</div></div>'
+      +(d.specialty?'<div style="font-size:.6875rem;color:var(--text-muted)">'+d.specialty+'</div>':'')
+      +'</div>'
       +'</div></td>'
       +'<td><span style="font-weight:500">'+( d.specialty||'—')+'</span></td>'
-      +'<td><div style="font-weight:500">'+(d.wilaya||'—')+'</div>'
-      +(d.city?'<div style="font-size:.6875rem;color:var(--text-muted)">'+d.city+'</div>':'')+'</td>'
+      +'<td><div style="font-weight:500">'+(d.wilaya||'—')+'</div>'+cityLine+'</td>'
       +'<td><button class="vis-btn '+visClass+'" onclick="toggleVisibility(\''+d.id+'\','+d.is_public+')" title="Cliquer pour '+(d.is_public?'masquer':'publier')+'">'+visIcon+' '+visLabel+'</button></td>'
       +'<td>'+rdvBadge+'</td>'
       +'<td style="text-align:center"><button class="toggle-featured '+featClass+'" onclick="toggleFeatured(\''+d.id+'\','+d.featured+')" title="'+(d.featured?'Retirer des vedettes':'Mettre en avant')+'">'+featIcon+' '+featLabel+'</button></td>'

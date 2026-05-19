@@ -129,22 +129,8 @@
       <!-- Methods -->
       <div class="methods-title">Mode de paiement</div>
 
-      <!-- En ligne -->
-      <div class="method-card" id="method-online" onclick="selectMethod('online')">
-        <div class="method-radio"></div>
-        <div class="method-head">
-          <span class="method-emoji"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
-          <div>
-            <div class="method-name">En ligne</div>
-            <div class="method-desc">CIB · Edahabia · Stripe — paiement sécurisé instantané</div>
-          </div>
-        </div>
-        <div class="method-detail">
-          <button class="pay-btn pay-btn-brand" onclick="payOnline()">
-            Payer en ligne maintenant
-          </button>
-        </div>
-      </div>
+      <!-- Paiement en ligne temporairement désactivé -->
+      <div id="method-online" style="display:none"></div>
 
       <!-- Virement -->
       <div class="method-card" id="method-transfer" onclick="selectMethod('transfer')">
@@ -159,16 +145,20 @@
         <div class="method-detail">
           <table class="bank-table">
             <tr>
+              <td>Titulaire</td>
+              <td>ABBOUTE SAMY</td>
+            </tr>
+            <tr>
               <td>Banque</td>
-              <td>BEA — Banque Extérieure d'Algérie</td>
+              <td>BNA — Alger Centre</td>
             </tr>
             <tr>
               <td>RIB</td>
-              <td>00100 42801 00010000000 97</td>
+              <td>002 00001 0000000000 00</td>
             </tr>
             <tr>
-              <td>Intitulé</td>
-              <td>SAS Docline</td>
+              <td>CCP</td>
+              <td>1234567 / Clé 00</td>
             </tr>
           </table>
           <div class="bank-note">
@@ -232,7 +222,7 @@ function calcNextDate(startDate, interval){
 }
 
 function selectMethod(m){
-  ['online','transfer','cash'].forEach(function(id){
+  ['transfer','cash'].forEach(function(id){
     var el = document.getElementById('method-'+id);
     el.classList.toggle('selected', id===m);
   });
@@ -316,8 +306,8 @@ function payOnline(){
   var body = encodeURIComponent('Bonjour,\n\nJ\'ai effectué le virement pour l\'abonnement Docline ' + planLabel + ' ' + intervalLabel + '.\n\nEmail du compte : ' + email + '\nMontant : ' + price.toLocaleString('fr-DZ') + ' DA\n\nCordialement');
   document.getElementById('btn-virement').href = 'mailto:facturation@docline.health?subject=' + subject + '&body=' + body;
 
-  // Default: select first method
-  selectMethod('online');
+  // Default: virement (paiement en ligne désactivé)
+  selectMethod('transfer');
 
   document.getElementById('loading').style.display = 'none';
   document.getElementById('content').style.display = 'block';

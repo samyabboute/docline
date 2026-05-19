@@ -158,6 +158,18 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 .pm-rib-row:last-child{border:none}
 .pm-rib-row span:first-child{color:var(--text3)}
 .pm-rib-row span:last-child{font-weight:700;font-family:monospace}
+.pm-rib-row-inner{display:flex;align-items:center;gap:6px}
+.pm-copy-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px;border-radius:4px;display:inline-flex;align-items:center;transition:color var(--t)}
+.pm-copy-btn:hover{color:var(--brand)}
+.pm-copy-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.pm-upload-box{border:1.5px dashed var(--border-strong);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;background:var(--surface2);transition:all var(--t);position:relative}
+.pm-upload-box:hover{border-color:var(--brand);background:var(--brand-light)}
+.pm-upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.pm-upload-box svg{width:28px;height:28px;fill:none;stroke:var(--text3);stroke-width:1.5;stroke-linecap:round;margin-bottom:6px}
+.pm-upload-box p{font-size:12px;color:var(--text3);margin:0}
+.pm-upload-box p strong{color:var(--brand);font-weight:700}
+.pm-upload-name{margin-top:8px;font-size:12px;color:var(--success);font-weight:600;display:none}
+.pm-upload-name.show{display:block}
 
 /* RESPONSIVE */
 @media(max-width:840px){
@@ -272,7 +284,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
     </button>
     <div class="plan-trust">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Sécurisé · Résiliable à tout moment
+      Activation sous 24h · Résiliable à tout moment
     </div>
   </div>
 
@@ -326,7 +338,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 <div class="overlay" id="pay-overlay" onclick="if(event.target===this)closePayModal()">
   <div class="pay-modal">
     <div class="pm-head">
-      <div class="pm-title">Choisir le mode de paiement</div>
+      <div class="pm-title">Paiement — Virement ou Espèces</div>
       <button class="pm-close" onclick="closePayModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="pm-body">
@@ -337,23 +349,11 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 
       <div class="pm-methods-label">Mode de paiement</div>
 
-      <div class="pm-method selected" id="method-cib" onclick="selectMethod('cib')">
-        <div class="pm-method-radio"></div>
-        <div class="pm-method-info">
-          <div class="pm-method-name">CIB <span class="badge badge-auto">Instantané</span></div>
-          <div class="pm-method-desc">Paiement en ligne sécurisé par carte CIB via Chargily Pay. Activation immédiate.</div>
-        </div>
-      </div>
+      <!-- CIB / EDAHABIA désactivés — paiement en ligne temporairement suspendu -->
+      <div id="method-cib" style="display:none"></div>
+      <div id="method-edahabia" style="display:none"></div>
 
-      <div class="pm-method" id="method-edahabia" onclick="selectMethod('edahabia')">
-        <div class="pm-method-radio"></div>
-        <div class="pm-method-info">
-          <div class="pm-method-name">EDAHABIA <span class="badge badge-auto">Instantané</span></div>
-          <div class="pm-method-desc">Paiement en ligne depuis Baridi Mob ou Algérie Poste via Chargily Pay. Activation immédiate.</div>
-        </div>
-      </div>
-
-      <div class="pm-method" id="method-virement" onclick="selectMethod('virement')">
+      <div class="pm-method selected" id="method-virement" onclick="selectMethod('virement')">
         <div class="pm-method-radio"></div>
         <div class="pm-method-info">
           <div class="pm-method-name">Virement bancaire <span class="badge badge-manual">Sous 24h</span></div>
@@ -369,51 +369,63 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
         </div>
       </div>
 
-      <!-- CIB FORM — Chargily Pay en ligne -->
-      <div id="form-cib" class="pm-form">
-        <div class="pm-info-box" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;margin-bottom:16px">
-          <strong style="display:block;margin-bottom:4px;font-size:12px">Paiement 100% en ligne</strong>
-          Vous serez redirigé vers <strong>Chargily Pay</strong>, la plateforme de paiement sécurisée algérienne. Votre abonnement est activé <strong>immédiatement</strong> après confirmation.
-        </div>
-        <button class="pm-submit" id="btn-cib" onclick="chargilyPay('cib')">
-          <div class="spin"></div>
-          <span class="lbl">Payer <span id="cib-amount-label"></span> par CIB &rarr;</span>
-        </button>
-      </div>
-
-      <!-- EDAHABIA FORM — Chargily Pay en ligne -->
-      <div id="form-edahabia" class="pm-form" style="display:none">
-        <div class="pm-info-box" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;margin-bottom:16px">
-          <strong style="display:block;margin-bottom:4px;font-size:12px">Paiement 100% en ligne</strong>
-          Vous serez redirigé vers <strong>Chargily Pay</strong> pour payer depuis votre compte Edahabia (Baridi Mob ou Algérie Poste). Activation <strong>immédiate</strong>.
-        </div>
-        <button class="pm-submit" id="btn-edahabia" onclick="chargilyPay('edahabia')">
-          <div class="spin"></div>
-          <span class="lbl">Payer <span id="edahabia-amount-label"></span> par Edahabia &rarr;</span>
-        </button>
-      </div>
+      <!-- CIB / EDAHABIA : désactivés temporairement, garder pour réactivation future -->
+      <div id="form-cib" style="display:none"></div>
+      <div id="form-edahabia" style="display:none"></div>
 
       <!-- VIREMENT FORM -->
-      <div id="form-virement" class="pm-form" style="display:none">
+      <div id="form-virement" class="pm-form">
         <div class="pm-rib-box">
-          <strong>Coordonnées bancaires</strong>
-          <div class="pm-rib-row"><span>Titulaire</span><span>ABBOUTE SAMY</span></div>
-          <div class="pm-rib-row"><span>Banque</span><span>BNA — Alger Centre</span></div>
-          <div class="pm-rib-row"><span>RIB</span><span>002 00001 0000000000 00</span></div>
-          <div class="pm-rib-row"><span>CCP</span><span>1234567 / Clé 00</span></div>
+          <strong>Coordonnées bancaires — Virements vers</strong>
+          <div class="pm-rib-row">
+            <span>Titulaire</span>
+            <div class="pm-rib-row-inner">
+              <span>ABBOUTE SAMY</span>
+              <button class="pm-copy-btn" title="Copier" onclick="copyRib('ABBOUTE SAMY')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            </div>
+          </div>
+          <div class="pm-rib-row">
+            <span>Banque</span>
+            <div class="pm-rib-row-inner">
+              <span>BNA — Alger Centre</span>
+              <button class="pm-copy-btn" title="Copier" onclick="copyRib('BNA - Alger Centre')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            </div>
+          </div>
+          <div class="pm-rib-row">
+            <span>RIB</span>
+            <div class="pm-rib-row-inner">
+              <span>002 00001 0000000000 00</span>
+              <button class="pm-copy-btn" title="Copier" onclick="copyRib('002 00001 0000000000 00')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            </div>
+          </div>
+          <div class="pm-rib-row">
+            <span>CCP</span>
+            <div class="pm-rib-row-inner">
+              <span>1234567 / Clé 00</span>
+              <button class="pm-copy-btn" title="Copier" onclick="copyRib('1234567')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            </div>
+          </div>
         </div>
         <div class="pm-field">
-          <label>N° de virement ou référence reçu</label>
+          <label>N° de virement ou référence (optionnel)</label>
           <input type="text" id="virement-ref" placeholder="Ex : VIR-20240419-1234">
         </div>
-        <div class="pm-field">
-          <label>Notes (optionnel)</label>
-          <textarea id="virement-notes" placeholder="Date du virement, agence, etc."></textarea>
+        <div class="pm-field" style="margin-bottom:0">
+          <label>Joindre le reçu de virement <span style="color:var(--text3);font-weight:400">(image ou PDF)</span></label>
+          <div class="pm-upload-box" id="upload-box">
+            <input type="file" id="virement-proof" accept="image/*,.pdf" onchange="onProofSelected(this)">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p>Glisser-déposer ou <strong>choisir un fichier</strong></p>
+            <p style="margin-top:4px;font-size:11px">JPG, PNG, PDF — max 5 Mo</p>
+          </div>
+          <div class="pm-upload-name" id="upload-name"></div>
         </div>
-        <div class="pm-info-box">Après validation de votre virement (généralement sous 24h), votre plan sera activé et vous recevrez une confirmation.</div>
+        <div class="pm-info-box" style="margin-top:12px">
+          Après réception et validation de votre virement (généralement <strong>sous 24h</strong>), votre plan sera activé et vous recevrez une confirmation par e-mail.
+        </div>
         <button class="pm-submit" id="btn-virement" onclick="submitManual('virement')">
           <div class="spin"></div>
-          <span class="lbl">Envoyer la référence</span>
+          <span class="lbl">Envoyer la demande</span>
         </button>
       </div>
 
@@ -441,7 +453,7 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;color:var(--text);letter-spaci
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _billing = 'monthly';
-var _selectedMethod = 'cib';
+var _selectedMethod = 'virement';
 var _pendingPlan = null;
 
 // THEME
@@ -511,9 +523,7 @@ function openPayModal(plan) {
   document.getElementById('pm-plan-label').textContent = PLAN_LABELS[plan] + ' · ' + billingLabel;
   document.getElementById('pm-amount').textContent = price;
   // Mettre à jour les labels de montant dans les boutons Chargily
-  document.getElementById('cib-amount-label').textContent = price;
-  document.getElementById('edahabia-amount-label').textContent = price;
-  selectMethod('cib');
+  selectMethod('virement');
   document.getElementById('pay-overlay').classList.add('open');
 }
 
@@ -523,52 +533,51 @@ function closePayModal() {
 
 function selectMethod(method) {
   _selectedMethod = method;
-  ['cib','edahabia','virement','cash'].forEach(function(m) {
+  ['virement','cash'].forEach(function(m) {
     document.getElementById('method-' + m).classList.toggle('selected', m === method);
     document.getElementById('form-' + m).style.display = m === method ? 'block' : 'none';
   });
+  // keep disabled forms hidden
+  ['cib','edahabia'].forEach(function(m){
+    var f = document.getElementById('form-' + m);
+    if (f) f.style.display = 'none';
+  });
 }
 
-// ── Chargily Pay (CIB / EDAHABIA) ────────────────────────────
-// Crée une session via Edge Function, redirige vers Chargily
-async function chargilyPay(method) {
-  var btn = document.getElementById('btn-' + method);
-  btn.classList.add('loading'); btn.disabled = true;
-  hideError();
-  try {
-    var { data: { session } } = await _supa.auth.getSession();
-    if (!session) { window.location.href=ghpNav('/login'); return; }
+// ── Copier RIB dans le presse-papiers ────────────────────────
+function copyRib(text) {
+  navigator.clipboard.writeText(text).then(function() {
+    // feedback visuel bref
+    var tmp = document.createElement('div');
+    tmp.textContent = '✓ Copié';
+    tmp.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:8px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:9999;pointer-events:none;opacity:1;transition:opacity .5s';
+    document.body.appendChild(tmp);
+    setTimeout(function(){ tmp.style.opacity='0'; setTimeout(function(){ tmp.remove(); }, 500); }, 1500);
+  }).catch(function(){});
+}
 
-    var { data, error } = await _supa.functions.invoke('chargily-checkout', {
-      body: { plan: _pendingPlan, billing: _billing, method: method },
-    });
-
-    if (error) throw error;
-    if (!data || !data.url) throw new Error('URL de paiement manquante');
-
-    // Redirection vers la page Chargily
-    window.location.href = data.url;
-  } catch(e) {
-    var msg = e.message || 'Une erreur est survenue. Réessayez.';
-    // Si la fonction Edge n'est pas déployée, proposer le mode manuel
-    if (msg.includes('Failed to fetch') || msg.includes('404') || msg.includes('non configurée')) {
-      showError('Paiement en ligne temporairement indisponible. Utilisez Virement ou Espèces en attendant.');
-    } else {
-      showError(msg);
-    }
-    btn.classList.remove('loading'); btn.disabled = false;
+// ── Sélection fichier preuve ──────────────────────────────────
+function onProofSelected(input) {
+  var nameEl = document.getElementById('upload-name');
+  if (input.files && input.files[0]) {
+    nameEl.textContent = '✓ ' + input.files[0].name;
+    nameEl.classList.add('show');
+    document.getElementById('upload-box').style.borderColor = 'var(--success)';
+  } else {
+    nameEl.classList.remove('show');
+    document.getElementById('upload-box').style.borderColor = '';
   }
 }
 
 // ── Virement bancaire / Espèces — enregistrement manuel ──────
 var _REF_FIELD  = { virement:'virement-ref', cash:'cash-city' };
 var _NOTE_FIELD = { virement:'virement-notes', cash:'cash-notes' };
+var AMOUNTS_INT = { pro: { monthly: 5900, yearly: 59000 }, enterprise: { monthly: 13900, yearly: 139000 } };
 
 async function submitManual(method) {
   var btn = document.getElementById('btn-' + method);
   var ref   = (_REF_FIELD[method]  ? document.getElementById(_REF_FIELD[method]).value.trim()  : '');
   var notes = (_NOTE_FIELD[method] ? document.getElementById(_NOTE_FIELD[method]).value.trim() : '');
-  if (method !== 'cash' && !ref) { showError('Veuillez remplir le champ obligatoire.'); return; }
   if (method === 'cash' && !notes) { showError('Veuillez indiquer vos disponibilités.'); return; }
 
   btn.classList.add('loading'); btn.disabled = true;
@@ -576,7 +585,25 @@ async function submitManual(method) {
   try {
     var { data: { session } } = await _supa.auth.getSession();
     if (!session) { window.location.href=ghpNav('/login'); return; }
-    var AMOUNTS_INT = { pro: { monthly: 5900, yearly: 59000 }, enterprise: { monthly: 13900, yearly: 139000 } };
+
+    // Upload preuve de paiement si fichier joint (virement uniquement)
+    var proofUrl = null;
+    if (method === 'virement') {
+      var fileInput = document.getElementById('virement-proof');
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        var file = fileInput.files[0];
+        if (file.size > 5 * 1024 * 1024) { showError('Fichier trop volumineux (max 5 Mo).'); btn.classList.remove('loading'); btn.disabled = false; return; }
+        var ext  = file.name.split('.').pop();
+        var path = session.user.id + '/' + Date.now() + '.' + ext;
+        var { data: upData, error: upErr } = await _supa.storage.from('payment-proofs').upload(path, file, { upsert: true });
+        if (upErr) { console.warn('Upload preuve échoué:', upErr.message); /* non bloquant */ }
+        else {
+          var { data: urlData } = _supa.storage.from('payment-proofs').getPublicUrl(path);
+          proofUrl = urlData ? urlData.publicUrl : null;
+        }
+      }
+    }
+
     var { error } = await _supa.from('payment_requests').insert({
       user_id:    session.user.id,
       user_email: session.user.email,
@@ -587,6 +614,7 @@ async function submitManual(method) {
       status:     'pending',
       reference:  ref || null,
       notes:      notes || null,
+      proof_url:  proofUrl,
     });
     if (error) throw error;
     closePayModal();

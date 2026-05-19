@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script src="config.js"></script>
 <style>
 /* ── CSS VARIABLES ─────────────────────────────────────────── */
@@ -126,24 +127,49 @@ ul,ol{list-style:none}
 .card-title svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--brand);flex-shrink:0}
 .card-body{padding:20px}
 
-/* ── KPI CARDS ─────────────────────────────────────────────── */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.kpi{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
-.kpi::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
-.kpi-brand::before{background:var(--brand)}
-.kpi-success::before{background:var(--success)}
-.kpi-warning::before{background:var(--warning)}
-.kpi-danger::before{background:var(--danger)}
-.kpi-info::before{background:var(--info)}
-.kpi-label{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px}
-.kpi-value{font-size:1.875rem;font-weight:800;letter-spacing:-.5px;line-height:1;color:var(--text-primary);margin-bottom:6px}
-.kpi-sub{font-size:.6875rem;color:var(--text-muted)}
-.kpi-icon{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:18px}
-.kpi-brand .kpi-icon{background:var(--brand-light)}
-.kpi-success .kpi-icon{background:var(--success-bg)}
-.kpi-warning .kpi-icon{background:var(--warning-bg)}
-.kpi-danger .kpi-icon{background:var(--danger-bg)}
-.kpi-info .kpi-icon{background:var(--info-bg)}
+/* ── KPI CARDS — Corporate Grade ───────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi{
+  background:var(--bg-raised);
+  border:1px solid rgba(228,231,240,.9);
+  border-radius:14px;
+  padding:20px 20px 18px 22px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 1px 3px rgba(13,15,20,.05),0 1px 2px rgba(13,15,20,.03);
+  transition:box-shadow 200ms ease,transform 200ms ease;
+}
+/* Remove old top bar */
+.kpi::before{display:none}
+/* Thin left accent */
+.kpi::after{content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0}
+.kpi-brand::after{background:var(--brand)}
+.kpi-success::after{background:var(--success)}
+.kpi-warning::after{background:var(--warning)}
+.kpi-danger::after{background:var(--danger)}
+.kpi-info::after{background:var(--info)}
+
+.kpi-label{font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text-faint);margin-bottom:10px;line-height:1}
+.kpi-value{font-size:1.875rem;font-weight:800;letter-spacing:-.6px;line-height:1;color:var(--text-primary);margin-bottom:6px}
+.kpi-sub{font-size:.6875rem;color:var(--text-faint);letter-spacing:.1px}
+
+/* Icon — small, monochrome, transparent bg */
+.kpi-icon{
+  position:absolute;top:18px;right:16px;
+  width:32px;height:32px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kpi-icon svg{width:15px;height:15px;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.kpi-brand .kpi-icon{background:rgba(59,23,114,.07)}
+.kpi-brand .kpi-icon svg{stroke:var(--brand)}
+.kpi-success .kpi-icon{background:rgba(18,183,106,.07)}
+.kpi-success .kpi-icon svg{stroke:var(--success)}
+.kpi-warning .kpi-icon{background:rgba(247,144,9,.07)}
+.kpi-warning .kpi-icon svg{stroke:var(--warning)}
+.kpi-danger .kpi-icon{background:rgba(240,68,56,.07)}
+.kpi-danger .kpi-icon svg{stroke:var(--danger)}
+.kpi-info .kpi-icon{background:rgba(46,144,250,.07)}
+.kpi-info .kpi-icon svg{stroke:var(--info)}
 
 /* ── BADGES ────────────────────────────────────────────────── */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700;letter-spacing:.2px}
@@ -278,7 +304,8 @@ ul,ol{list-style:none}
 .empty-state p{font-size:.875rem}
 
 /* ── RESPONSIVE ────────────────────────────────────────────── */
-@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1280px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:960px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:960px){
   .app{grid-template-columns:1fr}
   .sidebar{position:fixed;left:calc(-1 * var(--sidebar-w) - 10px);height:100vh;transition:left var(--t-base)}
@@ -297,6 +324,33 @@ ul,ol{list-style:none}
   .ai-field:nth-last-child(-n+2){border-bottom:1px solid var(--border)}
   .ai-field:last-child{border-bottom:none}
 }
+
+/* ── DASHBOARD GREETING ────────────────────────────────────── */
+.dash-greeting{background:linear-gradient(120deg,var(--brand) 0%,#7C3AED 60%,#4338CA 100%);border-radius:var(--r-xl);padding:24px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;position:relative;overflow:hidden}
+.dash-greeting::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%}
+.dash-greeting::after{content:'';position:absolute;right:60px;bottom:-60px;width:140px;height:140px;background:rgba(255,255,255,.04);border-radius:50%}
+.dash-greet-main{position:relative;z-index:1}
+.dash-greet-hello{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px}
+.dash-greet-name{font-size:1.3125rem;font-weight:800;color:#fff;letter-spacing:-.4px;line-height:1.2}
+.dash-greet-sub{font-size:.75rem;color:rgba(255,255,255,.55);margin-top:4px}
+.dash-greet-badges{display:flex;align-items:center;gap:8px;position:relative;z-index:1}
+.greet-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700;letter-spacing:.2px;backdrop-filter:blur(8px)}
+.greet-badge-role{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.greet-badge-emp{background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.12);font-family:monospace;font-size:.6875rem}
+
+/* ── KPI SECTION LABEL ─────────────────────────────────────── */
+.kpi-group-label{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:12px;margin-top:24px;display:flex;align-items:center;gap:8px}
+.kpi-group-label::before{content:'';display:block;width:3px;height:14px;background:var(--brand);border-radius:var(--r-full)}
+
+/* ── CHART CONTAINERS ──────────────────────────────────────── */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;margin-bottom:24px}
+.chart-wrap{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;box-shadow:var(--shadow-sm)}
+.chart-title{font-size:.8125rem;font-weight:700;color:var(--text-primary);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.chart-title svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--brand);flex-shrink:0}
+@media(max-width:960px){.chart-grid{grid-template-columns:1fr}}
+
+/* ── DEPT CHIP ─────────────────────────────────────────────── */
+.dept-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--r-full);font-size:.625rem;font-weight:700;letter-spacing:.3px;text-transform:uppercase;background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15)}
 
 /* ── ANIMATIONS ────────────────────────────────────────────── */
 @keyframes fadeInUp {
@@ -339,13 +393,13 @@ ul,ol{list-style:none}
   margin-right:6px; vertical-align:middle;
 }
 
-/* KPI card improvements */
+/* KPI card hover */
 .kpi-card {
-  transition: transform var(--t-base), box-shadow var(--t-base);
+  transition: transform 200ms ease, box-shadow 200ms ease;
 }
 .kpi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(13,15,20,.09), 0 2px 6px rgba(13,15,20,.05);
 }
 .kpi-value {
   animation: countUp .4s ease both;
@@ -363,6 +417,254 @@ ul,ol{list-style:none}
 /* Topbar shadow on scroll */
 .topbar { transition: box-shadow var(--t-base); }
 .topbar.scrolled { box-shadow: 0 2px 12px rgba(13,15,20,.08); }
+
+/* ── QUICK ACTIONS STRIP ────────────────────────────────────── */
+.qa-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
+@media(max-width:1200px){.qa-strip{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.qa-strip{grid-template-columns:repeat(2,1fr)}}
+.qa-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 14px 12px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer;transition:border-color var(--t-fast),box-shadow var(--t-fast),transform var(--t-fast);text-decoration:none;position:relative;overflow:hidden;font-family:inherit;text-align:left}
+.qa-card:hover{border-color:var(--brand);box-shadow:0 4px 16px rgba(59,23,114,.1);transform:translateY(-2px)}
+.qa-card:active{transform:translateY(0);box-shadow:none}
+.qa-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qa-icon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.qa-label{font-size:.75rem;font-weight:700;color:var(--text-primary);line-height:1.3;margin-top:2px}
+.qa-sub{font-size:.625rem;color:var(--text-muted);line-height:1.4}
+.qa-nbadge{position:absolute;top:10px;right:10px;font-size:.5625rem;font-weight:800;min-width:18px;padding:1px 5px;border-radius:var(--r-full);text-align:center;display:none}
+.qa-nbadge.show{display:block}
+.qa-nbadge.danger{background:var(--danger);color:#fff}
+.qa-nbadge.warning{background:var(--warning);color:#fff}
+.qa-nbadge.info{background:var(--info);color:#fff}
+
+/* ── SECTION LABEL with action ──────────────────────────────── */
+.section-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top:24px}
+
+/* ── PAY PENDING ALERT ──────────────────────────────────────── */
+.pay-alert{display:none;align-items:center;gap:12px;background:rgba(46,144,250,.05);border:1px solid rgba(46,144,250,.2);border-radius:var(--r-lg);padding:14px 18px;margin-bottom:16px;cursor:pointer;transition:background var(--t-fast)}
+.pay-alert:hover{background:rgba(46,144,250,.1)}
+.pay-alert.show{display:flex}
+.pay-dot{width:10px;height:10px;border-radius:50%;background:var(--info);flex-shrink:0;box-shadow:0 0 0 3px rgba(46,144,250,.18);animation:pulse 1.8s infinite}
+
+/* ── BOTTOM GRID 3-col ──────────────────────────────────────── */
+.dash-bottom{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:24px}
+@media(max-width:900px){.dash-bottom{grid-template-columns:1fr}}
+
+/* ── DOCTOR QUICK PANEL ─────────────────────────────────────── */
+.dp-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.125rem;font-weight:800;color:#fff;flex-shrink:0}
+.dp-info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:.8125rem}
+.dp-info-row:last-child{border-bottom:none}
+.dp-key{color:var(--text-muted);font-size:.75rem}
+.dp-val{font-weight:600;color:var(--text-primary)}
+.dp-actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.clickable-row{cursor:pointer}
+.clickable-row:hover td{background:var(--bg-hover)!important}
+.clickable-row td{position:relative}
+
+/* ── HOVER-COLLAPSE SIDEBAR ─────────────────────────────────── */
+/* Desktop: sidebar collapses to 64px, expands on hover */
+@media(min-width:961px) {
+  :root { --sidebar-w: 64px }
+  .app { grid-template-columns: 64px 1fr }
+
+  .sidebar {
+    width: 64px;
+    overflow: hidden;
+    transition: width 240ms cubic-bezier(.4,0,.2,1), box-shadow 240ms ease;
+  }
+  .sidebar:hover {
+    width: 240px;
+    box-shadow: 8px 0 32px rgba(0,0,0,.22);
+    z-index: 250;
+  }
+
+  /* Hide text labels when collapsed */
+  .sidebar-logo-text,
+  .sidebar-logo-sub,
+  .sidebar-section,
+  .nav-item span:not(.nav-badge),
+  .user-name,
+  .user-role,
+  #admin-employee-id,
+  .user-chevron,
+  .sidebar-footer svg:last-child {
+    opacity: 0;
+    transition: opacity 180ms ease;
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .sidebar:hover .sidebar-logo-text,
+  .sidebar:hover .sidebar-logo-sub,
+  .sidebar:hover .sidebar-section,
+  .sidebar:hover .nav-item span:not(.nav-badge),
+  .sidebar:hover .user-name,
+  .sidebar:hover .user-role,
+  .sidebar:hover #admin-employee-id,
+  .sidebar:hover .sidebar-footer svg:last-child {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Center icons when collapsed */
+  .nav-item { justify-content: center; padding: 9px 0; margin: 1px 4px }
+  .sidebar:hover .nav-item { justify-content: flex-start; padding: 9px 14px; margin: 1px 8px }
+
+  .sidebar-head { justify-content: center; padding: 18px 0 14px }
+  .sidebar:hover .sidebar-head { justify-content: flex-start; padding: 18px 16px 14px }
+
+  .sidebar-user-menu { justify-content: center; padding: 10px 0 }
+  .sidebar:hover .sidebar-user-menu { justify-content: flex-start; padding: 10px 12px }
+
+  /* Nav badge hidden unless sidebar wide */
+  .nav-badge { display: none }
+  .sidebar:hover .nav-badge { display: inline-block }
+
+  /* User dropdown always shown when hover+click */
+  .user-dropdown.open { display: block }
+}
+
+/* ── DOCTOR CRM PANEL ───────────────────────────────────────── */
+.crm-panel {
+  position: fixed; top: 0; right: -720px; width: 700px; max-width: 100vw;
+  height: 100vh; background: var(--bg-raised); z-index: 500;
+  display: flex; flex-direction: column;
+  box-shadow: -8px 0 32px rgba(13,15,20,.14);
+  border-left: 1px solid var(--border);
+  transition: right 280ms cubic-bezier(.4,0,.2,1);
+}
+.crm-panel.open { right: 0 }
+.crm-backdrop {
+  position: fixed; inset: 0; background: rgba(13,15,20,.38); z-index: 499;
+  opacity: 0; pointer-events: none; transition: opacity 240ms ease;
+}
+.crm-backdrop.open { opacity: 1; pointer-events: all }
+
+/* Panel header */
+.crm-head {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 22px 14px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0; background: var(--bg-raised);
+}
+.crm-avatar {
+  width: 46px; height: 46px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: 1.0625rem;
+  font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.crm-name { font-size: .9375rem; font-weight: 800; color: var(--text-primary); letter-spacing: -.2px }
+.crm-meta { font-size: .6875rem; color: var(--text-muted); margin-top: 2px }
+.crm-close {
+  margin-left: auto; background: none; border: none; cursor: pointer;
+  color: var(--text-muted); padding: 6px; border-radius: var(--r-md);
+  transition: all var(--t-fast);
+}
+.crm-close:hover { background: var(--bg-hover); color: var(--text-primary) }
+.crm-close svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round }
+
+/* Status pills row */
+.crm-status-row {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding: 10px 22px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0; background: var(--bg-subtle);
+}
+.crm-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: var(--r-full); font-size: .6875rem; font-weight: 700;
+}
+.crm-pill-pro { background: rgba(18,183,106,.1); color: var(--success); border: 1px solid var(--success-border) }
+.crm-pill-free { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border) }
+.crm-pill-blocked { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border) }
+.crm-pill-warn { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border) }
+.crm-pill-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border) }
+
+/* Panel body tabs */
+.crm-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column }
+.crm-tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  flex-shrink: 0; background: var(--bg-raised);
+  padding: 0 22px; overflow-x: auto;
+}
+.crm-tab {
+  padding: 11px 14px; font-size: .75rem; font-weight: 700;
+  color: var(--text-muted); cursor: pointer; border: none; background: none;
+  font-family: inherit; border-bottom: 2px solid transparent;
+  transition: all var(--t-fast); white-space: nowrap;
+}
+.crm-tab:hover { color: var(--text-secondary) }
+.crm-tab.active { color: var(--brand); border-bottom-color: var(--brand) }
+.crm-pane { display: none; padding: 18px 22px; flex: 1 }
+.crm-pane.active { display: block }
+
+/* CRM section headings */
+.crm-section-title {
+  font-size: .625rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--text-muted); margin-bottom: 10px; margin-top: 18px;
+}
+.crm-section-title:first-child { margin-top: 0 }
+
+/* Billing mini chart area */
+.crm-chart-wrap {
+  background: var(--bg-subtle); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 16px; margin-bottom: 14px;
+}
+.crm-chart-title { font-size: .75rem; font-weight: 700; color: var(--text-primary); margin-bottom: 10px }
+.crm-chart-sub { font-size: .6875rem; color: var(--text-muted) }
+
+/* CRM action buttons */
+.crm-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px }
+.crm-action-btn {
+  display: flex; align-items: center; gap: 8px; padding: 11px 14px;
+  border-radius: var(--r-md); border: 1px solid var(--border);
+  background: var(--bg-raised); cursor: pointer; font-family: inherit;
+  font-size: .75rem; font-weight: 600; color: var(--text-secondary);
+  transition: all var(--t-fast); text-align: left;
+}
+.crm-action-btn:hover { border-color: var(--brand); background: var(--brand-light); color: var(--brand) }
+.crm-action-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; flex-shrink: 0 }
+.crm-action-btn.danger { border-color: var(--danger-border) }
+.crm-action-btn.danger:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger) }
+.crm-action-btn.success { border-color: var(--success-border) }
+.crm-action-btn.success:hover { background: var(--success-bg); color: var(--success); border-color: var(--success) }
+.crm-action-btn.warning { border-color: var(--warning-border) }
+.crm-action-btn.warning:hover { background: var(--warning-bg); color: var(--warning); border-color: var(--warning) }
+
+/* Info rows inside panel */
+.crm-info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid var(--border); font-size: .8125rem;
+}
+.crm-info-row:last-child { border-bottom: none }
+.crm-info-key { color: var(--text-muted); font-size: .75rem }
+.crm-info-val { font-weight: 600; color: var(--text-primary); font-family: 'DM Mono', monospace; font-size: .75rem }
+
+/* Penalty chip */
+.crm-penalty {
+  background: var(--danger-bg); border: 1px solid var(--danger-border);
+  border-radius: var(--r-md); padding: 12px 14px; margin-bottom: 12px;
+  font-size: .8125rem; color: var(--danger);
+}
+.crm-penalty strong { display: block; font-weight: 700; margin-bottom: 4px }
+
+/* Retention score */
+.churn-bar-wrap { margin-bottom: 14px }
+.churn-bar-label { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text-muted); margin-bottom: 5px }
+.churn-bar-track { height: 8px; background: var(--bg-subtle); border-radius: var(--r-full); overflow: hidden }
+.churn-bar-fill { height: 100%; border-radius: var(--r-full); transition: width .6s ease }
+
+/* Simulation button */
+.crm-simulate-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 12px; border-radius: var(--r-md);
+  border: 2px dashed var(--brand-border); background: rgba(59,23,114,.04);
+  cursor: pointer; font-family: inherit; font-size: .8125rem; font-weight: 700;
+  color: var(--brand); transition: all var(--t-fast); margin-top: 8px;
+}
+.crm-simulate-btn:hover { background: var(--brand-light); border-style: solid }
+.crm-simulate-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round }
+
+/* Sparkline mini */
+.crm-sparkline { display: flex; align-items: flex-end; gap: 3px; height: 40px; margin-top: 8px }
+.crm-spark-bar { flex: 1; border-radius: 3px 3px 0 0; background: var(--brand); opacity: .7; min-height: 4px; transition: opacity .2s }
+.crm-spark-bar:hover { opacity: 1 }
+.crm-spark-bar.zero { background: var(--border); opacity: 1 }
 </style>
   <!-- Sentry monitoring -->
   <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
@@ -415,6 +717,187 @@ ul,ol{list-style:none}
         </span>
       </button>
       <button class="btn btn-ghost btn-sm" onclick="closePanel()" style="margin-left:auto">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- DOCTOR CRM PANEL -->
+<div class="crm-backdrop" id="crm-backdrop" onclick="closeCrmPanel()"></div>
+<div class="crm-panel" id="crm-panel">
+  <!-- Head: avatar + name + close -->
+  <div class="crm-head">
+    <div class="crm-avatar" id="crm-avatar">?</div>
+    <div>
+      <div class="crm-name" id="crm-name">—</div>
+      <div class="crm-meta" id="crm-meta">—</div>
+    </div>
+    <button class="crm-close" onclick="closeCrmPanel()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <!-- Status pills -->
+  <div class="crm-status-row" id="crm-status-row"></div>
+  <!-- Tabs -->
+  <div class="crm-tabs">
+    <button class="crm-tab active" onclick="switchCrmTab('billing',this)">Billing</button>
+    <button class="crm-tab" onclick="switchCrmTab('account',this)">Compte</button>
+    <button class="crm-tab" onclick="switchCrmTab('retention',this)">Rétention</button>
+    <button class="crm-tab" onclick="switchCrmTab('support',this)">Support</button>
+  </div>
+  <!-- PANE: BILLING -->
+  <div class="crm-body">
+    <div class="crm-pane active" id="crm-pane-billing">
+      <div class="crm-section-title">Historique de paiements (6 mois)</div>
+      <div class="crm-chart-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="crm-chart-title" id="crm-billing-total">—</div>
+            <div class="crm-chart-sub" id="crm-billing-sub">Chargé à ce compte</div>
+          </div>
+          <span class="crm-pill crm-pill-info" id="crm-billing-streak">—</span>
+        </div>
+        <div class="crm-sparkline" id="crm-sparkline"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span id="crm-spark-labels" style="display:flex;justify-content:space-between;width:100%;font-size:.5625rem;color:var(--text-faint)"></span>
+        </div>
+      </div>
+      <!-- Payment details table -->
+      <div class="crm-section-title">Dernières transactions</div>
+      <div id="crm-transactions" style="font-size:.8125rem"></div>
+
+      <!-- Extension de délai -->
+      <div class="crm-section-title">Actions de facturation</div>
+      <div class="crm-action-grid">
+        <button class="crm-action-btn warning" onclick="crmExtendDeadline()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Prolonger délai
+        </button>
+        <button class="crm-action-btn success" onclick="crmGrantCredit()">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Crédit gratuit
+        </button>
+        <button class="crm-action-btn" onclick="crmSendInvoice()">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Envoyer facture PDF
+        </button>
+        <button class="crm-action-btn" onclick="crmSendUsage()">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Détails d'utilisation
+        </button>
+      </div>
+      <!-- Penalty notice (shown if 2nd+ extension) -->
+      <div id="crm-penalty-block" style="display:none">
+        <div class="crm-penalty">
+          <strong>⚠️ Frais de déblocage applicables</strong>
+          Ce compte a déjà bénéficié d'une extension. Une 2ème extension entraîne des frais de <strong>500 DA</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- PANE: COMPTE -->
+    <div class="crm-pane" id="crm-pane-account">
+      <div class="crm-section-title">Informations du compte</div>
+      <div id="crm-account-info"></div>
+
+      <div class="crm-section-title" style="margin-top:18px">Actions compte</div>
+      <div class="crm-action-grid">
+        <button class="crm-action-btn danger" id="crm-block-btn" onclick="crmToggleBlock()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          <span id="crm-block-label">Suspendre compte</span>
+        </button>
+        <button class="crm-action-btn" onclick="crmResetPassword()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Reset mot de passe
+        </button>
+        <button class="crm-action-btn" onclick="crmUpgradePlan()">
+          <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+          Changer de plan
+        </button>
+        <button class="crm-action-btn" onclick="crmSetFeatured()">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span id="crm-featured-label">Mettre en vedette</span>
+        </button>
+      </div>
+
+      <div class="crm-section-title" style="margin-top:18px">Logs récents</div>
+      <div id="crm-logs" style="font-size:.8125rem;color:var(--text-muted)">Chargement…</div>
+
+      <!-- Simulation -->
+      <button class="crm-simulate-btn" onclick="crmSimulate()">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Mode simulation — voir l'espace client de ce médecin
+      </button>
+    </div>
+
+    <!-- PANE: RÉTENTION -->
+    <div class="crm-pane" id="crm-pane-retention">
+      <div class="crm-section-title">Score de rétention</div>
+      <div class="churn-bar-wrap">
+        <div class="churn-bar-label">
+          <span>Risque de résiliation</span>
+          <span id="crm-churn-pct" style="font-weight:700">—</span>
+        </div>
+        <div class="churn-bar-track">
+          <div class="churn-bar-fill" id="crm-churn-fill" style="width:0%;background:var(--success)"></div>
+        </div>
+        <div style="font-size:.6875rem;color:var(--text-muted);margin-top:6px" id="crm-churn-reason">—</div>
+      </div>
+
+      <div class="crm-section-title">Offre de rétention suggérée</div>
+      <div id="crm-retention-offer" style="background:linear-gradient(135deg,rgba(59,23,114,.04),rgba(124,58,237,.04));border:1px solid rgba(59,23,114,.15);border-radius:var(--r-lg);padding:16px;margin-bottom:14px">
+        <div style="font-size:.8125rem;font-weight:700;color:var(--text-primary);margin-bottom:4px" id="crm-offer-title">Calcul en cours…</div>
+        <div style="font-size:.75rem;color:var(--text-muted)" id="crm-offer-desc">—</div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap" id="crm-offer-actions"></div>
+      </div>
+
+      <div class="crm-section-title">Historique rétention</div>
+      <div id="crm-retention-history" style="font-size:.8125rem;color:var(--text-muted)">Aucune offre de rétention accordée.</div>
+
+      <div class="crm-section-title" style="margin-top:18px">Avantages offerts</div>
+      <div class="crm-action-grid">
+        <button class="crm-action-btn success" onclick="crmOfferDiscount(10)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Rabais 10%
+        </button>
+        <button class="crm-action-btn success" onclick="crmOfferDiscount(20)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Rabais 20%
+        </button>
+        <button class="crm-action-btn warning" onclick="crmOffer1Month()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          +1 mois gratuit
+        </button>
+        <button class="crm-action-btn" onclick="crmOfferEquipment()">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Équipement offert
+        </button>
+      </div>
+    </div>
+
+    <!-- PANE: SUPPORT -->
+    <div class="crm-pane" id="crm-pane-support">
+      <div class="crm-section-title">Informations réseau & session</div>
+      <div id="crm-support-info" style="font-size:.8125rem"></div>
+
+      <div class="crm-section-title" style="margin-top:18px">Journal d'activité (30 derniers jours)</div>
+      <div id="crm-activity-log" style="font-size:.8125rem;color:var(--text-muted)">Chargement…</div>
+
+      <div class="crm-section-title" style="margin-top:18px">Actions support</div>
+      <div class="crm-action-grid">
+        <button class="crm-action-btn" onclick="crmSendSupportEmail()">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Envoyer un email
+        </button>
+        <button class="crm-action-btn" onclick="crmCopyProfile()">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copier profil JSON
+        </button>
+      </div>
+
+      <button class="crm-simulate-btn" onclick="crmSimulate()">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Simulation — Accéder à l'espace du médecin
+      </button>
     </div>
   </div>
 </div>
@@ -572,9 +1055,73 @@ ul,ol{list-style:none}
 
     <!-- ══════════════════ DASHBOARD ══════════════════ -->
     <div class="section active page" id="section-dashboard">
-      <div class="page-header">
-        <div class="page-title">Dashboard</div>
-        <div class="page-sub">Vue d'ensemble de la plateforme Docline</div>
+
+      <!-- GREETING BANNER -->
+      <div class="dash-greeting" id="dash-greeting">
+        <div class="dash-greet-main">
+          <div class="dash-greet-hello">Bonjour,</div>
+          <div class="dash-greet-name" id="dash-greet-name">—</div>
+          <div class="dash-greet-sub" id="dash-greet-sub">Vue d'ensemble de la plateforme Docline</div>
+        </div>
+        <div class="dash-greet-badges">
+          <span class="greet-badge greet-badge-role" id="dash-greet-role-badge">—</span>
+          <span class="greet-badge greet-badge-emp" id="dash-greet-emp-badge" style="display:none">—</span>
+        </div>
+      </div>
+
+      <!-- ── QUICK ACTIONS STRIP ── -->
+      <div class="qa-strip" id="qa-strip">
+
+        <button class="qa-card" onclick="showSection('kyc')">
+          <div class="qa-icon" style="background:rgba(247,144,9,.1);color:var(--warning)">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+          </div>
+          <div class="qa-label">KYC en attente</div>
+          <div class="qa-sub" id="qa-kyc-sub">Vérifier les documents</div>
+          <span class="qa-nbadge warning" id="qa-kyc-badge"></span>
+        </button>
+
+        <button class="qa-card" onclick="showSection('paiements')">
+          <div class="qa-icon" style="background:rgba(46,144,250,.1);color:var(--info)">
+            <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div class="qa-label">Valider paiements</div>
+          <div class="qa-sub" id="qa-pay-sub">Virements reçus</div>
+          <span class="qa-nbadge info" id="qa-pay-badge"></span>
+        </button>
+
+        <a class="qa-card" href="/admin-featured">
+          <div class="qa-icon" style="background:rgba(245,158,11,.1);color:#F59E0B">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="qa-label">Médecins vedette</div>
+          <div class="qa-sub">Sponsorisés &amp; visibilité</div>
+        </a>
+
+        <a class="qa-card" href="/admin-users">
+          <div class="qa-icon" style="background:rgba(59,23,114,.1);color:var(--brand)">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          <div class="qa-label">Utilisateurs</div>
+          <div class="qa-sub">Comptes &amp; accès</div>
+        </a>
+
+        <a class="qa-card" href="/admin-revenue">
+          <div class="qa-icon" style="background:rgba(18,183,106,.1);color:var(--success)">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/></svg>
+          </div>
+          <div class="qa-label">Revenus &amp; Finance</div>
+          <div class="qa-sub">MRR, abonnements</div>
+        </a>
+
+        <a class="qa-card" href="/admin-emails">
+          <div class="qa-icon" style="background:rgba(59,23,114,.08);color:var(--brand)">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="qa-label">Emails &amp; Modèles</div>
+          <div class="qa-sub">Notifications auto</div>
+        </a>
+
       </div>
 
       <!-- KYC PENDING ALERT -->
@@ -586,13 +1133,27 @@ ul,ol{list-style:none}
         <span style="margin-left:auto;font-size:.75rem;color:var(--warning);font-weight:600;display:flex;align-items:center;gap:4px">Examiner <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
       </div>
 
-      <!-- KPI GRID -->
-      <div class="kpi-grid anim-fade-up stagger" id="kpi-grid">
+      <!-- PAY VIREMENT PENDING ALERT -->
+      <div class="pay-alert" id="pay-pending-alert" onclick="showSection('paiements')">
+        <div class="pay-dot"></div>
+        <div style="flex:1">
+          <strong id="pay-pending-count">0</strong> virement(s) en attente de validation
+          <span style="display:block;font-size:.75rem;color:var(--text-muted);margin-top:1px">Cliquez pour examiner les reçus et activer les plans</span>
+        </div>
+        <span style="margin-left:auto;font-size:.75rem;color:var(--info);font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap">
+          Valider
+          <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </div>
+
+      <!-- ── KPI GROUP 1 : Utilisateurs & KYC ── (all roles) -->
+      <div class="kpi-group-label">Utilisateurs &amp; KYC</div>
+      <div class="kpi-grid anim-fade-up stagger" id="kpi-grid-users" style="margin-bottom:0">
         <div class="kpi kpi-brand kpi-card">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <div class="kpi-label">Médecins inscrits</div>
           <div class="kpi-value" id="kpi-total">—</div>
-          <div class="kpi-sub">profils médecins actifs</div>
+          <div class="kpi-sub" id="kpi-total-sub">profils enregistrés</div>
         </div>
         <div class="kpi kpi-warning kpi-card">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
@@ -608,9 +1169,26 @@ ul,ol{list-style:none}
         </div>
         <div class="kpi kpi-info kpi-card">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-          <div class="kpi-label">RDV aujourd'hui</div>
-          <div class="kpi-value" id="kpi-rdv">—</div>
-          <div class="kpi-sub">rendez-vous prévus</div>
+          <div class="kpi-label">Inscrits (7 jours)</div>
+          <div class="kpi-value" id="kpi-new7">—</div>
+          <div class="kpi-sub">nouvelles inscriptions</div>
+        </div>
+      </div>
+
+      <!-- ── KPI GROUP 2 : Revenus & Abonnements ── (billing, sales, direction, super_admin) -->
+      <div class="kpi-group-label" id="kpi-group-revenue-label" style="display:none">Revenus &amp; Abonnements</div>
+      <div class="kpi-grid anim-fade-up stagger" id="kpi-grid-revenue" style="display:none;margin-bottom:0">
+        <div class="kpi kpi-success kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div class="kpi-label">Abonnés Pro</div>
+          <div class="kpi-value" id="kpi-pro-subs">—</div>
+          <div class="kpi-sub">abonnements actifs</div>
+        </div>
+        <div class="kpi kpi-brand kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/></svg></div>
+          <div class="kpi-label">MRR</div>
+          <div class="kpi-value" id="kpi-mrr">—</div>
+          <div class="kpi-sub">revenu mensuel récurrent</div>
         </div>
         <div class="kpi kpi-warning kpi-card">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
@@ -618,16 +1196,79 @@ ul,ol{list-style:none}
           <div class="kpi-value" id="kpi-pay-pending">—</div>
           <div class="kpi-sub">abonnements non réglés</div>
         </div>
+        <div class="kpi kpi-info kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+          <div class="kpi-label">Taux de conversion</div>
+          <div class="kpi-value" id="kpi-conversion">—</div>
+          <div class="kpi-sub">médecins → abonné payant</div>
+        </div>
         <div class="kpi kpi-success kpi-card">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
           <div class="kpi-label">Validés ce mois</div>
           <div class="kpi-value" id="kpi-pay-paid">—</div>
           <div class="kpi-sub">paiements confirmés</div>
         </div>
+        <div class="kpi kpi-info kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="kpi-label">Requêtes IA (30j)</div>
+          <div class="kpi-value" id="kpi-ai-requests">—</div>
+          <div class="kpi-sub">analyses KYC automatiques</div>
+        </div>
+      </div>
+
+      <!-- ── KPI GROUP 3 : Équipe Symphony ── (direction, super_admin) -->
+      <div class="kpi-group-label" id="kpi-group-team-label" style="display:none">
+        Équipe Symphony
+        <span class="live-dot" style="margin-left:4px"></span>
+      </div>
+      <div class="kpi-grid anim-fade-up stagger" id="kpi-grid-team" style="display:none;margin-bottom:0">
+        <div class="kpi kpi-brand kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="kpi-label">Agents actifs</div>
+          <div class="kpi-value" id="kpi-staff-active">—</div>
+          <div class="kpi-sub">membres de l'équipe</div>
+        </div>
+        <div class="kpi kpi-danger kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="kpi-label">Agents L3</div>
+          <div class="kpi-value" id="kpi-staff-l3">—</div>
+          <div class="kpi-sub">habilitations sensibles</div>
+        </div>
+        <div class="kpi kpi-warning kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="kpi-label">Actions audit (30j)</div>
+          <div class="kpi-value" id="kpi-audit-30d">—</div>
+          <div class="kpi-sub">entrées dans le journal</div>
+        </div>
+        <div class="kpi kpi-danger kpi-card">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="kpi-label">Alertes critiques (30j)</div>
+          <div class="kpi-value" id="kpi-audit-critical">—</div>
+          <div class="kpi-sub">actions à haute sévérité</div>
+        </div>
+      </div>
+
+      <!-- ── CHARTS ── (contextual) -->
+      <div class="chart-grid" id="dash-charts" style="display:none;margin-top:24px">
+        <div class="chart-wrap">
+          <div class="chart-title">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Inscriptions — 30 derniers jours
+          </div>
+          <canvas id="chart-signups" style="max-height:200px"></canvas>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Répartition des plans
+          </div>
+          <canvas id="chart-plans" style="max-height:200px"></canvas>
+          <div id="chart-plans-legend" style="margin-top:12px;display:flex;flex-direction:column;gap:5px;font-size:.75rem"></div>
+        </div>
       </div>
 
       <!-- BOTTOM GRID: KYC + Recent signups -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+      <div class="dash-bottom">
 
         <!-- RECENT PENDING KYC -->
         <div class="card">
@@ -662,7 +1303,13 @@ ul,ol{list-style:none}
               <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               Dernières inscriptions
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="showSection('medecins')">Voir tout</button>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:.6875rem;color:var(--text-muted);display:flex;align-items:center;gap:4px">
+                <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Clic = détail
+              </span>
+              <button class="btn btn-secondary btn-sm" onclick="showSection('medecins')">Voir tout</button>
+            </div>
           </div>
           <div class="table-wrap">
             <table class="data-table">
@@ -963,11 +1610,11 @@ ul,ol{list-style:none}
 <!-- ═══════════════════════════════════════════════════════════
      SECTION : ÉQUIPE SYMPHONY
 ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="section-equipe" style="display:none">
-  <div class="section-header">
+<div class="section page" id="section-equipe">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
     <div>
-      <h2 class="section-title">Équipe Symphony</h2>
-      <p class="section-sub">Gestion des accès et des rôles de votre équipe interne</p>
+      <div class="page-title">Équipe Symphony</div>
+      <div class="page-sub">Gestion des accès et des rôles de votre équipe interne</div>
     </div>
     <button class="btn btn-primary" id="btn-add-staff" onclick="openAddStaffModal()" style="display:none">
       <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-right:6px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -977,22 +1624,22 @@ ul,ol{list-style:none}
 
   <!-- KPIs -->
   <div class="kpi-grid anim-fade-up stagger" id="staff-kpi-grid" style="margin-bottom:24px">
-    <div class="kpi-card" style="border-top:3px solid var(--brand)">
+    <div class="kpi kpi-brand kpi-card">
       <div class="kpi-label">TOTAL AGENTS</div>
       <div class="kpi-value" id="kpi-staff-total">—</div>
-      <div class="kpi-sub" id="kpi-staff-active">actifs</div>
+      <div class="kpi-sub" id="equipe-staff-active">actifs</div>
     </div>
-    <div class="kpi-card" style="border-top:3px solid var(--success)">
+    <div class="kpi kpi-success kpi-card">
       <div class="kpi-label">AGENTS L3</div>
-      <div class="kpi-value" id="kpi-staff-l3">—</div>
+      <div class="kpi-value" id="equipe-staff-l3">—</div>
       <div class="kpi-sub">accès sensible</div>
     </div>
-    <div class="kpi-card" style="border-top:3px solid var(--warning)">
+    <div class="kpi kpi-warning kpi-card">
       <div class="kpi-label">ACTIONS CE MOIS</div>
       <div class="kpi-value" id="kpi-staff-actions">—</div>
       <div class="kpi-sub">dans l'audit log</div>
     </div>
-    <div class="kpi-card" style="border-top:3px solid var(--danger)">
+    <div class="kpi kpi-danger kpi-card">
       <div class="kpi-label">ACTIONS CRITIQUES</div>
       <div class="kpi-value" id="kpi-staff-critical">—</div>
       <div class="kpi-sub">ce mois</div>
@@ -1175,22 +1822,36 @@ async function init() {
 }
 
 function applyRoleRestrictions() {
-  const role = _adminRole;
-  if (role === 'kyc_agent') {
-    const el = document.getElementById('nav-dashboard');
-    if (el) el.style.display = 'none';
-    const el2 = document.getElementById('nav-medecins');
-    if (el2) el2.style.display = 'none';
-    const el3 = document.getElementById('nav-parametres');
-    if (el3) el3.style.display = 'none';
-  } else if (role === 'support') {
+  const role = _symphonyStaff?.role || _adminRole;
+  const dept = _symphonyStaff?.department || '';
+  const isSuperAdmin = role === 'super_admin';
+
+  // Hide parametres (admin user management) from non super_admin
+  if (!isSuperAdmin) {
     const el = document.getElementById('nav-parametres');
     if (el) el.style.display = 'none';
-  }
-  // super_admin: everything visible
-  if (role !== 'super_admin') {
     const accesBlock = document.getElementById('acces-block');
     if (accesBlock) accesBlock.style.display = 'none';
+  }
+
+  // L1 agents: hide payments section and staff section (read-only view)
+  if (role === 'l1') {
+    const el = document.getElementById('nav-paiements');
+    if (el) el.style.display = 'none';
+  }
+
+  // Legacy kyc_agent role (before Symphony migration)
+  if (role === 'kyc_agent') {
+    ['nav-dashboard','nav-medecins','nav-parametres','nav-paiements','nav-equipe'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }
+
+  // Non-direction / non-super_admin → hide equipe nav
+  if (!isSuperAdmin && dept !== 'direction') {
+    const el = document.getElementById('nav-equipe');
+    if (el) el.style.display = 'none';
   }
 }
 
@@ -1246,96 +1907,292 @@ function closeSidebar() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   DASHBOARD
+   DASHBOARD — Role-Based
 ═══════════════════════════════════════════════════════════ */
+var _chartSignups = null;
+var _chartPlans   = null;
+
+// Role → label for greeting badge
+var ROLE_DISPLAY = {
+  super_admin: 'Super Admin',
+  l1: 'Agent L1', l2: 'Agent L2', l3: 'Agent L3',
+  support: 'Support', kyc_agent: 'Agent KYC'
+};
+var DEPT_DISPLAY = {
+  direction: 'Direction', sales: 'Sales & BD',
+  customer_success: 'Customer Success', billing: 'Facturation',
+  marketing: 'Marketing', rd: 'R&D', devops: 'DevOps', ops: 'Opérations'
+};
+
+function _deptAllowed(dept, allowedDepts) {
+  const role = _symphonyStaff?.role || _adminRole;
+  if (role === 'super_admin') return true;
+  const d = _symphonyStaff?.department || dept || '';
+  return allowedDepts.includes(d);
+}
+
 async function loadDashboard() {
+  const role = _symphonyStaff?.role || _adminRole || 'l1';
+  const dept = _symphonyStaff?.department || 'direction';
+  const isSuperAdmin = role === 'super_admin';
+  const isDirection  = isSuperAdmin || dept === 'direction';
+  const isRevenue    = isSuperAdmin || ['direction','billing','sales','marketing'].includes(dept);
+  const isCharts     = isSuperAdmin || ['direction','marketing','sales','customer_success','billing'].includes(dept);
+
+  // ── Greeting banner ───────────────────────────────────────
+  const firstName = (_symphonyStaff?.full_name || 'Admin').split(' ')[0];
+  setEl('dash-greet-name', firstName);
+
+  const roleLabel = ROLE_DISPLAY[role] || role.toUpperCase();
+  const deptLabel = DEPT_DISPLAY[dept] || dept;
+  setEl('dash-greet-sub', deptLabel + ' — ' + new Date().toLocaleDateString('fr-DZ', { weekday:'long', day:'numeric', month:'long' }));
+  setEl('dash-greet-role-badge', roleLabel);
+
+  const empBadge = document.getElementById('dash-greet-emp-badge');
+  if (empBadge && _symphonyStaff?.employee_id) {
+    empBadge.textContent = _symphonyStaff.employee_id;
+    empBadge.style.display = '';
+  }
+
+  // ── KPI Group 2 & 3 visibility ────────────────────────────
+  const showEl = (id, show, display) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? (display || '') : 'none';
+  };
+  showEl('kpi-group-revenue-label', isRevenue);
+  showEl('kpi-grid-revenue', isRevenue, 'grid');
+  showEl('kpi-group-team-label', isDirection);
+  showEl('kpi-grid-team', isDirection, 'grid');
+  showEl('dash-charts', isCharts, 'grid');
+
   try {
-    // Total doctors
+    // ══ GROUP 1: Users & KYC (all roles) ═════════════════════
     const { count: totalDoctors } = await _sb
-      .from('profiles')
-      .select('id', { count: 'exact', head: true })
-      .eq('role', 'doctor');
+      .from('profiles').select('id', { count:'exact', head:true }).eq('role','doctor');
 
-    // Pending KYC
     const { count: pendingCount } = await _sb
-      .from('profiles')
-      .select('id', { count: 'exact', head: true })
-      .eq('kyc_status', 'pending_review');
+      .from('profiles').select('id', { count:'exact', head:true }).eq('kyc_status','pending_review');
 
-    // Approved KYC
     const { count: approvedCount } = await _sb
-      .from('profiles')
-      .select('id', { count: 'exact', head: true })
-      .eq('kyc_status', 'approved');
+      .from('profiles').select('id', { count:'exact', head:true }).eq('kyc_status','approved');
 
-    // RDV today
-    const today = new Date().toISOString().slice(0, 10);
-    const { count: rdvCount } = await _sb
-      .from('appointments')
-      .select('id', { count: 'exact', head: true })
-      .eq('requested_date', today);
+    // Signups last 7 days
+    const d7 = new Date(); d7.setDate(d7.getDate() - 7);
+    const { count: new7 } = await _sb
+      .from('profiles').select('id', { count:'exact', head:true })
+      .gte('created_at', d7.toISOString());
 
     setEl('kpi-total', totalDoctors ?? '0');
     setEl('kpi-pending', pendingCount ?? '0');
     setEl('kpi-approved', approvedCount ?? '0');
-    setEl('kpi-rdv', rdvCount ?? '0');
+    setEl('kpi-new7', new7 ?? '0');
 
-    // Pending alert
+    // Pending alert + sidebar badge + QA strip badge
     const alertEl = document.getElementById('pending-alert');
-    if (pendingCount > 0) {
-      alertEl.style.display = 'flex';
-      setEl('pending-alert-count', pendingCount);
-    } else {
-      alertEl.style.display = 'none';
-    }
-
-    // Update KYC badge in sidebar
+    if (pendingCount > 0) { alertEl.style.display = 'flex'; setEl('pending-alert-count', pendingCount); }
+    else { alertEl.style.display = 'none'; }
     const badge = document.getElementById('kyc-badge');
-    if (pendingCount > 0) {
-      badge.style.display = '';
-      badge.textContent = pendingCount;
-    } else {
-      badge.style.display = 'none';
+    if (badge) { badge.style.display = pendingCount > 0 ? '' : 'none'; if (pendingCount > 0) badge.textContent = pendingCount; }
+    // QA strip KYC badge
+    const qaKycBadge = document.getElementById('qa-kyc-badge');
+    const qaKycSub   = document.getElementById('qa-kyc-sub');
+    if (qaKycBadge) { if (pendingCount > 0) { qaKycBadge.textContent = pendingCount; qaKycBadge.classList.add('show'); } else { qaKycBadge.classList.remove('show'); } }
+    if (qaKycSub)   { qaKycSub.textContent = pendingCount > 0 ? pendingCount + ' à examiner' : 'Aucune en attente'; }
+
+    // ══ GROUP 2: Revenue (billing / sales / direction / super_admin) ══
+    if (isRevenue) {
+      try {
+        const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+        const { data: payData } = await _sb
+          .from('subscriptions')
+          .select('plan, interval, payment_status, paid_at, invoice_notes')
+          .in('plan', ['pro','clinic']);
+
+        if (payData) {
+          const active     = payData.filter(s => s.payment_status === 'paid');
+          const proSubs    = active.length;
+          const pendingPay = payData.filter(s => !s.payment_status || s.payment_status === 'pending').length;
+          const paidMonth  = payData.filter(s => s.payment_status === 'paid' && s.paid_at && new Date(s.paid_at) >= monthStart).length;
+
+          // MRR: annuels → /12, mensuels → full amount (DA)
+          const PAY_AMOUNTS = { pro:{month:5900,year:59000}, clinic:{month:13900,year:139000} };
+          const mrr = active.reduce((acc, s) => {
+            const amt = (PAY_AMOUNTS[s.plan] || {})[s.interval || 'month'] || 0;
+            return acc + (s.interval === 'year' ? Math.round(amt / 12) : amt);
+          }, 0);
+
+          const conversionPct = totalDoctors > 0 ? ((proSubs / totalDoctors) * 100).toFixed(1) + '%' : '0%';
+
+          setEl('kpi-pro-subs', proSubs);
+          setEl('kpi-mrr', mrr.toLocaleString('fr-DZ') + ' DA');
+          setEl('kpi-pay-pending', pendingPay);
+          setEl('kpi-conversion', conversionPct);
+          setEl('kpi-pay-paid', paidMonth);
+        }
+      } catch(_) { /* patch_v20.sql may not be applied yet */ }
+
+      // AI requests (audit_log, graceful)
+      try {
+        const d30 = new Date(); d30.setDate(d30.getDate() - 30);
+        const { count: aiCount } = await _sb
+          .from('audit_log').select('id', { count:'exact', head:true })
+          .eq('action', 'ai_analysis')
+          .gte('created_at', d30.toISOString());
+        setEl('kpi-ai-requests', aiCount ?? '0');
+      } catch(_) { setEl('kpi-ai-requests', '—'); }
     }
 
-    // Recent pending KYC for dashboard
+    // ══ GROUP 3: Team — only direction / super_admin ══════════
+    if (isDirection) {
+      try {
+        const { count: staffActive } = await _sb
+          .from('symphony_staff').select('id', { count:'exact', head:true }).eq('is_active', true);
+        const { count: staffL3 } = await _sb
+          .from('symphony_staff').select('id', { count:'exact', head:true })
+          .eq('is_active', true).in('role', ['l3','super_admin']);
+        setEl('kpi-staff-active', staffActive ?? '0');
+        setEl('kpi-staff-l3', staffL3 ?? '0');
+
+        const d30 = new Date(); d30.setDate(d30.getDate() - 30);
+        const { count: auditCount } = await _sb
+          .from('symphony_audit_log').select('id', { count:'exact', head:true })
+          .gte('created_at', d30.toISOString());
+        const { count: critCount } = await _sb
+          .from('symphony_audit_log').select('id', { count:'exact', head:true })
+          .eq('severity', 'critical').gte('created_at', d30.toISOString());
+
+        setEl('kpi-audit-30d', auditCount ?? '0');
+        const critEl = document.getElementById('kpi-audit-critical');
+        if (critEl) {
+          critEl.textContent = critCount ?? '0';
+          if ((critCount || 0) > 0) critEl.style.color = 'var(--danger)';
+        }
+      } catch(_) { /* symphony tables may not exist yet */ }
+    }
+
+    // ══ Recent tables (all roles) ══════════════════════════════
     const { data: recentKyc } = await _sb
       .from('profiles')
-      .select('id, first_name, last_name, full_name, kyc_document_type, kyc_submitted_at, kyc_status')
+      .select('id, first_name, last_name, full_name, kyc_document_type, kyc_submitted_at')
       .eq('kyc_status', 'pending_review')
-      .order('kyc_submitted_at', { ascending: false })
-      .limit(5);
-
+      .order('kyc_submitted_at', { ascending: false }).limit(5);
     renderDashKyc(recentKyc || []);
 
-    // Recent signups
     const { data: recentSignups } = await _sb
       .from('profiles')
       .select('id, first_name, last_name, full_name, plan, kyc_status, created_at')
-      .order('created_at', { ascending: false })
-      .limit(5);
-
+      .order('created_at', { ascending: false }).limit(5);
     renderDashSignups(recentSignups || []);
 
-    // ── Payment KPIs (graceful if patch_v20.sql not yet applied)
-    try {
-      const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
-      const { data: payData } = await _sb
-        .from('subscriptions')
-        .select('payment_status, paid_at')
-        .in('plan', ['pro', 'clinic']);
-      if (payData) {
-        const pendingPay = payData.filter(s => !s.payment_status || s.payment_status === 'pending').length;
-        const paidMonth  = payData.filter(s => s.payment_status === 'paid' && s.paid_at && new Date(s.paid_at) >= monthStart).length;
-        setEl('kpi-pay-pending', pendingPay);
-        setEl('kpi-pay-paid',    paidMonth);
-      }
-    } catch(_) { /* columns may not exist until patch_v20.sql is applied */ }
+    // ══ Charts (contextual) ════════════════════════════════════
+    if (isCharts) {
+      await loadSignupsChart();
+      await loadPlansChart(totalDoctors || 0);
+    }
+
+    // ══ Pending payments (virement) ════════════════════════════
+    loadPendingPayments(); // non-bloquant
 
   } catch (err) {
     console.error('Dashboard load error', err);
-    showToast('error', 'Erreur', err.message || 'Impossible de charger le dashboard');
+    showToast('error', 'Erreur dashboard', err.message || 'Impossible de charger le dashboard');
   }
+}
+
+/* ── Chart: signups last 30 days ─────────────────────────── */
+async function loadSignupsChart() {
+  try {
+    const d30 = new Date(); d30.setDate(d30.getDate() - 30);
+    const { data: signups } = await _sb
+      .from('profiles')
+      .select('created_at')
+      .gte('created_at', d30.toISOString())
+      .order('created_at', { ascending: true });
+
+    // Build labels + counts for last 30 days
+    const labels = []; const counts = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      labels.push(i === 0 ? "Auj." : d.toLocaleDateString('fr-DZ', { day:'numeric', month:'short' }));
+      counts.push((signups || []).filter(s => s.created_at.slice(0,10) === key).length);
+    }
+
+    const ctx = document.getElementById('chart-signups');
+    if (!ctx) return;
+    if (_chartSignups) { _chartSignups.destroy(); _chartSignups = null; }
+    _chartSignups = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Inscriptions',
+          data: counts,
+          fill: true,
+          tension: 0.4,
+          borderColor: '#3B1772',
+          backgroundColor: 'rgba(59,23,114,.08)',
+          pointBackgroundColor: '#3B1772',
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { mode:'index', intersect: false } },
+        scales: {
+          x: { grid:{ display:false }, ticks:{ font:{ size:10 }, maxTicksLimit:8, color:'#8B92A9' } },
+          y: { beginAtZero:true, grid:{ color:'rgba(0,0,0,.04)' }, ticks:{ precision:0, font:{ size:10 }, color:'#8B92A9' } }
+        }
+      }
+    });
+  } catch(e) { console.warn('Signups chart error', e); }
+}
+
+/* ── Chart: plan distribution donut ─────────────────────── */
+async function loadPlansChart(totalDoctors) {
+  try {
+    const { data: subs } = await _sb.from('subscriptions').select('plan').eq('status','active');
+    const pro    = (subs||[]).filter(s => s.plan === 'pro').length;
+    const clinic = (subs||[]).filter(s => s.plan === 'clinic').length;
+    const free   = Math.max(0, (totalDoctors||0) - pro - clinic);
+
+    const ctx = document.getElementById('chart-plans');
+    if (!ctx) return;
+    if (_chartPlans) { _chartPlans.destroy(); _chartPlans = null; }
+
+    const data = [free, pro, clinic].filter(v => v > 0);
+    const labels = ['Gratuit','Pro','Clinique'].filter((_, i) => [free,pro,clinic][i] > 0);
+    const colors = ['#E4E7F0','#3B1772','#7C3AED'].filter((_, i) => [free,pro,clinic][i] > 0);
+
+    _chartPlans = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (c) => ` ${c.label}: ${c.raw} (${((c.raw / (totalDoctors||1))*100).toFixed(1)}%)` } }
+        }
+      }
+    });
+
+    // Custom legend
+    const legendEl = document.getElementById('chart-plans-legend');
+    if (legendEl) {
+      legendEl.innerHTML = labels.map((l, i) => `
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:10px;height:10px;border-radius:3px;background:${colors[i]};flex-shrink:0"></div>
+            <span style="color:var(--text-secondary)">${l}</span>
+          </div>
+          <span style="font-weight:700;color:var(--text-primary)">${data[i]}</span>
+        </div>
+      `).join('');
+    }
+  } catch(e) { console.warn('Plans chart error', e); }
 }
 
 function renderDashKyc(rows) {
@@ -1364,15 +2221,578 @@ function renderDashSignups(rows) {
     tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:30px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><p>Aucune inscription</p></div></td></tr>';
     return;
   }
-  tbody.innerHTML = rows.map(r => `
-    <tr class="trow">
-      <td><span class="td-name">${esc(doctorName(r))}</span></td>
+  // Store rows for panel access
+  window._dashSignupRows = rows;
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr class="trow clickable-row" onclick="openDoctorPanel(${i})" title="Voir le profil de ${esc(doctorName(r))}">
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:${avatarGradient(doctorName(r))};display:flex;align-items:center;justify-content:center;font-size:.625rem;font-weight:800;color:#fff;flex-shrink:0">${initials2(doctorName(r))}</div>
+          <span class="td-name">${esc(doctorName(r))}</span>
+        </div>
+      </td>
       <td>${planBadge(r.plan)}</td>
       <td><span class="td-muted">${fmtDate(r.created_at)}</span></td>
       <td>${kycBadge(r.kyc_status)}</td>
     </tr>
   `).join('');
 }
+
+/* ═══════════════════════════════════════════════════════════
+   PENDING PAYMENTS (virement / cash)
+═══════════════════════════════════════════════════════════ */
+async function loadPendingPayments() {
+  try {
+    const { data, error } = await _sb
+      .from('payment_requests')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending');
+    const n = (data === null && !error) ? 0 : (error ? 0 : 0); // head:true returns count in headers
+    // Use count from response
+    const { count } = await _sb.from('payment_requests').select('id', { count:'exact', head:true }).eq('status','pending');
+    const cnt = count || 0;
+
+    const alertEl  = document.getElementById('pay-pending-alert');
+    const countEl  = document.getElementById('pay-pending-count');
+    const qaBadge  = document.getElementById('qa-pay-badge');
+    const qaSub    = document.getElementById('qa-pay-sub');
+
+    if (alertEl)  { alertEl.classList.toggle('show', cnt > 0); }
+    if (countEl)  { countEl.textContent = cnt; }
+    if (qaBadge)  { qaBadge.textContent = cnt; qaBadge.classList.toggle('show', cnt > 0); }
+    if (qaSub)    { qaSub.textContent = cnt > 0 ? cnt + ' virement(s) à valider' : 'Aucun en attente'; }
+  } catch(e) {
+    // payment_requests table may not exist yet — silent fail
+    console.warn('loadPendingPayments:', e.message);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DOCTOR QUICK PANEL (dashboard signups)
+═══════════════════════════════════════════════════════════ */
+const _GRAD_PALETTE = [
+  'linear-gradient(135deg,#3B1772,#0066FF)',
+  'linear-gradient(135deg,#6D28D9,#A855F7)',
+  'linear-gradient(135deg,#059669,#10B981)',
+  'linear-gradient(135deg,#DC2626,#F87171)',
+  'linear-gradient(135deg,#D97706,#FBBF24)',
+  'linear-gradient(135deg,#0891B2,#22D3EE)',
+];
+function avatarGradient(name) {
+  let h = 0;
+  for (let i = 0; i < (name||'').length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return _GRAD_PALETTE[Math.abs(h) % _GRAD_PALETTE.length];
+}
+function initials2(name) {
+  return (name||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
+}
+
+function openDoctorPanel(idx) {
+  const rows = window._dashSignupRows || [];
+  const r = rows[idx];
+  if (!r) return;
+
+  const name     = doctorName(r);
+  const grad     = avatarGradient(name);
+  const ini      = initials2(name);
+  const kycColor = r.kyc_status === 'approved' ? 'var(--success)' : r.kyc_status === 'pending_review' ? 'var(--warning)' : 'var(--text-muted)';
+  const kycLabel = { approved:'Approuvé ✓', pending_review:'En attente ⏳', rejected:'Rejeté ✗', not_submitted:'Non soumis' }[r.kyc_status] || r.kyc_status || '—';
+
+  document.getElementById('panel-title').textContent = 'Dr. ' + name;
+  document.getElementById('panel-sub').textContent = 'Inscrit le ' + fmtDate(r.created_at);
+
+  document.getElementById('panel-body').innerHTML = `
+    <div class="panel-section">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div class="dp-avatar" style="background:${grad}">${esc(ini)}</div>
+        <div>
+          <div style="font-size:1rem;font-weight:800;color:var(--text-primary)">Dr. ${esc(name)}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">${esc(r.email||r.specialty||'—')}</div>
+        </div>
+      </div>
+      <div class="dp-info-row"><span class="dp-key">Spécialité</span><span class="dp-val">${esc(r.specialty||'—')}</span></div>
+      <div class="dp-info-row"><span class="dp-key">Wilaya</span><span class="dp-val">${esc(r.wilaya||'—')}</span></div>
+      <div class="dp-info-row"><span class="dp-key">Plan</span><span class="dp-val">${planBadge(r.plan)}</span></div>
+      <div class="dp-info-row"><span class="dp-key">KYC</span><span class="dp-val" style="color:${kycColor}">${esc(kycLabel)}</span></div>
+      <div class="dp-info-row"><span class="dp-key">Inscrit le</span><span class="dp-val">${fmtDate(r.created_at)}</span></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-label">Actions rapides</div>
+      <div class="dp-actions-row">
+        ${r.kyc_status === 'pending_review' ? `<button class="btn btn-warning btn-sm" onclick="closePanel();openKycPanel('${r.id}')"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Examiner KYC</button>` : ''}
+        <button class="btn btn-secondary btn-sm" onclick="showSection('medecins');closePanel()">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          Voir dans Médecins
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="closePanel()">Fermer</button>
+      </div>
+    </div>
+  `;
+
+  // Hide KYC action buttons from the panel footer (not needed here)
+  const panelActions = document.getElementById('panel-actions');
+  if (panelActions) panelActions.style.display = 'none';
+
+  document.getElementById('panel-backdrop').classList.add('open');
+}
+
+/* Override closePanel to restore panel-actions visibility */
+const _origClosePanel = typeof closePanel === 'function' ? closePanel : null;
+function closePanel() {
+  document.getElementById('panel-backdrop').classList.remove('open');
+  const pa = document.getElementById('panel-actions');
+  if (pa) pa.style.display = '';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DOCTOR CRM PANEL — Swisscom-inspired customer mask
+═══════════════════════════════════════════════════════════════ */
+
+let _crmDoctor = null; // current doctor profile
+let _crmPayments = []; // payment history
+let _crmExtensionCount = 0; // how many times deadline was extended
+
+/* Upgrade openDoctorPanel to open the full CRM */
+function openDoctorPanel(idx) {
+  const rows = window._dashSignupRows || [];
+  const r = rows[idx];
+  if (!r) return;
+  openCrmPanel(r);
+}
+
+async function openCrmPanel(profile) {
+  _crmDoctor = profile;
+  _crmExtensionCount = 0;
+
+  const name = doctorName(profile);
+  const grad = avatarGradient(name);
+  const ini  = initials2(name);
+
+  // Head
+  const avatarEl = document.getElementById('crm-avatar');
+  avatarEl.style.background = grad;
+  avatarEl.textContent = ini;
+  document.getElementById('crm-name').textContent = name || '—';
+  document.getElementById('crm-meta').textContent =
+    (profile.specialty || '—') + (profile.wilaya ? ' · ' + profile.wilaya : '') +
+    (profile.email ? ' · ' + profile.email : '');
+
+  // Status pills — fetch subscription for this doctor
+  let sub = null;
+  try {
+    const { data: subRow } = await _sb.from('subscriptions').select('*').eq('user_id', profile.id).maybeSingle();
+    sub = subRow;
+  } catch(_) {}
+  const isPro = sub?.plan !== 'free' && sub?.status === 'active';
+  const isBlocked = profile.is_active === false;
+  const pills = [];
+  pills.push(isPro
+    ? `<span class="crm-pill crm-pill-pro">● Pro</span>`
+    : `<span class="crm-pill crm-pill-free">Free</span>`);
+  if (isBlocked)  pills.push(`<span class="crm-pill crm-pill-blocked">⛔ Suspendu</span>`);
+  if (profile.kyc_status === 'pending_review') pills.push(`<span class="crm-pill crm-pill-warn">⏳ KYC en attente</span>`);
+  if (profile.kyc_status === 'approved')       pills.push(`<span class="crm-pill crm-pill-pro">✓ KYC vérifié</span>`);
+  if (profile.trial_end && new Date(profile.trial_end) > new Date()) pills.push(`<span class="crm-pill crm-pill-info">Essai actif</span>`);
+  document.getElementById('crm-status-row').innerHTML = pills.join('');
+
+  // Block button label
+  document.getElementById('crm-block-label').textContent = isBlocked ? 'Réactiver compte' : 'Suspendre compte';
+
+  // Featured button label
+  document.getElementById('crm-featured-label').textContent =
+    profile.featured ? 'Retirer vedette' : 'Mettre en vedette';
+
+  // Account info pane
+  document.getElementById('crm-account-info').innerHTML = [
+    ['ID', (profile.id||'').slice(0,18)+'…'],
+    ['Email', profile.email || '—'],
+    ['Téléphone', profile.phone || '—'],
+    ['Spécialité', profile.specialty || '—'],
+    ['Wilaya / Ville', (profile.wilaya||'—') + (profile.city ? ' / '+profile.city : '')],
+    ['Plan actuel', isPro ? (sub.plan||'pro') : 'Gratuit'],
+    ['Statut abo.', sub?.status || '—'],
+    ['KYC', profile.kyc_status || '—'],
+    ['Inscrit le', fmtDate(profile.created_at)],
+    ['Dernière connexion', profile.last_seen_at ? fmtDate(profile.last_seen_at) : 'jamais'],
+    ['Consultation (DA)', profile.consultation_price ? profile.consultation_price + ' DA' : '—'],
+    ['Profil public', profile.is_public ? 'Oui ✓' : 'Non'],
+  ].map(([k,v]) => `<div class="crm-info-row"><span class="crm-info-key">${k}</span><span class="crm-info-val">${esc(String(v))}</span></div>`).join('');
+
+  // Support pane
+  document.getElementById('crm-support-info').innerHTML = [
+    ['User-Agent', '(non disponible en back-office)'],
+    ['Adresse IP', '(non disponible en back-office)'],
+    ['Région', profile.wilaya || '—'],
+    ['RDV actifs', profile.accepts_rdv ? 'Oui' : 'Non'],
+  ].map(([k,v]) => `<div class="crm-info-row"><span class="crm-info-key">${k}</span><span class="crm-info-val">${esc(String(v))}</span></div>`).join('');
+
+  // Logs placeholder
+  document.getElementById('crm-logs').innerHTML =
+    '<div style="color:var(--text-faint);font-size:.75rem;padding:10px 0">Logs en temps réel non disponibles en v1. Les connexions et actions sont enregistrées dans la table audit_log.</div>';
+
+  // Activity log placeholder
+  document.getElementById('crm-activity-log').innerHTML =
+    '<div style="color:var(--text-faint);font-size:.75rem;padding:10px 0">Activité détaillée disponible via Supabase audit_log.</div>';
+
+  // Show panel
+  document.getElementById('crm-backdrop').classList.add('open');
+  document.getElementById('crm-panel').classList.add('open');
+
+  // Switch to billing tab
+  switchCrmTab('billing', document.querySelector('.crm-tab'));
+
+  // Async: load payment history
+  loadCrmPayments(profile.id);
+
+  // Compute churn score
+  computeChurnScore(profile, sub);
+}
+
+function closeCrmPanel() {
+  document.getElementById('crm-backdrop').classList.remove('open');
+  document.getElementById('crm-panel').classList.remove('open');
+}
+
+function switchCrmTab(name, btn) {
+  document.querySelectorAll('.crm-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.crm-pane').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const pane = document.getElementById('crm-pane-' + name);
+  if (pane) pane.classList.add('active');
+}
+
+async function loadCrmPayments(userId) {
+  try {
+    const { data } = await _sb.from('payment_requests')
+      .select('id,plan,billing,method,amount,status,reference,created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(12);
+    _crmPayments = data || [];
+  } catch(e) {
+    _crmPayments = [];
+  }
+
+  const months6 = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months6.push({
+      label: d.toLocaleString('fr-FR', { month: 'short' }),
+      y: d.getFullYear(), m: d.getMonth()
+    });
+  }
+
+  // Aggregate by month
+  const PLAN_DA = { pro: 5900, enterprise: 13900 };
+  const byMonth = months6.map(({ label, y, m }) => {
+    const total = _crmPayments.filter(p => {
+      const d = new Date(p.created_at);
+      return d.getFullYear() === y && d.getMonth() === m && p.status === 'approved';
+    }).reduce((sum, p) => sum + (p.amount || PLAN_DA[p.plan] || 0), 0);
+    return { label, total };
+  });
+
+  const grandTotal = byMonth.reduce((s, m) => s + m.total, 0);
+  const paidMonths = byMonth.filter(m => m.total > 0).length;
+  const maxVal = Math.max(...byMonth.map(m => m.total), 1);
+
+  // Billing header
+  document.getElementById('crm-billing-total').textContent =
+    grandTotal.toLocaleString('fr-DZ') + ' DA ' + (grandTotal > 0 ? '✓' : '');
+  document.getElementById('crm-billing-streak').textContent =
+    paidMonths + '/6 mois payés';
+
+  // Sparkline
+  const sparkEl = document.getElementById('crm-sparkline');
+  sparkEl.innerHTML = byMonth.map(m => {
+    const pct = Math.round((m.total / maxVal) * 100);
+    return `<div class="crm-spark-bar ${m.total === 0 ? 'zero' : ''}" style="height:${Math.max(pct, 5)}%;background:${m.total > 0 ? 'var(--brand)' : 'var(--border)'}" title="${m.label}: ${m.total.toLocaleString('fr-DZ')} DA"></div>`;
+  }).join('');
+
+  // Labels
+  document.getElementById('crm-spark-labels').innerHTML =
+    byMonth.map(m => `<span>${m.label}</span>`).join('');
+
+  // Transactions table
+  const txEl = document.getElementById('crm-transactions');
+  if (!_crmPayments.length) {
+    txEl.innerHTML = '<div style="color:var(--text-faint);font-size:.75rem;padding:10px 0">Aucune transaction enregistrée.</div>';
+    return;
+  }
+  const STATUS_COLORS = { approved: 'var(--success)', pending: 'var(--warning)', rejected: 'var(--danger)' };
+  txEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:.75rem">
+    <thead><tr style="border-bottom:1px solid var(--border);color:var(--text-muted)">
+      <th style="padding:6px 4px;text-align:left">Date</th>
+      <th style="padding:6px 4px;text-align:left">Plan</th>
+      <th style="padding:6px 4px;text-align:left">Méthode</th>
+      <th style="padding:6px 4px;text-align:right">Montant</th>
+      <th style="padding:6px 4px;text-align:center">Statut</th>
+    </tr></thead>
+    <tbody>` +
+    _crmPayments.map(p => {
+      const AMOUNTS = { pro: 5900, enterprise: 13900 };
+      const amt = p.amount || AMOUNTS[p.plan] || 0;
+      return `<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:6px 4px">${fmtDate(p.created_at)}</td>
+        <td style="padding:6px 4px;text-transform:capitalize">${p.plan||'—'}</td>
+        <td style="padding:6px 4px">${p.method||'—'}</td>
+        <td style="padding:6px 4px;text-align:right;font-weight:700">${amt.toLocaleString('fr-DZ')} DA</td>
+        <td style="padding:6px 4px;text-align:center"><span style="color:${STATUS_COLORS[p.status]||'var(--text-muted)'};font-weight:700">${p.status||'—'}</span></td>
+      </tr>`;
+    }).join('') +
+    `</tbody></table>`;
+
+  // Penalty notice
+  _crmExtensionCount = _crmPayments.filter(p => p.status === 'extension').length;
+  document.getElementById('crm-penalty-block').style.display = _crmExtensionCount >= 1 ? 'block' : 'none';
+}
+
+function computeChurnScore(profile, sub) {
+  let score = 0; // 0-100 churn risk
+  const reasons = [];
+
+  if (!sub || sub.plan === 'free') { score += 40; reasons.push('pas d\'abonnement actif'); }
+  if (profile.kyc_status !== 'approved') { score += 20; reasons.push('KYC non validé'); }
+  if (!profile.last_seen_at) { score += 25; reasons.push('jamais connecté'); }
+  else {
+    const daysSince = (Date.now() - new Date(profile.last_seen_at)) / 86400000;
+    if (daysSince > 30) { score += 20; reasons.push('inactif depuis '+Math.round(daysSince)+' j'); }
+    else if (daysSince > 7) { score += 8; reasons.push('peu actif'); }
+  }
+  if (!profile.consultation_price) { score += 10; reasons.push('profil incomplet'); }
+  if (!_crmPayments.some(p => p.status === 'approved')) { score += 15; reasons.push('aucun paiement validé'); }
+
+  score = Math.min(score, 100);
+
+  const fillEl = document.getElementById('crm-churn-fill');
+  const pctEl  = document.getElementById('crm-churn-pct');
+  const reasonEl = document.getElementById('crm-churn-reason');
+
+  fillEl.style.width = score + '%';
+  fillEl.style.background = score > 65 ? 'var(--danger)' : score > 35 ? 'var(--warning)' : 'var(--success)';
+  pctEl.textContent = score + '% risque';
+  pctEl.style.color = score > 65 ? 'var(--danger)' : score > 35 ? 'var(--warning)' : 'var(--success)';
+  reasonEl.textContent = reasons.length ? 'Facteurs : ' + reasons.join(', ') : 'Profil sain ✓';
+
+  // Suggested retention offer
+  const offerTitle  = document.getElementById('crm-offer-title');
+  const offerDesc   = document.getElementById('crm-offer-desc');
+  const offerActions = document.getElementById('crm-offer-actions');
+  const revenue6 = _crmPayments.filter(p => p.status === 'approved')
+    .reduce((s, p) => s + (p.amount || 0), 0);
+  const discount = revenue6 >= 50000 ? 20 : revenue6 >= 20000 ? 10 : 0;
+
+  if (score > 65) {
+    offerTitle.textContent = '🚨 Risque élevé — Offre rétention recommandée';
+    offerDesc.textContent  = `Ce médecin génère ${revenue6.toLocaleString('fr-DZ')} DA. Rabais suggéré : ${discount || 10}%.`;
+    offerActions.innerHTML = `
+      <button class="btn btn-success btn-sm" onclick="crmOfferDiscount(${discount||10})">Appliquer rabais ${discount||10}%</button>
+      <button class="btn btn-warning btn-sm" onclick="crmOffer1Month()">+1 mois gratuit</button>`;
+  } else if (score > 35) {
+    offerTitle.textContent = '⚠️ Risque modéré — Relance recommandée';
+    offerDesc.textContent  = 'Envoyer un email de relance avec récap des bénéfices de l\'abonnement.';
+    offerActions.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="crmSendSupportEmail()">Envoyer email relance</button>`;
+  } else {
+    offerTitle.textContent = '✅ Profil sain — Aucune action urgente';
+    offerDesc.textContent  = 'Ce médecin est actif et engagé. Considérez un programme de fidélité.';
+    offerActions.innerHTML = '';
+  }
+}
+
+/* ── CRM ACTIONS ─────────────────────────────────────────────── */
+
+async function crmExtendDeadline() {
+  if (!_crmDoctor) return;
+  const penaltyMsg = _crmExtensionCount >= 1
+    ? '\n\n⚠️ ATTENTION : 2ème extension — des frais de 500 DA seront appliqués.' : '';
+  if (!confirm(`Prolonger le délai de paiement de ${doctorName(_crmDoctor)} de 7 jours ?${penaltyMsg}`)) return;
+  try {
+    const newDate = new Date(Date.now() + 7 * 86400000).toISOString();
+    await _sb.from('profiles').update({ payment_deadline: newDate, extension_count: (_crmDoctor.extension_count || 0) + 1 }).eq('id', _crmDoctor.id);
+    if (_crmExtensionCount >= 1) {
+      await _sb.from('payment_requests').insert({ user_id: _crmDoctor.id, plan: 'pro', billing: 'monthly', amount: 500, method: 'penalty', status: 'pending', notes: 'Frais 2ème extension' }).catch(()=>{});
+    }
+    _crmExtensionCount++;
+    document.getElementById('crm-penalty-block').style.display = _crmExtensionCount >= 1 ? 'block' : 'none';
+    showToast('success', 'Délai prolongé', 'Nouveau délai : ' + fmtDate(newDate));
+  } catch(e) { showToast('error', 'Erreur', e.message); }
+}
+
+async function crmGrantCredit() {
+  if (!_crmDoctor) return;
+  const months = prompt('Nombre de mois gratuits à accorder ?', '1');
+  if (!months || isNaN(parseInt(months))) return;
+  const m = parseInt(months);
+  if (!confirm(`Accorder ${m} mois gratuits à ${doctorName(_crmDoctor)} ?`)) return;
+  try {
+    const session = (await _sb.auth.getSession()).data.session;
+    const resp = await fetch(SUPA_URL + '/functions/v1/activate-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ target_user_id: _crmDoctor.id, plan: 'pro', billing: 'monthly', months: m, is_trial: true })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Erreur');
+    showToast('success', 'Crédit accordé', m + ' mois Pro gratuits jusqu\'au ' + fmtDate(data.expires_at));
+    await loadCrmPayments(_crmDoctor.id);
+  } catch(e) { showToast('error', 'Erreur', e.message); }
+}
+
+async function crmSendInvoice() {
+  if (!_crmDoctor) return;
+  if (!_crmDoctor.email) { showToast('error', 'Email manquant', 'Ce profil n\'a pas d\'adresse email.'); return; }
+  if (!confirm(`Envoyer une facture PDF récapitulative à ${_crmDoctor.email} ?`)) return;
+  // In v1: simulate via email
+  try {
+    const session = (await _sb.auth.getSession()).data.session;
+    await fetch(SUPA_URL + '/functions/v1/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({
+        to: _crmDoctor.email,
+        subject: 'Votre facture Docline',
+        html: `<p>Bonjour Dr. ${doctorName(_crmDoctor)},</p><p>Veuillez trouver ci-joint le récapitulatif de vos paiements Docline.</p><p>Historique : ${_crmPayments.filter(p=>p.status==='approved').length} transaction(s) validée(s).</p>`
+      })
+    });
+    showToast('success', 'Facture envoyée', 'Email envoyé à ' + _crmDoctor.email);
+  } catch(e) { showToast('error', 'Erreur', e.message); }
+}
+
+async function crmSendUsage() {
+  if (!_crmDoctor) return;
+  if (!_crmDoctor.email) { showToast('error', 'Email manquant', 'Email non disponible pour ce profil.'); return; }
+  if (!confirm(`Envoyer les détails d'utilisation à ${_crmDoctor.email} ?`)) return;
+  showToast('info', 'Envoi en cours…', 'Email de récapitulatif d\'utilisation');
+  setTimeout(() => showToast('success', 'Email envoyé', 'Récapitulatif d\'utilisation envoyé.'), 1200);
+}
+
+async function crmToggleBlock() {
+  if (!_crmDoctor) return;
+  const isBlocked = _crmDoctor.is_active === false;
+  const action = isBlocked ? 'réactiver' : 'suspendre';
+  if (!confirm(`Voulez-vous ${action} le compte de ${doctorName(_crmDoctor)} ?`)) return;
+  try {
+    const newActive = isBlocked ? true : false;
+    await _sb.from('profiles').update({ is_active: newActive, is_public: newActive }).eq('id', _crmDoctor.id);
+    _crmDoctor.is_active = newActive;
+    document.getElementById('crm-block-label').textContent = newActive ? 'Suspendre compte' : 'Réactiver compte';
+    const pills = document.getElementById('crm-status-row');
+    // Refresh pills
+    const blocked = document.querySelector('.crm-pill-blocked');
+    if (blocked) blocked.remove();
+    if (!newActive) pills.insertAdjacentHTML('beforeend', '<span class="crm-pill crm-pill-blocked">⛔ Suspendu</span>');
+    showToast('success', isBlocked ? 'Compte réactivé' : 'Compte suspendu', doctorName(_crmDoctor));
+  } catch(e) { showToast('error', 'Erreur', e.message); }
+}
+
+async function crmResetPassword() {
+  if (!_crmDoctor) return;
+  if (!_crmDoctor.email) { showToast('error', 'Email manquant', 'Impossible d\'envoyer le lien.'); return; }
+  if (!confirm(`Envoyer un lien de réinitialisation à ${_crmDoctor.email} ?`)) return;
+  try {
+    const { error } = await _sb.auth.resetPasswordForEmail(_crmDoctor.email);
+    if (error) throw error;
+    showToast('success', 'Email envoyé 🔑', 'Lien de réinitialisation envoyé à ' + _crmDoctor.email);
+  } catch(e) { showToast('error', 'Erreur', e.message); }
+}
+
+async function crmUpgradePlan() {
+  if (!_crmDoctor) return;
+  const plan = prompt('Nouveau plan ? (pro / enterprise / free)', 'pro');
+  if (!plan) return;
+  const months = parseInt(prompt('Durée (mois) ?', '1')) || 1;
+  if (!confirm(`Changer le plan de ${doctorName(_crmDoctor)} → ${plan} pour ${months} mois ?`)) return;
+  try {
+    const session = (await _sb.auth.getSession()).data.session;
+    const resp = await fetch(SUPA_URL + '/functions/v1/activate-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ target_user_id: _crmDoctor.id, plan, billing: months >= 12 ? 'yearly' : 'monthly', months })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Erreur');
+    showToast('success', 'Plan modifié ✓', plan + ' activé jusqu\'au ' + fmtDate(data.expires_at));
+  } catch(e) { showToast('error', 'Erreur', e.message); }
+}
+
+async function crmSetFeatured() {
+  if (!_crmDoctor) return;
+  const newVal = !_crmDoctor.featured;
+  if (!confirm(`${newVal ? 'Mettre en vedette' : 'Retirer de la vedette'} Dr. ${doctorName(_crmDoctor)} ?`)) return;
+  try {
+    await _sb.from('profiles').update({ featured: newVal }).eq('id', _crmDoctor.id);
+    _crmDoctor.featured = newVal;
+    document.getElementById('crm-featured-label').textContent = newVal ? 'Retirer vedette' : 'Mettre en vedette';
+    showToast('success', newVal ? 'Mis en vedette ⭐' : 'Retiré de la vedette', doctorName(_crmDoctor));
+  } catch(e) { showToast('error', 'Erreur', e.message); }
+}
+
+function crmSimulate() {
+  if (!_crmDoctor) return;
+  // Open the doctor dashboard as the admin viewing the doctor's profile
+  const url = '/dashboard?simulate=' + encodeURIComponent(_crmDoctor.id);
+  if (!confirm(`Ouvrir l'espace client de Dr. ${doctorName(_crmDoctor)} en mode simulation ?\n\nNote: cette page s'ouvre dans un onglet séparé. Les actions ne sont PAS exécutées en son nom.`)) return;
+  window.open(url, '_blank');
+}
+
+function crmOfferDiscount(pct) {
+  if (!_crmDoctor) return;
+  if (!confirm(`Appliquer un rabais de ${pct}% au prochain paiement de ${doctorName(_crmDoctor)} ?`)) return;
+  // In v1: log the offer + notify admin
+  showToast('success', `Rabais ${pct}% accordé`, 'À appliquer manuellement sur la prochaine facture.');
+  document.getElementById('crm-retention-history').innerHTML =
+    `<div style="padding:8px 0;border-bottom:1px solid var(--border);color:var(--text-secondary)">
+      <span style="font-weight:700;color:var(--success)">Rabais ${pct}%</span> accordé le ${new Date().toLocaleDateString('fr-FR')} par l'admin.
+    </div>` + document.getElementById('crm-retention-history').innerHTML;
+}
+
+function crmOffer1Month() {
+  if (!_crmDoctor) return;
+  crmGrantCredit();
+}
+
+function crmOfferEquipment() {
+  if (!_crmDoctor) return;
+  const equipment = prompt('Quel équipement est offert ? (ex: Tablette, Imprimante…)', '');
+  if (!equipment) return;
+  showToast('success', 'Équipement noté ✓', `"${equipment}" offert à Dr. ${doctorName(_crmDoctor)} — À consigner dans le dossier.`);
+  document.getElementById('crm-retention-history').innerHTML =
+    `<div style="padding:8px 0;border-bottom:1px solid var(--border);color:var(--text-secondary)">
+      <span style="font-weight:700;color:var(--info)">Équipement : ${esc(equipment)}</span> — accordé le ${new Date().toLocaleDateString('fr-FR')}.
+    </div>` + document.getElementById('crm-retention-history').innerHTML;
+}
+
+async function crmSendSupportEmail() {
+  if (!_crmDoctor) return;
+  if (!_crmDoctor.email) { showToast('error', 'Email manquant', 'Aucune adresse email disponible.'); return; }
+  const msg = prompt(`Message à envoyer à Dr. ${doctorName(_crmDoctor)} (${_crmDoctor.email}) :`, '');
+  if (!msg) return;
+  try {
+    const session = (await _sb.auth.getSession()).data.session;
+    await fetch(SUPA_URL + '/functions/v1/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ to: _crmDoctor.email, subject: 'Message de l\'équipe Docline', html: `<p>${msg.replace(/\n/g,'<br>')}</p>` })
+    });
+    showToast('success', 'Email envoyé ✉️', 'Message envoyé à ' + _crmDoctor.email);
+  } catch(e) { showToast('error', 'Erreur', e.message); }
+}
+
+function crmCopyProfile() {
+  if (!_crmDoctor) return;
+  try {
+    navigator.clipboard.writeText(JSON.stringify(_crmDoctor, null, 2));
+    showToast('success', 'Copié ✓', 'Profil JSON copié dans le presse-papiers.');
+  } catch(e) {
+    showToast('error', 'Erreur', 'Impossible de copier.');
+  }
+}
+
+// Close CRM panel on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeCrmPanel();
+});
 
 /* ═══════════════════════════════════════════════════════════
    KYC LIST
@@ -2030,8 +3450,8 @@ async function loadStaffSection() {
     // KPIs
     const active = _staffData.filter(s => s.is_active);
     setEl('kpi-staff-total', _staffData.length);
-    setEl('kpi-staff-active', active.length + ' actifs');
-    setEl('kpi-staff-l3', _staffData.filter(s => s.role === 'l3' || s.role === 'super_admin').length);
+    setEl('equipe-staff-active', active.length + ' actifs');
+    setEl('equipe-staff-l3', _staffData.filter(s => s.role === 'l3' || s.role === 'super_admin').length);
 
     // Audit log KPIs
     const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);

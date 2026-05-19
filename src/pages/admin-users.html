@@ -308,6 +308,10 @@
   .admin-nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:#F79009;border-radius:0 var(--r-full) var(--r-full) 0}
   .admin-nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
   .admin-nav-item:hover svg,.admin-nav-item.active svg{opacity:1}
+  .sidebar-logo-icon{width:32px;height:32px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--brand) 0%,#7C3AED 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sidebar-logo-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .sidebar-logo-text{font-size:.8125rem;font-weight:700;color:#fff;line-height:1.2}
+  .sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
   .admin-badge{background:rgba(247,144,9,.2);color:#F79009;border:1px solid rgba(247,144,9,.3);font-size:10px;font-weight:700;padding:1px 6px;border-radius:var(--r-full);letter-spacing:.3px}
   .progress-bar{height:6px;background:var(--bg-subtle);border-radius:var(--r-full);overflow:hidden}
   .progress-fill{height:100%;border-radius:var(--r-full);transition:width .5s ease}
@@ -589,72 +593,64 @@ const Toast = (() => {
 })();
 
 
-const LOGO_WHITE_SVG = `<img src="docline-logo-white.svg" style="height:26px;width:auto;display:block;flex-shrink:0" alt="Docline">`;
-
 const AdminSidebar = {
   _menuOpen: false,
   render(activePage, user) {
     const email    = user?.email || '';
     const initials = email.slice(0,2).toUpperCase() || 'AD';
     const handle   = email.split('@')[0] || 'Admin';
-    const nav = [
-      ['admin-users.html', 'overview',  'Vue d\'ensemble',      '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
-      ['admin-users.html', 'users',     'Médecins & Cliniques', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
-      ['admin-revenue.html','revenue',  'Revenus',              '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
-      ['admin-security.html','security','Sécurité & Logs',      '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
-      ['admin-featured.html','featured','Médecins En Vedette',  '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
-      ['admin-ads.html',    'ads',     'Régie Publicitaire',   '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'],
-      ['admin-settings.html','settings','Paramètres',           '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'],
-      ['admin-emails.html', 'emails',   'Emails & Modèles',     '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
+    const sections = [
+      { label: 'Vue générale', items: [
+        ['/admin',           'dashboard', 'Dashboard',           '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
+        ['/admin-analytics', 'analytics', 'Analytics',           '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'],
+      ]},
+      { label: 'Clients', items: [
+        ['/admin',           'kyc',       'Vérifications KYC',   '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'],
+        ['/admin',           'medecins',  'Médecins & Cliniques', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'],
+        ['/admin-featured',  'featured',  'Médecins En Vedette',  '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
+        ['/admin-users',     'users',     'Gestion Utilisateurs', '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>'],
+      ]},
+      { label: 'Revenus', items: [
+        ['/admin',           'paiements', 'Paiements',            '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>'],
+        ['/admin-revenue',   'revenue',   'Revenus & Finance',    '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/>'],
+      ]},
+      { label: 'Marketing', items: [
+        ['/admin-ads',       'ads',       'Régie Publicitaire',   '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'],
+        ['/admin-emails',    'emails',    'Emails & Modèles',     '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
+      ]},
+      { label: 'Système', items: [
+        ['/admin-security',  'security',  'Sécurité & Logs',      '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
+      ]},
     ];
-    return `
-      <div class="sidebar-head">
-        <div class="sidebar-logo-wrap">
-          ${LOGO_WHITE_SVG}
-          <span style="background:rgba(247,144,9,.18);color:#F59E0B;border:1px solid rgba(247,144,9,.28);font-size:10px;font-weight:700;padding:2px 7px;border-radius:var(--r-full);letter-spacing:.3px;flex-shrink:0">ADMIN</span>
-        </div>
-      </div>
-      <div style="padding:8px 8px 0">
-        <div class="sidebar-section">Navigation</div>
-        ${nav.map(([href,key,label,icon])=>`
-        <a href="${ghpNav('/'+href.replace('.html',''))}" class="admin-nav-item${activePage===key?' active':''}">
-          <svg viewBox="0 0 24 24">${icon}</svg>${label}
-        </a>`).join('')}
-      </div>
-      <div style="padding:8px 8px 0;margin-top:4px">
-        <div class="sidebar-section">Application</div>
-        <a href="${ghpNav('/find-doctor')}" target="_blank" class="admin-nav-item" style="color:rgba(255,255,255,.45)">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          Voir le site patient
-        </a>
-      </div>
-      <div class="sidebar-footer" style="position:relative">
-        <!-- User dropdown popup -->
+    let html = `<div class="sidebar-head"><div class="sidebar-logo-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><div class="sidebar-logo-text">Symphony</div><div class="sidebar-logo-sub">Docline — Back Office</div></div></div>`;
+    sections.forEach(sec => {
+      html += `<div class="sidebar-section">${sec.label}</div>`;
+      sec.items.forEach(([href,key,label,icon]) => {
+        const active = activePage === key || window.location.pathname === href;
+        html += `<a href="${href}" class="admin-nav-item${active?' active':''}"><svg viewBox="0 0 24 24">${icon}</svg>${label}</a>`;
+      });
+    });
+    html += `<div class="sidebar-footer" style="position:relative">
         <div id="sb-user-menu" style="display:none;position:absolute;bottom:calc(100% + 4px);left:8px;right:8px;background:#1C1F28;border:1px solid rgba(255,255,255,.09);border-radius:var(--r-lg);padding:6px;box-shadow:0 -12px 32px rgba(0,0,0,.5);z-index:300">
           <div style="padding:10px 12px 8px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:4px">
             <div style="font-size:.6875rem;font-weight:700;color:rgba(255,255,255,.8)">${email}</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px">Super Admin · Accès total</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px">Symphony Admin</div>
           </div>
-          <a href="${ghpNav('/dashboard')}" class="admin-nav-item" style="color:rgba(255,255,255,.6)">
-            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-            Voir l'app médecin
+          <a href="/dashboard" class="admin-nav-item" style="color:rgba(255,255,255,.6)">
+            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>App médecin
           </a>
           <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 8px"></div>
           <button onclick="AdminAuth.signOut()" class="admin-nav-item" style="color:rgba(240,68,56,.8);width:100%;text-align:left;border:none;cursor:pointer;background:transparent;font-family:inherit">
-            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Déconnexion
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Déconnexion
           </button>
         </div>
-        <!-- User button -->
         <div class="sidebar-user" id="sb-user-btn" onclick="AdminSidebar.toggleMenu()" style="cursor:pointer">
           <div class="user-avatar" style="background:linear-gradient(135deg,var(--brand) 0%,#7C3AED 100%)">${initials}</div>
-          <div>
-            <div class="user-name">${handle}</div>
-            <div class="user-role">Super Admin</div>
-          </div>
+          <div><div class="user-name">${handle}</div><div class="user-role">Symphony Admin</div></div>
           <div class="user-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
       </div>`;
+    return html;
   },
   toggleMenu() {
     const m = document.getElementById('sb-user-menu');
@@ -699,14 +695,35 @@ let _users=[], _subs=[], _filtered=[], _selectedUser=null;
 })();
 
 async function load(){
-  const [u,s] = await Promise.all([
-    _supa.from('profiles').select('*').order('created_at',{ascending:false}),
-    _supa.from('subscriptions').select('*'),
-  ]);
-  _users = u.data??[]; _subs = s.data??[];
-  renderKPIs(); renderTrialList(); applyFilter('','');
-  document.getElementById('loading').style.display='none';
-  document.getElementById('content').style.display='block';
+  const loadEl = document.getElementById('loading');
+  loadEl.style.display = 'flex';
+  loadEl.innerHTML = '<div class="spinner"></div><div style="color:var(--text-muted);font-size:var(--text-sm)">Chargement des utilisateurs…</div>';
+  document.getElementById('content').style.display = 'none';
+  try {
+    const [u,s] = await Promise.all([
+      _supa.from('profiles').select('*').order('created_at',{ascending:false}),
+      _supa.from('subscriptions').select('*'),
+    ]);
+    if (u.error) throw u.error;
+    _users = u.data??[]; _subs = s.data??[];
+    renderKPIs(); renderTrialList(); applyFilter('','');
+    loadEl.style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  } catch(e) {
+    console.error('[admin-users] load error:', e);
+    loadEl.innerHTML = `
+      <div style="text-align:center;padding:40px">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--danger-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--danger);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div style="font-weight:700;color:var(--text-primary);margin-bottom:6px">Impossible de charger les utilisateurs</div>
+        <div style="font-size:.8125rem;color:var(--text-muted);margin-bottom:16px;max-width:320px;margin-left:auto;margin-right:auto">${e.message||'Erreur Supabase — vérifiez les policies RLS ou la connexion.'}</div>
+        <button onclick="load()" class="btn btn-primary btn-sm">
+          <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+          Réessayer
+        </button>
+      </div>`;
+  }
 }
 
 function renderKPIs(){
@@ -757,8 +774,8 @@ function applyFilter(plan, search){
     if(plan==='canceled' && !isCan) return false;
     if(search){
       const q=search.toLowerCase();
-      const name=`${sanitize(u.first_name||'')} ${sanitize(u.last_name||'')}`.toLowerCase();
-      if(!name.includes(q)&&!u.email.toLowerCase().includes(q)) return false;
+      const name=(u.full_name||`${u.first_name||''} ${u.last_name||''}`).toLowerCase();
+      if(!name.includes(q)&&!(u.email||'').toLowerCase().includes(q)) return false;
     }
     return true;
   });
@@ -792,7 +809,7 @@ function renderTable(){
            <span style="width:6px;height:6px;border-radius:50%;background:#F97316;flex-shrink:0"></span>Essai · expire ${formatDate(u.trial_end)}</span>`
       : trialExpired
         ? `<span style="font-size:10px;color:var(--text-faint)">Expiré ${formatDate(u.trial_end)}</span>`
-        : `<button class="btn btn-xs btn-secondary" onclick="event.stopPropagation();grantTrial('${u.id}','${sanitize(u.email)}')" title="Donner 2 mois d'accès gratuit">+ Essai 2 mois</button>`;
+        : `<button class="btn btn-xs btn-secondary" onclick="event.stopPropagation();grantTrial('${u.id}','${sanitize(u.email||u.id)}')" title="Donner 2 mois d'accès gratuit">+ Essai 2 mois</button>`;
 
     // Last seen
     const lastSeen = u.last_seen_at
@@ -801,17 +818,18 @@ function renderTable(){
 
     return `<tr class="table-row-hover" onclick="viewUser('${u.id}')">
       <td><div style="display:flex;align-items:center;gap:10px">
-        <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--brand) 0%,#8B8FF5 100%);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${sanitize((u.first_name?.[0]||u.email?.[0]||'?').toUpperCase())}</div>
-        <strong>${sanitize(u.first_name&&u.last_name?`${u.first_name} ${u.last_name}`:'-')}</strong>
+        <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--brand) 0%,#8B8FF5 100%);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${((u.full_name||u.first_name||u.email||'?')[0]).toUpperCase()}</div>
+        <strong>${sanitize(u.full_name||(u.first_name&&u.last_name?`${u.first_name} ${u.last_name}`:u.email||'—'))}</strong>
       </div></td>
-      <td style="color:var(--text-muted);font-size:.6875rem">${sanitize(u.email)}</td>
+      <td style="color:var(--text-muted);font-size:.6875rem">${sanitize(u.email||'—')}</td>
       <td><span class="badge ${planClass}" style="font-size:10px">${planLabel}</span></td>
       <td>${trialCell}</td>
       <td style="font-size:.6875rem;color:var(--text-muted)">${lastSeen}</td>
       <td style="font-size:.6875rem;color:var(--text-muted)">${formatDate(u.created_at)}</td>
       <td style="white-space:nowrap">
         <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewUser('${u.id}')">Voir</button>
-        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();sendPasswordReset('${sanitize(u.email)}')" title="Envoyer un lien de réinitialisation" style="margin-left:4px">🔑 MDP</button>
+        ${u.email?`<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();sendPasswordReset('${sanitize(u.email)}')" title="Envoyer un lien de réinitialisation" style="margin-left:4px">🔑 MDP</button>`:''}
+
       </td>
     </tr>`;
   }).join('');
@@ -908,13 +926,14 @@ function viewUser(id){
   const s=_subs.find(x=>x.user_id===id);
   const isPro=s?.plan!=='free'&&s?.status==='active';
   _selectedUser=id;
-  document.getElementById('modal-name').textContent=u.first_name&&u.last_name?`${sanitize(u.first_name)} ${sanitize(u.last_name)}`:u.email;
-  document.getElementById('modal-email').textContent=u.email;
+  const displayName = u.full_name||(u.first_name&&u.last_name?`${u.first_name} ${u.last_name}`:u.email||u.id.slice(0,8));
+  document.getElementById('modal-name').textContent=displayName;
+  document.getElementById('modal-email').textContent=u.email||'—';
   document.getElementById('modal-body').innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div>
         <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:12px">Account</div>
-        ${[['User ID',u.id.slice(0,18)+'…'],['Email',u.email],['Name',(u.first_name||'')+' '+(u.last_name||'')],['Company',u.company||'—'],['Signed Up',formatDate(u.created_at)],['Onboarded',u.onboarded_at?formatDate(u.onboarded_at):'Not yet']].map(([k,v])=>`
+        ${[['User ID',u.id.slice(0,18)+'…'],['Email',u.email||'—'],['Nom',u.full_name||(u.first_name||'')+' '+(u.last_name||'')||'—'],['Company',u.company||'—'],['Signed Up',formatDate(u.created_at)],['Onboarded',u.onboarded_at?formatDate(u.onboarded_at):'Not yet']].map(([k,v])=>`
         <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:var(--text-sm)">
           <span style="color:var(--text-muted)">${k}</span>
           <span style="font-weight:600;color:var(--text-primary);font-family:'DM Mono',monospace;font-size:.6875rem">${sanitize(v)}</span>
@@ -938,7 +957,7 @@ function closeModal(){document.getElementById('user-modal').classList.remove('op
 async function blockUser(){
   if(!_selectedUser) return;
   const u = _users.find(x=>x.id===_selectedUser);
-  const email = u ? u.email : _selectedUser;
+  const email = (u ? (u.email || u.full_name || u.id.slice(0,8)) : _selectedUser);
   const ok = confirm('Désactiver le compte de '+email+' ?\n\nLe médecin sera masqué de l\'annuaire et ne pourra plus accepter de rendez-vous.');
   if(!ok) return;
   try {
@@ -973,9 +992,10 @@ async function sendPasswordReset(email) {
 }
 
 function exportCSV(){
-  const rows=[['Name','Email','Plan','Status','SignedUp'],..._filtered.map(u=>{
+  const rows=[['Nom','Email','Plan','Status','Inscrit le'],..._filtered.map(u=>{
     const s=_subs.find(x=>x.user_id===u.id);
-    return [`${sanitize(u.first_name||'')} ${sanitize(u.last_name||'')}`,u.email,s?.plan??'free',s?.status??'',u.created_at];
+    const name=u.full_name||`${u.first_name||''} ${u.last_name||''}`.trim()||'—';
+    return [name, u.email||'—', s?.plan??'free', s?.status??'', u.created_at];
   })];
   const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
