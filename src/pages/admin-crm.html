@@ -256,6 +256,24 @@ ul{list-style:none}
 .plan-option-price{font-size:.75rem;color:var(--text-muted);margin-top:1px}
 .plan-option-badge{margin-left:auto}
 
+/* GESTE COMMERCIAL */
+.gc-motif{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:all var(--t-fast);margin-bottom:8px;position:relative}
+.gc-motif:hover{border-color:var(--brand);background:var(--brand-light)}
+.gc-motif.selected{border-color:var(--brand);background:var(--brand-light)}
+.gc-motif input[type=radio]{accent-color:var(--brand);flex-shrink:0;margin-top:2px}
+.gc-motif-icon{font-size:1.25rem;flex-shrink:0;line-height:1}
+.gc-motif-name{font-weight:700;font-size:.8125rem;color:var(--text-primary)}
+.gc-motif-desc{font-size:.75rem;color:var(--text-muted);margin-top:1px}
+.gc-risk{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:.625rem;font-weight:700;padding:2px 7px;border-radius:var(--r-full)}
+.gc-risk-high{background:var(--danger-bg);color:var(--danger)}
+.gc-risk-med{background:var(--warning-bg);color:var(--warning)}
+.gc-risk-low{background:var(--success-bg);color:var(--success)}
+
+/* GESTE DUR BUTTONS */
+.gc-dur-btn{padding:8px 6px;border-radius:var(--r-md);border:1.5px solid var(--border);background:var(--bg-raised);cursor:pointer;font-family:inherit;font-size:.75rem;font-weight:600;color:var(--text-secondary);transition:all var(--t-fast);text-align:center}
+.gc-dur-btn:hover{border-color:var(--brand);color:var(--brand)}
+.gc-dur-btn.active{border-color:var(--brand);background:var(--brand-light);color:var(--brand)}
+
 /* SIMULATE BANNER */
 .simulate-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--r-md);border:2px dashed rgba(59,23,114,.3);background:rgba(59,23,114,.03);cursor:pointer;font-family:inherit;font-size:.875rem;font-weight:700;color:var(--brand);transition:all var(--t-fast);margin-top:16px}
 .simulate-btn:hover{background:var(--brand-light);border-style:solid}
@@ -279,6 +297,163 @@ ul{list-style:none}
 </head>
 <body>
 <div class="toasts" id="toasts"></div>
+
+<!-- GESTE COMMERCIAL MODAL -->
+<div class="modal-backdrop" id="gc-modal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">🎁 Geste Commercial</div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">Abonnement offert · Traçabilité complète · Audit obligatoire</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('gc-modal')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+
+      <div id="gc-doctor-name" style="font-size:.875rem;color:var(--text-muted);margin-bottom:16px;padding:10px 14px;background:var(--bg-subtle);border-radius:var(--r-md)">—</div>
+
+      <!-- MOTIF OBLIGATOIRE -->
+      <div style="margin-bottom:4px">
+        <div style="font-size:.75rem;font-weight:700;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+          <span style="background:var(--danger);color:#fff;font-size:.5625rem;padding:1px 6px;border-radius:var(--r-full)">OBLIGATOIRE</span>
+          Motif du geste commercial
+        </div>
+
+        <label class="gc-motif selected" id="gc-opt-process">
+          <input type="radio" name="gc-motif" value="process" checked onchange="selectGcMotif(this)">
+          <span class="gc-motif-icon">🔄</span>
+          <div>
+            <div class="gc-motif-name">Adaptation processus temporaire</div>
+            <div class="gc-motif-desc">Le médecin traverse une migration, une transition ou un changement de pratique</div>
+          </div>
+          <span class="gc-risk gc-risk-low">Risque faible</span>
+        </label>
+
+        <label class="gc-motif" id="gc-opt-promise">
+          <input type="radio" name="gc-motif" value="promise" onchange="selectGcMotif(this)">
+          <span class="gc-motif-icon">🤝</span>
+          <div>
+            <div class="gc-motif-name">Promesse non tenue de notre équipe</div>
+            <div class="gc-motif-desc">Engagement commercial ou fonctionnalité promise non livrée</div>
+          </div>
+          <span class="gc-risk gc-risk-high">Impact financier</span>
+        </label>
+
+        <label class="gc-motif" id="gc-opt-loyal">
+          <input type="radio" name="gc-motif" value="loyal" onchange="selectGcMotif(this)">
+          <span class="gc-motif-icon">⭐</span>
+          <div>
+            <div class="gc-motif-name">Fidélité exceptionnelle — client longue date</div>
+            <div class="gc-motif-desc">Abonné depuis plus de 12 mois, sans incident de paiement</div>
+          </div>
+          <span class="gc-risk gc-risk-low">Programme fidélité</span>
+        </label>
+
+        <label class="gc-motif" id="gc-opt-bug">
+          <input type="radio" name="gc-motif" value="bug" onchange="selectGcMotif(this)">
+          <span class="gc-motif-icon">🐛</span>
+          <div>
+            <div class="gc-motif-name">Incident technique documenté</div>
+            <div class="gc-motif-desc">Bug bloquant, perte de données ou interruption de service côté Docline</div>
+          </div>
+          <span class="gc-risk gc-risk-high">Compensation obligatoire</span>
+        </label>
+
+        <label class="gc-motif" id="gc-opt-partner">
+          <input type="radio" name="gc-motif" value="partner" onchange="selectGcMotif(this)">
+          <span class="gc-motif-icon">🎯</span>
+          <div>
+            <div class="gc-motif-name">Partenariat stratégique / ambassadeur</div>
+            <div class="gc-motif-desc">Médecin prescripteur, formateur ou partenaire de distribution</div>
+          </div>
+          <span class="gc-risk gc-risk-med">ROI indirect</span>
+        </label>
+
+        <label class="gc-motif" id="gc-opt-pilot">
+          <input type="radio" name="gc-motif" value="pilot" onchange="selectGcMotif(this)">
+          <span class="gc-motif-icon">📋</span>
+          <div>
+            <div class="gc-motif-name">Programme pilote / beta testeur</div>
+            <div class="gc-motif-desc">Accès anticipé contre retours d'expérience et tests de nouvelles fonctionnalités</div>
+          </div>
+          <span class="gc-risk gc-risk-low">Valeur produit</span>
+        </label>
+
+        <label class="gc-motif" id="gc-opt-acquisition">
+          <input type="radio" name="gc-motif" value="acquisition" onchange="selectGcMotif(this)">
+          <span class="gc-motif-icon">🚀</span>
+          <div>
+            <div class="gc-motif-name">Offre d'acquisition personnalisée</div>
+            <div class="gc-motif-desc">Médecin hésitant à souscrire, geste pour déclencher la conversion</div>
+          </div>
+          <span class="gc-risk gc-risk-med">Conversion</span>
+        </label>
+
+        <label class="gc-motif" id="gc-opt-other">
+          <input type="radio" name="gc-motif" value="other" onchange="selectGcMotif(this)">
+          <span class="gc-motif-icon">✏️</span>
+          <div>
+            <div class="gc-motif-name">Autre motif</div>
+            <div class="gc-motif-desc">Précisez dans la note interne ci-dessous (obligatoire si autre)</div>
+          </div>
+          <span class="gc-risk gc-risk-med">À justifier</span>
+        </label>
+      </div>
+
+      <!-- DURÉE -->
+      <div class="field" style="margin-top:16px">
+        <label>Plan offert</label>
+        <select id="gc-plan">
+          <option value="pro">Pro (5 900 DA/mois)</option>
+          <option value="clinic">Clinique (13 900 DA/mois)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Durée de l'offre</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <button type="button" class="gc-dur-btn active" data-dur="1" onclick="selectDur(this)">1 mois</button>
+          <button type="button" class="gc-dur-btn" data-dur="3" onclick="selectDur(this)">3 mois</button>
+          <button type="button" class="gc-dur-btn" data-dur="6" onclick="selectDur(this)">6 mois</button>
+          <button type="button" class="gc-dur-btn" data-dur="12" onclick="selectDur(this)">12 mois</button>
+        </div>
+      </div>
+
+      <!-- NOTE INTERNE -->
+      <div class="field">
+        <label>Note interne <span style="color:var(--text-faint);font-weight:400">(visible uniquement par les admins)</span></label>
+        <textarea id="gc-note" rows="3" placeholder="Contexte de la décision, nom du commercial concerné, lien ticket support…" style="resize:vertical"></textarea>
+      </div>
+
+      <!-- COÛT ESTIMÉ -->
+      <div id="gc-cost-estimate" style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:var(--r-md);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.25rem">💰</span>
+        <div>
+          <div style="font-weight:700;font-size:.8125rem;color:var(--warning)" id="gc-cost-text">Coût estimé : —</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">Manque à gagner comptabilisé dans le rapport mensuel des gestes commerciaux</div>
+        </div>
+      </div>
+
+      <!-- EMAIL TOGGLE -->
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.8125rem;font-weight:600;color:var(--text-secondary)">
+        <input type="checkbox" id="gc-notify" checked style="accent-color:var(--brand);width:14px;height:14px">
+        Notifier le médecin par email (recommandé)
+      </label>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('gc-modal')">Annuler</button>
+      <button class="btn btn-success" id="gc-confirm-btn" onclick="confirmGeste()">
+        <div class="spinner-btn"></div>
+        <span class="btn-lbl">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><polyline points="20 6 9 17 4 12"/></svg>
+          Valider le geste commercial
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- PLAN CHANGE MODAL -->
 <div class="modal-backdrop" id="plan-modal">
@@ -688,6 +863,19 @@ ul{list-style:none}
           <div class="ret-offer-title" id="ret-offer-title">Calcul en cours…</div>
           <div class="ret-offer-desc" id="ret-offer-desc">—</div>
           <div class="ret-offer-actions" id="ret-offer-actions"></div>
+        </div>
+
+        <!-- GESTE COMMERCIAL CTA -->
+        <div style="background:linear-gradient(135deg,rgba(18,183,106,.06),rgba(16,185,129,.03));border:1.5px solid rgba(18,183,106,.25);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px">
+          <span style="font-size:1.75rem;flex-shrink:0">🎁</span>
+          <div style="flex:1">
+            <div style="font-weight:800;font-size:.9375rem;color:var(--text-primary)">Geste Commercial</div>
+            <div style="font-size:.8125rem;color:var(--text-muted);margin-top:2px">Offrir un abonnement gratuit avec motif obligatoire et traçabilité complète dans l'audit log</div>
+          </div>
+          <button class="btn btn-success" onclick="openGcModal()">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            Faire un geste
+          </button>
         </div>
 
         <div class="section-head">Actions de rétention</div>
@@ -1477,8 +1665,7 @@ async function toggleFeatured() {
 }
 
 function simulateDoctor() {
-  if (!confirm('Ouvrir l\'espace du médecin en simulation (onglet séparé, lecture seule) ?')) return;
-  window.open('/dashboard?simulate=' + uid, '_blank');
+  window.open(ghpNav('/admin-simulate') + '?uid=' + encodeURIComponent(uid), '_blank');
 }
 
 async function extendDeadline() {
@@ -1563,6 +1750,152 @@ function showToast(type, title, msg) {
 document.querySelectorAll('.modal-backdrop').forEach(el => {
   el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
 });
+
+/* ══ GESTE COMMERCIAL ══════════════════════════════════ */
+const GC_MOTIFS = {
+  process:     { label: 'Adaptation processus temporaire',          emoji: '🔄' },
+  promise:     { label: 'Promesse non tenue de notre équipe',       emoji: '🤝' },
+  loyal:       { label: 'Fidélité exceptionnelle — longue date',    emoji: '⭐' },
+  bug:         { label: 'Incident technique documenté',             emoji: '🐛' },
+  partner:     { label: 'Partenariat stratégique / ambassadeur',    emoji: '🎯' },
+  pilot:       { label: 'Programme pilote / beta testeur',          emoji: '📋' },
+  acquisition: { label: 'Offre d\'acquisition personnalisée',       emoji: '🚀' },
+  other:       { label: 'Autre motif (voir note interne)',          emoji: '✏️' },
+};
+const PRICES = { pro: { 1:5900, 3:5900*3, 6:5900*6, 12:59000 }, clinic: { 1:13900, 3:13900*3, 6:13900*6, 12:139000 } };
+
+function openGcModal() {
+  if (!_doctor) return;
+  document.getElementById('gc-doctor-name').innerHTML =
+    `<strong>Dr. ${esc(doctorName(_doctor))}</strong> — ${esc(_doctor.email||'—')} · Plan actuel: <strong>${_sub?.plan||'free'}</strong>`;
+  updateGcCost();
+  openModal('gc-modal');
+}
+
+function selectGcMotif(radio) {
+  document.querySelectorAll('.gc-motif').forEach(el => el.classList.remove('selected'));
+  radio.closest('.gc-motif').classList.add('selected');
+}
+
+function selectDur(btn) {
+  document.querySelectorAll('.gc-dur-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateGcCost();
+}
+
+function updateGcCost() {
+  const dur  = parseInt(document.querySelector('.gc-dur-btn.active')?.dataset.dur || '1');
+  const plan = document.getElementById('gc-plan')?.value || 'pro';
+  const cost = (PRICES[plan]?.[dur] || 0).toLocaleString('fr-DZ');
+  const el   = document.getElementById('gc-cost-text');
+  if (el) el.textContent = `Manque à gagner estimé : ${cost} DA (${dur} mois ${plan})`;
+}
+
+// Update cost on plan change
+document.addEventListener('change', e => {
+  if (e.target.id === 'gc-plan') updateGcCost();
+});
+
+async function confirmGeste() {
+  if (!_doctor) return;
+
+  const motifVal  = document.querySelector('input[name="gc-motif"]:checked')?.value;
+  const motif     = GC_MOTIFS[motifVal];
+  const dur       = parseInt(document.querySelector('.gc-dur-btn.active')?.dataset.dur || '1');
+  const plan      = document.getElementById('gc-plan').value;
+  const note      = document.getElementById('gc-note').value.trim();
+  const notify    = document.getElementById('gc-notify').checked;
+
+  if (!motifVal) { showToast('error', 'Motif obligatoire', 'Sélectionnez un motif avant de valider'); return; }
+  if (motifVal === 'other' && !note) { showToast('error', 'Note obligatoire', 'Le motif "Autre" exige une note interne'); return; }
+
+  const costEst = (PRICES[plan]?.[dur] || 0).toLocaleString('fr-DZ');
+  if (!confirm(
+    `Valider le geste commercial ?\n\n` +
+    `• Médecin : Dr. ${doctorName(_doctor)}\n` +
+    `• Plan : ${plan.toUpperCase()} × ${dur} mois (gratuit)\n` +
+    `• Motif : ${motif.emoji} ${motif.label}\n` +
+    `• Manque à gagner : ${costEst} DA\n\n` +
+    `Cette action est enregistrée dans l'audit log.`
+  )) return;
+
+  const btn = document.getElementById('gc-confirm-btn');
+  btn.classList.add('loading');
+
+  try {
+    const { data: { session } } = await _sb.auth.getSession();
+
+    // Activate plan
+    const expDate = new Date();
+    expDate.setMonth(expDate.getMonth() + dur);
+
+    await _sb.from('subscriptions').upsert({
+      user_id: uid, plan, status: 'active',
+      payment_status: 'complimentary',
+      interval: dur >= 12 ? 'year' : 'month',
+      current_period_start: new Date().toISOString(),
+      current_period_end: expDate.toISOString(),
+    }, { onConflict: 'user_id' });
+
+    await _sb.from('profiles').update({ trial_end: expDate.toISOString() }).eq('id', uid);
+
+    // Audit log — mandatory
+    await _sb.from('audit_log').insert({
+      user_id: uid,
+      performed_by: session.user.id,
+      action: 'geste_commercial',
+      details: {
+        motif: motifVal,
+        motif_label: motif.label,
+        plan, duration: dur,
+        cost_estimate: PRICES[plan]?.[dur] || 0,
+        note: note || null,
+        email_sent: notify,
+        expires_at: expDate.toISOString(),
+      }
+    });
+
+    // Payment request entry for traceability
+    await _sb.from('payment_requests').insert({
+      user_id: uid, plan, billing: dur >= 12 ? 'yearly' : 'monthly',
+      amount: 0, method: 'complimentary',
+      status: 'approved',
+      notes: `${motif.emoji} Geste commercial : ${motif.label}${note ? ' — ' + note : ''}`,
+    }).catch(()=>{});
+
+    // Email to doctor
+    if (notify && _doctor.email && session) {
+      const subject = `🎁 Votre abonnement ${plan.toUpperCase()} Docline est offert`;
+      const body = `Bonjour Dr. ${doctorName(_doctor)},\n\nNous avons le plaisir de vous offrir un accès ${plan.toUpperCase()} Docline pendant ${dur} mois.\n\n✅ Plan : ${plan.toUpperCase()}\n📅 Valable jusqu'au : ${fmtDate(expDate)}\n💝 Offert par l'équipe Docline\n\nProfitez de toutes les fonctionnalités sans restriction.\n\nL'équipe Docline`;
+      await fetch(SUPA_URL + '/functions/v1/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token },
+        body: JSON.stringify({ to: _doctor.email, subject, html: body.replace(/\n/g,'<br>') })
+      });
+
+      await _sb.from('audit_log').insert({
+        user_id: uid, performed_by: session.user.id,
+        action: 'email_sent', details: { subject, template: 'geste_commercial' }
+      }).catch(()=>{});
+    }
+
+    showToast('success', '🎁 Geste commercial validé',
+      `${plan.toUpperCase()} offert ${dur} mois · Motif: ${motif.label}${notify ? ' · Email envoyé' : ''}`);
+    closeModal('gc-modal');
+
+    // Refresh
+    const { data: newSub } = await _sb.from('subscriptions').select('*').eq('user_id', uid).maybeSingle();
+    const { data: newPays } = await _sb.from('payment_requests').select('*').eq('user_id', uid).order('created_at',{ascending:false});
+    _sub = newSub;
+    _payments = newPays || [];
+    renderAll();
+    switchTab('billing', null);
+  } catch(e) {
+    showToast('error', 'Erreur', e.message);
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
 </script>
 </body>
 </html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Simulation — Docline Admin</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{
+  --brand:#3B1772;--brand-light:#E6ECF9;
+  --bg:#F8FAFF;--bg-raised:#fff;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
+  --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
+  --border:#E4E7F0;
+  --success:#12B76A;--success-bg:#ECFDF5;--success-border:rgba(18,183,106,.2);
+  --warning:#F79009;--warning-bg:#FFFAEB;--warning-border:rgba(247,144,9,.2);
+  --danger:#F04438;--danger-bg:#FEF3F2;--danger-border:rgba(240,68,56,.2);
+  --info:#2E90FA;--info-bg:#EFF8FF;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --shadow-sm:0 1px 3px rgba(13,15,20,.08);
+  --t-fast:120ms cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{font-family:'Sora',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:var(--r-full)}
+
+/* SIMULATION BANNER (fixed top) */
+.sim-banner{position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(90deg,#D97706,#F59E0B);padding:10px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(217,119,6,.3)}
+.sim-banner-icon{width:28px;height:28px;background:rgba(255,255,255,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sim-banner-icon svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round}
+.sim-banner-text{flex:1}
+.sim-banner-title{font-weight:800;font-size:.875rem;color:#fff}
+.sim-banner-sub{font-size:.75rem;color:rgba(255,255,255,.85)}
+.sim-banner-actions{display:flex;gap:8px}
+.sim-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--r-md);font-size:.75rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all var(--t-fast)}
+.sim-btn-white{background:rgba(255,255,255,.9);color:#D97706}
+.sim-btn-white:hover{background:#fff}
+.sim-btn-outline{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+.sim-btn-outline:hover{background:rgba(255,255,255,.25)}
+
+/* LAYOUT */
+body{padding-top:56px}
+.page{max-width:1100px;margin:0 auto;padding:24px 20px}
+
+/* DOCTOR HEADER */
+.doc-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px;display:flex;align-items:center;gap:18px;margin-bottom:24px;box-shadow:var(--shadow-sm)}
+.doc-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:800;color:#fff;flex-shrink:0}
+.doc-name{font-size:1.25rem;font-weight:800;letter-spacing:-.4px}
+.doc-meta{font-size:.8125rem;color:var(--text-muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
+.doc-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700}
+.pill-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.pill-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.pill-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
+.pill-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--bg-raised);border:1px solid var(--border);border-radius:14px;padding:18px 20px 16px 22px;position:relative;box-shadow:var(--shadow-sm)}
+.kpi::after{content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0}
+.kpi-success::after{background:var(--success)}
+.kpi-brand::after{background:var(--brand)}
+.kpi-warning::after{background:var(--warning)}
+.kpi-info::after{background:var(--info)}
+.kpi-label{font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text-faint);margin-bottom:8px}
+.kpi-value{font-size:1.625rem;font-weight:800;letter-spacing:-.5px;color:var(--text-primary);line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:.6875rem;color:var(--text-faint)}
+
+/* GRID */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+@media(max-width:760px){.two-col{grid-template-columns:1fr}}
+.card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+.card-title{font-size:.8125rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+.card-title svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;color:var(--brand)}
+.card-body{padding:18px}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:9px 14px;text-align:left;font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border);background:var(--bg-subtle)}
+.data-table td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:.8125rem;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+
+/* PROFILE GRID */
+.profile-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:.8125rem}
+.profile-row:last-child{border-bottom:none}
+.profile-key{color:var(--text-muted);font-size:.75rem}
+.profile-val{font-weight:600}
+
+/* SECTION HEADING */
+.sh{font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin:0 0 12px;display:flex;align-items:center;gap:6px}
+.sh::before{content:'';display:block;width:3px;height:12px;background:var(--brand);border-radius:var(--r-full)}
+
+/* PLAN BANNER */
+.plan-banner{border-radius:var(--r-xl);padding:18px 22px;display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.pb-free{background:linear-gradient(120deg,#64748b,#94a3b8);color:#fff}
+.pb-pro{background:linear-gradient(120deg,#059669,#10B981);color:#fff}
+.pb-trial{background:linear-gradient(120deg,#D97706,#F59E0B);color:#fff}
+.pb-icon{width:44px;height:44px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pb-icon svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.pb-title{font-size:1rem;font-weight:800}
+.pb-sub{font-size:.75rem;opacity:.85;margin-top:2px}
+
+/* EMPTY */
+.empty{text-align:center;padding:36px 20px;color:var(--text-muted)}
+.empty svg{width:32px;height:32px;stroke:var(--text-faint);fill:none;stroke-width:1.5;stroke-linecap:round;margin:0 auto 8px;display:block}
+
+/* SPINNER */
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;margin:48px auto;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* READ-ONLY OVERLAY on interactive elements */
+.readonly-overlay{position:relative}
+.readonly-overlay::after{content:'🔒 Vue admin — lecture seule';position:absolute;inset:0;background:rgba(248,250,255,.7);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:var(--text-muted);border-radius:inherit;cursor:not-allowed;backdrop-filter:blur(1px)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700}
+.badge-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.badge-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.badge-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
+.badge-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
+</style>
+</head>
+<body>
+
+<!-- SIMULATION BANNER -->
+<div class="sim-banner">
+  <div class="sim-banner-icon">
+    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+  </div>
+  <div class="sim-banner-text">
+    <div class="sim-banner-title">MODE SIMULATION — Vue administrateur</div>
+    <div class="sim-banner-sub">Vous visualisez l'espace de travail de <span id="sim-doctor-name">ce médecin</span> en lecture seule. Aucune action n'est exécutée en son nom.</div>
+  </div>
+  <div class="sim-banner-actions">
+    <button class="sim-btn sim-btn-white" id="crm-link" onclick="openCrm()">
+      <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Ouvrir le CRM
+    </button>
+    <button class="sim-btn sim-btn-outline" onclick="window.close()">✕ Fermer simulation</button>
+  </div>
+</div>
+
+<div class="page" id="loading"><div class="spinner"></div></div>
+
+<div class="page" id="content" style="display:none">
+
+  <!-- DOCTOR CARD -->
+  <div class="doc-card">
+    <div class="doc-avatar" id="av">?</div>
+    <div style="flex:1">
+      <div class="doc-name" id="d-name">—</div>
+      <div class="doc-meta">
+        <span id="d-spec">—</span>
+        <span>·</span><span id="d-wilaya">—</span>
+        <span>·</span><span id="d-email">—</span>
+        <span>·</span><span id="d-phone">—</span>
+      </div>
+      <div class="doc-pills" id="d-pills"></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:.6875rem;color:var(--text-muted);margin-bottom:4px">Inscrit le</div>
+      <div style="font-weight:700" id="d-created">—</div>
+    </div>
+  </div>
+
+  <!-- PLAN BANNER -->
+  <div id="plan-banner" class="plan-banner pb-free">
+    <div class="pb-icon"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+    <div>
+      <div class="pb-title" id="plan-title">Chargement…</div>
+      <div class="pb-sub" id="plan-sub">—</div>
+    </div>
+  </div>
+
+  <!-- KPIS -->
+  <div class="kpi-grid" id="kpis">
+    <div class="kpi kpi-success"><div class="kpi-label">Patients</div><div class="kpi-value" id="kpi-patients">—</div><div class="kpi-sub">enregistrés</div></div>
+    <div class="kpi kpi-brand"><div class="kpi-label">RDV total</div><div class="kpi-value" id="kpi-rdv">—</div><div class="kpi-sub">consultations</div></div>
+    <div class="kpi kpi-warning"><div class="kpi-label">RDV ce mois</div><div class="kpi-value" id="kpi-rdv-month">—</div><div class="kpi-sub">planifiés</div></div>
+    <div class="kpi kpi-info"><div class="kpi-label">Profil public</div><div class="kpi-value" id="kpi-public">—</div><div class="kpi-sub">visibilité</div></div>
+  </div>
+
+  <div class="two-col">
+
+    <!-- PROFIL COMPLET -->
+    <div>
+      <div class="sh">Profil médecin (ce que lui voit)</div>
+      <div class="card">
+        <div class="card-body" id="profile-rows"></div>
+      </div>
+    </div>
+
+    <!-- AGENDA — prochains RDV -->
+    <div>
+      <div class="sh">Prochains rendez-vous</div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Agenda
+          </div>
+          <span style="font-size:.6875rem;color:var(--warning);font-weight:600;background:var(--warning-bg);padding:3px 8px;border-radius:var(--r-full)">🔒 Lecture seule</span>
+        </div>
+        <div id="rdv-list" style="max-height:340px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PATIENTS RÉCENTS -->
+  <div class="sh">Derniers patients (vue médecin)</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Patients
+      </div>
+      <span style="font-size:.6875rem;color:var(--warning);font-weight:600;background:var(--warning-bg);padding:3px 8px;border-radius:var(--r-full)">🔒 Lecture seule</span>
+    </div>
+    <div class="table-wrap" style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr><th>Nom</th><th>Téléphone</th><th>Dernier RDV</th><th>Statut</th></tr></thead>
+        <tbody id="patients-tbody"><tr><td colspan="4" style="text-align:center;padding:28px;color:var(--text-muted)">Chargement…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS simulées -->
+  <div class="sh">Notifications (vue médecin)</div>
+  <div class="card" style="margin-bottom:32px">
+    <div class="card-body" id="notifs">
+      <div class="empty"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><p>Aucune notification active</p></div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+const _sb  = supabase.createClient(SUPA_URL, SUPA_KEY);
+const uid  = new URLSearchParams(location.search).get('uid');
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(d){ return d ? new Date(d).toLocaleDateString('fr-DZ',{day:'2-digit',month:'short',year:'numeric'}) : '—'; }
+function fmtTime(d){ return d ? new Date(d).toLocaleTimeString('fr-DZ',{hour:'2-digit',minute:'2-digit'}) : '—'; }
+function doctorName(d){ return d.full_name||((d.first_name||'')+' '+(d.last_name||'')).trim()||d.email||'?'; }
+function avatarGrad(name){
+  const p=['linear-gradient(135deg,#3B1772,#0066FF)','linear-gradient(135deg,#059669,#10B981)','linear-gradient(135deg,#DC2626,#F87171)','linear-gradient(135deg,#D97706,#FBBF24)'];
+  let h=0; for(let i=0;i<(name||'').length;i++) h=name.charCodeAt(i)+((h<<5)-h);
+  return p[Math.abs(h)%p.length];
+}
+function initials(name){ return (name||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
+function openCrm(){ window.open('/admin-crm?uid='+uid,'_blank'); }
+
+(async()=>{
+  if(!uid){ document.getElementById('loading').innerHTML='<p style="text-align:center;padding:60px;color:var(--danger)">UID manquant</p>'; return; }
+
+  // Auth check
+  const { data:{session} } = await _sb.auth.getSession();
+  if(!session){ location.href=ghpNav('/login'); return; }
+
+  // Load all data in parallel
+  const [docRes, subRes, rdvRes, patRes] = await Promise.all([
+    _sb.from('profiles').select('*').eq('id', uid).single(),
+    _sb.from('subscriptions').select('*').eq('user_id', uid).maybeSingle(),
+    _sb.from('appointments').select('*').eq('doctor_id', uid).order('start_time',{ascending:false}).limit(20),
+    _sb.from('patients').select('*').eq('doctor_id', uid).order('created_at',{ascending:false}).limit(10),
+  ]);
+
+  const doc = docRes.data;
+  const sub = subRes.data;
+  const rdvs = rdvRes.data || [];
+  const patients = patRes.data || [];
+
+  if(!doc){ document.getElementById('loading').innerHTML='<p style="text-align:center;padding:60px;color:var(--danger)">Médecin introuvable</p>'; return; }
+
+  const name = doctorName(doc);
+  document.title = 'Simulation — ' + name;
+  document.getElementById('sim-doctor-name').textContent = 'Dr. ' + name;
+
+  // Header
+  const av = document.getElementById('av');
+  av.style.background = avatarGrad(name);
+  av.textContent = initials(name);
+  document.getElementById('d-name').textContent = 'Dr. ' + name;
+  document.getElementById('d-spec').textContent = doc.specialty || '—';
+  document.getElementById('d-wilaya').textContent = doc.wilaya || '—';
+  document.getElementById('d-email').textContent = doc.email || '—';
+  document.getElementById('d-phone').textContent = doc.phone || '—';
+  document.getElementById('d-created').textContent = fmtDate(doc.created_at);
+
+  // Pills
+  const isPro = sub && sub.plan !== 'free' && sub.status === 'active';
+  const pills = [
+    isPro ? `<span class="pill pill-success">● ${(sub.plan||'PRO').toUpperCase()}</span>` : `<span class="pill pill-neutral">Free</span>`,
+    doc.is_active===false ? '<span class="pill pill-warning">⛔ Suspendu</span>' : '',
+    doc.kyc_status==='approved' ? '<span class="pill pill-success">KYC ✓</span>' : doc.kyc_status==='pending_review' ? '<span class="pill pill-warning">KYC en attente</span>' : '',
+    doc.featured ? '<span class="pill pill-brand">⭐ Vedette</span>' : '',
+    doc.accepts_rdv ? '<span class="pill pill-success">📅 RDV en ligne actif</span>' : '',
+  ].filter(Boolean);
+  document.getElementById('d-pills').innerHTML = pills.join('');
+
+  // Plan banner
+  const banner = document.getElementById('plan-banner');
+  const isTrial = doc.trial_end && new Date(doc.trial_end)>new Date();
+  if(isPro && sub.payment_status==='paid'){
+    banner.className='plan-banner pb-pro';
+    document.getElementById('plan-title').textContent='✅ Abonnement PRO PAYANT actif';
+    document.getElementById('plan-sub').textContent = `Renouvellement le ${fmtDate(sub.current_period_end||sub.expires_at)} · 5 900 DA/mois`;
+  } else if(isTrial){
+    banner.className='plan-banner pb-trial';
+    document.getElementById('plan-title').textContent='⏳ ESSAI PRO gratuit en cours';
+    document.getElementById('plan-sub').textContent = `Expire le ${fmtDate(doc.trial_end)} · Aucune facturation`;
+  } else if(isPro){
+    banner.className='plan-banner pb-trial';
+    document.getElementById('plan-title').textContent='✅ Plan PRO actif (paiement en attente)';
+    document.getElementById('plan-sub').textContent = 'Abonnement actif · Paiement à confirmer';
+  } else {
+    banner.className='plan-banner pb-free';
+    document.getElementById('plan-title').textContent='⚫ Compte GRATUIT — 10 patients max';
+    document.getElementById('plan-sub').textContent = 'Sans facturation · Fonctionnalités limitées';
+  }
+
+  // KPIs
+  document.getElementById('kpi-patients').textContent = patients.length || '0';
+  document.getElementById('kpi-rdv').textContent = rdvs.length || '0';
+  const now = new Date(); const m0 = new Date(now.getFullYear(), now.getMonth(), 1);
+  document.getElementById('kpi-rdv-month').textContent = rdvs.filter(r=>new Date(r.start_time||r.date)>=m0).length || '0';
+  document.getElementById('kpi-public').textContent = doc.is_public ? 'Visible' : 'Masqué';
+
+  // Profile rows
+  const rows = [
+    ['Nom complet', name],
+    ['Spécialité', doc.specialty||'—'],
+    ['Wilaya', doc.wilaya||'—'],
+    ['Ville', doc.city||'—'],
+    ['Email', doc.email||'—'],
+    ['Téléphone', doc.phone||'—'],
+    ['Prix consultation', doc.consultation_price ? doc.consultation_price+' DA' : '—'],
+    ['Accepte RDV en ligne', doc.accepts_rdv ? '✅ Oui' : '❌ Non'],
+    ['Profil public', doc.is_public ? '✅ Visible sur find-doctor' : '❌ Masqué'],
+    ['KYC', doc.kyc_status||'—'],
+    ['Langue', doc.language||'Français'],
+    ['Biographie', doc.bio ? doc.bio.slice(0,80)+(doc.bio.length>80?'…':'') : '—'],
+  ];
+  document.getElementById('profile-rows').innerHTML = rows.map(([k,v])=>
+    `<div class="profile-row"><span class="profile-key">${k}</span><span class="profile-val">${esc(String(v))}</span></div>`
+  ).join('');
+
+  // RDV list
+  const rdvEl = document.getElementById('rdv-list');
+  if(!rdvs.length){
+    rdvEl.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><p>Aucun rendez-vous</p></div>';
+  } else {
+    const statBadge = s => s==='confirmed'?'<span class="badge badge-success">Confirmé</span>':s==='pending'?'<span class="badge badge-warning">En attente</span>':'<span class="badge badge-neutral">'+esc(s||'?')+'</span>';
+    rdvEl.innerHTML = rdvs.slice(0,10).map(r=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border)">
+        <div style="width:36px;height:36px;background:var(--brand-light);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.6875rem;font-weight:700;color:var(--brand)">${new Date(r.start_time||r.date||Date.now()).getDate()}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:.8125rem">${esc(r.patient_name||r.patient_id||'—')}</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">${fmtDate(r.start_time||r.date)} ${r.start_time?'à '+fmtTime(r.start_time):''}</div>
+        </div>
+        ${statBadge(r.status)}
+      </div>
+    `).join('');
+  }
+
+  // Patients table
+  const pTbody = document.getElementById('patients-tbody');
+  if(!patients.length){
+    pTbody.innerHTML='<tr><td colspan="4"><div class="empty"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>Aucun patient</p></div></td></tr>';
+  } else {
+    pTbody.innerHTML = patients.map(p=>`
+      <tr>
+        <td style="font-weight:600">${esc((p.first_name||'')+' '+(p.last_name||''))||'—'}</td>
+        <td style="color:var(--text-muted)">${esc(p.phone||'—')}</td>
+        <td style="color:var(--text-muted)">${fmtDate(p.last_visit||p.created_at)}</td>
+        <td><span class="badge badge-success">Actif</span></td>
+      </tr>
+    `).join('');
+  }
+
+  // Notifications
+  const notifEl = document.getElementById('notifs');
+  const notifs = [];
+  if(doc.kyc_status==='pending_review') notifs.push({type:'warning',icon:'📋',msg:'Votre vérification KYC est en attente d\'examen.'});
+  if(doc.kyc_status==='approved') notifs.push({type:'success',icon:'✅',msg:'Votre identité professionnelle est vérifiée.'});
+  if(!doc.is_public) notifs.push({type:'info',icon:'👁',msg:'Votre profil n\'est pas visible publiquement sur find-doctor.'});
+  if(!isPro) notifs.push({type:'info',icon:'⭐',msg:'Passez au plan Pro pour accéder à toutes les fonctionnalités.'});
+  if(doc.payment_deadline && new Date(doc.payment_deadline)<new Date(Date.now()+7*86400000)){
+    notifs.push({type:'danger',icon:'⚠️',msg:'Délai de paiement bientôt dépassé.'});
+  }
+  if(notifs.length){
+    const colors={success:'var(--success-bg)',warning:'var(--warning-bg)',info:'var(--info-bg)',danger:'var(--danger-bg)'};
+    notifEl.innerHTML=notifs.map(n=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:8px;background:${colors[n.type]};border-radius:var(--r-md)">
+        <span style="font-size:1.125rem">${n.icon}</span>
+        <span style="font-size:.8125rem;color:var(--text-secondary)">${esc(n.msg)}</span>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('loading').style.display='none';
+  document.getElementById('content').style.display='block';
+})();
+</script>
+</body>
+</html>

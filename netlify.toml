@@ -55,6 +55,11 @@
   status = 200
 
 [[redirects]]
+  from   = "/admin-simulate"
+  to     = "/admin-simulate.html"
+  status = 200
+
+[[redirects]]
   from   = "/login"
   to     = "/login.html"
   status = 200

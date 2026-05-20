@@ -29,7 +29,7 @@ function ghpNav(path) {
   if (!_GHP_BASE) return path;
   var MAP = {
     '/login':'/login.html', '/dashboard':'/app.html', '/app':'/app.html',
-    '/admin':'/admin.html', '/admin-crm':'/admin-crm.html', '/admin-users':'/admin-users.html',
+    '/admin':'/admin.html', '/admin-crm':'/admin-crm.html', '/admin-simulate':'/admin-simulate.html', '/admin-users':'/admin-users.html',
     '/admin-featured':'/admin-featured.html', '/admin-emails':'/admin-emails.html',
     '/admin-revenue':'/admin-revenue.html', '/admin-security':'/admin-security.html',
     '/admin-settings':'/admin-settings.html', '/admin-analytics':'/admin-analytics.html',
