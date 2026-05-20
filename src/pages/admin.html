@@ -2393,15 +2393,16 @@ function openDoctorPanel(idx) {
   const rows = window._dashSignupRows || [];
   const r = rows[idx];
   if (!r) return;
-  openCrmPanel(r);
+  window.open(ghpNav('/admin-crm') + '?uid=' + encodeURIComponent(r.id), '_blank');
 }
 
 function openCrmPanelFromDoctors(idx) {
   const rows = window._doctorsData || [];
   const r = rows[idx];
   if (!r) return;
-  openCrmPanel(r);
+  window.open(ghpNav('/admin-crm') + '?uid=' + encodeURIComponent(r.id), '_blank');
 }
+
 
 async function openCrmPanel(profile) {
   _crmDoctor = profile;

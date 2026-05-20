@@ -50,6 +50,11 @@
   status = 200
 
 [[redirects]]
+  from   = "/admin-crm"
+  to     = "/admin-crm.html"
+  status = 200
+
+[[redirects]]
   from   = "/login"
   to     = "/login.html"
   status = 200
@@ -107,4 +112,9 @@
 [[redirects]]
   from   = "/mes-rdv"
   to     = "/mes-rdv.html"
+  status = 200
+
+[[redirects]]
+  from   = "/paiement"
+  to     = "/paiement.html"
   status = 200

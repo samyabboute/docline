@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CRM Médecin — Docline</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;
+  --sidebar-bg:#0f172a;--sidebar-hover:rgba(255,255,255,.06);--sidebar-active:rgba(59,23,114,.18);--sidebar-border:rgba(255,255,255,.07);
+  --bg:#F8FAFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
+  --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
+  --border:#E4E7F0;--border-strong:#C8CCE0;
+  --success:#12B76A;--success-bg:#ECFDF5;--success-border:rgba(18,183,106,.2);
+  --warning:#F79009;--warning-bg:#FFFAEB;--warning-border:rgba(247,144,9,.2);
+  --danger:#F04438;--danger-bg:#FEF3F2;--danger-border:rgba(240,68,56,.2);
+  --info:#2E90FA;--info-bg:#EFF8FF;--info-border:rgba(46,144,250,.2);
+  --sidebar-w:240px;--topbar-h:56px;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --shadow-sm:0 1px 3px rgba(13,15,20,.08),0 1px 2px rgba(13,15,20,.05);
+  --shadow-md:0 4px 8px rgba(13,15,20,.08),0 2px 4px rgba(13,15,20,.04);
+  --shadow-lg:0 12px 24px rgba(13,15,20,.1),0 4px 8px rgba(13,15,20,.06);
+  --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{font-family:'Sora',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+ul{list-style:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;min-height:100vh}
+.sidebar{grid-row:1/-1;background:var(--sidebar-bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--sidebar-border);z-index:200}
+.sidebar-head{display:flex;align-items:center;padding:18px 16px 14px;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;gap:10px}
+.sidebar-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#7C3AED,#3B1772);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-logo-text{font-size:.9375rem;font-weight:800;color:#fff;letter-spacing:-.3px}
+.sidebar-logo-sub{font-size:.625rem;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 14px;margin:1px 8px;border-radius:var(--r-md);color:rgba(255,255,255,.5);font-size:.8125rem;font-weight:500;cursor:pointer;transition:all var(--t-fast);border:none;background:transparent;width:calc(100% - 16px);text-align:left;text-decoration:none}
+.nav-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.8)}
+.nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
+.nav-item:hover svg,.nav-item.active svg{opacity:1}
+.sidebar-section{padding:18px 16px 6px;font-size:.625rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.22)}
+.sidebar-footer{margin-top:auto;border-top:1px solid var(--sidebar-border);padding:10px}
+
+/* TOPBAR */
+.topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:100}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-muted)}
+.breadcrumb a{color:var(--text-muted);text-decoration:none}
+.breadcrumb a:hover{color:var(--brand)}
+.breadcrumb-sep{color:var(--text-faint)}
+.topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+
+/* MAIN */
+.main{overflow-y:auto;min-height:calc(100vh - var(--topbar-h))}
+.page{padding:24px 28px;max-width:1200px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Sora',sans-serif;font-size:.8125rem;font-weight:600;padding:9px 18px;transition:all var(--t-fast);white-space:nowrap;line-height:1}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 4px 14px rgba(59,23,114,.28)}
+.btn-primary:hover:not(:disabled){background:var(--brand-dark)}
+.btn-secondary{background:var(--bg-subtle);color:var(--text-secondary);border:1px solid var(--border)}
+.btn-secondary:hover:not(:disabled){background:var(--bg-hover);color:var(--text-primary)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.btn-danger:hover:not(:disabled){background:var(--danger);color:#fff}
+.btn-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.btn-success:hover:not(:disabled){background:var(--success);color:#fff}
+.btn-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.btn-warning:hover:not(:disabled){background:var(--warning);color:#fff}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid transparent}
+.btn-ghost:hover:not(:disabled){background:var(--bg-subtle)}
+.btn-sm{padding:5px 10px;font-size:.75rem}
+.btn-xs{padding:3px 8px;font-size:.6875rem}
+.spinner-btn{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.btn.loading .spinner-btn{display:block}
+.btn.loading .btn-lbl{display:none}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700}
+.badge-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.badge-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.badge-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.badge-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
+.badge-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
+.badge-info{background:var(--info-bg);color:var(--info);border:1px solid var(--info-border)}
+
+/* CARD */
+.card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.card-title{font-size:.8125rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+.card-title svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;color:var(--brand)}
+.card-body{padding:20px}
+
+/* TABS */
+.crm-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px;overflow-x:auto}
+.crm-tab{padding:12px 20px;font-size:.8125rem;font-weight:600;color:var(--text-muted);cursor:pointer;border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all var(--t-fast);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.crm-tab:hover{color:var(--text-secondary)}
+.crm-tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+.crm-tab svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.crm-pane{display:none}
+.crm-pane.active{display:block}
+
+/* PLAN STATUS BANNER */
+.plan-banner{border-radius:var(--r-xl);padding:20px 24px;display:flex;align-items:center;gap:16px;margin-bottom:24px;position:relative;overflow:hidden}
+.plan-banner-free{background:linear-gradient(120deg,#64748b,#94a3b8);color:#fff}
+.plan-banner-trial{background:linear-gradient(120deg,#D97706,#F59E0B);color:#fff}
+.plan-banner-pro{background:linear-gradient(120deg,#059669,#10B981);color:#fff}
+.plan-banner-clinic{background:linear-gradient(120deg,#3B1772,#7C3AED);color:#fff}
+.plan-banner-blocked{background:linear-gradient(120deg,#DC2626,#F87171);color:#fff}
+.plan-banner::before{content:'';position:absolute;right:-30px;top:-30px;width:140px;height:140px;background:rgba(255,255,255,.08);border-radius:50%}
+.plan-banner-icon{width:48px;height:48px;background:rgba(255,255,255,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1}
+.plan-banner-icon svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.plan-banner-text{flex:1;position:relative;z-index:1}
+.plan-banner-label{font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.75;margin-bottom:2px}
+.plan-banner-title{font-size:1.125rem;font-weight:800;letter-spacing:-.3px;line-height:1.2}
+.plan-banner-sub{font-size:.75rem;opacity:.8;margin-top:3px}
+.plan-banner-actions{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
+.plan-banner-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r-md);font-size:.75rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all var(--t-fast)}
+.plan-banner-btn-white{background:rgba(255,255,255,.9);color:var(--text-primary)}
+.plan-banner-btn-white:hover{background:#fff}
+.plan-banner-btn-outline{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+.plan-banner-btn-outline:hover{background:rgba(255,255,255,.25)}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:960px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--bg-raised);border:1px solid var(--border);border-radius:14px;padding:18px 20px 16px 22px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(13,15,20,.05)}
+.kpi::after{content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0}
+.kpi-success::after{background:var(--success)}
+.kpi-warning::after{background:var(--warning)}
+.kpi-brand::after{background:var(--brand)}
+.kpi-info::after{background:var(--info)}
+.kpi-danger::after{background:var(--danger)}
+.kpi-label{font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text-faint);margin-bottom:8px}
+.kpi-value{font-size:1.625rem;font-weight:800;letter-spacing:-.5px;color:var(--text-primary);line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:.6875rem;color:var(--text-faint)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:10px 14px;text-align:left;font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border);background:var(--bg-subtle)}
+.data-table td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:.8125rem;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover td{background:var(--bg-hover)}
+
+/* TOAST */
+.toasts{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 16px;display:flex;align-items:flex-start;gap:10px;box-shadow:var(--shadow-lg);min-width:260px;max-width:380px;pointer-events:all;animation:toastIn .25s ease both}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.toast.success{border-left:3px solid var(--success)}
+.toast.error{border-left:3px solid var(--danger)}
+.toast.info{border-left:3px solid var(--info)}
+.toast-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;flex-shrink:0;margin-top:1px}
+.toast.success .toast-icon{color:var(--success)}
+.toast.error .toast-icon{color:var(--danger)}
+.toast.info .toast-icon{color:var(--info)}
+.toast-body{flex:1}
+.toast-title{font-weight:700;font-size:.8125rem}
+.toast-msg{font-size:.75rem;color:var(--text-muted);margin-top:2px}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(13,15,20,.5);z-index:800;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--bg-raised);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);width:100%;max-width:540px;overflow:hidden}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:1rem;font-weight:800;color:var(--text-primary)}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;border-radius:var(--r-sm)}
+.modal-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:14px 24px 20px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--border)}
+
+/* FORM */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);padding:8px 12px;font-family:inherit;font-size:.8125rem;color:var(--text-primary);background:var(--bg-raised);transition:border-color var(--t-fast)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--brand)}
+
+/* EMAIL PREVIEW BOX */
+.email-preview{background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin-top:10px;font-size:.8125rem}
+.email-preview-subject{font-weight:700;color:var(--text-primary);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.email-preview-body{color:var(--text-secondary);line-height:1.7;white-space:pre-wrap}
+.email-preview-label{font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-faint);margin-bottom:6px}
+
+/* INFO ROWS */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:.8125rem}
+.info-row:last-child{border-bottom:none}
+.info-key{color:var(--text-muted);font-size:.75rem;font-weight:500}
+.info-val{font-weight:600;color:var(--text-primary)}
+
+/* CHURN BAR */
+.churn-wrap{margin-bottom:20px}
+.churn-label{display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-muted);margin-bottom:6px}
+.churn-track{height:10px;background:var(--bg-subtle);border-radius:var(--r-full);overflow:hidden}
+.churn-fill{height:100%;border-radius:var(--r-full);transition:width .7s ease}
+
+/* SECTION HEADING */
+.section-head{font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin:20px 0 10px;display:flex;align-items:center;gap:6px}
+.section-head:first-child{margin-top:0}
+.section-head::before{content:'';display:block;width:3px;height:12px;background:var(--brand);border-radius:var(--r-full)}
+
+/* ACTION GRID */
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.action-btn{display:flex;align-items:center;gap:9px;padding:12px 14px;border-radius:var(--r-md);border:1.5px solid var(--border);background:var(--bg-raised);cursor:pointer;font-family:inherit;font-size:.8125rem;font-weight:600;color:var(--text-secondary);transition:all var(--t-fast);text-align:left}
+.action-btn:hover{border-color:var(--brand);background:var(--brand-light);color:var(--brand)}
+.action-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.action-btn.danger{border-color:var(--danger-border)}
+.action-btn.danger:hover{background:var(--danger-bg);color:var(--danger);border-color:var(--danger)}
+.action-btn.success{border-color:var(--success-border)}
+.action-btn.success:hover{background:var(--success-bg);color:var(--success);border-color:var(--success)}
+.action-btn.warning{border-color:var(--warning-border)}
+.action-btn.warning:hover{background:var(--warning-bg);color:var(--warning);border-color:var(--warning)}
+
+/* DOCTOR HEADER */
+.doc-header{display:flex;align-items:center;gap:16px;background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-xl);padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow-sm)}
+.doc-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:800;color:#fff;flex-shrink:0}
+.doc-name{font-size:1.125rem;font-weight:800;color:var(--text-primary);letter-spacing:-.3px}
+.doc-meta{font-size:.75rem;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.doc-meta-sep{color:var(--text-faint)}
+.doc-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.doc-header-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* PAYMENT METHOD ICON */
+.pay-method{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px 20px;color:var(--text-muted)}
+.empty svg{width:36px;height:36px;stroke:var(--text-faint);fill:none;stroke-width:1.5;stroke-linecap:round;margin:0 auto 10px}
+
+/* SPINNER */
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RETENTION OFFER */
+.ret-offer{background:linear-gradient(135deg,rgba(59,23,114,.05),rgba(124,58,237,.05));border:1px solid rgba(59,23,114,.15);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:16px}
+.ret-offer-title{font-size:.875rem;font-weight:700;color:var(--text-primary);margin-bottom:4px}
+.ret-offer-desc{font-size:.8125rem;color:var(--text-muted)}
+.ret-offer-actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+
+/* PLAN CHANGE OPTIONS */
+.plan-option{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:all var(--t-fast);margin-bottom:8px}
+.plan-option:hover{border-color:var(--brand);background:var(--brand-light)}
+.plan-option.selected{border-color:var(--brand);background:var(--brand-light)}
+.plan-option input[type=radio]{accent-color:var(--brand)}
+.plan-option-name{font-weight:700;font-size:.8125rem;color:var(--text-primary)}
+.plan-option-price{font-size:.75rem;color:var(--text-muted);margin-top:1px}
+.plan-option-badge{margin-left:auto}
+
+/* SIMULATE BANNER */
+.simulate-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--r-md);border:2px dashed rgba(59,23,114,.3);background:rgba(59,23,114,.03);cursor:pointer;font-family:inherit;font-size:.875rem;font-weight:700;color:var(--brand);transition:all var(--t-fast);margin-top:16px}
+.simulate-btn:hover{background:var(--brand-light);border-style:solid}
+.simulate-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+
+/* EMAIL LOG ENTRY */
+.email-log-entry{padding:12px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.email-log-entry:last-child{border-bottom:none}
+.email-log-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--info-bg)}
+.email-log-icon svg{width:15px;height:15px;stroke:var(--info);fill:none;stroke-width:2;stroke-linecap:round}
+.email-log-subject{font-weight:700;font-size:.8125rem;color:var(--text-primary)}
+.email-log-meta{font-size:.6875rem;color:var(--text-muted);margin-top:2px}
+
+@media(max-width:960px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .action-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="toasts" id="toasts"></div>
+
+<!-- PLAN CHANGE MODAL -->
+<div class="modal-backdrop" id="plan-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Changer le plan</div>
+      <button class="modal-close" onclick="closeModal('plan-modal')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-doctor-name" style="font-size:.875rem;color:var(--text-muted);margin-bottom:16px">—</div>
+
+      <!-- Plan options -->
+      <div class="section-head">Choisir le plan</div>
+      <label class="plan-option selected" id="opt-pro">
+        <input type="radio" name="plan" value="pro" checked onchange="updateEmailPreview()">
+        <div>
+          <div class="plan-option-name">Pro</div>
+          <div class="plan-option-price">5 900 DA/mois · 59 000 DA/an</div>
+        </div>
+        <span class="badge badge-success plan-option-badge">Recommandé</span>
+      </label>
+      <label class="plan-option" id="opt-clinic">
+        <input type="radio" name="plan" value="clinic" onchange="updateEmailPreview()">
+        <div>
+          <div class="plan-option-name">Clinique</div>
+          <div class="plan-option-price">13 900 DA/mois · 139 000 DA/an</div>
+        </div>
+      </label>
+      <label class="plan-option" id="opt-free">
+        <input type="radio" name="plan" value="free" onchange="updateEmailPreview()">
+        <div>
+          <div class="plan-option-name">Gratuit</div>
+          <div class="plan-option-price">10 patients max, sans facturation</div>
+        </div>
+      </label>
+
+      <!-- Type -->
+      <div class="field" style="margin-top:14px">
+        <label>Type d'activation</label>
+        <select id="modal-type" onchange="updateEmailPreview()">
+          <option value="paid">💳 Payant (facturation normale)</option>
+          <option value="trial">🎁 Essai gratuit (aucune facturation)</option>
+          <option value="credit">⭐ Crédit commercial (offert)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Durée (mois)</label>
+        <select id="modal-duration" onchange="updateEmailPreview()">
+          <option value="1">1 mois</option>
+          <option value="3">3 mois</option>
+          <option value="6">6 mois</option>
+          <option value="12">12 mois (tarif annuel)</option>
+        </select>
+      </div>
+
+      <!-- Email preview -->
+      <div class="section-head" style="margin-top:16px">Email qui sera envoyé au médecin</div>
+      <div class="email-preview">
+        <div class="email-preview-label">Objet</div>
+        <div class="email-preview-subject" id="preview-subject">—</div>
+        <div class="email-preview-label" style="margin-top:10px">Corps du message</div>
+        <div class="email-preview-body" id="preview-body">—</div>
+      </div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-muted)">
+        <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Envoyé automatiquement via Resend à l'adresse du médecin
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('plan-modal')">Annuler</button>
+      <button class="btn btn-primary" id="confirm-plan-btn" onclick="confirmPlanChange()">
+        <div class="spinner-btn"></div>
+        <span class="btn-lbl">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirmer l'activation
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SEND EMAIL MODAL -->
+<div class="modal-backdrop" id="email-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Envoyer un email</div>
+      <button class="modal-close" onclick="closeModal('email-modal')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>Modèle</label>
+        <select id="email-template" onchange="applyEmailTemplate()">
+          <option value="relance">📬 Relance paiement</option>
+          <option value="bienvenue">👋 Bienvenue + prise en main</option>
+          <option value="renouvellement">🔄 Rappel renouvellement</option>
+          <option value="suspension">⚠️ Avertissement suspension</option>
+          <option value="custom">✏️ Email personnalisé</option>
+        </select>
+      </div>
+      <div class="field"><label>Objet</label><input type="text" id="email-subject" value=""></div>
+      <div class="field"><label>Message</label><textarea id="email-body" rows="6" style="resize:vertical"></textarea></div>
+      <div style="font-size:.75rem;color:var(--text-muted);margin-top:-8px">
+        Variables disponibles: <code style="background:var(--bg-subtle);padding:1px 4px;border-radius:3px">{{nom}}</code> <code style="background:var(--bg-subtle);padding:1px 4px;border-radius:3px">{{plan}}</code> <code style="background:var(--bg-subtle);padding:1px 4px;border-radius:3px">{{expiry}}</code>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('email-modal')">Annuler</button>
+      <button class="btn btn-primary" onclick="sendSupportEmail()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Envoyer
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <div>
+        <div class="sidebar-logo-text">Docline</div>
+        <div class="sidebar-logo-sub">CRM Médecin</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">Navigation</div>
+    <a class="nav-item" href="/admin">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Retour au tableau de bord
+    </a>
+    <a class="nav-item" href="/admin-users">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Gestion utilisateurs
+    </a>
+
+    <div class="sidebar-section">Ce médecin</div>
+    <button class="nav-item active" onclick="switchTab('resume',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Résumé
+    </button>
+    <button class="nav-item" onclick="switchTab('billing',this)">
+      <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Billing & Facturation
+    </button>
+    <button class="nav-item" onclick="switchTab('retention',this)">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Rétention
+    </button>
+    <button class="nav-item" onclick="switchTab('compte',this)">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Compte & Accès
+    </button>
+    <button class="nav-item" onclick="switchTab('support',this)">
+      <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Support & Emails
+    </button>
+
+    <div class="sidebar-footer">
+      <a class="nav-item" href="/admin" style="color:rgba(255,255,255,.4);font-size:.75rem">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Quitter le CRM
+      </a>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="breadcrumb">
+      <a href="/admin">Admin</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="/admin" onclick="history.back();return false">Médecins</a>
+      <span class="breadcrumb-sep">›</span>
+      <span id="bc-name" style="color:var(--text-primary);font-weight:600">CRM</span>
+    </div>
+    <div class="topbar-actions">
+      <span id="topbar-plan-badge" class="badge">—</span>
+      <button class="btn btn-secondary btn-sm" onclick="openModal('plan-modal')">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+        Changer le plan
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="openModal('email-modal')">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Envoyer email
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page" id="loading-state">
+      <div class="spinner"></div>
+      <p style="text-align:center;color:var(--text-muted);margin-top:8px">Chargement du profil…</p>
+    </div>
+
+    <div class="page" id="crm-content" style="display:none">
+
+      <!-- DOCTOR HEADER -->
+      <div class="doc-header">
+        <div class="doc-avatar" id="doc-avatar">?</div>
+        <div style="flex:1;min-width:0">
+          <div class="doc-name" id="doc-name">—</div>
+          <div class="doc-meta">
+            <span id="doc-specialty">—</span>
+            <span class="doc-meta-sep">·</span>
+            <span id="doc-wilaya">—</span>
+            <span class="doc-meta-sep">·</span>
+            <span id="doc-email">—</span>
+          </div>
+          <div class="doc-pills" id="doc-pills"></div>
+        </div>
+        <div class="doc-header-actions">
+          <button class="btn btn-ghost btn-sm" onclick="window.location.reload()">
+            <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Rafraîchir
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="simulateDoctor()">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Simuler
+          </button>
+        </div>
+      </div>
+
+      <!-- PLAN STATUS BANNER -->
+      <div id="plan-banner" class="plan-banner plan-banner-free">
+        <div class="plan-banner-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="plan-banner-text">
+          <div class="plan-banner-label" id="banner-label">Statut</div>
+          <div class="plan-banner-title" id="banner-title">Chargement…</div>
+          <div class="plan-banner-sub" id="banner-sub">—</div>
+        </div>
+        <div class="plan-banner-actions">
+          <button class="plan-banner-btn plan-banner-btn-white" onclick="openModal('plan-modal')">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+            Changer le plan
+          </button>
+          <button class="plan-banner-btn plan-banner-btn-outline" onclick="switchTab('billing',null)">
+            Voir billing →
+          </button>
+        </div>
+      </div>
+
+      <!-- TABS (desktop visible) -->
+      <div class="crm-tabs" id="tab-bar">
+        <button class="crm-tab active" onclick="switchTab('resume',this)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Résumé
+        </button>
+        <button class="crm-tab" onclick="switchTab('billing',this)">
+          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Billing
+        </button>
+        <button class="crm-tab" onclick="switchTab('retention',this)">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Rétention
+        </button>
+        <button class="crm-tab" onclick="switchTab('compte',this)">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Compte
+        </button>
+        <button class="crm-tab" onclick="switchTab('support',this)">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Support &amp; Emails
+        </button>
+      </div>
+
+      <!-- ── TAB: RÉSUMÉ ── -->
+      <div class="crm-pane active" id="pane-resume">
+        <div class="kpi-grid" id="resume-kpis">
+          <div class="kpi kpi-success">
+            <div class="kpi-label">Revenu Total (6 mois)</div>
+            <div class="kpi-value" id="kpi-revenue">—</div>
+            <div class="kpi-sub">paiements validés</div>
+          </div>
+          <div class="kpi kpi-brand">
+            <div class="kpi-label">RDV Total</div>
+            <div class="kpi-value" id="kpi-rdv">—</div>
+            <div class="kpi-sub">consultations planifiées</div>
+          </div>
+          <div class="kpi kpi-warning">
+            <div class="kpi-label">Risque Churn</div>
+            <div class="kpi-value" id="kpi-churn">—</div>
+            <div class="kpi-sub">score de rétention</div>
+          </div>
+          <div class="kpi kpi-info">
+            <div class="kpi-label">Dernier Paiement</div>
+            <div class="kpi-value" id="kpi-lastpay">—</div>
+            <div class="kpi-sub">date de validation</div>
+          </div>
+        </div>
+
+        <div class="section-head">Actions rapides</div>
+        <div class="action-grid">
+          <button class="action-btn warning" onclick="openModal('plan-modal')">
+            <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+            Changer le plan
+          </button>
+          <button class="action-btn" onclick="openModal('email-modal')">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Envoyer un email
+          </button>
+          <button class="action-btn" onclick="resetPassword()">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Reset mot de passe
+          </button>
+          <button class="action-btn danger" id="block-btn" onclick="toggleBlock()">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            <span id="block-label">Suspendre compte</span>
+          </button>
+        </div>
+
+        <div class="section-head" style="margin-top:24px">Dernières activités</div>
+        <div class="card">
+          <div class="card-body" id="recent-activity">
+            <div class="empty">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <p>Activité détaillée disponible via audit_log</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: BILLING ── -->
+      <div class="crm-pane" id="pane-billing">
+
+        <!-- Current plan detail card -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              Plan actuel &amp; facturation
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('plan-modal')">
+              <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+              Modifier le plan
+            </button>
+          </div>
+          <div class="card-body">
+            <div id="billing-plan-detail">
+              <div class="spinner" style="width:20px;height:20px;margin:10px auto;border-width:2px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment history -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Historique des paiements
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span id="billing-total-badge" class="badge badge-success" style="display:none">—</span>
+              <button class="btn btn-ghost btn-xs" onclick="extendDeadline()">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Prolonger délai
+              </button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Plan</th>
+                  <th>Montant</th>
+                  <th>Méthode</th>
+                  <th>Statut</th>
+                  <th>Email envoyé</th>
+                </tr>
+              </thead>
+              <tbody id="payment-tbody">
+                <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: RÉTENTION ── -->
+      <div class="crm-pane" id="pane-retention">
+        <div class="section-head">Score de rétention</div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-body">
+            <div class="churn-wrap">
+              <div class="churn-label">
+                <span>Risque de résiliation</span>
+                <span id="churn-pct" style="font-weight:700;color:var(--success)">0%</span>
+              </div>
+              <div class="churn-track">
+                <div class="churn-fill" id="churn-fill" style="width:0%;background:var(--success)"></div>
+              </div>
+              <div style="font-size:.75rem;color:var(--text-muted);margin-top:6px" id="churn-reasons">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-head">Offre suggérée</div>
+        <div class="ret-offer" id="ret-offer-box">
+          <div class="ret-offer-title" id="ret-offer-title">Calcul en cours…</div>
+          <div class="ret-offer-desc" id="ret-offer-desc">—</div>
+          <div class="ret-offer-actions" id="ret-offer-actions"></div>
+        </div>
+
+        <div class="section-head">Actions de rétention</div>
+        <div class="action-grid">
+          <button class="action-btn success" onclick="grantFreeMonth(1)">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            +1 mois gratuit
+          </button>
+          <button class="action-btn success" onclick="grantFreeMonth(3)">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            +3 mois gratuits
+          </button>
+          <button class="action-btn warning" onclick="offerDiscount(10)">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            Rabais 10%
+          </button>
+          <button class="action-btn warning" onclick="offerDiscount(20)">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            Rabais 20%
+          </button>
+        </div>
+
+        <div class="section-head">Historique des offres</div>
+        <div class="card">
+          <div class="card-body" id="retention-history">
+            <div class="empty">
+              <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <p>Aucune offre de rétention accordée</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: COMPTE ── -->
+      <div class="crm-pane" id="pane-compte">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <div class="section-head">Informations du compte</div>
+            <div class="card">
+              <div class="card-body" id="account-info">
+                <div class="spinner" style="width:20px;height:20px;margin:10px auto;border-width:2px"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="section-head">Actions compte</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <button class="action-btn warning" onclick="openModal('plan-modal')" style="width:100%">
+                <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+                Changer le plan
+              </button>
+              <button class="action-btn" onclick="resetPassword()" style="width:100%">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Reset mot de passe
+              </button>
+              <button class="action-btn" id="featured-btn" onclick="toggleFeatured()" style="width:100%">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span id="featured-label">Mettre en vedette</span>
+              </button>
+              <button class="action-btn danger" id="block-btn2" onclick="toggleBlock()" style="width:100%">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                <span id="block-label2">Suspendre compte</span>
+              </button>
+            </div>
+            <button class="simulate-btn" onclick="simulateDoctor()">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Mode simulation — Voir l'espace du médecin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: SUPPORT ── -->
+      <div class="crm-pane" id="pane-support">
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Emails envoyés à ce médecin
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('email-modal')">
+              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Nouvel email
+            </button>
+          </div>
+          <div class="card-body" id="email-log">
+            <div class="empty">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <p>Aucun email loggué pour ce médecin</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Informations techniques
+            </div>
+          </div>
+          <div class="card-body" id="tech-info">
+            <div class="spinner" style="width:20px;height:20px;margin:10px auto;border-width:2px"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /crm-content -->
+  </main>
+</div><!-- /app -->
+
+<script>
+/* ══ INIT ══════════════════════════════════════════════ */
+const _sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+let _doctor = null;
+let _sub    = null;
+let _payments = [];
+let _emailLog = [];
+
+const uid = new URLSearchParams(location.search).get('uid');
+
+(async () => {
+  if (!uid) { showError('Aucun médecin spécifié. Revenez à la liste.'); return; }
+
+  // Auth check
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) { location.href = ghpNav('/login'); return; }
+
+  try {
+    // Load profile
+    const { data: doc, error } = await _sb.from('profiles').select('*').eq('id', uid).single();
+    if (error || !doc) throw new Error('Médecin introuvable');
+    _doctor = doc;
+
+    // Load subscription
+    const { data: sub } = await _sb.from('subscriptions').select('*').eq('user_id', uid).maybeSingle();
+    _sub = sub;
+
+    // Load payments
+    const { data: pays } = await _sb.from('payment_requests').select('*').eq('user_id', uid).order('created_at', { ascending: false });
+    _payments = pays || [];
+
+    // Load email log from audit_log
+    const { data: logs } = await _sb.from('audit_log')
+      .select('*').eq('user_id', uid)
+      .eq('action', 'email_sent')
+      .order('created_at', { ascending: false })
+      .limit(30);
+    _emailLog = logs || [];
+
+    renderAll();
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('crm-content').style.display = 'block';
+  } catch(e) {
+    showError(e.message);
+  }
+})();
+
+/* ══ RENDER ════════════════════════════════════════════ */
+function renderAll() {
+  renderHeader();
+  renderPlanBanner();
+  renderBillingTab();
+  renderAccountTab();
+  renderRetentionTab();
+  renderSupportTab();
+  renderResumeKPIs();
+  updateEmailPreview();
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-DZ', { day:'2-digit', month:'short', year:'numeric' });
+}
+function doctorName(d) {
+  return d.full_name || ((d.first_name || '') + ' ' + (d.last_name || '')).trim() || d.email || '?';
+}
+function avatarGrad(name) {
+  const p=['linear-gradient(135deg,#3B1772,#0066FF)','linear-gradient(135deg,#059669,#10B981)','linear-gradient(135deg,#DC2626,#F87171)','linear-gradient(135deg,#D97706,#FBBF24)'];
+  let h=0; for(let i=0;i<(name||'').length;i++) h=name.charCodeAt(i)+((h<<5)-h);
+  return p[Math.abs(h)%p.length];
+}
+function initials(name) {
+  return (name||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
+}
+
+function renderHeader() {
+  const name = doctorName(_doctor);
+  document.title = 'CRM — ' + name + ' — Docline';
+  document.getElementById('bc-name').textContent = name;
+
+  const av = document.getElementById('doc-avatar');
+  av.style.background = avatarGrad(name);
+  av.textContent = initials(name);
+
+  document.getElementById('doc-name').textContent = name;
+  document.getElementById('doc-specialty').textContent = _doctor.specialty || '—';
+  document.getElementById('doc-wilaya').textContent = _doctor.wilaya || '—';
+  document.getElementById('doc-email').textContent = _doctor.email || '—';
+
+  // Pills
+  const pills = [];
+  const isPro = _sub && _sub.plan !== 'free' && _sub.status === 'active';
+  pills.push(isPro
+    ? `<span class="badge badge-success">● ${_sub.plan?.toUpperCase() || 'PRO'}</span>`
+    : `<span class="badge badge-neutral">Free</span>`);
+  if (_doctor.is_active === false) pills.push('<span class="badge badge-danger">Suspendu</span>');
+  if (_doctor.kyc_status === 'approved')       pills.push('<span class="badge badge-success">KYC ✓</span>');
+  if (_doctor.kyc_status === 'pending_review') pills.push('<span class="badge badge-warning">KYC en attente</span>');
+  if (_doctor.featured) pills.push('<span class="badge badge-brand">⭐ Vedette</span>');
+  document.getElementById('doc-pills').innerHTML = pills.join('');
+
+  // Topbar plan badge
+  const topBadge = document.getElementById('topbar-plan-badge');
+  if (isPro) { topBadge.className='badge badge-success'; topBadge.textContent=(_sub.plan||'pro').toUpperCase(); }
+  else { topBadge.className='badge badge-neutral'; topBadge.textContent='FREE'; }
+
+  // Modal doctor name
+  document.getElementById('modal-doctor-name').textContent = 'Plan de Dr. ' + name;
+
+  // Block button labels
+  const blocked = _doctor.is_active === false;
+  ['block-label','block-label2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = blocked ? 'Réactiver compte' : 'Suspendre compte';
+  });
+  ['block-btn','block-btn2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.className = blocked ? 'action-btn success' : 'action-btn danger'; }
+  });
+
+  // Featured
+  const fl = document.getElementById('featured-label');
+  if (fl) fl.textContent = _doctor.featured ? 'Retirer vedette' : 'Mettre en vedette';
+}
+
+function renderPlanBanner() {
+  const banner = document.getElementById('plan-banner');
+  const bLabel = document.getElementById('banner-label');
+  const bTitle = document.getElementById('banner-title');
+  const bSub   = document.getElementById('banner-sub');
+
+  const isPro = _sub && _sub.plan !== 'free' && _sub.status === 'active';
+  const isTrial = _doctor.trial_end && new Date(_doctor.trial_end) > new Date();
+  const blocked = _doctor.is_active === false;
+
+  if (blocked) {
+    banner.className = 'plan-banner plan-banner-blocked';
+    bLabel.textContent = 'Compte suspendu';
+    bTitle.textContent = '⛔ Accès désactivé';
+    bSub.textContent = 'Ce médecin ne peut pas accéder à l\'application.';
+  } else if (isPro && _sub.plan === 'clinic') {
+    banner.className = 'plan-banner plan-banner-clinic';
+    bLabel.textContent = 'Plan Clinique Actif';
+    bTitle.textContent = '✅ CLINIQUE — Abonnement actif';
+    const exp = _sub.current_period_end || _sub.expires_at;
+    bSub.textContent = exp
+      ? `Renouvellement le ${fmtDate(exp)} · 13 900 DA/mois`
+      : `Abonnement actif · 13 900 DA/mois`;
+  } else if (isPro) {
+    banner.className = 'plan-banner plan-banner-pro';
+    bLabel.textContent = 'Plan Pro Actif';
+    const isPaid = _sub.payment_status === 'paid';
+    bTitle.textContent = isPaid ? '✅ PRO PAYANT — Abonnement actif' : '✅ PRO — Abonnement actif';
+    const exp = _sub.current_period_end || _sub.expires_at;
+    bSub.textContent = exp
+      ? `Renouvellement le ${fmtDate(exp)} · 5 900 DA/mois`
+      : `Abonnement actif · 5 900 DA/mois`;
+  } else if (isTrial) {
+    banner.className = 'plan-banner plan-banner-trial';
+    bLabel.textContent = 'Essai gratuit en cours';
+    bTitle.textContent = '⏳ ESSAI PRO — Aucune facturation';
+    bSub.textContent = `Expire le ${fmtDate(_doctor.trial_end)} · Convertit en Free après expiration`;
+  } else {
+    banner.className = 'plan-banner plan-banner-free';
+    bLabel.textContent = 'Compte gratuit';
+    bTitle.textContent = '⚫ COMPTE FREE — Fonctionnalités limitées';
+    bSub.textContent = '10 patients max · Sans facturation · Sans KYC';
+  }
+}
+
+function renderResumeKPIs() {
+  const revenue = _payments.filter(p => p.status === 'paid' || p.status === 'approved')
+    .reduce((s,p) => s + (p.amount || 0), 0);
+  document.getElementById('kpi-revenue').textContent = revenue > 0
+    ? revenue.toLocaleString('fr-DZ') + ' DA' : '0 DA';
+
+  const lastPay = _payments.find(p => p.status === 'paid' || p.status === 'approved');
+  document.getElementById('kpi-lastpay').textContent = lastPay ? fmtDate(lastPay.created_at) : '—';
+
+  // RDV count async
+  _sb.from('appointments').select('id', { count:'exact', head:true }).eq('doctor_id', uid).then(({ count }) => {
+    document.getElementById('kpi-rdv').textContent = count || 0;
+  });
+
+  // Churn
+  const score = computeChurn();
+  document.getElementById('kpi-churn').textContent = score + '% risque';
+  document.getElementById('kpi-churn').style.color = score > 65 ? 'var(--danger)' : score > 35 ? 'var(--warning)' : 'var(--success)';
+}
+
+function renderBillingTab() {
+  // Plan detail card
+  const isPro = _sub && _sub.plan !== 'free' && _sub.status === 'active';
+  const plan = isPro ? (_sub.plan || 'pro') : 'free';
+  const PRICES = { pro: { month: 5900, year: 59000 }, clinic: { month: 13900, year: 139000 } };
+  const price = PRICES[plan];
+  const payStatus = _sub?.payment_status || 'none';
+  const exp = _sub?.current_period_end || _sub?.expires_at;
+
+  let statusHtml = '';
+  if (!isPro) {
+    statusHtml = `<div style="display:flex;align-items:center;gap:10px;padding:16px;background:var(--bg-subtle);border-radius:var(--r-md)">
+      <div style="width:40px;height:40px;border-radius:10px;background:var(--bg-hover);display:flex;align-items:center;justify-content:center;font-size:1.25rem">⚫</div>
+      <div>
+        <div style="font-weight:700;font-size:.9375rem">Compte GRATUIT</div>
+        <div style="color:var(--text-muted);font-size:.8125rem">10 patients max · Sans facturation</div>
+      </div>
+    </div>`;
+  } else if (payStatus === 'paid') {
+    statusHtml = `<div style="display:flex;align-items:center;gap:10px;padding:16px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--r-md)">
+      <div style="width:40px;height:40px;border-radius:10px;background:var(--success);display:flex;align-items:center;justify-content:center;font-size:1.25rem">✅</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:.9375rem;color:var(--success)">${plan.toUpperCase()} — PAYANT</div>
+        <div style="color:var(--text-muted);font-size:.8125rem">${exp ? 'Renouvellement le ' + fmtDate(exp) : 'Actif'}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:800;font-size:1.125rem;color:var(--success)">${price ? price.month.toLocaleString('fr-DZ') + ' DA' : '—'}</div>
+        <div style="font-size:.6875rem;color:var(--text-muted)">par mois</div>
+      </div>
+    </div>`;
+  } else {
+    statusHtml = `<div style="display:flex;align-items:center;gap:10px;padding:16px;background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:var(--r-md)">
+      <div style="width:40px;height:40px;border-radius:10px;background:var(--warning);display:flex;align-items:center;justify-content:center;font-size:1.25rem">⏳</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:.9375rem;color:var(--warning)">${plan.toUpperCase()} — EN ATTENTE DE PAIEMENT</div>
+        <div style="color:var(--text-muted);font-size:.8125rem">Paiement non confirmé · ${exp ? 'Expire le ' + fmtDate(exp) : ''}</div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('billing-plan-detail').innerHTML = statusHtml + `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:16px;border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden">
+      ${[
+        ['Plan', plan.charAt(0).toUpperCase() + plan.slice(1)],
+        ['Statut paiement', payStatus || '—'],
+        ['Interval', _sub?.interval || '—'],
+        ['Début', fmtDate(_sub?.current_period_start || _sub?.created_at)],
+        ['Fin / Renouvellement', fmtDate(exp)],
+        ['Méthode', _sub?.payment_method || '—'],
+      ].map(([k,v]) => `
+        <div style="padding:10px 14px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)">
+          <div style="font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-faint);margin-bottom:3px">${k}</div>
+          <div style="font-size:.8125rem;font-weight:600;color:var(--text-primary)">${esc(String(v))}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Payment table
+  const totalValidated = _payments.filter(p => p.status === 'paid' || p.status === 'approved')
+    .reduce((s,p) => s + (p.amount||0), 0);
+  if (totalValidated > 0) {
+    const b = document.getElementById('billing-total-badge');
+    b.style.display = '';
+    b.textContent = 'Total : ' + totalValidated.toLocaleString('fr-DZ') + ' DA';
+  }
+
+  const tbody = document.getElementById('payment-tbody');
+  if (!_payments.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><p>Aucun paiement enregistré</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = _payments.map(p => {
+    const statusBadge = p.status === 'paid' || p.status === 'approved'
+      ? `<span class="badge badge-success">Validé</span>`
+      : p.status === 'pending'
+      ? `<span class="badge badge-warning">En attente</span>`
+      : `<span class="badge badge-neutral">${esc(p.status||'—')}</span>`;
+
+    const methodMap = { online:'💳 En ligne', transfer:'🏦 Virement', cash:'💵 Cash', penalty:'⚠️ Pénalité', trial:'🎁 Essai' };
+    const emailSent = (p.status === 'paid' || p.status === 'approved')
+      ? `<span style="color:var(--success);font-size:.75rem">✓ Confirmation envoyée</span>`
+      : p.status === 'pending'
+      ? `<span style="color:var(--warning);font-size:.75rem">⏳ En attente validation</span>`
+      : `<span style="color:var(--text-faint);font-size:.75rem">—</span>`;
+
+    return `<tr>
+      <td>${fmtDate(p.created_at)}</td>
+      <td><span class="badge badge-brand">${esc((p.plan||'?').toUpperCase())}</span></td>
+      <td style="font-weight:700">${p.amount ? p.amount.toLocaleString('fr-DZ') + ' DA' : '—'}</td>
+      <td>${methodMap[p.method] || esc(p.method||'—')}</td>
+      <td>${statusBadge}</td>
+      <td>${emailSent}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAccountTab() {
+  const rows = [
+    ['ID compte', (_doctor.id||'').slice(0,18) + '…'],
+    ['Email', _doctor.email || '—'],
+    ['Téléphone', _doctor.phone || '—'],
+    ['Spécialité', _doctor.specialty || '—'],
+    ['Wilaya', _doctor.wilaya || '—'],
+    ['Ville', _doctor.city || '—'],
+    ['Plan', _sub?.plan || _doctor.plan || 'free'],
+    ['KYC', _doctor.kyc_status || '—'],
+    ['Profil public', _doctor.is_public ? 'Oui' : 'Non'],
+    ['Vedette', _doctor.featured ? 'Oui ⭐' : 'Non'],
+    ['Inscrit le', fmtDate(_doctor.created_at)],
+    ['Dernière connexion', _doctor.last_seen_at ? fmtDate(_doctor.last_seen_at) : 'jamais'],
+    ['Prix consultation', _doctor.consultation_price ? _doctor.consultation_price + ' DA' : '—'],
+    ['Accepte RDV', _doctor.accepts_rdv ? 'Oui' : 'Non'],
+  ];
+  document.getElementById('account-info').innerHTML = rows.map(([k,v]) =>
+    `<div class="info-row"><span class="info-key">${k}</span><span class="info-val">${esc(String(v))}</span></div>`
+  ).join('');
+}
+
+function computeChurn() {
+  let score = 0;
+  const reasons = [];
+  const isPro = _sub && _sub.plan !== 'free' && _sub.status === 'active';
+  if (!isPro) { score += 30; reasons.push('pas abonné'); }
+  if (!_doctor.is_public) { score += 15; reasons.push('profil masqué'); }
+  if (_doctor.kyc_status !== 'approved') { score += 20; reasons.push('KYC non validé'); }
+  const hasPendingPay = _payments.some(p => p.status === 'pending');
+  if (hasPendingPay) { score += 25; reasons.push('paiement en attente'); }
+  const lastPay = _payments.find(p => p.status === 'paid' || p.status === 'approved');
+  if (lastPay) {
+    const days = (Date.now() - new Date(lastPay.created_at)) / 86400000;
+    if (days > 60) { score += 20; reasons.push('pas de paiement depuis 60j'); }
+  }
+  return { score: Math.min(score, 100), reasons };
+}
+
+function renderRetentionTab() {
+  const { score, reasons } = computeChurn();
+  const fillEl   = document.getElementById('churn-fill');
+  const pctEl    = document.getElementById('churn-pct');
+  const reasonEl = document.getElementById('churn-reasons');
+
+  fillEl.style.width = score + '%';
+  fillEl.style.background = score > 65 ? 'var(--danger)' : score > 35 ? 'var(--warning)' : 'var(--success)';
+  pctEl.textContent = score + '%';
+  pctEl.style.color = score > 65 ? 'var(--danger)' : score > 35 ? 'var(--warning)' : 'var(--success)';
+  reasonEl.textContent = reasons.length ? 'Facteurs : ' + reasons.join(', ') : '✅ Profil sain — aucun facteur de risque';
+
+  const revenue6 = _payments.filter(p => p.status==='paid'||p.status==='approved')
+    .reduce((s,p)=>s+(p.amount||0),0);
+
+  const oTitle = document.getElementById('ret-offer-title');
+  const oDesc  = document.getElementById('ret-offer-desc');
+  const oAct   = document.getElementById('ret-offer-actions');
+  if (score > 65) {
+    oTitle.textContent = '🚨 Risque élevé — Action urgente recommandée';
+    oDesc.textContent = `Ce médecin génère ${revenue6.toLocaleString('fr-DZ')} DA. Un rabais ou mois gratuit peut le retenir.`;
+    oAct.innerHTML = `
+      <button class="btn btn-success btn-sm" onclick="offerDiscount(20)">Rabais 20%</button>
+      <button class="btn btn-warning btn-sm" onclick="grantFreeMonth(1)">+1 mois gratuit</button>
+      <button class="btn btn-secondary btn-sm" onclick="openEmailModal('relance')">Email de relance</button>`;
+  } else if (score > 35) {
+    oTitle.textContent = '⚠️ Risque modéré — Relance recommandée';
+    oDesc.textContent = 'Envoyer un email de relance avec un récap des bénéfices Pro.';
+    oAct.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="openEmailModal('relance')">Envoyer relance</button>`;
+  } else {
+    oTitle.textContent = '✅ Profil sain — Fidélisation possible';
+    oDesc.textContent = 'Ce médecin est engagé. Proposez un programme de fidélité.';
+    oAct.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="openEmailModal('bienvenue')">Email fidélité</button>`;
+  }
+}
+
+function renderSupportTab() {
+  // Email log
+  const emailLogEl = document.getElementById('email-log');
+  if (_emailLog.length) {
+    emailLogEl.innerHTML = _emailLog.map(l => `
+      <div class="email-log-entry">
+        <div class="email-log-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div>
+          <div class="email-log-subject">${esc(l.details?.subject || l.action || 'Email envoyé')}</div>
+          <div class="email-log-meta">${fmtDate(l.created_at)} · par ${esc(l.performed_by || 'système')}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Tech info
+  document.getElementById('tech-info').innerHTML = [
+    ['ID Supabase', _doctor.id],
+    ['Email', _doctor.email || '—'],
+    ['Région / Wilaya', _doctor.wilaya || '—'],
+    ['Statut KYC', _doctor.kyc_status || '—'],
+    ['Compte actif', _doctor.is_active !== false ? 'Oui' : 'Non'],
+    ['Accepte RDV en ligne', _doctor.accepts_rdv ? 'Oui' : 'Non'],
+    ['Slug public', _doctor.slug || '—'],
+  ].map(([k,v]) => `<div class="info-row"><span class="info-key">${k}</span><span class="info-val" style="font-family:monospace;font-size:.75rem">${esc(String(v))}</span></div>`).join('');
+}
+
+/* ══ EMAIL PREVIEW ════════════════════════════════════ */
+const EMAIL_TEMPLATES = {
+  paid_pro: {
+    subject: 'Votre abonnement Docline Pro est activé ✅',
+    body: `Bonjour Dr. {{nom}},
+
+Votre abonnement Pro Docline est désormais actif.
+
+✅ Plan : Pro
+📅 Accès garanti jusqu'au : {{expiry}}
+💰 Montant : 5 900 DA / mois
+
+Vous pouvez dès maintenant accéder à toutes les fonctionnalités :
+• Patients illimités
+• Vérification KYC & profil vérifié
+• Ordonnances & consultations
+• Facturation avancée
+
+Connectez-vous sur docline.health
+
+L'équipe Docline`
+  },
+  trial_pro: {
+    subject: 'Votre essai Pro Docline commence maintenant 🎁',
+    body: `Bonjour Dr. {{nom}},
+
+Bonne nouvelle ! Vous bénéficiez d'un essai gratuit du plan Pro.
+
+🎁 Durée : {{expiry}}
+⚡ Aucune facturation pendant l'essai
+
+Profitez de toutes les fonctionnalités Pro sans engagement.
+
+L'équipe Docline`
+  },
+  credit_pro: {
+    subject: 'Accès Pro offert — Docline ⭐',
+    body: `Bonjour Dr. {{nom}},
+
+Nous vous offrons un accès Pro à titre commercial.
+
+⭐ Plan Pro activé jusqu'au : {{expiry}}
+🎁 Offert par l'équipe Docline
+
+L'équipe Docline`
+  },
+  free: {
+    subject: 'Votre compte Docline est maintenant en mode gratuit',
+    body: `Bonjour Dr. {{nom}},
+
+Votre compte a été repassé en mode gratuit.
+
+Fonctionnalités disponibles : 10 patients, agenda de base.
+
+Pour réactiver votre abonnement : docline.health/pricing
+
+L'équipe Docline`
+  }
+};
+
+function updateEmailPreview() {
+  const plan = document.querySelector('input[name="plan"]:checked')?.value || 'pro';
+  const type = document.getElementById('modal-type')?.value || 'paid';
+  const dur  = document.getElementById('modal-duration')?.value || '1';
+
+  // Highlight selected option
+  document.querySelectorAll('.plan-option').forEach(el => el.classList.remove('selected'));
+  const sel = document.getElementById('opt-' + plan);
+  if (sel) sel.classList.add('selected');
+
+  // Hide type & duration if free
+  const isFree = plan === 'free';
+  ['modal-type','modal-duration'].forEach(id => {
+    const f = document.getElementById(id)?.closest('.field');
+    if (f) f.style.display = isFree ? 'none' : '';
+  });
+
+  let tplKey = isFree ? 'free' : type === 'trial' ? 'trial_pro' : type === 'credit' ? 'credit_pro' : 'paid_pro';
+  const tpl = EMAIL_TEMPLATES[tplKey];
+
+  const expDate = new Date();
+  expDate.setMonth(expDate.getMonth() + parseInt(dur));
+
+  const name = _doctor ? doctorName(_doctor) : 'Dupont';
+  const body = tpl.body
+    .replace(/\{\{nom\}\}/g, name)
+    .replace(/\{\{expiry\}\}/g, fmtDate(expDate))
+    .replace(/\{\{plan\}\}/g, plan);
+
+  document.getElementById('preview-subject').textContent = tpl.subject;
+  document.getElementById('preview-body').textContent = body;
+}
+
+/* EMAIL TEMPLATES for support modal */
+const SUPPORT_TPLS = {
+  relance: {
+    subject: 'Rappel — Votre abonnement Docline',
+    body: `Bonjour Dr. {{nom}},
+
+Nous remarquons que votre abonnement Pro nécessite une action de votre part.
+
+Pour régulariser votre situation : docline.health/pricing
+
+Besoin d'aide ? Répondez à cet email.
+
+L'équipe Docline`
+  },
+  bienvenue: {
+    subject: 'Bienvenue sur Docline 👋',
+    body: `Bonjour Dr. {{nom}},
+
+Bienvenue sur Docline ! Voici comment bien démarrer :
+
+1. Complétez votre profil public
+2. Soumettez votre KYC pour être vérifié
+3. Activez la prise de RDV en ligne
+
+L'équipe Docline`
+  },
+  renouvellement: {
+    subject: 'Votre abonnement Docline arrive à échéance',
+    body: `Bonjour Dr. {{nom}},
+
+Votre abonnement Pro expire bientôt.
+
+Pour le renouveler : docline.health/pricing
+
+L'équipe Docline`
+  },
+  suspension: {
+    subject: '⚠️ Avertissement — Suspension prochaine',
+    body: `Bonjour Dr. {{nom}},
+
+En l'absence de paiement sous 7 jours, votre compte sera suspendu.
+
+Régularisez votre situation : docline.health/pricing
+
+L'équipe Docline`
+  },
+  custom: { subject: '', body: '' }
+};
+
+function applyEmailTemplate() {
+  const tpl = SUPPORT_TPLS[document.getElementById('email-template').value];
+  if (!tpl) return;
+  const name = _doctor ? doctorName(_doctor) : '';
+  const expDate = new Date(); expDate.setMonth(expDate.getMonth() + 1);
+  document.getElementById('email-subject').value = tpl.subject;
+  document.getElementById('email-body').value = tpl.body
+    .replace(/\{\{nom\}\}/g, name)
+    .replace(/\{\{expiry\}\}/g, fmtDate(expDate))
+    .replace(/\{\{plan\}\}/g, _sub?.plan || 'pro');
+}
+
+function openEmailModal(tplKey) {
+  document.getElementById('email-template').value = tplKey || 'relance';
+  applyEmailTemplate();
+  openModal('email-modal');
+}
+
+/* ══ ACTIONS ══════════════════════════════════════════ */
+async function confirmPlanChange() {
+  if (!_doctor) return;
+  const plan  = document.querySelector('input[name="plan"]:checked')?.value || 'pro';
+  const type  = document.getElementById('modal-type').value;
+  const dur   = parseInt(document.getElementById('modal-duration').value) || 1;
+  const isFree = plan === 'free';
+
+  const typeLabel = isFree ? '' : type === 'trial' ? '(essai gratuit)' : type === 'credit' ? '(crédit commercial)' : '(payant)';
+  if (!confirm(`Activer le plan "${plan}" ${typeLabel} pour ${dur} mois pour Dr. ${doctorName(_doctor)} ?\n\nUn email de confirmation sera envoyé automatiquement.`)) return;
+
+  const btn = document.getElementById('confirm-plan-btn');
+  btn.classList.add('loading');
+
+  try {
+    const { data: { session } } = await _sb.auth.getSession();
+
+    if (isFree) {
+      await _sb.from('subscriptions').upsert({ user_id: uid, plan: 'free', status: 'active', payment_status: 'none' });
+    } else {
+      const expDate = new Date();
+      expDate.setMonth(expDate.getMonth() + dur);
+
+      await _sb.from('subscriptions').upsert({
+        user_id: uid,
+        plan,
+        status: 'active',
+        payment_status: type === 'paid' ? 'paid' : 'none',
+        interval: dur >= 12 ? 'year' : 'month',
+        current_period_start: new Date().toISOString(),
+        current_period_end: expDate.toISOString(),
+      }, { onConflict: 'user_id' });
+
+      if (type === 'trial' || type === 'credit') {
+        await _sb.from('profiles').update({ trial_end: expDate.toISOString() }).eq('id', uid);
+      }
+    }
+
+    // Send email via edge function
+    const subj = document.getElementById('preview-subject').textContent;
+    const body = document.getElementById('preview-body').textContent;
+    if (_doctor.email && session) {
+      await fetch(SUPA_URL + '/functions/v1/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token },
+        body: JSON.stringify({ to: _doctor.email, subject: subj, html: body.replace(/\n/g,'<br>') })
+      });
+
+      // Log to audit_log
+      await _sb.from('audit_log').insert({
+        user_id: uid,
+        performed_by: session.user.id,
+        action: 'email_sent',
+        details: { subject: subj, plan, type, duration: dur }
+      }).catch(()=>{});
+    }
+
+    showToast('success', 'Plan mis à jour', `${plan.toUpperCase()} activé · Email envoyé à ${_doctor.email}`);
+    closeModal('plan-modal');
+    // Reload data
+    const { data: newSub } = await _sb.from('subscriptions').select('*').eq('user_id', uid).maybeSingle();
+    _sub = newSub;
+    renderAll();
+  } catch(e) {
+    showToast('error', 'Erreur', e.message);
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+async function sendSupportEmail() {
+  if (!_doctor?.email) { showToast('error', 'Email manquant', 'Aucune adresse email sur ce profil'); return; }
+  const subject = document.getElementById('email-subject').value.trim();
+  const body    = document.getElementById('email-body').value.trim();
+  if (!subject || !body) { showToast('error', 'Champs vides', 'Remplissez le sujet et le message'); return; }
+
+  try {
+    const { data: { session } } = await _sb.auth.getSession();
+    await fetch(SUPA_URL + '/functions/v1/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token },
+      body: JSON.stringify({ to: _doctor.email, subject, html: body.replace(/\n/g,'<br>') })
+    });
+    await _sb.from('audit_log').insert({
+      user_id: uid, performed_by: session.user.id,
+      action: 'email_sent', details: { subject }
+    }).catch(()=>{});
+    showToast('success', 'Email envoyé ✓', `Envoyé à ${_doctor.email}`);
+    closeModal('email-modal');
+    // Refresh email log
+    const { data: logs } = await _sb.from('audit_log').select('*').eq('user_id', uid).eq('action', 'email_sent').order('created_at',{ascending:false}).limit(30);
+    _emailLog = logs || [];
+    renderSupportTab();
+  } catch(e) { showToast('error', 'Erreur envoi', e.message); }
+}
+
+async function resetPassword() {
+  if (!_doctor?.email) { showToast('error', 'Email manquant', 'Aucune adresse email sur ce profil'); return; }
+  if (!confirm('Envoyer un lien de réinitialisation à ' + _doctor.email + ' ?')) return;
+  const { error } = await _sb.auth.resetPasswordForEmail(_doctor.email);
+  if (error) { showToast('error', 'Erreur', error.message); return; }
+  showToast('success', 'Email envoyé 🔑', 'Lien de réinitialisation envoyé à ' + _doctor.email);
+}
+
+async function toggleBlock() {
+  if (!_doctor) return;
+  const blocked = _doctor.is_active === false;
+  if (!confirm((blocked ? 'Réactiver' : 'Suspendre') + ' le compte de ' + doctorName(_doctor) + ' ?')) return;
+  const newVal = !blocked;
+  await _sb.from('profiles').update({ is_active: newVal, is_public: newVal }).eq('id', uid);
+  _doctor.is_active = newVal;
+  showToast('success', newVal ? 'Compte réactivé ✓' : 'Compte suspendu', doctorName(_doctor));
+  renderAll();
+}
+
+async function toggleFeatured() {
+  if (!_doctor) return;
+  const newVal = !_doctor.featured;
+  await _sb.from('profiles').update({ featured: newVal }).eq('id', uid);
+  _doctor.featured = newVal;
+  showToast('success', newVal ? 'Mis en vedette ⭐' : 'Retiré de la vedette', doctorName(_doctor));
+  renderAll();
+}
+
+function simulateDoctor() {
+  if (!confirm('Ouvrir l\'espace du médecin en simulation (onglet séparé, lecture seule) ?')) return;
+  window.open('/dashboard?simulate=' + uid, '_blank');
+}
+
+async function extendDeadline() {
+  if (!_doctor) return;
+  if (!confirm('Prolonger le délai de paiement de 7 jours pour ' + doctorName(_doctor) + ' ?')) return;
+  const newDate = new Date(Date.now() + 7 * 86400000).toISOString();
+  await _sb.from('profiles').update({ payment_deadline: newDate }).eq('id', uid);
+  showToast('success', 'Délai prolongé ✓', 'Nouveau délai : ' + fmtDate(newDate));
+}
+
+function grantFreeMonth(months) {
+  if (!confirm(`Accorder ${months} mois gratuits à ${doctorName(_doctor)} ?`)) return;
+  document.querySelector('input[name="plan"][value="pro"]').checked = true;
+  document.getElementById('modal-type').value = 'trial';
+  document.getElementById('modal-duration').value = String(months);
+  updateEmailPreview();
+  openModal('plan-modal');
+}
+
+function offerDiscount(pct) {
+  if (!confirm(`Appliquer un rabais de ${pct}% au prochain paiement de ${doctorName(_doctor)} ?`)) return;
+  showToast('success', `Rabais ${pct}% noté`, 'À appliquer manuellement sur la prochaine facture.');
+  const h = document.getElementById('retention-history');
+  h.innerHTML = h.innerHTML.replace(/<div class="empty">[\s\S]*?<\/div>/, '') +
+    `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <span class="badge badge-success">Rabais ${pct}%</span>
+      <span style="font-size:.8125rem;color:var(--text-muted);margin-left:8px">accordé le ${new Date().toLocaleDateString('fr-FR')} par l'admin</span>
+    </div>`;
+}
+
+/* ══ UI HELPERS ════════════════════════════════════════ */
+function switchTab(name, clickedEl) {
+  document.querySelectorAll('.crm-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.crm-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+
+  const pane = document.getElementById('pane-' + name);
+  if (pane) pane.classList.add('active');
+  if (clickedEl) {
+    clickedEl.classList.add('active');
+    // Sync sidebar nav
+    document.querySelectorAll('.nav-item').forEach(ni => {
+      if (ni.getAttribute('onclick')?.includes("'"+name+"'")) ni.classList.add('active');
+    });
+  }
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'email-modal') { applyEmailTemplate(); }
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function showError(msg) {
+  document.getElementById('loading-state').innerHTML =
+    `<div style="text-align:center;padding:60px;color:var(--danger)">
+      <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;margin:0 auto 12px;display:block"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p style="font-weight:700;font-size:.9375rem;margin-bottom:6px">Erreur</p>
+      <p style="color:var(--text-muted)">${esc(msg)}</p>
+      <a href="/admin" style="display:inline-block;margin-top:16px" class="btn btn-secondary">← Retour admin</a>
+    </div>`;
+}
+
+let _toastTimer = null;
+function showToast(type, title, msg) {
+  const icons = {
+    success: '<polyline points="20 6 9 17 4 12"/>',
+    error:   '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    info:    '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'
+  };
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = `<div class="toast-icon"><svg viewBox="0 0 24 24">${icons[type]||icons.info}</svg></div>
+    <div class="toast-body"><div class="toast-title">${esc(title)}</div><div class="toast-msg">${esc(msg||'')}</div></div>`;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 4000);
+}
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-backdrop').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
