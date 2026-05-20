@@ -419,8 +419,7 @@ ul,ol{list-style:none}
 .topbar.scrolled { box-shadow: 0 2px 12px rgba(13,15,20,.08); }
 
 /* ── QUICK ACTIONS STRIP ────────────────────────────────────── */
-.qa-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
-@media(max-width:1200px){.qa-strip{grid-template-columns:repeat(3,1fr)}}
+.qa-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:18px}
 @media(max-width:600px){.qa-strip{grid-template-columns:repeat(2,1fr)}}
 .qa-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 14px 12px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer;transition:border-color var(--t-fast),box-shadow var(--t-fast),transform var(--t-fast);text-decoration:none;position:relative;overflow:hidden;font-family:inherit;text-align:left}
 .qa-card:hover{border-color:var(--brand);box-shadow:0 4px 16px rgba(59,23,114,.1);transform:translateY(-2px)}
@@ -1104,6 +1103,14 @@ ul,ol{list-style:none}
           <span class="qa-nbadge info" id="qa-pay-badge"></span>
         </button>
 
+        <button class="qa-card" onclick="showSection('medecins');loadDoctors()">
+          <div class="qa-icon" style="background:rgba(59,23,114,.1);color:var(--brand)">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="qa-label">CRM Médecins</div>
+          <div class="qa-sub">Billing · Rétention · Support</div>
+        </button>
+
         <a class="qa-card" href="/admin-featured">
           <div class="qa-icon" style="background:rgba(245,158,11,.1);color:#F59E0B">
             <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -1318,9 +1325,9 @@ ul,ol{list-style:none}
               Dernières inscriptions
             </div>
             <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:.6875rem;color:var(--text-muted);display:flex;align-items:center;gap:4px">
-                <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                Clic = détail
+              <span style="font-size:.6875rem;color:var(--brand);font-weight:600;display:flex;align-items:center;gap:4px;background:var(--brand-light);padding:3px 8px;border-radius:var(--r-full);border:1px solid rgba(59,23,114,.15)">
+                <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Clic = CRM complet
               </span>
               <button class="btn btn-secondary btn-sm" onclick="showSection('medecins')">Voir tout</button>
             </div>
@@ -1394,8 +1401,23 @@ ul,ol{list-style:none}
     <!-- ══════════════════ MÉDECINS ══════════════════ -->
     <div class="section page" id="section-medecins">
       <div class="page-header">
-        <div class="page-title">Médecins</div>
-        <div class="page-sub">Gérez les comptes médecins, leurs plans et leur statut</div>
+        <div class="page-title">Médecins &amp; Cliniques</div>
+        <div class="page-sub">Gérez les comptes médecins, leurs plans, et accédez au CRM complet de chaque praticien</div>
+      </div>
+
+      <!-- CRM HINT BANNER -->
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(59,23,114,.06);border:1px solid rgba(59,23,114,.18);border-radius:var(--r-lg);padding:12px 18px;margin-bottom:16px">
+        <div style="width:32px;height:32px;border-radius:8px;background:rgba(59,23,114,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:.8125rem;font-weight:700;color:var(--brand)">Accès CRM — Cliquez sur un médecin pour ouvrir son espace complet</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">Chaque ligne ouvre un panneau avec : <strong>Billing</strong> (historique paiements, sparkline), <strong>Rétention</strong> (score churn, offres), <strong>Compte</strong> (suspension, plan, simulation), <strong>Support</strong> (logs, email)</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="showSection('medecins');loadDoctors()" style="flex-shrink:0">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Actualiser
+        </button>
       </div>
 
       <div class="toolbar">
@@ -2374,6 +2396,13 @@ function openDoctorPanel(idx) {
   openCrmPanel(r);
 }
 
+function openCrmPanelFromDoctors(idx) {
+  const rows = window._doctorsData || [];
+  const r = rows[idx];
+  if (!r) return;
+  openCrmPanel(r);
+}
+
 async function openCrmPanel(profile) {
   _crmDoctor = profile;
   _crmExtensionCount = 0;
@@ -3178,7 +3207,7 @@ async function loadDoctors() {
     setDocSkeleton();
     const { data, error } = await _sb
       .from('profiles')
-      .select('id, first_name, last_name, full_name, email, plan, kyc_status, is_active')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -3222,16 +3251,31 @@ function renderDoctorsTable() {
     return;
   }
 
-  tbody.innerHTML = rows.map(r => `
-    <tr class="trow">
-      <td><span class="td-name">${esc(doctorName(r))}</span></td>
+  // Store rows globally so CRM panel can access full profiles
+  window._doctorsData = rows;
+
+  tbody.innerHTML = rows.map((r, idx) => `
+    <tr class="trow clickable-row" onclick="openCrmPanelFromDoctors(${idx})" title="Ouvrir le CRM de ${esc(doctorName(r))}">
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:30px;height:30px;border-radius:50%;background:${avatarGradient(doctorName(r))};display:flex;align-items:center;justify-content:center;font-size:.625rem;font-weight:800;color:#fff;flex-shrink:0">${initials2(doctorName(r))}</div>
+          <div>
+            <div class="td-name">${esc(doctorName(r))}</div>
+            <div class="td-muted" style="font-size:.6875rem">${esc(r.specialty || r.email || '—')}</div>
+          </div>
+        </div>
+      </td>
       <td><span class="td-muted">${esc(r.email || '—')}</span></td>
       <td>${planBadge(r.plan)}</td>
       <td>${kycBadge(r.kyc_status)}</td>
       <td>${r.is_active ? '<span class="badge badge-success">Actif</span>' : '<span class="badge badge-neutral">Inactif</span>'}</td>
       <td style="text-align:center;font-weight:700">${r.rdv_count || 0}</td>
-      <td>
+      <td onclick="event.stopPropagation()">
         <div class="td-actions">
+          <button class="btn btn-primary btn-xs" onclick="openCrmPanelFromDoctors(${idx})" title="Ouvrir CRM complet (Billing, Rétention, Compte, Support)" style="gap:4px">
+            <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            CRM
+          </button>
           <select class="plan-select" onchange="changePlan('${r.id}', this)" style="font-size:.6875rem;border:1px solid var(--border);border-radius:var(--r-sm);padding:3px 6px;background:var(--bg-raised);color:var(--text-primary);cursor:pointer">
             <option value="free" ${r.plan === 'free' ? 'selected' : ''}>Free</option>
             <option value="pro" ${r.plan === 'pro' ? 'selected' : ''}>Pro</option>
