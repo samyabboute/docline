@@ -554,9 +554,6 @@
 })();
 
 
-// Admin check by email (from config.js)
-const _adminEmails = (DOCLINE_CONFIG.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-
 const _supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
   auth: { storage: localStorage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
 });
@@ -582,24 +579,46 @@ const AdminAuth = {
   },
   async requireAdmin() {
     const session = await this.init();
-    if (!session) { window.location.href=ghpNav('/login'); return null; }
-    // Check admin whitelist
-    if (!_adminEmails.includes((session.user.email || '').toLowerCase())) {
-      // Log unauthorized access attempt (ne doit jamais bloquer la redirection)
-      try {
-        await _supa.from('audit_log').insert({
-          user_id: session.user.id,
-          event: 'admin.unauthorized_access',
-          metadata: { page: window.location.pathname, attempted_at: new Date().toISOString() }
-        });
-      } catch(_) {}
-      window.location.href = ghpNav('/dashboard');
-      return null;
+    if (!session) { window.location.href = ghpNav('/login'); return null; }
+
+    // Vérification dynamique via symphony_staff (plus de hardcode)
+    try {
+      const { data: staffRow } = await _supa
+        .from('symphony_staff')
+        .select('id, is_admin, is_active')
+        .eq('id', session.user.id)
+        .eq('is_active', true)
+        .eq('is_admin', true)
+        .maybeSingle();
+
+      if (!staffRow) {
+        // Fallback : vérification par email (config.js) pour rétrocompatibilité
+        const emails = (DOCLINE_CONFIG.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+        if (!emails.includes((session.user.email || '').toLowerCase())) {
+          try {
+            await _supa.from('audit_log').insert({
+              user_id: session.user.id,
+              event: 'admin.unauthorized_access',
+              metadata: { page: window.location.pathname, attempted_at: new Date().toISOString() }
+            });
+          } catch(_) {}
+          window.location.href = ghpNav('/dashboard');
+          return null;
+        }
+      }
+    } catch(e) {
+      // Si symphony_staff n'existe pas encore → fallback email
+      const emails = (DOCLINE_CONFIG.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+      if (!emails.includes((session.user.email || '').toLowerCase())) {
+        window.location.href = ghpNav('/dashboard');
+        return null;
+      }
     }
+
     return session;
   },
   getToken() { return this._session?.access_token ?? null; },
-  async signOut() { await _supa.auth.signOut(); localStorage.clear(); window.location.href=ghpNav('/login'); }
+  async signOut() { await _supa.auth.signOut(); localStorage.clear(); window.location.href = ghpNav('/login'); }
 };
 
 const Toast = (() => {
