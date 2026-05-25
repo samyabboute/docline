@@ -28,6 +28,28 @@
   --shadow-md:0 4px 12px rgba(0,0,0,.08);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ── PAYMENT POPUP ── */
+.pay-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+.pay-overlay.blocking{background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
+.pay-overlay.soft{background:rgba(0,0,0,.35)}
+.pay-modal{background:#fff;border-radius:20px;padding:28px 28px 24px;max-width:440px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.18);position:relative;animation:payIn .3s cubic-bezier(.25,.46,.45,.94) both}
+@keyframes payIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.pay-modal-close{position:absolute;top:16px;right:16px;border:none;background:none;cursor:pointer;color:#9CA3AF;font-size:20px;line-height:1;padding:2px;transition:color .15s}
+.pay-modal-close:hover{color:#374151}
+.pay-modal-icon{font-size:36px;margin-bottom:10px}
+.pay-modal-title{font-size:18px;font-weight:800;color:#0C0E14;letter-spacing:-.3px;margin-bottom:4px}
+.pay-modal-sub{font-size:13px;color:#7B8194;margin-bottom:16px;line-height:1.5}
+.pay-modal-plan-badge{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);border:1px solid var(--brand-border);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--brand);margin-bottom:16px}
+.pay-modal-price{font-size:24px;font-weight:900;color:var(--brand);letter-spacing:-.4px;margin-bottom:4px}
+.pay-modal-interval{font-size:12px;color:#9CA3AF;margin-bottom:16px}
+.pay-modal-bank{background:#F8FAFF;border:1px solid #E8EAF0;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:12px;color:#374151}
+.pay-modal-bank strong{color:#0C0E14}
+.pay-modal-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-bottom:8px}
+.pay-modal-btn:hover{background:#1D4ED8;transform:translateY(-1px)}
+.pay-modal-dismiss{width:100%;text-align:center;font-size:12px;color:#9CA3AF;background:none;border:none;cursor:pointer;font-family:inherit;transition:color .15s;padding:4px}
+.pay-modal-dismiss:hover{color:#374151}
+.content-blur{filter:blur(2px);pointer-events:none;user-select:none}
+
 html{-webkit-font-smoothing:antialiased}
 body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text)}
 a{color:inherit;text-decoration:none}
@@ -926,9 +948,19 @@ async function load() {
   }
 
   // Sub check
-  var { data: sub } = await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id', _uid).single();
+  var { data: sub } = await _supa.from('subscriptions').select('plan,status,expires_at,interval,payment_status,trial_end_date').eq('user_id', _uid).maybeSingle();
   _isPro = sub && sub.plan !== 'free' && sub.status === 'active'
     && (!sub.expires_at || new Date(sub.expires_at) > new Date());
+
+  // Payment reminder popup
+  var _paymentStatus = sub ? (sub.payment_status || 'paid') : 'paid'; // default paid for legacy accounts
+  var _trialEndDate  = sub && sub.trial_end_date ? new Date(sub.trial_end_date) : null;
+  var _isTrialOver   = _trialEndDate ? (_trialEndDate < new Date()) : false;
+  var _needsPayment  = sub && sub.plan !== 'free' && _paymentStatus === 'pending';
+
+  if (_needsPayment) {
+    _showPaymentPopup(sub, _isTrialOver);
+  }
 
   Shell.init({
     page:    'dashboard',
@@ -954,6 +986,59 @@ async function load() {
     })
     .subscribe();
 })();
+
+// ── PAYMENT POPUP ────────────────────────────────────────────
+var _payPopupDismissed = false;
+
+function _showPaymentPopup(sub, isBlocking) {
+  if (_payPopupDismissed && !isBlocking) return;
+
+  var PLAN_LABELS = { pro: 'Pro', clinic: 'Clinique', free: 'Gratuit' };
+  var PLAN_PRICES = {
+    pro:    { month: 5900, year: 59000 },
+    clinic: { month: 13900, year: 139000 },
+  };
+
+  var plan     = sub ? sub.plan : 'pro';
+  var interval = sub ? (sub.interval || 'month') : 'month';
+  var label    = PLAN_LABELS[plan] || plan;
+  var prices   = PLAN_PRICES[plan] || {};
+  var price    = prices[interval] || 0;
+  var intervalLabel = interval === 'year' ? 'Annuel' : 'Mensuel';
+
+  var payUrl = (typeof ghpNav === 'function' ? ghpNav('/paiement') : '/paiement')
+    + '?plan=' + plan + '&interval=' + interval;
+
+  var overlay = document.createElement('div');
+  overlay.className = 'pay-overlay ' + (isBlocking ? 'blocking' : 'soft');
+  overlay.id = 'pay-popup-overlay';
+
+  var closeBtn = isBlocking ? '' :
+    '<button class="pay-modal-close" onclick="document.getElementById(\'pay-popup-overlay\').remove();_payPopupDismissed=true;" title="Fermer">\u2715</button>';
+
+  overlay.innerHTML = '<div class="pay-modal">'
+    + closeBtn
+    + '<div class="pay-modal-icon">\uD83D\uDCB3</div>'
+    + '<div class="pay-modal-title">' + (isBlocking ? 'P\u00e9riode d\'essai termin\u00e9e' : 'Finalisez votre abonnement') + '</div>'
+    + '<div class="pay-modal-sub">' + (isBlocking
+        ? 'Votre essai gratuit est termin\u00e9. Activez votre plan pour continuer \u00e0 utiliser Docline.'
+        : 'Vous b\u00e9n\u00e9ficiez d\'un essai gratuit de 7 jours. Pensez \u00e0 activer votre plan.') + '</div>'
+    + '<div class="pay-modal-plan-badge">\u2726 Plan ' + label + ' \u00b7 ' + intervalLabel + '</div><br>'
+    + '<div class="pay-modal-price">' + price.toLocaleString('fr-DZ') + ' DA</div>'
+    + '<div class="pay-modal-interval">par ' + (interval === 'year' ? 'an' : 'mois') + '</div>'
+    + '<div class="pay-modal-bank"><strong>Virement BEA :</strong> RIB 00100 42801 00010000000 97 \u2014 SAS Docline<br>R\u00e9f\u00e9rence : votre email</div>'
+    + '<button class="pay-modal-btn" onclick="window.location.href=\'' + payUrl + '\'">Payer maintenant \u2192</button>'
+    + (isBlocking ? '' : '<button class="pay-modal-dismiss" onclick="document.getElementById(\'pay-popup-overlay\').remove();_payPopupDismissed=true;">Me rappeler plus tard</button>')
+    + '</div>';
+
+  document.body.appendChild(overlay);
+
+  if (isBlocking) {
+    var main = document.getElementById('content');
+    if (main) main.classList.add('content-blur');
+  }
+}
+
 </script>
 </body>
 </html>

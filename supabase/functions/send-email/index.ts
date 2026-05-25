@@ -105,17 +105,16 @@ const emailWrapper = (inner: string) => `<!DOCTYPE html>
 </table>
 </body></html>`;
 
-// ── Header : logo PNG/SVG — PNG recommandé pour Gmail ────────────
-// Exporter docline-logo-white.png depuis le fichier SVG et le déposer
-// à la racine du projet (même dossier que docline-logo-white.svg).
-// Tant que le PNG n'existe pas, Gmail affiche l'alt text "Docline".
+// ── Header : wordmark texte — 100% compatible tous clients mail ──
 const emailHeader = (badgeText?: string) => `
 <tr>
   <td style="background:linear-gradient(145deg,#140533 0%,#2E0F60 40%,#5118A8 100%);
              border-radius:12px 12px 0 0;padding:40px 48px 36px;text-align:center">
-    <a href="${APP_URL}" style="text-decoration:none;border:0">
-      <img src="${LOGO_PNG}" alt="Docline" width="180" height="34" border="0"
-           style="display:block;margin:0 auto;max-width:180px;height:auto;border:0">
+    <a href="${APP_URL}" style="text-decoration:none;border:0;display:inline-block">
+      <span style="display:inline-block;${FONT}">
+        <span style="font-size:28px;font-weight:800;color:#FFFFFF;letter-spacing:-0.5px;line-height:1">doc</span><span style="font-size:28px;font-weight:800;color:#A78BFA;letter-spacing:-0.5px;line-height:1">line</span>
+        <span style="display:inline-block;width:7px;height:7px;background:#A78BFA;border-radius:50%;margin-left:2px;vertical-align:middle;position:relative;top:-3px"></span>
+      </span>
     </a>
     ${badgeText ? `
     <div style="display:inline-block;margin-top:18px;
