@@ -191,7 +191,7 @@
         </div>
         <div class="kpi-card green">
           <div class="kpi-ico"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <div><div class="kpi-val" id="stat-active">—</div><div class="kpi-lbl">Actifs (&lt; 7j)</div></div>
+          <div><div class="kpi-val" id="stat-active">—</div><div class="kpi-lbl">Actifs</div></div>
         </div>
         <div class="kpi-card amber">
           <div class="kpi-ico"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
@@ -204,11 +204,11 @@
       </div>
 
       <div class="results-list" id="results-list">
-        <div class="empty-state">
-          <div class="empty-state-icon"><svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><path d="M9 3h6v10l3.5 6H5.5L9 13V3z"/><line x1="6" y1="14" x2="18" y2="14"/></svg></div>
-          <div class="empty-state-title">Aucun résultat partagé</div>
-          <div class="empty-state-sub">Déposez les résultats d'un patient pour générer un lien d'accès sécurisé.</div>
-          <button class="btn-primary" style="margin-top:18px" onclick="openModal()">
+        <div class="empty-state" style="text-align:center;padding:60px 20px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px">
+          <div style="width:52px;height:52px;border-radius:14px;background:var(--brand-light);display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><svg viewBox="0 0 24 24" style="width:26px;height:26px;fill:none;stroke:var(--brand);stroke-width:1.5;stroke-linecap:round"><path d="M9 3h6v10l3.5 6H5.5L9 13V3z"/><line x1="6" y1="14" x2="18" y2="14"/></svg></div>
+          <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px">Aucun résultat partagé</div>
+          <div style="font-size:13px;color:var(--text4);margin-bottom:20px">Déposez les résultats d'un patient pour générer un lien d'accès sécurisé.</div>
+          <button class="btn-primary" onclick="openModal()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nouveau résultat
           </button>
@@ -371,7 +371,7 @@ function renderResults() {
     else if (diffD < 3) { expiryLabel='<span style="color:#D97706">!</span> Expire dans '+(diffD<1?diffH+'h':diffD+'j'); expiryClass='expiry-warn'; }
     else { expiryLabel='Expire dans '+diffD+'j'; expiryClass='expiry-ok'; }
     var createdDate = new Date(r.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
-    var cardCls = 'result-card'+(isExpired?' expired':(diffD<1&&!isExpired?' expiring-soon':''));
+    var cardCls = 'result-card'+(isExpired?' expired':(diffD<3&&!isExpired?' expiring-soon':''));
     return '<div class="'+cardCls+'">'+
       '<div class="result-icon'+(isExpired?' expired-icon':'')+'">'+
         (isExpired?'':'')+
@@ -436,7 +436,12 @@ async function saveResult() {
     ? document.getElementById('f-patient-select').options[document.getElementById('f-patient-select').selectedIndex].text
     : document.getElementById('f-patient-free').value.trim();
   var title   = document.getElementById('f-title').value.trim();
-  if (!patient || !title) { toast('Patient et type d\'analyse requis.','error'); return; }
+  if (!patient) {
+    toast('Sélectionnez un patient ou choisissez "Patient externe".','error');
+    document.getElementById('f-patient-select').focus();
+    return;
+  }
+  if (!title) { toast('Type d\'analyse requis.','error'); document.getElementById('f-title').focus(); return; }
   var btn = document.getElementById('btn-save');
   btn.disabled = true; btn.textContent = 'Création…';
   var expiresAt = new Date(Date.now() + 30*24*3600*1000).toISOString();
@@ -463,13 +468,14 @@ async function saveResult() {
   document.getElementById('preview-url').style.display = 'inline';
   document.getElementById('copy-link-bar').style.display = 'block';
   document.getElementById('btn-save').style.display = 'none';
+  var cancelBtn = document.querySelector('.btn-ghost');
+  if (cancelBtn) { cancelBtn.textContent = 'Fermer'; cancelBtn.style.fontWeight = '700'; }
   toast('Résultat créé — 30 jours de validité','success');
   loadResults();
 }
 
 function copyGeneratedLink() {
-  var baseUrl = window.location.origin + window.location.pathname.replace('labo.html','') + 'results-view.html';
-  var url = baseUrl + '?code=' + _generatedCode;
+  var url = window.location.origin + '/results-view.html?code=' + _generatedCode;
   navigator.clipboard.writeText(url).then(function(){
     toast('Lien copié !','success');
   }).catch(function(){
@@ -481,8 +487,7 @@ function copyGeneratedLink() {
 }
 
 function copyLink(code) {
-  var baseUrl = window.location.origin + window.location.pathname.replace('labo.html','') + 'results-view.html';
-  var url = baseUrl + '?code=' + code;
+  var url = window.location.origin + '/results-view.html?code=' + code;
   navigator.clipboard.writeText(url).then(function(){
     toast('Lien copié !','success');
   }).catch(function(){

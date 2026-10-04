@@ -262,7 +262,7 @@ async function fetchResult() {
     var now = new Date();
     if (new Date(data.expires_at) <= now) {
       showLoading(false);
-      showError('Ce résultat a expiré. Les résultats sont disponibles pendant 7 jours uniquement. Contactez votre médecin.');
+      showError('Ce résultat a expiré. Les résultats sont disponibles pendant 30 jours. Contactez votre médecin.');
       return;
     }
 

@@ -123,3 +123,8 @@
   from   = "/paiement"
   to     = "/paiement.html"
   status = 200
+
+[[redirects]]
+  from   = "/labo"
+  to     = "/labo.html"
+  status = 200
