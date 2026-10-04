@@ -1029,7 +1029,11 @@ if (!isMobile && typeof THREE !== 'undefined') (function() {
   const hero = document.querySelector('.hero');
   const h1   = document.querySelector('.hero-h1');
   if (!hero || !h1) return;
-  h1.style.opacity = '0'; h1.style.animation = 'none'; h1.style.transition = 'none';
+  /* Inject !important rule — beats CSS animations */
+  const _ptStyle = document.createElement('style');
+  _ptStyle.textContent = '.lp-pt-hide{opacity:0!important;animation:none!important;transition:none!important;filter:none!important;transform:none!important;}';
+  document.head.appendChild(_ptStyle);
+  h1.classList.add('lp-pt-hide');
 
   const ptc = document.createElement('canvas');
   ptc.id = 'pt-canvas';
@@ -1126,12 +1130,13 @@ if (!isMobile && typeof THREE !== 'undefined') (function() {
         }
       }
     }
-    h1.style.opacity = '0';
-    h1.style.animation = 'none';
     assembled = false;
     setTimeout(function() {
       assembled = true;
+      h1.style.opacity = '0';
       h1.style.transition = 'opacity 0.9s ease';
+      h1.classList.remove('lp-pt-hide');
+      void h1.offsetHeight;
       h1.style.opacity = '1';
     }, 1800);
   }

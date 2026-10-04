@@ -2582,10 +2582,14 @@ if('serviceWorker' in navigator){
   var hero = document.querySelector('.hero');
   var h1   = document.querySelector('.hero-title');
   if (!hero || !h1) return;
-  h1.style.opacity = '0'; h1.style.animation = 'none'; h1.style.transition = 'none';
-  h1.style.transform = 'none'; h1.style.filter = 'none';
+
+  /* Inject !important rule — beats CSS animations & transitions */
+  var ptStyle = document.createElement('style');
+  ptStyle.textContent = '.fd-pt-hide{opacity:0!important;animation:none!important;transition:none!important;filter:none!important;transform:none!important;}';
+  document.head.appendChild(ptStyle);
+  h1.classList.add('fd-pt-hide');
   var twCursor = document.querySelector('.tw-cursor');
-  if (twCursor) twCursor.style.opacity = '0';
+  if (twCursor) twCursor.classList.add('fd-pt-hide');
 
   var ptc = document.createElement('canvas');
   ptc.id = 'fd-pt-canvas';
@@ -2676,9 +2680,16 @@ if('serviceWorker' in navigator){
     assembled = false;
     setTimeout(function() {
       assembled = true;
+      /* Prep inline opacity before removing the !important class */
+      h1.style.opacity = '0';
       h1.style.transition = 'opacity 0.9s ease';
+      h1.classList.remove('fd-pt-hide');
+      void h1.offsetHeight; /* force reflow so transition fires */
       h1.style.opacity = '1';
-      if (twCursor) { twCursor.style.transition = 'opacity 0.5s ease'; twCursor.style.opacity = '1'; }
+      if (twCursor) {
+        twCursor.classList.remove('fd-pt-hide');
+        twCursor.style.transition = 'opacity 0.5s ease';
+      }
     }, 1800);
   }
 
