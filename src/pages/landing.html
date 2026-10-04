@@ -123,6 +123,7 @@ nav.elevated { box-shadow: 0 1px 0 var(--border), 0 4px 20px rgba(0,0,0,.06) }
 @keyframes dropIn { from { opacity: 0; transform: translateY(-12px) } to { opacity: 1; transform: translateY(0) } }
 @keyframes floatPill { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
 .announce-pill { animation: dropIn .7s var(--ease) both, floatPill 4s ease-in-out 1.2s infinite }
+@media (max-width: 768px) { .announce-pill { animation: dropIn .7s var(--ease) both !important } }
 
 .hero-h1 {
   font-size: clamp(46px, 7.5vw, 88px);
@@ -131,12 +132,9 @@ nav.elevated { box-shadow: 0 1px 0 var(--border), 0 4px 20px rgba(0,0,0,.06) }
   animation: riseUp .8s var(--ease) .1s both;
 }
 .h1-accent {
-  background: linear-gradient(110deg, var(--p2) 0%, var(--p3) 35%, var(--orange2) 65%, var(--p3) 100%);
+  background: linear-gradient(135deg, var(--p2) 0%, var(--p3) 45%, var(--orange2) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  background-size: 250% auto;
-  animation: gradientFlow 5s linear infinite;
 }
-@keyframes gradientFlow { 0%{background-position:0% center} 100%{background-position:250% center} }
 @keyframes riseUp { from { opacity: 0; transform: translateY(28px); filter:blur(6px) } to { opacity: 1; transform: none; filter:blur(0) } }
 
 .hero-sub {
@@ -407,7 +405,26 @@ footer { background: var(--bg); border-top: 1px solid var(--border); padding: 56
 .footer-love span { color: var(--orange2) }
 @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr } }
 @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr } }
+
+/* ── Particle canvas ── */
+#hero-particles {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 1; opacity: 0;
+  transition: opacity 1.8s ease;
+}
+/* Disable heavy effects on mobile */
+@media (max-width: 768px) {
+  #hero-particles { display: none }
+  .hero::before, .hero::after { animation: none !important }
+  .hero-h1, .hero-sub, .hero-ctas, .hero-trust { animation-name: riseUp !important }
+}
+/* GSAP char animation */
+.hero-h1 .char { display: inline-block; will-change: transform; transform-style: preserve-3d }
 </style>
+<!-- Three.js + GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 </head>
 <body>
 
@@ -432,6 +449,7 @@ footer { background: var(--bg); border-top: 1px solid var(--border); padding: 56
 
 <!-- HERO -->
 <section class="hero">
+  <canvas id="hero-particles"></canvas>
   <div class="hero-content">
 
     <div class="announce-pill">
@@ -844,66 +862,328 @@ footer { background: var(--bg); border-top: 1px solid var(--border); padding: 56
 </footer>
 
 <script>
-window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('elevated', scrollY > 20), {passive:true})
+/* ══════════════════════════════════════════════════════════════
+   DOCLINE LANDING — PREMIUM INTERACTIONS v2
+   Three.js particles · GSAP ScrollTrigger · Mouse parallax
+   ══════════════════════════════════════════════════════════════ */
 
-const io = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target)} }), {threshold:.08,rootMargin:'0px 0px -50px 0px'})
-document.querySelectorAll('.rv').forEach(el => io.observe(el))
+const isMobile = window.innerWidth <= 768;
 
-/* ── Hero parallax souris ── */
-;(function(){
-  const hero = document.querySelector('.hero')
-  const pill = document.querySelector('.announce-pill')
-  const h1   = document.querySelector('.hero-h1')
-  const sub  = document.querySelector('.hero-sub')
-  const ctas = document.querySelector('.hero-ctas')
-  if(!hero) return
-  let tx=0,ty=0,cx=0,cy=0,raf
-  hero.addEventListener('mousemove',e=>{
-    const r=hero.getBoundingClientRect()
-    tx=(e.clientX-r.left-r.width/2)/(r.width/2)
-    ty=(e.clientY-r.top-r.height/2)/(r.height/2)
-  },{passive:true})
-  hero.addEventListener('mouseleave',()=>{tx=0;ty=0})
-  function loop(){
-    cx+=(tx-cx)*.06; cy+=(ty-cy)*.06
-    if(pill) pill.style.transform=`translateY(${cy*-6}px) translateX(${cx*-3}px)`
-    if(h1)   h1.style.transform  =`translateY(${cy*-4}px) translateX(${cx*-2}px)`
-    if(sub)  sub.style.transform =`translateY(${cy*-2}px) translateX(${cx*-1}px)`
-    raf=requestAnimationFrame(loop)
+/* ── Nav elevation ── */
+window.addEventListener('scroll', () =>
+  document.getElementById('nav').classList.toggle('elevated', scrollY > 20), {passive:true});
+
+/* ══ THREE.JS PARTICLE FIELD (desktop only) ══════════════════ */
+if (!isMobile && typeof THREE !== 'undefined') (function() {
+  const canvas = document.getElementById('hero-particles');
+  const hero   = document.querySelector('.hero');
+  if (!canvas || !hero) return;
+
+  const W = () => hero.offsetWidth;
+  const H = () => hero.offsetHeight;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(W(), H());
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, W() / H(), 0.1, 200);
+  camera.position.z = 18;
+
+  /* Particle geometry */
+  const COUNT = 2800;
+  const pos   = new Float32Array(COUNT * 3);
+  const col   = new Float32Array(COUNT * 3);
+  const sz    = new Float32Array(COUNT);
+
+  const palette = [
+    [0.42, 0.16, 0.85], // #6D28D9 purple
+    [0.54, 0.36, 0.96], // #8B5CF6 violet
+    [0.87, 0.85, 0.99], // #DDD6FE light
+    [0.96, 0.45, 0.05], // F97316 orange (rare)
+    [0.65, 0.55, 0.98], // #A78BFA
+  ];
+
+  for (let i = 0; i < COUNT; i++) {
+    /* Sphere distribution with concentration toward center */
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(2 * Math.random() - 1);
+    const r     = 4 + Math.pow(Math.random(), 0.6) * 22;
+    pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+    pos[i*3+1] = r * Math.sin(phi) * Math.sin(theta) * 0.6;
+    pos[i*3+2] = (Math.random() - 0.5) * 30;
+
+    /* Rare orange; rest purple shades */
+    const c = Math.random() < 0.07
+      ? palette[3]
+      : palette[Math.floor(Math.random() * (palette.length - 1))];
+    col[i*3] = c[0]; col[i*3+1] = c[1]; col[i*3+2] = c[2];
+
+    sz[i] = 0.4 + Math.random() * 1.8;
   }
-  loop()
-})()
 
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
+  geo.setAttribute('size',     new THREE.BufferAttribute(sz,  1));
+
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime:  { value: 0 },
+      uMouse: { value: new THREE.Vector2(0, 0) },
+      uDPR:   { value: renderer.getPixelRatio() }
+    },
+    vertexShader: `
+      attribute float size;
+      attribute vec3  color;
+      varying   vec3  vColor;
+      varying   float vAlpha;
+      uniform float uTime;
+      uniform vec2  uMouse;
+      uniform float uDPR;
+
+      void main(){
+        vColor = color;
+        vec3 p = position;
+
+        /* Gentle 3D wave */
+        p.x += sin(uTime * 0.25 + position.y * 0.4 + position.z * 0.2) * 0.18;
+        p.y += cos(uTime * 0.30 + position.x * 0.4 + position.z * 0.1) * 0.14;
+        p.z += sin(uTime * 0.18 + position.x * 0.3) * 0.10;
+
+        /* Mouse repulsion — soft gravity inversion */
+        vec3 m = vec3(uMouse * 14.0, 0.0);
+        float d = length(m - p);
+        if(d < 5.0) p -= normalize(m - p) * (1.0 - d/5.0) * 1.2;
+
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_PointSize = size * uDPR * (280.0 / -mv.z);
+        gl_Position  = projectionMatrix * mv;
+
+        /* Alpha: brighter near camera */
+        vAlpha = clamp(0.25 + 0.55 * (p.z + 15.0) / 30.0, 0.1, 0.85);
+      }
+    `,
+    fragmentShader: `
+      varying vec3  vColor;
+      varying float vAlpha;
+
+      void main(){
+        float d = distance(gl_PointCoord, vec2(0.5));
+        if(d > 0.5) discard;
+        /* Soft glow falloff */
+        float a = smoothstep(0.50, 0.05, d) * vAlpha;
+        gl_FragColor = vec4(vColor, a);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    vertexColors: true
+  });
+
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  /* Slow Y rotation group */
+  const group = new THREE.Group();
+  group.add(points);
+  scene.add(group);
+  scene.remove(points);
+
+  /* Resize */
+  window.addEventListener('resize', () => {
+    renderer.setSize(W(), H());
+    camera.aspect = W() / H();
+    camera.updateProjectionMatrix();
+  }, {passive:true});
+
+  /* Mouse */
+  let mx = 0, my = 0;
+  hero.addEventListener('mousemove', e => {
+    const r = hero.getBoundingClientRect();
+    mx = (e.clientX - r.left) / r.width  - 0.5;
+    my = -((e.clientY - r.top) / r.height - 0.5);
+  }, {passive:true});
+  hero.addEventListener('mouseleave', () => { mx = 0; my = 0; });
+
+  /* Fade-in */
+  setTimeout(() => { canvas.style.opacity = '1'; }, 600);
+
+  /* Animate */
+  let t = 0;
+  (function loop(){
+    requestAnimationFrame(loop);
+    t += 0.007;
+    mat.uniforms.uTime.value  = t;
+    mat.uniforms.uMouse.value.set(mx, my);
+    group.rotation.y = t * 0.025;
+    group.rotation.x = Math.sin(t * 0.1) * 0.04;
+    renderer.render(scene, camera);
+  })();
+})();
+
+/* ══ GSAP — HERO TEXT LETTER ANIMATION ══════════════════════ */
+(function(){
+  if (typeof gsap === 'undefined') return;
+
+  /* Split h1 into .char spans */
+  const h1 = document.querySelector('.hero-h1');
+  if (!h1) return;
+
+  function splitToChars(el) {
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    let n;
+    while ((n = walk.nextNode())) nodes.push(n);
+    nodes.forEach(node => {
+      const frag = document.createDocumentFragment();
+      [...node.textContent].forEach(c => {
+        const s = document.createElement('span');
+        s.className = 'char';
+        s.textContent = c === ' ' ? ' ' : c;
+        frag.appendChild(s);
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+  splitToChars(h1);
+
+  /* Override CSS riseUp with GSAP */
+  h1.style.animation = 'none';
+  h1.style.opacity   = '1';
+  gsap.set('.hero-h1 .char', { opacity: 0, y: 55, rotateX: -85,
+    transformOrigin: '50% 100% -20px' });
+
+  gsap.to('.hero-h1 .char', {
+    opacity: 1, y: 0, rotateX: 0,
+    stagger: 0.022,
+    duration: 0.75,
+    ease: 'back.out(2)',
+    delay: 0.25
+  });
+})();
+
+/* ══ GSAP SCROLLTRIGGER — section reveals ════════════════════ */
+(function(){
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    /* CSS fallback */
+    const io = new IntersectionObserver(e => e.forEach(x => {
+      if(x.isIntersecting){ x.target.classList.add('show'); io.unobserve(x.target); }
+    }), {threshold:.08, rootMargin:'0px 0px -50px 0px'});
+    document.querySelectorAll('.rv').forEach(el => io.observe(el));
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+
+  document.querySelectorAll('.rv').forEach(el => {
+    const delay = el.classList.contains('d1') ? 0.08
+      : el.classList.contains('d2') ? 0.16
+      : el.classList.contains('d3') ? 0.24
+      : el.classList.contains('d4') ? 0.32 : 0;
+
+    /* Remove CSS rv state so GSAP owns it */
+    el.style.opacity   = '0';
+    el.style.transform = 'translateY(32px)';
+    el.style.filter    = 'blur(6px)';
+
+    gsap.to(el, {
+      scrollTrigger: { trigger: el, start: 'top 92%', once: true },
+      opacity: 1, y: 0, filter: 'blur(0px)',
+      duration: 0.85,
+      ease: 'power3.out',
+      delay
+    });
+  });
+})();
+
+/* ══ HERO MOUSE PARALLAX (desktop only) ═════════════════════ */
+if (!isMobile) (function(){
+  const hero = document.querySelector('.hero');
+  const pill = document.querySelector('.announce-pill');
+  const h1   = document.querySelector('.hero-h1');
+  const sub  = document.querySelector('.hero-sub');
+  if (!hero) return;
+  let tx=0, ty=0, cx=0, cy=0;
+  hero.addEventListener('mousemove', e => {
+    const r = hero.getBoundingClientRect();
+    tx = (e.clientX - r.left - r.width/2)  / (r.width/2);
+    ty = (e.clientY - r.top  - r.height/2) / (r.height/2);
+  }, {passive:true});
+  hero.addEventListener('mouseleave', () => { tx=0; ty=0; });
+  (function loop(){
+    cx += (tx-cx)*.055; cy += (ty-cy)*.055;
+    if (pill && !pill._gsapTweening)
+      pill.style.transform = `translateY(calc(-50% * 0 + ${cy*-7}px)) translateX(${cx*-4}px)`;
+    if (h1)  h1.style.transform  = `translateY(${cy*-4}px) translateX(${cx*-2}px)`;
+    if (sub) sub.style.transform = `translateY(${cy*-2}px) translateX(${cx*-1}px)`;
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ══ COUNTERS ════════════════════════════════════════════════ */
 const cio = new IntersectionObserver(e => e.forEach(x => {
-  if(!x.isIntersecting) return
-  const el=x.target,to=+el.dataset.to,dur=1400,t0=performance.now()
-  ;(function f(now){const p=Math.min((now-t0)/dur,1),ease=p<.5?4*p*p*p:(p-1)*(2*p-2)*(2*p-2)+1;el.textContent=Math.round(ease*to);if(p<1)requestAnimationFrame(f)})(performance.now())
-  cio.unobserve(el)
-}), {threshold:.6})
-document.querySelectorAll('.counter').forEach(c => cio.observe(c))
+  if (!x.isIntersecting) return;
+  const el=x.target, to=+el.dataset.to, dur=1400, t0=performance.now();
+  (function f(now){
+    const p=Math.min((now-t0)/dur,1), ease=p<.5?4*p*p*p:(p-1)*(2*p-2)*(2*p-2)+1;
+    el.textContent=Math.round(ease*to);
+    if(p<1) requestAnimationFrame(f);
+  })(performance.now());
+  cio.unobserve(el);
+}), {threshold:.6});
+document.querySelectorAll('.counter').forEach(c => cio.observe(c));
 
-const dash=document.getElementById('heroDash'),d3d=document.getElementById('dash3d')
-if(dash&&d3d){
-  dash.addEventListener('mousemove',e=>{const r=dash.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;d3d.style.transition='none';d3d.style.transform=`rotateX(${-y*5+1}deg) rotateY(${x*8}deg)`},{passive:true})
-  dash.addEventListener('mouseleave',()=>{d3d.style.transition='transform .7s ease';d3d.style.transform='rotateX(7deg)'})
+/* ══ DASHBOARD 3D TILT ═══════════════════════════════════════ */
+const dash=document.getElementById('heroDash'), d3d=document.getElementById('dash3d');
+if (dash && d3d && !isMobile) {
+  dash.addEventListener('mousemove', e => {
+    const r=dash.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    d3d.style.transition='none';
+    d3d.style.transform=`rotateX(${-y*5+1}deg) rotateY(${x*8}deg)`;
+  }, {passive:true});
+  dash.addEventListener('mouseleave', () => {
+    d3d.style.transition='transform .7s ease';
+    d3d.style.transform='rotateX(7deg)';
+  });
 }
 
-document.querySelectorAll('[data-tilt]').forEach(c=>{
-  c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transition='none';c.style.transform=`perspective(700px) rotateX(${-y*3}deg) rotateY(${x*4}deg) translateZ(3px)`},{passive:true})
-  c.addEventListener('mouseleave',()=>{c.style.transition='transform .4s ease,box-shadow .3s,border-color .3s';c.style.transform='none'})
-})
+/* ══ CARD TILT ════════════════════════════════════════════════ */
+if (!isMobile) document.querySelectorAll('[data-tilt]').forEach(c => {
+  c.addEventListener('mousemove', e => {
+    const r=c.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    c.style.transition='none';
+    c.style.transform=`perspective(700px) rotateX(${-y*3}deg) rotateY(${x*4}deg) translateZ(3px)`;
+  }, {passive:true});
+  c.addEventListener('mouseleave', () => {
+    c.style.transition='transform .4s ease,box-shadow .3s,border-color .3s';
+    c.style.transform='none';
+  });
+});
 
-const P={pro:{m:2900,y:2320},team:{m:7900,y:6320}}
+/* ══ BILLING TOGGLE ══════════════════════════════════════════ */
+const P = {pro:{m:2900,y:2320}, team:{m:7900,y:6320}};
 function setBilling(t){
-  document.getElementById('tm').classList.toggle('on',t==='m')
-  document.getElementById('ty').classList.toggle('on',t==='y')
-  document.getElementById('pp').textContent=P.pro[t].toLocaleString('fr')
-  document.getElementById('pt').textContent=P.team[t].toLocaleString('fr')
-  document.getElementById('pn').textContent=t==='y'?`Soit ${(P.pro.y*12).toLocaleString('fr')} DA / an`:'Soit 34 800 DA / an'
-  document.getElementById('tn').textContent=t==='y'?`Soit ${(P.team.y*12).toLocaleString('fr')} DA / an`:'Soit 94 800 DA / an'
+  document.getElementById('tm').classList.toggle('on', t==='m');
+  document.getElementById('ty').classList.toggle('on', t==='y');
+  document.getElementById('pp').textContent = P.pro[t].toLocaleString('fr');
+  document.getElementById('pt').textContent = P.team[t].toLocaleString('fr');
+  document.getElementById('pn').textContent = t==='y'
+    ? `Soit ${(P.pro.y*12).toLocaleString('fr')} DA / an` : 'Soit 34 800 DA / an';
+  document.getElementById('tn').textContent = t==='y'
+    ? `Soit ${(P.team.y*12).toLocaleString('fr')} DA / an` : 'Soit 94 800 DA / an';
 }
 
-;(function(){const v1=document.getElementById('kv1'),v3=document.getElementById('kv3');if(!v1)return;let p=24,w=6;setInterval(()=>{if(Math.random()>.6&&w>0){w--;v3.textContent=w}else if(w<9){p++;w++;v1.textContent=p;v3.textContent=w}},4000)})()
+/* ══ QUEUE SIMULATOR ══════════════════════════════════════════ */
+;(function(){
+  const v1=document.getElementById('kv1'), v3=document.getElementById('kv3');
+  if (!v1) return;
+  let p=24, w=6;
+  setInterval(() => {
+    if (Math.random()>.6 && w>0) { w--; v3.textContent=w; }
+    else if (w<9) { p++; w++; v1.textContent=p; v3.textContent=w; }
+  }, 4000);
+})();
 </script>
 </body>
 </html>
