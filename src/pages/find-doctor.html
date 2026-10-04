@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-<script src="config.js"></script>
+<script src="config.js?v=3"></script>
 <style>
 /* ── DESIGN TOKENS ─────────────────────────────────────────── */
 :root{
@@ -963,7 +963,7 @@ button,input,select,textarea{font-family:inherit}
           </div>
           <input type="text" id="s-smart" placeholder="Médecin, spécialité…" autocomplete="off"
             style="flex:1;border:none;outline:none;font-family:'Sora',sans-serif;font-size:.875rem;background:transparent;color:var(--text-1);min-width:0">
-          <button class="sf-clear" id="sf-clear" title="Effacer">×</button>
+          <button class="sf-clear" id="sf-clear" title="Effacer" onclick="clearSmart()">×</button>
         </div>
         <!-- Ville (recherche city + wilaya) -->
         <div class="sf sf-ville" id="sf-ville-wrap">
@@ -971,6 +971,7 @@ button,input,select,textarea{font-family:inherit}
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
           <input type="text" id="s-ville" placeholder="Ville, wilaya…" autocomplete="off">
+          <button class="sf-clear" id="sv-clear" title="Effacer la ville" onclick="clearVille()" style="display:none">×</button>
           <button class="geo-btn" id="geo-btn" onclick="geoSearch()" title="Utiliser ma position">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 2" opacity=".4"/></svg>
           </button>
@@ -1645,7 +1646,8 @@ function renderStars(rating){
       .select('id,full_name,is_clinic,clinic_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured,is_public')
       .not('full_name','is',null)
       .not('specialty','is',null)
-      .neq('is_public', false)
+      .eq('is_public', true)
+      .eq('is_active', true)
       .order('featured', { ascending: false, nullsFirst: false })
       .order('full_name');
     if (error) throw error;
@@ -1738,7 +1740,7 @@ function geoSearch(){
       .then(function(data){
         var addr = data.address || {};
         var city = addr.city || addr.town || addr.suburb || addr.village || addr.county || '';
-        if(city){ document.getElementById('s-ville').value = city; villeDropClose(); doSearch(); }
+        if(city){ document.getElementById('s-ville').value = city; var _sv=document.getElementById('sv-clear'); if(_sv)_sv.style.display='flex'; villeDropClose(); doSearch(); }
         btn.classList.remove('spinning');
       })
       .catch(function(){ btn.classList.remove('spinning'); });
@@ -1815,6 +1817,14 @@ function clearSmart(){
   document.getElementById('s-smart').value = '';
   document.getElementById('sf-clear').classList.remove('show');
   smartClose();
+  doSearch();
+}
+
+function clearVille(){
+  document.getElementById('s-ville').value = '';
+  var svClear = document.getElementById('sv-clear');
+  if(svClear) svClear.style.display = 'none';
+  villeDropClose();
   doSearch();
 }
 
@@ -1900,6 +1910,8 @@ function villeDropClose(){
 
 function pickVille(name){
   document.getElementById('s-ville').value = name;
+  var svClear = document.getElementById('sv-clear');
+  if(svClear) svClear.style.display = name ? 'flex' : 'none';
   villeDropClose();
   doSearch();
 }
@@ -1967,6 +1979,8 @@ function resetSearch(){
   document.getElementById('s-smart').value='';
   document.getElementById('s-ville').value='';
   document.getElementById('sf-clear').classList.remove('show');
+  var svClear = document.getElementById('sv-clear');
+  if(svClear) svClear.style.display = 'none';
   _rdvOnly = false;
   document.getElementById('rdv-toggle').classList.remove('on');
   smartClose();
@@ -2019,7 +2033,9 @@ function renderCards(docs){
       +'</div>'
       +'<div class="doctor-specialty">'+(d.specialty||'Médecin')+'</div>'
       +'<div class="doctor-meta">'
-      +(d.wilaya?'<div class="meta-row"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+(d.city?d.city+', ':'')+d.wilaya+'</div>':'')
+      +(d.wilaya?'<div class="meta-row" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:7px"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+(d.city?d.city+', ':'')+d.wilaya+'</div>'
+        +'<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([d.address,d.city,d.wilaya,'Algérie'].filter(Boolean).join(', '))+'" target="_blank" rel="noopener" title="Voir sur Google Maps" style="display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:600;color:var(--brand);text-decoration:none;border:1px solid rgba(59,23,114,.2);border-radius:6px;padding:3px 8px;transition:all .15s;flex-shrink:0" onmouseover="this.style.background=\'rgba(59,23,114,.06)\'" onmouseout="this.style.background=\'\'"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Maps</a>'
+        +'</div>':'')
       +'</div></div></div>'
       // Stars
       +'<div class="stars-row">'+renderStars(rating)+'<span class="rating-num">'+rating+'</span><span class="rating-count">(vérifié)</span></div>'
@@ -2292,6 +2308,8 @@ async function submitBooking(){
   var _doVilleLive = debounce(function(){ renderVilleDrop(villeInp.value); }, 180);
   villeInp.addEventListener('focus', function(){ renderVilleDrop(this.value); });
   villeInp.addEventListener('input', function(){
+    var svClear = document.getElementById('sv-clear');
+    if(svClear) svClear.style.display = this.value.trim() ? 'flex' : 'none';
     _doVilleLive();
     _doSearchLive();
   });

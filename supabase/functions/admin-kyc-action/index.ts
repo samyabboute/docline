@@ -33,8 +33,8 @@ serve(async (req) => {
       if (!roleRow) return new Response(JSON.stringify({ error: "FORBIDDEN" }), { status: 403, headers: { ...CORS, "Content-Type": "application/json" } });
     }
 
-    const { doctorId, action, note } = await req.json();
-    // action: "approve" | "reject" | "set_plan" | "toggle_active"
+    const { doctorId, action, note, interval, adminGrant } = await req.json();
+    // action: "approve" | "reject" | "set_plan" | "toggle_active" | "deactivate"
     if (!doctorId || !action) {
       return new Response(JSON.stringify({ error: "MISSING_FIELDS" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
     }
@@ -59,15 +59,122 @@ serve(async (req) => {
       await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "rejected", note: note ?? null });
 
     } else if (action === "set_plan") {
-      const { plan } = await req.json().catch(() => ({}));
-      await admin.from("profiles").update({ plan: note }).eq("id", doctorId);
-      await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: `set_plan:${note}`, note: null });
+      // 1. Update profiles.plan
+      const { error: profErr } = await admin.from("profiles").update({ plan: note }).eq("id", doctorId);
+      if (profErr) throw new Error("profiles update failed: " + profErr.message);
+
+      // 2. Upsert subscriptions (the doctor app reads this at login)
+      // Check for an existing row (use array to avoid .single() throwing on 0 rows)
+      const { data: subRows } = await admin
+        .from("subscriptions").select("id,status")
+        .eq("user_id", doctorId)
+        .order("created_at", { ascending: false }).limit(1);
+      const existingSub = subRows && subRows.length > 0 ? subRows[0] : null;
+
+      if (note === "free") {
+        // Downgrade: just update plan to 'free', keep existing status
+        if (existingSub) {
+          const { error: subErr } = await admin.from("subscriptions")
+            .update({ plan: "free", status: "active", invoice_notes: null })
+            .eq("user_id", doctorId);
+          if (subErr) throw new Error("subscriptions downgrade failed: " + subErr.message);
+        }
+      } else {
+        // Upgrade to pro/clinic
+        // If adminGrant: mark as paid with invoice_notes='admin_grant'
+        const subInterval = interval || "month";
+        const subPaymentStatus = adminGrant ? "paid" : "pending";
+        const subNotes = adminGrant ? "admin_grant" : null;
+
+        // Compute expiry for admin grants
+        let expiresAt: string | null = null;
+        if (adminGrant) {
+          const exp = new Date();
+          if (subInterval === "year") exp.setFullYear(exp.getFullYear() + 1);
+          else exp.setMonth(exp.getMonth() + 1);
+          expiresAt = exp.toISOString();
+        }
+
+        if (existingSub) {
+          const updatePayload: Record<string, unknown> = {
+            plan: note, status: "active",
+            interval: subInterval,
+            payment_status: subPaymentStatus,
+            invoice_notes: subNotes,
+          };
+          if (expiresAt) updatePayload.expires_at = expiresAt;
+          if (adminGrant) updatePayload.paid_at = now;
+          const { error: subErr } = await admin.from("subscriptions").update(updatePayload).eq("user_id", doctorId);
+          if (subErr) throw new Error("subscriptions update failed: " + subErr.message);
+        } else {
+          const insertPayload: Record<string, unknown> = {
+            user_id: doctorId, plan: note, status: "active",
+            interval: subInterval,
+            payment_status: subPaymentStatus,
+            invoice_notes: subNotes,
+            created_at: now,
+          };
+          if (expiresAt) insertPayload.expires_at = expiresAt;
+          if (adminGrant) insertPayload.paid_at = now;
+          const { error: subErr } = await admin.from("subscriptions").insert(insertPayload);
+          if (subErr) throw new Error("subscriptions insert failed: " + subErr.message);
+        }
+      }
+      try { await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "set_plan", note: note ?? null }); } catch (_) {}
 
     } else if (action === "toggle_active") {
       const { data: p } = await admin.from("profiles").select("is_active").eq("id", doctorId).single();
       const newVal = !(p?.is_active ?? true);
       await admin.from("profiles").update({ is_active: newVal }).eq("id", doctorId);
       await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: newVal ? "activated" : "deactivated", note: null });
+
+    } else if (action === "deactivate") {
+      // Force-deactivate: always sets is_active=false AND is_public=false (no toggle risk)
+      await admin.from("profiles").update({ is_active: false, is_public: false }).eq("id", doctorId);
+      await admin.from("subscriptions").update({ status: "suspended" }).eq("user_id", doctorId);
+      await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "deactivated", note: note ?? null });
+
+    } else if (action === "approve_payment") {
+      const now2 = new Date().toISOString();
+      const { data: sub } = await admin.from("subscriptions")
+        .select("interval,created_at")
+        .eq("user_id", doctorId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .catch(() => ({ data: null }));
+      const interval = sub?.interval || 'month';
+      const startDate = sub?.created_at ? new Date(sub.created_at) : new Date();
+      const endDate = new Date(startDate);
+      if (interval === 'year') endDate.setFullYear(endDate.getFullYear() + 1);
+      else endDate.setMonth(endDate.getMonth() + 1);
+
+      const { error: subErr } = await admin.from("subscriptions").update({
+        payment_status: 'paid',
+        payment_method: note || 'transfer',
+        paid_at: now2,
+        expires_at: endDate.toISOString(),
+        status: 'active',
+      }).eq("user_id", doctorId);
+      if (subErr) throw new Error("Payment approval failed: " + subErr.message);
+      await admin.from("profiles").update({ is_active: true }).eq("id", doctorId);
+      try { await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "approve_payment", note: note ?? null }); } catch(_) {}
+
+    } else if (action === "reject_payment") {
+      const { error: subErr2 } = await admin.from("subscriptions").update({
+        payment_status: 'failed',
+      }).eq("user_id", doctorId);
+      if (subErr2) throw new Error("Payment rejection failed: " + subErr2.message);
+      try { await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "reject_payment", note: note ?? null }); } catch(_) {}
+
+    } else if (action === "delete_user") {
+      // 1. Delete all related data
+      await admin.from("kyc_audit_log").delete().eq("doctor_id", doctorId);
+      await admin.from("subscriptions").delete().eq("user_id", doctorId);
+      await admin.from("profiles").delete().eq("id", doctorId);
+      // 2. Delete from Supabase Auth (frees the email for re-registration)
+      const { error: authErr } = await admin.auth.admin.deleteUser(doctorId);
+      if (authErr) throw new Error("auth delete failed: " + authErr.message);
 
     } else {
       return new Response(JSON.stringify({ error: "UNKNOWN_ACTION" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });

@@ -386,7 +386,12 @@ ul,ol{list-style:none}
       Médecins
     </button>
 
-    <button class="nav-item" id="nav-parametres" onclick="showSection('parametres')">
+    <button class="nav-item" id="nav-paiements" onclick="showSection('paiements')">
+      <svg class="ni-icon" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Paiements
+    </button>
+
+        <button class="nav-item" id="nav-parametres" onclick="showSection('parametres')">
       <svg class="ni-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
       Paramètres
     </button>
@@ -483,6 +488,18 @@ ul,ol{list-style:none}
           <div class="kpi-label">RDV aujourd'hui</div>
           <div class="kpi-value" id="kpi-rdv">—</div>
           <div class="kpi-sub">rendez-vous prévus</div>
+        </div>
+        <div class="kpi kpi-warning">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="kpi-label">Paiements en attente</div>
+          <div class="kpi-value" id="kpi-pay-pending">—</div>
+          <div class="kpi-sub">abonnements non réglés</div>
+        </div>
+        <div class="kpi kpi-success">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/></svg></div>
+          <div class="kpi-label">Validés ce mois</div>
+          <div class="kpi-value" id="kpi-pay-paid">—</div>
+          <div class="kpi-sub">paiements confirmés</div>
         </div>
       </div>
 
@@ -751,6 +768,74 @@ ul,ol{list-style:none}
       </div>
     </div>
 
+
+    <!-- ══════════════════ PAIEMENTS ══════════════════ -->
+    <div class="section page" id="section-paiements">
+      <div class="page-header">
+        <div class="page-title">Paiements</div>
+        <div class="page-sub">Gestion des abonnements et paiements médecins</div>
+      </div>
+
+      <!-- KPI ROW -->
+      <div class="kpi-grid" style="margin-bottom:20px">
+        <div class="kpi kpi-warning">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--warning);fill:none;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="kpi-label">En attente</div>
+          <div class="kpi-value" id="pay-kpi-pending">—</div>
+          <div class="kpi-sub">paiements non réglés</div>
+        </div>
+        <div class="kpi kpi-success">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--success);fill:none;stroke-width:2;stroke-linecap:round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="kpi-label">Validés ce mois</div>
+          <div class="kpi-value" id="pay-kpi-month">—</div>
+          <div class="kpi-sub">paiements confirmés</div>
+        </div>
+        <div class="kpi kpi-brand">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-label">MRR</div>
+          <div class="kpi-value" id="pay-kpi-mrr">—</div>
+          <div class="kpi-sub">revenu mensuel récurrent</div>
+        </div>
+        <div class="kpi kpi-info">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--info);fill:none;stroke-width:2;stroke-linecap:round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+          <div class="kpi-label">Méthodes</div>
+          <div class="kpi-value" id="pay-kpi-methods">—</div>
+          <div class="kpi-sub">en ligne / virement / cash</div>
+        </div>
+      </div>
+
+      <!-- FILTER TABS -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn btn-secondary btn-sm pay-filter-btn active" data-filter="all" onclick="filterPayments(this,'all')">Tous</button>
+        <button class="btn btn-secondary btn-sm pay-filter-btn" data-filter="pending" onclick="filterPayments(this,'pending')">En attente</button>
+        <button class="btn btn-secondary btn-sm pay-filter-btn" data-filter="paid" onclick="filterPayments(this,'paid')">Validés</button>
+        <button class="btn btn-secondary btn-sm pay-filter-btn" data-filter="online" onclick="filterPayments(this,'online')">En ligne</button>
+        <button class="btn btn-secondary btn-sm pay-filter-btn" data-filter="transfer" onclick="filterPayments(this,'transfer')">Virement</button>
+        <button class="btn btn-secondary btn-sm pay-filter-btn" data-filter="cash" onclick="filterPayments(this,'cash')">Cash</button>
+      </div>
+
+      <!-- TABLE -->
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Médecin</th>
+                <th>Plan</th>
+                <th>Montant</th>
+                <th>Méthode</th>
+                <th>Statut</th>
+                <th>Inscription</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pay-table-body">
+              <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -853,6 +938,7 @@ var sectionTitles = {
   dashboard: 'Dashboard',
   kyc: 'Vérifications KYC',
   medecins: 'Médecins',
+  paiements: 'Paiements',
   parametres: 'Paramètres'
 };
 
@@ -873,6 +959,7 @@ function showSection(name) {
   if (name === 'medecins') loadDoctors();
   if (name === 'dashboard') loadDashboard();
   if (name === 'parametres') loadAdminUsers();
+  if (name === 'paiements') loadPayments();
 
   closeSidebar();
 }
@@ -1126,7 +1213,7 @@ async function openKycPanel(doctorId) {
         <div class="info-row"><span class="info-key">Type document</span><span class="info-val">${esc(doctor.kyc_document_type || '—')}</span></div>
         <div class="info-row"><span class="info-key">N° Ordre</span><span class="info-val">${esc(doctor.kyc_order_number || '—')}</span></div>
         <div class="info-row"><span class="info-key">Soumis le</span><span class="info-val">${fmtDate(doctor.kyc_submitted_at)}</span></div>
-        <div class="info-row"><span class="info-key">Compte actif</span><span class="info-val">${doctor.is_active ? '✓ Oui' : '✗ Non'}</span></div>
+        <div class="info-row"><span class="info-key">Compte actif</span><span class="info-val">${doctor.is_active ? 'Oui' : 'Non'}</span></div>
       </div>
       ${doctor.kyc_reject_reason ? `<div style="margin-top:12px;padding:10px 14px;background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:var(--r-md);font-size:.8125rem;color:var(--danger)"><strong>Raison de rejet :</strong> ${esc(doctor.kyc_reject_reason)}</div>` : ''}
     </div>
@@ -1255,9 +1342,9 @@ async function analyzeWithAI() {
 function renderAiResult(data) {
   const rec = data.recommendation || data.recommandation || '';
   const recBadge = {
-    'approuver': '<span class="badge badge-success">✓ Approuver</span>',
-    'rejeter': '<span class="badge badge-danger">✗ Rejeter</span>',
-    'verifier_manuellement': '<span class="badge badge-warning">⚠ Vérifier manuellement</span>'
+    'approuver': '<span class="badge badge-success">Approuvé</span>',
+    'rejeter': '<span class="badge badge-danger">Rejeté</span>',
+    'verifier_manuellement': '<span class="badge badge-warning">Vérification manuelle</span>'
   }[rec] || `<span class="badge badge-neutral">${esc(rec)}</span>`;
 
   const confidence = parseFloat(data.confidence || data.confiance || 0);
@@ -1699,6 +1786,129 @@ function showToast(type, title, msg, duration) {
     setTimeout(() => div.remove(), 300);
   }, duration);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   PAIEMENTS
+═══════════════════════════════════════════════════════════ */
+var _allPayments = [];
+var _currentPayFilter = 'all';
+
+var PAY_AMOUNTS = {
+  pro:    { month: 5900, year: 59000 },
+  clinic: { month: 13900, year: 139000 },
+  free:   { month: 0, year: 0 },
+};
+
+function getPayAmount(plan, interval) {
+  return (PAY_AMOUNTS[plan] || {})[interval || 'month'] || 0;
+}
+
+async function loadPayments() {
+  const tbody = document.getElementById('pay-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Chargement...</td></tr>';
+
+  try {
+    const { data: subs, error } = await _sb
+      .from('subscriptions')
+      .select('user_id, plan, interval, payment_status, payment_method, paid_at, created_at')
+      .neq('plan', 'free')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const userIds = (subs || []).map(s => s.user_id);
+    var profilesMap = {};
+    if (userIds.length > 0) {
+      const { data: profiles } = await _sb
+        .from('profiles')
+        .select('id, full_name, email, first_name, last_name')
+        .in('id', userIds);
+      (profiles || []).forEach(p => { profilesMap[p.id] = p; });
+    }
+
+    _allPayments = (subs || []).map(s => ({ ...s, profile: profilesMap[s.user_id] || {} }));
+
+    var pendingCount = _allPayments.filter(s => s.payment_status === 'pending').length;
+    var monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+    var paidThisMonth = _allPayments.filter(s => s.payment_status === 'paid' && s.paid_at && new Date(s.paid_at) >= monthStart).length;
+    var mrr = _allPayments
+      .filter(s => s.payment_status === 'paid')
+      .reduce((acc, s) => {
+        var amt = getPayAmount(s.plan, s.interval);
+        return acc + (s.interval === 'year' ? Math.round(amt / 12) : amt);
+      }, 0);
+
+    var methodCounts = { online: 0, transfer: 0, cash: 0 };
+    _allPayments.forEach(s => { if (s.payment_method) methodCounts[s.payment_method] = (methodCounts[s.payment_method] || 0) + 1; });
+
+    setEl('pay-kpi-pending', pendingCount);
+    setEl('pay-kpi-month', paidThisMonth);
+    setEl('pay-kpi-mrr', mrr.toLocaleString('fr-DZ') + ' DA');
+    setEl('pay-kpi-methods', methodCounts.online + ' / ' + methodCounts.transfer + ' / ' + methodCounts.cash);
+    setEl('kpi-pay-pending', pendingCount);
+    setEl('kpi-pay-paid', paidThisMonth);
+
+    renderPaymentTable(_allPayments);
+  } catch (e) {
+    if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--danger)">Erreur : ' + e.message + '</td></tr>';
+  }
+}
+
+function filterPayments(btn, filter) {
+  _currentPayFilter = filter;
+  document.querySelectorAll('.pay-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var filtered = _allPayments.filter(s => {
+    if (filter === 'all') return true;
+    if (filter === 'pending') return s.payment_status === 'pending';
+    if (filter === 'paid') return s.payment_status === 'paid';
+    return s.payment_method === filter;
+  });
+  renderPaymentTable(filtered);
+}
+
+function renderPaymentTable(rows) {
+  var tbody = document.getElementById('pay-table-body');
+  if (!tbody) return;
+  if (!rows || rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Aucun paiement</td></tr>';
+    return;
+  }
+  var PLAN_LABELS = { pro: 'Pro', clinic: 'Clinique', free: 'Gratuit' };
+  var METHOD_LABELS = { online: 'En ligne', transfer: 'Virement', cash: 'Cash' };
+  tbody.innerHTML = rows.map(s => {
+    var p = s.profile || {};
+    var name = p.full_name || ((p.first_name||'') + ' ' + (p.last_name||'')).trim() || s.user_id.slice(0,8)+'...';
+    var email = p.email || '';
+    var planLabel = PLAN_LABELS[s.plan] || s.plan;
+    var planColor = s.plan === 'clinic' ? '#7C3AED' : '#1D4ED8';
+    var planBadge = '<span style="background:' + planColor + '22;color:' + planColor + ';border:1px solid ' + planColor + '44;border-radius:99px;padding:2px 8px;font-size:11px;font-weight:700">' + planLabel + '</span>';
+    var intervalLabel = s.interval === 'year' ? 'Annuel' : 'Mensuel';
+    var amount = getPayAmount(s.plan, s.interval);
+    var methodLabel = s.payment_method ? (METHOD_LABELS[s.payment_method] || s.payment_method) : '—';
+    var statusColor = s.payment_status === 'paid' ? '#059669' : s.payment_status === 'failed' ? '#DC2626' : '#D97706';
+    var statusLabel = s.payment_status === 'paid' ? 'Validé' : s.payment_status === 'failed' ? 'Rejeté' : 'En attente';
+    var statusBadge = '<span style="background:' + statusColor + '22;color:' + statusColor + ';border:1px solid ' + statusColor + '44;border-radius:99px;padding:2px 8px;font-size:11px;font-weight:700">' + statusLabel + '</span>';
+    var dateStr = s.created_at ? new Date(s.created_at).toLocaleDateString('fr-DZ') : '—';
+    var paidStr = s.paid_at ? new Date(s.paid_at).toLocaleDateString('fr-DZ') : '';
+    var doctorId = s.user_id;
+    var actions = s.payment_status === 'pending'
+      ? '<button class="btn btn-secondary btn-sm" onclick="kycAction(\'' + doctorId + '\', \'approve_payment\', \'transfer\').then(()=>loadPayments()).catch(e=>alert(e.message))" style="color:#059669;border-color:#059669;margin-right:4px">✓ Valider</button>'
+        + '<button class="btn btn-secondary btn-sm" onclick="kycAction(\'' + doctorId + '\', \'reject_payment\').then(()=>loadPayments()).catch(e=>alert(e.message))" style="color:#DC2626;border-color:#DC2626">✗ Rejeter</button>'
+      : (paidStr ? 'Payé le ' + paidStr : '—');
+    return '<tr>'
+      + '<td><div style="font-weight:600">' + name.replace(/</g,'&lt;') + '</div><div style="font-size:11px;color:var(--text-muted)">' + email.replace(/</g,'&lt;') + '</div></td>'
+      + '<td>' + planBadge + ' <span style="font-size:11px;color:var(--text-muted)">' + intervalLabel + '</span></td>'
+      + '<td style="font-weight:700">' + amount.toLocaleString('fr-DZ') + ' DA</td>'
+      + '<td>' + methodLabel + '</td>'
+      + '<td>' + statusBadge + '</td>'
+      + '<td>' + dateStr + '</td>'
+      + '<td style="white-space:nowrap">' + actions + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
 </script>
 </body>
 </html>

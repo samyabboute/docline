@@ -40,6 +40,9 @@ async function syncSubscription(sub: Stripe.Subscription, eventType: string) {
     return;
   }
 
+  // Auto-set payment_status=paid when Stripe subscription is active
+  const stripePayStatus = sub.status === 'active' ? 'paid' : undefined;
+
   await supabase.from("subscriptions").upsert({
     user_id:                userId,
     plan,
@@ -51,6 +54,7 @@ async function syncSubscription(sub: Stripe.Subscription, eventType: string) {
     current_period_end:     new Date(sub.current_period_end * 1000).toISOString(),
     cancel_at_period_end:   sub.cancel_at_period_end,
     trial_end:              sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+    ...(stripePayStatus ? { payment_status: stripePayStatus, paid_at: new Date().toISOString() } : {}),
   }, { onConflict: "user_id" });
 
   await supabase.from("audit_log").insert({

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#3B1772">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="config.js"></script>
+<script src="config.js?v=3"></script>
 <script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -28,6 +28,28 @@
   --shadow-md:0 4px 12px rgba(0,0,0,.08);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ── PAYMENT POPUP ── */
+.pay-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+.pay-overlay.blocking{background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
+.pay-overlay.soft{background:rgba(0,0,0,.35)}
+.pay-modal{background:#fff;border-radius:20px;padding:28px 28px 24px;max-width:440px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.18);position:relative;animation:payIn .3s cubic-bezier(.25,.46,.45,.94) both}
+@keyframes payIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.pay-modal-close{position:absolute;top:16px;right:16px;border:none;background:none;cursor:pointer;color:#9CA3AF;font-size:20px;line-height:1;padding:2px;transition:color .15s}
+.pay-modal-close:hover{color:#374151}
+.pay-modal-icon{font-size:36px;margin-bottom:10px}
+.pay-modal-title{font-size:18px;font-weight:800;color:#0C0E14;letter-spacing:-.3px;margin-bottom:4px}
+.pay-modal-sub{font-size:13px;color:#7B8194;margin-bottom:16px;line-height:1.5}
+.pay-modal-plan-badge{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);border:1px solid var(--brand-border);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--brand);margin-bottom:16px}
+.pay-modal-price{font-size:24px;font-weight:900;color:var(--brand);letter-spacing:-.4px;margin-bottom:4px}
+.pay-modal-interval{font-size:12px;color:#9CA3AF;margin-bottom:16px}
+.pay-modal-bank{background:#F8FAFF;border:1px solid #E8EAF0;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:12px;color:#374151}
+.pay-modal-bank strong{color:#0C0E14}
+.pay-modal-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-bottom:8px}
+.pay-modal-btn:hover{background:#1D4ED8;transform:translateY(-1px)}
+.pay-modal-dismiss{width:100%;text-align:center;font-size:12px;color:#9CA3AF;background:none;border:none;cursor:pointer;font-family:inherit;transition:color .15s;padding:4px}
+.pay-modal-dismiss:hover{color:#374151}
+.content-blur{filter:blur(2px);pointer-events:none;user-select:none}
+
 html{-webkit-font-smoothing:antialiased}
 body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text)}
 a{color:inherit;text-decoration:none}
@@ -313,6 +335,46 @@ button{font-family:inherit;cursor:pointer}
 @media(max-width:960px){.dash-grid{grid-template-columns:1fr}}
 @media(max-width:640px){.kpi-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:400px){.kpi-grid{grid-template-columns:1fr}}
+
+/* ── NPS FEEDBACK MODAL ──────────────────────────────────────── */
+.nps-overlay{position:fixed;inset:0;z-index:9000;display:flex;align-items:flex-end;justify-content:center;padding:0 0 0 0;pointer-events:none;opacity:0;transition:opacity .3s ease}
+.nps-overlay.open{pointer-events:all;opacity:1}
+.nps-modal{background:#fff;border-radius:24px 24px 0 0;padding:32px 28px 36px;width:100%;max-width:520px;box-shadow:0 -12px 48px rgba(13,15,20,.14);transform:translateY(100%);transition:transform .35s cubic-bezier(.25,.46,.45,.94)}
+.nps-overlay.open .nps-modal{transform:none}
+.nps-step{display:none}.nps-step.active{display:block}
+.nps-q{font-size:1rem;font-weight:800;letter-spacing:-.2px;color:#0D0F14;margin-bottom:6px;line-height:1.3}
+.nps-hint{font-size:.75rem;color:#8B92A9;margin-bottom:22px}
+.nps-scale{display:flex;gap:6px;margin-bottom:10px}
+.nps-btn{flex:1;aspect-ratio:1/1;border:1.5px solid #E4E7F0;border-radius:10px;font-size:.875rem;font-weight:700;cursor:pointer;background:#F8FAFF;color:#4A5068;transition:all .15s ease;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.nps-btn:hover{border-color:#3B1772;color:#3B1772;background:#F0EBF8}
+.nps-btn.selected{background:#3B1772;color:#fff;border-color:#3B1772;transform:scale(1.08)}
+.nps-btn.promoter{background:#059669;border-color:#059669;color:#fff}
+.nps-btn.passive{background:#D97706;border-color:#D97706;color:#fff}
+.nps-btn.detractor{background:#DC2626;border-color:#DC2626;color:#fff}
+.nps-scale-labels{display:flex;justify-content:space-between;font-size:.625rem;color:#B8BDD1;font-weight:600;margin-bottom:24px;text-transform:uppercase;letter-spacing:.5px}
+.nps-cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.nps-cat{padding:6px 14px;border-radius:99px;border:1.5px solid #E4E7F0;font-size:.75rem;font-weight:600;cursor:pointer;background:#F8FAFF;color:#4A5068;transition:all .15s;font-family:inherit}
+.nps-cat.selected{background:#3B1772;color:#fff;border-color:#3B1772}
+.nps-textarea{width:100%;border:1.5px solid #E4E7F0;border-radius:10px;padding:10px 14px;font-size:.8125rem;font-family:inherit;resize:none;outline:none;color:#0D0F14;background:#FAFBFF;transition:border-color .15s;min-height:80px}
+.nps-textarea:focus{border-color:#3B1772}
+.nps-actions{display:flex;gap:10px;margin-top:20px}
+.nps-submit{flex:1;padding:12px;background:#3B1772;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:.875rem;cursor:pointer;font-family:inherit;transition:background .15s}
+.nps-submit:hover{background:#2D1259}
+.nps-submit:disabled{opacity:.5;cursor:not-allowed}
+.nps-skip{background:none;border:none;font-size:.75rem;color:#8B92A9;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:6px;transition:color .15s}
+.nps-skip:hover{color:#4A5068}
+.nps-thanks{text-align:center;padding:12px 0}
+.nps-thanks-icon{width:56px;height:56px;background:#ECFDF5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.nps-thanks-icon svg{width:26px;height:26px;stroke:#059669;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.nps-thanks-title{font-size:1.0625rem;font-weight:800;color:#0D0F14;margin-bottom:6px}
+.nps-thanks-sub{font-size:.8125rem;color:#8B92A9;line-height:1.5}
+.nps-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:#B8BDD1;padding:6px;border-radius:8px;transition:all .15s;line-height:0}
+.nps-close:hover{background:#F2F4FA;color:#4A5068}
+.nps-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
+.nps-header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.nps-header-icon{width:36px;height:36px;background:#F0EBF8;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nps-header-icon svg{width:18px;height:18px;stroke:#3B1772;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.nps-badge{font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#3B1772;background:#F0EBF8;border:1px solid rgba(59,23,114,.15);padding:2px 8px;border-radius:99px}
 </style>
 <script src="loader.js"></script>
   <!-- Sentry monitoring -->
@@ -358,7 +420,7 @@ button{font-family:inherit;cursor:pointer}
             <div class="upgrade-banner-title">Passez en Pro — File d'attente QR illimitée</div>
             <div class="upgrade-banner-sub">Patients illimités, ordonnances, rappels automatiques. À partir de 2 900 DA/mois.</div>
           </div>
-          <button class="upgrade-banner-btn" onclick="window.location.href=ghpNav('/pricing')">Voir les offres</button>
+          <button class="upgrade-banner-btn" onclick="window.location.href='/pricing'">Voir les offres</button>
         </div>
 
         <!-- KPIs -->
@@ -370,15 +432,15 @@ button{font-family:inherit;cursor:pointer}
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nouveau patient
           </button>
-          <button class="qa-btn" onclick="window.location.href=ghpNav('/queue')">
+          <button class="qa-btn" onclick="window.location.href='/queue'">
             <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             File d'attente
           </button>
-          <button class="qa-btn" onclick="window.location.href=ghpNav('/ordonnances')">
+          <button class="qa-btn" onclick="window.location.href='/ordonnances'">
             <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
             Ordonnance
           </button>
-          <button class="qa-btn" onclick="window.location.href=ghpNav('/calendar')">
+          <button class="qa-btn" onclick="window.location.href='/calendar'">
             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Agenda
           </button>
@@ -466,7 +528,9 @@ button{font-family:inherit;cursor:pointer}
   <div class="kyc-modal">
     <div class="kyc-modal-head">
       <div>
-        <div class="kyc-modal-title">🔐 Vérification médicale requise</div>
+        <div class="kyc-modal-title">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--brand,#3B1772);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle;margin-right:6px;margin-bottom:2px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Vérification médicale requise
+        </div>
         <div class="kyc-modal-sub">Pour activer votre profil public et recevoir des RDV en ligne</div>
       </div>
       <button class="modal-close" onclick="closeKycModal()" title="Plus tard"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -875,7 +939,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAddP
 
 // ── MAIN LOAD ──────────────────────────────────────────
 var Auth = {
-  signOut: async function() { await _supa.auth.signOut(); window.location.href=ghpNav('/login'); }
+  signOut: async function() { await _supa.auth.signOut(); window.location.href = '/login'; }
 };
 
 async function load() {
@@ -909,57 +973,58 @@ async function load() {
 
 // ── INIT ───────────────────────────────────────────────
 (async function() {
-  try {
-    var { data: { session } } = await _supa.auth.getSession();
-    if (!session) { window.location.href=ghpNav('/login'); return; }
+  var { data: { session } } = await _supa.auth.getSession();
+  if (!session) { window.location.href = '/login'; return; }
 
-    _uid   = session.user.id;
-    _email = session.user.email || '';
-    _name  = Shell.displayName(session.user.user_metadata || {}, _email);
+  _uid   = session.user.id;
+  _email = session.user.email || '';
+  _name  = Shell.displayName(session.user.user_metadata || {}, _email);
 
-    // Charger le vrai nom + statut KYC depuis profiles
-    try {
-      var { data: prof } = await _supa.from('profiles').select('full_name,first_name,last_name,clinic_name,is_clinic,kyc_status,kyc_reject_reason').eq('id', _uid).single();
-      if (prof) {
-        if (prof.is_clinic && prof.clinic_name) _name = prof.clinic_name;
-        else if (prof.full_name) _name = prof.full_name;
-        else if (prof.first_name || prof.last_name) _name = ((prof.first_name||'') + ' ' + (prof.last_name||'')).trim();
-        showKycBanner(prof.kyc_status, prof.kyc_reject_reason);
-      }
-    } catch(e) { console.warn('[Dashboard] profiles fetch error:', e.message); }
-
-    // Sub check
-    var sub = null;
-    try {
-      var { data: subData } = await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id', _uid).single();
-      sub = subData;
-    } catch(e) { console.warn('[Dashboard] subscriptions fetch error:', e.message); }
-    _isPro = sub && sub.plan !== 'free' && sub.status === 'active'
-      && (!sub.expires_at || new Date(sub.expires_at) > new Date());
-
-    Shell.init({
-      page:    'dashboard',
-      title:   'Tableau de bord',
-      isPro:   _isPro,
-      plan:    sub?.plan || 'free',
-      userName:  _name,
-      userEmail: _email,
-    });
-    if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
-    if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'dashboard', 'Tableau de bord');
-
-    renderGreeting();
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('content').style.display  = 'block';
-
-    await load();
-  } catch(e) {
-    console.error('[Dashboard] Erreur critique init:', e);
-    // Afficher quand même le contenu pour ne pas rester bloqué sur le spinner
-    try { document.getElementById('loading').style.display = 'none'; } catch(_){}
-    try { document.getElementById('content').style.display = 'block'; } catch(_){}
-    toast('Erreur de chargement. Réessayez ou reconnectez-vous.', 'error');
+  // Charger le vrai nom + statut KYC depuis profiles
+  var { data: prof } = await _supa.from('profiles').select('full_name,first_name,last_name,clinic_name,is_clinic,kyc_status,kyc_reject_reason').eq('id', _uid).single();
+  if (prof) {
+    if (prof.is_clinic && prof.clinic_name) _name = prof.clinic_name;
+    else if (prof.full_name) _name = prof.full_name;
+    else if (prof.first_name || prof.last_name) _name = ((prof.first_name||'') + ' ' + (prof.last_name||'')).trim();
+    showKycBanner(prof.kyc_status, prof.kyc_reject_reason);
   }
+
+  // Sub check
+  var { data: sub } = await _supa.from('subscriptions').select('plan,status,expires_at,interval,payment_status,trial_end_date,invoice_notes').eq('user_id', _uid).maybeSingle();
+  _isPro = sub && sub.plan !== 'free' && sub.status === 'active'
+    && (!sub.expires_at || new Date(sub.expires_at) > new Date());
+
+  // Payment reminder popup vs accès exclusif admin
+  var _paymentStatus = sub ? (sub.payment_status || 'paid') : 'paid';
+  var _isAdminGrant  = sub && sub.invoice_notes === 'admin_grant';
+  var _trialEndDate  = sub && sub.trial_end_date ? new Date(sub.trial_end_date) : null;
+  var _isTrialOver   = _trialEndDate ? (_trialEndDate < new Date()) : false;
+  var _needsPayment  = sub && sub.plan !== 'free' && _paymentStatus === 'pending';
+
+  if (_isAdminGrant && sub.plan !== 'free') {
+    // Bannière accès exclusif accordé par Docline
+    _showAdminGrantBanner(sub);
+  } else if (_needsPayment) {
+    _showPaymentPopup(sub, _isTrialOver);
+  }
+
+  Shell.init({
+    page:    'dashboard',
+    title:   'Tableau de bord',
+    isPro:   _isPro,
+    plan:    sub?.plan || 'free',
+    userName:  _name,
+    userEmail: _email,
+  });
+  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'dashboard', 'Tableau de bord');
+
+  renderGreeting();
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('content').style.display  = 'block';
+
+  await load();
+  _npsInit(_uid);
 
   // Realtime queue updates
   _supa.channel('queue-dash')
@@ -968,6 +1033,266 @@ async function load() {
     })
     .subscribe();
 })();
+
+// ── ADMIN GRANT BANNER ───────────────────────────────────────
+function _showAdminGrantBanner(sub) {
+  var PLAN_LABELS = { pro: 'Pro', clinic: 'Clinique' };
+  var plan          = sub ? sub.plan : 'pro';
+  var interval      = sub ? (sub.interval || 'month') : 'month';
+  var label         = PLAN_LABELS[plan] || plan;
+  var intervalLabel = interval === 'year' ? '12 mois' : '1 mois';
+
+  var banner = document.createElement('div');
+  banner.id = 'admin-grant-banner';
+  banner.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:8000;background:linear-gradient(135deg,#1a0e2e,#3b1772);color:#fff;border-radius:14px;padding:18px 22px;max-width:320px;box-shadow:0 8px 32px rgba(59,23,114,.35);animation:slideInRight .35s ease';
+  banner.innerHTML = ''
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
+    +   '<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#F79009;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'
+    +   '<span style="font-weight:800;font-size:14px">Accès exclusif activé</span>'
+    +   '<button onclick="document.getElementById(\'admin-grant-banner\').remove()" style="margin-left:auto;background:rgba(255,255,255,.15);border:none;border-radius:6px;color:#fff;padding:2px 8px;cursor:pointer;font-size:13px">✕</button>'
+    + '</div>'
+    + '<div style="font-size:13px;opacity:.9;line-height:1.5">'
+    +   'Vous bénéficiez d\'un accès <strong>' + label + '</strong> offert par Docline.'
+    +   '<br>Durée : <strong>' + intervalLabel + '</strong>'
+    + '</div>';
+
+  document.body.appendChild(banner);
+
+  // Auto-dismiss after 8s
+  setTimeout(function() {
+    var b = document.getElementById('admin-grant-banner');
+    if (b) b.style.animation = 'fadeOut .4s ease forwards';
+    setTimeout(function() { var b2 = document.getElementById('admin-grant-banner'); if (b2) b2.remove(); }, 400);
+  }, 8000);
+}
+
+// ── PAYMENT POPUP ────────────────────────────────────────────
+var _payPopupDismissed = false;
+
+function _showPaymentPopup(sub, isBlocking) {
+  if (_payPopupDismissed && !isBlocking) return;
+
+  var PLAN_LABELS = { pro: 'Pro', clinic: 'Clinique', free: 'Gratuit' };
+  var PLAN_PRICES = {
+    pro:    { month: 5900, year: 59000 },
+    clinic: { month: 13900, year: 139000 },
+  };
+
+  var plan     = sub ? sub.plan : 'pro';
+  var interval = sub ? (sub.interval || 'month') : 'month';
+  var label    = PLAN_LABELS[plan] || plan;
+  var prices   = PLAN_PRICES[plan] || {};
+  var price    = prices[interval] || 0;
+  var intervalLabel = interval === 'year' ? 'Annuel' : 'Mensuel';
+
+  var payUrl = (typeof ghpNav === 'function' ? ghpNav('/paiement') : '/paiement')
+    + '?plan=' + plan + '&interval=' + interval;
+
+  var overlay = document.createElement('div');
+  overlay.className = 'pay-overlay ' + (isBlocking ? 'blocking' : 'soft');
+  overlay.id = 'pay-popup-overlay';
+
+  var closeBtn = isBlocking ? '' :
+    '<button class="pay-modal-close" onclick="document.getElementById(\'pay-popup-overlay\').remove();_payPopupDismissed=true;" title="Fermer">\u2715</button>';
+
+  overlay.innerHTML = '<div class="pay-modal">'
+    + closeBtn
+    + '<div class="pay-modal-icon"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--brand,#3B1772);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>'
+    + '<div class="pay-modal-title">' + (isBlocking ? 'P\u00e9riode d\'essai termin\u00e9e' : 'Finalisez votre abonnement') + '</div>'
+    + '<div class="pay-modal-sub">' + (isBlocking
+        ? 'Votre essai gratuit est termin\u00e9. Activez votre plan pour continuer \u00e0 utiliser Docline.'
+        : 'Vous b\u00e9n\u00e9ficiez d\'un essai gratuit de 7 jours. Pensez \u00e0 activer votre plan.') + '</div>'
+    + '<div class="pay-modal-plan-badge">Plan ' + label + ' \u00b7 ' + intervalLabel + '</div><br>'
+    + '<div class="pay-modal-price">' + price.toLocaleString('fr-DZ') + ' DA</div>'
+    + '<div class="pay-modal-interval">par ' + (interval === 'year' ? 'an' : 'mois') + '</div>'
+    + '<div class="pay-modal-bank"><strong>Virement BEA :</strong> RIB 00100 42801 00010000000 97 \u2014 SAS Docline<br>R\u00e9f\u00e9rence : votre email</div>'
+    + '<button class="pay-modal-btn" onclick="window.location.href=\'' + payUrl + '\'">Payer maintenant \u2192</button>'
+    + (isBlocking ? '' : '<button class="pay-modal-dismiss" onclick="document.getElementById(\'pay-popup-overlay\').remove();_payPopupDismissed=true;">Me rappeler plus tard</button>')
+    + '</div>';
+
+  document.body.appendChild(overlay);
+
+  if (isBlocking) {
+    var main = document.getElementById('content');
+    if (main) main.classList.add('content-blur');
+  }
+}
+
+</script>
+
+<!-- ── NPS FEEDBACK MODAL ──────────────────────────────────── -->
+<div class="nps-overlay" id="nps-overlay">
+  <div class="nps-modal" style="position:relative">
+    <button class="nps-close" onclick="_npsClose()" title="Fermer"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+
+    <!-- Step 1: Score NPS -->
+    <div class="nps-step active" id="nps-step-1">
+      <div class="nps-header">
+        <div class="nps-header-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <div>
+          <div style="font-size:.6875rem;font-weight:700;color:#3B1772;letter-spacing:.5px;text-transform:uppercase">2 secondes</div>
+          <div style="font-size:.8125rem;color:#4A5068;font-weight:500">Votre avis compte</div>
+        </div>
+        <span class="nps-badge" style="margin-left:auto">Anonyme</span>
+      </div>
+      <div class="nps-q">Recommanderiez-vous Docline à un confrère ?</div>
+      <div class="nps-hint">0 = Pas du tout probable &nbsp;·&nbsp; 10 = Extrêmement probable</div>
+      <div class="nps-scale" id="nps-scale">
+        <!-- Buttons injected by JS -->
+      </div>
+      <div class="nps-scale-labels"><span>Pas du tout</span><span>Extrêmement probable</span></div>
+      <div class="nps-actions">
+        <button class="nps-skip" onclick="_npsClose()">Passer</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Comment -->
+    <div class="nps-step" id="nps-step-2">
+      <div class="nps-header">
+        <div class="nps-header-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div>
+          <div id="nps-score-echo" style="font-size:.6875rem;font-weight:700;color:#3B1772;letter-spacing:.5px;text-transform:uppercase">Score : —</div>
+          <div style="font-size:.8125rem;color:#4A5068;font-weight:500">Dites-nous pourquoi</div>
+        </div>
+      </div>
+      <div class="nps-q" id="nps-followup-q">Qu'est-ce qui vous a influencé ?</div>
+      <div class="nps-hint" style="margin-bottom:16px">Facultatif — 2 clics maximum</div>
+      <div class="nps-cats" id="nps-cats">
+        <button class="nps-cat" data-cat="ui" onclick="_npsSelectCat(this)">Interface</button>
+        <button class="nps-cat" data-cat="performance" onclick="_npsSelectCat(this)">Performance</button>
+        <button class="nps-cat" data-cat="feature" onclick="_npsSelectCat(this)">Fonctionnalités</button>
+        <button class="nps-cat" data-cat="bug" onclick="_npsSelectCat(this)">Problème technique</button>
+        <button class="nps-cat" data-cat="support" onclick="_npsSelectCat(this)">Support</button>
+        <button class="nps-cat" data-cat="autre" onclick="_npsSelectCat(this)">Autre</button>
+      </div>
+      <textarea class="nps-textarea" id="nps-comment" placeholder="Un mot (optionnel)…" maxlength="280" rows="3"></textarea>
+      <div class="nps-actions">
+        <button class="nps-submit" id="nps-submit-btn" onclick="_npsSubmit()">Envoyer mon avis</button>
+        <button class="nps-skip" onclick="_npsClose()">Passer</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Thank you -->
+    <div class="nps-step" id="nps-step-3">
+      <div class="nps-thanks">
+        <div class="nps-thanks-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="nps-thanks-title">Merci pour votre retour</div>
+        <div class="nps-thanks-sub">Votre avis nous aide à améliorer Docline<br>pour vous et vos confrères.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── NPS FEEDBACK SYSTEM ──────────────────────────────────────
+var _npsScore = null;
+var _npsCat   = null;
+
+function _npsInit(uid) {
+  // Build 0-10 buttons
+  var scale = document.getElementById('nps-scale');
+  if (!scale) return;
+  var html = '';
+  for (var i = 0; i <= 10; i++) {
+    html += '<button class="nps-btn" data-score="' + i + '" onclick="_npsSelectScore(' + i + ',this)">' + i + '</button>';
+  }
+  scale.innerHTML = html;
+
+  // Trigger logic — show after 3rd page load, then every 30 days
+  var lsKey  = 'dl_nps_asked_' + (uid || 'anon');
+  var cntKey = 'dl_nps_count_' + (uid || 'anon');
+  var count  = parseInt(localStorage.getItem(cntKey) || '0') + 1;
+  localStorage.setItem(cntKey, count);
+
+  var lastTs  = parseInt(localStorage.getItem(lsKey) || '0');
+  var daysSince = lastTs ? (Date.now() - lastTs) / 86400000 : 999;
+
+  if (count >= 3 && daysSince >= 30) {
+    setTimeout(_npsOpen, 4000);
+  }
+}
+
+function _npsOpen() {
+  var ov = document.getElementById('nps-overlay');
+  if (ov) ov.classList.add('open');
+}
+
+function _npsClose() {
+  var ov = document.getElementById('nps-overlay');
+  if (ov) ov.classList.remove('open');
+  var uid = typeof _uid !== 'undefined' ? _uid : 'anon';
+  localStorage.setItem('dl_nps_asked_' + uid, Date.now());
+}
+
+function _npsSelectScore(score, btn) {
+  _npsScore = score;
+  // Update button styles
+  document.querySelectorAll('.nps-btn').forEach(function(b) { b.classList.remove('selected','promoter','passive','detractor'); });
+  if (score >= 9)      btn.classList.add('promoter');
+  else if (score >= 7) btn.classList.add('passive');
+  else                 btn.classList.add('detractor');
+  btn.classList.add('selected');
+
+  // Update follow-up question based on segment
+  var q = score >= 9
+    ? 'Super ! Qu\'est-ce que vous appréciez le plus ?'
+    : score >= 7
+    ? 'Qu\'est-ce qui vous empêche de donner un 10 ?'
+    : 'Qu\'est-ce qui ne vous convient pas ?';
+  var el = document.getElementById('nps-followup-q');
+  if (el) el.textContent = q;
+
+  // Update score echo
+  var echo = document.getElementById('nps-score-echo');
+  if (echo) {
+    var label = score >= 9 ? 'Promoteur' : score >= 7 ? 'Passif' : 'Détracteur';
+    echo.textContent = 'Score : ' + score + '/10 — ' + label;
+    echo.style.color = score >= 9 ? '#059669' : score >= 7 ? '#D97706' : '#DC2626';
+  }
+
+  // Go to step 2 after short delay
+  setTimeout(function() {
+    document.getElementById('nps-step-1').classList.remove('active');
+    document.getElementById('nps-step-2').classList.add('active');
+  }, 320);
+}
+
+function _npsSelectCat(btn) {
+  document.querySelectorAll('.nps-cat').forEach(function(b) { b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  _npsCat = btn.dataset.cat;
+}
+
+async function _npsSubmit() {
+  var submitBtn = document.getElementById('nps-submit-btn');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Envoi…'; }
+
+  var comment = (document.getElementById('nps-comment')?.value || '').trim();
+  var uid = typeof _uid !== 'undefined' ? _uid : null;
+
+  try {
+    if (uid) {
+      await _supa.from('feedback').insert({
+        user_id:   uid,
+        nps_score: _npsScore,
+        category:  _npsCat,
+        comment:   comment || null,
+        rating:    _npsScore !== null ? Math.round((_npsScore / 10) * 4) + 1 : 3,
+        page:      'dashboard',
+      });
+    }
+  } catch(e) { /* silent fail */ }
+
+  // Show thanks
+  document.getElementById('nps-step-2').classList.remove('active');
+  document.getElementById('nps-step-3').classList.add('active');
+
+  // Record timestamp to not show again for 30 days
+  localStorage.setItem('dl_nps_asked_' + (uid||'anon'), Date.now());
+
+  // Auto-close after 2.5s
+  setTimeout(_npsClose, 2500);
+}
 </script>
 </body>
 </html>

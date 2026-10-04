@@ -1,0 +1,618 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<title>Analytics — Docline Symphony</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="config.js?v=3"></script>
+<style>
+:root{
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;
+  --sidebar-bg:#0f172a;--sidebar-hover:rgba(255,255,255,.06);--sidebar-active:rgba(59,23,114,.18);--sidebar-border:rgba(255,255,255,.07);
+  --bg:#F8FAFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
+  --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
+  --border:#E4E7F0;--border-strong:#C8CCE0;
+  --success:#12B76A;--success-bg:#ECFDF5;--success-border:rgba(18,183,106,.2);
+  --warning:#F79009;--warning-bg:#FFFAEB;--warning-border:rgba(247,144,9,.2);
+  --danger:#F04438;--danger-bg:#FEF3F2;--danger-border:rgba(240,68,56,.2);
+  --info:#2E90FA;--info-bg:#EFF8FF;--info-border:rgba(46,144,250,.2);
+  --sidebar-w:240px;--topbar-h:56px;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --shadow-xs:0 1px 2px rgba(13,15,20,.06);
+  --shadow-sm:0 1px 3px rgba(13,15,20,.08),0 1px 2px rgba(13,15,20,.05);
+  --shadow-md:0 4px 8px rgba(13,15,20,.08),0 2px 4px rgba(13,15,20,.04);
+  --shadow-lg:0 12px 24px rgba(13,15,20,.1),0 4px 8px rgba(13,15,20,.06);
+  --shadow-brand:0 4px 14px rgba(59,23,114,.28);
+  --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Sora',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+img,svg{display:block;max-width:100%}
+ul,ol{list-style:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;min-height:100vh}
+.sidebar{grid-row:1/-1;background:var(--sidebar-bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--sidebar-border);z-index:200}
+.topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:1rem;font-weight:700;color:var(--text-primary)}
+.topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.main{overflow-y:auto;min-height:calc(100vh - var(--topbar-h))}
+.page{padding:28px;max-width:1400px}
+
+/* SIDEBAR COMPONENTS */
+.sidebar-head{display:flex;align-items:center;padding:18px 16px 14px;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;gap:10px}
+.sidebar-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#7C3AED,#3B1772);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-logo-text{font-size:.9375rem;font-weight:800;color:#fff;letter-spacing:-.3px}
+.sidebar-logo-sub{font-size:.625rem;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+.sidebar-section{padding:18px 16px 6px;font-size:.625rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.22)}
+.sidebar-footer{margin-top:auto;border-top:1px solid var(--sidebar-border);padding:10px 8px;flex-shrink:0;position:relative}
+.sidebar-user-menu{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-md);cursor:pointer;transition:background var(--t-fast)}
+.sidebar-user-menu:hover{background:var(--sidebar-hover)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3B1772,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:.6875rem;font-weight:600;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.user-role{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 14px;margin:1px 8px;border-radius:var(--r-md);color:rgba(255,255,255,.5);font-size:.8125rem;font-weight:500;cursor:pointer;transition:all var(--t-fast);border:none;background:transparent;width:calc(100% - 16px);text-align:left;position:relative;text-decoration:none}
+.nav-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.8)}
+.nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:#F79009;border-radius:0 var(--r-full) var(--r-full) 0}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
+.nav-item:hover svg,.nav-item.active svg{opacity:1}
+/* ── SIDEBAR TOGGLE ─────────────────────────────────────────── */
+.sb-toggle-btn{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;color:rgba(255,255,255,.35);transition:all 120ms ease;flex-shrink:0}
+.sb-toggle-btn:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.75)}
+.sb-toggle-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar{transition:width 220ms cubic-bezier(.4,0,.2,1)}
+.sidebar.sb-collapsed{width:64px;overflow:hidden;flex-shrink:0}
+.sidebar.sb-collapsed .sidebar-section{font-size:0!important;height:6px;padding:3px 0!important;overflow:hidden}
+.sidebar.sb-collapsed .sidebar-logo-text,.sidebar.sb-collapsed .sidebar-logo-sub{display:none!important}
+.sidebar.sb-collapsed .user-name,.sidebar.sb-collapsed .user-role,.sidebar.sb-collapsed .user-chevron{display:none!important}
+.sidebar.sb-collapsed .user-avatar{margin:0 auto}
+.sidebar.sb-collapsed .nav-item,.sidebar.sb-collapsed .admin-nav-item{font-size:0!important;justify-content:center;padding:10px 0;margin:2px auto;width:44px;gap:0}
+.sidebar.sb-collapsed .nav-item svg,.sidebar.sb-collapsed .admin-nav-item svg{opacity:.7;width:18px;height:18px;flex-shrink:0}
+.sidebar.sb-collapsed .sidebar-head{justify-content:center!important;padding:10px 0!important}.sidebar.sb-collapsed .sidebar-head>*:not(.sb-toggle-btn){display:none!important}
+
+/* TOPBAR BUTTON */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Sora',sans-serif;font-size:.8125rem;font-weight:600;padding:9px 18px;transition:all var(--t-fast);white-space:nowrap;line-height:1;text-decoration:none}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid transparent}
+.btn-ghost:hover{background:var(--bg-subtle);color:var(--text-primary)}
+.btn-sm{padding:5px 10px;font-size:.75rem;border-radius:var(--r-sm)}
+.admin-chip{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);color:var(--brand);font-size:.6875rem;font-weight:700;padding:4px 10px;border-radius:var(--r-full);border:1px solid rgba(59,23,114,.15)}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:24px}
+.page-title{font-size:1.1875rem;font-weight:800;color:var(--text-primary);letter-spacing:-.3px}
+.page-sub{font-size:.8125rem;color:var(--text-muted);margin-top:3px}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+.kpi{background:var(--bg-raised);border:1px solid rgba(228,231,240,.9);border-radius:14px;padding:20px 20px 18px 22px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(13,15,20,.05);transition:box-shadow 200ms ease,transform 200ms ease}
+.kpi::before{display:none}
+.kpi::after{content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0}
+.kpi-brand::after{background:var(--brand)}
+.kpi-success::after{background:var(--success)}
+.kpi-warning::after{background:var(--warning)}
+.kpi-info::after{background:var(--info)}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(13,15,20,.09)}
+.kpi-label{font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text-faint);margin-bottom:10px}
+.kpi-value{font-size:1.75rem;font-weight:800;letter-spacing:-.5px;line-height:1;color:var(--text-primary);margin-bottom:6px}
+.kpi-sub{font-size:.6875rem;color:var(--text-faint)}
+.kpi-trend{display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:600;padding:2px 8px;border-radius:var(--r-full);margin-top:4px}
+.trend-up{background:var(--success-bg);color:var(--success)}
+.trend-down{background:var(--danger-bg);color:var(--danger)}
+.trend-flat{background:var(--bg-subtle);color:var(--text-muted)}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
+.chart-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;box-shadow:var(--shadow-sm)}
+.chart-title{font-size:.8125rem;font-weight:700;color:var(--text-primary);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.chart-sub{font-size:.75rem;color:var(--text-muted);font-weight:400}
+.chart-wrap{position:relative;height:220px}
+
+/* TABLES */
+.tables-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.table-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+.table-head{padding:16px 20px;border-bottom:1px solid var(--border);font-size:.8125rem;font-weight:700;color:var(--text-primary)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:.625rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:10px 16px;border-bottom:1px solid var(--border);text-align:left;background:var(--bg-subtle)}
+.tbl td{font-size:.8125rem;color:var(--text-primary);padding:10px 16px;border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg-hover)}
+
+/* FEEDBACK */
+.feedback-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px}
+.fb-col{text-align:center;padding:14px 8px;background:var(--bg-subtle);border-radius:var(--r-md);border:1px solid var(--border)}
+.fb-count{font-size:1.5rem;font-weight:800;color:var(--text-primary);margin-bottom:4px}
+.fb-label{font-size:.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:.625rem;font-weight:700;padding:2px 8px;border-radius:var(--r-full);letter-spacing:.3px}
+.b-ok{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.b-warn{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.b-err{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.b-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
+
+/* TOAST */
+.toasts{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 16px;display:flex;align-items:flex-start;gap:10px;box-shadow:var(--shadow-lg);min-width:260px;pointer-events:all;animation:toastIn .25s ease both}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* RESPONSIVE */
+@media(max-width:1280px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:960px){.charts-grid,.tables-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:1fr}.page{padding:16px}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="toasts" id="toasts"></div>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="admin-sidebar">
+    <!-- filled by JS -->
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-title">Analytics</div>
+    <div class="topbar-actions">
+      <div class="admin-chip" id="admin-chip-email">
+        <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Symphony
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="signOut()">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page">
+      <div class="page-header">
+        <div class="page-title">Analytics</div>
+        <div class="page-sub">Intelligence produit en temps réel — utilisateurs, feedback, engagement</div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi kpi-brand">
+          <div class="kpi-label">Médecins inscrits</div>
+          <div class="kpi-value" id="kpi-users">—</div>
+          <div class="kpi-trend trend-flat" id="kpi-users-trend">Chargement…</div>
+        </div>
+        <div class="kpi kpi-success">
+          <div class="kpi-label">Abonnés Pro</div>
+          <div class="kpi-value" id="kpi-pro">—</div>
+          <div class="kpi-trend trend-flat" id="kpi-pro-trend">Chargement…</div>
+        </div>
+        <div class="kpi kpi-brand">
+          <div class="kpi-label">MRR</div>
+          <div class="kpi-value" id="kpi-mrr">—</div>
+          <div class="kpi-trend trend-flat" id="kpi-mrr-trend">Chargement…</div>
+        </div>
+        <div class="kpi kpi-warning">
+          <div class="kpi-label">NPS Score</div>
+          <div class="kpi-value" id="kpi-rating">—</div>
+          <div class="kpi-trend trend-flat" id="kpi-rating-trend">Chargement…</div>
+        </div>
+        <div class="kpi kpi-info">
+          <div class="kpi-label">Requêtes IA</div>
+          <div class="kpi-value" id="kpi-ai">—</div>
+          <div class="kpi-sub">7 derniers jours</div>
+        </div>
+      </div>
+
+      <!-- CHARTS -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">
+            Inscriptions
+            <span class="chart-sub">30 derniers jours</span>
+          </div>
+          <div class="chart-wrap"><canvas id="signups-chart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Répartition des plans</div>
+          <div class="chart-wrap"><canvas id="plans-chart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- NPS SECTION -->
+      <div class="table-card" style="margin-bottom:24px">
+        <div class="table-head" style="display:flex;align-items:center;justify-content:space-between">
+          <span>Net Promoter Score (NPS)</span>
+          <span style="font-size:.6875rem;font-weight:500;color:var(--text-muted)">30 derniers jours · Formule : Promoteurs% − Détracteurs%</span>
+        </div>
+        <div style="padding:20px">
+
+          <!-- Score + segmentation -->
+          <div style="display:flex;align-items:center;gap:32px;margin-bottom:24px;flex-wrap:wrap">
+            <div style="text-align:center;min-width:96px">
+              <div style="font-size:3.25rem;font-weight:900;letter-spacing:-2px;line-height:1" id="nps-gauge-score">—</div>
+              <div style="font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-top:4px">NPS Score</div>
+              <div style="font-size:.75rem;margin-top:4px;font-weight:600" id="nps-gauge-label">—</div>
+            </div>
+            <div style="flex:1;min-width:220px">
+              <div style="height:10px;border-radius:99px;overflow:hidden;display:flex;margin-bottom:12px">
+                <div id="nps-bar-det"  style="background:#DC2626;height:100%;width:0%;transition:width .6s ease"></div>
+                <div id="nps-bar-pass" style="background:#D97706;height:100%;width:0%;transition:width .6s ease .1s"></div>
+                <div id="nps-bar-prom" style="background:#059669;height:100%;width:0%;transition:width .6s ease .2s"></div>
+              </div>
+              <div style="display:flex;gap:18px;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:5px;font-size:.6875rem"><span style="width:8px;height:8px;border-radius:50%;background:#059669;flex-shrink:0"></span><span style="color:var(--text-muted)">Promoteurs</span><strong id="nps-pct-prom">—</strong></div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:.6875rem"><span style="width:8px;height:8px;border-radius:50%;background:#D97706;flex-shrink:0"></span><span style="color:var(--text-muted)">Passifs</span><strong id="nps-pct-pass">—</strong></div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:.6875rem"><span style="width:8px;height:8px;border-radius:50%;background:#DC2626;flex-shrink:0"></span><span style="color:var(--text-muted)">Détracteurs</span><strong id="nps-pct-det">—</strong></div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:.6875rem"><span style="color:var(--text-muted)">Total</span><strong id="nps-total-count">—</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Distribution 0–10 -->
+          <div style="font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:8px">Distribution des scores</div>
+          <div style="display:flex;align-items:flex-end;gap:5px;height:64px" id="nps-dist-chart"></div>
+          <div style="display:flex;gap:5px;margin-top:4px" id="nps-dist-labels"></div>
+
+          <!-- Verbatim comments -->
+          <div id="nps-comments" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- TABLES -->
+      <div class="tables-grid">
+        <div class="table-card">
+          <div class="table-head">Dernières inscriptions</div>
+          <table class="tbl">
+            <thead><tr><th>Email</th><th>Plan</th><th>Inscrit</th></tr></thead>
+            <tbody id="signups-table">
+              <tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-card">
+          <div class="table-head">Journal d'audit — événements récents</div>
+          <table class="tbl">
+            <thead><tr><th>Événement</th><th>Heure</th><th>Statut</th></tr></thead>
+            <tbody id="audit-table">
+              <tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function ghpNav(p) { return p; }
+function sanitize(s){var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
+function ago(ts){var d=Math.floor((Date.now()-new Date(ts))/1000);if(d<60)return d+'s';if(d<3600)return Math.floor(d/60)+'min';if(d<86400)return Math.floor(d/3600)+'h';return Math.floor(d/86400)+'j';}
+
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
+  auth:{ storage: localStorage, autoRefreshToken: true, persistSession: true }
+});
+
+function signOut(){ _supa.auth.signOut().then(function(){ window.location.href='/login'; }); }
+
+/* ── Symphony Sidebar ─────────────────────────────────────────────── */
+function buildSidebar(user) {
+  var email    = (user && user.email) ? user.email : '';
+  var initials = email.slice(0, 2).toUpperCase() || 'AD';
+  var handle   = email.split('@')[0] || 'Admin';
+
+  var sections = [
+    { label: 'Vue générale', items: [
+      ['/symphony',           'symphony',          'Hub Symphony',           '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
+      ['/symphony-analytics', 'symphony-analytics','Analytics',              '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'],
+    ]},
+    { label: 'Clients & CRM', items: [
+      ['/symphony-kyc',       'symphony-kyc',      'KYC & Onboarding',       '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'],
+      ['/symphony-users',     'symphony-users',    'Médecins & Cliniques',   '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'],
+      ['/symphony-crm',       'symphony-crm',      'CRM Médecin',            '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'],
+      ['/symphony-featured',  'symphony-featured', 'Médecins En Vedette',    '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
+    ]},
+    { label: 'Revenus & Finance', items: [
+      ['/symphony-revenue',   'symphony-revenue',  'Revenus & Finance',      '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/>'],
+    ]},
+    { label: 'Marketing', items: [
+      ['/symphony-ads',       'symphony-ads',      'Régie Publicitaire',     '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'],
+      ['/symphony-emails',    'symphony-emails',   'Emails & Modèles',       '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
+    ]},
+    { label: 'Équipe', items: [
+      ['/symphony-agents',    'symphony-agents',   'Agents & Équipe',        '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+      ['/symphony-simulate',  'symphony-simulate', 'Simulation',             '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>'],
+    ]},
+    { label: 'Système', items: [
+      ['/symphony-incidents','symphony-incidents','Incidents ITIL','<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'],
+        ['/symphony-security','symphony-security', 'Sécurité & Logs',        '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
+      ['/symphony-settings',  'symphony-settings', 'Paramètres',             '<circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>'],
+    ]},
+  ];
+
+  var html = '<div class="sidebar-head" style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:10px"><img src="docline-logo-white.svg" alt="Docline" style="height:22px;width:auto;display:block;max-width:120px"><span style="background:rgba(247,144,9,.18);color:#F59E0B;border:1px solid rgba(247,144,9,.28);font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;letter-spacing:.4px;white-space:nowrap">ADMIN</span></div><button class="sb-toggle-btn" onclick="_sbToggle()" title="Réduire"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button></div>';
+
+  sections.forEach(function(sec) {
+    html += '<div class="sidebar-section">' + sec.label + '</div>';
+    sec.items.forEach(function(item) {
+      var active = window.location.pathname === item[0] || window.location.pathname.startsWith(item[0] + '/');
+      html += '<a href="' + item[0] + '" class="nav-item' + (active ? ' active' : '') + '"><svg viewBox="0 0 24 24">' + item[3] + '</svg>' + item[2] + '</a>';
+    });
+  });
+
+  html += '<div class="sidebar-footer"><div class="sidebar-user-menu" onclick="toggleUserDropdown()">'
+    + '<div class="user-avatar">' + sanitize(initials) + '</div>'
+    + '<div style="flex:1;min-width:0"><div class="user-name">' + sanitize(handle) + '</div><div class="user-role">Symphony</div></div>'
+    + '<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:2;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>'
+    + '</div>'
+    + '<div id="user-dropdown" style="display:none;background:#1e293b;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px;margin-top:4px">'
+    + '<a href="/dashboard" class="nav-item" style="color:rgba(255,255,255,.6)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>App médecin</a>'
+    + '<div style="height:1px;background:rgba(255,255,255,.07);margin:4px 8px"></div>'
+    + '<button onclick="signOut()" class="nav-item" style="color:rgba(240,68,56,.8);width:100%;text-align:left;border:none;cursor:pointer;background:transparent;font-family:inherit"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Déconnexion</button>'
+    + '</div></div>';
+
+  return html;
+}
+
+var _dropdownOpen = false;
+function toggleUserDropdown() {
+  _dropdownOpen = !_dropdownOpen;
+  var d = document.getElementById('user-dropdown');
+  if (d) d.style.display = _dropdownOpen ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  var m = document.querySelector('.sidebar-user-menu');
+  var d = document.getElementById('user-dropdown');
+  if (m && d && !m.contains(e.target)) { d.style.display = 'none'; _dropdownOpen = false; }
+});
+
+/* ── Init ─────────────────────────────────────────────────────────── */
+(async function() {
+  try {
+    var res = await _supa.auth.getSession();
+    var session = res.data.session;
+    if (!session) { window.location.href = '/login'; return; }
+
+    /* Build sidebar */
+    var sb = document.getElementById('admin-sidebar');
+    if (sb) sb.innerHTML = buildSidebar(session.user);
+    _sbRestoreState();
+    var chip = document.getElementById('admin-chip-email');
+    if (chip) chip.innerHTML = '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' + sanitize((session.user.email||'').split('@')[0]);
+
+    /* Load data */
+    var [profRes, subRes, fbRes, auditRes] = await Promise.all([
+      _supa.from('profiles').select('id,email,created_at').eq('role','doctor'),
+      _supa.from('subscriptions').select('plan,status,interval,payment_status'),
+      _supa.from('feedback').select('rating,nps_score,category,comment,created_at').order('created_at',{ascending:false}).limit(200),
+      _supa.from('audit_log').select('event,created_at,metadata').order('created_at',{ascending:false}).limit(20)
+    ]);
+
+    var profiles = profRes.data || [];
+    var subs     = subRes.data || [];
+    var feedback = fbRes.data || [];
+    var audit    = auditRes.data || [];
+
+    /* ── KPIs ─────────────────────────────────────────────── */
+    var totalUsers = profiles.length;
+    var activeSubs = subs.filter(function(s){ return s.payment_status === 'paid' || s.status === 'active'; });
+    var proUsers   = activeSubs.filter(function(s){ return s.plan === 'pro' || s.plan === 'clinic'; }).length;
+    var MRR_DA     = activeSubs.reduce(function(acc, s) {
+      var amounts = { pro:{month:5900,year:59000}, clinic:{month:13900,year:139000} };
+      var amt = (amounts[s.plan]||{})[s.interval||'month'] || 0;
+      return acc + (s.interval === 'year' ? Math.round(amt/12) : amt);
+    }, 0);
+    var npsRows   = feedback.filter(function(f){ return f.nps_score !== null && f.nps_score !== undefined; });
+    var nTotal    = npsRows.length;
+    var npsVal    = null;
+    var npsColor  = 'var(--text-primary)';
+    if (nTotal > 0) {
+      var nProm = npsRows.filter(function(f){ return f.nps_score >= 9; }).length;
+      var nPass = npsRows.filter(function(f){ return f.nps_score >= 7 && f.nps_score <= 8; }).length;
+      var nDet  = npsRows.filter(function(f){ return f.nps_score <= 6; }).length;
+      npsVal    = Math.round(((nProm / nTotal) - (nDet / nTotal)) * 100);
+      npsColor  = npsVal > 50 ? '#059669' : npsVal > 0 ? '#D97706' : '#DC2626';
+    }
+    var avgRating  = 0; // legacy
+    var aiRequests = audit.filter(function(a){ return (a.event||'').includes('ai'); }).length;
+    var convRate   = totalUsers ? Math.round((proUsers / totalUsers) * 100) : 0;
+
+    document.getElementById('kpi-users').textContent = totalUsers;
+    document.getElementById('kpi-users-trend').textContent = (totalUsers - proUsers) + ' gratuit · ' + proUsers + ' pro';
+    document.getElementById('kpi-users-trend').className   = 'kpi-trend ' + (totalUsers > 0 ? 'trend-up' : 'trend-flat');
+
+    document.getElementById('kpi-pro').textContent   = proUsers;
+    document.getElementById('kpi-pro-trend').textContent   = convRate + '% conversion';
+    document.getElementById('kpi-pro-trend').className     = 'kpi-trend ' + (convRate > 5 ? 'trend-up' : 'trend-flat');
+
+    document.getElementById('kpi-mrr').textContent         = MRR_DA.toLocaleString('fr-DZ') + ' DA';
+    document.getElementById('kpi-mrr-trend').textContent   = proUsers + ' × abonnement';
+    document.getElementById('kpi-mrr-trend').className     = 'kpi-trend ' + (MRR_DA > 0 ? 'trend-up' : 'trend-flat');
+
+    var npsKpiEl = document.getElementById('kpi-rating');
+    if (npsKpiEl) { npsKpiEl.textContent = npsVal !== null ? (npsVal > 0 ? '+' : '') + npsVal : '—'; npsKpiEl.style.color = npsColor; }
+    document.getElementById('kpi-rating-trend').textContent = nTotal ? nTotal + ' réponses NPS' : 'Aucune donnée';
+    document.getElementById('kpi-rating-trend').className  = 'kpi-trend ' + (npsVal > 30 ? 'trend-up' : npsVal > 0 ? 'trend-flat' : 'trend-down');
+
+    document.getElementById('kpi-ai').textContent = aiRequests;
+
+    /* ── Signups chart ──────────────────────────────────── */
+    var last30 = []; var signupLabels = [];
+    for (var i = 29; i >= 0; i--) {
+      var d = new Date(); d.setDate(d.getDate() - i);
+      last30.push(d.toISOString().slice(0,10));
+      signupLabels.push(i === 0 ? "Auj." : d.toLocaleDateString('fr-DZ',{day:'numeric',month:'short'}));
+    }
+    var signupMap = {};
+    profiles.forEach(function(p){ if(p.created_at){ var k=p.created_at.slice(0,10); signupMap[k]=(signupMap[k]||0)+1; }});
+    var signupData = last30.map(function(d){ return signupMap[d]||0; });
+
+    new Chart(document.getElementById('signups-chart'), {
+      type:'line',
+      data:{ labels:signupLabels, datasets:[{ label:'Inscriptions', data:signupData, borderColor:'#3B1772', backgroundColor:'rgba(59,23,114,.08)', borderWidth:2, tension:.4, pointRadius:2, pointHoverRadius:5, fill:true }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ x:{grid:{display:false},ticks:{maxTicksLimit:8,font:{size:10},color:'#8B92A9'}}, y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10},color:'#8B92A9'}} }}
+    });
+
+    /* ── Plans chart ────────────────────────────────────── */
+    var freeCount = Math.max(0, totalUsers - proUsers);
+    new Chart(document.getElementById('plans-chart'), {
+      type:'doughnut',
+      data:{ labels:['Gratuit','Pro/Clinique'], datasets:[{ data:[freeCount, proUsers], backgroundColor:['#E4E7F0','#3B1772'], borderWidth:2, borderColor:'#fff', hoverOffset:4 }]},
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{ font:{size:11}, padding:14, color:'#4A5068' }}}}
+    });
+
+    /* ── NPS Visualization ──────────────────────────────── */
+    if (nTotal > 0) {
+      var pctProm = Math.round((nProm/nTotal)*100);
+      var pctPass = Math.round((nPass/nTotal)*100);
+      var pctDet  = Math.round((nDet/nTotal)*100);
+      var npsLbl  = npsVal > 70 ? 'Classe mondiale' : npsVal > 50 ? 'Excellent' : npsVal > 30 ? 'Bon' : npsVal > 0 ? 'Correct' : 'A améliorer';
+
+      var gaugeEl = document.getElementById('nps-gauge-score');
+      if (gaugeEl) { gaugeEl.textContent = (npsVal > 0 ? '+' : '') + npsVal; gaugeEl.style.color = npsColor; }
+      var lblEl = document.getElementById('nps-gauge-label');
+      if (lblEl) { lblEl.textContent = npsLbl; lblEl.style.color = npsColor; }
+
+      var elPctProm = document.getElementById('nps-pct-prom'); if(elPctProm) elPctProm.textContent = pctProm + '%';
+      var elPctPass = document.getElementById('nps-pct-pass'); if(elPctPass) elPctPass.textContent = pctPass + '%';
+      var elPctDet  = document.getElementById('nps-pct-det');  if(elPctDet)  elPctDet.textContent  = pctDet  + '%';
+      var elCnt = document.getElementById('nps-total-count'); if(elCnt) elCnt.textContent = nTotal + ' rép.';
+
+      var barDet  = document.getElementById('nps-bar-det');
+      var barPass = document.getElementById('nps-bar-pass');
+      var barProm = document.getElementById('nps-bar-prom');
+      setTimeout(function() {
+        if(barDet)  barDet.style.width  = pctDet  + '%';
+        if(barPass) barPass.style.width = pctPass + '%';
+        if(barProm) barProm.style.width = pctProm + '%';
+      }, 100);
+
+      // Distribution histogram 0-10
+      var dist = {};
+      npsRows.forEach(function(f){ dist[f.nps_score] = (dist[f.nps_score]||0)+1; });
+      var maxDist = Math.max.apply(null, Object.keys(dist).map(function(k){ return dist[k]; }).concat([1]));
+      var chartEl = document.getElementById('nps-dist-chart');
+      var labelsEl = document.getElementById('nps-dist-labels');
+      if (chartEl) {
+        var barHTML = ''; var lblHTML = '';
+        for (var sc = 0; sc <= 10; sc++) {
+          var cnt = dist[sc] || 0;
+          var heightPct = Math.round((cnt / maxDist) * 100);
+          var clr = sc >= 9 ? '#059669' : sc >= 7 ? '#D97706' : '#DC2626';
+          barHTML += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">'
+            + '<div style="font-size:.5rem;color:var(--text-muted);line-height:1;min-height:10px">' + (cnt ? cnt : '') + '</div>'
+            + '<div style="width:100%;background:' + clr + ';border-radius:3px 3px 0 0;height:' + Math.max(2, heightPct * 0.5) + 'px;opacity:' + (cnt ? 1 : 0.12) + ';transition:height .5s ease"></div>'
+            + '</div>';
+          lblHTML += '<div style="flex:1;text-align:center;font-size:.5rem;color:var(--text-muted)">' + sc + '</div>';
+        }
+        chartEl.innerHTML = barHTML;
+        if (labelsEl) labelsEl.innerHTML = lblHTML;
+      }
+
+      // Verbatim comments
+      var withComments = npsRows.filter(function(f){ return f.comment; }).slice(0, 6);
+      var commEl = document.getElementById('nps-comments');
+      if (commEl) {
+        if (withComments.length) {
+          var ch = '<div style="font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:12px">Verbatim récents</div>';
+          ch += withComments.map(function(f) {
+            var sc2 = f.nps_score;
+            var segColor = sc2 >= 9 ? '#059669' : sc2 >= 7 ? '#D97706' : '#DC2626';
+            var segLabel = sc2 >= 9 ? 'Promoteur' : sc2 >= 7 ? 'Passif' : 'Détracteur';
+            return '<div style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px">'
+              + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">'
+              + '<span style="font-size:.5rem;font-weight:700;background:' + segColor + ';color:#fff;padding:2px 7px;border-radius:99px">' + segLabel + '</span>'
+              + '<span style="font-size:.75rem;font-weight:800;color:' + segColor + '">' + sc2 + '/10</span>'
+              + (f.category ? '<span style="font-size:.5rem;color:var(--text-muted);background:var(--bg-subtle);padding:2px 7px;border-radius:99px;border:1px solid var(--border)">' + f.category + '</span>' : '')
+              + '<span style="font-size:.625rem;color:var(--text-faint);margin-left:auto">' + ago(f.created_at) + '</span>'
+              + '</div>'
+              + '<div style="font-size:.8125rem;color:var(--text-secondary)">' + sanitize(f.comment) + '</div>'
+              + '</div>';
+          }).join('');
+          commEl.innerHTML = ch;
+        } else {
+          commEl.innerHTML = '<div style="font-size:.8125rem;color:var(--text-muted);text-align:center;padding:8px 0">Aucun commentaire pour cette période</div>';
+        }
+      }
+    } else {
+      var gaugeEmpty = document.getElementById('nps-gauge-score');
+      if (gaugeEmpty) gaugeEmpty.textContent = '—';
+      var lblEmpty = document.getElementById('nps-gauge-label');
+      if (lblEmpty) { lblEmpty.textContent = 'Aucune donnée NPS'; lblEmpty.style.color = 'var(--text-muted)'; }
+      var commEmpty = document.getElementById('nps-comments');
+      if (commEmpty) commEmpty.innerHTML = '<div style="font-size:.8125rem;color:var(--text-muted);text-align:center;padding:16px 0">Aucune réponse NPS collectée — utilisez le simulateur pour générer des données de test.</div>';
+    }
+
+    /* ── Signups table ──────────────────────────────────── */
+    var recent = profiles.slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); }).slice(0,10);
+    var subMap = {};
+    subs.forEach(function(s){ if(s.user_id) subMap[s.user_id]=s.plan; });
+    document.getElementById('signups-table').innerHTML = recent.length
+      ? recent.map(function(p){
+          var plan = subMap[p.id]||'free';
+          var badge = plan==='pro'||plan==='clinic' ? 'b-ok' : 'b-neutral';
+          var label = plan==='pro' ? 'Pro' : plan==='clinic' ? 'Clinique' : 'Gratuit';
+          return '<tr><td style="color:var(--text-secondary)">' + sanitize((p.email||'').replace(/@.*/,'@…')) + '</td>'
+            + '<td><span class="badge ' + badge + '">' + label + '</span></td>'
+            + '<td style="color:var(--text-muted)">' + ago(p.created_at) + '</td></tr>';
+        }).join('')
+      : '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-muted)">Aucune inscription</td></tr>';
+
+    /* ── Audit table ────────────────────────────────────── */
+    document.getElementById('audit-table').innerHTML = audit.length
+      ? audit.map(function(a){
+          var evt = sanitize(a.event||'');
+          var isErr = evt.includes('error');
+          var isAI  = evt.includes('ai');
+          var badge = isErr ? 'b-err' : isAI ? 'b-ok' : 'b-neutral';
+          var label = isErr ? 'Erreur' : isAI ? 'IA' : 'OK';
+          return '<tr><td style="font-family:monospace;font-size:.75rem">' + evt + '</td>'
+            + '<td style="color:var(--text-muted)">' + ago(a.created_at) + '</td>'
+            + '<td><span class="badge ' + badge + '">' + label + '</span></td></tr>';
+        }).join('')
+      : '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-muted)">Aucun événement</td></tr>';
+
+  } catch(err) {
+    console.error('[Analytics]', err);
+  }
+})();
+
+/* ── Sidebar collapse toggle ─────────────────────────────────── */
+function _sbToggle() {
+  var sb = document.getElementById('admin-sidebar');
+  var app = document.querySelector('.app');
+  if (!sb) return;
+  var collapsed = sb.classList.toggle('sb-collapsed');
+  if (app) {
+    app.style.gridTemplateColumns = collapsed ? '64px 1fr' : '';
+  }
+  try { localStorage.setItem('symphony_sb_collapsed', collapsed ? '1' : '0'); } catch(e) {}
+}
+function _sbRestoreState() {
+  try {
+    var pref = localStorage.getItem('symphony_sb_collapsed');
+    if (pref === '1') {
+      var sb = document.getElementById('admin-sidebar');
+      var app = document.querySelector('.app');
+      if (sb) sb.classList.add('sb-collapsed');
+      if (app) app.style.gridTemplateColumns = '64px 1fr';
+    }
+  } catch(e) {}
+}
+</script>
+</body>
+</html>

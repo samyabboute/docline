@@ -179,6 +179,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-heig
 .clinic-field{max-height:0;opacity:0;overflow:hidden;transition:max-height .35s var(--ease),opacity .25s var(--ease),margin-bottom .35s var(--ease);margin-bottom:0}
 .clinic-field.show{max-height:120px;opacity:1;margin-bottom:14px}
 
+/* ── Plan selector ── */
+.plan-selector{display:none;margin-bottom:14px}
+.plan-selector.show{display:block}
+.plan-selector-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block}
+.plan-trial-note{font-size:11px;color:var(--success);font-weight:500;margin-top:6px;text-align:center;display:none}
+.plan-trial-note.show{display:block}
+.plan-grid{display:grid;grid-template-columns:1fr;gap:6px}
+.plan-opt{position:relative;padding:10px 12px;border-radius:10px;cursor:pointer;border:1.5px solid var(--border);background:#fff;transition:all .2s var(--ease);display:flex;align-items:center;justify-content:space-between}
+.plan-opt input{position:absolute;opacity:0;pointer-events:none}
+.plan-opt-left{display:flex;flex-direction:column;gap:1px}
+.plan-opt-name{font-size:12px;font-weight:700;color:var(--text2);letter-spacing:-.1px}
+.plan-opt-interval{font-size:10px;color:var(--text4);font-weight:500}
+.plan-opt-price{font-size:13px;font-weight:800;color:var(--brand)}
+.plan-opt:hover{border-color:var(--brand);background:var(--brand-light)}
+.plan-opt.checked{border-color:var(--brand);background:var(--brand-light);box-shadow:0 1px 6px rgba(59,23,114,.12)}
+.plan-opt.checked .plan-opt-name,.plan-opt.checked .plan-opt-price{color:var(--brand)}
+
 /* Submit */
 .btn-sub{width:100%;height:46px;background:var(--brand);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;box-shadow:0 2px 12px rgba(59,23,114,.25)}
 .btn-sub:hover:not(:disabled){background:var(--brand2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(59,23,114,.35)}
@@ -427,7 +444,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-heig
             </label>
           </div>
 
-          <!-- Nom de la clinique (conditionnel) -->
+
+          <!-- Plan selector -->
+          <div class="plan-selector" id="plan-selector">
+            <span class="plan-selector-label">Choisissez votre offre</span>
+            <div class="plan-grid" id="plan-grid"></div>
+            <div class="plan-trial-note" id="plan-trial-note">7 jours d'essai gratuit, paiement non obligatoire à l'inscription</div>
+          </div>
+
+                    <!-- Nom de la clinique (conditionnel) -->
           <div class="clinic-field" id="clinic-field">
             <div class="fg" style="margin-bottom:0">
               <label class="fl" for="re-clinic">Nom de la clinique</label>
@@ -617,6 +642,41 @@ async function signIn(){
 }
 
 // ── ACCOUNT TYPE TOGGLE ───────────────────────────────────────
+// Plan definitions
+var PLANS_DOCTOR = [
+  { value:'free',       label:'Gratuit',         interval:'',      price:'Gratuit',         priceNum:0 },
+  { value:'pro',        label:'Pro Mensuel',      interval:'month', price:'5 900 DA/mois',   priceNum:5900 },
+  { value:'pro_year',   label:'Pro Annuel',       interval:'year',  price:'59 000 DA/an',    priceNum:59000 },
+];
+var PLANS_CLINIC = [
+  { value:'free',        label:'Gratuit',          interval:'',      price:'Gratuit',         priceNum:0 },
+  { value:'clinic',      label:'Clinique Mensuel', interval:'month', price:'13 900 DA/mois',  priceNum:13900 },
+  { value:'clinic_year', label:'Clinique Annuel',  interval:'year',  price:'139 000 DA/an',   priceNum:139000 },
+];
+
+function renderPlanOptions(isClinic){
+  var plans = isClinic ? PLANS_CLINIC : PLANS_DOCTOR;
+  var grid = document.getElementById('plan-grid');
+  grid.innerHTML = '';
+  plans.forEach(function(p, i){
+    var opt = document.createElement('label');
+    opt.className = 'plan-opt' + (i===0 ? ' checked' : '');
+    opt.innerHTML = '<input type="radio" name="plan-choice" value="'+p.value+'" '+(i===0?'checked':'')+' onchange="onPlanChange(this.parentElement)">'
+      + '<div class="plan-opt-left"><span class="plan-opt-name">'+p.label+'</span>'
+      + (p.interval ? '<span class="plan-opt-interval">'+(p.interval==='month'?'Mensuel':'Annuel')+'</span>' : '')
+      + '</div>'
+      + '<span class="plan-opt-price">'+p.price+'</span>';
+    grid.appendChild(opt);
+  });
+}
+
+function onPlanChange(el){
+  document.querySelectorAll('.plan-opt').forEach(function(o){ o.classList.remove('checked'); });
+  el.classList.add('checked');
+  var val = el.querySelector('input').value;
+  document.getElementById('plan-trial-note').classList.toggle('show', val !== 'free');
+}
+
 function onAcctChange(){
   var isClinic = document.querySelector('input[name="acct-type"]:checked').value === 'clinic';
   document.getElementById('opt-doctor').classList.toggle('checked', !isClinic);
@@ -624,6 +684,8 @@ function onAcctChange(){
   document.getElementById('clinic-field').classList.toggle('show', isClinic);
   document.getElementById('re-name-lbl').textContent = isClinic ? 'Médecin responsable' : 'Nom complet du médecin';
   document.getElementById('re-name').placeholder = isClinic ? 'Dr. Responsable de la clinique' : 'Dr. Ahmed Benali';
+  document.getElementById('plan-selector').classList.add('show');
+  renderPlanOptions(isClinic);
 }
 
 // ── REGISTER ──────────────────────────────────────────────────
@@ -652,15 +714,43 @@ async function register(){
       options:{ data: meta, emailRedirectTo: DOCLINE_CONFIG.APP_URL + '/login' }
     });
     if(r.error) throw r.error;
-    // Best-effort upsert profil (RLS permettant) — backfill DB avec les infos saisies
+    // Read selected plan
+    var selPlanEl = document.querySelector('input[name="plan-choice"]:checked');
+    var selPlanVal = selPlanEl ? selPlanEl.value : 'free';
+    var planMap = {
+      'free':        { plan:'free',   interval:null },
+      'pro':         { plan:'pro',    interval:'month' },
+      'pro_year':    { plan:'pro',    interval:'year' },
+      'clinic':      { plan:'clinic', interval:'month' },
+      'clinic_year': { plan:'clinic', interval:'year' },
+    };
+    var planInfo = planMap[selPlanVal] || { plan:'free', interval:null };
+
+    // Best-effort upsert profil + subscription
     try{
       if(r.data && r.data.user){
         await _supa.from('profiles').upsert({
           id: r.data.user.id,
           full_name: name,
           is_clinic: isClinic,
-          clinic_name: isClinic ? clinicName : null
+          clinic_name: isClinic ? clinicName : null,
+          plan: planInfo.plan,
+          plan_interval: planInfo.interval,
         }, { onConflict: 'id' });
+
+        if(planInfo.plan !== 'free'){
+          var trialEnd = new Date();
+          trialEnd.setDate(trialEnd.getDate() + 7);
+          await _supa.from('subscriptions').upsert({
+            user_id: r.data.user.id,
+            plan: planInfo.plan,
+            interval: planInfo.interval,
+            status: 'active',
+            payment_status: 'pending',
+            trial_end_date: trialEnd.toISOString(),
+            created_at: new Date().toISOString(),
+          }, { onConflict: 'user_id' });
+        }
       }
     }catch(_){}
     showMsg('ok','Compte créé ! Vérifiez votre email pour confirmer votre inscription.');

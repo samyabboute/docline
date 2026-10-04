@@ -1,0 +1,703 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Équipe Symphony — Docline Symphony</title>
+<script src="config.js?v=3"></script>
+<script src="shell.js?v=10"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#3B1772">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0D0F14;min-height:100vh;color:#F1F5F9}
+
+/* ── Variables ── */
+:root{
+  --brand:#7C3AED;--brand-dim:rgba(124,58,237,.15);--brand-border:rgba(124,58,237,.3);
+  --surface:#161B27;--surface2:#1E2535;--surface3:#252D3E;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --text1:#F1F5F9;--text2:#94A3B8;--text3:#64748B;
+  --green:#10B981;--green-dim:rgba(16,185,129,.15);
+  --amber:#F59E0B;--amber-dim:rgba(245,158,11,.15);
+  --red:#F87171;--red-dim:rgba(248,113,113,.15);
+  --blue:#60A5FA;--blue-dim:rgba(96,165,250,.15);
+  --purple:#A78BFA;--purple-dim:rgba(167,139,250,.15);
+  --pink:#F472B6;--pink-dim:rgba(244,114,182,.15);
+}
+
+/* ── Layout ── */
+.page-wrap{max-width:1320px;margin:0 auto;padding:28px 24px}
+
+/* ── Page header ── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;gap:16px;flex-wrap:wrap}
+.page-header-left{}
+.page-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.page-eyebrow::before{content:'';width:16px;height:2px;background:var(--brand);border-radius:2px}
+.page-title{font-size:26px;font-weight:800;color:var(--text1);letter-spacing:-.6px;line-height:1.2}
+.page-sub{font-size:13px;color:var(--text2);margin-top:5px}
+
+/* ── Stats row ── */
+.stats-row{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+.stat-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:16px 20px;flex:1;min-width:150px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.s-total::before{background:linear-gradient(90deg,var(--brand),var(--purple))}
+.stat-card.s-active::before{background:var(--green)}
+.stat-card.s-dept::before{background:var(--blue)}
+.stat-card.s-new::before{background:var(--amber)}
+.stat-val{font-size:28px;font-weight:800;color:var(--text1);line-height:1;margin-bottom:4px;letter-spacing:-.5px}
+.stat-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+
+/* ── Toolbar ── */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.toolbar-search{flex:1;min-width:240px;position:relative}
+.search-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text3);pointer-events:none}
+.search-ico svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:9px 12px 9px 36px;font-size:13px;color:var(--text1);font-family:inherit;outline:none;transition:border-color .15s}
+.search-input::placeholder{color:var(--text3)}
+.search-input:focus{border-color:var(--brand)}
+.filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:9px 12px;font-size:13px;color:var(--text2);font-family:inherit;outline:none;cursor:pointer;transition:border-color .15s}
+.filter-select:focus{border-color:var(--brand)}
+.filter-select option{background:#1E2535}
+.btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 0 24px rgba(124,58,237,.3)}
+.btn-primary:hover{background:#6D28D9;box-shadow:0 0 32px rgba(124,58,237,.4)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text1)}
+.btn-danger{background:var(--red-dim);border:1px solid rgba(248,113,113,.3);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-sm{padding:5px 12px;font-size:12px}
+
+/* ── Agents table card ── */
+.agents-card{background:var(--surface);border:1px solid var(--border2);border-radius:18px;overflow:hidden}
+.agents-card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.agents-card-title{font-size:14px;font-weight:700;color:var(--text1);display:flex;align-items:center;gap:8px}
+.agents-count{background:var(--brand-dim);border:1px solid var(--brand-border);color:var(--purple);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--surface2)}
+th{padding:11px 18px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:0;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.td-inner{padding:14px 18px;display:flex;align-items:center;gap:0}
+
+/* ── Agent row cells ── */
+.agent-identity{display:flex;align-items:center;gap:12px;min-width:220px}
+.agent-avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
+.agent-avatar-status{position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;border-radius:50%;border:2px solid var(--surface)}
+.agent-avatar-status.online{background:var(--green)}
+.agent-avatar-status.offline{background:var(--text3)}
+.agent-name{font-size:13px;font-weight:700;color:var(--text1)}
+.agent-email{font-size:11px;color:var(--text3);margin-top:1px}
+
+.emp-id{font-family:'SF Mono',Monaco,monospace;font-size:13px;font-weight:700;color:var(--purple);background:var(--purple-dim);padding:4px 10px;border-radius:7px;letter-spacing:.05em}
+
+/* ── Department badge ── */
+.dept-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.dept-support{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(96,165,250,.2)}
+.dept-billing{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.dept-kyc{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.dept-commercial{background:var(--purple-dim);color:var(--purple);border:1px solid var(--brand-border)}
+.dept-marketing{background:var(--pink-dim);color:var(--pink);border:1px solid rgba(244,114,182,.2)}
+.dept-admin{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+
+/* ── Role badge ── */
+.role-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.role-agent{background:var(--surface3);color:var(--text2)}
+.role-lead{background:rgba(245,158,11,.12);color:var(--amber)}
+.role-manager{background:rgba(124,58,237,.2);color:var(--purple)}
+.role-superadmin{background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(244,114,182,.2));color:#E879F9}
+
+/* ── Status pill ── */
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.status-active{background:var(--green-dim);color:var(--green)}
+.status-inactive{background:var(--surface3);color:var(--text3)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* ── Row actions ── */
+.row-actions{display:flex;gap:6px;opacity:0;transition:opacity .15s}
+tr:hover .row-actions{opacity:1}
+.action-icon{width:28px;height:28px;border-radius:7px;border:1px solid var(--border2);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;color:var(--text2)}
+.action-icon svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.action-icon:hover{background:var(--surface2);color:var(--text1);border-color:var(--border2)}
+.action-icon.ai-danger:hover{background:var(--red-dim);color:var(--red);border-color:rgba(248,113,113,.3)}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:72px 24px;color:var(--text3)}
+.empty-icon{width:56px;height:56px;background:var(--surface2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.empty-icon svg{width:24px;height:24px;stroke:var(--text3);fill:none;stroke-width:1.5;stroke-linecap:round}
+.empty-title{font-size:15px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.empty-sub{font-size:13px;margin-bottom:20px}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(8px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:22px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:translateY(16px) scale(.97);transition:transform .25s;box-shadow:0 32px 80px rgba(0,0,0,.5)}
+.modal-overlay.open .modal{transform:none}
+.modal-header{padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title-wrap{}
+.modal-eyebrow{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);margin-bottom:4px}
+.modal-title{font-size:18px;font-weight:800;color:var(--text1);letter-spacing:-.4px}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s;flex-shrink:0}
+.modal-close:hover{background:var(--surface3);color:var(--text1)}
+.modal-close svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
+.modal-body{padding:24px 28px 28px}
+.modal-divider{height:1px;background:var(--border);margin:20px 0}
+.modal-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.modal-section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── Form elements ── */
+.form-group{margin-bottom:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;display:block;letter-spacing:.02em}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text1);font-family:inherit;outline:none;transition:border-color .15s}
+.form-input::placeholder{color:var(--text3)}
+.form-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-dim)}
+.form-input[readonly]{opacity:.6;cursor:not-allowed}
+select.form-input{cursor:pointer}
+select.form-input option{background:#1E2535}
+
+/* ── Employee ID preview ── */
+.emp-preview{background:var(--surface3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.emp-preview-id{font-family:'SF Mono',Monaco,monospace;font-size:22px;font-weight:800;color:var(--purple);letter-spacing:.08em}
+.emp-preview-lbl{font-size:11px;color:var(--text3);font-weight:600}
+
+/* ── Department selector grid ── */
+.dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dept-option{border:1.5px solid var(--border2);border-radius:10px;padding:10px;cursor:pointer;transition:all .15s;text-align:center;background:transparent}
+.dept-option:hover{background:var(--surface2)}
+.dept-option.selected{border-color:var(--brand);background:var(--brand-dim)}
+.dept-option-icon{font-size:18px;margin-bottom:4px}
+.dept-option-name{font-size:11px;font-weight:700;color:var(--text2)}
+.dept-option.selected .dept-option-name{color:var(--purple)}
+
+/* ── Avatar preview in modal ── */
+.avatar-preview{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;transition:background .2s}
+
+/* ── Modal footer ── */
+.modal-footer{padding:0 28px 24px;display:flex;gap:10px;justify-content:flex-end}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1E2535;border:1px solid var(--border2);color:var(--text1);padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:all .28s cubic-bezier(.34,1.56,.64,1);z-index:9999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast-ok{border-left:3px solid var(--green)}
+.toast-err{border-left:3px solid var(--red)}
+
+/* ── Confirm delete modal ── */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1100;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.confirm-box{background:var(--surface);border:1px solid rgba(248,113,113,.3);border-radius:18px;padding:28px;width:400px;max-width:95vw;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.agents-card{animation:cardIn .35s ease both}
+</style>
+<script src="loader.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="shell-page">
+      <div class="page-wrap">
+
+        <!-- Header -->
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-eyebrow">Symphony · Équipe</div>
+            <div class="page-title">Gestion des agents</div>
+            <div class="page-sub">Membres de l'équipe interne Docline avec accès à Symphony</div>
+          </div>
+          <button class="btn btn-primary" onclick="openAddModal()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Ajouter un agent
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row" id="stats-row">
+          <div class="stat-card s-total"><div class="stat-val" id="st-total">—</div><div class="stat-lbl">Total agents</div></div>
+          <div class="stat-card s-active"><div class="stat-val" id="st-active">—</div><div class="stat-lbl">Actifs</div></div>
+          <div class="stat-card s-dept"><div class="stat-val" id="st-depts">—</div><div class="stat-lbl">Départements</div></div>
+          <div class="stat-card s-new"><div class="stat-val" id="st-new">—</div><div class="stat-lbl">Ajoutés ce mois</div></div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-search">
+            <span class="search-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <input class="search-input" id="search-input" placeholder="Rechercher par nom, email ou N° employé…" oninput="filterAgents()">
+          </div>
+          <select class="filter-select" id="filter-dept" onchange="filterAgents()">
+            <option value="">Tous les départements</option>
+            <option value="support">Support</option>
+            <option value="billing">Billing</option>
+            <option value="kyc">KYC / Onboarding</option>
+            <option value="commercial">Commercial</option>
+            <option value="marketing">Marketing</option>
+          </select>
+          <select class="filter-select" id="filter-status" onchange="filterAgents()">
+            <option value="">Tous les statuts</option>
+            <option value="active">Actifs</option>
+            <option value="inactive">Inactifs</option>
+          </select>
+        </div>
+
+        <!-- Agents table -->
+        <div class="agents-card">
+          <div class="agents-card-header">
+            <div class="agents-card-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Agents Symphony
+              <span class="agents-count" id="agents-count-badge">0</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="agents-table">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>N° Employé</th>
+                  <th>Département</th>
+                  <th>Rôle</th>
+                  <th>Statut</th>
+                  <th>Membre depuis</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="agents-tbody">
+                <tr><td colspan="7"><div style="text-align:center;padding:48px;color:#64748B">Chargement…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="agent-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-eyebrow" id="modal-eyebrow">Nouveau membre</div>
+        <div class="modal-title" id="modal-title">Ajouter un agent</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Avatar preview + ID -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;padding:14px;background:var(--surface2);border-radius:12px;border:1px solid var(--border)">
+        <div class="avatar-preview" id="modal-avatar">?</div>
+        <div style="flex:1">
+          <div class="emp-preview-lbl" style="margin-bottom:4px">N° Employé</div>
+          <div class="emp-preview-id" id="modal-emp-id">——</div>
+        </div>
+        <div id="modal-dept-preview" style="font-size:22px">👤</div>
+      </div>
+
+      <!-- Section Identité -->
+      <div class="modal-section-label">Identité</div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Prénom *</label>
+          <input class="form-input" id="f-prenom" placeholder="Karim" oninput="updateModalAvatar()">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Nom *</label>
+          <input class="form-input" id="f-nom" placeholder="Benali" oninput="updateModalAvatar()">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adresse email professionnelle *</label>
+        <input class="form-input" id="f-email" type="email" placeholder="k.benali@docline.health">
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <!-- Section Département -->
+      <div class="modal-section-label">Département</div>
+      <div class="dept-grid" id="dept-grid">
+        <div class="dept-option" data-dept="support" onclick="selectDept(this)">
+          <div class="dept-option-icon">🎧</div>
+          <div class="dept-option-name">Support</div>
+        </div>
+        <div class="dept-option" data-dept="billing" onclick="selectDept(this)">
+          <div class="dept-option-icon">💳</div>
+          <div class="dept-option-name">Billing</div>
+        </div>
+        <div class="dept-option" data-dept="kyc" onclick="selectDept(this)">
+          <div class="dept-option-icon">✅</div>
+          <div class="dept-option-name">KYC</div>
+        </div>
+        <div class="dept-option" data-dept="commercial" onclick="selectDept(this)">
+          <div class="dept-option-icon">📈</div>
+          <div class="dept-option-name">Commercial</div>
+        </div>
+        <div class="dept-option" data-dept="marketing" onclick="selectDept(this)">
+          <div class="dept-option-icon">📣</div>
+          <div class="dept-option-name">Marketing</div>
+        </div>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <!-- Section Rôle -->
+      <div class="modal-section-label">Rôle & Permissions</div>
+      <div class="form-row">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Rôle</label>
+          <select class="form-input" id="f-role">
+            <option value="agent">Agent</option>
+            <option value="lead">Lead</option>
+            <option value="manager">Manager</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Statut</label>
+          <select class="form-input" id="f-status">
+            <option value="true">Actif</option>
+            <option value="false">Inactif</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" id="modal-save-btn" onclick="saveAgent()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="modal-save-label">Créer l'agent</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div style="width:48px;height:48px;background:var(--red-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </div>
+    <div style="font-size:16px;font-weight:800;color:var(--text1);margin-bottom:6px">Retirer l'agent ?</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6">
+      <strong id="confirm-name">Cet agent</strong> perdra immédiatement son accès à Symphony. L'action est réversible.
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeConfirm()">Annuler</button>
+      <button class="btn btn-danger" style="flex:1" id="confirm-btn" onclick="confirmDelete()">Retirer l'accès</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _uid = null;
+var _agents = [];
+var _filtered = [];
+var _editId = null;
+var _deleteId = null;
+var _nextEmpId = null;
+
+var DEPT_META = {
+  support:    { label:'Support',    icon:'🎧', cls:'dept-support'    },
+  billing:    { label:'Billing',    icon:'💳', cls:'dept-billing'    },
+  kyc:        { label:'KYC',        icon:'✅', cls:'dept-kyc'        },
+  commercial: { label:'Commercial', icon:'📈', cls:'dept-commercial' },
+  marketing:  { label:'Marketing',  icon:'📣', cls:'dept-marketing'  }
+};
+var ROLE_META = {
+  agent:      { label:'Agent',      cls:'role-agent'      },
+  lead:       { label:'Lead',       cls:'role-lead'       },
+  manager:    { label:'Manager',    cls:'role-manager'    },
+  superadmin: { label:'Super Admin',cls:'role-superadmin' }
+};
+var AVATAR_COLORS = [
+  'linear-gradient(135deg,#7C3AED,#A78BFA)',
+  'linear-gradient(135deg,#2563EB,#60A5FA)',
+  'linear-gradient(135deg,#059669,#34D399)',
+  'linear-gradient(135deg,#D97706,#FCD34D)',
+  'linear-gradient(135deg,#DC2626,#F87171)',
+  'linear-gradient(135deg,#7C3AED,#F472B6)',
+  'linear-gradient(135deg,#0891B2,#67E8F9)',
+  'linear-gradient(135deg,#BE185D,#F472B6)'
+];
+
+function esc(s){ var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML; }
+function toast(msg,type){
+  var t=document.getElementById('toast');
+  t.innerHTML=msg; t.className='toast '+(type==='err'?'toast-err':'toast-ok')+' show';
+  setTimeout(function(){t.className='toast';},3200);
+}
+function avatarColor(name){
+  var s=String(name||'');
+  var code=0; for(var i=0;i<s.length;i++) code+=s.charCodeAt(i);
+  return AVATAR_COLORS[code%AVATAR_COLORS.length];
+}
+function initials(n){ var p=(n||'').trim().split(/\s+/); return (p[0]?p[0][0]:'')+(p[1]?p[1][0]:''); }
+function fmtDate(d){ return d?new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}):'—'; }
+
+// ── Stats ─────────────────────────────────────────────────────
+function updateStats(){
+  var total=_agents.length;
+  var active=_agents.filter(function(a){return a.is_active;}).length;
+  var depts=new Set(_agents.map(function(a){return a.department;})).size;
+  var thisMonth=new Date(); thisMonth.setDate(1); thisMonth.setHours(0,0,0,0);
+  var newCount=_agents.filter(function(a){ return new Date(a.created_at)>=thisMonth; }).length;
+  document.getElementById('st-total').textContent=total;
+  document.getElementById('st-active').textContent=active;
+  document.getElementById('st-depts').textContent=depts;
+  document.getElementById('st-new').textContent=newCount;
+}
+
+// ── Render table ──────────────────────────────────────────────
+function renderTable(list){
+  var tbody=document.getElementById('agents-tbody');
+  document.getElementById('agents-count-badge').textContent=list.length;
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="empty-title">Aucun agent trouvé</div><div class="empty-sub">Ajoutez le premier membre de l\'équipe Symphony.</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML=list.map(function(a){
+    var ini=initials((a.full_name||a.email||'').toUpperCase());
+    var bg=avatarColor(a.full_name||a.email);
+    var dept=DEPT_META[a.department]||{label:a.department||'—',icon:'👤',cls:''};
+    var role=ROLE_META[a.role||'agent']||{label:a.role,cls:'role-agent'};
+    return'<tr>'+
+      '<td><div class="td-inner"><div class="agent-identity">'+
+        '<div class="agent-avatar" style="background:'+bg+'">'+esc(ini)+'<span class="agent-avatar-status '+(a.is_active?'online':'offline')+'"></span></div>'+
+        '<div><div class="agent-name">'+esc(a.full_name||'—')+'</div><div class="agent-email">'+esc(a.email)+'</div></div>'+
+      '</div></div></td>'+
+      '<td><div class="td-inner"><span class="emp-id">'+(a.employee_id||'—')+'</span></div></td>'+
+      '<td><div class="td-inner"><span class="dept-badge '+dept.cls+'">'+dept.icon+' '+dept.label+'</span></div></td>'+
+      '<td><div class="td-inner"><span class="role-badge '+role.cls+'">'+role.label+'</span></div></td>'+
+      '<td><div class="td-inner"><span class="status-pill '+(a.is_active?'status-active':'status-inactive')+'"><span class="status-dot"></span>'+(a.is_active?'Actif':'Inactif')+'</span></div></td>'+
+      '<td><div class="td-inner" style="color:var(--text3);font-size:12px">'+fmtDate(a.created_at)+'</div></td>'+
+      '<td><div class="td-inner"><div class="row-actions">'+
+        '<button class="action-icon" title="Modifier" onclick="openEditModal(\''+a.id+'\')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+
+        '<button class="action-icon ai-danger" title="Retirer" onclick="openConfirm(\''+a.id+'\',\''+esc(a.full_name||a.email)+'\')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>'+
+      '</div></div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ── Filter ────────────────────────────────────────────────────
+function filterAgents(){
+  var q=(document.getElementById('search-input').value||'').toLowerCase();
+  var dept=document.getElementById('filter-dept').value;
+  var status=document.getElementById('filter-status').value;
+  _filtered=_agents.filter(function(a){
+    if(q && !((a.full_name||'')+(a.email||'')+(a.employee_id||'')).toLowerCase().includes(q)) return false;
+    if(dept && a.department!==dept) return false;
+    if(status==='active' && !a.is_active) return false;
+    if(status==='inactive' && a.is_active) return false;
+    return true;
+  });
+  renderTable(_filtered);
+}
+
+// ── Next employee ID (sequential 4-digit) ─────────────────────
+function calcNextEmpId(){
+  if(!_agents.length) return 1001;
+  var max=_agents.reduce(function(m,a){ return Math.max(m, parseInt(a.employee_id||'1000',10)); },1000);
+  return Math.min(max+1, 9999);
+}
+
+// ── Modal ─────────────────────────────────────────────────────
+function openAddModal(){
+  _editId=null;
+  document.getElementById('modal-eyebrow').textContent='Nouveau membre';
+  document.getElementById('modal-title').textContent='Ajouter un agent';
+  document.getElementById('modal-save-label').textContent='Créer l\'agent';
+  document.getElementById('f-prenom').value='';
+  document.getElementById('f-nom').value='';
+  document.getElementById('f-email').value='';
+  document.getElementById('f-role').value='agent';
+  document.getElementById('f-status').value='true';
+  document.querySelectorAll('.dept-option').forEach(function(d){d.classList.remove('selected');});
+  _nextEmpId=calcNextEmpId();
+  document.getElementById('modal-emp-id').textContent=_nextEmpId;
+  updateModalAvatar();
+  document.getElementById('agent-modal').classList.add('open');
+  setTimeout(function(){document.getElementById('f-prenom').focus();},120);
+}
+
+function openEditModal(id){
+  var a=_agents.find(function(x){return x.id===id;});
+  if(!a) return;
+  _editId=id;
+  document.getElementById('modal-eyebrow').textContent='Modifier le membre';
+  document.getElementById('modal-title').textContent='Modifier l\'agent';
+  document.getElementById('modal-save-label').textContent='Enregistrer';
+  var parts=(a.full_name||'').trim().split(/\s+/);
+  document.getElementById('f-prenom').value=parts[0]||'';
+  document.getElementById('f-nom').value=parts.slice(1).join(' ')||'';
+  document.getElementById('f-email').value=a.email||'';
+  document.getElementById('f-role').value=a.role||'agent';
+  document.getElementById('f-status').value=String(a.is_active!==false);
+  document.querySelectorAll('.dept-option').forEach(function(d){
+    d.classList.toggle('selected', d.dataset.dept===a.department);
+  });
+  document.getElementById('modal-emp-id').textContent=a.employee_id||'——';
+  updateModalAvatar();
+  document.getElementById('agent-modal').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('agent-modal').classList.remove('open'); _editId=null; }
+
+function selectDept(el){
+  document.querySelectorAll('.dept-option').forEach(function(d){d.classList.remove('selected');});
+  el.classList.add('selected');
+  var meta=DEPT_META[el.dataset.dept];
+  if(meta) document.getElementById('modal-dept-preview').textContent=meta.icon;
+}
+
+function updateModalAvatar(){
+  var p=document.getElementById('f-prenom').value||'';
+  var n=document.getElementById('f-nom').value||'';
+  var full=(p+' '+n).trim();
+  var ini=initials(full.toUpperCase())||'?';
+  var av=document.getElementById('modal-avatar');
+  av.textContent=ini;
+  av.style.background=avatarColor(full||'default');
+}
+
+async function saveAgent(){
+  var prenom=(document.getElementById('f-prenom').value||'').trim();
+  var nom=(document.getElementById('f-nom').value||'').trim();
+  var email=(document.getElementById('f-email').value||'').trim().toLowerCase();
+  var role=document.getElementById('f-role').value;
+  var isActive=document.getElementById('f-status').value==='true';
+  var deptEl=document.querySelector('.dept-option.selected');
+  var dept=deptEl?deptEl.dataset.dept:null;
+
+  if(!prenom||!nom){ toast('Prénom et nom requis','err'); return; }
+  if(!email||!email.includes('@')){ toast('Email invalide','err'); return; }
+  if(!dept){ toast('Sélectionnez un département','err'); return; }
+
+  var full_name=prenom+' '+nom;
+  var btn=document.getElementById('modal-save-btn');
+  btn.disabled=true;
+
+  try{
+    if(_editId){
+      var {error}=await _supa.from('symphony_agents').update({
+        full_name, email, department:dept, role, is_active:isActive,
+        updated_at:new Date().toISOString()
+      }).eq('id',_editId);
+      if(error) throw error;
+      var idx=_agents.findIndex(function(a){return a.id===_editId;});
+      if(idx>=0) Object.assign(_agents[idx],{full_name,email,department:dept,role,is_active:isActive});
+      toast('✓ Agent mis à jour');
+    } else {
+      var empId=_nextEmpId||calcNextEmpId();
+      // Check uniqueness
+      var {data:existing}=await _supa.from('symphony_agents').select('employee_id').order('employee_id',{ascending:false}).limit(1);
+      if(existing&&existing.length) empId=Math.min(parseInt(existing[0].employee_id||'1000',10)+1,9999);
+      var {data,error}=await _supa.from('symphony_agents').insert({
+        full_name, email, department:dept, role,
+        is_active:isActive, employee_id:String(empId).padStart(4,'0'),
+        created_by:_uid
+      }).select().single();
+      if(error) throw error;
+      _agents.unshift(data);
+      toast('✓ Agent '+full_name+' ajouté — N° '+empId);
+    }
+    closeModal();
+    filterAgents();
+    updateStats();
+  }catch(err){
+    toast(err.message||'Erreur','err');
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+// ── Delete ────────────────────────────────────────────────────
+function openConfirm(id,name){
+  _deleteId=id;
+  document.getElementById('confirm-name').textContent=name;
+  document.getElementById('confirm-overlay').style.display='flex';
+}
+function closeConfirm(){ document.getElementById('confirm-overlay').style.display='none'; _deleteId=null; }
+
+async function confirmDelete(){
+  if(!_deleteId) return;
+  var btn=document.getElementById('confirm-btn');
+  btn.disabled=true;
+  try{
+    var {error}=await _supa.from('symphony_agents').delete().eq('id',_deleteId);
+    if(error) throw error;
+    _agents=_agents.filter(function(a){return a.id!==_deleteId;});
+    closeConfirm();
+    filterAgents();
+    updateStats();
+    toast('Agent retiré de Symphony');
+  }catch(err){
+    toast(err.message||'Erreur','err');
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────
+(async function(){
+  try{
+    var s=await _supa.auth.getSession();
+    if(!s.data.session){ window.location.href=ghpNav('/login'); return; }
+    _uid=s.data.session.user.id;
+    var u=s.data.session.user;
+    var meta=u.user_metadata||{};
+
+    // Guard: super-admins only
+    if(ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())===-1){
+      document.querySelector('.shell-page').innerHTML='<div style="text-align:center;padding:80px 24px;color:#64748B"><div style="font-size:48px;margin-bottom:16px">🔒</div><div style="font-size:18px;font-weight:700;color:#F1F5F9;margin-bottom:8px">Accès réservé</div><div style="font-size:14px">Cette section est réservée aux super-administrateurs Docline.</div></div>';
+      return;
+    }
+
+    var subR=await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id',_uid).maybeSingle();
+    var sub=subR&&subR.data;
+    Shell.init({
+      page:'symphony-agents', title:'Équipe Symphony', isPro:true, plan:'admin',
+      isSymphony:true,
+      userName:Shell.displayName(meta,u.email), userEmail:u.email
+    });
+
+    // Load agents
+    var {data,error}=await _supa.from('symphony_agents').select('*').order('created_at',{ascending:false});
+    if(error && error.code==='42P01'){
+      // Table doesn't exist yet — show migration notice
+      document.getElementById('agents-tbody').innerHTML='<tr><td colspan="7"><div class="empty-state">'+
+        '<div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>'+
+        '<div class="empty-title">Table non créée</div>'+
+        '<div class="empty-sub">Exécutez <strong>APPLY_IN_SUPABASE.sql</strong> pour initialiser la table <code>symphony_agents</code>.</div>'+
+        '<a href="https://supabase.com/dashboard/project/ferkzwzypmdtuypxribz/sql/new" target="_blank" style="display:inline-flex;align-items:center;gap:7px;background:var(--brand);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;margin-top:16px">Ouvrir SQL Editor →</a>'+
+      '</div></td></tr>';
+      return;
+    }
+    if(error) throw error;
+
+    _agents=data||[];
+    _filtered=[..._agents];
+    renderTable(_filtered);
+    updateStats();
+    document.getElementById('agents-count-badge').textContent=_agents.length;
+
+  }catch(err){
+    console.error('[symphony-agents]',err);
+    toast(err.message||'Erreur de chargement','err');
+  }
+})();
+
+document.getElementById('agent-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeConfirm();}});
+</script>
+</body>
+</html>

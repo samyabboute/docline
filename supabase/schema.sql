@@ -255,7 +255,9 @@ end; $$;
 create table public.feedback (
   id           uuid default uuid_generate_v4() primary key,
   user_id      uuid references public.profiles(id) on delete cascade not null,
-  rating       smallint not null check (rating between 1 and 5),
+  rating       smallint check (rating between 1 and 5),
+  nps_score    smallint check (nps_score between 0 and 10),
+  category     text check (category in ('ui', 'performance', 'feature', 'bug', 'support', 'autre')),
   rating_label text,
   comment      text,
   login_count  integer,
@@ -264,9 +266,12 @@ create table public.feedback (
 );
 alter table public.feedback enable row level security;
 create policy "users_insert_own_feedback" on public.feedback for insert with check (auth.uid() = user_id);
-create policy "users_read_own_feedback"   on public.feedback for select using (auth.uid() = user_id);
+create policy "feedback_read_policy" on public.feedback for select using (
+  (auth.uid() = user_id)
+  or (auth.jwt() ->> 'email' in ('samyabboute5@gmail.com', 'contact@docline.health'))
+);
 create index idx_feedback_user   on public.feedback(user_id, created_at desc);
-create index idx_feedback_rating on public.feedback(rating, created_at desc);
+create index idx_feedback_nps    on public.feedback(nps_score, created_at desc);
 
 -- ── CONSULTATIONS RÉCURRENTES ────────────────────────────────
 -- Pro : suivi chronique automatisé (diabète, HTA, etc.)
