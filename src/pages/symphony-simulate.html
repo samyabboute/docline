@@ -6,26 +6,42 @@
 <title>Simulation — Docline Symphony</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js?v=3"></script>
 <style>
-:root{
-  --brand:#3B1772;--brand-light:#E6ECF9;
-  --bg:#F8FAFF;--bg-raised:#fff;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
-  --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
-  --border:#E4E7F0;
+:root {
+  /* New Light Premium palette */
+  --bg:#FFFFFF;--bg2:#F7F6FF;--bg3:#EEECFB;
+  --ink:#0D0520;--ink2:#2D1B69;--ink3:#6B7280;
+  --p:#4C1D95;--p2:#6D28D9;--p3:#8B5CF6;--p4:#DDD6FE;
+  --orange:#EA580C;--orange2:#F97316;
+  --border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);
+  --font:'Inter',-apple-system,sans-serif;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+  --shadow:0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.1);
+  --pill:999px;--r:8px;--rl:16px;
+  /* Legacy aliases */
+  --brand:#4C1D95;--brand-dark:#6D28D9;--brand-light:#EEECFB;--brand-glow:rgba(76,29,149,.12);
+  --sidebar-bg:#0f172a;--sidebar-hover:rgba(255,255,255,.06);--sidebar-active:rgba(76,29,149,.18);--sidebar-border:rgba(255,255,255,.07);
+  --bg-raised:#FFFFFF;--bg-subtle:#F7F6FF;--bg-hover:#EEECFB;
+  --text-primary:#0D0520;--text-secondary:#2D1B69;--text-muted:#6B7280;--text-faint:#9CA3B8;
+  --border-strong:rgba(0,0,0,.12);
   --success:#12B76A;--success-bg:#ECFDF5;--success-border:rgba(18,183,106,.2);
   --warning:#F79009;--warning-bg:#FFFAEB;--warning-border:rgba(247,144,9,.2);
   --danger:#F04438;--danger-bg:#FEF3F2;--danger-border:rgba(240,68,56,.2);
-  --info:#2E90FA;--info-bg:#EFF8FF;
+  --info:#2E90FA;--info-bg:#EFF8FF;--info-border:rgba(46,144,250,.2);
+  --sidebar-w:240px;--topbar-h:56px;
   --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
-  --shadow-sm:0 1px 3px rgba(13,15,20,.08);
-  --t-fast:120ms cubic-bezier(.4,0,.2,1);
+  --shadow-xs:0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 8px rgba(0,0,0,.08);
+  --shadow-brand:0 4px 14px rgba(76,29,149,.25);
+  --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px}
-body{font-family:'Sora',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit}
 ::-webkit-scrollbar{width:4px}
@@ -59,7 +75,7 @@ body{padding-top:92px} /* 56px banner + 36px admin tools bar */
 .pill-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
 .pill-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
 .pill-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
-.pill-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
+.pill-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(76,29,149,.15)}
 
 /* KPI GRID */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
@@ -118,7 +134,7 @@ body{padding-top:92px} /* 56px banner + 36px admin tools bar */
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ADMIN TOOLS PANEL */
-.admin-tools-bar{position:fixed;top:56px;left:0;right:0;z-index:998;background:#1E0A3C;border-bottom:2px solid #3B1772;transition:height .22s ease,padding .22s ease}
+.admin-tools-bar{position:fixed;top:56px;left:0;right:0;z-index:998;background:#1E0A3C;border-bottom:2px solid #4C1D95;transition:height .22s ease,padding .22s ease}
 .admin-tools-bar.collapsed{height:36px;overflow:hidden}
 .admin-tools-bar.expanded{height:auto}
 .atb-toggle{display:flex;align-items:center;gap:10px;padding:8px 20px;cursor:pointer;user-select:none;height:36px}
@@ -147,7 +163,7 @@ body{padding-top:92px} /* 56px banner + 36px admin tools bar */
 .badge-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
 .badge-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
 .badge-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
-.badge-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
+.badge-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(76,29,149,.15)}
 </style>
 </head>
 <body>
@@ -349,7 +365,7 @@ function fmtDate(d){ return d ? new Date(d).toLocaleDateString('fr-DZ',{day:'2-d
 function fmtTime(d){ return d ? new Date(d).toLocaleTimeString('fr-DZ',{hour:'2-digit',minute:'2-digit'}) : '—'; }
 function doctorName(d){ return d.full_name||((d.first_name||'')+' '+(d.last_name||'')).trim()||d.email||'?'; }
 function avatarGrad(name){
-  const p=['linear-gradient(135deg,#3B1772,#0066FF)','linear-gradient(135deg,#059669,#10B981)','linear-gradient(135deg,#DC2626,#F87171)','linear-gradient(135deg,#D97706,#FBBF24)'];
+  const p=['linear-gradient(135deg,#4C1D95,#0066FF)','linear-gradient(135deg,#059669,#10B981)','linear-gradient(135deg,#DC2626,#F87171)','linear-gradient(135deg,#D97706,#FBBF24)'];
   let h=0; for(let i=0;i<(name||'').length;i++) h=name.charCodeAt(i)+((h<<5)-h);
   return p[Math.abs(h)%p.length];
 }

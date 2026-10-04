@@ -8,7 +8,10 @@
 <script src="shell.js?v=10"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#3B1772">
+<meta name="theme-color" content="#6D28D9">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Docline">
@@ -17,7 +20,7 @@
 <link rel="apple-touch-icon" href="favicon.svg">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFF;min-height:100vh;color:#0D1117}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F7F6FF;min-height:100vh;color:#0D0520}
 
 @keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -26,7 +29,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── KPI Pills ── */
 .kpi-row{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
 .kpi-pill{background:#fff;border:1px solid #E5E7EB;border-radius:18px;padding:14px 18px;display:flex;align-items:center;gap:12px;flex:1;min-width:140px;animation:cardIn .35s ease both;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .18s,transform .18s}
-.kpi-pill:hover{box-shadow:0 6px 20px rgba(59,23,114,.1);transform:translateY(-2px)}
+.kpi-pill:hover{box-shadow:0 6px 20px rgba(109,40,217,.1);transform:translateY(-2px)}
 .kpi-pill:nth-child(2){animation-delay:.07s}
 .kpi-pill:nth-child(3){animation-delay:.14s}
 .kpi-pill:nth-child(4){animation-delay:.21s}
@@ -43,7 +46,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 
 .btn{padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:#3B1772;color:#fff;box-shadow:0 1px 4px rgba(59,23,114,.25)}.btn-primary:hover{background:#2D1259}
+.btn-primary{background:#6D28D9;color:#fff;box-shadow:0 1px 4px rgba(109,40,217,.25)}.btn-primary:hover{background:#4C1D95}
 .btn-ghost{background:#fff;border:1px solid #E5E7EB;color:#374151}.btn-ghost:hover{background:#F9FAFB}
 .btn-sm{padding:6px 12px;font-size:12px}
 .btn-danger{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}.btn-danger:hover{background:#FEE2E2}
@@ -58,30 +61,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cal-month-title{font-size:17px;font-weight:800;color:#0D1117;letter-spacing:-.3px}
 .cal-nav{display:flex;gap:6px;align-items:center}
 .cal-nav-btn{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;color:#374151;transition:all .15s;display:flex;align-items:center;justify-content:center}
-.cal-nav-btn:hover{background:#EEF2FF;border-color:#C7D2FE;color:#3B1772}
+.cal-nav-btn:hover{background:#DDD6FE;border-color:#C7D2FE;color:#6D28D9}
 .cal-today-btn{padding:0 12px;width:auto;font-size:12px;font-weight:600}
 .cal-grid{padding:16px 18px 18px}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px}
 .cal-day-label{text-align:center;font-size:10px;font-weight:700;color:#9CA3AF;padding:4px;text-transform:uppercase;letter-spacing:.05em}
 .cal-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .cal-cell{height:84px;overflow:hidden;border-radius:10px;padding:5px;cursor:pointer;transition:all .12s;position:relative;border:1.5px solid transparent}
-.cal-cell:hover{background:#F8FAFF;border-color:#E5E7EB}
-.cal-cell.today{background:#EEF2FF;border-color:#3B1772}
+.cal-cell:hover{background:#F7F6FF;border-color:#E5E7EB}
+.cal-cell.today{background:#DDD6FE;border-color:#6D28D9}
 .cal-cell.other-month{opacity:.45}
-.cal-cell.selected{border-color:#3B1772;background:#EEF2FF}
-.cal-cell.today.selected{border-color:#3B1772;background:#EEF2FF}
+.cal-cell.selected{border-color:#6D28D9;background:#DDD6FE}
+.cal-cell.today.selected{border-color:#6D28D9;background:#DDD6FE}
 .cal-cell-num{font-size:12px;font-weight:700;color:#374151;line-height:1;margin-bottom:3px}
-.cal-cell.today .cal-cell-num{background:#3B1772;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
-.cal-cell.selected:not(.today) .cal-cell-num{color:#3B1772}
+.cal-cell.today .cal-cell-num{background:#6D28D9;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+.cal-cell.selected:not(.today) .cal-cell-num{color:#6D28D9}
 .event-dot{font-size:9px;padding:2px 5px;border-radius:5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;line-height:1.3}
-.ev-consultation{background:#EEF2FF;color:#3B1772}
+.ev-consultation{background:#DDD6FE;color:#6D28D9}
 .ev-suivi{background:#ECFDF5;color:#065F46}
 .ev-rappel{background:#FEF3C7;color:#92400E}
 .ev-reunion{background:#F5F3FF;color:#6D28D9}
 .ev-task{background:#F3F4F6;color:#374151}
-.ev-rdv{background:#3B1772;color:#fff;font-weight:700}
+.ev-rdv{background:#6D28D9;color:#fff;font-weight:700}
 .more-events{font-size:8px;color:#fff;background:#9CA3AF;border-radius:4px;padding:1px 4px;margin-top:2px;font-weight:600;display:inline-block}
-.ev-consult-sync{background:#EEF2FF;color:#3B1772}
+.ev-consult-sync{background:#DDD6FE;color:#6D28D9}
 .ev-followup-sync{background:#ECFDF5;color:#065F46}
 
 /* ── Calendar legend ── */
@@ -92,11 +95,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── View toggle ── */
 .view-toggle{display:flex;background:#F3F4F6;border-radius:8px;padding:2px;gap:2px}
 .vt-btn{padding:4px 11px;font-size:11px;font-weight:600;color:#6B7280;background:transparent;border:none;border-radius:6px;cursor:pointer;transition:all .15s}
-.vt-btn.active{background:#fff;color:#3B1772;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.vt-btn.active{background:#fff;color:#6D28D9;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 
 /* ── Sync button ── */
 .btn-sync{padding:6px 12px;font-size:12px;font-weight:600;color:#6B7280;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
-.btn-sync:hover{background:#EEF2FF;color:#3B1772;border-color:#C7D2FE}
+.btn-sync:hover{background:#DDD6FE;color:#6D28D9;border-color:#C7D2FE}
 .btn-sync.syncing{opacity:.65;pointer-events:none}
 @keyframes spin-sync{to{transform:rotate(360deg)}}
 .btn-sync.syncing .sync-icon{display:inline-block;animation:spin-sync .7s linear infinite}
@@ -115,21 +118,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .filter-chips{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid #F3F4F6;overflow-x:auto;scrollbar-width:none}
 .filter-chips::-webkit-scrollbar{display:none}
 .chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:#F3F4F6;color:#6B7280;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.chip.active{background:#EEF2FF;color:#3B1772}
+.chip.active{background:#DDD6FE;color:#6D28D9}
 
 /* Task list */
 .task-list{max-height:420px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#E5E7EB transparent}
 .task-item{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid #F9FAFB;transition:background .1s;cursor:pointer}
-.task-item:hover{background:#F8FAFF}
+.task-item:hover{background:#F7F6FF}
 .task-item:last-child{border-bottom:none}
 .task-check{width:18px;height:18px;border-radius:5px;border:2px solid #D1D5DB;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;font-size:10px}
-.task-check.done{background:#3B1772;border-color:#3B1772;color:#fff}
+.task-check.done{background:#6D28D9;border-color:#6D28D9;color:#fff}
 .task-body{flex:1;min-width:0}
 .task-title{font-size:13px;font-weight:600;color:#0D1117;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .task-title.done{text-decoration:line-through;color:#9CA3AF;font-weight:400}
 .task-meta{font-size:11px;color:#9CA3AF;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .task-type-badge{font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600}
-.tb-consultation{background:#EEF2FF;color:#3B1772}
+.tb-consultation{background:#DDD6FE;color:#6D28D9}
 .tb-suivi{background:#ECFDF5;color:#065F46}
 .tb-rappel{background:#FEF3C7;color:#92400E}
 .tb-reunion{background:#F5F3FF;color:#6D28D9}
@@ -145,9 +148,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .quick-add{padding:14px 16px;border-top:1px solid #F3F4F6;background:#FAFBFF}
 .quick-row{display:flex;gap:8px}
 .quick-input{flex:1;padding:8px 12px;border:1px solid #E5E7EB;border-radius:10px;font-size:13px;color:#0D1117;font-family:inherit;transition:border-color .15s;background:#fff}
-.quick-input:focus{outline:none;border-color:#3B1772;box-shadow:0 0 0 3px rgba(59,23,114,.08)}
-.quick-btn{padding:8px 14px;border-radius:10px;background:#3B1772;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
-.quick-btn:hover{background:#2D1259}
+.quick-input:focus{outline:none;border-color:#6D28D9;box-shadow:0 0 0 3px rgba(109,40,217,.08)}
+.quick-btn{padding:8px 14px;border-radius:10px;background:#6D28D9;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
+.quick-btn:hover{background:#4C1D95}
 
 /* Empty / loading */
 .empty-tasks{text-align:center;padding:36px 16px;color:#9CA3AF;font-size:13px}
@@ -156,12 +159,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── Day panel ── */
 .day-panel{background:#fff;border:1px solid #E5E7EB;border-radius:18px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
-.day-head{padding:16px 18px;border-bottom:1px solid #F3F4F6;background:linear-gradient(135deg,#EEF2FF 0%,#F5F3FF 100%)}
-.day-head-date{font-size:16px;font-weight:800;color:#3B1772;letter-spacing:-.3px}
+.day-head{padding:16px 18px;border-bottom:1px solid #F3F4F6;background:linear-gradient(135deg,#DDD6FE 0%,#F5F3FF 100%)}
+.day-head-date{font-size:16px;font-weight:800;color:#6D28D9;letter-spacing:-.3px}
 .day-head-sub{font-size:12px;color:#6B7280;margin-top:2px}
 .day-events{max-height:240px;overflow-y:auto;padding:8px 0}
 .day-event-item{display:flex;gap:10px;align-items:flex-start;padding:10px 16px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s}
-.day-event-item:hover{background:#F8FAFF}
+.day-event-item:hover{background:#F7F6FF}
 .day-event-item:last-child{border-bottom:none}
 .day-event-type-bar{width:3px;border-radius:2px;flex-shrink:0;align-self:stretch;min-height:20px}
 .day-event-info{flex:1;min-width:0}
@@ -182,7 +185,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .form-group{margin-bottom:14px}
 .form-label{font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;display:block}
 .form-input{width:100%;padding:9px 12px;border:1px solid #E5E7EB;border-radius:10px;font-size:14px;color:#0D1117;font-family:inherit;transition:border-color .15s;background:#fff}
-.form-input:focus{outline:none;border-color:#3B1772;box-shadow:0 0 0 3px rgba(59,23,114,.08)}
+.form-input:focus{outline:none;border-color:#6D28D9;box-shadow:0 0 0 3px rgba(109,40,217,.08)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-actions{display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:8px}
 .form-actions-right{display:flex;gap:8px}
@@ -196,10 +199,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid #E5E7EB;z-index:500;padding:0 4px}
 .bottom-nav-row{display:flex;height:100%;align-items:stretch}
 .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:#9CA3AF;border:none;background:none;cursor:pointer;font-family:inherit;padding:6px 2px;-webkit-tap-highlight-color:transparent;transition:color .12s;position:relative}
-.bn-item.active{color:#3B1772}
+.bn-item.active{color:#6D28D9}
 .bn-item svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .bn-item span{font-size:9px;font-weight:600;letter-spacing:.01em;line-height:1}
-.bn-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:#3B1772;border-radius:0 0 2px 2px}
+.bn-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:#6D28D9;border-radius:0 0 2px 2px}
 @media(max-width:768px){.bottom-nav{display:flex}body{padding-bottom:68px}}
 </style>
 <script src="loader.js"></script>
@@ -283,7 +286,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               </div>
               <!-- Legend -->
               <div class="cal-legend">
-                <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#3B1772"></div>RDV confirmé</div>
+                <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#6D28D9"></div>RDV confirmé</div>
                 <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#4F46E5"></div>Consultation</div>
                 <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#059669"></div>Suivi patient</div>
                 <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#D97706"></div>Rappel</div>
@@ -435,7 +438,7 @@ var TYPE_LABEL = {
   task:         'Tâche'
 };
 var TYPE_BAR_COLOR = {
-  consultation: '#3B1772',
+  consultation: '#6D28D9',
   suivi:        '#059669',
   rappel:       '#D97706',
   reunion:      '#7C3AED',
@@ -591,7 +594,7 @@ function renderDayPanel(dateStr){
     html+=dayRdvs.map(function(a){
       var time=a.requested_time?a.requested_time.slice(0,5):'';
       return'<div class="day-event-item" onclick="window.location.href=\''+ghpNav('/mes-rdv')+'\'">' +
-        '<div class="day-event-type-bar" style="background:#3B1772"></div>'+
+        '<div class="day-event-type-bar" style="background:#6D28D9"></div>'+
         '<div class="day-event-info">'+
           '<div class="day-event-title">'+(time?'<strong>'+time+'</strong> · ':'')+sanitize(a.patient_name||'Patient')+'</div>'+
           '<div class="day-event-meta">RDV confirmé'+(a.patient_phone?' · '+sanitize(a.patient_phone):'')+(a.notes?' · '+sanitize(a.notes.slice(0,40))+(a.notes.length>40?'…':''):'')+'</div>'+
@@ -682,7 +685,7 @@ function renderWeekView(){
   _appointments.forEach(function(a){
     if(!a.requested_date)return;
     var k=a.requested_date.slice(0,10);
-    (eventMap[k]=eventMap[k]||[]).unshift({kind:'rdv',title:(a.requested_time?a.requested_time.slice(0,5)+' · ':'')+( a.patient_name||''),sub:'RDV confirmé',bar:'#3B1772'});
+    (eventMap[k]=eventMap[k]||[]).unshift({kind:'rdv',title:(a.requested_time?a.requested_time.slice(0,5)+' · ':'')+( a.patient_name||''),sub:'RDV confirmé',bar:'#6D28D9'});
   });
   _tasks.forEach(function(t){
     if(!t.due_date||t.completed)return;
@@ -700,13 +703,13 @@ function renderWeekView(){
     var isSelected=ds===_selectedDate;
     var dayNames=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
     var dayN=dayNames[d.getDay()];
-    var bg=isToday?'#3B1772':(isSelected?'#EEF2FF':'#F9FAFB');
-    var col=isToday?'#fff':(isSelected?'#3B1772':'#374151');
+    var bg=isToday?'#6D28D9':(isSelected?'#DDD6FE':'#F9FAFB');
+    var col=isToday?'#fff':(isSelected?'#6D28D9':'#374151');
     var nbEvs=(eventMap[ds]||[]).length;
     return'<div style="background:'+bg+';border-bottom:1px solid #DDE1E7;border-left:1px solid #E5E7EB;padding:6px 4px;text-align:center;cursor:pointer" onclick="selectDate(\''+ds+'\')">'
       +'<div style="font-size:9px;font-weight:700;color:'+(isToday?'rgba(255,255,255,.7)':'#9CA3AF')+';text-transform:uppercase">'+dayN+'</div>'
       +'<div style="font-size:14px;font-weight:800;color:'+col+';line-height:1.2;margin-top:1px">'+d.getDate()+'</div>'
-      +(nbEvs?'<div style="display:inline-block;margin-top:2px;background:'+(isToday?'rgba(255,255,255,.3)':'#E0E7FF')+';color:'+(isToday?'#fff':'#3B1772')+';border-radius:10px;font-size:8px;font-weight:700;padding:0 5px;line-height:14px">'+nbEvs+'</div>':'')
+      +(nbEvs?'<div style="display:inline-block;margin-top:2px;background:'+(isToday?'rgba(255,255,255,.3)':'#E0E7FF')+';color:'+(isToday?'#fff':'#6D28D9')+';border-radius:10px;font-size:8px;font-weight:700;padding:0 5px;line-height:14px">'+nbEvs+'</div>':'')
       +'</div>';
   }).join('');
   // Row 2: All-day events (consultations, suivis, tasks)
@@ -737,7 +740,7 @@ function renderWeekView(){
   html+='</div>';
   // Add legend at bottom
   html+='<div class="cal-legend" style="margin-top:0;border-top:1px solid #F3F4F6;border-radius:0 0 14px 14px;background:#fff;border:1px solid #E5E7EB;border-top:none;padding:8px 14px">';
-  html+='<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#3B1772"></div>RDV</div>';
+  html+='<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#6D28D9"></div>RDV</div>';
   html+='<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#4F46E5"></div>Consultation</div>';
   html+='<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#059669"></div>Suivi</div>';
   html+='<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#9CA3AF"></div>Tâche</div>';

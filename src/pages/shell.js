@@ -23,7 +23,7 @@ Shell = (function () {
   'use strict';
 
   // ── LOGO ──────────────────────────────────────────────────────
-  var LOGO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:28px;height:28px;flex-shrink:0;border-radius:8px"><defs><linearGradient id="slg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3B1772"/><stop offset="100%" stop-color="#23A7EA"/></linearGradient></defs><rect width="512" height="512" fill="url(#slg)"/><path fill="white" d="M290.5,38.7c42.2-8.9,87.4,33.7,74.9,76.8c-8.5,40.2-61.9,56.3-94.1,32.9c-21.7-12.9-34.3-40.4-28.9-65.3C247.4,60.5,267.4,41.6,290.5,38.7z M294.6,70c-24.1,4.7-28.1,40.2-7.1,51.6c15.1,11.3,39.9,6.1,46-12.7C342.5,86.3,316.5,63.5,294.6,70z"/><path fill="white" d="M132.9,103.8c25-4.1,51.6-1.1,72.7,13.6c28.8,19.6,46.3,51.6,57.4,84c37.8-16.9,77.9-32.3,119.9-30.6c33.9,1.6,64.8,24.5,76.5,56.1c9.8,39.1-9,77.8-31.4,108.8C386.7,393,324.7,441.1,252.5,448c-23.2,21.2-58.8,33.5-88.9,20.2c-36.5-16.8-59.2-51.9-77.6-86.1c-28.8-59.4-43.6-127.1-33.3-192.9C60.5,148.6,89.8,109.4,132.9,103.8z M141.3,137.4c-34.9,4.9-54,42.3-55.4,74.6c-2.2,65.6,15.8,132.4,52.6,186.9c14.6,21.9,38.2,47,67.1,37.5c-2-8.7-14.6-10.7-19.5-17.9c-24.9-25.2-41-61.6-35.4-97.3c1-24.6,18.4-47.7,42.1-54.8c29.6-11,67,1.4,82,29.8c20.5,33.5,15.1,75.5,4.3,111.3c30.1-8.1,55.2-27.9,79.2-46.9c28.7-27.6,56.7-60,66.5-99.5c8.2-25.4-13.1-50.5-37.4-54.4c-51.9-9.3-94.3,25.2-140.6,40.3c-20.9,4.6-39.4-16.8-36.9-36.6c5.2-3.5,11.1-0.3,16.8-0.4C217.3,172.5,185,128.2,141.3,137.4z M206.4,298.9c-13.3,3.7-20.9,17.4-19.7,30.8c-3.1,32.5,18.1,68.3,49.9,77.4c19.2-27.9,21.2-68.2,4.3-98C231.8,300.1,219,295.3,206.4,298.9z"/></svg>';
+  var LOGO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:28px;height:28px;flex-shrink:0;border-radius:8px"><defs><linearGradient id="slg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6D28D9"/><stop offset="100%" stop-color="#23A7EA"/></linearGradient></defs><rect width="512" height="512" fill="url(#slg)"/><path fill="white" d="M290.5,38.7c42.2-8.9,87.4,33.7,74.9,76.8c-8.5,40.2-61.9,56.3-94.1,32.9c-21.7-12.9-34.3-40.4-28.9-65.3C247.4,60.5,267.4,41.6,290.5,38.7z M294.6,70c-24.1,4.7-28.1,40.2-7.1,51.6c15.1,11.3,39.9,6.1,46-12.7C342.5,86.3,316.5,63.5,294.6,70z"/><path fill="white" d="M132.9,103.8c25-4.1,51.6-1.1,72.7,13.6c28.8,19.6,46.3,51.6,57.4,84c37.8-16.9,77.9-32.3,119.9-30.6c33.9,1.6,64.8,24.5,76.5,56.1c9.8,39.1-9,77.8-31.4,108.8C386.7,393,324.7,441.1,252.5,448c-23.2,21.2-58.8,33.5-88.9,20.2c-36.5-16.8-59.2-51.9-77.6-86.1c-28.8-59.4-43.6-127.1-33.3-192.9C60.5,148.6,89.8,109.4,132.9,103.8z M141.3,137.4c-34.9,4.9-54,42.3-55.4,74.6c-2.2,65.6,15.8,132.4,52.6,186.9c14.6,21.9,38.2,47,67.1,37.5c-2-8.7-14.6-10.7-19.5-17.9c-24.9-25.2-41-61.6-35.4-97.3c1-24.6,18.4-47.7,42.1-54.8c29.6-11,67,1.4,82,29.8c20.5,33.5,15.1,75.5,4.3,111.3c30.1-8.1,55.2-27.9,79.2-46.9c28.7-27.6,56.7-60,66.5-99.5c8.2-25.4-13.1-50.5-37.4-54.4c-51.9-9.3-94.3,25.2-140.6,40.3c-20.9,4.6-39.4-16.8-36.9-36.6c5.2-3.5,11.1-0.3,16.8-0.4C217.3,172.5,185,128.2,141.3,137.4z M206.4,298.9c-13.3,3.7-20.9,17.4-19.7,30.8c-3.1,32.5,18.1,68.3,49.9,77.4c19.2-27.9,21.2-68.2,4.3-98C231.8,300.1,219,295.3,206.4,298.9z"/></svg>';
 
   // ── NAV ───────────────────────────────────────────────────────
   var NAV = [
@@ -114,24 +114,25 @@ Shell = (function () {
 
   // ── CSS ───────────────────────────────────────────────────────
   var CSS = `<style id="shell-css">
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --brand:#3B1772;
-  --brand-hover:#2D1259;
-  --brand-subtle:#EDE8FF;
-  --brand-border:rgba(59,23,114,.15);
+  --brand:#6D28D9;
+  --brand-hover:#4C1D95;
+  --brand-subtle:#DDD6FE;
+  --brand-border:rgba(0,0,0,.07);
 
-  --bg:#F7F8FC;
+  --bg:#F7F6FF;
   --surface:#FFFFFF;
-  --surface-hover:#F3F4F8;
+  --surface-hover:#EEECFB;
 
-  --text:#0C0E14;
-  --text-2:#3D4251;
-  --text-3:#7B8194;
+  --text:#0D0520;
+  --text-2:#2D1B69;
+  --text-3:#6B7280;
   --text-4:#B0B7CC;
 
-  --border:#E8EAF0;
-  --border-strong:#D0D4E0;
+  --border:rgba(0,0,0,.07);
+  --border-strong:rgba(0,0,0,.12);
 
   --success:#059669;
   --success-bg:#F0FDF9;
@@ -148,12 +149,12 @@ Shell = (function () {
   --rfull:999px;
   --t:.15s;
   --ease:cubic-bezier(.4,0,.2,1);
-  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
 }
 
 html{-webkit-font-smoothing:antialiased;font-size:16px;height:100%}
-body{font-family:'Sora',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 
@@ -186,7 +187,7 @@ button{font-family:inherit;cursor:pointer}
 }
 .sb-plan.pro{background:rgba(5,150,105,.1);color:#059669}
 .sb-plan.free{background:var(--surface-hover);color:var(--text-3)}
-.sb-plan.enterprise{background:rgba(59,23,114,.1);color:var(--brand)}
+.sb-plan.enterprise{background:rgba(109,40,217,.1);color:var(--brand)}
 
 /* nav */
 .sb-nav{padding:10px 10px;flex:1;display:flex;flex-direction:column;gap:1px}
@@ -229,7 +230,7 @@ button{font-family:inherit;cursor:pointer}
   width:3px;border-radius:0 3px 3px 0;background:var(--brand);
 }
 .sb-item.featured svg{opacity:1;stroke:var(--brand)}
-.sb-item.featured:hover{background:rgba(59,23,114,.12)}
+.sb-item.featured:hover{background:rgba(109,40,217,.1)}
 .sb-item.featured.active{
   background:var(--brand);color:#fff;
 }
@@ -316,7 +317,7 @@ button{font-family:inherit;cursor:pointer}
   border-radius:var(--r);padding:6px 12px;
   max-width:240px;flex:1;transition:border-color var(--t),background var(--t);
 }
-.tb-search:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px rgba(59,23,114,.08)}
+.tb-search:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px rgba(109,40,217,.08)}
 .tb-search svg{width:13px;height:13px;fill:none;stroke:var(--text-4);stroke-width:2;stroke-linecap:round;flex-shrink:0}
 .tb-search input{border:none;background:none;outline:none;font-size:13px;color:var(--text);width:100%;font-family:inherit}
 .tb-search input::placeholder{color:var(--text-4);font-size:12px}
@@ -487,8 +488,8 @@ button{font-family:inherit;cursor:pointer}
 .panel-card-body,.card-body{padding:20px}
 
 /* ── Unified buttons ── */
-.btn-primary{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s var(--ease);box-shadow:0 3px 14px rgba(59,23,114,.22);white-space:nowrap}
-.btn-primary:hover:not(:disabled){background:#4C1D95;transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,23,114,.32)}
+.btn-primary{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s var(--ease);box-shadow:0 3px 14px rgba(109,40,217,.22);white-space:nowrap}
+.btn-primary:hover:not(:disabled){background:var(--brand-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(109,40,217,.32)}
 .btn-primary:active{transform:scale(.98)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 .btn-primary svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
@@ -520,7 +521,7 @@ button{font-family:inherit;cursor:pointer}
 .search-bar{position:relative;display:flex;align-items:center}
 .search-bar svg{position:absolute;left:12px;width:15px;height:15px;fill:none;stroke:var(--text-3);stroke-width:2;stroke-linecap:round;pointer-events:none}
 .search-bar input{height:40px;border:1.5px solid var(--border);border-radius:12px;padding:0 14px 0 38px;font-size:13px;color:var(--text);font-family:inherit;background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s;min-width:220px}
-.search-bar input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.08)}
+.search-bar input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.08)}
 .search-bar input::placeholder{color:var(--text-3)}
 
 /* ── Filter chips ── */
@@ -536,10 +537,10 @@ button{font-family:inherit;cursor:pointer}
 .fi-group{margin-bottom:14px}
 .fi-label{display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:6px}
 .fi-input{width:100%;height:44px;border:1.5px solid var(--border);border-radius:12px;padding:0 14px;font-size:14px;color:var(--text);font-family:inherit;background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s}
-.fi-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.08)}
+.fi-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.08)}
 .fi-input::placeholder{color:var(--text-3)}
 .fi-textarea{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;font-size:14px;color:var(--text);font-family:inherit;background:var(--surface);outline:none;resize:vertical;transition:border-color .15s,box-shadow .15s;line-height:1.5}
-.fi-textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.08)}
+.fi-textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.08)}
 
 /* ── Divider ── */
 .section-divider{height:1px;background:var(--border);margin:24px 0}
@@ -609,7 +610,7 @@ button{font-family:inherit;cursor:pointer}
   background:var(--brand);border-radius:0 12px 12px 0;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;
-  box-shadow:3px 0 16px rgba(59,23,114,.28);
+  box-shadow:3px 0 16px rgba(109,40,217,.22);
   opacity:0;
   transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .3s;
   pointer-events:none;
@@ -635,7 +636,7 @@ button{font-family:inherit;cursor:pointer}
     width:46px;height:46px;border-radius:50%;
     /* remplace le slide depuis la gauche par un pop depuis le bas */
     transform:translateY(80px) scale(.8);
-    box-shadow:0 4px 20px rgba(59,23,114,.35);
+    box-shadow:0 4px 20px rgba(109,40,217,.3);
   }
   .sb-peek.on{transform:translateY(0) scale(1)}
   .sb-peek:hover{width:46px} /* pas d'élargissement sur mobile */
@@ -646,26 +647,26 @@ button{font-family:inherit;cursor:pointer}
 @keyframes ob-bg{from{opacity:0}to{opacity:1}}
 #ob-modal{background:#fff;border-radius:24px;width:100%;max-width:480px;box-shadow:0 32px 80px rgba(0,0,0,.30);overflow:hidden;animation:ob-pop .45s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes ob-pop{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:none}}
-.ob-bar{height:4px;background:#EDE8FF}
-.ob-fill{height:100%;background:linear-gradient(90deg,#3B1772,#7C3AED);border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1)}
+.ob-bar{height:4px;background:#DDD6FE}
+.ob-fill{height:100%;background:linear-gradient(90deg,#6D28D9,#8B5CF6);border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1)}
 .ob-body{padding:32px 32px 20px;min-height:300px}
 .ob-illo{height:150px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;position:relative}
 .ob-illo-inner{animation:ob-zoom .5s cubic-bezier(.34,1.56,.64,1) both .1s}
 @keyframes ob-zoom{from{opacity:0;transform:scale(.65) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.ob-chip{display:inline-block;font-size:10px;font-weight:700;color:#7C3AED;background:#EDE8FF;border-radius:99px;padding:3px 10px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
-.ob-title{font-size:21px;font-weight:900;color:#0C0E14;letter-spacing:-.4px;line-height:1.25;margin-bottom:10px}
-.ob-desc{font-size:13.5px;color:#7B8194;line-height:1.7;margin-bottom:10px}
-.ob-access-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#3B1772;text-decoration:none;padding:5px 12px;border-radius:99px;border:1.5px solid rgba(59,23,114,.2);background:rgba(59,23,114,.04);transition:.15s;margin-top:2px}
-.ob-access-link:hover{background:rgba(59,23,114,.09);border-color:rgba(59,23,114,.4)}
+.ob-chip{display:inline-block;font-size:10px;font-weight:700;color:#6D28D9;background:#DDD6FE;border-radius:99px;padding:3px 10px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.ob-title{font-size:21px;font-weight:900;color:#0D0520;letter-spacing:-.4px;line-height:1.25;margin-bottom:10px}
+.ob-desc{font-size:13.5px;color:#6B7280;line-height:1.7;margin-bottom:10px}
+.ob-access-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#6D28D9;text-decoration:none;padding:5px 12px;border-radius:99px;border:1.5px solid rgba(109,40,217,.2);background:rgba(109,40,217,.04);transition:.15s;margin-top:2px}
+.ob-access-link:hover{background:rgba(109,40,217,.09);border-color:rgba(109,40,217,.4)}
 .ob-access-link svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;flex-shrink:0}
 .ob-foot{padding:18px 32px 26px;display:flex;align-items:center;gap:12px}
 .ob-dots{display:flex;gap:6px;flex:1}
 .ob-dot{width:8px;height:8px;border-radius:4px;background:#E8EAF0;transition:all .3s cubic-bezier(.4,0,.2,1)}
-.ob-dot.on{width:22px;background:#3B1772}
+.ob-dot.on{width:22px;background:#6D28D9}
 .ob-skip{font-size:12px;font-weight:500;color:#B0B7CC;background:none;border:none;cursor:pointer;padding:4px 6px;font-family:inherit;transition:color .15s}
 .ob-skip:hover{color:#7B8194}
-.ob-btn{padding:11px 22px;border-radius:99px;font-size:13.5px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#3B1772 0%,#6D28D9 100%);color:#fff;font-family:inherit;box-shadow:0 4px 16px rgba(59,23,114,.35);display:flex;align-items:center;gap:7px;transition:all .18s}
-.ob-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(59,23,114,.45)}
+.ob-btn{padding:11px 22px;border-radius:99px;font-size:13.5px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#4C1D95 0%,#8B5CF6 100%);color:#fff;font-family:inherit;box-shadow:0 4px 16px rgba(109,40,217,.3);display:flex;align-items:center;gap:7px;transition:all .18s}
+.ob-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(109,40,217,.4)}
 .ob-btn:active{transform:scale(.97)}
 .ob-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;transition:transform .2s}
 .ob-btn:hover svg{transform:translateX(3px)}
@@ -712,7 +713,7 @@ button{font-family:inherit;cursor:pointer}
   50%  {box-shadow:0 0 0 6px rgba(220,38,38,.0);transform:scale(1.08)}
 }
 /* ── PAGE TRANSITION BAR ── */
-#shell-progress{position:fixed;top:0;left:0;width:0;height:3px;background:linear-gradient(90deg,#3B1772,#7C3AED);z-index:9999;transition:width .4s ease,opacity .3s ease;border-radius:0 3px 3px 0;pointer-events:none;opacity:0}
+#shell-progress{position:fixed;top:0;left:0;width:0;height:3px;background:linear-gradient(90deg,#6D28D9,#8B5CF6);z-index:9999;transition:width .4s ease,opacity .3s ease;border-radius:0 3px 3px 0;pointer-events:none;opacity:0}
 #shell-progress.running{opacity:1}
 
 /* ── Account modal ── */
@@ -1002,7 +1003,7 @@ button{font-family:inherit;cursor:pointer}
           var el = document.createElement('div');
           el.id = 'shell-rdv-toast';
           el.style.cssText = 'position:fixed;bottom:28px;right:24px;z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.18);border:1px solid #E8E3F5;min-width:280px;max-width:360px;animation:rdvToastIn .3s cubic-bezier(.34,1.56,.64,1)';
-          el.innerHTML = '<div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#3B1772,#7C3AED);display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+          el.innerHTML = '<div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#6D28D9,#7C3AED);display:flex;align-items:center;justify-content:center;flex-shrink:0">'
             +'<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg></div>'
             +'<div style="flex:1;min-width:0">'
             +'<div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px">Nouveau rendez-vous 📅</div>'
@@ -1044,14 +1045,14 @@ button{font-family:inherit;cursor:pointer}
       desc: 'Docline centralise vos patients, consultations et rendez-vous. Suivez ce guide pour tout configurer en 4 étapes.',
       illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
           + '<rect x="10" y="20" width="160" height="90" rx="14" fill="#EDE8FF"/>'
-          + '<rect x="24" y="34" width="60" height="62" rx="10" fill="#3B1772"/>'
+          + '<rect x="24" y="34" width="60" height="62" rx="10" fill="#6D28D9"/>'
           + '<circle cx="54" cy="55" r="14" fill="#fff" opacity=".9"/>'
           + '<rect x="30" y="76" width="48" height="6" rx="3" fill="#fff" opacity=".5"/>'
           + '<rect x="30" y="86" width="36" height="5" rx="2.5" fill="#fff" opacity=".3"/>'
           + '<rect x="94" y="34" width="62" height="18" rx="6" fill="#fff" opacity=".8"/>'
-          + '<rect x="100" y="40" width="30" height="5" rx="2.5" fill="#3B1772" opacity=".4"/>'
+          + '<rect x="100" y="40" width="30" height="5" rx="2.5" fill="#6D28D9" opacity=".4"/>'
           + '<rect x="94" y="58" width="62" height="18" rx="6" fill="#fff" opacity=".8"/>'
-          + '<rect x="100" y="64" width="42" height="5" rx="2.5" fill="#3B1772" opacity=".4"/>'
+          + '<rect x="100" y="64" width="42" height="5" rx="2.5" fill="#6D28D9" opacity=".4"/>'
           + '<rect x="94" y="78" width="62" height="18" rx="6" fill="#7C3AED" opacity=".8"/>'
           + '<rect x="100" y="84" width="28" height="5" rx="2.5" fill="#fff" opacity=".6"/>'
           + '<circle cx="148" cy="26" r="10" fill="#7C3AED"/>'
@@ -1068,12 +1069,12 @@ button{font-family:inherit;cursor:pointer}
           + '<circle cx="70" cy="50" r="18" fill="#EDE8FF"/>'
           + '<circle cx="70" cy="46" r="8" fill="#7C3AED" opacity=".7"/>'
           + '<path d="M54 66c0-8.8 7.2-10 16-10s16 1.2 16 10" fill="#7C3AED" opacity=".4"/>'
-          + '<rect x="96" y="36" width="36" height="6" rx="3" fill="#3B1772" opacity=".6"/>'
+          + '<rect x="96" y="36" width="36" height="6" rx="3" fill="#6D28D9" opacity=".6"/>'
           + '<rect x="96" y="48" width="24" height="5" rx="2.5" fill="#7B8194" opacity=".5"/>'
           + '<rect x="96" y="59" width="42" height="5" rx="2.5" fill="#7B8194" opacity=".3"/>'
-          + '<rect x="96" y="70" width="20" height="14" rx="4" fill="#3B1772" opacity=".8"/>'
+          + '<rect x="96" y="70" width="20" height="14" rx="4" fill="#6D28D9" opacity=".8"/>'
           + '<rect x="36" y="100" width="108" height="12" rx="6" fill="#EDE8FF"/>'
-          + '<rect x="36" y="100" width="72" height="12" rx="6" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="36" y="100" width="72" height="12" rx="6" fill="#6D28D9" opacity=".7"/>'
           + '</svg>',
       href: '/profil-public',
     },
@@ -1084,20 +1085,20 @@ button{font-family:inherit;cursor:pointer}
       illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
           + '<rect x="16" y="10" width="148" height="110" rx="14" fill="#F3F0FF"/>'
           + '<rect x="28" y="22" width="124" height="90" rx="10" fill="#fff" stroke="#E8EAF0" stroke-width="1.5"/>'
-          + '<rect x="28" y="22" width="124" height="22" rx="10" fill="#3B1772"/>'
-          + '<rect x="28" y="32" width="124" height="12" rx="0" fill="#3B1772"/>'
+          + '<rect x="28" y="22" width="124" height="22" rx="10" fill="#6D28D9"/>'
+          + '<rect x="28" y="32" width="124" height="12" rx="0" fill="#6D28D9"/>'
           + '<rect x="34" y="26" width="30" height="10" rx="3" fill="#fff" opacity=".2"/>'
           + '<text x="90" y="37" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="sans-serif">Lun — Ven</text>'
           + '<rect x="34" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
-          + '<rect x="34" y="50" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="34" y="50" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
           + '<rect x="64" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
-          + '<rect x="64" y="50" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="64" y="50" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
           + '<rect x="94" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
           + '<rect x="124" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
-          + '<rect x="34" y="74" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="34" y="74" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
           + '<rect x="64" y="74" width="24" height="18" rx="5" fill="#EDE8FF"/>'
-          + '<rect x="94" y="74" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
-          + '<rect x="124" y="74" width="24" height="18" rx="5" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="94" y="74" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
+          + '<rect x="124" y="74" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
           + '<rect x="34" y="98" width="114" height="8" rx="4" fill="#EDE8FF"/>'
           + '</svg>',
       href: '/disponibilites',
@@ -1108,20 +1109,20 @@ button{font-family:inherit;cursor:pointer}
       desc: 'Votre page de réservation est prête. Envoyez le lien à vos patients par WhatsApp, SMS ou email.',
       illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
           + '<rect x="54" y="5" width="72" height="120" rx="12" fill="#0C0E14"/>'
-          + '<rect x="58" y="12" width="64" height="106" rx="9" fill="#F7F8FC"/>'
+          + '<rect x="58" y="12" width="64" height="106" rx="9" fill="#F7F6FF"/>'
           + '<rect x="62" y="20" width="56" height="8" rx="4" fill="#EDE8FF"/>'
-          + '<rect x="62" y="20" width="38" height="8" rx="4" fill="#3B1772" opacity=".5"/>'
+          + '<rect x="62" y="20" width="38" height="8" rx="4" fill="#6D28D9" opacity=".5"/>'
           + '<rect x="66" y="34" width="48" height="32" rx="6" fill="#fff" stroke="#E8EAF0" stroke-width="1"/>'
           + '<circle cx="82" cy="46" r="8" fill="#EDE8FF"/>'
           + '<circle cx="82" cy="44" r="4" fill="#7C3AED" opacity=".6"/>'
-          + '<rect x="93" y="38" width="16" height="4" rx="2" fill="#3B1772" opacity=".5"/>'
+          + '<rect x="93" y="38" width="16" height="4" rx="2" fill="#6D28D9" opacity=".5"/>'
           + '<rect x="93" y="46" width="12" height="3" rx="1.5" fill="#7B8194" opacity=".4"/>'
-          + '<rect x="93" y="53" width="20" height="8" rx="3" fill="#3B1772" opacity=".7"/>'
+          + '<rect x="93" y="53" width="20" height="8" rx="3" fill="#6D28D9" opacity=".7"/>'
           + '<rect x="66" y="72" width="48" height="5" rx="2.5" fill="#EDE8FF"/>'
           + '<rect x="66" y="72" width="32" height="5" rx="2.5" fill="#7C3AED" opacity=".4"/>'
-          + '<rect x="66" y="83" width="20" height="14" rx="5" fill="#3B1772" opacity=".9"/>'
+          + '<rect x="66" y="83" width="20" height="14" rx="5" fill="#6D28D9" opacity=".9"/>'
           + '<rect x="90" y="83" width="24" height="14" rx="5" fill="#EDE8FF"/>'
-          + '<circle cx="90" cy="110" r="4" fill="#3B1772" opacity=".5"/>'
+          + '<circle cx="90" cy="110" r="4" fill="#6D28D9" opacity=".5"/>'
           + '</svg>',
       href: '/mes-rdv',
     },
@@ -1131,14 +1132,14 @@ button{font-family:inherit;cursor:pointer}
       desc: 'Votre espace Docline est configuré. Vos patients peuvent maintenant prendre rendez-vous en ligne. Bonne pratique !',
       illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
           + '<circle cx="90" cy="65" r="48" fill="#EDE8FF"/>'
-          + '<circle cx="90" cy="65" r="36" fill="#3B1772" opacity=".15"/>'
-          + '<circle cx="90" cy="65" r="24" fill="#3B1772"/>'
+          + '<circle cx="90" cy="65" r="36" fill="#6D28D9" opacity=".15"/>'
+          + '<circle cx="90" cy="65" r="24" fill="#6D28D9"/>'
           + '<path d="M78 65l8 8 16-16" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'
           + '<circle cx="38" cy="28" r="5" fill="#7C3AED" opacity=".5"/>'
-          + '<circle cx="148" cy="40" r="3.5" fill="#3B1772" opacity=".4"/>'
+          + '<circle cx="148" cy="40" r="3.5" fill="#6D28D9" opacity=".4"/>'
           + '<circle cx="28" cy="90" r="3" fill="#6D28D9" opacity=".4"/>'
           + '<circle cx="155" cy="95" r="5" fill="#7C3AED" opacity=".3"/>'
-          + '<circle cx="60" cy="18" r="2.5" fill="#3B1772" opacity=".3"/>'
+          + '<circle cx="60" cy="18" r="2.5" fill="#6D28D9" opacity=".3"/>'
           + '<circle cx="130" cy="110" r="2" fill="#6D28D9" opacity=".5"/>'
           + '</svg>',
       last: true,

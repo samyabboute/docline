@@ -4,29 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Rejoindre la file d'attente — Docline</title>
-<meta name="theme-color" content="#3B1772">
+<meta name="theme-color" content="#4C1D95">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --brand:#3B1772;--brand-dark:#2D1259;--brand-hover:#4C1D95;
-  --brand-light:#EDE8FF;--brand-glow:rgba(59,23,114,.18);
+  --bg:#FFFFFF;--bg2:#F7F6FF;--bg3:#EEECFB;
+  --ink:#0D0520;--ink2:#2D1B69;--ink3:#6B7280;
+  --p:#4C1D95;--p2:#6D28D9;--p3:#8B5CF6;--p4:#DDD6FE;
+  --orange:#EA580C;--orange2:#F97316;
+  --border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);
+  --font:'Inter',-apple-system,sans-serif;
+  /* Legacy aliases */
+  --brand:#4C1D95;--brand-dark:#6D28D9;--brand-hover:#4C1D95;
+  --brand-light:#EEECFB;--brand-glow:rgba(76,29,149,.15);
   --ok:#059669;--ok-bg:#ECFDF5;--ok-border:#A7F3D0;
   --warn:#EA580C;--warn-bg:#FFF7ED;--warn-border:#FED7AA;
   --danger:#DC2626;--danger-bg:#FEF2F2;--danger-border:#FECACA;
-  --rdv:#7C3AED;--rdv-bg:#F5F3FF;--rdv-border:#DDD6FE;
-  --bg:#F5F3FF;--surface:#fff;
-  --text:#0C0E14;--text2:#3D4251;--text3:#6B7194;--text4:#9CA3C4;
-  --border:#E4E2F0;
+  --rdv:#6D28D9;--rdv-bg:#F7F6FF;--rdv-border:#DDD6FE;
+  --surface:#fff;
+  --text:#0D0520;--text2:#2D1B69;--text3:#6B7280;--text4:#9CA3B8;
   --r:16px;--rfull:999px;
   --ease:cubic-bezier(.25,.46,.45,.94);
 }
 html{-webkit-font-smoothing:antialiased;height:100%;overscroll-behavior:none}
 body{
-  font-family:'Sora',system-ui,sans-serif;
+  font-family:'Inter',system-ui,sans-serif;
   background:var(--bg);color:var(--text);
   min-height:100dvh;display:flex;flex-direction:column;
   align-items:center;justify-content:flex-start;
@@ -44,7 +50,7 @@ body{
 
 /* ── HEADER ── */
 .card-header{
-  background:linear-gradient(145deg,#3B1772 0%,#5B21B6 60%,#7C3AED 100%);
+  background:linear-gradient(145deg,#4C1D95 0%,#6D28D9 60%,#8B5CF6 100%);
   padding:28px 24px 22px;text-align:center;color:#fff;position:relative;overflow:hidden;
 }
 .card-header::before{
@@ -119,7 +125,7 @@ body{
 .form-input{
   width:100%;padding:14px 16px;
   border:2px solid var(--border);border-radius:12px;
-  font-size:16px;font-family:'Sora',inherit;color:var(--text);
+  font-size:16px;font-family:'Inter',inherit;color:var(--text);
   background:var(--surface);outline:none;-webkit-appearance:none;
   transition:border-color .18s,box-shadow .18s;
 }
@@ -189,7 +195,7 @@ body{
 .btn{
   width:100%;padding:15px;background:var(--brand);color:#fff;
   border:none;border-radius:var(--rfull);font-size:15px;font-weight:700;
-  cursor:pointer;font-family:'Sora',inherit;
+  cursor:pointer;font-family:'Inter',inherit;
   display:flex;align-items:center;justify-content:center;gap:8px;
   transition:all .18s;-webkit-tap-highlight-color:transparent;
   box-shadow:0 4px 18px rgba(59,23,114,.28);
@@ -203,7 +209,7 @@ body{
 .btn-ghost{
   width:100%;padding:11px;background:none;color:var(--text3);
   border:2px solid var(--border);border-radius:var(--rfull);
-  font-size:13px;font-weight:600;cursor:pointer;font-family:'Sora',inherit;
+  font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',inherit;
   transition:all .15s;-webkit-tap-highlight-color:transparent;
 }
 .btn-ghost:active{background:var(--brand-light);border-color:var(--brand);color:var(--brand)}

@@ -8,36 +8,46 @@
 <title>Hub Symphony — Docline Symphony</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script src="config.js?v=3"></script>
 <style>
 /* ── CSS VARIABLES ─────────────────────────────────────────── */
 :root {
-  --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;--brand-glow:rgba(59,23,114,.14);
-  --sidebar-bg:#0f172a;--sidebar-hover:rgba(255,255,255,.06);--sidebar-active:rgba(59,23,114,.18);--sidebar-border:rgba(255,255,255,.07);
-  --bg:#F8FAFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
-  --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
-  --border:#E4E7F0;--border-strong:#C8CCE0;
+  /* New Light Premium palette */
+  --bg:#FFFFFF;--bg2:#F7F6FF;--bg3:#EEECFB;
+  --ink:#0D0520;--ink2:#2D1B69;--ink3:#6B7280;
+  --p:#4C1D95;--p2:#6D28D9;--p3:#8B5CF6;--p4:#DDD6FE;
+  --orange:#EA580C;--orange2:#F97316;
+  --border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);
+  --font:'Inter',-apple-system,sans-serif;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+  --shadow:0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.1);
+  --pill:999px;--r:8px;--rl:16px;
+  /* Legacy aliases */
+  --brand:#4C1D95;--brand-dark:#6D28D9;--brand-light:#EEECFB;--brand-glow:rgba(76,29,149,.12);
+  --sidebar-bg:#0f172a;--sidebar-hover:rgba(255,255,255,.06);--sidebar-active:rgba(76,29,149,.18);--sidebar-border:rgba(255,255,255,.07);
+  --bg-raised:#FFFFFF;--bg-subtle:#F7F6FF;--bg-hover:#EEECFB;
+  --text-primary:#0D0520;--text-secondary:#2D1B69;--text-muted:#6B7280;--text-faint:#9CA3B8;
+  --border-strong:rgba(0,0,0,.12);
   --success:#12B76A;--success-bg:#ECFDF5;--success-border:rgba(18,183,106,.2);
   --warning:#F79009;--warning-bg:#FFFAEB;--warning-border:rgba(247,144,9,.2);
   --danger:#F04438;--danger-bg:#FEF3F2;--danger-border:rgba(240,68,56,.2);
   --info:#2E90FA;--info-bg:#EFF8FF;--info-border:rgba(46,144,250,.2);
   --sidebar-w:240px;--topbar-h:56px;
   --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
-  --shadow-xs:0 1px 2px rgba(13,15,20,.06);
-  --shadow-sm:0 1px 3px rgba(13,15,20,.08),0 1px 2px rgba(13,15,20,.05);
-  --shadow-md:0 4px 8px rgba(13,15,20,.08),0 2px 4px rgba(13,15,20,.04);
-  --shadow-lg:0 12px 24px rgba(13,15,20,.1),0 4px 8px rgba(13,15,20,.06);
-  --shadow-brand:0 4px 14px rgba(59,23,114,.28);
+  --shadow-xs:0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 8px rgba(0,0,0,.08);
+  --shadow-brand:0 4px 14px rgba(76,29,149,.25);
   --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);
 }
 
 /* ── RESET ─────────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;scroll-behavior:smooth}
-body{font-family:'Sora',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:'Inter',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font-family:inherit}
 img,svg{display:block;max-width:100%}
@@ -50,7 +60,7 @@ ul,ol{list-style:none}
 .app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;min-height:100vh}
 .sidebar{grid-row:1/-1;background:var(--sidebar-bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--sidebar-border);z-index:200;transition:left var(--t-base)}
 .sidebar-head{display:flex;align-items:center;padding:18px 16px 14px;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;gap:10px}
-.sidebar-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#7C3AED,#3B1772);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#7C3AED,#4C1D95);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sidebar-logo-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .sidebar-logo-text{font-size:.9375rem;font-weight:800;color:#fff;letter-spacing:-.3px}
 .sidebar-logo-sub{font-size:.625rem;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
@@ -81,7 +91,7 @@ ul,ol{list-style:none}
 .topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:100}
 .topbar-title{font-size:1rem;font-weight:700;color:var(--text-primary)}
 .topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
-.admin-chip{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);color:var(--brand);font-size:.6875rem;font-weight:700;padding:4px 10px;border-radius:var(--r-full);border:1px solid rgba(59,23,114,.15)}
+.admin-chip{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);color:var(--brand);font-size:.6875rem;font-weight:700;padding:4px 10px;border-radius:var(--r-full);border:1px solid rgba(76,29,149,.15)}
 .hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--r-md);color:var(--text-secondary)}
 .hamburger svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199}
@@ -96,7 +106,7 @@ ul,ol{list-style:none}
 .page-sub{font-size:.8125rem;color:var(--text-muted);margin-top:3px}
 
 /* ── BUTTONS ───────────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Sora',sans-serif;font-size:.8125rem;font-weight:600;padding:9px 18px;transition:all var(--t-fast);white-space:nowrap;line-height:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Inter',sans-serif;font-size:.8125rem;font-weight:600;padding:9px 18px;transition:all var(--t-fast);white-space:nowrap;line-height:1}
 .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .btn:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
 .btn:active:not(:disabled){transform:scale(.98)}
@@ -160,7 +170,7 @@ ul,ol{list-style:none}
   display:flex;align-items:center;justify-content:center;
 }
 .kpi-icon svg{width:15px;height:15px;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;fill:none}
-.kpi-brand .kpi-icon{background:rgba(59,23,114,.07)}
+.kpi-brand .kpi-icon{background:rgba(76,29,149,.07)}
 .kpi-brand .kpi-icon svg{stroke:var(--brand)}
 .kpi-success .kpi-icon{background:rgba(18,183,106,.07)}
 .kpi-success .kpi-icon svg{stroke:var(--success)}
@@ -182,7 +192,7 @@ ul,ol{list-style:none}
 .badge-danger .badge-dot{background:var(--danger)}
 .badge-neutral{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
 .badge-neutral .badge-dot{background:var(--text-faint)}
-.badge-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(59,23,114,.15)}
+.badge-brand{background:var(--brand-light);color:var(--brand);border:1px solid rgba(76,29,149,.15)}
 .badge-info{background:var(--info-bg);color:var(--info);border:1px solid var(--info-border)}
 
 /* ── TABLE ─────────────────────────────────────────────────── */
@@ -422,7 +432,7 @@ ul,ol{list-style:none}
 .qa-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:18px}
 @media(max-width:600px){.qa-strip{grid-template-columns:repeat(2,1fr)}}
 .qa-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 14px 12px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer;transition:border-color var(--t-fast),box-shadow var(--t-fast),transform var(--t-fast);text-decoration:none;position:relative;overflow:hidden;font-family:inherit;text-align:left}
-.qa-card:hover{border-color:var(--brand);box-shadow:0 4px 16px rgba(59,23,114,.1);transform:translateY(-2px)}
+.qa-card:hover{border-color:var(--brand);box-shadow:0 4px 16px rgba(76,29,149,.1);transform:translateY(-2px)}
 .qa-card:active{transform:translateY(0);box-shadow:none}
 .qa-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .qa-icon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -603,7 +613,7 @@ ul,ol{list-style:none}
 .crm-simulate-btn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; padding: 12px; border-radius: var(--r-md);
-  border: 2px dashed var(--brand-border); background: rgba(59,23,114,.04);
+  border: 2px dashed var(--brand-border); background: rgba(76,29,149,.04);
   cursor: pointer; font-family: inherit; font-size: .8125rem; font-weight: 700;
   color: var(--brand); transition: all var(--t-fast); margin-top: 8px;
 }
@@ -794,7 +804,7 @@ ul,ol{list-style:none}
       </div>
 
       <div class="crm-section-title">Offre de rétention suggérée</div>
-      <div id="crm-retention-offer" style="background:linear-gradient(135deg,rgba(59,23,114,.04),rgba(124,58,237,.04));border:1px solid rgba(59,23,114,.15);border-radius:var(--r-lg);padding:16px;margin-bottom:14px">
+      <div id="crm-retention-offer" style="background:linear-gradient(135deg,rgba(76,29,149,.04),rgba(124,58,237,.04));border:1px solid rgba(76,29,149,.15);border-radius:var(--r-lg);padding:16px;margin-bottom:14px">
         <div style="font-size:.8125rem;font-weight:700;color:var(--text-primary);margin-bottom:4px" id="crm-offer-title">Calcul en cours…</div>
         <div style="font-size:.75rem;color:var(--text-muted)" id="crm-offer-desc">—</div>
         <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap" id="crm-offer-actions"></div>
@@ -1051,7 +1061,7 @@ ul,ol{list-style:none}
         </button>
 
         <button class="qa-card" onclick="showSection('medecins');loadDoctors()">
-          <div class="qa-icon" style="background:rgba(59,23,114,.1);color:var(--brand)">
+          <div class="qa-icon" style="background:rgba(76,29,149,.1);color:var(--brand)">
             <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
           <div class="qa-label">CRM Médecins</div>
@@ -1067,7 +1077,7 @@ ul,ol{list-style:none}
         </a>
 
         <a class="qa-card" href="/symphony-users">
-          <div class="qa-icon" style="background:rgba(59,23,114,.1);color:var(--brand)">
+          <div class="qa-icon" style="background:rgba(76,29,149,.1);color:var(--brand)">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           </div>
           <div class="qa-label">Utilisateurs</div>
@@ -1083,7 +1093,7 @@ ul,ol{list-style:none}
         </a>
 
         <a class="qa-card" href="/symphony-emails">
-          <div class="qa-icon" style="background:rgba(59,23,114,.08);color:var(--brand)">
+          <div class="qa-icon" style="background:rgba(76,29,149,.08);color:var(--brand)">
             <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           </div>
           <div class="qa-label">Emails &amp; Modèles</div>
@@ -1315,7 +1325,7 @@ ul,ol{list-style:none}
               Dernières inscriptions
             </div>
             <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:.6875rem;color:var(--brand);font-weight:600;display:flex;align-items:center;gap:4px;background:var(--brand-light);padding:3px 8px;border-radius:var(--r-full);border:1px solid rgba(59,23,114,.15)">
+              <span style="font-size:.6875rem;color:var(--brand);font-weight:600;display:flex;align-items:center;gap:4px;background:var(--brand-light);padding:3px 8px;border-radius:var(--r-full);border:1px solid rgba(76,29,149,.15)">
                 <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                 Clic = CRM complet
               </span>
@@ -1396,8 +1406,8 @@ ul,ol{list-style:none}
       </div>
 
       <!-- CRM HINT BANNER -->
-      <div style="display:flex;align-items:center;gap:12px;background:rgba(59,23,114,.06);border:1px solid rgba(59,23,114,.18);border-radius:var(--r-lg);padding:12px 18px;margin-bottom:16px">
-        <div style="width:32px;height:32px;border-radius:8px;background:rgba(59,23,114,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(76,29,149,.06);border:1px solid rgba(76,29,149,.18);border-radius:var(--r-lg);padding:12px 18px;margin-bottom:16px">
+        <div style="width:32px;height:32px;border-radius:8px;background:rgba(76,29,149,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <div style="flex:1">
@@ -2212,9 +2222,9 @@ async function loadSignupsChart() {
           data: counts,
           fill: true,
           tension: 0.4,
-          borderColor: '#3B1772',
-          backgroundColor: 'rgba(59,23,114,.08)',
-          pointBackgroundColor: '#3B1772',
+          borderColor: '#4C1D95',
+          backgroundColor: 'rgba(76,29,149,.08)',
+          pointBackgroundColor: '#4C1D95',
           pointRadius: 3,
           pointHoverRadius: 5,
           borderWidth: 2
@@ -2247,7 +2257,7 @@ async function loadPlansChart(totalDoctors) {
 
     const data = [free, pro, clinic].filter(v => v > 0);
     const labels = ['Gratuit','Pro','Clinique'].filter((_, i) => [free,pro,clinic][i] > 0);
-    const colors = ['#E4E7F0','#3B1772','#7C3AED'].filter((_, i) => [free,pro,clinic][i] > 0);
+    const colors = ['#E4E7F0','#4C1D95','#7C3AED'].filter((_, i) => [free,pro,clinic][i] > 0);
 
     _chartPlans = new Chart(ctx, {
       type: 'doughnut',
@@ -2353,7 +2363,7 @@ async function loadPendingPayments() {
    DOCTOR QUICK PANEL (dashboard signups)
 ═══════════════════════════════════════════════════════════ */
 const _GRAD_PALETTE = [
-  'linear-gradient(135deg,#3B1772,#0066FF)',
+  'linear-gradient(135deg,#4C1D95,#0066FF)',
   'linear-gradient(135deg,#6D28D9,#A855F7)',
   'linear-gradient(135deg,#059669,#10B981)',
   'linear-gradient(135deg,#DC2626,#F87171)',
@@ -3635,7 +3645,7 @@ function renderStaffTable() {
           </div>
         </div>
       </td>
-      <td><code style="font-size:12px;background:var(--brand-light);color:var(--brand);padding:4px 10px;border-radius:6px;font-weight:700;letter-spacing:.6px;border:1px solid rgba(59,23,114,.12)">${esc(s.employee_id||'—')}</code></td>
+      <td><code style="font-size:12px;background:var(--brand-light);color:var(--brand);padding:4px 10px;border-radius:6px;font-weight:700;letter-spacing:.6px;border:1px solid rgba(76,29,149,.12)">${esc(s.employee_id||'—')}</code></td>
       <td><span style="font-size:12px;color:var(--text-secondary)">${deptLabel}</span></td>
       <td><span style="font-size:11px;padding:3px 10px;border-radius:99px;${roleStyle}">${(s.role||'').toUpperCase()}</span></td>
       <td>${statusBadge}</td>
@@ -3678,7 +3688,7 @@ async function loadAuditLog() {
       return `<tr class="trow" style="${rowBorderStyle}">
         <td style="font-size:11px;color:var(--text-muted);white-space:nowrap">${dt}</td>
         <td style="font-size:12px;font-weight:600">${esc(l.employee_name||'—')}</td>
-        <td><code style="font-size:11px;background:var(--brand-light);color:var(--brand);padding:2px 8px;border-radius:4px;border:1px solid rgba(59,23,114,.12)">${esc(l.employee_id||'—')}</code></td>
+        <td><code style="font-size:11px;background:var(--brand-light);color:var(--brand);padding:2px 8px;border-radius:4px;border:1px solid rgba(76,29,149,.12)">${esc(l.employee_id||'—')}</code></td>
         <td style="font-size:12px">${actionLabels[l.action]||l.action}</td>
         <td><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;${sevStyle}">${(l.severity||'').toUpperCase()}</span></td>
         <td style="font-size:11px;color:var(--text-muted)">${esc(l.target_email||l.target_id||'—')}</td>

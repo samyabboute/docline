@@ -6,26 +6,27 @@
 <title>Tableau de bord — Docline</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#3B1772">
+<meta name="theme-color" content="#6D28D9">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="config.js?v=3"></script>
 <script src="shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── PAGE STYLES (complètent shell.js) ─────────────────── */
 :root{
-  --brand:#3B1772;--brand-light:#EDE8FF;--brand-border:rgba(59,23,114,.12);
-  --bg:#F7F8FC;--surface:#fff;--surface-2:#F3F4F8;
-  --text:#0C0E14;--text-2:#3D4251;--text-3:#7B8194;--text-4:#B0B7CC;
-  --border:#E8EAF0;
+  --brand:#6D28D9;--brand-light:#DDD6FE;--brand-border:rgba(0,0,0,.07);
+  --bg:#F7F6FF;--surface:#fff;--surface-2:#EEECFB;
+  --text:#0D0520;--text-2:#2D1B69;--text-3:#6B7280;--text-4:#B0B7CC;
+  --border:rgba(0,0,0,.07);
   --success:#059669;--success-bg:#F0FDF9;
   --warning:#D97706;--warning-bg:#FFFBEB;
   --danger:#DC2626;--danger-bg:#FFF5F5;
   --r:8px;--r-lg:12px;--rfull:999px;
   --t:.15s;--ease:cubic-bezier(.4,0,.2,1);
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 /* ── PAYMENT POPUP ── */
@@ -39,19 +40,19 @@
 .pay-modal-icon{font-size:36px;margin-bottom:10px}
 .pay-modal-title{font-size:18px;font-weight:800;color:#0C0E14;letter-spacing:-.3px;margin-bottom:4px}
 .pay-modal-sub{font-size:13px;color:#7B8194;margin-bottom:16px;line-height:1.5}
-.pay-modal-plan-badge{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);border:1px solid var(--brand-border);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--brand);margin-bottom:16px}
+.pay-modal-plan-badge{display:inline-flex;align-items:center;gap:6px;background:#DDD6FE;border:1px solid rgba(109,40,217,.15);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--brand);margin-bottom:16px}
 .pay-modal-price{font-size:24px;font-weight:900;color:var(--brand);letter-spacing:-.4px;margin-bottom:4px}
 .pay-modal-interval{font-size:12px;color:#9CA3AF;margin-bottom:16px}
 .pay-modal-bank{background:#F8FAFF;border:1px solid #E8EAF0;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:12px;color:#374151}
 .pay-modal-bank strong{color:#0C0E14}
 .pay-modal-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-bottom:8px}
-.pay-modal-btn:hover{background:#1D4ED8;transform:translateY(-1px)}
+.pay-modal-btn:hover{background:#4C1D95;transform:translateY(-1px)}
 .pay-modal-dismiss{width:100%;text-align:center;font-size:12px;color:#9CA3AF;background:none;border:none;cursor:pointer;font-family:inherit;transition:color .15s;padding:4px}
 .pay-modal-dismiss:hover{color:#374151}
 .content-blur{filter:blur(2px);pointer-events:none;user-select:none}
 
 html{-webkit-font-smoothing:antialiased}
-body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text)}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -59,18 +60,18 @@ button{font-family:inherit;cursor:pointer}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
 
 /* ── GREETING ─────────────────────────────────────────── */
-.greeting{margin-bottom:28px;padding:24px 28px;background:linear-gradient(135deg,var(--brand) 0%,#5B21B6 100%);border-radius:20px;position:relative;overflow:hidden}
-.greeting::before{content:'';position:absolute;top:-40px;right:-20px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none}
-.greeting::after{content:'';position:absolute;bottom:-60px;left:30%;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
-.greeting-line{font-size:22px;font-weight:800;letter-spacing:-.5px;color:#fff;margin-bottom:4px;position:relative;z-index:1}
-.greeting-sub{font-size:13px;color:rgba(255,255,255,.65);position:relative;z-index:1}
+.greeting{margin-bottom:28px;padding:24px 28px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;position:relative;overflow:hidden}
+.greeting::before{content:'';position:absolute;top:-40px;right:-20px;width:200px;height:200px;border-radius:50%;background:rgba(109,40,217,.04);pointer-events:none}
+.greeting::after{content:'';position:absolute;bottom:-60px;left:30%;width:180px;height:180px;border-radius:50%;background:rgba(109,40,217,.03);pointer-events:none}
+.greeting-line{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--text);margin-bottom:4px;position:relative;z-index:1}
+.greeting-sub{font-size:13px;color:var(--text-3);position:relative;z-index:1}
 
 /* ── KPI GRID ─────────────────────────────────────────── */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
 .kpi{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:20px 20px 16px;position:relative;overflow:hidden;transition:transform .18s var(--ease),box-shadow .18s var(--ease);cursor:default}
 .kpi:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
 .kpi-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-.kpi-blue .kpi-icon{background:#EDE8FF;color:var(--brand)}
+.kpi-blue .kpi-icon{background:#DDD6FE;color:var(--brand)}
 .kpi-green .kpi-icon{background:var(--success-bg);color:var(--success)}
 .kpi-amber .kpi-icon{background:var(--warning-bg);color:var(--warning)}
 .kpi-red .kpi-icon{background:var(--danger-bg);color:var(--danger)}
@@ -98,7 +99,7 @@ button{font-family:inherit;cursor:pointer}
 .qa-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .qa-btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
 .qa-btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
-.qa-btn.primary:hover{background:#002580;border-color:#002580}
+.qa-btn.primary:hover{background:var(--brand-light);border-color:var(--brand);color:var(--brand)}
 
 /* ── MAIN GRID ────────────────────────────────────────── */
 .dash-grid{display:grid;grid-template-columns:1fr 340px;gap:16px}
@@ -212,9 +213,9 @@ button{font-family:inherit;cursor:pointer}
 .kyc-info-box svg{width:15px;height:15px;fill:none;stroke:#2563EB;stroke-width:2;stroke-linecap:round;flex-shrink:0;margin-top:1px}
 .kyc-info-box-text{font-size:12px;color:#1D4ED8;line-height:1.5}
 .kyc-upload-zone{border:2px dashed var(--border);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:.2s;position:relative;margin-bottom:14px}
-.kyc-upload-zone:hover,.kyc-upload-zone.drag-over{border-color:var(--brand);background:rgba(59,23,114,.03)}
+.kyc-upload-zone:hover,.kyc-upload-zone.drag-over{border-color:var(--brand);background:rgba(109,40,217,.03)}
 .kyc-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.kyc-upload-icon{width:44px;height:44px;border-radius:12px;background:rgba(59,23,114,.07);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.kyc-upload-icon{width:44px;height:44px;border-radius:12px;background:rgba(109,40,217,.07);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
 .kyc-upload-icon svg{width:22px;height:22px;fill:none;stroke:var(--brand);stroke-width:1.8;stroke-linecap:round}
 .kyc-upload-title{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:3px}
 .kyc-upload-sub{font-size:12px;color:var(--text-3)}
@@ -231,7 +232,7 @@ button{font-family:inherit;cursor:pointer}
 .kyc-select{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;color:var(--text);font-family:inherit;outline:none;background:var(--surface);margin-bottom:10px}
 .kyc-select:focus{border-color:var(--brand)}
 .kyc-input{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;color:var(--text);font-family:inherit;outline:none;margin-bottom:4px}
-.kyc-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.07)}
+.kyc-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.07)}
 .kyc-hint{font-size:11px;color:var(--text-3);margin-bottom:14px}
 .kyc-btn-primary{width:100%;padding:12px;border-radius:11px;background:linear-gradient(135deg,var(--brand),#5B21B6);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;margin-bottom:8px}
 .kyc-btn-primary:hover:not(:disabled){opacity:.9}
@@ -296,7 +297,7 @@ button{font-family:inherit;cursor:pointer}
   color:var(--text);background:var(--surface);outline:none;
   transition:border-color var(--t);
 }
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,23,114,.08)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.08)}
 .field textarea{resize:vertical;min-height:72px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .modal-foot{display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
@@ -346,19 +347,19 @@ button{font-family:inherit;cursor:pointer}
 .nps-hint{font-size:.75rem;color:#8B92A9;margin-bottom:22px}
 .nps-scale{display:flex;gap:6px;margin-bottom:10px}
 .nps-btn{flex:1;aspect-ratio:1/1;border:1.5px solid #E4E7F0;border-radius:10px;font-size:.875rem;font-weight:700;cursor:pointer;background:#F8FAFF;color:#4A5068;transition:all .15s ease;font-family:inherit;display:flex;align-items:center;justify-content:center}
-.nps-btn:hover{border-color:#3B1772;color:#3B1772;background:#F0EBF8}
-.nps-btn.selected{background:#3B1772;color:#fff;border-color:#3B1772;transform:scale(1.08)}
+.nps-btn:hover{border-color:#6D28D9;color:#6D28D9;background:#F0EBF8}
+.nps-btn.selected{background:#6D28D9;color:#fff;border-color:#6D28D9;transform:scale(1.08)}
 .nps-btn.promoter{background:#059669;border-color:#059669;color:#fff}
 .nps-btn.passive{background:#D97706;border-color:#D97706;color:#fff}
 .nps-btn.detractor{background:#DC2626;border-color:#DC2626;color:#fff}
 .nps-scale-labels{display:flex;justify-content:space-between;font-size:.625rem;color:#B8BDD1;font-weight:600;margin-bottom:24px;text-transform:uppercase;letter-spacing:.5px}
 .nps-cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
 .nps-cat{padding:6px 14px;border-radius:99px;border:1.5px solid #E4E7F0;font-size:.75rem;font-weight:600;cursor:pointer;background:#F8FAFF;color:#4A5068;transition:all .15s;font-family:inherit}
-.nps-cat.selected{background:#3B1772;color:#fff;border-color:#3B1772}
+.nps-cat.selected{background:#6D28D9;color:#fff;border-color:#6D28D9}
 .nps-textarea{width:100%;border:1.5px solid #E4E7F0;border-radius:10px;padding:10px 14px;font-size:.8125rem;font-family:inherit;resize:none;outline:none;color:#0D0F14;background:#FAFBFF;transition:border-color .15s;min-height:80px}
-.nps-textarea:focus{border-color:#3B1772}
+.nps-textarea:focus{border-color:#6D28D9}
 .nps-actions{display:flex;gap:10px;margin-top:20px}
-.nps-submit{flex:1;padding:12px;background:#3B1772;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:.875rem;cursor:pointer;font-family:inherit;transition:background .15s}
+.nps-submit{flex:1;padding:12px;background:#6D28D9;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:.875rem;cursor:pointer;font-family:inherit;transition:background .15s}
 .nps-submit:hover{background:#2D1259}
 .nps-submit:disabled{opacity:.5;cursor:not-allowed}
 .nps-skip{background:none;border:none;font-size:.75rem;color:#8B92A9;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:6px;transition:color .15s}
@@ -373,8 +374,8 @@ button{font-family:inherit;cursor:pointer}
 .nps-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
 .nps-header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
 .nps-header-icon{width:36px;height:36px;background:#F0EBF8;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.nps-header-icon svg{width:18px;height:18px;stroke:#3B1772;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
-.nps-badge{font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#3B1772;background:#F0EBF8;border:1px solid rgba(59,23,114,.15);padding:2px 8px;border-radius:99px}
+.nps-header-icon svg{width:18px;height:18px;stroke:#6D28D9;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.nps-badge{font-size:.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#6D28D9;background:#F0EBF8;border:1px solid rgba(109,40,217,.15);padding:2px 8px;border-radius:99px}
 </style>
 <script src="loader.js"></script>
   <!-- Sentry monitoring -->
@@ -529,7 +530,7 @@ button{font-family:inherit;cursor:pointer}
     <div class="kyc-modal-head">
       <div>
         <div class="kyc-modal-title">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--brand,#3B1772);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle;margin-right:6px;margin-bottom:2px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Vérification médicale requise
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--brand,#6D28D9);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle;margin-right:6px;margin-bottom:2px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Vérification médicale requise
         </div>
         <div class="kyc-modal-sub">Pour activer votre profil public et recevoir des RDV en ligne</div>
       </div>
@@ -847,7 +848,7 @@ function renderAgenda(events) {
     return;
   }
   el.innerHTML = todayEvents.slice(0,6).map(function(e) {
-    var TYPE_COLORS = { consultation:'#3B1772', suivi:'#059669', rappel:'#D97706', reunion:'#7C3AED', task:'#6B7280' };
+    var TYPE_COLORS = { consultation:'#6D28D9', suivi:'#059669', rappel:'#D97706', reunion:'#7C3AED', task:'#6B7280' };
     var color = TYPE_COLORS[e.type] || '#6B7280';
     var statusCls = e.completed ? 'status-done' : 'status-confirmed';
     var statusLbl = e.completed ? 'Terminé' : 'Prévu';
@@ -1044,7 +1045,7 @@ function _showAdminGrantBanner(sub) {
 
   var banner = document.createElement('div');
   banner.id = 'admin-grant-banner';
-  banner.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:8000;background:linear-gradient(135deg,#1a0e2e,#3b1772);color:#fff;border-radius:14px;padding:18px 22px;max-width:320px;box-shadow:0 8px 32px rgba(59,23,114,.35);animation:slideInRight .35s ease';
+  banner.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:8000;background:linear-gradient(135deg,#1a0e2e,#3b1772);color:#fff;border-radius:14px;padding:18px 22px;max-width:320px;box-shadow:0 8px 32px rgba(109,40,217,.35);animation:slideInRight .35s ease';
   banner.innerHTML = ''
     + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
     +   '<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#F79009;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'
@@ -1097,7 +1098,7 @@ function _showPaymentPopup(sub, isBlocking) {
 
   overlay.innerHTML = '<div class="pay-modal">'
     + closeBtn
-    + '<div class="pay-modal-icon"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--brand,#3B1772);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>'
+    + '<div class="pay-modal-icon"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--brand,#6D28D9);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>'
     + '<div class="pay-modal-title">' + (isBlocking ? 'P\u00e9riode d\'essai termin\u00e9e' : 'Finalisez votre abonnement') + '</div>'
     + '<div class="pay-modal-sub">' + (isBlocking
         ? 'Votre essai gratuit est termin\u00e9. Activez votre plan pour continuer \u00e0 utiliser Docline.'
@@ -1130,7 +1131,7 @@ function _showPaymentPopup(sub, isBlocking) {
       <div class="nps-header">
         <div class="nps-header-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
         <div>
-          <div style="font-size:.6875rem;font-weight:700;color:#3B1772;letter-spacing:.5px;text-transform:uppercase">2 secondes</div>
+          <div style="font-size:.6875rem;font-weight:700;color:#6D28D9;letter-spacing:.5px;text-transform:uppercase">2 secondes</div>
           <div style="font-size:.8125rem;color:#4A5068;font-weight:500">Votre avis compte</div>
         </div>
         <span class="nps-badge" style="margin-left:auto">Anonyme</span>
@@ -1151,7 +1152,7 @@ function _showPaymentPopup(sub, isBlocking) {
       <div class="nps-header">
         <div class="nps-header-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
         <div>
-          <div id="nps-score-echo" style="font-size:.6875rem;font-weight:700;color:#3B1772;letter-spacing:.5px;text-transform:uppercase">Score : —</div>
+          <div id="nps-score-echo" style="font-size:.6875rem;font-weight:700;color:#6D28D9;letter-spacing:.5px;text-transform:uppercase">Score : —</div>
           <div style="font-size:.8125rem;color:#4A5068;font-weight:500">Dites-nous pourquoi</div>
         </div>
       </div>

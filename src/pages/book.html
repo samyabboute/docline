@@ -7,32 +7,42 @@
 <meta name="description" content="Réservez votre rendez-vous médical en 60 secondes. Aucun compte requis.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#3B1772">
+<meta name="theme-color" content="#4C1D95">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <script src="config.js?v=3"></script>
 <style>
 /* ── TOKENS ──────────────────────────────────────────────────────── */
 :root{
-  --brand:#3B1772;--brand-dark:#2D1259;--brand-hover:#4C1D95;
-  --brand-light:#EDE8FF;--brand-glow:rgba(59,23,114,.14);
-  --bg:#F7F9FF;--surface:#FFFFFF;
-  --text-1:#0C1025;--text-2:#3D4461;--text-3:#6B7299;--text-4:#9CA3C4;
-  --border:#E2E6F3;--border-strong:#C8CEEA;
+  /* ── New Light Premium palette ── */
+  --bg:#FFFFFF;--bg2:#F7F6FF;--bg3:#EEECFB;
+  --ink:#0D0520;--ink2:#2D1B69;--ink3:#6B7280;
+  --p:#4C1D95;--p2:#6D28D9;--p3:#8B5CF6;--p4:#DDD6FE;
+  --orange:#EA580C;--orange2:#F97316;
+  --border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);
+  --font:'Inter',-apple-system,sans-serif;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+  --shadow:0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.1);
+  --pill:999px;--r:8px;--rl:16px;
+  /* ── Legacy aliases ── */
+  --brand:#4C1D95;--brand-dark:#6D28D9;--brand-hover:#4C1D95;
+  --brand-light:#EEECFB;--brand-glow:rgba(76,29,149,.12);
+  --surface:#FFFFFF;
+  --text-1:#0D0520;--text-2:#2D1B69;--text-3:#6B7280;--text-4:#9CA3B8;
+  --border-strong:rgba(0,0,0,.12);
   --success:#10B981;--success-bg:#ECFDF5;--success-border:#A7F3D0;
   --danger:#EF4444;--danger-bg:#FEF2F2;
   --warning:#F59E0B;
-  --shadow-sm:0 1px 4px rgba(12,16,37,.06);
-  --shadow-md:0 4px 16px rgba(12,16,37,.08);
-  --shadow-lg:0 12px 40px rgba(12,16,37,.10);
-  --shadow-brand:0 4px 20px rgba(59,23,114,.28);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08);
+  --shadow-brand:0 4px 20px rgba(76,29,149,.25);
   --r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:20px;--r-2xl:28px;--r-full:9999px;
   --t:200ms cubic-bezier(.4,0,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;scroll-behavior:smooth}
-body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;min-height:100vh}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased;min-height:100vh}
 a{color:inherit;text-decoration:none}
 button,input{font-family:inherit}
 
@@ -170,7 +180,7 @@ button,input{font-family:inherit}
 /* ── BUTTONS ──────────────────────────────────────────────────────── */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Sora',sans-serif;
+  border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Inter',sans-serif;
   font-weight:700;padding:12px 24px;font-size:.9375rem;transition:all var(--t);line-height:1}
 .btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand);width:100%}
@@ -212,7 +222,7 @@ button,input{font-family:inherit}
   background:var(--brand);color:#fff;border-radius:var(--r-xl);
   padding:14px 28px;font-weight:700;font-size:.9375rem;
   box-shadow:var(--shadow-brand);cursor:pointer;border:none;
-  font-family:'Sora',sans-serif;width:100%;max-width:360px;margin:0 auto;
+  font-family:'Inter',sans-serif;width:100%;max-width:360px;margin:0 auto;
   transition:all var(--t)}
 .ticket-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
 .ticket-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -237,7 +247,7 @@ button,input{font-family:inherit}
 .sel-next{
   background:var(--brand);color:#fff;border:none;border-radius:var(--r-xl);
   padding:10px 20px;font-weight:700;font-size:.875rem;cursor:pointer;
-  font-family:'Sora',sans-serif;display:flex;align-items:center;gap:6px;
+  font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;
   transition:all var(--t);flex-shrink:0}
 .sel-next:hover{background:var(--brand-dark)}
 .sel-next svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}

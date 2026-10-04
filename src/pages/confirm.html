@@ -7,22 +7,28 @@
 <meta name="description" content="Confirmez votre présence à votre rendez-vous médical.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <script src="config.js?v=3"></script>
 <style>
 :root{
-  --brand:#3B1772;--brand-dark:#2D1259;
-  --bg:#F7F9FF;--surface:#FFFFFF;
-  --text-1:#0C1025;--text-2:#3D4461;--text-3:#6B7299;
-  --border:#E2E6F3;
+  --bg:#FFFFFF;--bg2:#F7F6FF;--bg3:#EEECFB;
+  --ink:#0D0520;--ink2:#2D1B69;--ink3:#6B7280;
+  --p:#4C1D95;--p2:#6D28D9;--p3:#8B5CF6;--p4:#DDD6FE;
+  --orange:#EA580C;--orange2:#F97316;
+  --border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);
+  --font:'Inter',-apple-system,sans-serif;
+  /* Legacy aliases */
+  --brand:#4C1D95;--brand-dark:#6D28D9;
+  --surface:#FFFFFF;
+  --text-1:#0D0520;--text-2:#2D1B69;--text-3:#6B7280;
   --success:#059669;--success-bg:#ECFDF5;--success-border:#A7F3D0;
   --danger:#DC2626;--danger-bg:#FEF2F2;
   --warning:#D97706;--warning-bg:#FFFBEB;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family:'Sora',system-ui,sans-serif;
+  font-family:'Inter',system-ui,sans-serif;
   background:var(--bg);color:var(--text-1);
   min-height:100vh;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
@@ -38,7 +44,7 @@ body{
   overflow:hidden;
 }
 .card-top{
-  background:linear-gradient(135deg,#3B1772,#6D28D9);
+  background:linear-gradient(135deg,#4C1D95,#6D28D9);
   padding:28px 28px 24px;text-align:center;
 }
 .card-top svg.logo{height:28px;width:auto;fill:#fff}
