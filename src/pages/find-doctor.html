@@ -2631,6 +2631,10 @@ if('serviceWorker' in navigator){
   };
 
   function buildParticles() {
+    /* Force h1 to its final position before measuring — .rv has translateY(26px) */
+    h1.style.transition = 'none';
+    h1.classList.add('show');
+    void h1.offsetHeight;
     W = ptc.width  = hero.offsetWidth;
     H = ptc.height = hero.offsetHeight;
     var heroR = hero.getBoundingClientRect();
