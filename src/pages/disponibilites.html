@@ -252,10 +252,24 @@ function onFieldChange(e){
   var day = parseInt(e.target.dataset.day, 10);
   var field = e.target.dataset.field;
   var av = _availability[day];
-  if(field === 'is_active') av.is_active = e.target.checked;
-  else if(field === 'slot') av.slot = parseInt(e.target.value, 10);
-  else av[field] = e.target.value;
-  renderDays(); // re-render to update slot count + disabled state
+  if(field === 'is_active'){
+    av.is_active = e.target.checked;
+    renderDays(); // full re-render only for toggle (enables/disables other fields)
+  } else {
+    if(field === 'slot') av.slot = parseInt(e.target.value, 10);
+    else av[field] = e.target.value;
+    // Only update the summary for this card — avoids losing input focus
+    var card = e.target.closest('.day-card');
+    if(card){
+      var summary = card.querySelector('.day-summary');
+      if(summary){
+        var slots = calcSlots(av.start, av.end, av.slot);
+        summary.innerHTML = av.is_active
+          ? '<strong>'+slots+'</strong> créneaux dispo ('+av.slot+' min)'
+          : 'Fermé';
+      }
+    }
+  }
 }
 
 function renderOffList(){
@@ -296,7 +310,7 @@ async function addOff(){
   if(picked < today){ toast('La date doit être future', 'error'); return; }
   // Check duplicate
   if(_overrides.some(function(o){ return o.override_date === date; })){
-    toast('Ce jour est déjÃ  fermé', 'error'); return;
+    toast('Ce jour est déjà fermé', 'error'); return;
   }
   try{
     var { data, error } = await _supa.from('doctor_availability_overrides').insert({
