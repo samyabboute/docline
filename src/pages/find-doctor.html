@@ -2583,22 +2583,17 @@ if('serviceWorker' in navigator){
   var h1   = document.querySelector('.hero-title');
   if (!hero || !h1) return;
 
-  /* Inject !important rule — beats CSS animations & transitions */
-  var ptStyle = document.createElement('style');
-  ptStyle.textContent = '.fd-pt-hide{opacity:0!important;animation:none!important;transition:none!important;filter:none!important;transform:none!important;}';
-  document.head.appendChild(ptStyle);
-  h1.classList.add('fd-pt-hide');
-  var twCursor = document.querySelector('.tw-cursor');
-  if (twCursor) twCursor.classList.add('fd-pt-hide');
-
   var ptc = document.createElement('canvas');
   ptc.id = 'fd-pt-canvas';
-  ptc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;';
+  ptc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:10;';
   hero.insertBefore(ptc, hero.querySelector('.hero-inner') || hero.firstChild);
   var ctx = ptc.getContext('2d');
 
-  var W, H, particles = [], assembled = false;
+  /* Outer scope so loop() can access after buildParticles() sets them */
+  var W, H, particles = [], assembled = false, fadeStart = 0;
+  var ox = 0, oy = 0, cw = 1, lhFull = 80;
   var T0 = performance.now();
+  var HERO_BG = '#F7F6FF';
 
   function Particle(tx, ty, normX) {
     this.tx = tx; this.ty = ty;
@@ -2635,29 +2630,21 @@ if('serviceWorker' in navigator){
     this.alpha = Math.min(elapsed / 250, 1);
   };
 
-  Particle.prototype.draw = function() {
-    if (this.alpha <= 0) return;
-    ctx.globalAlpha = this.alpha * 0.9;
-    ctx.fillStyle = 'rgb(' + this.r + ',' + this.g + ',' + this.b + ')';
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, 6.283);
-    ctx.fill();
-  };
-
   function buildParticles() {
     W = ptc.width  = hero.offsetWidth;
     H = ptc.height = hero.offsetHeight;
     var heroR = hero.getBoundingClientRect();
     var h1R   = h1.getBoundingClientRect();
-    var ox = h1R.left - heroR.left;
-    var oy = h1R.top  - heroR.top;
-    var cw = h1R.width;
+    ox = h1R.left - heroR.left;
+    oy = h1R.top  - heroR.top;
+    cw = h1R.width;
     var off = document.createElement('canvas');
     off.width = W; off.height = H;
     var oc = off.getContext('2d');
     var cs = getComputedStyle(h1);
     var fs = parseFloat(cs.fontSize);
     var lh = parseFloat(cs.lineHeight) || fs * 1.12;
+    lhFull = lh * 2;
     oc.font = '800 ' + fs + 'px Inter,-apple-system,sans-serif';
     try { oc.letterSpacing = '-2px'; } catch(e){}
     oc.fillStyle = '#fff';
@@ -2667,7 +2654,7 @@ if('serviceWorker' in navigator){
     oc.fillText('Trouvez votre m\u00e9decin', cx, oy);
     oc.fillText('en Alg\u00e9rie', cx, oy + lh);
     var data = oc.getImageData(0, 0, W, H).data;
-    particles = [];
+    particles = []; assembled = false; fadeStart = 0;
     var gap = 4;
     for (var y = 0; y < H; y += gap) {
       for (var x = 0; x < W; x += gap) {
@@ -2677,45 +2664,54 @@ if('serviceWorker' in navigator){
         }
       }
     }
-    assembled = false;
-    setTimeout(function() {
-      assembled = true;
-      /* Prep inline opacity before removing the !important class */
-      h1.style.opacity = '0';
-      h1.style.transition = 'opacity 0.9s ease';
-      h1.classList.remove('fd-pt-hide');
-      void h1.offsetHeight; /* force reflow so transition fires */
-      h1.style.opacity = '1';
-      if (twCursor) {
-        twCursor.classList.remove('fd-pt-hide');
-        twCursor.style.transition = 'opacity 0.5s ease';
-      }
-    }, 1800);
+    setTimeout(function() { assembled = true; }, 1800);
   }
 
-  var fadeStart = 0;
   function loop(now) {
     requestAnimationFrame(loop);
     ctx.clearRect(0, 0, W, H);
+
+    var fade = 1;
     if (assembled) {
       if (!fadeStart) fadeStart = now;
-      var fade = Math.max(0, 1 - (now - fadeStart) / 900);
+      fade = Math.max(0, 1 - (now - fadeStart) / 900);
       if (fade <= 0) return;
-      ctx.globalAlpha = fade;
     }
+
+    /* Cover the h1 area with hero background — hides the real text */
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = HERO_BG;
+    ctx.fillRect(
+      Math.max(0, ox - 24), Math.max(0, oy - 12),
+      Math.min(W, cw + 48), lhFull + 24
+    );
+
+    /* Draw particles with combined fade */
     for (var i = 0; i < particles.length; i++) {
-      particles[i].update(now);
-      particles[i].draw();
+      var p = particles[i];
+      p.update(now);
+      if (p.alpha <= 0) continue;
+      ctx.globalAlpha = p.alpha * 0.92 * fade;
+      ctx.fillStyle = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, 6.283);
+      ctx.fill();
     }
     ctx.globalAlpha = 1;
   }
 
   var _started = false;
-  function _start() { if (_started) return; _started = true; buildParticles(); requestAnimationFrame(loop); }
+  function _start() {
+    if (_started) return; _started = true;
+    buildParticles(); requestAnimationFrame(loop);
+  }
   document.fonts.ready.then(_start);
   setTimeout(_start, 400);
 
-  window.addEventListener('resize', function() { if (window.innerWidth <= 768) return; buildParticles(); }, {passive:true});
+  window.addEventListener('resize', function() {
+    if (window.innerWidth <= 768) return;
+    buildParticles();
+  }, {passive:true});
 })();
 </script></body>
 </html>
