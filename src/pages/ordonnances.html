@@ -1163,6 +1163,7 @@ function openModal(id) {
   if (drop) drop.style.display = 'none';
   document.getElementById('modal-title').textContent = id ? 'Modifier l\'ordonnance' : 'Nouvelle ordonnance';
   var o = id ? _ords.find(function(x){return x.id===id;}) : null;
+  _selPatientId = o ? (o.client_id || null) : null;
   document.getElementById('f-patient').value      = o ? (o.client_name||'') : '';
   document.getElementById('f-date').value         = o && o.due_date ? o.due_date : new Date().toISOString().slice(0,10);
   document.getElementById('f-title').value        = o ? (o.project_title||'') : '';
@@ -1242,7 +1243,7 @@ async function saveNewPatient() {
     last_name:       nom,
     date_naissance:  document.getElementById('np-dob').value   || null,
     phone:           document.getElementById('np-phone').value.trim() || null,
-    sexe:            document.getElementById('np-sexe').value  || null,
+    city:            document.getElementById('np-wilaya').value.trim() || null,
     groupe_sanguin:  document.getElementById('np-blood').value || null,
   }).select().single();
   if (error) {
