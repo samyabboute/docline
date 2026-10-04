@@ -477,7 +477,7 @@ _sb.auth.getSession().then(function(r){
         });
       } catch(e) { console.error('[mes-rdv] Shell.init error:', e); }
 
-      if (typeof Shell.guard === 'function' && !Shell.guard(null)) return;
+      if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
       if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_sb, 'mes-rdv', 'Mes Rendez-vous');
 
       document.getElementById('page-content').style.display = 'block';
@@ -513,6 +513,12 @@ function loadRdv(){
     .eq('doctor_id', _uid)
     .order('requested_date', { ascending: false })
     .then(function(r){
+      if(r && r.error){
+        document.getElementById('rdv-list').innerHTML =
+          '<div class="empty-state"><div class="empty-state-title">Impossible de charger les RDV</div>'
+          +'<div class="empty-state-sub">'+esc(r.error.message)+'</div></div>';
+        return;
+      }
       _allRdv = (r && r.data) ? r.data : [];
       updateKPIs();
       updateCounts();
@@ -822,7 +828,9 @@ window.confirmFromModal = confirmFromModal;
 
 function cancelFromModal(){
   if(!_modalRdv) return;
-  updateStatus(_modalRdv.id, 'cancelled', closeModal);
+  var id = _modalRdv.id;
+  closeModal();
+  quickCancel(id);
 }
 window.cancelFromModal = cancelFromModal;
 
