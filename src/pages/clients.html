@@ -271,6 +271,9 @@
           </select>
         </div>
       </div>
+      <div class="form-row full">
+        <div class="fg"><label>Wilaya / Ville</label><input id="f-wilaya" placeholder="Ex: Alger, Oran, Constantine…" maxlength="80"></div>
+      </div>
     </div>
 
     <!-- Contact -->
@@ -561,7 +564,7 @@ function renderClients(search) {
           '<div class="pc-badges">'+insBadge(c.insurance_type)+(c.groupe_sanguin?bloodBadge(c.groupe_sanguin):'')+'</div>'+
         '</div>'+
         '<div class="pc-name">'+sanitize((c.first_name||'')+' '+(c.last_name||''))+'</div>'+
-        '<div class="pc-sub">'+sanitize(c.company||'Patient')+'</div>'+
+        '<div class="pc-sub">'+sanitize(c.city||c.date_naissance||'Patient')+'</div>'+
         '<div class="pc-meta">'+
           (c.phone?'<span class="pc-tag"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.94 2h3a2 2 0 0 1 2 1.72c.18.96.45 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.25 1.85.52 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+sanitize(c.phone)+'</span>':'')+
           (isChron?'<span class="chronic-chip"> Chronique</span>':'')+
@@ -611,10 +614,11 @@ function openModal(id) {
     document.getElementById('f-siret').value  = c.insurance_num    || '';
     document.getElementById('f-vat').value    = c.groupe_sanguin   || '';
     document.getElementById('f-notes').value  = c.notes      || '';
+    document.getElementById('f-wilaya').value = c.city        || '';
     document.getElementById('modal-title').textContent = 'Modifier le dossier';
     del.style.display = 'inline-flex';
   } else {
-    ['f-first','f-last','f-email','f-phone','f-company','f-city','f-siret','f-notes'].forEach(function(fid){
+    ['f-first','f-last','f-email','f-phone','f-company','f-city','f-siret','f-notes','f-wilaya'].forEach(function(fid){
       var el=document.getElementById(fid); if(el) el.value='';
     });
     document.getElementById('f-type').value = 'individual';
@@ -658,6 +662,7 @@ async function saveClient() {
     insurance_num:    document.getElementById('f-siret').value.trim() || null,
     groupe_sanguin:   document.getElementById('f-vat').value || null,
     notes:      document.getElementById('f-notes').value.trim() || null,
+    city:       document.getElementById('f-wilaya').value.trim() || null,
     updated_at: new Date().toISOString()
   };
   try {
