@@ -805,9 +805,9 @@ function fmtDate(d) {
 }
 function openModal(id) {
   _editId = id || null;
-  _selectedClientId = null;
-  document.getElementById('modal-title').textContent = id ? 'Modifier la consultation' : 'Nouvelle consultation';
   var c = id ? _consults.find(function(x){return x.id===id;}) : null;
+  _selectedClientId = c ? (c.client_id || null) : null;
+  document.getElementById('modal-title').textContent = id ? 'Modifier la consultation' : 'Nouvelle consultation';
   document.getElementById('f-patient').value        = c ? c.patient_name : '';
   document.getElementById('f-date').value           = c ? c.consult_date : new Date().toISOString().slice(0,10);
   document.getElementById('f-motif').value          = c ? (c.motif||'') : '';
@@ -923,7 +923,11 @@ window.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeModal(
 
 // ── DOCTOR PROFILE ────────────────────────────────────────────────────────
 async function loadProfile() {
-  var { data } = await _supa.from('profiles').select('full_name,specialty,address,phone').eq('id',_uid).single();
+  var { data } = await _supa.from('profiles').select('first_name,last_name,speciality,specialty,address,phone').eq('id',_uid).single();
+  if (data) {
+    data.full_name = ('Dr. ' + ((data.first_name||'')+' '+(data.last_name||'')).trim()).trim();
+    data.specialty = data.speciality || data.specialty || '';
+  }
   _drProfile = data || {};
 }
 
@@ -1032,13 +1036,14 @@ async function saveAndPrintOrd() {
   var ordPayload = {
     user_id: _uid,
     client_id: clientId || null,
+    client_name: patient,
     project_type: 'ordonnance',
-    title: 'Ordonnance — ' + patient + ' — ' + date,
+    project_title: 'Ordonnance — ' + patient + ' — ' + date,
     status: 'sent',
     line_items: meds.map(function(m, idx) {
       return { position: idx+1, description: m.name.trim(), quantity: 1, unit_price: 0, posologie: m.posologie.trim() };
     }),
-    notes: instructions || null,
+    description: instructions || null,
   };
   await _supa.from('proposals').insert(ordPayload);
 
