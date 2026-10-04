@@ -1,0 +1,1058 @@
+<!DOCTYPE html><html lang="fr"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta http-equiv="X-Frame-Options" content="DENY"><meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <title>Incidents ITIL — Docline Symphony</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="config.js?v=3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+  :root{
+    --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;--brand-glow:rgba(59,23,114,.14);--brand-border:rgba(59,23,114,.20);
+    --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(59,23,114,.14);--sidebar-border:rgba(255,255,255,.07);
+    --bg:#FAFBFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
+    --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
+    --border:#E4E7F0;--border-strong:#C8CCE0;
+    --success:#12B76A;--success-bg:#ECFDF5;--success-border:rgba(18,183,106,.2);
+    --warning:#F79009;--warning-bg:#FFFAEB;--warning-border:rgba(247,144,9,.2);
+    --danger:#F04438;--danger-bg:#FEF3F2;--danger-border:rgba(240,68,56,.2);
+    --info:#2E90FA;--info-bg:#EFF8FF;--info-border:rgba(46,144,250,.2);
+    --sidebar-w:252px;--topbar-h:56px;
+    --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+    --shadow-xs:0 1px 2px rgba(13,15,20,.06);--shadow-sm:0 1px 3px rgba(13,15,20,.08),0 1px 2px rgba(13,15,20,.05);
+    --shadow-md:0 4px 8px rgba(13,15,20,.08),0 2px 4px rgba(13,15,20,.04);
+    --shadow-lg:0 12px 24px rgba(13,15,20,.1),0 4px 8px rgba(13,15,20,.06);
+    --shadow-xl:0 24px 48px rgba(13,15,20,.14),0 8px 16px rgba(13,15,20,.08);
+    --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);--t-slow:320ms cubic-bezier(.4,0,.2,1);
+    --text-xs:.6875rem;--text-sm:.8125rem;--text-base:.9375rem;--text-md:1.0625rem;--text-lg:1.25rem;--text-xl:1.5rem;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:16px;scroll-behavior:smooth}
+  body{font-family:'Sora',system-ui,sans-serif;font-size:var(--text-sm);line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none} button,input,select,textarea{font-family:inherit}
+  img,svg{display:block;max-width:100%} ul,ol{list-style:none}
+  ::-webkit-scrollbar{width:4px;height:4px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
+
+  /* ── APP SHELL ── */
+  .app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;min-height:100vh}
+  .sidebar{grid-row:1/-1;background:var(--sidebar-bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--sidebar-border);z-index:200}
+  .sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 16px;border-bottom:1px solid var(--sidebar-border);flex-shrink:0}
+  .sidebar-section{padding:20px 16px 6px;font-size:.6875rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.22)}
+  .admin-nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;margin:1px 8px;border-radius:var(--r-md);color:rgba(255,255,255,.55);font-size:var(--text-sm);font-weight:500;cursor:pointer;transition:all var(--t-fast);border:none;background:transparent;text-decoration:none;width:calc(100% - 16px);text-align:left;position:relative}
+  .admin-nav-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.8)}
+  .admin-nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600}
+  .admin-nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:#F79009;border-radius:0 var(--r-full) var(--r-full) 0}
+  .admin-nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
+  .admin-nav-item:hover svg,.admin-nav-item.active svg{opacity:1}
+  .sidebar-footer{margin-top:auto;border-top:1px solid var(--sidebar-border);padding:12px 8px;flex-shrink:0}
+  .sidebar-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-md);cursor:pointer;transition:background var(--t-fast)}
+  .sidebar-user:hover{background:var(--sidebar-hover)}
+  .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--brand) 0%,#8B8FF5 100%);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:#fff;flex-shrink:0}
+  .user-name{font-size:.6875rem;font-weight:600;color:rgba(255,255,255,.8)}
+  .user-role{font-size:10px;color:rgba(255,255,255,.35);margin-top:1px}
+  .user-chevron{margin-left:auto;opacity:.3}
+  .user-chevron svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  /* ── TOPBAR ── */
+  .topbar{display:flex;align-items:center;gap:12px;padding:0 28px;border-bottom:1px solid var(--border);background:var(--bg-raised);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-xs)}
+  .topbar-title{font-size:var(--text-sm);font-weight:700;color:var(--text-primary)}
+  .topbar-actions{display:flex;align-items:center;gap:8px}
+  .hamburger{display:none;align-items:center;justify-content:center;width:36px;height:36px;border:none;background:transparent;cursor:pointer;border-radius:var(--r-md)}
+  .hamburger svg{width:20px;height:20px;stroke:var(--text-secondary);fill:none;stroke-width:2;stroke-linecap:round}
+  /* ── MAIN ── */
+  .main{overflow-y:auto;background:var(--bg)}
+  .page{padding:28px 32px;max-width:1400px}
+  /* ── BUTTONS ── */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r-md);font-family:'Sora',sans-serif;font-weight:600;cursor:pointer;transition:all var(--t-fast);text-decoration:none;white-space:nowrap}
+  .btn-primary{background:var(--brand);color:#fff;padding:9px 18px;font-size:var(--text-sm);box-shadow:0 1px 3px rgba(59,23,114,.3)}
+  .btn-primary:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,23,114,.35)}
+  .btn-secondary{background:var(--bg-raised);color:var(--text-secondary);border:1.5px solid var(--border);padding:8px 16px;font-size:var(--text-sm)}
+  .btn-secondary:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+  .btn-danger{background:var(--danger-bg);color:var(--danger);border:1.5px solid var(--danger-border);padding:8px 16px;font-size:var(--text-sm)}
+  .btn-danger:hover{background:var(--danger);color:#fff}
+  .btn-sm{padding:6px 12px;font-size:.6875rem}
+  .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  /* ── CARDS ── */
+  .card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+  .card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+  .card-title{display:flex;align-items:center;gap:8px;font-size:var(--text-sm);font-weight:700;color:var(--text-primary)}
+  .card-title svg{width:16px;height:16px;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .card-body{padding:20px}
+  /* ── KPI ── */
+  .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+  .kpi-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;transition:transform var(--t-base),box-shadow var(--t-base)}
+  .kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+  .kpi-icon{width:36px;height:36px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .kpi-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .kpi-value{font-size:1.75rem;font-weight:800;letter-spacing:-.5px;line-height:1;font-family:'DM Mono',monospace}
+  .kpi-label{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted)}
+  .kpi-sub{font-size:.6875rem;color:var(--text-muted);margin-top:2px}
+  /* ── TABLE ── */
+  .table-wrap{overflow-x:auto}
+  .data-table{width:100%;border-collapse:collapse}
+  .data-table th{padding:10px 14px;text-align:left;font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);border-bottom:1.5px solid var(--border);white-space:nowrap;background:var(--bg-subtle)}
+  .data-table td{padding:13px 14px;border-bottom:1px solid var(--border);font-size:var(--text-sm);color:var(--text-secondary);vertical-align:middle}
+  .data-table tbody tr:last-child td{border-bottom:none}
+  .data-table tbody tr{cursor:pointer;transition:background var(--t-fast)}
+  .data-table tbody tr:hover td{background:var(--bg-hover)}
+  /* ── BADGES ── */
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700;letter-spacing:.3px;white-space:nowrap}
+  .badge-p1{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
+  .badge-p2{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
+  .badge-p3{background:#FEFCE8;color:#A16207;border:1px solid #FEF08A}
+  .badge-p4{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
+  .badge-new{background:var(--bg-subtle);color:var(--text-secondary);border:1px solid var(--border)}
+  .badge-assigned{background:var(--info-bg);color:#1D4ED8;border:1px solid var(--info-border)}
+  .badge-in_progress{background:#F5F3FF;color:#6D28D9;border:1px solid #DDD6FE}
+  .badge-escalated{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+  .badge-resolved{background:var(--success-bg);color:#065F46;border:1px solid var(--success-border)}
+  .badge-closed{background:var(--bg-subtle);color:var(--text-faint);border:1px solid var(--border)}
+  /* ── SLA TIMER ── */
+  .sla-ok{color:var(--success);font-weight:700;font-family:'DM Mono',monospace;font-size:.75rem}
+  .sla-warn{color:var(--warning);font-weight:700;font-family:'DM Mono',monospace;font-size:.75rem}
+  .sla-breach{color:var(--danger);font-weight:700;font-family:'DM Mono',monospace;font-size:.75rem}
+  .sla-none{color:var(--text-faint);font-size:.75rem}
+  /* ── FILTERS ── */
+  .filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+  .filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+  .filter-pill{padding:5px 14px;border-radius:var(--r-full);border:1.5px solid var(--border);background:var(--bg-raised);font-size:.6875rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all var(--t-fast);font-family:'Sora',sans-serif}
+  .filter-pill:hover{border-color:var(--brand);color:var(--brand)}
+  .filter-pill.active{background:var(--brand);border-color:var(--brand);color:#fff}
+  .filter-pill.p1.active{background:#B91C1C;border-color:#B91C1C}
+  .filter-pill.p2.active{background:#C2410C;border-color:#C2410C}
+  .filter-pill.p3.active{background:#A16207;border-color:#A16207}
+  /* ── MODAL ── */
+  .overlay{position:fixed;inset:0;z-index:900;background:rgba(13,15,20,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+  .overlay.open{display:flex}
+  .modal{background:var(--bg-raised);border-radius:var(--r-xl);box-shadow:var(--shadow-xl);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:modalIn var(--t-slow) cubic-bezier(.22,1,.36,1);border:1px solid var(--border)}
+  .modal-lg{max-width:680px}
+  @keyframes modalIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-raised);z-index:1}
+  .modal-title{font-size:var(--text-md);font-weight:700}
+  .modal-body{padding:24px;display:flex;flex-direction:column;gap:16px}
+  .modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--border);background:var(--bg-subtle);border-radius:0 0 var(--r-xl) var(--r-xl)}
+  .close-btn{width:32px;height:32px;border:none;background:transparent;cursor:pointer;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all var(--t-fast)}
+  .close-btn:hover{background:var(--bg-hover);color:var(--text-primary)}
+  .close-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  /* ── FORM ── */
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:.6875rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px}
+  .field input,.field select,.field textarea{border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px 14px;font-size:var(--text-sm);color:var(--text-primary);background:var(--bg-raised);transition:border-color var(--t-fast);font-family:'Sora',sans-serif;outline:none}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow)}
+  .field textarea{resize:vertical;min-height:90px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  /* ── DETAIL PANEL ── */
+  .detail-panel{position:fixed;top:0;right:0;bottom:0;width:480px;background:var(--bg-raised);border-left:1px solid var(--border);box-shadow:var(--shadow-xl);z-index:800;transform:translateX(100%);transition:transform var(--t-slow);display:flex;flex-direction:column}
+  .detail-panel.open{transform:translateX(0)}
+  .detail-panel-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0}
+  .detail-panel-body{flex:1;overflow-y:auto;padding:24px}
+  .detail-panel-foot{border-top:1px solid var(--border);padding:16px 24px;background:var(--bg-subtle);display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0}
+  .panel-overlay{position:fixed;inset:0;z-index:799;background:rgba(13,15,20,.3);display:none}
+  .panel-overlay.open{display:block}
+  /* ── TIMELINE ── */
+  .tl-list{display:flex;flex-direction:column}
+  .tl-item{display:flex;gap:12px;padding:12px 0;position:relative}
+  .tl-item:not(:last-child)::after{content:'';position:absolute;left:13px;top:38px;bottom:0;width:1px;background:var(--border)}
+  .tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;border:2px solid var(--bg-raised)}
+  .tl-dot svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .tl-dot.note{background:#E6ECF9;color:var(--brand)}
+  .tl-dot.status_change{background:var(--info-bg);color:var(--info)}
+  .tl-dot.escalation{background:var(--danger-bg);color:var(--danger)}
+  .tl-dot.assignment{background:#F5F3FF;color:#7C3AED}
+  .tl-dot.resolution{background:var(--success-bg);color:var(--success)}
+  .tl-dot.closure{background:var(--bg-subtle);color:var(--text-muted)}
+  .tl-body{flex:1;min-width:0}
+  .tl-meta{display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap}
+  .tl-type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)}
+  .tl-author{font-size:10px;color:var(--text-faint)}
+  .tl-time{font-size:10px;color:var(--text-faint);margin-left:auto}
+  .tl-text{font-size:.6875rem;color:var(--text-secondary);line-height:1.65}
+  /* ── ESCALATION MATRIX ── */
+  .matrix-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .matrix-row:last-child{border-bottom:none}
+  .matrix-level{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:800;color:#fff;flex-shrink:0}
+  /* ── TOAST ── */
+  .toasts{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+  .toast{display:flex;align-items:flex-start;gap:12px;background:var(--text-primary);color:#fff;border-radius:var(--r-lg);padding:13px 16px;font-size:.6875rem;font-weight:500;box-shadow:var(--shadow-xl);min-width:280px;max-width:380px;animation:toastIn 280ms cubic-bezier(.22,1,.36,1);pointer-events:all;line-height:1.5}
+  @keyframes toastIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+  .toast-icon{width:16px;height:16px;flex-shrink:0;margin-top:1px}
+  .toast-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .toast.success .toast-icon svg{stroke:#6EE7B7}
+  .toast.error .toast-icon svg{stroke:#FCA5A5}
+  .toast.info .toast-icon svg{stroke:#93C5FD}
+  .toast-body{flex:1}.toast-title{font-weight:700;font-size:.6875rem}.toast-msg{opacity:.75;margin-top:2px}
+  /* ── SPINNER ── */
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+  /* ── ITIL BANNER ── */
+  .itil-banner{background:linear-gradient(135deg,rgba(59,23,114,.07) 0%,rgba(46,144,250,.05) 100%);border:1px solid var(--brand-border);border-radius:var(--r-lg);padding:18px 24px;display:flex;align-items:center;gap:16px;margin-bottom:24px}
+  /* ── MOBILE ── */
+  .sidebar-overlay{position:fixed;inset:0;background:rgba(13,15,20,.5);z-index:299;display:none}
+  .sidebar-overlay.open{display:block}
+  @media(max-width:1280px){:root{--sidebar-w:220px}.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:768px){
+    :root{--sidebar-w:0px;--topbar-h:52px}
+    .app{grid-template-columns:1fr}
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;z-index:300;transform:translateX(-100%)}
+    .sidebar.open{transform:translateX(0)}
+    .hamburger{display:flex}
+    .page{padding:16px}
+    .kpi-grid{grid-template-columns:1fr 1fr}
+    .field-row{grid-template-columns:1fr}
+    .detail-panel{width:100%;border-left:none;border-top:1px solid var(--border)}
+    .modal{border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:95vh;position:fixed;bottom:0;left:0;right:0}
+    .overlay{align-items:flex-end;padding:0}
+  }
+  @media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+  </style>
+  <meta name="theme-color" content="#3B1772">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="toasts" id="toasts"></div>
+<div class="app">
+  <nav class="sidebar" id="admin-sidebar"></nav>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <header class="topbar">
+    <button class="hamburger" onclick="document.getElementById('admin-sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="topbar-title">Incidents ITIL</div>
+    <div class="topbar-actions" style="margin-left:auto">
+      <button class="btn btn-secondary btn-sm" onclick="loadIncidents()">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Actualiser
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="openCreate()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nouvel incident
+      </button>
+    </div>
+  </header>
+  <main class="main">
+    <div class="page">
+
+      <!-- ITIL Banner -->
+      <div class="itil-banner">
+        <div style="width:40px;height:40px;background:var(--brand-light);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:var(--text-sm);font-weight:700;color:var(--text-primary)">Gestion des incidents — Cadre ITIL v4</div>
+          <div style="font-size:.6875rem;color:var(--text-secondary);margin-top:2px">Cycle de vie : New → Assigned → In Progress → Escalated (L1/L2/L3) → Resolved → Closed. SLA calculé automatiquement.</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="openMatrix()">Matrice SLA</button>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi-card" style="border-top:3px solid var(--text-faint)">
+          <div class="kpi-icon" style="background:var(--bg-subtle);color:var(--text-muted)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="kpi-value" id="kpi-new">—</div>
+          <div class="kpi-label">Nouveaux</div>
+        </div>
+        <div class="kpi-card" style="border-top:3px solid var(--info)">
+          <div class="kpi-icon" style="background:var(--info-bg);color:var(--info)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="kpi-value" id="kpi-progress">—</div>
+          <div class="kpi-label">En cours</div>
+        </div>
+        <div class="kpi-card" style="border-top:3px solid var(--danger)">
+          <div class="kpi-icon" style="background:var(--danger-bg);color:var(--danger)"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+          <div class="kpi-value" id="kpi-escalated">—</div>
+          <div class="kpi-label">Escaladés</div>
+        </div>
+        <div class="kpi-card" style="border-top:3px solid var(--success)">
+          <div class="kpi-icon" style="background:var(--success-bg);color:var(--success)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="kpi-value" id="kpi-resolved">—</div>
+          <div class="kpi-label">Résolus aujourd'hui</div>
+        </div>
+        <div class="kpi-card" style="border-top:3px solid var(--danger)">
+          <div class="kpi-icon" style="background:var(--danger-bg);color:var(--danger)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="kpi-value" id="kpi-breach">—</div>
+          <div class="kpi-label">SLA en breach</div>
+          <div class="kpi-sub" id="kpi-breach-sub"></div>
+        </div>
+      </div>
+
+      <!-- Filters + Search -->
+      <div class="filter-bar">
+        <div class="filter-pills" id="status-filter">
+          <button class="filter-pill active" data-status="">Tous</button>
+          <button class="filter-pill" data-status="new">Nouveau</button>
+          <button class="filter-pill" data-status="assigned">Assigné</button>
+          <button class="filter-pill" data-status="in_progress">En cours</button>
+          <button class="filter-pill" data-status="escalated">Escaladé</button>
+          <button class="filter-pill" data-status="resolved">Résolu</button>
+          <button class="filter-pill" data-status="closed">Fermé</button>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <div class="filter-pills" id="priority-filter">
+            <button class="filter-pill active" data-prio="">Toutes priorités</button>
+            <button class="filter-pill p1" data-prio="P1">P1 Critique</button>
+            <button class="filter-pill p2" data-prio="P2">P2 Élevée</button>
+            <button class="filter-pill p3" data-prio="P3">P3 Moyenne</button>
+            <button class="filter-pill" data-prio="P4">P4 Faible</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Incidents Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Incidents
+          </div>
+          <div style="font-size:.6875rem;color:var(--text-muted)" id="inc-count"></div>
+        </div>
+        <div id="inc-loading" style="display:flex;align-items:center;justify-content:center;padding:60px;gap:16px;flex-direction:column">
+          <div class="spinner"></div>
+          <div style="color:var(--text-muted);font-size:var(--text-sm)">Chargement des incidents…</div>
+        </div>
+        <div id="inc-empty" style="display:none;padding:60px;text-align:center">
+          <div style="width:52px;height:52px;background:var(--bg-subtle);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--text-faint)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="font-size:var(--text-sm);font-weight:700;color:var(--text-primary);margin-bottom:6px">Aucun incident</div>
+          <div style="font-size:.6875rem;color:var(--text-muted)">Tout va bien. Créez un incident si vous en détectez un.</div>
+        </div>
+        <div class="table-wrap" id="inc-table-wrap" style="display:none">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Priorité</th>
+                <th>Statut</th>
+                <th>Catégorie</th>
+                <th>Escalade</th>
+                <th>SLA</th>
+                <th>Créé</th>
+              </tr>
+            </thead>
+            <tbody id="inc-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ── PANEL OVERLAY ── -->
+<div class="panel-overlay" id="panel-overlay" onclick="closeDetail()"></div>
+
+<!-- ── DETAIL PANEL ── -->
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-panel-head">
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px" id="dp-priority-row"></div>
+      <div style="font-size:var(--text-md);font-weight:700;color:var(--text-primary);line-height:1.3" id="dp-title"></div>
+      <div style="font-size:.6875rem;color:var(--text-muted);margin-top:4px" id="dp-meta"></div>
+    </div>
+    <button class="close-btn" onclick="closeDetail()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="detail-panel-body">
+    <!-- Info grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px" id="dp-info"></div>
+    <!-- Description -->
+    <div id="dp-desc-wrap" style="margin-bottom:20px;display:none">
+      <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">Description</div>
+      <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.7;background:var(--bg-subtle);border-radius:var(--r-md);padding:14px 16px;border:1px solid var(--border)" id="dp-desc"></div>
+    </div>
+    <!-- Resolution notes -->
+    <div id="dp-resolution-wrap" style="margin-bottom:20px;display:none">
+      <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">Notes de résolution</div>
+      <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.7;background:var(--success-bg);border-radius:var(--r-md);padding:14px 16px;border:1px solid var(--success-border)" id="dp-resolution"></div>
+    </div>
+    <!-- Add note -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">Ajouter une note</div>
+      <textarea id="dp-note" class="field" style="width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px 14px;font-size:var(--text-sm);color:var(--text-primary);background:var(--bg-raised);font-family:'Sora',sans-serif;resize:vertical;min-height:80px;outline:none" placeholder="Note interne…"></textarea>
+      <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addNote()">Enregistrer la note</button>
+    </div>
+    <!-- Timeline -->
+    <div>
+      <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:12px">Journal ITIL</div>
+      <div class="tl-list" id="dp-timeline"></div>
+    </div>
+  </div>
+  <div class="detail-panel-foot" id="dp-actions"></div>
+</div>
+
+<!-- ── CREATE INCIDENT MODAL ── -->
+<div class="overlay" id="create-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">Nouvel incident</div><div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">Enregistrement ITIL — ticket ouvert automatiquement</div></div>
+      <button class="close-btn" onclick="closeCreate()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Titre *</label>
+        <input id="c-title" type="text" placeholder="Description courte de l'incident">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Priorité *</label>
+          <select id="c-priority">
+            <option value="P1">P1 — Critique (service down)</option>
+            <option value="P2">P2 — Élevée (impact fort)</option>
+            <option value="P3" selected>P3 — Moyenne (impact partiel)</option>
+            <option value="P4">P4 — Faible (mineur)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Catégorie *</label>
+          <select id="c-category">
+            <option value="application">Application</option>
+            <option value="infrastructure">Infrastructure</option>
+            <option value="security">Sécurité</option>
+            <option value="performance">Performance</option>
+            <option value="data">Données</option>
+            <option value="other">Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Service affecté</label>
+        <input id="c-service" type="text" placeholder="ex: Agenda, Authentification, Stripe…">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="c-desc" placeholder="Détails, contexte, étapes de reproduction…"></textarea>
+      </div>
+      <div class="field">
+        <label>Rapporteur</label>
+        <input id="c-reporter" type="email" placeholder="email@exemple.com">
+      </div>
+      <!-- SLA preview -->
+      <div id="c-sla-preview" style="background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 16px;font-size:.6875rem;color:var(--text-secondary)"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeCreate()">Annuler</button>
+      <button class="btn btn-primary" onclick="createIncident()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Créer l'incident
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ESCALATE MODAL ── -->
+<div class="overlay" id="escalate-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">Escalader l'incident</div><div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px" id="esc-inc-title"></div></div>
+      <button class="close-btn" onclick="closeEscalate()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Niveau d'escalade</label>
+        <select id="esc-level">
+          <option value="1">L1 — Support technique</option>
+          <option value="2">L2 — Expert infrastructure</option>
+          <option value="3">L3 — Direction technique (CTO)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Raison de l'escalade *</label>
+        <textarea id="esc-reason" placeholder="Pourquoi escalader ? Qu'a-t-on déjà tenté ?"></textarea>
+      </div>
+      <div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:var(--r-md);padding:12px 16px;font-size:.6875rem;color:#92400E">
+        L'escalade déclenche une notification à l'équipe concernée et met à jour le statut de l'incident à <strong>Escalated</strong>.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeEscalate()">Annuler</button>
+      <button class="btn btn-danger" onclick="doEscalate()">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 21 7 17 3"/><line x1="21" y1="7" x2="9" y2="7"/><polyline points="7 21 3 17 7 13"/><line x1="15" y1="17" x2="3" y2="17"/></svg>Escalader
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESOLVE MODAL ── -->
+<div class="overlay" id="resolve-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">Résoudre l'incident</div><div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px" id="res-inc-title"></div></div>
+      <button class="close-btn" onclick="closeResolve()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Notes de résolution *</label>
+        <textarea id="res-notes" placeholder="Décrivez la cause racine et la solution appliquée…" style="min-height:120px"></textarea>
+      </div>
+      <div style="background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--r-md);padding:12px 16px;font-size:.6875rem;color:#065F46">
+        L'incident passera en statut <strong>Resolved</strong>. Le médecin peut le fermer après confirmation.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeResolve()">Annuler</button>
+      <button class="btn btn-primary" onclick="doResolve()" style="background:var(--success)">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Marquer comme résolu
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLA MATRIX MODAL ── -->
+<div class="overlay" id="matrix-modal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div><div class="modal-title">Matrice SLA ITIL</div><div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">Délais de réponse et résolution par niveau de priorité</div></div>
+      <button class="close-btn" onclick="document.getElementById('matrix-modal').classList.remove('open')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="matrix-row">
+        <div class="matrix-level" style="background:#B91C1C">P1</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:var(--text-sm);color:var(--text-primary)">Critique — Service complètement indisponible</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">Tous les utilisateurs impactés, perte de données potentielle, sécurité compromise</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:.6875rem;font-weight:700;color:var(--text-secondary)">Réponse : <span style="color:#B91C1C">15 min</span></div>
+          <div style="font-size:.6875rem;color:var(--text-muted)">Résolution : 4h</div>
+        </div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-level" style="background:#C2410C">P2</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:var(--text-sm);color:var(--text-primary)">Élevée — Impact fort sur les utilisateurs</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">Fonctionnalité majeure dégradée, contournement difficile</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:.6875rem;font-weight:700;color:var(--text-secondary)">Réponse : <span style="color:#C2410C">1h</span></div>
+          <div style="font-size:.6875rem;color:var(--text-muted)">Résolution : 8h</div>
+        </div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-level" style="background:#A16207">P3</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:var(--text-sm);color:var(--text-primary)">Moyenne — Impact partiel</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">Fonctionnalité dégradée, contournement disponible</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:.6875rem;font-weight:700;color:var(--text-secondary)">Réponse : <span style="color:#A16207">4h</span></div>
+          <div style="font-size:.6875rem;color:var(--text-muted)">Résolution : 24h</div>
+        </div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-level" style="background:#6B7280">P4</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:var(--text-sm);color:var(--text-primary)">Faible — Impact mineur</div>
+          <div style="font-size:.6875rem;color:var(--text-muted);margin-top:2px">Inconvénient cosmétique, demande non urgente</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:.6875rem;font-weight:700;color:var(--text-secondary)">Réponse : <span>8h</span></div>
+          <div style="font-size:.6875rem;color:var(--text-muted)">Résolution : 72h</div>
+        </div>
+      </div>
+      <div style="background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;font-size:.6875rem;color:var(--text-secondary);margin-top:4px">
+        <strong>Escalade automatique :</strong> Si un incident P1 n'est pas assigné dans les 15 min, il monte automatiquement en L2. Si non résolu en 2h, il monte en L3 (direction technique).
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="document.getElementById('matrix-modal').classList.remove('open')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Dark mode ──────────────────────────────────────────────────
+(function(){
+  var t=localStorage.getItem('docline-theme');
+  if(!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t='dark';
+  if(t) document.documentElement.setAttribute('data-theme',t);
+})();
+
+const _adminEmails = (DOCLINE_CONFIG.ADMIN_EMAILS||[]).map(e=>e.toLowerCase());
+const _supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
+  auth:{storage:localStorage,autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}
+});
+
+// ── Helpers ────────────────────────────────────────────────────
+function san(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML;}
+function fmtDate(s){if(!s)return '—';return new Date(s).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtDT(s){if(!s)return '—';return new Date(s).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
+function timeAgo(s){
+  const d=(Date.now()-new Date(s).getTime())/1000;
+  if(d<60)return 'à l\'instant';
+  if(d<3600)return Math.floor(d/60)+'m';
+  if(d<86400)return Math.floor(d/3600)+'h';
+  return Math.floor(d/86400)+'j';
+}
+
+// ── SLA config ─────────────────────────────────────────────────
+const SLA = {
+  P1:{responseMin:15,  resolutionHours:4},
+  P2:{responseMin:60,  resolutionHours:8},
+  P3:{responseMin:240, resolutionHours:24},
+  P4:{responseMin:480, resolutionHours:72},
+};
+
+function slaDeadline(priority, createdAt){
+  const h = SLA[priority]?.resolutionHours ?? 24;
+  return new Date(new Date(createdAt).getTime() + h*3600000);
+}
+
+function slaLabel(deadline, status){
+  if(!deadline||['resolved','closed'].includes(status)) return '<span class="sla-none">—</span>';
+  const rem = new Date(deadline).getTime() - Date.now();
+  if(rem<0){
+    const over = Math.abs(rem);
+    const h=Math.floor(over/3600000),m=Math.floor((over%3600000)/60000);
+    return `<span class="sla-breach">BREACH +${h>0?h+'h':''}${m}m</span>`;
+  }
+  const h=Math.floor(rem/3600000),m=Math.floor((rem%3600000)/60000);
+  const pct = rem/(SLA['P3'].resolutionHours*3600000);
+  const cls = pct>0.5?'sla-ok':pct>0.1?'sla-warn':'sla-breach';
+  return `<span class="${cls}">${h>0?h+'h':''}${m>0?m+'m':'<1m'}</span>`;
+}
+
+function priorityBadge(p){
+  const labels={P1:'P1 Critique',P2:'P2 Élevée',P3:'P3 Moyenne',P4:'P4 Faible'};
+  return `<span class="badge badge-${p}">${san(labels[p]||p)}</span>`;
+}
+function statusBadge(s){
+  const labels={new:'Nouveau',assigned:'Assigné',in_progress:'En cours',escalated:'Escaladé',resolved:'Résolu',closed:'Fermé'};
+  return `<span class="badge badge-${s}">${san(labels[s]||s)}</span>`;
+}
+function categoryLabel(c){
+  return {application:'Application',infrastructure:'Infrastructure',security:'Sécurité',performance:'Performance',data:'Données',other:'Autre'}[c]||c;
+}
+function escLabel(n){
+  if(!n)return '—';
+  return `<span style="background:var(--danger-bg);color:var(--danger);font-size:.6875rem;font-weight:700;padding:2px 8px;border-radius:var(--r-full)">L${n}</span>`;
+}
+function slaPreviewText(priority){
+  const s=SLA[priority];
+  if(!s)return '';
+  const rMin=s.responseMin<60?s.responseMin+'min':s.responseMin/60+'h';
+  return `Délai de réponse : <strong>${rMin}</strong> &nbsp;·&nbsp; Délai de résolution : <strong>${s.resolutionHours}h</strong> &nbsp;·&nbsp; Deadline SLA : <strong>${fmtDT(slaDeadline(priority,new Date()).toISOString())}</strong>`;
+}
+
+// ── Toast ──────────────────────────────────────────────────────
+const Toast=(()=>{
+  function show(title,msg,type='info',ms=4000){
+    let c=document.getElementById('toasts');
+    if(!c){c=document.createElement('div');c.id='toasts';c.className='toasts';document.body.appendChild(c);}
+    const icons={success:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',error:'<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',info:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'};
+    const el=document.createElement('div');el.className=`toast ${type}`;
+    el.innerHTML=`<div class="toast-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icons[type]||icons.info}</svg></div><div class="toast-body">${title?`<div class="toast-title">${title}</div>`:''}${msg?`<div class="toast-msg">${msg}</div>`:''}</div>`;
+    c.appendChild(el);setTimeout(()=>el.remove(),ms);
+  }
+  return{success:(t,m)=>show(t,m,'success'),error:(t,m)=>show(t,m,'error'),info:(t,m)=>show(t,m,'info')};
+})();
+
+// ── Auth ───────────────────────────────────────────────────────
+let _session=null, _userEmail='';
+async function requireAdmin(){
+  const {data:{session}}=await _supa.auth.getSession();
+  _session=session;
+  if(!session){window.location.href=ghpNav('/login');return null;}
+  _userEmail=session.user.email||'';
+  if(!_adminEmails.includes(_userEmail.toLowerCase())){window.location.href=ghpNav('/dashboard');return null;}
+  return session;
+}
+
+// ── Sidebar ────────────────────────────────────────────────────
+function renderSidebar(user){
+  const email=user?.email||'';
+  const initials=email.slice(0,2).toUpperCase()||'AD';
+  const handle=email.split('@')[0]||'Admin';
+  const sections=[
+    {label:'Vue générale',items:[
+      ['/symphony','symphony','Hub Symphony','<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
+      ['/symphony-analytics','symphony-analytics','Analytics','<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'],
+    ]},
+    {label:'Clients & CRM',items:[
+      ['/symphony-kyc','symphony-kyc','KYC & Onboarding','<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'],
+      ['/symphony-users','symphony-users','Médecins & Cliniques','<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'],
+      ['/symphony-crm','symphony-crm','CRM Médecin','<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'],
+      ['/symphony-featured','symphony-featured','Médecins En Vedette','<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
+    ]},
+    {label:'Revenus & Finance',items:[
+      ['/symphony-revenue','symphony-revenue','Revenus & Finance','<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/>'],
+    ]},
+    {label:'Marketing',items:[
+      ['/symphony-ads','symphony-ads','Régie Publicitaire','<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'],
+      ['/symphony-emails','symphony-emails','Emails & Modèles','<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
+    ]},
+    {label:'Équipe',items:[
+      ['/symphony-agents','symphony-agents','Agents & Équipe','<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+      ['/symphony-simulate','symphony-simulate','Simulation','<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>'],
+    ]},
+    {label:'Système',items:[
+      ['/symphony-incidents','symphony-incidents','Incidents ITIL','<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'],
+      ['/symphony-security','symphony-security','Sécurité & Logs','<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
+      ['/symphony-settings','symphony-settings','Paramètres','<circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>'],
+    ]},
+  ];
+  let h=`<div class="sidebar-head"><div style="display:flex;align-items:center;gap:10px"><img src="docline-logo-white.svg" alt="Docline" style="height:22px;width:auto;display:block;max-width:120px"><span style="background:rgba(247,144,9,.18);color:#F59E0B;border:1px solid rgba(247,144,9,.28);font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;letter-spacing:.4px">ADMIN</span></div></div>`;
+  sections.forEach(sec=>{
+    h+=`<div class="sidebar-section">${sec.label}</div>`;
+    sec.items.forEach(([href,key,label,icon])=>{
+      const active=key==='symphony-incidents';
+      h+=`<a href="${href}" class="admin-nav-item${active?' active':''}"><svg viewBox="0 0 24 24">${icon}</svg>${label}</a>`;
+    });
+  });
+  h+=`<div class="sidebar-footer"><div class="sidebar-user" onclick="this.nextElementSibling&&this.nextElementSibling.classList.toggle('open')">
+    <div class="user-avatar">${initials}</div>
+    <div><div class="user-name">${san(handle)}</div><div class="user-role">Symphony Admin</div></div>
+    <div class="user-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+  </div></div>`;
+  document.getElementById('admin-sidebar').innerHTML=h;
+}
+
+// ── State ──────────────────────────────────────────────────────
+let _incidents=[], _currentId=null;
+let _filterStatus='', _filterPriority='';
+
+// ── Load ───────────────────────────────────────────────────────
+async function loadIncidents(){
+  document.getElementById('inc-loading').style.display='flex';
+  document.getElementById('inc-table-wrap').style.display='none';
+  document.getElementById('inc-empty').style.display='none';
+
+  let q=_supa.from('incidents').select('*').order('created_at',{ascending:false});
+  if(_filterStatus) q=q.eq('status',_filterStatus);
+  if(_filterPriority) q=q.eq('priority',_filterPriority);
+  const {data,error}=await q;
+  document.getElementById('inc-loading').style.display='none';
+  if(error){Toast.error('Erreur','Impossible de charger les incidents');return;}
+  _incidents=data||[];
+  renderTable();
+  renderKPIs();
+}
+
+function renderKPIs(){
+  const all=_incidents; // full dataset always needed → re-query for KPIs
+  // Use current full list for KPI stats (not filtered)
+  (async()=>{
+    const {data}=await _supa.from('incidents').select('status,priority,sla_deadline,resolved_at,created_at');
+    if(!data)return;
+    const today=new Date(); today.setHours(0,0,0,0);
+    const now=Date.now();
+    document.getElementById('kpi-new').textContent=data.filter(i=>i.status==='new').length;
+    document.getElementById('kpi-progress').textContent=data.filter(i=>['assigned','in_progress'].includes(i.status)).length;
+    document.getElementById('kpi-escalated').textContent=data.filter(i=>i.status==='escalated').length;
+    document.getElementById('kpi-resolved').textContent=data.filter(i=>i.status==='resolved'&&i.resolved_at&&new Date(i.resolved_at)>=today).length;
+    const breaches=data.filter(i=>!['resolved','closed'].includes(i.status)&&i.sla_deadline&&new Date(i.sla_deadline).getTime()<now);
+    document.getElementById('kpi-breach').textContent=breaches.length;
+    if(breaches.length){
+      const p1=breaches.filter(i=>i.priority==='P1').length;
+      document.getElementById('kpi-breach-sub').textContent=p1?`dont ${p1} P1`:'';
+    }
+  })();
+}
+
+function renderTable(){
+  const tbody=document.getElementById('inc-tbody');
+  if(!_incidents.length){
+    document.getElementById('inc-empty').style.display='block';
+    document.getElementById('inc-count').textContent='';
+    return;
+  }
+  document.getElementById('inc-table-wrap').style.display='block';
+  document.getElementById('inc-count').textContent=`${_incidents.length} incident${_incidents.length>1?'s':''}`;
+  tbody.innerHTML=_incidents.map(i=>{
+    const short=i.id.slice(0,8).toUpperCase();
+    const deadline=i.sla_deadline?new Date(i.sla_deadline):null;
+    return `<tr onclick="openDetail('${i.id}')">
+      <td><span style="font-family:'DM Mono',monospace;font-size:.6875rem;color:var(--text-muted)">#${san(short)}</span></td>
+      <td style="max-width:220px"><div style="font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${san(i.title)}</div>${i.affected_service?`<div style="font-size:.6875rem;color:var(--text-muted)">${san(i.affected_service)}</div>`:''}</td>
+      <td>${priorityBadge(i.priority)}</td>
+      <td>${statusBadge(i.status)}</td>
+      <td style="font-size:.6875rem;color:var(--text-muted)">${san(categoryLabel(i.category))}</td>
+      <td>${escLabel(i.escalation_level)}</td>
+      <td>${slaLabel(deadline?.toISOString(), i.status)}</td>
+      <td style="font-size:.6875rem;color:var(--text-muted);white-space:nowrap">${fmtDate(i.created_at)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Detail Panel ───────────────────────────────────────────────
+async function openDetail(id){
+  _currentId=id;
+  const inc=_incidents.find(i=>i.id===id);
+  if(!inc)return;
+
+  // Header
+  document.getElementById('dp-priority-row').innerHTML=priorityBadge(inc.priority)+' '+statusBadge(inc.status)+(inc.escalation_level?` ${escLabel(inc.escalation_level)}`:'');
+  document.getElementById('dp-title').textContent=inc.title;
+  document.getElementById('dp-meta').textContent=`#${inc.id.slice(0,8).toUpperCase()} · Créé ${fmtDT(inc.created_at)}`;
+
+  // Info grid
+  const deadline=inc.sla_deadline?new Date(inc.sla_deadline).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):null;
+  document.getElementById('dp-info').innerHTML=`
+    <div style="background:var(--bg-subtle);border-radius:var(--r-md);padding:12px">
+      <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Catégorie</div>
+      <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary)">${san(categoryLabel(inc.category))}</div>
+    </div>
+    <div style="background:var(--bg-subtle);border-radius:var(--r-md);padding:12px">
+      <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Service affecté</div>
+      <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary)">${san(inc.affected_service||'—')}</div>
+    </div>
+    <div style="background:var(--bg-subtle);border-radius:var(--r-md);padding:12px">
+      <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">SLA Deadline</div>
+      <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary)">${san(deadline||'—')}</div>
+    </div>
+    <div style="background:var(--bg-subtle);border-radius:var(--r-md);padding:12px">
+      <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Rapporteur</div>
+      <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary)">${san(inc.reported_by||'—')}</div>
+    </div>
+  `;
+
+  // Description
+  if(inc.description){
+    document.getElementById('dp-desc-wrap').style.display='block';
+    document.getElementById('dp-desc').textContent=inc.description;
+  } else { document.getElementById('dp-desc-wrap').style.display='none'; }
+
+  // Resolution notes
+  if(inc.resolution_notes){
+    document.getElementById('dp-resolution-wrap').style.display='block';
+    document.getElementById('dp-resolution').textContent=inc.resolution_notes;
+  } else { document.getElementById('dp-resolution-wrap').style.display='none'; }
+
+  // Actions
+  renderPanelActions(inc);
+
+  // Timeline
+  const {data:updates}=await _supa.from('incident_updates').select('*').eq('incident_id',id).order('created_at',{ascending:true});
+  renderTimeline(updates||[]);
+
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('panel-overlay').classList.add('open');
+}
+
+function renderPanelActions(inc){
+  const s=inc.status;
+  let btns='';
+  if(!['resolved','closed'].includes(s)){
+    if(s!=='in_progress') btns+=`<button class="btn btn-secondary btn-sm" onclick="setStatus('in_progress')">Prendre en charge</button>`;
+    if(s!=='escalated') btns+=`<button class="btn btn-danger btn-sm" onclick="openEscalate()">Escalader</button>`;
+    btns+=`<button class="btn btn-primary btn-sm" onclick="openResolve()" style="background:var(--success)">Résoudre</button>`;
+  }
+  if(s==='resolved') btns+=`<button class="btn btn-secondary btn-sm" onclick="setStatus('closed')">Fermer l'incident</button>`;
+  if(s==='closed') btns+=`<span style="font-size:.6875rem;color:var(--text-muted)">Incident fermé</span>`;
+  document.getElementById('dp-actions').innerHTML=btns;
+}
+
+function renderTimeline(updates){
+  const icons={
+    note:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+    status_change:'<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>',
+    escalation:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>',
+    assignment:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',
+    resolution:'<polyline points="20 6 9 17 4 12"/>',
+    closure:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  };
+  if(!updates.length){
+    document.getElementById('dp-timeline').innerHTML='<div style="font-size:.6875rem;color:var(--text-faint);padding:12px 0">Aucune activité enregistrée.</div>';
+    return;
+  }
+  document.getElementById('dp-timeline').innerHTML=updates.map(u=>`
+    <div class="tl-item">
+      <div class="tl-dot ${u.type}"><svg viewBox="0 0 24 24">${icons[u.type]||icons.note}</svg></div>
+      <div class="tl-body">
+        <div class="tl-meta">
+          <span class="tl-type">${san(u.type.replace('_',' '))}</span>
+          <span class="tl-author">${san(u.author)}</span>
+          <span class="tl-time">${timeAgo(u.created_at)}</span>
+        </div>
+        <div class="tl-text">${san(u.content)}</div>
+        ${u.old_value&&u.new_value?`<div style="font-size:10px;color:var(--text-faint);margin-top:3px">${san(u.old_value)} → ${san(u.new_value)}</div>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function closeDetail(){
+  document.getElementById('detail-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('open');
+  _currentId=null;
+}
+
+// ── Add note ───────────────────────────────────────────────────
+async function addNote(){
+  const note=document.getElementById('dp-note').value.trim();
+  if(!note||!_currentId)return;
+  await _supa.from('incident_updates').insert({
+    incident_id:_currentId, author:_userEmail,
+    type:'note', content:note
+  });
+  document.getElementById('dp-note').value='';
+  Toast.success('Note ajoutée','Journal ITIL mis à jour');
+  const {data:updates}=await _supa.from('incident_updates').select('*').eq('incident_id',_currentId).order('created_at',{ascending:true});
+  renderTimeline(updates||[]);
+}
+
+// ── Status change ──────────────────────────────────────────────
+async function setStatus(newStatus){
+  if(!_currentId)return;
+  const inc=_incidents.find(i=>i.id===_currentId);
+  const old=inc?.status||'';
+  const {error}=await _supa.from('incidents').update({
+    status:newStatus,
+    ...(newStatus==='resolved'?{resolved_at:new Date().toISOString()}:{}),
+    ...(newStatus==='closed'?{closed_at:new Date().toISOString()}:{}),
+  }).eq('id',_currentId);
+  if(error){Toast.error('Erreur',error.message);return;}
+  await _supa.from('incident_updates').insert({
+    incident_id:_currentId, author:_userEmail,
+    type:'status_change', content:`Statut mis à jour : ${old} → ${newStatus}`,
+    old_value:old, new_value:newStatus
+  });
+  Toast.success('Statut mis à jour','');
+  await loadIncidents();
+  if(_currentId){
+    const updated=_incidents.find(i=>i.id===_currentId);
+    if(updated){renderPanelActions(updated);}
+  }
+}
+
+// ── Create ─────────────────────────────────────────────────────
+function openCreate(){
+  document.getElementById('c-title').value='';
+  document.getElementById('c-priority').value='P3';
+  document.getElementById('c-category').value='application';
+  document.getElementById('c-service').value='';
+  document.getElementById('c-desc').value='';
+  document.getElementById('c-reporter').value=_userEmail;
+  updateSlaPreview();
+  document.getElementById('create-modal').classList.add('open');
+}
+function closeCreate(){document.getElementById('create-modal').classList.remove('open');}
+function updateSlaPreview(){
+  const p=document.getElementById('c-priority').value;
+  document.getElementById('c-sla-preview').innerHTML=slaPreviewText(p);
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('c-priority').addEventListener('change',updateSlaPreview);
+});
+
+async function createIncident(){
+  const title=document.getElementById('c-title').value.trim();
+  const priority=document.getElementById('c-priority').value;
+  const category=document.getElementById('c-category').value;
+  const service=document.getElementById('c-service').value.trim();
+  const desc=document.getElementById('c-desc').value.trim();
+  const reporter=document.getElementById('c-reporter').value.trim();
+  if(!title){Toast.error('Champ requis','Le titre est obligatoire');return;}
+  const deadline=slaDeadline(priority,new Date().toISOString());
+  const {data:inc,error}=await _supa.from('incidents').insert({
+    title, priority, category, description:desc||null,
+    affected_service:service||null, reported_by:reporter||_userEmail,
+    status:'new', escalation_level:0,
+    sla_deadline:deadline.toISOString()
+  }).select().single();
+  if(error){Toast.error('Erreur',error.message);return;}
+  // Log creation
+  await _supa.from('incident_updates').insert({
+    incident_id:inc.id, author:_userEmail,
+    type:'status_change', content:`Incident créé par ${_userEmail}`,
+    old_value:null, new_value:'new'
+  });
+  closeCreate();
+  Toast.success('Incident créé',`#${inc.id.slice(0,8).toUpperCase()} — SLA deadline ${fmtDT(deadline.toISOString())}`);
+  await loadIncidents();
+  openDetail(inc.id);
+}
+
+// ── Escalate ───────────────────────────────────────────────────
+function openEscalate(){
+  if(!_currentId)return;
+  const inc=_incidents.find(i=>i.id===_currentId);
+  document.getElementById('esc-inc-title').textContent=inc?.title||'';
+  document.getElementById('esc-level').value=String((inc?.escalation_level||0)+1>3?3:(inc?.escalation_level||0)+1);
+  document.getElementById('esc-reason').value='';
+  document.getElementById('escalate-modal').classList.add('open');
+}
+function closeEscalate(){document.getElementById('escalate-modal').classList.remove('open');}
+
+async function doEscalate(){
+  const level=parseInt(document.getElementById('esc-level').value);
+  const reason=document.getElementById('esc-reason').value.trim();
+  if(!reason){Toast.error('Requis','La raison est obligatoire');return;}
+  const {error}=await _supa.from('incidents').update({status:'escalated',escalation_level:level}).eq('id',_currentId);
+  if(error){Toast.error('Erreur',error.message);return;}
+  await _supa.from('incident_updates').insert({
+    incident_id:_currentId, author:_userEmail,
+    type:'escalation', content:`Escalade vers L${level} : ${reason}`,
+    old_value:null, new_value:`L${level}`
+  });
+  closeEscalate();
+  Toast.success(`Escaladé en L${level}`,'Équipe notifiée');
+  await loadIncidents();
+  if(_currentId)openDetail(_currentId);
+}
+
+// ── Resolve ────────────────────────────────────────────────────
+function openResolve(){
+  if(!_currentId)return;
+  const inc=_incidents.find(i=>i.id===_currentId);
+  document.getElementById('res-inc-title').textContent=inc?.title||'';
+  document.getElementById('res-notes').value='';
+  document.getElementById('resolve-modal').classList.add('open');
+}
+function closeResolve(){document.getElementById('resolve-modal').classList.remove('open');}
+
+async function doResolve(){
+  const notes=document.getElementById('res-notes').value.trim();
+  if(!notes){Toast.error('Requis','Les notes de résolution sont obligatoires');return;}
+  const {error}=await _supa.from('incidents').update({
+    status:'resolved', resolved_at:new Date().toISOString(), resolution_notes:notes
+  }).eq('id',_currentId);
+  if(error){Toast.error('Erreur',error.message);return;}
+  await _supa.from('incident_updates').insert({
+    incident_id:_currentId, author:_userEmail,
+    type:'resolution', content:`Résolu : ${notes}`,
+    old_value:'in_progress', new_value:'resolved'
+  });
+  closeResolve();
+  Toast.success('Incident résolu','En attente de fermeture');
+  await loadIncidents();
+  if(_currentId)openDetail(_currentId);
+}
+
+// ── Matrix modal ───────────────────────────────────────────────
+function openMatrix(){document.getElementById('matrix-modal').classList.add('open');}
+
+// ── Filters ────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('status-filter').addEventListener('click',e=>{
+    const pill=e.target.closest('[data-status]');
+    if(!pill)return;
+    document.querySelectorAll('#status-filter .filter-pill').forEach(p=>p.classList.remove('active'));
+    pill.classList.add('active');
+    _filterStatus=pill.dataset.status;
+    loadIncidents();
+  });
+  document.getElementById('priority-filter').addEventListener('click',e=>{
+    const pill=e.target.closest('[data-prio]');
+    if(!pill)return;
+    document.querySelectorAll('#priority-filter .filter-pill').forEach(p=>p.classList.remove('active'));
+    pill.classList.add('active');
+    _filterPriority=pill.dataset.prio;
+    loadIncidents();
+  });
+  // close on overlay click
+  document.querySelectorAll('.overlay').forEach(o=>{
+    o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});
+  });
+});
+
+// ── Init ───────────────────────────────────────────────────────
+(async()=>{
+  const session=await requireAdmin();
+  if(!session)return;
+  renderSidebar(session.user);
+  await loadIncidents();
+  // Auto-refresh every 60s
+  setInterval(loadIncidents,60000);
+})();
+</script>
+</body></html>

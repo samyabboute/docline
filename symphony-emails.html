@@ -1,0 +1,1124 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="X-Frame-Options" content="DENY"><meta http-equiv="X-Content-Type-Options" content="nosniff">
+<title>Emails & Modèles — Docline Symphony</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="config.js?v=3"></script>
+<style>
+:root{
+  --brand:#3B1772;--brand-dark:#2D1259;--brand-light:#E6ECF9;--brand-glow:rgba(59,23,114,.14);
+  --sidebar-bg:#0D0F14;--sidebar-hover:rgba(255,255,255,.055);--sidebar-active:rgba(59,23,114,.14);--sidebar-border:rgba(255,255,255,.07);
+  --bg:#FAFBFF;--bg-raised:#FFFFFF;--bg-subtle:#F2F4FA;--bg-hover:#EEF0F8;
+  --text-primary:#0D0F14;--text-secondary:#4A5068;--text-muted:#8B92A9;--text-faint:#B8BDD1;
+  --border:#E4E7F0;--border-strong:#C8CCE0;
+  --success:#12B76A;--success-bg:#ECFDF5;--success-border:rgba(18,183,106,.2);
+  --warning:#F79009;--warning-bg:#FFFAEB;--warning-border:rgba(247,144,9,.2);
+  --danger:#F04438;--danger-bg:#FEF3F2;--danger-border:rgba(240,68,56,.2);
+  --info:#2E90FA;--info-bg:#EFF8FF;--info-border:rgba(46,144,250,.2);
+  --sidebar-w:252px;--topbar-h:56px;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --shadow-xs:0 1px 2px rgba(13,15,20,.06);--shadow-sm:0 1px 3px rgba(13,15,20,.08);
+  --shadow-md:0 4px 8px rgba(13,15,20,.08);--shadow-lg:0 12px 24px rgba(13,15,20,.1);
+  --shadow-brand:0 4px 14px rgba(59,23,114,.28);
+  --t-fast:120ms cubic-bezier(.4,0,.2,1);--t-base:200ms cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Sora',system-ui,sans-serif;font-size:.8125rem;line-height:1.6;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+img,svg{display:block;max-width:100%}
+ul,ol{list-style:none}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;min-height:100vh}
+.sidebar{grid-row:1/-1;background:var(--sidebar-bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--sidebar-border);z-index:200}
+.topbar{background:var(--bg-raised);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:1rem;font-weight:700}
+.topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.main{overflow-y:auto}
+.page{padding:28px;max-width:960px}
+.page-header{margin-bottom:28px}
+.page-title{font-size:1.1875rem;font-weight:800;letter-spacing:-.3px}
+.page-sub{font-size:.8125rem;color:var(--text-muted);margin-top:3px}
+.card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)}
+.card-icon{width:34px;height:34px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card-title{font-size:.9375rem;font-weight:700}
+.card-sub{font-size:.75rem;color:var(--text-muted);margin-top:1px}
+.card-body{padding:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r-md);cursor:pointer;font-family:'Sora',sans-serif;font-size:.8125rem;font-weight:600;padding:9px 18px;transition:all var(--t-fast);white-space:nowrap;line-height:1}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow-brand)}
+.btn-primary:hover:not(:disabled){background:var(--brand-dark)}
+.btn-secondary{background:var(--bg-subtle);color:var(--text-secondary);border:1px solid var(--border)}
+.btn-secondary:hover:not(:disabled){background:var(--bg-hover)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.btn-danger:hover:not(:disabled){background:#fee2e0}
+.btn-sm{padding:6px 12px;font-size:.75rem}
+.btn-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:var(--border-strong);border-radius:var(--r-full);cursor:pointer;transition:background var(--t-base)}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform var(--t-base);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked + .toggle-slider{background:var(--success)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(20px)}
+/* Sidebar */
+.sidebar-head{padding:16px 12px 8px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-logo-wrap{display:flex;align-items:center;gap:10px;padding:4px}
+.sidebar-section{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.25);padding:14px 12px 4px}
+.admin-nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r-md);color:rgba(255,255,255,.55);font-size:.8125rem;font-weight:500;transition:all var(--t-fast);margin-bottom:1px;position:relative;text-decoration:none;width:calc(100% - 16px);margin:1px 8px}
+.admin-nav-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.85)}
+.admin-nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600}
+.admin-nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:#F79009;border-radius:0 var(--r-full) var(--r-full) 0}
+.admin-nav-item svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
+.admin-nav-item:hover svg,.admin-nav-item.active svg{opacity:1}
+.sidebar-logo-icon{width:32px;height:32px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--brand) 0%,#7C3AED 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-logo-text{font-size:.8125rem;font-weight:700;color:#fff;line-height:1.2}
+.sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
+/* ── SIDEBAR TOGGLE ─────────────────────────────────────────── */
+.sb-toggle-btn{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;color:rgba(255,255,255,.35);transition:all 120ms ease;flex-shrink:0}
+.sb-toggle-btn:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.75)}
+.sb-toggle-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar{transition:width 220ms cubic-bezier(.4,0,.2,1)}
+.sidebar.sb-collapsed{width:64px;overflow:hidden;flex-shrink:0}
+.sidebar.sb-collapsed .sidebar-section{font-size:0!important;height:6px;padding:3px 0!important;overflow:hidden}
+.sidebar.sb-collapsed .sidebar-logo-text,.sidebar.sb-collapsed .sidebar-logo-sub{display:none!important}
+.sidebar.sb-collapsed .user-name,.sidebar.sb-collapsed .user-role,.sidebar.sb-collapsed .user-chevron{display:none!important}
+.sidebar.sb-collapsed .user-avatar{margin:0 auto}
+.sidebar.sb-collapsed .nav-item,.sidebar.sb-collapsed .admin-nav-item{font-size:0!important;justify-content:center;padding:10px 0;margin:2px auto;width:44px;gap:0}
+.sidebar.sb-collapsed .nav-item svg,.sidebar.sb-collapsed .admin-nav-item svg{opacity:.7;width:18px;height:18px;flex-shrink:0}
+.sidebar.sb-collapsed .sidebar-head{justify-content:center!important;padding:10px 0!important}.sidebar.sb-collapsed .sidebar-head>*:not(.sb-toggle-btn){display:none!important}
+/* Email template grid */
+.tmpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tmpl-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;gap:12px;transition:border-color var(--t-fast);position:relative}
+.tmpl-card:hover{border-color:var(--brand-light)}
+.tmpl-card.inactive{opacity:.6}
+.tmpl-badge{display:inline-flex;align-items:center;gap:5px;font-size:.6875rem;font-weight:700;padding:3px 9px;border-radius:var(--r-full);width:fit-content}
+.tmpl-icon{width:40px;height:40px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tmpl-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tmpl-name{font-size:.9375rem;font-weight:700;color:var(--text-primary)}
+.tmpl-subject{font-size:.75rem;color:var(--text-muted);margin-top:2px}
+.tmpl-actions{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.badge-active{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.badge-inactive{background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border)}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,15,20,.55);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity var(--t-base)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg-raised);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);width:100%;max-width:600px;max-height:90vh;overflow-y:auto;transform:translateY(12px);transition:transform var(--t-base)}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-raised);z-index:1}
+.modal-title{font-size:1rem;font-weight:700}
+.modal-close{width:32px;height:32px;border:none;background:var(--bg-subtle);border-radius:var(--r-md);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all var(--t-fast)}
+.modal-close:hover{background:var(--bg-hover);color:var(--text-primary)}
+.modal-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:.8125rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+.form-input{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:var(--r-md);font-family:'Sora',sans-serif;font-size:.8125rem;color:var(--text-primary);background:var(--bg-raised);transition:border-color var(--t-fast);outline:none}
+.form-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow)}
+textarea.form-input{resize:vertical;min-height:110px;line-height:1.6}
+.form-hint{font-size:.72rem;color:var(--text-muted);margin-top:4px}
+.tag{display:inline-block;background:var(--bg-subtle);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:.7rem;font-family:monospace;color:var(--brand-dark);cursor:pointer}
+.tag:hover{background:var(--brand-light)}
+/* Data table */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);border-bottom:1px solid var(--border);background:var(--bg-subtle)}
+.data-table td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:.8125rem}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover td{background:var(--bg-hover)}
+/* Preview modal */
+.preview-modal{max-width:680px}
+.preview-frame-wrap{background:#EEF2FF;border-radius:var(--r-md);padding:16px;border:1px solid var(--border)}
+.preview-frame-wrap iframe{width:100%;border:none;border-radius:var(--r-md);min-height:500px;background:#fff}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#0D0F14;color:#fff;padding:12px 18px;border-radius:var(--r-md);font-size:.8125rem;font-weight:500;z-index:900;transform:translateY(80px);opacity:0;transition:all var(--t-base);display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-left:3px solid var(--success)}
+.toast.error{border-left:3px solid var(--danger)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="admin-sidebar"></aside>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-title">Gestion des Emails</div>
+    <div class="topbar-actions">
+      <span id="admin-email-badge" style="font-size:.75rem;color:var(--text-muted)"></span>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page">
+      <div class="page-header">
+        <div class="page-title">Templates d'emails</div>
+        <div class="page-sub">Personnalisez les emails automatiques envoyés à vos utilisateurs. Variables disponibles : <span class="tag" onclick="copyVar('{{first_name}}')">{{first_name}}</span> <span class="tag" onclick="copyVar('{{app_url}}')">{{app_url}}</span></div>
+      </div>
+
+      <!-- Info banner -->
+      <div style="background:var(--info-bg);border:1px solid var(--info-border);border-radius:var(--r-lg);padding:14px 18px;margin-bottom:24px;display:flex;gap:12px;align-items:flex-start">
+        <svg style="width:16px;height:16px;fill:none;stroke:var(--info);stroke-width:2;flex-shrink:0;margin-top:1px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div style="font-size:.8rem;color:#1a5fa0;line-height:1.6">
+          Les emails sont envoyés depuis <strong>noreply@docline.health</strong> via Resend (EU - Ireland).<br>
+          Cliquez <strong>Aperçu</strong> pour voir le rendu exact · <strong>Test</strong> pour recevoir l'email dans votre boîte.
+        </div>
+      </div>
+
+      <!-- Template grid -->
+      <div class="tmpl-grid" id="tmpl-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">Chargement…</div>
+      </div>
+
+      <!-- ── EMAIL INTERACTION LOG ─────────────────────────────── -->
+      <div class="card" style="margin-top:8px">
+        <div class="card-head" style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="card-icon" style="background:rgba(59,23,114,.08);color:var(--brand)">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div>
+              <div class="card-title">Journal des interactions email</div>
+              <div class="card-sub">Historique de tous les emails envoyés par la plateforme.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <select id="log-filter-type" class="form-input" style="width:auto;padding:6px 12px;font-size:.75rem" onchange="filterLogs()">
+              <option value="">Tous les types</option>
+              <optgroup label="Transactionnels">
+                <option value="welcome">Bienvenue</option>
+                <option value="trial_granted">Essai Pro</option>
+                <option value="trial_expiring">Fin d'essai</option>
+                <option value="payment_confirmed">Paiement</option>
+                <option value="invoice">Facture</option>
+                <option value="contact_autoreply">Contact</option>
+              </optgroup>
+              <optgroup label="Système">
+                <option value="maintenance_activated">Maintenance ON</option>
+                <option value="maintenance_resume">Maintenance OFF</option>
+              </optgroup>
+              <optgroup label="Occasions">
+                <option value="eid_alfitr">Eid Al-Fitr</option>
+                <option value="eid_aladha">Eid Al-Adha</option>
+                <option value="ramadan">Ramadan Kareem</option>
+                <option value="newsletter">Newsletter</option>
+              </optgroup>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="loadEmailLogs()">
+              <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Actualiser
+            </button>
+          </div>
+        </div>
+        <div id="email-log-table-wrap" style="overflow-x:auto">
+          <table class="data-table" style="width:100%">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Destinataire</th>
+                <th>Sujet</th>
+                <th>Déclenché par</th>
+                <th>Statut</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="email-log-tbody">
+              <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="email-log-footer" style="padding:12px 20px;border-top:1px solid var(--border);background:var(--bg-subtle);display:flex;align-items:center;justify-content:space-between">
+          <span id="email-log-count" style="font-size:.75rem;color:var(--text-muted)"></span>
+          <button id="email-log-more" class="btn btn-secondary btn-sm" onclick="loadMoreLogs()" style="display:none">
+            Voir plus
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="edit-modal-title">Modifier le template</div>
+      <button class="modal-close" onclick="closeEdit()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label class="form-label">Sujet de l'email</label>
+        <input class="form-input" id="edit-subject" type="text" placeholder="Ex: Bienvenue sur Docline">
+        <div class="form-hint">Variables : <span class="tag" onclick="insertVar('edit-subject','{{first_name}}')">{{first_name}}</span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Titre principal</label>
+        <input class="form-input" id="edit-heading" type="text" placeholder="Ex: Votre espace est prêt !">
+        <div class="form-hint">Variables : <span class="tag" onclick="insertVar('edit-heading','{{first_name}}')">{{first_name}}</span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Corps du message</label>
+        <textarea class="form-input" id="edit-intro" rows="5" placeholder="Bonjour {{first_name}},&#10;&#10;Votre message ici…"></textarea>
+        <div class="form-hint">Séparez les paragraphes par une ligne vide. Variables : <span class="tag" onclick="insertVar('edit-intro','{{first_name}}')">{{first_name}}</span> <span class="tag" onclick="insertVar('edit-intro','{{app_url}}')">{{app_url}}</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Texte du bouton <span style="font-weight:400;color:var(--text-muted)">(optionnel)</span></label>
+          <input class="form-input" id="edit-cta-text" type="text" placeholder="Accéder à mon espace →">
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL du bouton</label>
+          <input class="form-input" id="edit-cta-url" type="text" placeholder="{{app_url}}/app.html">
+          <div class="form-hint">Variable : <span class="tag" onclick="insertVar('edit-cta-url','{{app_url}}')">{{app_url}}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-subtle);border-radius:var(--r-md)">
+        <div>
+          <div style="font-size:.8125rem;font-weight:600">Template actif</div>
+          <div style="font-size:.72rem;color:var(--text-muted)">Désactivez pour stopper l'envoi de ce type d'email</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="edit-active" checked><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEdit()">Annuler</button>
+      <button class="btn btn-secondary" onclick="previewFromEdit()">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Aperçu
+      </button>
+      <button class="btn btn-primary" onclick="saveTemplate()">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Sauvegarder
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Send Modal -->
+<div class="modal-overlay" id="send-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="send-modal-title">Envoyer l'email</div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px" id="send-modal-subject"></div>
+      </div>
+      <button class="modal-close" onclick="closeSendModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:8px">
+        <label class="form-label">Destinataire</label>
+        <div style="position:relative">
+          <input class="form-input" id="send-search" type="text" autocomplete="off"
+                 placeholder="Nom, prénom ou adresse email…"
+                 oninput="searchUsers(this.value)" onkeydown="onSearchKey(event)">
+          <div id="send-ac" style="position:absolute;top:calc(100% + 4px);left:0;right:0;
+               background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-md);
+               box-shadow:var(--shadow-md);z-index:600;display:none;max-height:220px;overflow-y:auto"></div>
+        </div>
+      </div>
+      <div id="send-chip" style="display:none;align-items:center;gap:8px;
+           padding:8px 12px;background:var(--brand-light);border-radius:var(--r-md);margin-top:8px">
+        <svg style="width:14px;height:14px;fill:none;stroke:var(--brand);stroke-width:2;flex-shrink:0" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span id="send-chip-label" style="font-size:.8125rem;font-weight:600;color:var(--brand);flex:1"></span>
+        <button onclick="clearSendSelection()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);padding:0;line-height:1;font-size:1rem">&times;</button>
+      </div>
+      <div id="send-diffusion-info" style="display:none;margin-top:12px;padding:10px 14px;
+           background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:var(--r-md);
+           font-size:.8rem;color:#6B4D00;line-height:1.6">
+        <strong>Diffusion</strong> — envoie cet email à <span id="send-doctor-count">tous</span> les médecins inscrits sur Docline.
+      </div>
+    </div>
+    <div class="modal-footer" style="gap:8px">
+      <button class="btn btn-secondary" onclick="closeSendModal()">Annuler</button>
+      <button class="btn btn-secondary" id="btn-diffusion" onclick="sendDiffusion()" style="display:none">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Diffusion — tous les médecins
+      </button>
+      <button class="btn btn-primary" id="btn-send-to" onclick="sendToSelected()" disabled>
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Envoyer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal-overlay" id="preview-modal">
+  <div class="modal preview-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="preview-title">Aperçu email</div>
+        <div style="font-size:.75rem;color:var(--text-muted)" id="preview-subject-display"></div>
+      </div>
+      <button class="modal-close" onclick="closePreview()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="preview-frame-wrap">
+        <iframe id="preview-frame" sandbox="allow-same-origin"></iframe>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closePreview()">Fermer</button>
+      <button class="btn btn-success" id="btn-send-test" onclick="sendTest()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Envoyer un test
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SIDEBAR ───────────────────────────────────────────────────
+const AdminSidebar = {
+  _menuOpen: false,
+  render(activePage, user) {
+    const email    = user?.email || '';
+    const initials = email.slice(0,2).toUpperCase() || 'AD';
+    const handle   = email.split('@')[0] || 'Admin';
+    const sections = [
+      { label: 'Vue générale', items: [
+        ['/symphony',           'symphony',          'Hub Symphony',           '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
+        ['/symphony-analytics', 'symphony-analytics','Analytics',              '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'],
+      ]},
+      { label: 'Clients & CRM', items: [
+        ['/symphony-kyc',       'symphony-kyc',      'KYC & Onboarding',       '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'],
+        ['/symphony-users',     'symphony-users',    'Médecins & Cliniques',   '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'],
+        ['/symphony-crm',       'symphony-crm',      'CRM Médecin',            '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'],
+        ['/symphony-featured',  'symphony-featured', 'Médecins En Vedette',    '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
+      ]},
+      { label: 'Revenus & Finance', items: [
+        ['/symphony-revenue',   'symphony-revenue',  'Revenus & Finance',      '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/>'],
+      ]},
+      { label: 'Marketing', items: [
+        ['/symphony-ads',       'symphony-ads',      'Régie Publicitaire',     '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'],
+        ['/symphony-emails',    'symphony-emails',   'Emails & Modèles',       '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
+      ]},
+      { label: 'Équipe', items: [
+        ['/symphony-agents',    'symphony-agents',   'Agents & Équipe',        '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+        ['/symphony-simulate',  'symphony-simulate', 'Simulation',             '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>'],
+      ]},
+      { label: 'Système', items: [
+        ['/symphony-incidents','symphony-incidents','Incidents ITIL','<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'],
+        ['/symphony-security','symphony-security', 'Sécurité & Logs',        '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
+        ['/symphony-settings',  'symphony-settings', 'Paramètres',             '<circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>'],
+      ]},
+    ];
+    let html = `<div class="sidebar-head" style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:10px"><img src="docline-logo-white.svg" alt="Docline" style="height:22px;width:auto;display:block;max-width:120px"><span style="background:rgba(247,144,9,.18);color:#F59E0B;border:1px solid rgba(247,144,9,.28);font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;letter-spacing:.4px;white-space:nowrap">ADMIN</span></div><button class="sb-toggle-btn" onclick="_sbToggle()" title="Réduire"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button></div>`;
+    sections.forEach(sec => {
+      html += `<div class="sidebar-section">${sec.label}</div>`;
+      sec.items.forEach(([href,key,label,icon]) => {
+        const active = activePage === key || window.location.pathname === href;
+        html += `<a href="${href}" class="admin-nav-item${active?' active':''}"><svg viewBox="0 0 24 24">${icon}</svg>${label}</a>`;
+      });
+    });
+    html += `<div class="sidebar-footer" style="position:relative">
+        <div id="sb-user-menu" style="display:none;position:absolute;bottom:calc(100% + 4px);left:8px;right:8px;background:#1C1F28;border:1px solid rgba(255,255,255,.09);border-radius:var(--r-lg);padding:6px;box-shadow:0 -12px 32px rgba(0,0,0,.5);z-index:300">
+          <div style="padding:10px 12px 8px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:4px">
+            <div style="font-size:.6875rem;font-weight:700;color:rgba(255,255,255,.8)">${email}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px">Symphony Admin</div>
+          </div>
+          <a href="/dashboard" class="admin-nav-item" style="color:rgba(255,255,255,.6)">
+            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>App médecin
+          </a>
+          <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 8px"></div>
+          <button onclick="_supa.auth.signOut().then(()=>window.location.href='/login')" class="admin-nav-item" style="color:rgba(240,68,56,.8);width:100%;text-align:left;border:none;cursor:pointer;background:transparent;font-family:inherit">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Déconnexion
+          </button>
+        </div>
+        <div class="sidebar-user" id="sb-user-btn" onclick="AdminSidebar.toggleMenu()" style="cursor:pointer">
+          <div class="user-avatar" style="background:linear-gradient(135deg,var(--brand) 0%,#7C3AED 100%)">${initials}</div>
+          <div><div class="user-name">${handle}</div><div class="user-role">Symphony Admin</div></div>
+          <div class="user-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+      </div>`;
+    return html;
+  },
+  toggleMenu() {
+    const m = document.getElementById('sb-user-menu');
+    if (!m) return;
+    this._menuOpen = !this._menuOpen;
+    m.style.display = this._menuOpen ? 'block' : 'none';
+  }
+};
+
+// ── GLOBALS ───────────────────────────────────────────────────
+var _supa, _session, _templates = [];
+var _currentPreviewId = null;
+var _currentPreviewData = null; // {heading, body, ctaText, badge, statusBadge}
+
+const TEMPLATE_META = {
+  // Templates DB (éditables)
+  welcome:              { icon: 'W',  color: '#3B1772', bg: '#F0EBFF', trigger: 'À l\'inscription (automatique)', section: 'Transactionnels' },
+  trial_granted:        { icon: 'T',  color: '#7C3AED', bg: '#F5F3FF', trigger: 'Quand vous accordez un essai Pro', section: 'Transactionnels' },
+  trial_expiring:       { icon: 'TE', color: '#D97706', bg: '#FFF8ED', trigger: '7 jours avant la fin de l\'essai', section: 'Transactionnels' },
+  payment_confirmed:    { icon: 'P',  color: '#059669', bg: '#F0FDF4', trigger: 'Après confirmation du paiement', section: 'Transactionnels' },
+  contact_autoreply:    { icon: 'CA', color: '#2563EB', bg: '#EFF6FF', trigger: 'Réponse automatique au formulaire contact', section: 'Transactionnels' },
+  // Templates système (hardcodés dans l'Edge Function)
+  maintenance_activated:{ icon: 'M!', color: '#CA8A04', bg: '#FFF8ED', trigger: 'Activation de la maintenance (automatique)', section: 'Système' },
+  maintenance_resume:   { icon: 'M+', color: '#16A34A', bg: '#F0FDF4', trigger: 'Désactivation de la maintenance (automatique)', section: 'Système' },
+  // Occasions spéciales
+  eid_alfitr:           { icon: 'EF', color: '#7C3AED', bg: '#F5F3FF', trigger: 'Envoi manuel — tous les médecins', section: 'Occasions' },
+  eid_aladha:           { icon: 'EA', color: '#7C3AED', bg: '#F5F3FF', trigger: 'Envoi manuel — tous les médecins', section: 'Occasions' },
+  ramadan:              { icon: 'RK', color: '#2563EB', bg: '#EFF6FF', trigger: 'Envoi manuel — tous les médecins', section: 'Occasions' },
+  newsletter:           { icon: 'NL', color: '#059669', bg: '#F0FDF4', trigger: 'Envoi manuel — liste newsletter', section: 'Occasions' },
+};
+
+// Templates hardcodés dans l'Edge Function (non stockés en DB)
+const HARDCODED_TEMPLATES = [
+  {
+    id: 'maintenance_activated', name: 'Maintenance activée',
+    subject: 'Maintenance en cours — Votre accès est préservé',
+    active: true, hardcoded: true,
+    _preview: {
+      heading: 'Bonjour Dr. Ahmed,',
+      body: 'La plateforme Docline est momentanément indisponible pour maintenance.\n\n**Votre espace médecin reste accessible.** Rendez-vous, patients et ordonnances ne sont pas affectés.\n\nVous serez notifié dès la reprise du service.',
+      ctaText: 'Accéder à mon espace', badge: null,
+      statusDot: '#CA8A04', statusBg: '#FFF8ED', statusBorder: '#FDDBA0', statusText: '#78350F', statusLabel: 'Maintenance en cours',
+    }
+  },
+  {
+    id: 'maintenance_resume', name: 'Reprise de service',
+    subject: 'La plateforme Docline est de retour',
+    active: true, hardcoded: true,
+    _preview: {
+      heading: 'Bonjour Dr. Ahmed,',
+      body: 'La maintenance est terminée. La plateforme Docline est de nouveau entièrement disponible.\n\nLa maintenance a duré **2h15**.\n\nMerci pour votre patience.',
+      ctaText: 'Accéder à la plateforme', badge: 'Service rétabli',
+      statusDot: '#16A34A', statusBg: '#F0FDF4', statusBorder: '#BBF7D0', statusText: '#15803D', statusLabel: 'Plateforme disponible',
+    }
+  },
+  {
+    id: 'eid_alfitr', name: 'Eid Al-Fitr',
+    subject: 'Eid Moubarak — De la part de Docline',
+    active: true, hardcoded: true,
+    _preview: {
+      heading: 'Eid Moubarak, Dr. Ahmed.',
+      body: 'Toute l\'équipe Docline vous souhaite un joyeux Eid Al-Fitr.\n\nQue cette fête soit l\'occasion de partager de beaux moments avec vos proches.',
+      ctaText: null, badge: 'Eid Al-Fitr',
+    }
+  },
+  {
+    id: 'eid_aladha', name: 'Eid Al-Adha',
+    subject: 'Eid Moubarak — De la part de Docline',
+    active: true, hardcoded: true,
+    _preview: {
+      heading: 'Eid Moubarak, Dr. Ahmed.',
+      body: 'Docline vous souhaite un Eid Al-Adha béni, partagé en famille dans la joie et la santé.',
+      ctaText: null, badge: 'Eid Al-Adha',
+    }
+  },
+  {
+    id: 'ramadan', name: 'Ramadan Kareem',
+    subject: 'Ramadan Kareem — De la part de Docline',
+    active: true, hardcoded: true,
+    _preview: {
+      heading: 'Ramadan Kareem, Dr. Ahmed.',
+      body: 'Docline vous souhaite un mois de Ramadan plein de sérénité, de santé et de bénédictions.',
+      ctaText: null, badge: 'Ramadan Kareem',
+    }
+  },
+  {
+    id: 'newsletter', name: 'Newsletter',
+    subject: 'Actualités Docline',
+    active: true, hardcoded: true,
+    _preview: {
+      heading: 'Les actualités Docline.',
+      body: 'Retrouvez ici les dernières nouveautés, mises à jour et améliorations de la plateforme.',
+      ctaText: 'Voir les nouveautés', badge: 'Docline News',
+    }
+  },
+];
+
+// ── INIT ──────────────────────────────────────────────────────
+// Sidebar rendered after auth (see init() below)
+
+async function init() {
+  if (typeof DOCLINE_CONFIG === 'undefined' || !DOCLINE_CONFIG.SUPA_URL) {
+    document.getElementById('tmpl-grid').innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--danger)">Configuration manquante (config.js)</div>';
+    return;
+  }
+  _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
+  const { data: { session } } = await _supa.auth.getSession();
+  if (!session) { window.location.href=ghpNav('/symphony-users'); return; }
+  _session = session;
+  // Render sidebar with real user info
+  const sbEl = document.getElementById('admin-sidebar');
+  if (sbEl) {
+    sbEl.innerHTML = AdminSidebar.render('emails', session.user);
+    _sbRestoreState();
+    document.addEventListener('click', (e)=>{
+      if(!document.getElementById('sb-user-btn')?.contains(e.target)&&!document.getElementById('sb-user-menu')?.contains(e.target)){
+        const m=document.getElementById('sb-user-menu'); if(m) m.style.display='none'; AdminSidebar._menuOpen=false;
+      }
+    });
+  }
+
+  document.getElementById('admin-email-badge').textContent = session.user.email;
+
+  await loadTemplates();
+  await loadEmailLogs();
+}
+
+async function loadTemplates() {
+  const { data, error } = await _supa.from('email_templates').select('*').order('id');
+  if (error || !data) {
+    document.getElementById('tmpl-grid').innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--danger)">Erreur de chargement. Avez-vous appliqué la migration ?</div>';
+    return;
+  }
+  _templates = data;
+  renderGrid(data);
+}
+
+function tmplCard(t, isHardcoded) {
+  const meta = TEMPLATE_META[t.id] || { icon: 'E', color: '#6B7280', bg: '#F3F4F6', trigger: '' };
+  const subj = t.subject || '';
+  const editBtn = !isHardcoded
+    ? `<button class="btn btn-secondary btn-sm" onclick="openEdit('${t.id}')">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Modifier</button>` : '';
+  return `
+  <div class="tmpl-card${t.active ? '' : ' inactive'}" id="card-${t.id}">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:42px;height:42px;background:${meta.bg};border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.5625rem;font-weight:800;color:${meta.color};letter-spacing:.2px;flex-shrink:0">${meta.icon}</div>
+        <div>
+          <div class="tmpl-name">${t.name}</div>
+          <div class="tmpl-subject" title="${subj}">${subj.length > 46 ? subj.slice(0,46)+'…' : subj}</div>
+        </div>
+      </div>
+      <span class="tmpl-badge ${t.active ? 'badge-active' : 'badge-inactive'}">${t.active ? '● Actif' : '○ Inactif'}</span>
+    </div>
+    <div style="font-size:.72rem;color:var(--text-muted);display:flex;align-items:center;gap:5px">
+      <svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      ${meta.trigger}
+    </div>
+    <div class="tmpl-actions">
+      ${editBtn}
+      <button class="btn btn-secondary btn-sm" onclick="openPreview('${t.id}')">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Aperçu</button>
+      <button class="btn btn-success btn-sm" onclick="sendTestFor('${t.id}')">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Test</button>
+      ${['eid_alfitr','eid_aladha','ramadan','newsletter','maintenance_activated','maintenance_resume'].includes(t.id) ? `
+      <button class="btn btn-primary btn-sm" onclick="confirmDiffusion('${t.id}')">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Diffusion</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function sectionHeader(label) {
+  return `<div style="grid-column:1/-1;margin-top:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">
+    <span style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted)">${label}</span>
+  </div>`;
+}
+
+function renderGrid(dbTemplates) {
+  const grid = document.getElementById('tmpl-grid');
+  let html = '';
+
+  // ── Transactionnels (DB) ─────────────────────────────────────
+  const transac = dbTemplates.filter(t => (TEMPLATE_META[t.id]?.section || 'Transactionnels') === 'Transactionnels');
+  if (transac.length) {
+    html += sectionHeader('Transactionnels — éditables');
+    html += transac.map(t => tmplCard(t, false)).join('');
+  }
+
+  // ── Système (hardcodés maintenance) ──────────────────────────
+  const sys = HARDCODED_TEMPLATES.filter(t => TEMPLATE_META[t.id]?.section === 'Système');
+  if (sys.length) {
+    html += sectionHeader('Système — envoi automatique');
+    html += sys.map(t => tmplCard(t, true)).join('');
+  }
+
+  // ── Occasions spéciales ───────────────────────────────────────
+  const occ = HARDCODED_TEMPLATES.filter(t => TEMPLATE_META[t.id]?.section === 'Occasions');
+  if (occ.length) {
+    html += sectionHeader('Occasions spéciales — envoi manuel');
+    html += occ.map(t => tmplCard(t, true)).join('');
+  }
+
+  if (!html) {
+    html = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text-muted)">Aucun template trouvé.</div>';
+  }
+
+  grid.innerHTML = html;
+}
+
+// ── EDIT MODAL ────────────────────────────────────────────────
+function openEdit(id) {
+  const t = _templates.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('edit-id').value = t.id;
+  document.getElementById('edit-modal-title').textContent = `Modifier — ${t.name}`;
+  document.getElementById('edit-subject').value = t.subject;
+  document.getElementById('edit-heading').value = t.heading;
+  document.getElementById('edit-intro').value = t.intro_text;
+  document.getElementById('edit-cta-text').value = t.cta_text || '';
+  document.getElementById('edit-cta-url').value = t.cta_url || '';
+  document.getElementById('edit-active').checked = t.active;
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEdit() {
+  document.getElementById('edit-modal').classList.remove('open');
+}
+
+async function saveTemplate() {
+  const id = document.getElementById('edit-id').value;
+  const payload = {
+    subject:    document.getElementById('edit-subject').value.trim(),
+    heading:    document.getElementById('edit-heading').value.trim(),
+    intro_text: document.getElementById('edit-intro').value.trim(),
+    cta_text:   document.getElementById('edit-cta-text').value.trim() || null,
+    cta_url:    document.getElementById('edit-cta-url').value.trim() || null,
+    active:     document.getElementById('edit-active').checked,
+    updated_at: new Date().toISOString(),
+  };
+  if (!payload.subject || !payload.heading || !payload.intro_text) {
+    showToast('Sujet, titre et corps sont obligatoires.', 'error');
+    return;
+  }
+  const { error } = await _supa.from('email_templates').update(payload).eq('id', id);
+  if (error) { showToast('Erreur : ' + error.message, 'error'); return; }
+  showToast('Template sauvegardé', 'success');
+  closeEdit();
+  await loadTemplates();
+}
+
+// ── PREVIEW — identité visuelle Docline ──────────────────────
+function buildPreviewHtml(opts) {
+  // opts: { heading, body, ctaText, ctaUrl, badge, statusDot, statusBg, statusBorder, statusText, statusLabel }
+  const appUrl = (typeof DOCLINE_CONFIG !== 'undefined') ? (DOCLINE_CONFIG.APP_URL || 'https://docline.health') : 'https://docline.health';
+  const F = `font-family:'Helvetica Neue',Helvetica,Arial,sans-serif`;
+
+  const badge = opts.badge || '';
+  const badgeHtml = badge
+    ? `<div style="display:inline-block;margin-top:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:4px;padding:5px 14px;color:rgba(255,255,255,.85);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;${F}">${badge}</div>`
+    : '';
+
+  const statusHtml = opts.statusLabel
+    ? `<div style="margin-bottom:28px"><span style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:${opts.statusBg||'#F5F3FF'};border:1px solid ${opts.statusBorder||'#DDD5ED'};border-radius:6px"><span style="width:7px;height:7px;border-radius:50%;background:${opts.statusDot||'#7C3AED'};display:inline-block"></span><span style="font-size:11px;font-weight:700;color:${opts.statusText||'#5B21B6'};letter-spacing:.7px;text-transform:uppercase;${F}">${opts.statusLabel}</span></span></div>`
+    : '';
+
+  const ctaHtml = opts.ctaText
+    ? `<div style="margin:28px 0 24px"><a href="${opts.ctaUrl||appUrl}" style="display:inline-block;background:#3B1772;color:#fff;font-weight:600;padding:13px 32px;border-radius:6px;text-decoration:none;font-size:14px;${F}">${opts.ctaText}</a></div>`
+    : '';
+
+  const body = (opts.body || '').split(/\n\n/).map(p =>
+    `<p style="margin:0 0 14px;color:#3A2E56;font-size:15px;line-height:1.75;${F}">${
+      p.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong style="color:#0F0520">$1</strong>')
+    }</p>`
+  ).join('');
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#E8E0F4;${F}">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#E8E0F4;padding:40px 16px">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;border-radius:12px;box-shadow:0 4px 32px rgba(20,5,60,.16)">
+<tr><td style="background:linear-gradient(145deg,#140533 0%,#2E0F60 40%,#5118A8 100%);border-radius:12px 12px 0 0;padding:40px 48px 36px;text-align:center">
+  <a href="${appUrl}" style="text-decoration:none;border:0;display:inline-block">
+    <span style="display:inline-block;${F}">
+      <span style="font-size:28px;font-weight:800;color:#FFFFFF;letter-spacing:-0.5px;line-height:1">doc</span><span style="font-size:28px;font-weight:800;color:#A78BFA;letter-spacing:-0.5px;line-height:1">line</span><span style="display:inline-block;width:7px;height:7px;background:#A78BFA;border-radius:50%;margin-left:2px;vertical-align:middle;position:relative;top:-3px"></span>
+    </span>
+  </a>
+  ${badgeHtml}
+</td></tr>
+<tr><td style="background:#fff;padding:40px 48px 36px;border-left:1px solid #DDD5ED;border-right:1px solid #DDD5ED">
+  ${statusHtml}
+  <h1 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#0F0520;line-height:1.3;letter-spacing:-.3px;${F}">${opts.heading||''}</h1>
+  ${body}
+  ${ctaHtml}
+  <div style="margin-top:28px;padding-top:20px;border-top:1px solid #EAE2F4">
+    <p style="margin:0;font-size:13px;color:#0F0520;font-weight:600;${F}">Docline</p>
+  </div>
+</td></tr>
+<tr><td style="background:#F4F1FA;border:1px solid #DDD5ED;border-top:none;border-radius:0 0 12px 12px;padding:20px 48px;text-align:center">
+  <p style="margin:0;font-size:11px;color:#9B8CB8;line-height:2;${F}">
+    <a href="${appUrl}" style="color:#6D28D9;font-weight:600;text-decoration:none">docline.health</a>
+    &nbsp;&middot;&nbsp;<a href="${appUrl}/privacy" style="color:#9B8CB8;text-decoration:none">Confidentialité</a>
+    &nbsp;&middot;&nbsp;<a href="mailto:contact@docline.health" style="color:#9B8CB8;text-decoration:none">contact@docline.health</a>
+    <br>Données hébergées en Europe &nbsp;&middot;&nbsp; Conforme RGPD
+  </p>
+</td></tr>
+</table></td></tr></table>
+</body></html>`;
+}
+
+function previewOptsFromDbTemplate(t) {
+  const appUrl = (typeof DOCLINE_CONFIG !== 'undefined') ? (DOCLINE_CONFIG.APP_URL || 'https://docline.health') : 'https://docline.health';
+  const vars   = { first_name: 'Dr. Ahmed', app_url: appUrl, invoice_number: 'FAC-0001', sender_name: 'Dr. Ahmed Benali' };
+  const interp = s => s ? s.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] || '') : '';
+  const badgeMap = { welcome:'Compte activé', trial_granted:'Accès Pro activé', trial_expiring:'Essai bientôt terminé', payment_confirmed:'Paiement confirmé' };
+  return {
+    heading:  interp(t.heading),
+    body:     interp(t.intro_text),
+    ctaText:  t.cta_text ? interp(t.cta_text) : null,
+    ctaUrl:   t.cta_url  ? interp(t.cta_url)  : appUrl,
+    badge:    badgeMap[t.id] || '',
+  };
+}
+
+function openPreview(id) {
+  // Chercher d'abord dans les templates DB, puis hardcodés
+  const dbT = _templates.find(x => x.id === id);
+  const hcT = HARDCODED_TEMPLATES.find(x => x.id === id);
+  const t   = dbT || hcT;
+  if (!t) return;
+
+  _currentPreviewId = id;
+  const opts = dbT ? previewOptsFromDbTemplate(dbT) : (hcT._preview || {});
+
+  document.getElementById('preview-title').textContent = `Aperçu — ${t.name}`;
+  document.getElementById('preview-subject-display').textContent = 'Sujet : ' + (t.subject || '');
+  document.getElementById('preview-frame').srcdoc = buildPreviewHtml(opts);
+  document.getElementById('preview-modal').classList.add('open');
+}
+
+function closePreview() {
+  document.getElementById('preview-modal').classList.remove('open');
+  _currentPreviewId = null;
+}
+
+function previewFromEdit() {
+  const id = document.getElementById('edit-id').value;
+  const appUrl = (typeof DOCLINE_CONFIG !== 'undefined') ? (DOCLINE_CONFIG.APP_URL || 'https://docline.health') : 'https://docline.health';
+  const vars   = { first_name: 'Dr. Ahmed', app_url: appUrl };
+  const interp = s => s ? s.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] || '') : '';
+  const badgeMap = { welcome:'Compte activé', trial_granted:'Accès Pro activé', trial_expiring:'Essai bientôt terminé', payment_confirmed:'Paiement confirmé' };
+  const opts = {
+    heading:  interp(document.getElementById('edit-heading').value),
+    body:     interp(document.getElementById('edit-intro').value),
+    ctaText:  document.getElementById('edit-cta-text').value || null,
+    ctaUrl:   document.getElementById('edit-cta-url').value  || appUrl,
+    badge:    badgeMap[id] || '',
+  };
+  _currentPreviewId = id;
+  document.getElementById('preview-title').textContent = `Aperçu — ${opts.heading || id}`;
+  document.getElementById('preview-subject-display').textContent = 'Sujet : ' + document.getElementById('edit-subject').value;
+  document.getElementById('preview-frame').srcdoc = buildPreviewHtml(opts);
+  document.getElementById('preview-modal').classList.add('open');
+}
+
+// ── SEND TEST → ouvre le modal ────────────────────────────────
+function sendTest() {
+  if (_currentPreviewId) openSendModal(_currentPreviewId);
+}
+
+function sendTestFor(id) {
+  openSendModal(id);
+}
+
+// ── SEND MODAL ────────────────────────────────────────────────
+var _sendTargetId   = null;
+var _sendSelEmail   = null;
+var _sendSelName    = null;
+var _sendSelFirst   = null;
+var _searchTimer    = null;
+
+// Templates qui supportent la diffusion (broadcast)
+const BROADCAST_TYPES = ['eid_alfitr','eid_aladha','ramadan','newsletter','maintenance_activated','maintenance_resume'];
+
+function openSendModal(id) {
+  _sendTargetId = id;
+  _sendSelEmail = _sendSelName = _sendSelFirst = null;
+
+  const t = _templates.find(x => x.id === id) || HARDCODED_TEMPLATES.find(x => x.id === id);
+  document.getElementById('send-modal-title').textContent   = t?.name || id;
+  document.getElementById('send-modal-subject').textContent = t?.subject ? 'Sujet : ' + t.subject : '';
+  document.getElementById('send-search').value = '';
+  document.getElementById('send-ac').style.display  = 'none';
+  document.getElementById('send-chip').style.display = 'none';
+  document.getElementById('btn-send-to').disabled = true;
+
+  const showDiff = BROADCAST_TYPES.includes(id);
+  document.getElementById('btn-diffusion').style.display        = showDiff ? 'inline-flex' : 'none';
+  document.getElementById('send-diffusion-info').style.display  = showDiff ? 'block' : 'none';
+
+  document.getElementById('send-modal').classList.add('open');
+  setTimeout(() => document.getElementById('send-search').focus(), 80);
+}
+
+function closeSendModal() {
+  document.getElementById('send-modal').classList.remove('open');
+  _sendTargetId = null;
+}
+
+async function searchUsers(q) {
+  clearTimeout(_searchTimer);
+  const ac = document.getElementById('send-ac');
+  if (!q || q.length < 2) { ac.style.display = 'none'; return; }
+  _searchTimer = setTimeout(async () => {
+    const { data } = await _supa.from('profiles')
+      .select('first_name, last_name, email')
+      .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%`)
+      .not('email', 'is', null)
+      .limit(8);
+    const results = data || [];
+    // Ajouter l'email saisi directement s'il ressemble à un email
+    if (q.includes('@') && !results.find(r => r.email?.toLowerCase() === q.toLowerCase())) {
+      results.push({ first_name: '', last_name: '', email: q });
+    }
+    if (!results.length) { ac.style.display = 'none'; return; }
+    ac.innerHTML = results.map((r, i) => {
+      const name = [r.first_name, r.last_name].filter(Boolean).join(' ') || r.email;
+      const fn   = r.first_name || '';
+      const safe = (s) => (s||'').replace(/'/g, '&#39;');
+      return `<div onclick="selectUser('${safe(r.email)}','${safe(name)}','${safe(fn)}')"
+                   style="padding:10px 14px;cursor:pointer;${i>0?'border-top:1px solid var(--border)':''}">
+        <div style="font-size:.8125rem;font-weight:600;color:var(--text-primary)">${name}</div>
+        <div style="font-size:.72rem;color:var(--text-muted)">${r.email}</div>
+      </div>`;
+    }).join('');
+    ac.style.display = 'block';
+  }, 220);
+}
+
+function onSearchKey(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('send-ac').style.display = 'none';
+  }
+}
+
+function selectUser(email, name, firstName) {
+  _sendSelEmail = email;
+  _sendSelName  = name;
+  _sendSelFirst = firstName;
+  document.getElementById('send-search').value     = '';
+  document.getElementById('send-ac').style.display = 'none';
+  document.getElementById('send-chip').style.display       = 'flex';
+  document.getElementById('send-chip-label').textContent   = name + (name !== email ? ' · ' + email : '');
+  document.getElementById('btn-send-to').disabled = false;
+}
+
+function clearSendSelection() {
+  _sendSelEmail = _sendSelName = _sendSelFirst = null;
+  document.getElementById('send-chip').style.display = 'none';
+  document.getElementById('btn-send-to').disabled = true;
+  document.getElementById('send-search').value = '';
+  document.getElementById('send-search').focus();
+}
+
+async function sendToSelected() {
+  if (!_sendSelEmail || !_sendTargetId) return;
+  const btn = document.getElementById('btn-send-to');
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  try {
+    const { data, error } = await _supa.functions.invoke('send-email', {
+      body: { type: _sendTargetId, payload: { to: _sendSelEmail, firstName: _sendSelFirst || '', force: true } }
+    });
+    if (error) throw error;
+    showToast('Email envoyé à ' + _sendSelEmail, 'success');
+    closeSendModal();
+  } catch(e) {
+    showToast('Erreur : ' + (e.message || String(e)), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Envoyer';
+  }
+}
+
+async function sendDiffusion() {
+  if (!_sendTargetId) return;
+  await confirmDiffusion(_sendTargetId);
+  closeSendModal();
+}
+
+async function confirmDiffusion(id) {
+  const t = _templates.find(x => x.id === id) || HARDCODED_TEMPLATES.find(x => x.id === id);
+  if (!confirm('Envoyer "' + (t?.name || id) + '" à tous les médecins Docline ?\n\nCette action est irréversible.')) return;
+
+  showToast('Diffusion en cours…', 'success');
+  try {
+    const { data, error } = await _supa.functions.invoke('send-email', {
+      body: { type: id, payload: { broadcast: true } }
+    });
+    if (error) throw error;
+    const d = data || {};
+    showToast((d.sent || 0) + ' médecin(s) notifié(s) · ' + (d.failed || 0) + ' échec(s)', 'success');
+  } catch(e) {
+    showToast('Erreur diffusion : ' + (e.message || String(e)), 'error');
+  }
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function copyVar(v) {
+  navigator.clipboard.writeText(v).then(() => showToast('Copié : ' + v, 'success'));
+}
+
+function insertVar(fieldId, v) {
+  const el = document.getElementById(fieldId);
+  if (!el) return;
+  const s = el.selectionStart, e = el.selectionEnd;
+  el.value = el.value.substring(0, s) + v + el.value.substring(e);
+  el.selectionStart = el.selectionEnd = s + v.length;
+  el.focus();
+}
+
+var _toastTimer;
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Close modals on overlay click / Escape
+document.getElementById('edit-modal').addEventListener('click', e => { if (e.target.id === 'edit-modal') closeEdit(); });
+document.getElementById('preview-modal').addEventListener('click', e => { if (e.target.id === 'preview-modal') closePreview(); });
+document.getElementById('send-modal').addEventListener('click', e => { if (e.target.id === 'send-modal') closeSendModal(); });
+// Close autocomplete on outside click
+document.addEventListener('click', e => {
+  if (!document.getElementById('send-search')?.contains(e.target) &&
+      !document.getElementById('send-ac')?.contains(e.target)) {
+    const ac = document.getElementById('send-ac');
+    if (ac) ac.style.display = 'none';
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeEdit(); closePreview(); closeSendModal(); } });
+
+// ── EMAIL LOG ──────────────────────────────────────────────────
+const LOG_PAGE_SIZE = 50;
+let _emailLogs = [];
+let _logOffset = 0;
+let _logFilter = '';
+
+const LOG_TYPE_LABELS = {
+  welcome:               { label: 'Bienvenue',        color: '#3B1772', bg: '#F0EBFF' },
+  trial_granted:         { label: 'Essai Pro',         color: '#7C3AED', bg: '#F5F3FF' },
+  trial_expiring:        { label: 'Fin d\'essai',      color: '#D97706', bg: '#FFF8ED' },
+  payment_confirmed:     { label: 'Paiement',          color: '#059669', bg: '#F0FDF4' },
+  invoice:               { label: 'Facture',           color: '#0891B2', bg: '#ECFEFF' },
+  maintenance_activated: { label: 'Maintenance ON',    color: '#CA8A04', bg: '#FFF8ED' },
+  maintenance_resume:    { label: 'Maintenance OFF',   color: '#16A34A', bg: '#F0FDF4' },
+  contact_autoreply:     { label: 'Contact',           color: '#2563EB', bg: '#EFF6FF' },
+  eid_alfitr:            { label: 'Eid Al-Fitr',       color: '#7C3AED', bg: '#F5F3FF' },
+  eid_aladha:            { label: 'Eid Al-Adha',       color: '#7C3AED', bg: '#F5F3FF' },
+  ramadan:               { label: 'Ramadan',           color: '#2563EB', bg: '#EFF6FF' },
+  newsletter:            { label: 'Newsletter',        color: '#059669', bg: '#F0FDF4' },
+};
+
+async function loadEmailLogs(reset = true) {
+  if (reset) { _emailLogs = []; _logOffset = 0; }
+  const tbody = document.getElementById('email-log-tbody');
+  if (reset) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Chargement…</td></tr>`;
+
+  let q = _supa.from('email_logs').select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(_logOffset, _logOffset + LOG_PAGE_SIZE - 1);
+
+  if (_logFilter) q = q.eq('type', _logFilter);
+
+  const { data, error, count } = await q;
+
+  if (error) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--danger)">Erreur : ${error.message}</td></tr>`;
+    return;
+  }
+
+  if (reset) _emailLogs = data ?? [];
+  else _emailLogs = [..._emailLogs, ...(data ?? [])];
+
+  _logOffset += LOG_PAGE_SIZE;
+  renderEmailLogs(count ?? 0);
+}
+
+function filterLogs() {
+  _logFilter = document.getElementById('log-filter-type').value;
+  loadEmailLogs(true);
+}
+
+function renderEmailLogs(total) {
+  const tbody = document.getElementById('email-log-tbody');
+  const countEl = document.getElementById('email-log-count');
+  const moreBtn = document.getElementById('email-log-more');
+
+  if (!_emailLogs.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Aucun email enregistré.</td></tr>`;
+    if (countEl) countEl.textContent = '';
+    if (moreBtn) moreBtn.style.display = 'none';
+    return;
+  }
+
+  tbody.innerHTML = _emailLogs.map(log => {
+    const meta = LOG_TYPE_LABELS[log.type] || { label: log.type, color: '#6B7280', bg: '#F3F4F6' };
+    const date = new Date(log.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const name = log.recipient_name ? `<div style="font-size:.6875rem;color:var(--text-muted);margin-top:1px">${sanitize(log.recipient_name)}</div>` : '';
+    const subjectDisplay = log.subject ? (log.subject.length > 50 ? log.subject.slice(0, 50) + '…' : log.subject) : '—';
+    const triggeredBy = log.triggered_by ? log.triggered_by.split('@')[0] : '—';
+
+    return `<tr>
+      <td>
+        <span style="display:inline-flex;align-items:center;font-size:.6875rem;font-weight:700;padding:2px 8px;border-radius:999px;background:${meta.bg};color:${meta.color};white-space:nowrap">${meta.label}</span>
+      </td>
+      <td>
+        <div style="font-size:.8125rem;font-weight:500">${sanitize(log.recipient_email)}</div>
+        ${name}
+      </td>
+      <td style="font-size:.75rem;color:var(--text-secondary);max-width:200px" title="${sanitize(log.subject || '')}">
+        ${sanitize(subjectDisplay)}
+      </td>
+      <td style="font-size:.75rem;color:var(--text-muted)">${sanitize(triggeredBy)}</td>
+      <td>
+        ${log.status === 'sent'
+          ? '<span style="display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:600;color:#059669;background:#ECFDF5;border:1px solid rgba(5,150,105,.2);padding:2px 8px;border-radius:999px"><span style="width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0"></span>Envoyé</span>'
+          : '<span style="display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:600;color:#DC2626;background:#FEF2F2;border:1px solid rgba(220,38,38,.2);padding:2px 8px;border-radius:999px"><span style="width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0"></span>Échec</span>'}
+      </td>
+      <td style="font-size:.75rem;color:var(--text-muted);white-space:nowrap">${date}</td>
+    </tr>`;
+  }).join('');
+
+  if (countEl) countEl.textContent = total + ' email' + (total > 1 ? 's' : '') + ' au total';
+  if (moreBtn) moreBtn.style.display = (_emailLogs.length < total) ? 'inline-flex' : 'none';
+}
+
+function loadMoreLogs() { loadEmailLogs(false); }
+
+function sanitize(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+init();
+
+/* ── Sidebar collapse toggle ─────────────────────────────────── */
+function _sbToggle() {
+  var sb = document.getElementById('admin-sidebar');
+  var app = document.querySelector('.app');
+  if (!sb) return;
+  var collapsed = sb.classList.toggle('sb-collapsed');
+  if (app) {
+    app.style.gridTemplateColumns = collapsed ? '64px 1fr' : '';
+  }
+  try { localStorage.setItem('symphony_sb_collapsed', collapsed ? '1' : '0'); } catch(e) {}
+}
+function _sbRestoreState() {
+  try {
+    var pref = localStorage.getItem('symphony_sb_collapsed');
+    if (pref === '1') {
+      var sb = document.getElementById('admin-sidebar');
+      var app = document.querySelector('.app');
+      if (sb) sb.classList.add('sb-collapsed');
+      if (app) app.style.gridTemplateColumns = '64px 1fr';
+    }
+  } catch(e) {}
+}
+</script>
+</body>
+</html>

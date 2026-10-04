@@ -7,9 +7,9 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="config.js"></script>
+<script src="config.js?v=3"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-<script src="shell.js"></script>
+<script src="shell.js?v=10"></script>
 <style>
 /* ── Shell aliases ─────────────────────────────────────────── */
 :root{
@@ -219,6 +219,7 @@
                 </div>
               </div>
               <label class="toggle"><input type="checkbox" id="t-public" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+
             </div>
             <div class="toggle-row">
               <div class="toggle-left">
@@ -231,6 +232,7 @@
                 </div>
               </div>
               <label class="toggle"><input type="checkbox" id="t-rdv" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+
             </div>
           </div>
 
@@ -303,7 +305,7 @@
                   </select>
                 </div>
                 <div class="field">
-                  <label>Ville / Commune</label>
+                  <label>Ville / Commune *</label>
                   <input type="text" id="f-city" placeholder="Ex : Hydra" oninput="updatePreview()">
                 </div>
               </div>
@@ -325,12 +327,12 @@
             <div class="card-body">
               <div class="field-row">
                 <div class="field">
-                  <label>Téléphone public</label>
+                  <label>Téléphone public <span id="phone-req-hint" style="font-size:.7rem;color:#F04438;display:none">* requis si RDV activé</span></label>
                   <input type="tel" id="f-phone" placeholder="0555 123 456">
                 </div>
                 <div class="field">
                   <label>Tarif consultation (DA)</label>
-                  <input type="number" id="f-price" placeholder="Ex : 2000" min="0" oninput="updatePreview()">
+                  <input type="number" id="f-price" placeholder="Ex : 2000 — mettez 0 si gratuit" min="0" oninput="updatePreview()">
                 </div>
               </div>
             </div>
@@ -553,6 +555,11 @@ function applyKycGate() {
 /* ── Preview ────────────────────────────────────────────────── */
 var COLORS = ['#3B1772','#0D6EFD','#7C3AED','#059669','#DC2626','#D97706'];
 function updatePreview() {
+  /* Hints conditionnels sur téléphone */
+  var rdvOn = document.getElementById('t-rdv') && document.getElementById('t-rdv').checked;
+  var phoneHint = document.getElementById('phone-req-hint');
+  if (phoneHint) phoneHint.style.display = rdvOn ? 'inline' : 'none';
+
   var name   = getVal('f-name') || 'Votre Nom';
   var spec   = getVal('f-specialty') || 'Spécialité';
   var wilaya = getVal('f-wilaya');
@@ -605,6 +612,41 @@ window.saveProfile = async function() {
       'rejected':       'Votre document a été rejeté. Soumettez un nouveau justificatif valide.',
     };
     showToast(msgs[_kycStatus] || msgs['not_submitted'], 'err');
+    return;
+  }
+
+  // ── Validation des champs obligatoires ────────────────────────────
+  var _validErrors = [];
+  function _req(id, msg, isSelect) {
+    var el  = document.getElementById(id);
+    var val = el ? el.value.trim() : '';
+    if (!val) {
+      _validErrors.push({ el: el, msg: msg });
+      if (el) {
+        el.style.borderColor = '#F04438';
+        var evName = isSelect ? 'change' : 'input';
+        el.addEventListener(evName, function _fix(){ el.style.borderColor=''; el.removeEventListener(evName,_fix); });
+      }
+    } else {
+      if (el) el.style.borderColor = '';
+    }
+  }
+
+  _req('f-name',     'Le nom complet est obligatoire.');
+  _req('f-specialty','La spécialité est obligatoire.', true);
+  _req('f-wilaya',   'La wilaya est obligatoire.', true);
+  _req('f-city',     'La ville / commune est obligatoire.');
+
+  if (wantsRdv) {
+    _req('f-phone', 'Le téléphone est obligatoire si vous acceptez des RDV en ligne.');
+  }
+
+  if (_validErrors.length > 0) {
+    showToast(_validErrors[0].msg, 'err');
+    if (_validErrors[0].el) {
+      _validErrors[0].el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(function(){ _validErrors[0].el.focus(); }, 250);
+    }
     return;
   }
 

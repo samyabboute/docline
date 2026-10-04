@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Agenda — Docline</title>
-<script src="config.js"></script>
-<script src="shell.js"></script>
+<script src="config.js?v=3"></script>
+<script src="shell.js?v=10"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0066FF">
+<meta name="theme-color" content="#3B1772">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Docline">
@@ -64,7 +64,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px}
 .cal-day-label{text-align:center;font-size:10px;font-weight:700;color:#9CA3AF;padding:4px;text-transform:uppercase;letter-spacing:.05em}
 .cal-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-cell{min-height:76px;border-radius:10px;padding:5px;cursor:pointer;transition:all .12s;position:relative;border:1.5px solid transparent}
+.cal-cell{height:84px;overflow:hidden;border-radius:10px;padding:5px;cursor:pointer;transition:all .12s;position:relative;border:1.5px solid transparent}
 .cal-cell:hover{background:#F8FAFF;border-color:#E5E7EB}
 .cal-cell.today{background:#EEF2FF;border-color:#3B1772}
 .cal-cell.other-month{opacity:.45}
@@ -80,7 +80,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ev-reunion{background:#F5F3FF;color:#6D28D9}
 .ev-task{background:#F3F4F6;color:#374151}
 .ev-rdv{background:#3B1772;color:#fff;font-weight:700}
-.more-events{font-size:9px;color:#9CA3AF;margin-top:2px;font-weight:500}
+.more-events{font-size:8px;color:#fff;background:#9CA3AF;border-radius:4px;padding:1px 4px;margin-top:2px;font-weight:600;display:inline-block}
+.ev-consult-sync{background:#EEF2FF;color:#3B1772}
+.ev-followup-sync{background:#ECFDF5;color:#065F46}
+
+/* ── Calendar legend ── */
+.cal-legend{display:flex;gap:10px;padding:10px 18px 14px;flex-wrap:wrap;border-top:1px solid #F3F4F6}
+.cal-leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#6B7280;font-weight:500;white-space:nowrap}
+.cal-leg-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0}
+
+/* ── View toggle ── */
+.view-toggle{display:flex;background:#F3F4F6;border-radius:8px;padding:2px;gap:2px}
+.vt-btn{padding:4px 11px;font-size:11px;font-weight:600;color:#6B7280;background:transparent;border:none;border-radius:6px;cursor:pointer;transition:all .15s}
+.vt-btn.active{background:#fff;color:#3B1772;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+
+/* ── Sync button ── */
+.btn-sync{padding:6px 12px;font-size:12px;font-weight:600;color:#6B7280;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-sync:hover{background:#EEF2FF;color:#3B1772;border-color:#C7D2FE}
+.btn-sync.syncing{opacity:.65;pointer-events:none}
+@keyframes spin-sync{to{transform:rotate(360deg)}}
+.btn-sync.syncing .sync-icon{display:inline-block;animation:spin-sync .7s linear infinite}
+
+/* ── Day panel consultations ── */
+.day-section-label{font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.07em;padding:8px 16px 4px;border-top:1px solid #F3F4F6}
+.day-section-label:first-child{border-top:none}
 
 /* ── Sidebar ── */
 .sidebar-stack{display:flex;flex-direction:column;gap:16px;animation:cardIn .45s ease both;animation-delay:.1s}
@@ -201,6 +224,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <div class="page-sub" id="selected-date-label">Sélectionnez un jour pour voir les événements</div>
           </div>
           <div class="header-actions">
+            <div class="view-toggle">
+              <button class="vt-btn active" id="view-month-btn" onclick="switchView('month')">Mois</button>
+              <button class="vt-btn" id="view-week-btn" onclick="switchView('week')">Semaine</button>
+            </div>
+            <button class="btn-sync" id="sync-btn" onclick="syncAll()" title="Synchroniser toutes les données">
+              <span class="sync-icon">⟳</span> Sync
+            </button>
             <button class="btn btn-primary" onclick="openAddTask()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Ajouter
@@ -226,6 +256,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <div class="kpi-icon red"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#DC2626;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
             <div><div class="kpi-val" id="kpi-overdue">–</div><div class="kpi-label">En retard</div></div>
           </div>
+          <div class="kpi-pill" style="animation-delay:.28s">
+            <div class="kpi-icon" style="background:#F0FDF4"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#059669;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div><div class="kpi-val" id="kpi-followups">–</div><div class="kpi-label">Suivis à venir</div></div>
+          </div>
         </div>
 
         <!-- Calendar + Sidebar -->
@@ -240,9 +274,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
                 <button class="cal-nav-btn" onclick="changeMonth(1)" title="Mois suivant">&#8250;</button>
               </div>
             </div>
-            <div class="cal-grid">
-              <div class="cal-days" id="cal-days"></div>
-              <div class="cal-cells" id="cal-cells"></div>
+
+            <!-- Month view -->
+            <div id="cal-month-view">
+              <div class="cal-grid">
+                <div class="cal-days" id="cal-days"></div>
+                <div class="cal-cells" id="cal-cells"></div>
+              </div>
+              <!-- Legend -->
+              <div class="cal-legend">
+                <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#3B1772"></div>RDV confirmé</div>
+                <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#4F46E5"></div>Consultation</div>
+                <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#059669"></div>Suivi patient</div>
+                <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#D97706"></div>Rappel</div>
+                <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#7C3AED"></div>Réunion</div>
+                <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#9CA3AF"></div>Tâche</div>
+              </div>
+            </div>
+
+            <!-- Week view -->
+            <div id="cal-week-view" style="display:none">
+              <div id="week-grid" style="overflow-x:auto"></div>
             </div>
 
             <!-- Day detail panel -->
@@ -352,7 +404,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-var _uid = null, _tasks = [], _appointments = [], _currentFilter = 'all';
+var _uid = null, _tasks = [], _appointments = [], _consultations = [], _currentFilter = 'all';
+var _viewMode = 'month';
 var _today = new Date(); _today.setHours(0,0,0,0);
 var _viewYear = _today.getFullYear(), _viewMonth = _today.getMonth();
 var _selectedDate = null, _editingId = null;
@@ -424,10 +477,12 @@ function updateKPIs(){
     if(t.completed||!t.due_date)return false;
     return new Date(t.due_date+'T00:00:00')<_today;
   }).length;
+  var followups=_consultations.filter(function(c){return c.follow_up_date && c.follow_up_date.slice(0,10)>=todayStr;}).length;
   document.getElementById('kpi-total').textContent=total;
   document.getElementById('kpi-done').textContent=done;
   document.getElementById('kpi-today').textContent=todayCount;
   document.getElementById('kpi-overdue').textContent=overdue;
+  document.getElementById('kpi-followups').textContent=followups;
 }
 
 // ── CALENDAR ──────────────────────────────────────────────────
@@ -453,21 +508,39 @@ function renderCalendar(){
     cells.push({date:new Date(_viewYear,_viewMonth+1,i),otherMonth:true});
   }
 
-  // Build a unified events map: confirmed appointments + active tasks per date
+  // Build a unified events map: consultations + appointments + tasks per date
   var eventMap={};
-  _tasks.forEach(function(t){
-    if(!t.due_date || t.completed) return;
-    var k=t.due_date.slice(0,10);
-    (eventMap[k] = eventMap[k] || []).push({
-      kind:'task', title:t.title, type:t.type||'task'
+  // 1. Consultations (consult_date)
+  _consultations.forEach(function(c){
+    if(!c.consult_date) return;
+    var k=c.consult_date.slice(0,10);
+    (eventMap[k]=eventMap[k]||[]).push({
+      kind:'consult', title:(c.patient_name||'Consultation')+(c.motif?' · '+c.motif.slice(0,18):''), type:'consultation'
     });
   });
+  // 2. Follow-up dates (follow_up_date)
+  _consultations.forEach(function(c){
+    if(!c.follow_up_date) return;
+    var k=c.follow_up_date.slice(0,10);
+    (eventMap[k]=eventMap[k]||[]).push({
+      kind:'followup', title:'Suivi '+(c.patient_name||''), type:'suivi'
+    });
+  });
+  // 3. Confirmed appointments (shown first, bold)
   _appointments.forEach(function(a){
     if(!a.requested_date) return;
     var k=a.requested_date.slice(0,10);
-    (eventMap[k] = eventMap[k] || []).unshift({
+    (eventMap[k]=eventMap[k]||[]).unshift({
       kind:'rdv', title:'RDV '+(a.requested_time?a.requested_time.slice(0,5)+' ':'')+a.patient_name,
       time:a.requested_time
+    });
+  });
+  // 4. Active tasks
+  _tasks.forEach(function(t){
+    if(!t.due_date || t.completed) return;
+    var k=t.due_date.slice(0,10);
+    (eventMap[k]=eventMap[k]||[]).push({
+      kind:'task', title:t.title, type:t.type||'task'
     });
   });
 
@@ -492,7 +565,7 @@ function selectDate(dateStr){
   var d=new Date(dateStr+'T00:00:00');
   document.getElementById('selected-date-label').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('task-due-input').value=dateStr;
-  renderCalendar();
+  if(_viewMode==='month') renderCalendar(); else renderWeekView();
   renderTasks();
   renderDayPanel(dateStr);
 }
@@ -501,41 +574,204 @@ function renderDayPanel(dateStr){
   var panel=document.getElementById('day-panel');
   var dayTasks=_tasks.filter(function(t){return t.due_date && t.due_date.slice(0,10)===dateStr;});
   var dayRdvs=_appointments.filter(function(a){return a.requested_date && a.requested_date.slice(0,10)===dateStr;});
+  var dayConsults=_consultations.filter(function(c){return c.consult_date && c.consult_date.slice(0,10)===dateStr;});
+  var dayFollowups=_consultations.filter(function(c){return c.follow_up_date && c.follow_up_date.slice(0,10)===dateStr;});
   // Sort RDVs by time
   dayRdvs.sort(function(a,b){ return (a.requested_time||'').localeCompare(b.requested_time||''); });
-  var total=dayTasks.length + dayRdvs.length;
+  var total=dayTasks.length + dayRdvs.length + dayConsults.length + dayFollowups.length;
   if(!total){panel.style.display='none';return;}
   panel.style.display='block';
   var d=new Date(dateStr+'T00:00:00');
   document.getElementById('day-panel-date').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('day-panel-count').textContent=total+' événement'+(total>1?'s':'');
-  var rdvHtml=dayRdvs.map(function(a){
-    var time=a.requested_time?a.requested_time.slice(0,5):'';
-    return'<div class="day-event-item" onclick="window.location.href=\'/mes-rdv\'">' +
-      '<div class="day-event-type-bar" style="background:#3B1772"></div>'+
-      '<div class="day-event-info">'+
-        '<div class="day-event-title">'+(time?'<strong>'+time+'</strong> · ':'')+sanitize(a.patient_name||'Patient')+'</div>'+
-        '<div class="day-event-meta">RDV confirmé'+(a.patient_phone?' · '+sanitize(a.patient_phone):'')+(a.notes?' · '+sanitize(a.notes.slice(0,40))+(a.notes.length>40?'…':''):'')+'</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-  var taskHtml=dayTasks.map(function(t){
-    var barColor=TYPE_BAR_COLOR[t.type||'task']||'#6B7280';
-    return'<div class="day-event-item" onclick="editTask(\''+t.id+'\')">' +
-      '<div class="day-event-type-bar" style="background:'+barColor+'"></div>'+
-      '<div class="day-event-info">'+
-        '<div class="day-event-title"'+(t.completed?' style="text-decoration:line-through;color:#9CA3AF"':'')+'>'+sanitize(t.title)+'</div>'+
-        '<div class="day-event-meta">'+(TYPE_LABEL[t.type||'task']||'Tâche')+(t.notes?' · '+sanitize(t.notes.slice(0,40))+(t.notes.length>40?'…':''):'')+'</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-  document.getElementById('day-panel-events').innerHTML=rdvHtml+taskHtml;
+  var html='';
+  // RDVs confirmés
+  if(dayRdvs.length){
+    html+='<div class="day-section-label">Rendez-vous confirmés</div>';
+    html+=dayRdvs.map(function(a){
+      var time=a.requested_time?a.requested_time.slice(0,5):'';
+      return'<div class="day-event-item" onclick="window.location.href=\''+ghpNav('/mes-rdv')+'\'">' +
+        '<div class="day-event-type-bar" style="background:#3B1772"></div>'+
+        '<div class="day-event-info">'+
+          '<div class="day-event-title">'+(time?'<strong>'+time+'</strong> · ':'')+sanitize(a.patient_name||'Patient')+'</div>'+
+          '<div class="day-event-meta">RDV confirmé'+(a.patient_phone?' · '+sanitize(a.patient_phone):'')+(a.notes?' · '+sanitize(a.notes.slice(0,40))+(a.notes.length>40?'…':''):'')+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  // Consultations du jour
+  if(dayConsults.length){
+    html+='<div class="day-section-label">Consultations</div>';
+    html+=dayConsults.map(function(c){
+      return'<div class="day-event-item" onclick="window.location.href=\''+ghpNav('/consultations')+'\'">' +
+        '<div class="day-event-type-bar" style="background:#4F46E5"></div>'+
+        '<div class="day-event-info">'+
+          '<div class="day-event-title">'+sanitize(c.patient_name||'Patient')+'</div>'+
+          '<div class="day-event-meta">Consultation'+(c.motif?' · '+sanitize(c.motif.slice(0,50))+(c.motif.length>50?'…':''):'')+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  // Suivis prévus
+  if(dayFollowups.length){
+    html+='<div class="day-section-label">Suivis planifiés</div>';
+    html+=dayFollowups.map(function(c){
+      return'<div class="day-event-item" onclick="window.location.href=\''+ghpNav('/consultations')+'\'">' +
+        '<div class="day-event-type-bar" style="background:#059669"></div>'+
+        '<div class="day-event-info">'+
+          '<div class="day-event-title">Suivi — '+sanitize(c.patient_name||'Patient')+'</div>'+
+          '<div class="day-event-meta">Suivi prescrit lors de la consultation du '+sanitize((c.consult_date||'–').slice(0,10))+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  // Tâches
+  if(dayTasks.length){
+    html+='<div class="day-section-label">Tâches</div>';
+    html+=dayTasks.map(function(t){
+      var barColor=TYPE_BAR_COLOR[t.type||'task']||'#6B7280';
+      return'<div class="day-event-item" onclick="editTask(\''+t.id+'\')">' +
+        '<div class="day-event-type-bar" style="background:'+barColor+'"></div>'+
+        '<div class="day-event-info">'+
+          '<div class="day-event-title"'+(t.completed?' style="text-decoration:line-through;color:#9CA3AF"':'')+'>'+sanitize(t.title)+'</div>'+
+          '<div class="day-event-meta">'+(TYPE_LABEL[t.type||'task']||'Tâche')+(t.notes?' · '+sanitize(t.notes.slice(0,40))+(t.notes.length>40?'…':''):'')+(t.completed?' · <span style="color:#059669">✓ Terminée</span>':'')+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  document.getElementById('day-panel-events').innerHTML=html;
 }
 
 function changeMonth(dir){
   if(dir===0){_viewYear=_today.getFullYear();_viewMonth=_today.getMonth();}
   else{_viewMonth+=dir;if(_viewMonth>11){_viewMonth=0;_viewYear++;}else if(_viewMonth<0){_viewMonth=11;_viewYear--;}}
-  renderCalendar();
+  if(_viewMode==='month') renderCalendar();
+  else renderWeekView();
+}
+
+// ── VIEW SWITCHING ────────────────────────────────────────────
+function switchView(mode){
+  _viewMode=mode;
+  document.getElementById('view-month-btn').classList.toggle('active',mode==='month');
+  document.getElementById('view-week-btn').classList.toggle('active',mode==='week');
+  document.getElementById('cal-month-view').style.display=mode==='month'?'':'none';
+  document.getElementById('cal-week-view').style.display=mode==='week'?'':'none';
+  if(mode==='week') renderWeekView();
+  else renderCalendar();
+}
+
+function renderWeekView(){
+  var ref=_selectedDate?new Date(_selectedDate+'T00:00:00'):new Date(_viewYear,_viewMonth,1);
+  var dow=ref.getDay();
+  var monday=new Date(ref);
+  monday.setDate(ref.getDate()-(dow===0?6:dow-1));
+  var days=[];
+  for(var i=0;i<7;i++){var d=new Date(monday);d.setDate(monday.getDate()+i);days.push(d);}
+
+  // Update header label
+  var startStr=days[0].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  var endStr=days[6].toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('cal-month-label').textContent='Sem. du '+startStr+' au '+endStr;
+
+  // Build event map
+  var eventMap={};
+  _consultations.forEach(function(c){
+    if(c.consult_date){var k=c.consult_date.slice(0,10);(eventMap[k]=eventMap[k]||[]).push({kind:'consult',title:c.patient_name||'Consultation',sub:c.motif,bar:'#4F46E5'});}
+    if(c.follow_up_date){var k=c.follow_up_date.slice(0,10);(eventMap[k]=eventMap[k]||[]).push({kind:'followup',title:'Suivi '+( c.patient_name||''),sub:'Suivi planifié',bar:'#059669'});}
+  });
+  _appointments.forEach(function(a){
+    if(!a.requested_date)return;
+    var k=a.requested_date.slice(0,10);
+    (eventMap[k]=eventMap[k]||[]).unshift({kind:'rdv',title:(a.requested_time?a.requested_time.slice(0,5)+' · ':'')+( a.patient_name||''),sub:'RDV confirmé',bar:'#3B1772'});
+  });
+  _tasks.forEach(function(t){
+    if(!t.due_date||t.completed)return;
+    var k=t.due_date.slice(0,10);
+    (eventMap[k]=eventMap[k]||[]).push({kind:'task',title:t.title,sub:TYPE_LABEL[t.type||'task']||'Tâche',bar:TYPE_BAR_COLOR[t.type||'task']||'#6B7280'});
+  });
+
+  var todayStr=_today.toISOString().slice(0,10);
+  var html='<div style="display:grid;grid-template-columns:48px repeat(7,1fr);gap:0;border:1px solid #E5E7EB;border-radius:14px;overflow:hidden">';
+  // Row 1: Day headers
+  html+='<div style="background:#F9FAFB;border-bottom:1px solid #DDE1E7;padding:6px 0;text-align:center;font-size:9px;color:#9CA3AF;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center">H</div>';
+  html+=days.map(function(d){
+    var ds=d.toISOString().slice(0,10);
+    var isToday=ds===todayStr;
+    var isSelected=ds===_selectedDate;
+    var dayNames=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+    var dayN=dayNames[d.getDay()];
+    var bg=isToday?'#3B1772':(isSelected?'#EEF2FF':'#F9FAFB');
+    var col=isToday?'#fff':(isSelected?'#3B1772':'#374151');
+    var nbEvs=(eventMap[ds]||[]).length;
+    return'<div style="background:'+bg+';border-bottom:1px solid #DDE1E7;border-left:1px solid #E5E7EB;padding:6px 4px;text-align:center;cursor:pointer" onclick="selectDate(\''+ds+'\')">'
+      +'<div style="font-size:9px;font-weight:700;color:'+(isToday?'rgba(255,255,255,.7)':'#9CA3AF')+';text-transform:uppercase">'+dayN+'</div>'
+      +'<div style="font-size:14px;font-weight:800;color:'+col+';line-height:1.2;margin-top:1px">'+d.getDate()+'</div>'
+      +(nbEvs?'<div style="display:inline-block;margin-top:2px;background:'+(isToday?'rgba(255,255,255,.3)':'#E0E7FF')+';color:'+(isToday?'#fff':'#3B1772')+';border-radius:10px;font-size:8px;font-weight:700;padding:0 5px;line-height:14px">'+nbEvs+'</div>':'')
+      +'</div>';
+  }).join('');
+  // Row 2: All-day events (consultations, suivis, tasks)
+  html+='<div style="font-size:8px;color:#9CA3AF;font-weight:700;text-align:center;padding:3px 2px;background:#F0FDF4;border-bottom:2px solid #D1FAE5;border-right:1px solid #E5E7EB;display:flex;align-items:center;justify-content:center;line-height:1.1">ALL<br>DAY</div>';
+  days.forEach(function(d){
+    var ds=d.toISOString().slice(0,10);
+    var allEvs=(eventMap[ds]||[]).filter(function(e){return e.kind!=='rdv'||!e.title.match(/^\d{2}:\d{2}/);}).slice(0,3);
+    html+='<div style="background:#F0FDF4;border-bottom:2px solid #D1FAE5;border-left:1px solid #E5E7EB;padding:3px;overflow:hidden;min-height:26px">'
+      +allEvs.map(function(e){return'<div style="background:'+e.bar+';color:#fff;border-radius:4px;font-size:8px;font-weight:600;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px" title="'+sanitize(e.title)+'">'+sanitize(e.title.slice(0,16))+'</div>';}).join('')
+      +'</div>';
+  });
+  // Rows 3+: Time slots 07h–18h
+  var HOURS=['07','08','09','10','11','12','13','14','15','16','17','18'];
+  HOURS.forEach(function(h){
+    var isLunch=h==='12'||h==='13';
+    var slotBg=isLunch?'#FFFBEB':'#fff';
+    html+='<div style="font-size:9px;color:#9CA3AF;font-weight:600;text-align:right;padding:0 6px 0 0;line-height:32px;border-bottom:1px solid #F3F4F6;border-right:1px solid #E5E7EB;min-height:32px;background:#FAFBFF">'+h+'h</div>';
+    days.forEach(function(d){
+      var ds=d.toISOString().slice(0,10);
+      var isToday=ds===todayStr;
+      var ev=(eventMap[ds]||[]).find(function(e){return e.kind==='rdv'&&e.title.match(new RegExp('^'+h+':'));});
+      var bg=isToday?'#FAFBFF':slotBg;
+      html+='<div style="background:'+bg+';border-bottom:1px solid #F3F4F6;border-left:1px solid #E5E7EB;min-height:32px;padding:2px 3px;overflow:hidden">'
+        +(ev?'<div style="background:'+ev.bar+';color:#fff;border-radius:4px;font-size:9px;font-weight:600;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+sanitize(ev.title)+'">'+sanitize(ev.title)+'</div>':'')
+        +'</div>';
+    });
+  });
+  html+='</div>';
+  // Add legend at bottom
+  html+='<div class="cal-legend" style="margin-top:0;border-top:1px solid #F3F4F6;border-radius:0 0 14px 14px;background:#fff;border:1px solid #E5E7EB;border-top:none;padding:8px 14px">';
+  html+='<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#3B1772"></div>RDV</div>';
+  html+='<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#4F46E5"></div>Consultation</div>';
+  html+='<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#059669"></div>Suivi</div>';
+  html+='<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#9CA3AF"></div>Tâche</div>';
+  html+='</div>';
+  document.getElementById('week-grid').innerHTML=html;
+}
+
+// ── SYNC ALL DATA ─────────────────────────────────────────────
+async function syncAll(){
+  if(!_uid) return;
+  var btn=document.getElementById('sync-btn');
+  if(btn){btn.classList.add('syncing');btn.querySelector('.sync-icon').textContent='⟳';}
+  try{
+    var [taskR,apptR,consultR]=await Promise.all([
+      _supa.from('calendar_tasks').select('*').eq('user_id',_uid).order('due_date',{ascending:true}),
+      _supa.from('appointments').select('id,requested_date,requested_time,patient_name,patient_phone,notes,status')
+        .eq('doctor_id',_uid).eq('status','confirmed').order('requested_date',{ascending:true}),
+      _supa.from('consultations').select('id,consult_date,follow_up_date,patient_name,motif')
+        .eq('user_id',_uid).order('consult_date',{ascending:false}).limit(500)
+    ]);
+    _tasks=taskR.data||[];
+    _appointments=(apptR&&apptR.data)||[];
+    _consultations=(consultR&&consultR.data)||[];
+    if(_viewMode==='month') renderCalendar(); else renderWeekView();
+    renderTasks();
+    updateKPIs();
+    if(_selectedDate) renderDayPanel(_selectedDate);
+    toast('<span style="color:#059669">&#10003;</span> Synchronisé');
+  }catch(err){
+    toast('Erreur de synchronisation','toast-error');
+    console.error('[syncAll]',err);
+  }finally{
+    if(btn){btn.classList.remove('syncing');btn.querySelector('.sync-icon').textContent='⟳';}
+  }
 }
 
 // ── TASKS ─────────────────────────────────────────────────────
@@ -592,7 +828,7 @@ function filterTasks(f, el){
   if(_currentFilter!=='all') _selectedDate=null;
   document.querySelectorAll('.chip').forEach(function(b){b.classList.remove('active');});
   el.classList.add('active');
-  renderCalendar();
+  if(_viewMode==='month') renderCalendar(); else renderWeekView();
   renderTasks();
 }
 
@@ -757,15 +993,18 @@ document.addEventListener('keydown',function(e){
     document.getElementById('selected-date-label').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     document.getElementById('task-due-input').value=todayStr;
 
-    // ── Chargement des tâches + RDV confirmés ─────────────────
-    var [taskR, apptR] = await Promise.all([
+    // ── Chargement des tâches + RDV + Consultations ───────────
+    var [taskR, apptR, consultR] = await Promise.all([
       _supa.from('calendar_tasks').select('*').eq('user_id',_uid).order('due_date',{ascending:true}),
       _supa.from('appointments').select('id,requested_date,requested_time,patient_name,patient_phone,notes,status')
-        .eq('doctor_id',_uid).eq('status','confirmed').order('requested_date',{ascending:true})
+        .eq('doctor_id',_uid).eq('status','confirmed').order('requested_date',{ascending:true}),
+      _supa.from('consultations').select('id,consult_date,follow_up_date,patient_name,motif')
+        .eq('user_id',_uid).order('consult_date',{ascending:false}).limit(500)
     ]);
     if(taskR.error)throw taskR.error;
     _tasks = taskR.data || [];
     _appointments = (apptR && apptR.data) || [];
+    _consultations = (consultR && consultR.data) || [];
     renderCalendar();
     renderTasks();
     updateKPIs();

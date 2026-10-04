@@ -17,7 +17,9 @@ window.addEventListener('unhandledrejection', function (e) {
   }
 });
 
-var Shell = (function () {
+var Shell;
+try {
+Shell = (function () {
   'use strict';
 
   // ── LOGO ──────────────────────────────────────────────────────
@@ -61,11 +63,53 @@ var Shell = (function () {
     { section: 'Mon équipe' },
     { href:'/staff',              key:'staff',          label:'Personnel',    pro:true,
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/>' },
+  ];
 
-    // ── Clinique
-    { section: 'Clinique' },
-    { href:'/clinic-agenda',      key:'clinic-agenda',  label:'Agenda partagé', clinic:true,
-      icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>' },
+  // ── SYMPHONY NAV (admin platform) ────────────────────────────
+  var SYMPHONY_NAV = [
+    // ── Vue générale
+    { section: 'Vue générale' },
+    { href:'/symphony',          key:'symphony',          label:'Hub Symphony',
+      icon:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
+    { href:'/symphony-analytics',key:'symphony-analytics',label:'Analytics',
+      icon:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>' },
+
+    // ── Clients & CRM
+    { section: 'Clients & CRM' },
+    { href:'/symphony-kyc',      key:'symphony-kyc',      label:'KYC & Onboarding',
+      icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>' },
+    { href:'/symphony-users',    key:'symphony-users',    label:'Médecins & Cliniques',
+      icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>' },
+    { href:'/symphony-crm',      key:'symphony-crm',      label:'CRM Médecin',
+      icon:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+    { href:'/symphony-featured', key:'symphony-featured', label:'Médecins En Vedette',
+      icon:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' },
+
+    // ── Revenus & Finance
+    { section: 'Revenus & Finance' },
+    { href:'/symphony-revenue',  key:'symphony-revenue',  label:'Revenus & Finance',
+      icon:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/>' },
+
+    // ── Marketing
+    { section: 'Marketing' },
+    { href:'/symphony-ads',      key:'symphony-ads',      label:'Régie Publicitaire',
+      icon:'<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>' },
+    { href:'/symphony-emails',   key:'symphony-emails',   label:'Emails & Modèles',
+      icon:'<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>' },
+
+    // ── Équipe Symphony
+    { section: 'Équipe' },
+    { href:'/symphony-agents',   key:'symphony-agents',   label:'Agents & Équipe',
+      icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
+    { href:'/symphony-simulate', key:'symphony-simulate', label:'Simulation',
+      icon:'<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>' },
+
+    // ── Système
+    { section: 'Système' },
+    { href:'/symphony-security', key:'symphony-security', label:'Sécurité & Logs',
+      icon:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' },
+    { href:'/symphony-settings', key:'symphony-settings', label:'Paramètres',
+      icon:'<circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>' },
   ];
 
   // ── CSS ───────────────────────────────────────────────────────
@@ -302,6 +346,24 @@ button{font-family:inherit;cursor:pointer}
   transition:box-shadow var(--t);
 }
 .tb-avatar-btn:hover{box-shadow:0 0 0 2px var(--brand)}
+.tb-avatar-btn.pop-open{box-shadow:0 0 0 2px var(--brand);background:var(--brand);color:#fff}
+.tb-user-pop{position:absolute;top:calc(100% + 10px);right:0;min-width:220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-md);z-index:9998;overflow:hidden;animation:fadeInDown .15s ease}
+.tb-user-pop-head{display:flex;align-items:center;gap:10px;padding:14px 14px 10px}
+.tb-user-pop-av{width:38px;height:38px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.tb-user-pop-info{min-width:0;flex:1}
+.tb-user-pop-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-user-pop-num{font-size:10.5px;color:var(--brand);font-weight:600;margin-top:1px;letter-spacing:.5px}
+.tb-user-pop-email{font-size:10.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-user-pop-sep{height:1px;background:var(--border);margin:0 10px}
+.tb-user-pop-signout{display:flex;align-items:center;gap:8px;width:100%;padding:10px 14px;background:none;border:none;cursor:pointer;color:var(--danger);font-size:12.5px;font-weight:600;text-align:left}
+.tb-user-pop-signout:hover{background:var(--danger-bg)}
+.tb-user-pop-signout svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.tb-user-pop-sub{padding:8px 14px 10px;display:flex;flex-direction:column;gap:2px}
+.tb-user-pop-plan{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;display:inline-block;width:fit-content}
+.tb-user-pop-plan.pro{background:rgba(5,150,105,.12);color:#059669}
+.tb-user-pop-plan.free{background:var(--surface-hover);color:var(--text-3)}
+.tb-sub-interval{font-size:10px;background:rgba(124,58,237,.1);color:var(--brand);border-radius:99px;padding:1px 7px;font-weight:600}
+.tb-actions{position:relative}
 
 /* ── MAIN CONTENT ── */
 .shell-main{grid-row:2;grid-column:2;min-width:0;overflow-x:hidden}
@@ -652,6 +714,42 @@ button{font-family:inherit;cursor:pointer}
 /* ── PAGE TRANSITION BAR ── */
 #shell-progress{position:fixed;top:0;left:0;width:0;height:3px;background:linear-gradient(90deg,#3B1772,#7C3AED);z-index:9999;transition:width .4s ease,opacity .3s ease;border-radius:0 3px 3px 0;pointer-events:none;opacity:0}
 #shell-progress.running{opacity:1}
+
+/* ── Account modal ── */
+.acct-bg{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;animation:acctFadeIn .18s ease}
+@keyframes acctFadeIn{from{opacity:0}to{opacity:1}}
+.acct-modal{background:#fff;border-radius:16px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;animation:acctSlideUp .2s ease}
+@keyframes acctSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.acct-head{display:flex;align-items:center;gap:14px;padding:20px 20px 16px;background:var(--sidebar-bg,#1e1b4b);position:relative}
+.acct-head-av{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(255,255,255,.25)}
+.acct-head-info{flex:1;min-width:0}
+.acct-head-name{font-weight:600;color:#fff;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acct-head-email{font-size:.75rem;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.acct-head-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.12);border:none;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;transition:.15s}
+.acct-head-close:hover{background:rgba(255,255,255,.22)}
+.acct-head-close svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
+.acct-body{padding:16px 20px 20px;display:flex;flex-direction:column;gap:16px}
+.acct-sec{display:flex;flex-direction:column;gap:8px}
+.acct-sec-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-2,#6b7280)}
+.acct-plan-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.acct-plan-badge{padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.acct-plan-badge.free{background:#f3f4f6;color:#6b7280}
+.acct-plan-badge.pro{background:#ede9fe;color:#6d28d9}
+.acct-plan-badge.clinic{background:#d1fae5;color:#065f46}
+.acct-plan-since{font-size:.78rem;color:var(--text-2,#6b7280)}
+.acct-field{display:flex;gap:8px;align-items:center}
+.acct-field input{flex:1;padding:8px 12px;border:1px solid var(--border,#e5e7eb);border-radius:8px;font-size:.84rem;outline:none;transition:.15s;font-family:inherit}
+.acct-field input:focus{border-color:var(--brand,#7C3AED);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.acct-btn{padding:8px 16px;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:.15s;font-family:inherit;white-space:nowrap}
+.acct-btn.primary{background:var(--brand,#7C3AED);color:#fff}
+.acct-btn.primary:hover{opacity:.88}
+.acct-btn.ghost{background:transparent;border:1.5px solid var(--border,#e5e7eb);color:var(--text,#111827);width:100%;text-align:left;display:flex;align-items:center;gap:8px}
+.acct-btn.ghost:hover{background:var(--hover-bg,#f9fafb)}
+.acct-btn.danger-outline{background:transparent;border:1.5px solid #dc2626;color:#dc2626;width:100%;text-align:left;display:flex;align-items:center;gap:8px}
+.acct-btn.danger-outline:hover{background:#fef2f2}
+.acct-status{font-size:.78rem;min-height:16px;transition:.15s}
+.acct-status.ok{color:#059669}
+.acct-status.err{color:#dc2626}
 </style>`;
 
   // ── INJECT CSS ────────────────────────────────────────────────
@@ -672,7 +770,6 @@ button{font-family:inherit;cursor:pointer}
     var title     = opts.title    || 'Tableau de bord';
     var isPro     = opts.isPro    || false;
     var plan      = opts.plan     || (isPro ? 'pro' : 'free');
-    var isClinic  = (plan === 'clinic');
     var userName  = opts.userName || '';
     var userEmail = opts.userEmail|| '';
     var initials  = (userName
@@ -683,14 +780,9 @@ button{font-family:inherit;cursor:pointer}
     var pct = isPro ? 0 : Math.min(100, Math.round((patientCount / patientLimit) * 100));
 
     // ── Sidebar nav
-    var navHTML = NAV.map(function (n) {
-      if (n.section) {
-        // Masquer la section "Clinique" entièrement si pas clinic
-        if (n.section === 'Clinique' && !isClinic) return '';
-        return '<div class="sb-section">' + n.section + '</div>';
-      }
-      // Items clinic-only : masqués si pas clinic
-      if (n.clinic && !isClinic) return '';
+    var _navSource = opts.isSymphony ? SYMPHONY_NAV : NAV;
+    var navHTML = _navSource.map(function (n) {
+      if (n.section) return '<div class="sb-section">' + n.section + '</div>';
       var isLocked = n.pro && !isPro;
       var cls = 'sb-item' + (n.featured ? ' featured' : '') + (n.key === page ? ' active' : '') + (isLocked ? ' locked-clickable' : '');
       var rdvBadge = n.key === 'mes-rdv'
@@ -710,8 +802,8 @@ button{font-family:inherit;cursor:pointer}
         + '</a>';
     }).join('');
 
-    // ── Usage block (free only)
-    var usageHTML = !isPro
+    // ── Usage block (free only, hidden in Symphony mode)
+    var usageHTML = opts.isSymphony ? '' : !isPro
       ? '<div class="sb-divider"></div>'
         + '<div class="sb-usage">'
         +   '<div class="sb-usage-label"><span>Patients</span><strong>' + patientCount + ' / ' + patientLimit + '</strong></div>'
@@ -724,11 +816,16 @@ button{font-family:inherit;cursor:pointer}
       : '';
 
     // ── Sidebar
+    var _planLabel = opts.isSymphony ? 'ADMIN' : plan.toUpperCase();
+    var _planCls   = opts.isSymphony ? 'enterprise' : plan;
+    var _headInner = opts.isSymphony
+      ? '<img src="docline-logo-white.svg" alt="Docline" style="height:22px;width:auto;display:block;max-width:120px;flex-shrink:0">'
+        + '<span class="sb-plan enterprise" style="margin-left:6px">ADMIN</span>'
+      : LOGO + '<span class="sb-wordmark">Docline</span>'
+        + '<span class="sb-plan ' + _planCls + '">' + _planLabel + '</span>';
     var sidebar =
         '<div class="sb-head">'
-      +   LOGO
-      +   '<span class="sb-wordmark">Docline</span>'
-      +   '<span class="sb-plan ' + plan + '">' + plan.toUpperCase() + '</span>'
+      +   _headInner
       + '</div>'
       + '<nav class="sb-nav">'
       +   navHTML
@@ -817,8 +914,12 @@ button{font-family:inherit;cursor:pointer}
       +     '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
       +     'Contacter le support'
       +   '</a>'
+      +   '<button class="sb-pop-item" id="sb-pop-account">'
+      +     '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+      +     'G\u00e9rer mon compte'
+      +   '</button>'
       +   '<div class="sb-pop-sep"></div>'
-      /* Déconnexion */
+      /* D\u00e9connexion */
       +   '<button class="sb-pop-item danger" id="sb-pop-signout">'
       +     '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
       +     'Se déconnecter'
@@ -1135,13 +1236,23 @@ button{font-family:inherit;cursor:pointer}
     }, 600);
   }
 
-  // ── INIT ──────────────────────────────────────────────────────
   // ── PROGRESS BAR ─────────────────────────────────────────────
+  // Doit s'initialiser APRÈS que document.body existe (shell.js est en <head>)
   (function() {
     var bar = document.createElement('div');
     bar.id = 'shell-progress';
-    document.body.appendChild(bar);
-    // Show on navigation start
+
+    function attachBar() {
+      if (document.body) {
+        document.body.appendChild(bar);
+      } else {
+        document.addEventListener('DOMContentLoaded', function() {
+          document.body.appendChild(bar);
+        });
+      }
+    }
+    attachBar();
+
     document.addEventListener('click', function(e) {
       var a = e.target.closest('a[href]');
       if (!a) return;
@@ -1149,13 +1260,11 @@ button{font-family:inherit;cursor:pointer}
       if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('javascript:') || a.target === '_blank') return;
       bar.style.width = '0';
       bar.classList.add('running');
-      // Animate to 80% quickly, the rest completes on load
       requestAnimationFrame(function() {
         bar.style.transition = 'width 2s ease';
         bar.style.width = '80%';
       });
     });
-    // Complete on load
     window.addEventListener('pageshow', function() {
       bar.style.transition = 'width .2s ease';
       bar.style.width = '100%';
@@ -1247,14 +1356,30 @@ button{font-family:inherit;cursor:pointer}
           // Signout button inside the popover
           var signoutBtn = document.getElementById('sb-pop-signout');
           if (signoutBtn) {
-            signoutBtn.addEventListener('click', function() {
-              if (typeof Auth !== 'undefined') Auth.signOut();
+            signoutBtn.addEventListener('click', async function() {
+              try {
+                if (_rdvClient) await _rdvClient.auth.signOut();
+                else if (typeof Auth !== 'undefined') { await Auth.signOut(); return; }
+              } catch(e) {}
+              window.location.href = typeof ghpNav === 'function' ? ghpNav('/login') : '/login';
+            });
+          }
+
+          // G\u00e9rer mon compte button
+          var accountBtn = document.getElementById('sb-pop-account');
+          if (accountBtn) {
+            accountBtn.addEventListener('click', function() {
+              _openAccountModal(popOpts);
+              var pop = document.getElementById('sb-profile-pop');
+              if (pop) pop.remove();
             });
           }
         }
       }
 
       userBtn.addEventListener('click', _togglePop);
+
+
 
       // Fermeture au clic en dehors
       document.addEventListener('click', function(e) {
@@ -1273,6 +1398,140 @@ button{font-family:inherit;cursor:pointer}
         }
       });
     }
+
+    // ── Top-bar avatar click → mini-popover ──────────────────────────
+    (function() {
+      var tbAv2 = document.getElementById('tb-avatar');
+      if (!tbAv2) return;
+
+      function _tbFmtNum(uid) {
+        if (!uid) return 'DOC-000000';
+        return 'DOC-' + uid.replace(/-/g,'').toUpperCase().slice(0,6);
+      }
+      function _tbDaysLeft(ds) {
+        if (!ds) return null;
+        return Math.ceil((new Date(ds) - new Date()) / 86400000);
+      }
+      function _tbBuild(ini,name,email,numDoc,sub) {
+        var planLabel = ({free:'Gratuit',pro:'Pro Médecin',clinic:'Clinique'})[sub.plan] || 'Gratuit';
+        var planCls   = (sub.plan==='pro'||sub.plan==='clinic') ? 'pro' : 'free';
+        var subHtml   = '';
+        if (sub.plan !== 'free') {
+          var intervalVal  = sub.interval || null; // null if unknown
+          var intervalLabel = intervalVal === 'year' ? 'Annuel' : (intervalVal === 'month' ? 'Mensuel' : null);
+          var totalDays    = intervalVal === 'year' ? 365 : 30;
+          var days         = _tbDaysLeft(sub.expires_at);
+          var daysHtml     = '';
+          if (days !== null) {
+            var color = days <= 7 ? '#e53e3e' : days <= 30 ? '#d97706' : '#059669';
+            var daysText = days > 0 ? (days + 'j / ' + totalDays) : 'Expiré';
+            daysHtml = '<span style="font-size:10px;font-weight:700;color:' + color + '">' + daysText + '</span>';
+          }
+          subHtml = '<div class="tb-user-pop-sub">'
+            + '<span class="tb-user-pop-plan '+planCls+'">'+planLabel+'</span>'
+            + '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'
+            + (intervalLabel ? '<span class="tb-sub-interval">'+intervalLabel+'</span>' : '')
+            + daysHtml
+            + '</div></div>';
+        } else {
+          subHtml = '<div class="tb-user-pop-sub"><span class="tb-user-pop-plan free">'+planLabel+'</span></div>';
+        }
+        return '<div class="tb-user-pop" id="tb-user-pop">'
+          + '<div class="tb-user-pop-head">'
+          +   '<div class="tb-user-pop-av">'+ini+'</div>'
+          +   '<div class="tb-user-pop-info">'
+          +     '<div class="tb-user-pop-name">'+name+'</div>'
+          +     '<div class="tb-user-pop-num">N° '+numDoc+'</div>'
+          +     '<div class="tb-user-pop-email">'+email+'</div>'
+          +   '</div>'
+          + '</div>'
+          + subHtml
+          + '<div class="tb-user-pop-sep"></div>'
+          + '<button class="tb-user-pop-signout" id="tb-pop-signout">'
+          +   '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+          +   'Se déconnecter'
+          + '</button>'
+          + '</div>';
+      }
+      function _tbClose() {
+        var p = document.getElementById('tb-user-pop'); if (p) p.remove();
+        tbAv2.classList.remove('pop-open');
+      }
+      function _tbSignout(cl) {
+        var btn = document.getElementById('tb-pop-signout');
+        if (!btn) return;
+        btn.addEventListener('click', async function() {
+          try { if (cl) await cl.auth.signOut(); } catch(e) {}
+          window.location.href = typeof ghpNav==='function' ? ghpNav('/login') : '/login';
+        });
+      }
+
+      tbAv2.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (document.getElementById('tb-user-pop')) { _tbClose(); return; }
+
+        // Get supabase creds
+        var url = typeof SUPA_URL!=='undefined' ? SUPA_URL : (typeof DOCLINE_CONFIG!=='undefined' ? DOCLINE_CONFIG.SUPA_URL : null);
+        var key = typeof SUPA_KEY!=='undefined' ? SUPA_KEY : (typeof DOCLINE_CONFIG!=='undefined' ? DOCLINE_CONFIG.SUPA_KEY : null);
+
+        // Show popup immediately with opts data (no async needed for basic info)
+        var tbActEl = tbAv2.closest('.tb-actions') || tbAv2.parentElement;
+        var ini     = opts.userName
+          ? opts.userName.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2)
+          : ((opts.userEmail||'?')[0].toUpperCase());
+        var sub0 = { plan: opts.plan||'free', interval:null, created_at:null, expires_at:null };
+        tbActEl.insertAdjacentHTML('beforeend', _tbBuild(ini, opts.userName||opts.userEmail||'Médecin', opts.userEmail||'', 'DOC-......', sub0));
+        tbAv2.classList.add('pop-open');
+
+        // If we have supabase, fetch real data and update popup
+        if (url && key) {
+          if (!_rdvClient) _rdvClient = supabase.createClient(url, key);
+          _rdvClient.auth.getSession().then(function(r) {
+            var sess = r&&r.data&&r.data.session ? r.data.session : null;
+            if (!sess) { _tbSignout(_rdvClient); return; }
+            var uid = sess.user.id;
+            var email = sess.user.email || opts.userEmail || '';
+            var numDoc = _tbFmtNum(uid);
+            Promise.all([
+              _rdvClient.from('profiles').select('full_name,first_name,last_name').eq('id',uid).maybeSingle().catch(function(){return{data:null};}),
+              _rdvClient.from('subscriptions').select('plan,status,created_at,expires_at,interval').eq('user_id',uid).order('created_at',{ascending:false}).limit(1).maybeSingle().catch(function(){return{data:null};})
+            ]).then(function(res) {
+              var pr = res[0].data; var sub = res[1].data;
+              var name = opts.userName||email.split('@')[0]||'Médecin';
+              if (pr) {
+                if (pr.full_name) name=pr.full_name;
+                else if (pr.first_name||pr.last_name) name=((pr.first_name||'')+' '+(pr.last_name||'')).trim();
+              }
+              ini = name.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2)||ini;
+              var subInfo = { plan: opts.plan||'free', interval:null, created_at:null, expires_at:null };
+              if (sub && sub.plan && sub.plan!=='free') {
+                subInfo = { plan:sub.plan, created_at:sub.created_at, expires_at:sub.expires_at, interval:null };
+                // Read interval directly from DB column (fallback: infer from dates)
+                if (sub.interval) {
+                  subInfo.interval = sub.interval;
+                } else if (sub.created_at && sub.expires_at) {
+                  var months = (new Date(sub.expires_at)-new Date(sub.created_at))/(1000*60*60*24*30);
+                  subInfo.interval = months>=11 ? 'year' : 'month';
+                }
+              }
+              // Re-render with real data
+              var old = document.getElementById('tb-user-pop');
+              if (old) old.remove();
+              tbActEl.insertAdjacentHTML('beforeend', _tbBuild(ini, name, email, numDoc, subInfo));
+              _tbSignout(_rdvClient);
+            }).catch(function(){ _tbSignout(_rdvClient); });
+          }).catch(function(){ _tbSignout(_rdvClient); });
+        } else {
+          _tbSignout(null);
+        }
+      });
+
+      document.addEventListener('click', function(e) {
+        var p = document.getElementById('tb-user-pop');
+        if (p && !tbAv2.contains(e.target) && !p.contains(e.target)) _tbClose();
+      });
+      document.addEventListener('keydown', function(e) { if (e.key==='Escape') _tbClose(); });
+    })();
 
     // ── Peek arrow (créé une fois, commun desktop + mobile) ───────────
     var _peek = document.getElementById('sb-peek');
@@ -1555,5 +1814,165 @@ button{font-family:inherit;cursor:pointer}
     if (main) main.style.visibility = 'hidden';
   }
 
-  return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, guard: guard, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
+    // ACCOUNT MODAL
+  function _openAccountModal(opts) {
+    if (document.getElementById("acct-bg")) return;
+    var o = opts || {};
+    var initials = o.initials || (o.userEmail ? o.userEmail.slice(0,2).toUpperCase() : "??");
+    var planCls = o.plan==="pro" ? "pro" : o.plan==="clinic" ? "clinic" : "free";
+    var planLbl = o.plan==="clinic" ? "CLINIC" : o.plan==="pro" ? "PRO" : "FREE";
+    var uName = o.userName || (o.userEmail||"").split("@")[0];
+    var uEmail = o.userEmail || "";
+    var d = document.createElement("div");
+    d.id = "acct-bg";
+    d.className = "acct-bg";
+    d.addEventListener("click", function(e){ if(e.target===d) window._closeAccountModal(); });
+    d.innerHTML = [
+      "<div class=\"acct-modal\">",
+        "<div class=\"acct-head\">",
+          "<div class=\"acct-head-av\">" + initials + "</div>",
+          "<div class=\"acct-head-info\">",
+            "<div class=\"acct-head-name\">" + uName + "</div>",
+            "<div class=\"acct-head-email\">" + uEmail + "</div>",
+          "</div>",
+          "<button class=\"acct-head-close\" id=\"acct-close-btn\" title=\"Fermer\">",
+            "<svg viewBox=\"0 0 24 24\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"/><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"/></svg>",
+          "</button>",
+        "</div>",
+        "<div class=\"acct-body\">",
+          "<div class=\"acct-sec\">",
+            "<div class=\"acct-sec-label\">Abonnement</div>",
+            "<div class=\"acct-plan-row\">",
+              "<span class=\"acct-plan-badge " + planCls + "\">" + planLbl + "</span>",
+              "<span class=\"acct-plan-since\" id=\"acct-since\">Chargement...</span>",
+            "</div>",
+          "</div>",
+          "<div class=\"acct-sec\">",
+            "<div class=\"acct-sec-label\">Adresse email</div>",
+            "<div class=\"acct-field\">",
+              "<input type=\"email\" id=\"acct-email-val\" value=\"" + uEmail + "\" placeholder=\"votre@email.com\">",
+              "<button class=\"acct-btn primary\" id=\"acct-email-btn\">Modifier</button>",
+            "</div>",
+            "<div class=\"acct-status\" id=\"acct-email-status\"></div>",
+          "</div>",
+          "<div class=\"acct-sec\">",
+            "<div class=\"acct-sec-label\">Mot de passe</div>",
+            "<button class=\"acct-btn ghost\" id=\"acct-pwd-btn\">Envoyer un lien de r\u00e9initialisation par email</button>",
+            "<div class=\"acct-status\" id=\"acct-pwd-status\"></div>",
+          "</div>",
+          "<div class=\"acct-sec\">",
+            "<div class=\"acct-sec-label\" style=\"color:#DC2626\">Zone de danger</div>",
+            "<button class=\"acct-btn danger-outline\" id=\"acct-del-btn\">",
+              "<svg viewBox=\"0 0 24 24\" style=\"width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round\"><polyline points=\"3 6 5 6 21 6\"/><path d=\"M19 6l-1 14H6L5 6\"/><path d=\"M9 6V4h6v2\"/></svg>",
+              "Supprimer mon compte",
+            "</button>",
+            "<div class=\"acct-status\" id=\"acct-del-status\"></div>",
+          "</div>",
+        "</div>",
+      "</div>"
+    ].join("");
+    document.body.appendChild(d);
+    // Wire buttons
+    var closeBtn = document.getElementById("acct-close-btn");
+    if (closeBtn) closeBtn.addEventListener("click", window._closeAccountModal);
+    var emailBtn = document.getElementById("acct-email-btn");
+    if (emailBtn) emailBtn.addEventListener("click", window._updateAccountEmail);
+    var pwdBtn = document.getElementById("acct-pwd-btn");
+    if (pwdBtn) pwdBtn.addEventListener("click", window._resetAccountPassword);
+    var delBtn = document.getElementById("acct-del-btn");
+    if (delBtn) delBtn.addEventListener("click", window._requestAccountDeletion);
+    // Load subscription date
+    if (_rdvClient) {
+      _rdvClient.auth.getSession().then(function(r) {
+        var uid = r&&r.data&&r.data.session ? r.data.session.user.id : null;
+        if (!uid) return;
+        _rdvClient.from("subscriptions").select("plan,status,created_at,expires_at").eq("user_id",uid).order("created_at",{ascending:false}).limit(1).then(function(res) {
+          var el = document.getElementById("acct-since");
+          if (!el) return;
+          var sub = res&&res.data&&res.data[0];
+          if (sub&&sub.created_at) {
+            var dt = new Date(sub.created_at);
+            var lbl = "Depuis le " + dt.toLocaleDateString("fr-DZ",{day:"numeric",month:"long",year:"numeric"});
+            if (sub.expires_at) lbl += " • Expire le " + new Date(sub.expires_at).toLocaleDateString("fr-DZ",{day:"numeric",month:"short",year:"numeric"});
+            el.textContent = lbl;
+          } else { el.textContent = "Plan Free — aucun abonnement actif"; }
+        });
+      });
+    }
+    function _escH(e) { if(e.key==="Escape"){ window._closeAccountModal(); document.removeEventListener("keydown",_escH); } }
+    document.addEventListener("keydown", _escH);
+  }
+
+  window._closeAccountModal = function() {
+    var bg = document.getElementById("acct-bg"); if (bg) bg.remove();
+  };
+
+  window._updateAccountEmail = function() {
+    var input = document.getElementById("acct-email-val");
+    var status = document.getElementById("acct-email-status");
+    if (!input||!status) return;
+    var newEmail = input.value.trim();
+    if (!newEmail||!/^[^@]+@[^@]+\.[^@]+$/.test(newEmail)) { status.textContent="Email invalide."; status.className="acct-status err"; return; }
+    status.textContent="Mise à jour…"; status.className="acct-status";
+    if (_rdvClient) _rdvClient.auth.updateUser({email:newEmail}).then(function(r) {
+      if (!status) return;
+      if (r.error) { status.textContent="Erreur : "+r.error.message; status.className="acct-status err"; }
+      else { status.textContent="Email de confirmation envoyé à "+newEmail; status.className="acct-status ok"; }
+    });
+  };
+
+  window._resetAccountPassword = function() {
+    var status = document.getElementById("acct-pwd-status");
+    if (status) { status.textContent="Envoi…"; status.className="acct-status"; }
+    if (_rdvClient) _rdvClient.auth.getSession().then(function(r) {
+      var email = r&&r.data&&r.data.session ? r.data.session.user.email : null;
+      if (!email) { if(status){status.textContent="Session expirée.";status.className="acct-status err";} return; }
+      var redir = (typeof APP_URL!=="undefined"?APP_URL:window.location.origin)+"/login";
+      _rdvClient.auth.resetPasswordForEmail(email,{redirectTo:redir}).then(function(res) {
+        if (!status) return;
+        if (res.error) { status.textContent="Erreur : "+res.error.message; status.className="acct-status err"; }
+        else { status.textContent="Lien envoyé à "+email; status.className="acct-status ok"; }
+      });
+    });
+  };
+
+  window._requestAccountDeletion = function() {
+    var status = document.getElementById("acct-del-status");
+    if (!confirm("Supprimer votre compte ?\nVotre compte sera conservé 30 jours puis supprimé définitivement.\nPour annuler, contactez contact@docline.health")) return;
+    if (status) { status.textContent="Envoi…"; status.className="acct-status"; }
+    if (_rdvClient) _rdvClient.auth.getSession().then(function(r) {
+      var session = r&&r.data ? r.data.session : null;
+      if (!session) { if(status){status.textContent="Session expirée.";status.className="acct-status err";} return; }
+      _rdvClient.from("profiles").select("full_name,first_name,last_name,plan").eq("id",session.user.id).single().then(function(pr) {
+        var prof = pr&&pr.data;
+        var name = prof?(prof.full_name||((prof.first_name||"")+" "+(prof.last_name||"")).trim()):"";
+        var plan = prof?(prof.plan||"free"):"free";
+        _rdvClient.from("account_deletion_requests").insert({
+          user_id:session.user.id, doctor_email:session.user.email||"",
+          doctor_name:name||null, plan:plan, reason:null, status:"pending"
+        }).then(function(res) {
+          if (!status) return;
+          if (res.error) { status.textContent="Erreur : "+res.error.message; status.className="acct-status err"; }
+          else {
+            status.textContent="Demande enregistrée. Suppression dans 30 jours."; status.className="acct-status ok";
+            setTimeout(function() { window._closeAccountModal(); if(typeof Auth!=="undefined") Auth.signOut(); }, 3000);
+          }
+        });
+      });
+    });
+  };
+return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, guard: guard, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
 })();
+} catch(e) {
+  console.error('[Shell] Crash lors de l\'initialisation du module:', e);
+  // Stub minimal pour que les pages ne plantent pas entièrement
+  Shell = {
+    init: function() {},
+    render: function() { return { sidebar: '', topbar: '', mobileNav: '' }; },
+    displayName: function(meta, email) { return (meta && (meta.full_name || meta.name)) || (email ? String(email).split('@')[0] : '') || ''; },
+    guard: function() { return true; },
+    checkStaff: function() {},
+    setRdvBadge: function() {},
+    resetOnboarding: function() {}
+  };
+}
