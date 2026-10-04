@@ -320,10 +320,10 @@
 
       <div class="consult-list" id="consult-list">
         <div class="empty-state">
-          <div class="empty-state-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-          <div class="empty-state-title">Aucune consultation enregistrée</div>
-          <div class="empty-state-sub">Commencez à documenter vos consultations pour un suivi médical optimal.</div>
-          <button class="btn-primary" onclick="openModal()">
+          <div class="empty-ico"><svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="empty-title">Aucune consultation enregistrée</div>
+          <div class="empty-sub">Commencez à documenter vos consultations pour un suivi médical optimal.</div>
+          <button class="btn-primary" style="margin-top:18px" onclick="openModal()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nouvelle consultation
           </button>
@@ -673,7 +673,7 @@ async function saveNewPatient() {
     last_name:      nom,
     date_naissance: document.getElementById('np-dob').value || null,
     phone:          document.getElementById('np-phone').value.trim() || null,
-    sexe:           document.getElementById('np-sexe').value || null,
+    city:           document.getElementById('np-wilaya').value.trim() || null,
     groupe_sanguin: document.getElementById('np-blood').value || null,
   }).select().single();
   if (error) {
@@ -739,8 +739,11 @@ function renderList() {
 
   var el = document.getElementById('consult-list');
   if (!filtered.length) {
+    var ico = _consults.length
+      ? '<svg viewBox="0 0 24 24" style="width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+      : '<svg viewBox="0 0 24 24" style="width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>';
     el.innerHTML = '<div class="empty-state">'+
-      '<div class="empty-ico">'+(_consults.length?'Filtrer':'Médical')+'</div>'+
+      '<div class="empty-ico">'+ico+'</div>'+
       '<div class="empty-title">'+(_consults.length?'Aucun résultat':'Aucune consultation enregistrée')+'</div>'+
       '<div class="empty-sub">'+(_consults.length?'Ajustez la recherche ou les filtres.':'Commencez à documenter vos consultations.')+'</div>'+
     '</div>';
@@ -784,7 +787,7 @@ function renderList() {
           (c.prescription?'<div class="detail-block full"><div class="detail-label">Prescription / Traitement</div><div class="detail-val">'+esc(c.prescription)+'</div></div>':'')+
           (c.notes?'<div class="detail-block full"><div class="detail-label">Notes cliniques</div><div class="detail-val">'+esc(c.notes)+'</div></div>':'')+
         '</div>'+
-        (c.follow_up_date?'<div class="followup-banner"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div class="followup-row-text">Prochain RDV : <strong>'+fmtDate(c.follow_up_date)+'</strong>'+(c.follow_up_notes?' — '+esc(c.follow_up_notes):'')+'</div></div>':'')+
+        (c.follow_up_date?'<div class="followup-banner"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div class="followup-banner-text">Prochain RDV : <strong>'+fmtDate(c.follow_up_date)+'</strong>'+(c.follow_up_notes?' — '+esc(c.follow_up_notes):'')+'</div></div>':'')+
       '</div>'+
     '</div>';
   }).join('');
@@ -802,6 +805,7 @@ function fmtDate(d) {
 }
 function openModal(id) {
   _editId = id || null;
+  _selectedClientId = null;
   document.getElementById('modal-title').textContent = id ? 'Modifier la consultation' : 'Nouvelle consultation';
   var c = id ? _consults.find(function(x){return x.id===id;}) : null;
   document.getElementById('f-patient').value        = c ? c.patient_name : '';
@@ -1038,12 +1042,31 @@ async function saveAndPrintOrd() {
   };
   await _supa.from('proposals').insert(ordPayload);
 
+  // 3. Auto-créer le RDV de suivi si follow_up_date est renseigné
+  var followUpDate = document.getElementById('f-followup-date').value;
+  var followUpNotes = document.getElementById('f-followup-notes').value.trim();
+  if (followUpDate) {
+    var clientRec = clientId ? _patients.find(function(p){ return p.id === clientId; }) : null;
+    var phone = (clientRec && clientRec.phone) ? clientRec.phone : '';
+    var email = (clientRec && clientRec.email) ? clientRec.email : null;
+    var { data: existingAppt } = await _supa.from('appointments')
+      .select('id').eq('doctor_id',_uid).eq('patient_name',patient).eq('requested_date',followUpDate).maybeSingle();
+    if (!existingAppt) {
+      await _supa.from('appointments').insert({
+        doctor_id: _uid, patient_name: patient,
+        patient_phone: phone, patient_email: email,
+        requested_date: followUpDate, status: 'confirmed',
+        notes: followUpNotes || null,
+      });
+    }
+  }
+
   btn.disabled = false;
   toast('Consultation + ordonnance enregistrées.', 'success');
   closeModal();
   loadConsults();
 
-  // 3. Show print overlay
+  // 4. Show print overlay
   showPrintOverlay(patient, date, meds, instructions);
 }
 

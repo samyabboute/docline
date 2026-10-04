@@ -128,3 +128,8 @@
   from   = "/labo"
   to     = "/labo.html"
   status = 200
+
+[[redirects]]
+  from   = "/consultations"
+  to     = "/consultations.html"
+  status = 200
