@@ -81,10 +81,12 @@
 </head>
 <body>
 
-<div id="shell-sidebar"></div>
-<div id="shell-topbar"></div>
-
-<div class="shell-content" style="display:none" id="content">
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="shell-page" style="display:none" id="content">
   <div class="pay-wrap">
 
     <button class="back-btn" onclick="history.back()">
@@ -190,8 +192,10 @@
       </div>
 
     </div><!-- /page-payment -->
-  </div>
-</div>
+  </div><!-- /pay-wrap -->
+    </div><!-- /shell-page -->
+  </main>
+</div><!-- /app-shell -->
 
 <div id="loading" style="display:flex;align-items:center;justify-content:center;min-height:60vh">
   <div style="text-align:center;color:var(--text3)">Chargement…</div>
@@ -254,11 +258,13 @@ function payOnline(){
 
   _sub = sub;
 
+  var meta = session.user.user_metadata || {};
   Shell.init({
     page: 'paiement',
     title: 'Paiement',
     isPro: sub && sub.plan !== 'free' && sub.status === 'active',
     plan: sub ? sub.plan : 'free',
+    userName: Shell.displayName(meta, session.user.email),
     userEmail: session.user.email,
   });
 
