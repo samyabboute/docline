@@ -923,9 +923,11 @@ window.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeModal(
 
 // ── DOCTOR PROFILE ────────────────────────────────────────────────────────
 async function loadProfile() {
-  var { data } = await _supa.from('profiles').select('first_name,last_name,speciality,specialty,address,phone').eq('id',_uid).single();
+  var { data } = await _supa.from('profiles').select('full_name,first_name,last_name,speciality,specialty,address,phone').eq('id',_uid).single();
   if (data) {
-    data.full_name = ('Dr. ' + ((data.first_name||'')+' '+(data.last_name||'')).trim()).trim();
+    if (!data.full_name) {
+      data.full_name = ('Dr. ' + ((data.first_name||'')+' '+(data.last_name||'')).trim()).trim();
+    }
     data.specialty = data.speciality || data.specialty || '';
   }
   _drProfile = data || {};

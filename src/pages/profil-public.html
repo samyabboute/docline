@@ -147,7 +147,7 @@
 <body>
 <div class="app-shell">
   <aside class="shell-sidebar" id="shell-sidebar"></aside>
-  <div class="sb-overlay" id="shell-overlay"></div>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
   <header class="shell-topbar" id="shell-topbar"></header>
 
   <main class="shell-main">
@@ -654,9 +654,12 @@ window.saveProfile = async function() {
   btn.disabled = true;
   spin.style.display = 'block';
 
+  var _nameParts = getVal('f-name').split(/\s+/).filter(Boolean);
   var payload = {
     email:              _email,
     full_name:          getVal('f-name'),
+    first_name:         _nameParts[0] || null,
+    last_name:          _nameParts.slice(1).join(' ') || null,
     specialty:          getVal('f-specialty') || null,
     wilaya:             getVal('f-wilaya')    || null,
     city:               getVal('f-city')      || null,
