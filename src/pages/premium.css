@@ -1,0 +1,121 @@
+/* ═══════════════════════════════════════════════════════════════
+   DOCLINE — PREMIUM ANIMATION SYSTEM v1
+   Inclure dans TOUTES les pages : <link rel="stylesheet" href="premium.css">
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ── */
+@keyframes gradientFlow   { 0%{background-position:0% center} 100%{background-position:250% center} }
+@keyframes floatUp        { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes riseUp         { from{opacity:0;transform:translateY(28px);filter:blur(6px)} to{opacity:1;transform:none;filter:blur(0)} }
+@keyframes dropIn         { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:none} }
+@keyframes orbPulse       { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.55;transform:scale(1.2)} }
+@keyframes shimmerSweep   { 0%{left:-100%} 100%{left:160%} }
+@keyframes fadeSlideRight { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:none} }
+@keyframes scaleIn        { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
+
+/* ── Reveal scroll (.rv) ── */
+.rv {
+  opacity: 0;
+  transform: translateY(26px);
+  filter: blur(5px);
+  transition: opacity .75s cubic-bezier(.25,.46,.45,.94),
+              transform .75s cubic-bezier(.25,.46,.45,.94),
+              filter .75s cubic-bezier(.25,.46,.45,.94);
+}
+.rv.show { opacity: 1; transform: none; filter: blur(0) }
+.rv.d1 { transition-delay: .1s }
+.rv.d2 { transition-delay: .2s }
+.rv.d3 { transition-delay: .3s }
+.rv.d4 { transition-delay: .4s }
+.rv.d5 { transition-delay: .5s }
+.rv.d6 { transition-delay: .6s }
+
+/* ── Gradient text helper ── */
+.g-text {
+  background: linear-gradient(110deg, #6D28D9 0%, #8B5CF6 40%, #F97316 70%, #8B5CF6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 250% auto;
+  animation: gradientFlow 5s linear infinite;
+}
+.g-text-orange {
+  background: linear-gradient(110deg, #EA580C 0%, #F97316 40%, #8B5CF6 70%, #F97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 250% auto;
+  animation: gradientFlow 4s linear infinite;
+}
+
+/* ── Button shimmer (universel) ── */
+.btn-shimmer,
+button.btn-shimmer,
+a.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  transform: skewX(-20deg);
+  transition: left .55s ease;
+  pointer-events: none;
+}
+.btn-shimmer:hover::after { left: 160% }
+
+/* ── Hover lift (cartes, boutons secondaires) ── */
+.hover-lift { transition: transform .25s cubic-bezier(.25,.46,.45,.94), box-shadow .25s }
+.hover-lift:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(0,0,0,.1) }
+
+/* ── Focus ring premium ── */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #6D28D9 !important;
+  box-shadow: 0 0 0 3px rgba(109,40,217,.12) !important;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+/* ── Transitions globales ── */
+a { transition: color .15s, opacity .15s }
+button { transition: all .18s cubic-bezier(.25,.46,.45,.94) }
+
+/* ── Scrollbar premium ── */
+::-webkit-scrollbar { width: 6px; height: 6px }
+::-webkit-scrollbar-track { background: transparent }
+::-webkit-scrollbar-thumb { background: rgba(109,40,217,.25); border-radius: 99px }
+::-webkit-scrollbar-thumb:hover { background: rgba(109,40,217,.5) }
+
+/* ── Selection ── */
+::selection { background: #DDD6FE; color: #4C1D95 }
+
+/* ── Eyebrow animation (déclenché via .show parent) ── */
+.rv.show .section-eyebrow,
+.rv.show .stats-eyebrow,
+.rv.show .cta-eyebrow {
+  animation: fadeSlideRight .5s cubic-bezier(.25,.46,.45,.94) both;
+}
+
+/* ── Card micro-interaction ── */
+.premium-card {
+  transition: transform .28s cubic-bezier(.25,.46,.45,.94),
+              box-shadow .28s,
+              border-color .28s;
+}
+.premium-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,.1);
+  border-color: rgba(109,40,217,.2) !important;
+}
+
+/* ── Pill float ── */
+.pill-float { animation: floatUp 4.5s ease-in-out infinite }
+
+/* ── Nav blur backdrop (si pas déjà défini) ── */
+nav {
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}

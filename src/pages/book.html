@@ -258,6 +258,7 @@ button,input{font-family:inherit}
   <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
+<link rel="stylesheet" href="premium.css">
 </head>
 <body>
 
@@ -388,7 +389,7 @@ button,input{font-family:inherit}
           <div class="form-hint">Format international — ex: +213661234567 · +48601234567</div>
         </div>
 
-        <button class="btn btn-primary" id="btnSendOtp" onclick="sendOtp()">
+        <button class="btn btn-primary btn-shimmer" id="btnSendOtp" onclick="sendOtp()">
           <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3-8.63A2 2 0 0 1 3.67 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           Recevoir le code par WhatsApp
         </button>
@@ -433,7 +434,7 @@ button,input{font-family:inherit}
         </div>
 
         <div style="margin-top:20px">
-          <button class="btn btn-primary" id="btnVerifyOtp" onclick="verifyOtp()" disabled>
+          <button class="btn btn-primary btn-shimmer" id="btnVerifyOtp" onclick="verifyOtp()" disabled>
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             Valider et confirmer le RDV
           </button>
@@ -1017,6 +1018,12 @@ function setLoading(btn, loading, text) {
     btn.classList.remove('btn-loading');
   }
 }
+</script>
+<script>
+(function(){
+  var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target);}});},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+})();
 </script>
 </body>
 </html>

@@ -285,6 +285,7 @@ body{
   .headline{font-size:1.2rem}
 }
 </style>
+<link rel="stylesheet" href="premium.css">
 </head>
 <body>
 
@@ -310,7 +311,7 @@ body{
   </div>
 
   <!-- Headline -->
-  <div class="headline">On construit quelque chose<br><em>d'extraordinaire.</em></div>
+  <div class="headline">On construit quelque chose<br><em class="g-text">d'extraordinaire.</em></div>
   <p class="subtitle">Docline sera de retour très prochainement. Inscrivez-vous pour être les premiers informés de la reprise.</p>
 
   <!-- Progress -->
@@ -337,7 +338,7 @@ body{
       <label class="label" for="f-e">Adresse e-mail</label>
       <input class="input" id="f-e" type="email" placeholder="karim@clinique.dz" required>
     </div>
-    <button class="btn" id="btn" type="submit">
+    <button class="btn btn-shimmer" id="btn" type="submit">
       <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <span class="lbl">Me notifier au retour</span>
       <div class="spin"></div>
@@ -449,6 +450,12 @@ async function handleNotify(e) {
     btn.classList.remove('loading');
   }
 }
+</script>
+<script>
+(function(){
+  var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target);}});},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+})();
 </script>
 </body>
 </html>

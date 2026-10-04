@@ -762,6 +762,39 @@ button{font-family:inherit;cursor:pointer}
       if (document.head) document.head.appendChild(s);
       else document.write(CSS);
     }
+    // Inject premium.css (animations sitewide)
+    if (!document.getElementById('premium-css-link')) {
+      var l = document.createElement('link');
+      l.id = 'premium-css-link';
+      l.rel = 'stylesheet';
+      l.href = '/premium.css';
+      if (document.head) document.head.appendChild(l);
+    }
+  })();
+
+  // ── PREMIUM ANIMATIONS (scroll reveal + button shimmer) ──────
+  (function () {
+    function initPremium() {
+      // Scroll reveal
+      var rvEls = document.querySelectorAll('.rv:not([data-rv-init])');
+      if (rvEls.length) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('show'); io.unobserve(e.target); }
+          });
+        }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+        rvEls.forEach(function (el) { el.setAttribute('data-rv-init', '1'); io.observe(el); });
+      }
+      // Auto-shimmer on primary buttons
+      document.querySelectorAll('.btn-primary:not(.btn-shimmer), .tb-action-primary:not(.btn-shimmer), .panel-btn-primary:not(.btn-shimmer)').forEach(function (el) {
+        el.classList.add('btn-shimmer');
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPremium);
+    } else {
+      setTimeout(initPremium, 0);
+    }
   })();
 
   // ── RENDER ────────────────────────────────────────────────────

@@ -108,6 +108,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
 .rating-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .rating-count{font-size:.78rem;color:var(--ink3)}
 </style>
+<link rel="stylesheet" href="premium.css">
 </head>
 <body>
 
@@ -121,7 +122,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
       <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
       Trouver un médecin
     </a>
-    <a href="/login" class="btn btn-primary">Connexion médecin</a>
+    <a href="/login" class="btn btn-primary btn-shimmer">Connexion médecin</a>
   </div>
 </nav>
 
@@ -155,10 +156,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
     </div>
 
     <!-- Hero -->
-    <div class="hero-card">
+    <div class="hero-card rv">
       <div id="avatar-wrap"></div>
       <div class="hero-info">
-        <div id="hero-name" class="hero-name"></div>
+        <div id="hero-name" class="hero-name g-text"></div>
         <div id="hero-spec" class="hero-spec"></div>
         <div class="hero-meta" id="hero-meta"></div>
         <div id="hero-price"></div>
@@ -326,7 +327,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
     if (d.accepts_rdv) {
       document.getElementById('sidebar-body').innerHTML =
         '<p style="font-size:.82rem;color:#4A5068;margin-bottom:16px">Réservez en quelques secondes, recevez une confirmation par SMS.</p>'
-        + '<a href="/book?doctor=' + encodeURIComponent(d.id) + '" class="cta-btn">'
+        + '<a href="/book?doctor=' + encodeURIComponent(d.id) + '" class="cta-btn btn-shimmer">'
         + '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
         + 'Prendre rendez-vous'
         + '</a>'
@@ -361,6 +362,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
   function infoRow(label, val) {
     return '<div class="info-row"><span class="info-label">' + label + '</span><span>' + val + '</span></div>';
   }
+})();
+</script>
+<script>
+(function(){
+  var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target);}});},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
 })();
 </script>
 </body>

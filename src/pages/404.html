@@ -99,6 +99,7 @@ p{font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:36px;max-width:
 .rn-dot{width:6px;height:6px;border-radius:50%;background:var(--orange2);animation:blink .8s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
 </style>
+<link rel="stylesheet" href="premium.css">
 </head>
 <body>
 
@@ -111,10 +112,10 @@ p{font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:36px;max-width:
 
   <div class="badge">Page introuvable</div>
 
-  <h1>Cette page n'existe pas</h1>
+  <h1><span class="g-text">Cette page n'existe pas</span></h1>
   <p>Le lien que vous avez suivi est peut-être cassé, ou la page a été déplacée. Retournez à l'accueil pour continuer.</p>
 
-  <a class="btn-primary" href="/landing">
+  <a class="btn-primary btn-shimmer" href="/landing">
     Retour à l'accueil
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
   </a>
@@ -188,6 +189,12 @@ p{font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:36px;max-width:
   if (rn) rn.classList.remove('hidden');
 
   window.location.replace(dest + search + hash);
+})();
+</script>
+<script>
+(function(){
+  var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target);}});},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
 })();
 </script>
 </body>

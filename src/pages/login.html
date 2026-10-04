@@ -276,6 +276,7 @@ a{text-decoration:none;color:inherit}
   <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
+<link rel="stylesheet" href="premium.css">
 </head>
 <body>
 <div class="auth-wrap">
@@ -296,15 +297,15 @@ a{text-decoration:none;color:inherit}
         En ligne · Données sécurisées
       </div>
 
-      <div class="left-title">
-        Le cabinet qui<br>travaille pour <em>vous</em>
+      <div class="left-title rv d1">
+        Le cabinet qui<br>travaille pour <em class="g-text">vous</em>
       </div>
-      <div class="left-sub">
+      <div class="left-sub rv d2">
         File d'attente QR, dossiers patients, ordonnances PDF, agenda et labo — tout dans un seul espace conçu pour le praticien algérien.
       </div>
 
       <!-- Preview agenda -->
-      <div class="preview-card">
+      <div class="preview-card rv d3 hover-lift">
         <div class="preview-head">
           <span class="preview-day">Aujourd'hui · Mercredi</span>
           <span class="preview-count">
@@ -339,7 +340,7 @@ a{text-decoration:none;color:inherit}
       </div>
 
       <!-- 3 features -->
-      <div class="features">
+      <div class="features rv d4">
         <div class="feat">
           <div class="feat-icon">
             <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
@@ -372,7 +373,7 @@ a{text-decoration:none;color:inherit}
 
     <!-- Testimonial -->
     <div class="left-footer">
-      <div class="testimonial">
+      <div class="testimonial rv d5">
         <div class="stars">★★★★★</div>
         <p class="quote">Le QR code a transformé ma salle d'attente. Mes patients attendent calmement, je travaille sans être dérangé.</p>
         <div class="author">
@@ -446,7 +447,7 @@ a{text-decoration:none;color:inherit}
               Rester connecté
             </label>
           </div>
-          <button class="btn-sub" id="btn-signin" onclick="signIn()">
+          <button class="btn-sub btn-shimmer" id="btn-signin" onclick="signIn()">
             <span class="btn-text">Se connecter</span>
             <div class="spinner"></div>
           </button>
@@ -564,7 +565,7 @@ a{text-decoration:none;color:inherit}
               <span class="pw-lbl" id="pw-lbl">Entrez un mot de passe</span>
             </div>
           </div>
-          <button class="btn-sub" id="btn-register" onclick="register()">
+          <button class="btn-sub btn-shimmer" id="btn-register" onclick="register()">
             <span class="btn-text">Créer mon compte gratuit</span>
             <div class="spinner"></div>
           </button>
@@ -871,6 +872,12 @@ function checkStrength(pw){
 }
 
 window.addEventListener('unhandledrejection', function(e){ console.error('[Login]', e.reason); });
+</script>
+<script>
+(function(){
+  var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target);}});},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+})();
 </script>
 </body>
 </html>

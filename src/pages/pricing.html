@@ -266,6 +266,7 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:var(--ink);letter-spacin
   <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
+<link rel="stylesheet" href="premium.css">
 </head>
 <body>
 
@@ -289,9 +290,9 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:var(--ink);letter-spacin
 </nav>
 
 <!-- HERO -->
-<div class="hero">
+<div class="hero rv">
   <div class="hero-badge">Tarification</div>
-  <h1>Simple. Transparent.<br>Sans surprise.</h1>
+  <h1><span class="g-text">Simple. Transparent.</span><br>Sans surprise.</h1>
   <p class="hero-sub">Commencez gratuitement sans carte bancaire. Passez en Pro quand vous êtes prêt — résiliable à tout moment.</p>
 
   <div class="billing-toggle">
@@ -308,7 +309,7 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:var(--ink);letter-spacin
   <span id="msg-err-text"></span>
 </div>
 
-<div class="plans">
+<div class="plans rv d1">
 
   <!-- GRATUIT -->
   <div class="plan">
@@ -327,7 +328,7 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:var(--ink);letter-spacin
       <li class="feat-no"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Facturation &amp; reçus DA</li>
       <li class="feat-no"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Support prioritaire</li>
     </ul>
-    <button class="plan-btn btn-free" onclick="window.location.href=ghpNav('/dashboard')">
+    <button class="plan-btn btn-free btn-shimmer" onclick="window.location.href=ghpNav('/dashboard')">
       <span class="btn-label">Continuer avec Gratuit</span>
     </button>
   </div>
@@ -351,7 +352,7 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:var(--ink);letter-spacin
       <li class="feat-yes"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Export PDF dossiers</li>
       <li class="feat-yes"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Support prioritaire</li>
     </ul>
-    <button class="plan-btn btn-pro" id="btn-upgrade" onclick="upgradePro()">
+    <button class="plan-btn btn-pro btn-shimmer" id="btn-upgrade" onclick="upgradePro()">
       <div class="btn-spinner"></div>
       <span class="btn-label">Passer en Pro Médecin</span>
       <svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
@@ -380,7 +381,7 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:var(--ink);letter-spacin
       <li class="feat-yes"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Gestion des droits d'accès</li>
       <li class="feat-yes"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Support téléphonique dédié</li>
     </ul>
-    <button class="plan-btn btn-clinic" onclick="contactClinic()">
+    <button class="plan-btn btn-clinic btn-shimmer" onclick="contactClinic()">
       <span class="btn-label">Contacter l'équipe</span>
       <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12"/></svg>
     </button>
@@ -389,7 +390,7 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:var(--ink);letter-spacin
 </div>
 
 <!-- TRUST BAR -->
-<div class="trust-bar">
+<div class="trust-bar rv d2">
   <div class="trust-item">
     <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     Données sécurisées
@@ -688,6 +689,12 @@ function showError(msg) {
 function hideError() {
   document.getElementById('msg-err').classList.remove('show');
 }
+</script>
+<script>
+(function(){
+  var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target);}});},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+})();
 </script>
 </body>
 </html>
