@@ -179,8 +179,8 @@
       <div class="info-banner">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <div class="info-banner-text">
-          Les résultats sont accessibles via <strong>results-view.html?code=XXXXXX</strong> pendant <strong>7 jours</strong>.
-          Après cette période, le lien expire automatiquement. Cliquez sur le code pour copier le lien patient.
+          Les résultats sont accessibles via un lien sécurisé pendant <strong>30 jours</strong>.
+          Cliquez sur <strong>Copier le lien</strong> pour l'envoyer directement au patient.
         </div>
       </div>
 
@@ -231,12 +231,21 @@
       <div class="code-preview-box">
         <div class="code-preview-label">Code d'accès patient</div>
         <div class="code-preview-value" id="preview-code">—</div>
-        <div class="code-preview-hint">À communiquer au patient · Valable 7 jours</div>
+        <div class="code-preview-hint">Valable 30 jours · <span id="preview-url" style="display:none;word-break:break-all;font-size:11px;opacity:.7"></span></div>
+      </div>
+      <div id="copy-link-bar" style="display:none;margin-bottom:14px">
+        <button class="btn-primary" style="width:100%" onclick="copyGeneratedLink()">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copier le lien patient
+        </button>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Nom du patient *</label>
-          <input class="form-input" id="f-patient" type="text" placeholder="Nom complet" maxlength="100">
+          <label class="form-label">Patient *</label>
+          <select class="form-input" id="f-patient-select" onchange="onPatientSelect(this.value)">
+            <option value="">— Sélectionner un patient —</option>
+          </select>
+          <input class="form-input" id="f-patient-free" type="text" placeholder="Nom complet (patient externe)" maxlength="100" style="margin-top:6px;display:none">
         </div>
         <div class="form-group">
           <label class="form-label">Type d'analyse *</label>
@@ -266,7 +275,7 @@
 
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
-var _uid = null, _results = [], _generatedCode = '';
+var _uid = null, _results = [], _patients = [], _generatedCode = '', _selectedClientId = null;
 var CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 function generateCode() {
@@ -288,8 +297,41 @@ function generateCode() {
   Shell.init({ page:'labo', title:'Laboratoire', isPro:isPro, plan:sub?.plan||'free', userName:name, userEmail:user.email||'' });
   if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
   if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'labo', 'Laboratoire');
+  await loadPatients();
   loadResults();
 })();
+
+async function loadPatients() {
+  var { data } = await _supa.from('clients').select('id,first_name,last_name').eq('user_id',_uid).order('last_name');
+  _patients = data || [];
+}
+
+function populatePatientSelect() {
+  var sel = document.getElementById('f-patient-select');
+  sel.innerHTML = '<option value="">— Sélectionner un patient —</option>';
+  _patients.forEach(function(p) {
+    var opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = ((p.last_name||'') + ' ' + (p.first_name||'')).trim();
+    sel.appendChild(opt);
+  });
+  var other = document.createElement('option');
+  other.value = '__free__';
+  other.textContent = '+ Patient externe (saisie libre)';
+  sel.appendChild(other);
+}
+
+function onPatientSelect(val) {
+  var freeInput = document.getElementById('f-patient-free');
+  if (val === '__free__') {
+    _selectedClientId = null;
+    freeInput.style.display = '';
+    freeInput.focus();
+  } else {
+    _selectedClientId = val || null;
+    freeInput.style.display = 'none';
+  }
+}
 
 async function loadResults() {
   var { data, error } = await _supa.from('lab_results').select('*').eq('clinic_id',_uid).order('created_at',{ascending:false});
@@ -326,7 +368,7 @@ function renderResults() {
     var diffD = Math.floor(diffMs / 86400000);
     var expiryLabel, expiryClass;
     if (isExpired) { expiryLabel='Expiré'; expiryClass='expiry-expired'; }
-    else if (diffD < 1) { expiryLabel='<span style="color:#D97706">!</span> Expire dans '+diffH+'h'; expiryClass='expiry-warn'; }
+    else if (diffD < 3) { expiryLabel='<span style="color:#D97706">!</span> Expire dans '+(diffD<1?diffH+'h':diffD+'j'); expiryClass='expiry-warn'; }
     else { expiryLabel='Expire dans '+diffD+'j'; expiryClass='expiry-ok'; }
     var createdDate = new Date(r.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
     var cardCls = 'result-card'+(isExpired?' expired':(diffD<1&&!isExpired?' expiring-soon':''));
@@ -368,27 +410,41 @@ function renderResults() {
 
 function openModal() {
   _generatedCode = generateCode();
+  _selectedClientId = null;
   document.getElementById('preview-code').textContent = _generatedCode;
-  document.getElementById('f-patient').value = '';
+  document.getElementById('preview-url').style.display = 'none';
+  document.getElementById('copy-link-bar').style.display = 'none';
   document.getElementById('f-title').value   = '';
   document.getElementById('f-desc').value    = '';
   document.getElementById('f-file').value    = '';
+  document.getElementById('f-patient-free').value = '';
+  document.getElementById('f-patient-free').style.display = 'none';
   document.getElementById('btn-save').disabled = false;
   document.getElementById('btn-save').textContent = 'Créer et partager';
+  populatePatientSelect();
   document.getElementById('modal-overlay').classList.add('open');
-  setTimeout(function(){ document.getElementById('f-patient').focus(); }, 200);
+  setTimeout(function(){ document.getElementById('f-patient-select').focus(); }, 200);
 }
-function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.getElementById('btn-save').style.display = '';
+}
 
 async function saveResult() {
-  var patient = document.getElementById('f-patient').value.trim();
+  var selVal  = document.getElementById('f-patient-select').value;
+  var patient = selVal && selVal !== '__free__'
+    ? document.getElementById('f-patient-select').options[document.getElementById('f-patient-select').selectedIndex].text
+    : document.getElementById('f-patient-free').value.trim();
   var title   = document.getElementById('f-title').value.trim();
-  if (!patient || !title) { toast('Nom du patient et type d\'analyse requis.','error'); return; }
+  if (!patient || !title) { toast('Patient et type d\'analyse requis.','error'); return; }
   var btn = document.getElementById('btn-save');
   btn.disabled = true; btn.textContent = 'Création…';
-  var expiresAt = new Date(Date.now() + 7*24*3600*1000).toISOString();
+  var expiresAt = new Date(Date.now() + 30*24*3600*1000).toISOString();
   var { error } = await _supa.from('lab_results').insert({
-    clinic_id: _uid, patient_name:patient, title:title,
+    clinic_id:   _uid,
+    patient_id:  _selectedClientId || null,
+    patient_name: patient,
+    title:       title,
     description: document.getElementById('f-desc').value.trim()||null,
     file_url:    document.getElementById('f-file').value.trim()||null,
     access_code: _generatedCode,
@@ -396,12 +452,32 @@ async function saveResult() {
   });
   btn.disabled = false; btn.textContent = 'Créer et partager';
   if (error) {
-    if (error.code==='23505') { _generatedCode=generateCode(); document.getElementById('preview-code').textContent=_generatedCode; toast('Code regeneré, réessayez.','error'); }
+    if (error.code==='23505') { _generatedCode=generateCode(); document.getElementById('preview-code').textContent=_generatedCode; toast('Code régénéré, réessayez.','error'); }
     else toast('Erreur : '+error.message,'error');
     return;
   }
-  toast('Résultat créé — code : '+_generatedCode,'success');
-  closeModal(); loadResults();
+  // Afficher le lien direct dans la modale
+  var baseUrl = window.location.origin + window.location.pathname.replace('labo.html','') + 'results-view.html';
+  var fullUrl = baseUrl + '?code=' + _generatedCode;
+  document.getElementById('preview-url').textContent = fullUrl;
+  document.getElementById('preview-url').style.display = 'inline';
+  document.getElementById('copy-link-bar').style.display = 'block';
+  document.getElementById('btn-save').style.display = 'none';
+  toast('Résultat créé — 30 jours de validité','success');
+  loadResults();
+}
+
+function copyGeneratedLink() {
+  var baseUrl = window.location.origin + window.location.pathname.replace('labo.html','') + 'results-view.html';
+  var url = baseUrl + '?code=' + _generatedCode;
+  navigator.clipboard.writeText(url).then(function(){
+    toast('Lien copié !','success');
+  }).catch(function(){
+    var el = document.createElement('textarea');
+    el.value = url; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    toast('Lien copié !','success');
+  });
 }
 
 function copyLink(code) {
