@@ -414,7 +414,7 @@ var _viewYear = _today.getFullYear(), _viewMonth = _today.getMonth();
 var _selectedDate = null, _editingId = null;
 
 var MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-var DAYS_SHORT = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+var DAYS_SHORT = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
 var TYPE_EV_CLS = {
   consultation: 'ev-consultation',
@@ -497,10 +497,11 @@ function renderCalendar(){
 
   var first=new Date(_viewYear,_viewMonth,1);
   var last=new Date(_viewYear,_viewMonth+1,0);
-  var startDay=first.getDay();
+  var startDay=first.getDay(); // 0=Sun
+  var paddingDays=(startDay+6)%7; // Mon=0,Tue=1,...,Sun=6
   var cells=[];
 
-  for(var i=startDay-1;i>=0;i--){
+  for(var i=paddingDays-1;i>=0;i--){
     cells.push({date:new Date(_viewYear,_viewMonth,-i),otherMonth:true});
   }
   for(var i=1;i<=last.getDate();i++){
@@ -646,10 +647,23 @@ function renderDayPanel(dateStr){
 }
 
 function changeMonth(dir){
+  if(_viewMode==='week'){
+    if(dir===0){
+      _selectedDate=_today.toISOString().slice(0,10);
+    } else {
+      var ref=_selectedDate?new Date(_selectedDate+'T00:00:00'):new Date(_viewYear,_viewMonth,1);
+      ref.setDate(ref.getDate()+dir*7);
+      _selectedDate=ref.toISOString().slice(0,10);
+      _viewYear=ref.getFullYear();
+      _viewMonth=ref.getMonth();
+      document.getElementById('task-due-input').value=_selectedDate;
+    }
+    renderWeekView();
+    return;
+  }
   if(dir===0){_viewYear=_today.getFullYear();_viewMonth=_today.getMonth();}
   else{_viewMonth+=dir;if(_viewMonth>11){_viewMonth=0;_viewYear++;}else if(_viewMonth<0){_viewMonth=11;_viewYear--;}}
-  if(_viewMode==='month') renderCalendar();
-  else renderWeekView();
+  renderCalendar();
 }
 
 // ── VIEW SWITCHING ────────────────────────────────────────────
