@@ -5,7 +5,7 @@
 
 -- Table de liaison : clinique ↔ médecins membres
 create table if not exists public.clinic_doctors (
-  id          uuid default uuid_generate_v4() primary key,
+  id          uuid default gen_random_uuid() primary key,
   clinic_id   uuid references public.profiles(id) on delete cascade not null,
   doctor_id   uuid references public.profiles(id) on delete cascade not null,
   color       text default '#3B1772',   -- couleur dans l'agenda partagé
