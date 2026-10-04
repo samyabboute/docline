@@ -572,7 +572,7 @@ var MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov
 })();
 
 async function loadPatients() {
-  var { data } = await _supa.from('clients').select('id,first_name,last_name').eq('user_id',_uid).order('last_name');
+  var { data } = await _supa.from('clients').select('id,first_name,last_name,phone,email').eq('user_id',_uid).order('last_name');
   _patients = data || [];
 }
 
@@ -874,6 +874,30 @@ async function saveConsult() {
   else         { var r = await _supa.from('consultations').insert(payload); error=r.error; }
   btn.disabled = false; btn.textContent = 'Enregistrer';
   if (error) { toast('Erreur : '+error.message,'error'); return; }
+
+  // Auto-créer un RDV de suivi dans l'agenda si follow_up_date est renseigné
+  var followUpDate = document.getElementById('f-followup-date').value;
+  var followUpNotes = document.getElementById('f-followup-notes').value.trim();
+  if (followUpDate) {
+    var clientRec = clientId ? _patients.find(function(p){ return p.id === clientId; }) : null;
+    var phone = (clientRec && clientRec.phone) ? clientRec.phone : '';
+    var email = (clientRec && clientRec.email) ? clientRec.email : null;
+    // Vérifier qu'il n'existe pas déjà un RDV identique (date + patient + médecin)
+    var { data: existing } = await _supa.from('appointments')
+      .select('id').eq('doctor_id',_uid).eq('patient_name',patient).eq('requested_date',followUpDate).maybeSingle();
+    if (!existing) {
+      await _supa.from('appointments').insert({
+        doctor_id: _uid,
+        patient_name: patient,
+        patient_phone: phone,
+        patient_email: email,
+        requested_date: followUpDate,
+        status: 'confirmed',
+        notes: followUpNotes || null,
+      });
+    }
+  }
+
   toast(_editId?'Consultation mise à jour.':'Consultation enregistrée.','success');
   closeModal(); loadConsults();
 }
