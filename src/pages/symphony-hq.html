@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>QG Docline — Symphony</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="config.js?v=3"></script>
+<style>
+/* QG Docline — identité Symphony : Inter, barre latérale sombre, violet #4C1D95 + orange #EA580C */
+:root{
+  --ink:#0D0520;--ink2:#2D1B69;--ink3:#6B7280;--ink4:#9CA3B8;
+  --bg:#F7F6FF;--card:#FFFFFF;--line:rgba(13,5,32,.08);--line2:rgba(13,5,32,.13);
+  --p:#4C1D95;--p2:#6D28D9;--p3:#8B5CF6;--p4:#EDE9FE;
+  --or:#EA580C;--or2:#F97316;--or4:#FFF4ED;
+  --ok:#12B76A;--ok4:#ECFDF3;--warn:#F79009;--warn4:#FFFAEB;--bad:#F04438;--bad4:#FEF3F2;--info:#2E90FA;--info4:#EFF8FF;
+  --side:#0f172a;--side-line:rgba(255,255,255,.07);
+  --r:12px;--r2:16px;--pill:999px;
+  --sh:0 1px 2px rgba(13,5,32,.05),0 1px 1px rgba(13,5,32,.03);
+  --sh2:0 12px 32px rgba(76,29,149,.10),0 2px 6px rgba(13,5,32,.05);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --side-w:248px;--top-h:60px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:Inter,system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.5;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+[hidden]{display:none!important}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--p3);outline-offset:2px}
+
+/* ── Shell ─────────────────────────────────────────── */
+.app{display:grid;grid-template-columns:var(--side-w) 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;background:var(--side);color:#fff;display:flex;flex-direction:column;overflow-y:auto;z-index:50}
+.side-head{display:flex;align-items:center;gap:10px;padding:18px 18px 16px;border-bottom:1px solid var(--side-line)}
+.side-head img{height:22px;width:auto}
+.side-tag{font-size:9px;font-weight:800;letter-spacing:.6px;padding:3px 7px;border-radius:var(--pill);background:rgba(234,88,12,.18);color:#FDBA74;border:1px solid rgba(234,88,12,.3)}
+.side-nav{padding:8px 10px 16px;flex:1}
+.side-sec{padding:16px 10px 6px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.28)}
+.side-link{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:10px;color:rgba(255,255,255,.6);font-size:13px;font-weight:500;transition:background .15s,color .15s;position:relative}
+.side-link:hover{background:rgba(255,255,255,.06);color:#fff}
+.side-link.on{background:rgba(124,58,237,.24);color:#fff;font-weight:600}
+.side-link.on::before{content:'';position:absolute;left:-10px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--or2)}
+.side-link .ic{opacity:.85}
+.side-badge{margin-left:auto;min-width:18px;text-align:center;background:var(--or);color:#fff;font-size:10px;font-weight:800;padding:3px 6px;border-radius:var(--pill)}
+.side-foot{border-top:1px solid var(--side-line);padding:12px}
+.me{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px}
+.me-av{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--p2),var(--or2));flex-shrink:0}
+.me-name{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me-role{font-size:11px;color:rgba(255,255,255,.42);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me-out{margin-left:auto;background:none;border:0;color:rgba(255,255,255,.45);cursor:pointer;padding:6px;border-radius:8px}
+.me-out:hover{color:#fff;background:rgba(255,255,255,.06)}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:40;height:var(--top-h);display:flex;align-items:center;gap:12px;padding:0 28px;background:rgba(247,246,255,.86);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.ham{display:none;background:none;border:0;padding:8px;margin-left:-8px;border-radius:10px;cursor:pointer;color:var(--ink2)}
+.top-title{font-size:16px;font-weight:800;letter-spacing:-.2px}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.page{padding:28px;max-width:1360px;width:100%;margin:0 auto}
+.view{display:none;animation:vIn .35s var(--ease)}
+.view.on{display:block}
+@keyframes vIn{from{opacity:0;transform:translateY(6px)}}
+
+/* ── Boutons, champs, puces ────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:38px;padding:0 16px;border-radius:10px;border:1px solid transparent;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,box-shadow .15s,transform .08s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-p{background:var(--p);color:#fff;box-shadow:0 4px 14px rgba(76,29,149,.25)}
+.btn-p:hover{background:var(--p2)}
+.btn-s{background:#fff;color:var(--ink2);border-color:var(--line2)}
+.btn-s:hover{border-color:rgba(76,29,149,.35);color:var(--p)}
+.btn-g{background:transparent;color:var(--ink3)}
+.btn-g:hover{background:rgba(13,5,32,.05);color:var(--ink)}
+.btn-d{background:var(--bad4);color:var(--bad);border-color:rgba(240,68,56,.2)}
+.btn-d:hover{background:var(--bad);color:#fff}
+.btn-sm{height:32px;padding:0 12px;font-size:12px;border-radius:8px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>span{font-size:12px;font-weight:600;color:var(--ink2)}
+.inp{width:100%;height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line2);background:#fff;font-size:14px;transition:border-color .15s,box-shadow .15s}
+textarea.inp{height:auto;min-height:96px;padding:10px 12px;resize:vertical;line-height:1.5}
+.inp:focus{outline:none;border-color:var(--p3);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.chip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:var(--pill);font-size:11px;font-weight:700;white-space:nowrap}
+.chip-p{background:var(--p4);color:var(--p)}
+.chip-o{background:var(--or4);color:#C2410C}
+.chip-ok{background:var(--ok4);color:#027A48}
+.chip-w{background:var(--warn4);color:#B54708}
+.chip-b{background:var(--bad4);color:#B42318}
+.chip-n{background:rgba(13,5,32,.05);color:var(--ink3)}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:rgba(13,5,32,.05);gap:2px}
+.seg button{border:0;background:none;height:30px;padding:0 12px;border-radius:8px;font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;white-space:nowrap}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:var(--sh)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--sh)}
+.card-h{display:flex;align-items:center;gap:10px;padding:16px 18px 0}
+.card-t{font-size:14px;font-weight:700;letter-spacing:-.1px}
+.card-sub{font-size:12px;color:var(--ink3)}
+.card-b{padding:16px 18px 18px}
+.link-more{margin-left:auto;font-size:12px;font-weight:600;color:var(--p2)}
+.link-more:hover{text-decoration:underline}
+.empty{padding:28px 16px;text-align:center;color:var(--ink3);font-size:13px}
+.empty strong{display:block;color:var(--ink);font-size:14px;margin-bottom:4px}
+.skel{background:linear-gradient(90deg,rgba(13,5,32,.05),rgba(13,5,32,.09),rgba(13,5,32,.05));background-size:200% 100%;animation:sk 1.3s linear infinite;border-radius:8px}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* ── Cockpit ───────────────────────────────────────── */
+.hello{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.hello h1{font-size:26px;font-weight:900;letter-spacing:-.8px;line-height:1.15}
+.hello h1 em{font-style:normal;background:linear-gradient(110deg,var(--p2),var(--p3) 55%,var(--or2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hello p{color:var(--ink3);margin-top:4px;font-size:13px}
+.hello-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.now{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.now-card{display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r2);background:#fff;border:1px solid var(--line);box-shadow:var(--sh);transition:border-color .2s,box-shadow .2s,transform .2s}
+a.now-card:hover,button.now-card:hover{border-color:rgba(76,29,149,.25);box-shadow:var(--sh2);transform:translateY(-1px)}
+button.now-card{text-align:left;cursor:pointer;width:100%}
+.now-ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.now-ic .ic{width:20px;height:20px}
+.now-v{font-size:24px;font-weight:900;letter-spacing:-.8px;line-height:1}
+.now-l{font-size:12px;color:var(--ink3);margin-top:3px}
+.now-card.hot{border-color:rgba(234,88,12,.35);background:linear-gradient(180deg,#fff,#FFF8F3)}
+
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.kpi{padding:16px 16px 14px;border-radius:var(--r2);background:#fff;border:1px solid var(--line);box-shadow:var(--sh)}
+.kpi-l{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink4)}
+.kpi-v{font-size:26px;font-weight:900;letter-spacing:-1px;margin-top:8px;line-height:1}
+.kpi-d{display:inline-flex;align-items:center;gap:3px;margin-top:8px;font-size:11.5px;font-weight:700}
+.kpi-d.up{color:#027A48}.kpi-d.down{color:#B42318}.kpi-d.flat{color:var(--ink4)}
+
+.grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px;align-items:start}
+.chart{height:180px;display:flex;align-items:flex-end;gap:6px;padding-top:12px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;height:100%;justify-content:flex-end}
+.bar i{display:block;width:100%;max-width:34px;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,var(--p3),var(--p));min-height:3px;transition:height .7s var(--ease)}
+.bar.last i{background:linear-gradient(180deg,var(--or2),var(--or))}
+.bar b{font-size:10.5px;font-weight:600;color:var(--ink4)}
+.bar span{font-size:11px;font-weight:800;color:var(--ink2)}
+
+.gap-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.gap-row:first-child{border-top:0;padding-top:0}
+.gap-rank{width:24px;height:24px;border-radius:8px;background:var(--or4);color:#C2410C;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gap-main{flex:1;min-width:0}
+.gap-t{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gap-s{font-size:12px;color:var(--ink3)}
+.gap-n{font-size:13px;font-weight:800;color:var(--ink2)}
+
+.feed-row{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.feed-row:first-child{border-top:0;padding-top:0}
+.feed-dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;background:var(--p3)}
+.feed-dot.elevated{background:var(--warn)}.feed-dot.critical{background:var(--bad)}
+.feed-t{font-size:13px}
+.feed-t strong{font-weight:700}
+.feed-s{font-size:11.5px;color:var(--ink4);margin-top:1px}
+
+/* ── Tâches ────────────────────────────────────────── */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.search{position:relative;flex:1;min-width:200px;max-width:340px}
+.search .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink4)}
+.search .inp{padding-left:36px}
+.board{display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:14px;align-items:start}
+.col{background:rgba(13,5,32,.035);border:1px solid var(--line);border-radius:var(--r2);padding:10px;min-height:200px;transition:background .15s,border-color .15s}
+.col.drop{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.4)}
+.col-h{display:flex;align-items:center;gap:8px;padding:4px 6px 10px}
+.col-dot{width:8px;height:8px;border-radius:50%}
+.col-t{font-size:13px;font-weight:700}
+.col-n{font-size:12px;font-weight:700;color:var(--ink4)}
+.col-add{margin-left:auto;width:26px;height:26px;border-radius:8px;border:0;background:none;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.col-add:hover{background:#fff;color:var(--p)}
+.col-list{display:flex;flex-direction:column;gap:8px;min-height:40px}
+.task{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;box-shadow:var(--sh);cursor:pointer;position:relative;transition:border-color .15s,box-shadow .15s,transform .15s}
+.task:hover{border-color:rgba(76,29,149,.25);box-shadow:var(--sh2)}
+.task.dragging{opacity:.45;transform:rotate(1deg)}
+.task::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:transparent}
+.task.p-urgent::before{background:var(--bad)}.task.p-high::before{background:var(--or2)}
+.task-t{font-size:13.5px;font-weight:600;line-height:1.35;color:var(--ink);word-break:break-word}
+.task.done .task-t{color:var(--ink3);text-decoration:line-through}
+.task-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:9px}
+.task-foot{display:flex;align-items:center;gap:8px;margin-top:10px}
+.due{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--ink3)}
+.due .ic{width:13px;height:13px}
+.due.late{color:var(--bad)}.due.soon{color:#B54708}
+.av{width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+.av-empty{background:rgba(13,5,32,.06);color:var(--ink4);border:1px dashed var(--line2)}
+.task-foot .av{margin-left:auto}
+.cmt-n{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--ink4)}
+
+/* ── Équipe ────────────────────────────────────────── */
+.team-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.dept{margin-bottom:22px}
+.dept-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dept-t{font-size:14px;font-weight:800}
+.dept-n{font-size:12px;color:var(--ink4);font-weight:600}
+.members{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.mem{display:flex;gap:12px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);transition:border-color .15s,box-shadow .15s}
+.mem:hover{border-color:rgba(76,29,149,.22);box-shadow:var(--sh2)}
+.mem.off{opacity:.55}
+.mem-av{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
+.mem-av .live{position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:50%;background:var(--ok);border:2px solid #fff}
+.mem-main{flex:1;min-width:0}
+.mem-n{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mem-t{font-size:12px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mem-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mem-seen{font-size:11.5px;color:var(--ink4);margin-top:6px}
+.mem-act{display:flex;flex-direction:column;gap:4px}
+.icon-btn{width:30px;height:30px;border-radius:8px;border:0;background:none;color:var(--ink4);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.icon-btn:hover{background:rgba(13,5,32,.05);color:var(--p)}
+
+.perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.perm{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;cursor:pointer;background:#fff}
+.perm input{margin-top:2px;accent-color:var(--p)}
+.perm b{display:block;font-weight:600;color:var(--ink)}
+.perm small{display:block;color:var(--ink4);font-size:11px;line-height:1.35}
+.perm.locked{cursor:default;background:rgba(13,5,32,.02)}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:var(--info4);color:#175CD3;font-size:12.5px;line-height:1.5}
+.note .ic{margin-top:2px}
+.note a{font-weight:700;text-decoration:underline}
+
+/* ── Demande ───────────────────────────────────────── */
+.dem-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 120px 110px;gap:14px;align-items:center;padding:11px 18px;border-top:1px solid var(--line)}
+.dem-row.head{border-top:0;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink4);padding-top:14px;padding-bottom:8px}
+.dem-spec{font-weight:700;font-size:13.5px}
+.dem-w{font-size:13px;color:var(--ink2)}
+.dem-bar{height:8px;border-radius:99px;background:rgba(13,5,32,.06);overflow:hidden;margin-top:5px}
+.dem-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p3),var(--p))}
+.dem-row.gap .dem-bar i{background:linear-gradient(90deg,var(--or2),var(--or))}
+
+/* ── Panneau latéral (détail / formulaire) ─────────── */
+.scrim{position:fixed;inset:0;background:rgba(13,5,32,.35);z-index:80;opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:#fff;z-index:90;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s var(--ease);box-shadow:-20px 0 60px rgba(13,5,32,.15)}
+.drawer.on{transform:none}
+.dr-h{display:flex;align-items:center;gap:10px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.dr-t{font-size:16px;font-weight:800;letter-spacing:-.2px}
+.dr-b{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.dr-f{display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid var(--line);padding-bottom:max(14px,env(safe-area-inset-bottom))}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cmts{display:flex;flex-direction:column;gap:10px}
+.cmt{display:flex;gap:10px}
+.cmt-b{flex:1;background:var(--bg);border-radius:12px;padding:9px 12px}
+.cmt-a{font-size:12px;font-weight:700}
+.cmt-a span{font-weight:500;color:var(--ink4);margin-left:6px}
+.cmt-x{font-size:13px;margin-top:2px;white-space:pre-wrap;word-break:break-word}
+.sep-t{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink4)}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;z-index:120;background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:11px 18px;border-radius:12px;box-shadow:0 12px 30px rgba(13,5,32,.25);transition:opacity .25s,transform .25s;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:#B42318}
+
+.setup{max-width:640px;margin:40px auto;text-align:center}
+.setup .card{padding:32px 28px}
+.setup h2{font-size:20px;font-weight:800;margin-bottom:8px}
+.setup p{color:var(--ink3);line-height:1.6;margin-bottom:10px}
+.setup code{background:var(--p4);color:var(--p);padding:2px 7px;border-radius:6px;font-size:12.5px}
+
+/* ── Responsive ────────────────────────────────────── */
+.grid2>*,.kpis>*,.now>*,.team-stats>*{min-width:0}
+.kpis.k3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:1180px){.kpis{grid-template-columns:repeat(3,1fr)}.now{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;left:0;top:0;bottom:0;width:272px;transform:translateX(-100%);transition:transform .3s var(--ease);box-shadow:20px 0 60px rgba(0,0,0,.25)}
+  .side.on{transform:none}
+  .ham{display:flex}
+  .top{padding:0 16px;padding-top:env(safe-area-inset-top)}
+  .page{padding:18px 16px 40px}
+  .board{grid-template-columns:repeat(4,minmax(78vw,1fr));overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 8px;scrollbar-width:none}
+  .board::-webkit-scrollbar{display:none}
+  .col{scroll-snap-align:center}
+  .team-stats{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  .hello h1{font-size:22px}
+  .kpis,.kpis.k3{grid-template-columns:repeat(2,1fr)}
+  .kpi{padding:14px 12px 12px}
+  .kpis>.kpi:last-child:nth-child(odd){grid-column:1 / -1}
+  .kpi-v{font-size:22px}
+  .now{grid-template-columns:repeat(2,1fr);gap:10px}
+  .now-card{flex-direction:column;align-items:flex-start;gap:10px;padding:14px}
+  .now-ic{width:36px;height:36px;border-radius:10px}
+  .now-v{font-size:22px}
+  .now-l{font-size:11.5px;line-height:1.35}
+  .chart{gap:3px;height:150px}
+  .bar b{font-size:9px}
+  .bar:nth-child(even) b{visibility:hidden}
+  .bar span{font-size:9.5px}
+  .top-actions .btn-label{display:none}
+  .row2,.perm-grid{grid-template-columns:1fr}
+  .dem-row{grid-template-columns:minmax(0,1fr) 90px;gap:8px 12px;padding:12px 16px}
+  .dem-row .dem-w{grid-column:1}
+  .dem-row .dem-doc{grid-column:2;grid-row:1}
+  .dem-row .dem-cnt{grid-column:1 / -1}
+  .dem-row.head{display:none}
+  .toolbar .search{max-width:none;flex-basis:100%}
+  .inp,select.inp,textarea.inp{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side" aria-label="Navigation Symphony">
+    <div class="side-head">
+      <img src="docline-logo-white.svg" alt="Docline">
+      <span class="side-tag">SYMPHONY</span>
+    </div>
+    <nav class="side-nav" id="side-nav"></nav>
+    <div class="side-foot">
+      <div class="me">
+        <div class="me-av" id="me-av">··</div>
+        <div style="min-width:0">
+          <div class="me-name" id="me-name">Chargement…</div>
+          <div class="me-role" id="me-role"></div>
+        </div>
+        <button class="me-out" id="btn-out" title="Se déconnecter" aria-label="Se déconnecter">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+  <div class="scrim" id="side-scrim"></div>
+
+  <div class="main">
+    <header class="top">
+      <button class="ham" id="ham" aria-label="Ouvrir le menu"><svg class="ic" style="width:20px;height:20px" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <div class="top-title" id="top-title">QG</div>
+      <div class="top-actions">
+        <button class="btn btn-p btn-sm" id="btn-new-task" hidden>
+          <svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="btn-label">Nouvelle tâche</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="page" id="page">
+      <!-- Migration manquante / accès refusé -->
+      <section class="view" id="v-setup">
+        <div class="setup"><div class="card" id="setup-card"></div></div>
+      </section>
+
+      <!-- ═══ QG ═══ -->
+      <section class="view" id="v-overview">
+        <div class="hello">
+          <div>
+            <h1 id="hello-t">Bonjour</h1>
+            <p id="hello-s"></p>
+          </div>
+          <div class="hello-actions">
+            <button class="btn btn-s" data-go="#tasks"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="m8 12 2.5 2.5L16 9"/></svg>Mes tâches</button>
+            <button class="btn btn-p" id="hello-new"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nouvelle tâche</button>
+          </div>
+        </div>
+        <div class="now" id="now"></div>
+        <div class="kpis" id="kpis"></div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Inscriptions de médecins</div><div class="card-sub">12 dernières semaines</div></div></div>
+            <div class="card-b"><div class="chart" id="chart"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+          <div class="card" id="gaps-card" hidden>
+            <div class="card-h"><div><div class="card-t">Où recruter en priorité</div><div class="card-sub">Recherches patients sans médecin inscrit, 30 j</div></div><a class="link-more" href="#demand">Tout voir</a></div>
+            <div class="card-b" id="gaps"></div>
+          </div>
+          <div class="card" id="team-card" hidden>
+            <div class="card-h"><div><div class="card-t">Équipe</div><div class="card-sub" id="team-card-sub"></div></div><a class="link-more" href="#team">Gérer</a></div>
+            <div class="card-b" id="team-mini"></div>
+          </div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Mes tâches prioritaires</div><div class="card-sub">Assignées à vous, non terminées</div></div><a class="link-more" href="#tasks">Ouvrir le tableau</a></div>
+            <div class="card-b" id="my-tasks"></div>
+          </div>
+          <div class="card" id="feed-card" hidden>
+            <div class="card-h"><div><div class="card-t">Activité de l'équipe</div><div class="card-sub">Actions sensibles tracées</div></div><a class="link-more" href="/symphony-security">Journal complet</a></div>
+            <div class="card-b" id="feed"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ TÂCHES ═══ -->
+      <section class="view" id="v-tasks">
+        <div class="toolbar">
+          <div class="search">
+            <svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input class="inp" id="t-search" type="search" placeholder="Rechercher une tâche…" autocomplete="off">
+          </div>
+          <div class="seg" id="t-scope" role="tablist" aria-label="Filtrer les tâches">
+            <button class="on" data-scope="all">Toutes</button>
+            <button data-scope="mine">Mes tâches</button>
+            <button data-scope="late">En retard</button>
+          </div>
+          <select class="inp" id="t-dept" style="width:auto;height:38px" aria-label="Département">
+            <option value="">Tous les départements</option>
+          </select>
+        </div>
+        <div class="board" id="board"></div>
+      </section>
+
+      <!-- ═══ ÉQUIPE ═══ -->
+      <section class="view" id="v-team">
+        <div class="hello">
+          <div>
+            <h1>Équipe &amp; accès</h1>
+            <p>Chaque membre accède uniquement aux modules de son poste. Les droits sont vérifiés par le serveur.</p>
+          </div>
+          <div class="hello-actions">
+            <div class="seg" id="team-filter"><button class="on" data-f="active">Actifs</button><button data-f="all">Tous</button></div>
+            <button class="btn btn-p" id="btn-add-member" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>Ajouter un membre</button>
+          </div>
+        </div>
+        <div class="team-stats" id="team-stats"></div>
+        <div id="team-list"></div>
+      </section>
+
+      <!-- ═══ DEMANDE ═══ -->
+      <section class="view" id="v-demand">
+        <div class="hello">
+          <div>
+            <h1>Demande marché</h1>
+            <p>Ce que cherchent les patients sur Docline, comparé aux médecins inscrits. Les lignes orange sont des recherches sans aucun médecin : c'est là qu'il faut recruter.</p>
+          </div>
+          <div class="hello-actions">
+            <div class="seg" id="d-period"><button data-days="7">7 j</button><button class="on" data-days="30">30 j</button><button data-days="90">90 j</button></div>
+            <div class="seg" id="d-only"><button class="on" data-only="0">Tout</button><button data-only="1">Sans médecin</button></div>
+          </div>
+        </div>
+        <div class="kpis k3" id="d-kpis"></div>
+        <div class="card" style="overflow:hidden">
+          <div class="dem-row head"><div>Spécialité</div><div>Wilaya</div><div>Recherches</div><div>Médecins</div></div>
+          <div id="d-rows"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="scrim" id="dr-scrim"></div>
+<aside class="drawer" id="drawer" aria-modal="true" role="dialog" aria-labelledby="dr-t">
+  <div class="dr-h">
+    <div class="dr-t" id="dr-t"></div>
+    <button class="icon-btn" id="dr-close" style="margin-left:auto" aria-label="Fermer"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dr-b" id="dr-b"></div>
+  <div class="dr-f" id="dr-f"></div>
+</aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ── Référentiels ─────────────────────────────────────────────── */
+var DEPTS = { direction:'Direction', sales:'Sales & partenariats', customer_success:'Succès client', billing:'Facturation',
+  marketing:'Marketing', rd:'R&D produit', devops:'DevOps', ops:'Opérations' };
+var LEVELS = { l1:'Niveau 1 · Consultation', l2:'Niveau 2 · Décision', l3:'Niveau 3 · Responsable', super_admin:'Super Admin' };
+var LEVEL_SHORT = { l1:'N1', l2:'N2', l3:'N3', super_admin:'Super Admin' };
+var OWNER_EMAILS = ['samyabboute5@gmail.com', 'contact@docline.health'];
+var PERMS = [
+  { k:'analytics.view',  l:'Analytics',              d:'Statistiques de la plateforme' },
+  { k:'doctors.view',    l:'Médecins · consulter',   d:'Fiches, CRM médecin, vedettes' },
+  { k:'doctors.edit',    l:'Médecins · modifier',    d:'Profils, visibilité, essais' },
+  { k:'kyc.view',        l:'KYC · consulter',        d:'Dossiers de vérification' },
+  { k:'kyc.decide',      l:'KYC · décider',          d:'Valider ou refuser un dossier' },
+  { k:'payments.view',   l:'Paiements · consulter',  d:'Demandes de paiement' },
+  { k:'payments.decide', l:'Paiements · valider',    d:'Confirmer un virement' },
+  { k:'revenue.view',    l:'Revenus & finance',      d:'MRR, abonnements' },
+  { k:'marketing.view',  l:'Marketing',              d:'Publicité et emails' },
+  { k:'featured.manage', l:'Médecins en vedette',    d:'Mise en avant sur la recherche' },
+  { k:'demand.view',     l:'Demande marché',         d:'Recherches patients vs offre' },
+  { k:'incidents.view',  l:'Incidents',              d:'Suivi des incidents' },
+  { k:'security.view',   l:'Sécurité & journal',     d:'Journal des actions sensibles' },
+  { k:'simulate.use',    l:'Simulation',             d:'Voir l’app comme un médecin' },
+  { k:'tasks.view_all',  l:'Toutes les tâches',      d:'Sinon : les siennes et celles du département' },
+  { k:'team.view',       l:'Équipe · consulter',     d:'Annuaire et postes' },
+  { k:'team.manage',     l:'Équipe · gérer',         d:'Ajouter, modifier, désactiver' }
+];
+var STATUSES = [
+  { k:'todo',   l:'À faire',  c:'#9CA3B8' },
+  { k:'doing',  l:'En cours', c:'#2E90FA' },
+  { k:'review', l:'En revue', c:'#F79009' },
+  { k:'done',   l:'Terminé',  c:'#12B76A' }
+];
+var PRIORITIES = { urgent:{ l:'Urgente', c:'chip-b', w:0 }, high:{ l:'Haute', c:'chip-o', w:1 }, normal:{ l:'Normale', c:'chip-n', w:2 }, low:{ l:'Basse', c:'chip-n', w:3 } };
+var RELATED = { doctor:'Médecin', kyc:'Dossier KYC', payment:'Paiement', incident:'Incident', other:'Autre' };
+var AUDIT_LABELS = { delete_user:'a supprimé le compte', suspend_user:'a suspendu', activate_user:'a réactivé', set_plan:'a changé le plan de',
+  grant_access:'a donné un accès à', approve_kyc:'a validé le KYC de', reject_kyc:'a refusé le KYC de', approve_payment:'a validé le paiement de',
+  reject_payment:'a refusé le paiement de', add_staff:'a ajouté à l’équipe', remove_staff:'a désactivé', update_staff:'a modifié le poste de',
+  export_data:'a exporté des données', view_sensitive:'a consulté une donnée sensible' };
+var ICON = {
+  hq:'<path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  tasks:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="m8 12 2.5 2.5L16 9"/>',
+  team:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  demand:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  hub:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  chart:'<path d="M18 20V10M12 20V4M6 20v-6"/>',
+  alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/>',
+  users:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+  crm:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  star:'<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>',
+  card:'<rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>',
+  money:'<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  ads:'<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.4 5.6a9 9 0 0 1 0 12.8"/>',
+  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/>',
+  eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  power:'<path d="M18.4 6.6a9 9 0 1 1-12.8 0M12 2v10"/>',
+  msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+  online:'<circle cx="12" cy="12" r="4"/><path d="M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>'
+};
+var NAV = [
+  { s:'Entreprise', items:[
+    { h:'#overview', l:'QG', i:'hq', p:'overview' },
+    { h:'#tasks', l:'Tâches', i:'tasks', p:'overview', badge:true },
+    { h:'#team', l:'Équipe & accès', i:'team', p:'team.view' },
+    { h:'#demand', l:'Demande marché', i:'demand', p:'demand.view' } ] },
+  { s:'Plateforme', items:[
+    { h:'/symphony', l:'Hub opérations', i:'hub', p:'overview' },
+    { h:'/symphony-analytics', l:'Analytics', i:'chart', p:'analytics.view' },
+    { h:'/symphony-incidents', l:'Incidents', i:'alert', p:'incidents.view' } ] },
+  { s:'Médecins', items:[
+    { h:'/symphony-kyc', l:'KYC & onboarding', i:'file', p:'kyc.view' },
+    { h:'/symphony-users', l:'Médecins & cliniques', i:'users', p:'doctors.view' },
+    { h:'/symphony-crm', l:'CRM médecin', i:'crm', p:'doctors.view' },
+    { h:'/symphony-featured', l:'En vedette', i:'star', p:'doctors.view' } ] },
+  { s:'Finance', items:[
+    { h:'/symphony?tab=paiements', l:'Paiements', i:'card', p:'payments.view' },
+    { h:'/symphony-revenue', l:'Revenus', i:'money', p:'revenue.view' } ] },
+  { s:'Marketing', items:[
+    { h:'/symphony-ads', l:'Régie publicitaire', i:'ads', p:'marketing.view' },
+    { h:'/symphony-emails', l:'Emails & modèles', i:'mail', p:'marketing.view' } ] },
+  { s:'Système', items:[
+    { h:'/symphony-simulate', l:'Simulation', i:'eye', p:'simulate.use' },
+    { h:'/symphony-security', l:'Sécurité & journal', i:'shield', p:'security.view' },
+    { h:'/symphony-settings', l:'Paramètres', i:'gear', p:'settings.manage' } ] }
+];
+var AV_COLORS = ['#4C1D95','#6D28D9','#EA580C','#0E9384','#2E90FA','#C11574','#B54708','#027A48'];
+
+/* ── État ─────────────────────────────────────────────────────── */
+var sb, me, team = [], tasks = [], commentCounts = {}, view = '';
+var tFilter = { q:'', scope:'all', dept:'' };
+var teamFilter = 'active', demandDays = 30, demandOnlyGaps = false, demandRows = null;
+
+/* ── Utilitaires ──────────────────────────────────────────────── */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+function ic(name, extra){ return '<svg class="ic" viewBox="0 0 24 24"' + (extra || '') + '>' + ICON[name] + '</svg>'; }
+function can(p){ var ps = (me && me.permissions) || []; return ps.indexOf('*') !== -1 || ps.indexOf(p) !== -1; }
+function initials(n){ var p = String(n || '?').trim().split(/\s+/); return ((p[0] || '?')[0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase(); }
+function colorOf(s){ var h = 0; s = String(s || ''); for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return AV_COLORS[h % AV_COLORS.length]; }
+function avatar(email, cls){
+  var m = memberByEmail(email);
+  if (!email) return '<span class="av av-empty ' + (cls || '') + '" title="Non assignée">?</span>';
+  var name = m ? m.full_name : email;
+  return '<span class="av ' + (cls || '') + '" style="background:' + colorOf(email) + '" title="' + esc(name) + '">' + esc(initials(name)) + '</span>';
+}
+function memberByEmail(e){ e = String(e || '').toLowerCase(); for (var i = 0; i < team.length; i++) if (String(team[i].email).toLowerCase() === e) return team[i]; return null; }
+function nameOf(e){ var m = memberByEmail(e); return m ? m.full_name : (e || 'Quelqu’un'); }
+function fmtN(n){ return new Intl.NumberFormat('fr-FR').format(n || 0); }
+function fmtDA(n){ return fmtN(n) + ' DA'; }
+function todayISO(){ var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+function fmtDay(iso){ if (!iso) return ''; var d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : '')); return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }); }
+function ago(ts){
+  if (!ts) return 'Jamais connecté';
+  var s = (Date.now() - new Date(ts).getTime()) / 1000;
+  if (s < 90) return 'En ligne';
+  if (s < 3600) return 'Il y a ' + Math.round(s / 60) + ' min';
+  if (s < 86400) return 'Il y a ' + Math.round(s / 3600) + ' h';
+  if (s < 86400 * 30) return 'Il y a ' + Math.round(s / 86400) + ' j';
+  return 'Le ' + new Date(ts).toLocaleDateString('fr-FR');
+}
+var toastT;
+function toast(msg, err){
+  var t = $('toast'); t.textContent = msg; t.classList.toggle('err', !!err); t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(function(){ t.classList.remove('on'); }, 3200);
+}
+function errMsg(e){
+  var m = (e && (e.message || e.error_description)) || 'Erreur inconnue';
+  if (/row-level security|permission denied/i.test(m)) return 'Action non autorisée pour votre poste.';
+  return m;
+}
+
+/* ── Démarrage ────────────────────────────────────────────────── */
+async function boot(){
+  sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  var s = await sb.auth.getSession();
+  if (!s.data || !s.data.session){ location.href = '/login?return=symphony-hq.html'; return; }
+  var sess = s.data.session;
+
+  var r = await sb.rpc('symphony_me');
+  if (r.error){
+    var owner = OWNER_EMAILS.indexOf(String(sess.user.email).toLowerCase()) !== -1;
+    return setup(owner
+      ? '<h2>Une étape avant d’ouvrir le QG</h2><p>Exécutez la migration <code>supabase/migrations/20261006_symphony_hq.sql</code> dans l’éditeur SQL de Supabase, puis rechargez cette page.</p><p>Elle crée les permissions par poste, les tâches et la gestion d’équipe.</p>'
+      : '<h2>Le QG n’est pas encore disponible</h2><p>L’administrateur doit terminer sa configuration. Réessayez un peu plus tard.</p>');
+  }
+  if (!r.data){
+    return setup('<h2>Accès réservé à l’équipe Docline</h2><p>Ce compte (' + esc(sess.user.email) + ') ne fait pas partie de l’équipe. Si vous venez d’être recruté, demandez à votre responsable de vous ajouter avec cet email.</p><p style="margin-top:16px"><button class="btn btn-s" id="setup-out">Se déconnecter</button></p>');
+  }
+  me = r.data;
+
+  $('me-av').textContent = initials(me.full_name);
+  $('me-av').style.background = 'linear-gradient(135deg,' + colorOf(me.email) + ',#F97316)';
+  $('me-name').textContent = me.full_name;
+  $('me-role').textContent = (me.owner ? 'Fondateur' : (me.title || DEPTS[me.department] || '')) + ' · ' + (LEVEL_SHORT[me.role] || me.role);
+  $('btn-new-task').hidden = false;
+  $('btn-add-member').hidden = !can('team.manage');
+
+  buildNav();
+  buildStaticControls();
+  await loadTeam();
+  window.addEventListener('hashchange', route);
+  route();
+}
+
+function setup(html){
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+  $('v-setup').classList.add('on');
+  $('setup-card').innerHTML = html;
+  $('me-name').textContent = '—';
+  var out = $('setup-out'); if (out) out.onclick = signOut;
+}
+
+async function signOut(){ await sb.auth.signOut(); location.href = '/login'; }
+
+/* ── Navigation ───────────────────────────────────────────────── */
+function buildNav(){
+  var html = '';
+  NAV.forEach(function(g){
+    var items = g.items.filter(function(it){ return can(it.p); });
+    if (!items.length) return;
+    html += '<div class="side-sec">' + esc(g.s) + '</div>';
+    items.forEach(function(it){
+      html += '<a class="side-link" href="' + esc(it.h) + '" data-h="' + esc(it.h) + '">' + ic(it.i) + '<span>' + esc(it.l) + '</span>' +
+        (it.badge ? '<b class="side-badge" id="nav-badge" hidden></b>' : '') + '</a>';
+    });
+  });
+  $('side-nav').innerHTML = html;
+  $('side-nav').addEventListener('click', function(e){ if (e.target.closest('a')) closeSide(); });
+}
+function markNav(){
+  document.querySelectorAll('.side-link').forEach(function(a){ a.classList.toggle('on', a.dataset.h === '#' + view); });
+}
+function openSide(){ $('side').classList.add('on'); $('side-scrim').classList.add('on'); }
+function closeSide(){ $('side').classList.remove('on'); $('side-scrim').classList.remove('on'); }
+
+var VIEWS = { overview:{ t:'QG', p:'overview' }, tasks:{ t:'Tâches', p:'overview' }, team:{ t:'Équipe & accès', p:'team.view' }, demand:{ t:'Demande marché', p:'demand.view' } };
+function route(){
+  var v = (location.hash || '#overview').slice(1);
+  if (!VIEWS[v] || !can(VIEWS[v].p)) v = 'overview';
+  view = v;
+  document.querySelectorAll('.view').forEach(function(el){ el.classList.toggle('on', el.id === 'v-' + v); });
+  $('top-title').textContent = VIEWS[v].t;
+  document.title = VIEWS[v].t + ' — Symphony Docline';
+  markNav();
+  window.scrollTo(0, 0);
+  if (v === 'overview') renderOverview();
+  if (v === 'tasks') loadTasks();
+  if (v === 'team') renderTeam();
+  if (v === 'demand') loadDemand();
+}
+
+function buildStaticControls(){
+  $('ham').onclick = openSide;
+  $('side-scrim').onclick = closeSide;
+  $('btn-out').onclick = signOut;
+  $('btn-new-task').onclick = function(){ openTask(null); };
+  $('hello-new').onclick = function(){ openTask(null); };
+  document.querySelectorAll('[data-go]').forEach(function(b){ b.onclick = function(){ setScope('mine'); location.hash = b.dataset.go; }; });
+
+  var sel = $('t-dept');
+  Object.keys(DEPTS).forEach(function(k){ sel.insertAdjacentHTML('beforeend', '<option value="' + k + '">' + esc(DEPTS[k]) + '</option>'); });
+  sel.onchange = function(){ tFilter.dept = sel.value; renderBoard(); };
+  var qT; $('t-search').oninput = function(e){ clearTimeout(qT); qT = setTimeout(function(){ tFilter.q = e.target.value.trim().toLowerCase(); renderBoard(); }, 120); };
+  $('t-scope').onclick = function(e){ var b = e.target.closest('button'); if (b) { setScope(b.dataset.scope); renderBoard(); } };
+  $('team-filter').onclick = function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    teamFilter = b.dataset.f; $('team-filter').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); renderTeam();
+  };
+  $('btn-add-member').onclick = function(){ openMember(null); };
+  $('d-period').onclick = function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    demandDays = +b.dataset.days; $('d-period').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); loadDemand();
+  };
+  $('d-only').onclick = function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    demandOnlyGaps = b.dataset.only === '1'; $('d-only').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); renderDemand();
+  };
+  $('dr-close').onclick = closeDrawer;
+  $('dr-scrim').onclick = closeDrawer;
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') { closeDrawer(); closeSide(); } });
+}
+function setScope(s){
+  tFilter.scope = s;
+  $('t-scope').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x.dataset.scope === s); });
+}
+
+/* ── Équipe (données) ─────────────────────────────────────────── */
+async function loadTeam(){
+  var r = await sb.from('symphony_staff').select('id,email,full_name,title,department,role,is_active,permissions,last_seen_at,employee_id,created_at').order('full_name');
+  team = r.error ? [] : (r.data || []);
+}
+
+/* ── QG ───────────────────────────────────────────────────────── */
+async function renderOverview(){
+  var first = String(me.full_name || '').split(' ')[0] || '';
+  var h = new Date().getHours();
+  $('hello-t').innerHTML = (h < 18 ? 'Bonjour' : 'Bonsoir') + ', <em>' + esc(first) + '</em>';
+  $('hello-s').textContent = (me.owner ? 'Fondateur' : (DEPTS[me.department] || '') + ' · ' + (LEVELS[me.role] || '')) + ' — ' +
+    new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+  $('now').innerHTML = '<div class="skel" style="height:76px"></div><div class="skel" style="height:76px"></div><div class="skel" style="height:76px"></div><div class="skel" style="height:76px"></div>';
+  $('kpis').innerHTML = '';
+
+  var r = await sb.rpc('symphony_overview');
+  var o = r.data || {};
+  if (r.error) toast(errMsg(r.error), true);
+
+  // À traiter maintenant
+  var now = [];
+  if (can('kyc.view')) now.push({ href:'/symphony-kyc', v:o.kyc_pending, l:'Dossiers KYC à vérifier', i:'file', bg:'#FFF4ED', fg:'#EA580C' });
+  if (can('payments.view')) now.push({ href:'/symphony?tab=paiements', v:o.payments_pending, l:'Paiements à valider' + (o.payments_pending_amount ? ' · ' + fmtDA(o.payments_pending_amount) : ''), i:'card', bg:'#EFF8FF', fg:'#2E90FA' });
+  now.push({ go:'late', v:o.tasks_overdue, l:'Tâches en retard', i:'clock', bg:'#FEF3F2', fg:'#F04438' });
+  now.push({ go:'mine', v:o.tasks_mine, l:'Mes tâches ouvertes', i:'tasks', bg:'#EDE9FE', fg:'#6D28D9' });
+  if (now.length < 4 && can('team.view')) now.push({ href:'#team', v:o.team_online_24h, l:'Membres actifs aujourd’hui', i:'online', bg:'#ECFDF3', fg:'#12B76A' });
+  $('now').innerHTML = now.slice(0, 4).map(function(n){
+    var inner = '<div class="now-ic" style="background:' + n.bg + ';color:' + n.fg + '">' + ic(n.i) + '</div><div><div class="now-v num">' + fmtN(n.v) + '</div><div class="now-l">' + esc(n.l) + '</div></div>';
+    var hot = n.v > 0 && (n.go === 'late' || n.i === 'file') ? ' hot' : '';
+    return n.href ? '<a class="now-card' + hot + '" href="' + esc(n.href) + '">' + inner + '</a>'
+                  : '<button class="now-card' + hot + '" data-scope="' + n.go + '">' + inner + '</button>';
+  }).join('');
+  $('now').querySelectorAll('button[data-scope]').forEach(function(b){ b.onclick = function(){ setScope(b.dataset.scope); location.hash = '#tasks'; }; });
+
+  // Indicateurs
+  var newD = o.doctors_new_30d || 0, prevD = o.doctors_new_prev_30d || 0;
+  var kpis = [
+    { l:'Médecins inscrits', v:fmtN(o.doctors_total), d:delta(newD, prevD, '+' + fmtN(newD) + ' en 30 j') },
+    { l:'Profils publics', v:fmtN(o.doctors_public), d:{ c:'flat', t:o.doctors_total ? Math.round(100 * (o.doctors_public || 0) / o.doctors_total) + ' % des inscrits' : '' } },
+    { l:'Abonnements payants', v:fmtN(o.paid_subscriptions), d:{ c:'flat', t:'Pro, Clinique' } },
+    { l:'Rendez-vous · 30 j', v:fmtN(o.appointments_30d), d:{ c:'flat', t:'Demandés par les patients' } }
+  ];
+  if (o.cash_30d !== undefined) kpis.push({ l:'Encaissé · 30 j', v:fmtDA(o.cash_30d), d:delta(o.cash_30d, o.cash_prev_30d, null) });
+  else kpis.push({ l:'Tâches terminées · 7 j', v:fmtN(o.tasks_done_7d), d:{ c:'flat', t:'Par l’équipe' } });
+  $('kpis').innerHTML = kpis.map(function(k){
+    return '<div class="kpi"><div class="kpi-l">' + esc(k.l) + '</div><div class="kpi-v num">' + esc(k.v) + '</div>' +
+      (k.d && k.d.t ? '<div class="kpi-d ' + k.d.c + '">' + esc(k.d.t) + '</div>' : '') + '</div>';
+  }).join('');
+
+  // Graphique
+  var series = o.signups_weekly || [];
+  var max = Math.max.apply(null, series.concat([1]));
+  var start = new Date(); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - ((start.getDay() + 6) % 7) - 7 * (series.length - 1));
+  $('chart').innerHTML = series.length ? series.map(function(n, i){
+    var d = new Date(start); d.setDate(d.getDate() + 7 * i);
+    return '<div class="bar' + (i === series.length - 1 ? ' last' : '') + '" title="Semaine du ' + d.toLocaleDateString('fr-FR') + ' : ' + n + ' inscription(s)">' +
+      '<span class="num">' + (n || '') + '</span><i style="height:' + Math.max(2, Math.round(100 * n / max)) + '%"></i><b>' + d.getDate() + '/' + (d.getMonth() + 1) + '</b></div>';
+  }).join('') : '<div class="empty" style="width:100%">Pas encore de données.</div>';
+
+  // Demande non couverte
+  if (can('demand.view')){
+    $('gaps-card').hidden = false;
+    var gaps = (o.demand_gaps || []).slice(0, 5);
+    $('gaps').innerHTML = gaps.length ? gaps.map(function(g, i){
+      return '<div class="gap-row"><span class="gap-rank">' + (i + 1) + '</span><div class="gap-main"><div class="gap-t">' + esc(g.specialty) + ' · ' + esc(g.wilaya) +
+        '</div><div class="gap-s">Aucun médecin inscrit</div></div><span class="gap-n num">' + fmtN(g.searches) + '</span></div>';
+    }).join('') : '<div class="empty"><strong>Aucun manque détecté</strong>Les recherches sans médecin apparaîtront ici.</div>';
+  }
+
+  // Équipe
+  if (can('team.view')){
+    $('team-card').hidden = false;
+    var act = team.filter(function(m){ return m.is_active; });
+    $('team-card-sub').textContent = act.length + ' membre(s) actif(s) · ' + (o.team_online_24h || 0) + ' connecté(s) aujourd’hui';
+    var recent = act.slice().sort(function(a, b){ return new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0); }).slice(0, 5);
+    $('team-mini').innerHTML = recent.length ? recent.map(function(m){
+      return '<div class="gap-row"><span class="av" style="background:' + colorOf(m.email) + ';width:30px;height:30px;border-radius:9px">' + esc(initials(m.full_name)) +
+        '</span><div class="gap-main"><div class="gap-t">' + esc(m.full_name) + '</div><div class="gap-s">' + esc(m.title || DEPTS[m.department] || '') + '</div></div><span class="gap-s">' + esc(ago(m.last_seen_at)) + '</span></div>';
+    }).join('') : '<div class="empty"><strong>Votre équipe est vide</strong>Ajoutez vos premiers membres depuis « Équipe &amp; accès ».</div>';
+  }
+
+  // Mes tâches
+  var mt = await sb.from('symphony_tasks').select('*').eq('assignee_email', me.email).neq('status', 'done').limit(50);
+  var mine = (mt.data || []).sort(taskSort).slice(0, 5);
+  $('my-tasks').innerHTML = mine.length ? mine.map(function(t){
+    return '<div class="gap-row" style="cursor:pointer" data-task="' + t.id + '"><span class="chip ' + PRIORITIES[t.priority].c + '">' + esc(PRIORITIES[t.priority].l) + '</span>' +
+      '<div class="gap-main"><div class="gap-t">' + esc(t.title) + '</div><div class="gap-s">' + esc(statusLabel(t.status)) + (t.related_label ? ' · ' + esc(t.related_label) : '') + '</div></div>' + dueHtml(t) + '</div>';
+  }).join('') : '<div class="empty"><strong>Rien en attente</strong>Aucune tâche ouverte ne vous est assignée.</div>';
+  $('my-tasks').querySelectorAll('[data-task]').forEach(function(el){
+    el.onclick = function(){ var t = mine.filter(function(x){ return x.id === el.dataset.task; })[0]; if (t) openTask(t); };
+  });
+  setBadge(o.tasks_mine || 0);
+
+  // Activité
+  if (can('security.view')){
+    $('feed-card').hidden = false;
+    var al = await sb.from('symphony_audit_log').select('employee_name,action,target_email,severity,created_at').order('created_at', { ascending:false }).limit(8);
+    var rows = al.data || [];
+    $('feed').innerHTML = rows.length ? rows.map(function(a){
+      return '<div class="feed-row"><span class="feed-dot ' + esc(a.severity) + '"></span><div><div class="feed-t"><strong>' + esc(a.employee_name || 'Système') + '</strong> ' +
+        esc(AUDIT_LABELS[a.action] || a.action) + (a.target_email ? ' <strong>' + esc(a.target_email) + '</strong>' : '') + '</div><div class="feed-s">' + esc(ago(a.created_at)) + '</div></div></div>';
+    }).join('') : '<div class="empty">Aucune action enregistrée pour le moment.</div>';
+  }
+}
+function delta(cur, prev, label){
+  cur = cur || 0; prev = prev || 0;
+  if (!prev && !cur) return { c:'flat', t:label || '' };
+  if (!prev) return { c:'up', t:label || 'Nouveau ce mois' };
+  var p = Math.round(100 * (cur - prev) / prev);
+  var arrow = p > 0 ? '↑ ' : p < 0 ? '↓ ' : '';
+  return { c:p > 0 ? 'up' : p < 0 ? 'down' : 'flat', t:(label ? label + ' · ' : '') + arrow + Math.abs(p) + ' % vs mois précédent' };
+}
+function setBadge(n){
+  var b = $('nav-badge'); if (b){ b.hidden = !n; b.textContent = n || ''; }
+}
+
+/* ── Tâches ───────────────────────────────────────────────────── */
+function statusLabel(k){ for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].k === k) return STATUSES[i].l; return k; }
+function taskSort(a, b){
+  var pa = PRIORITIES[a.priority].w, pb = PRIORITIES[b.priority].w;
+  if (pa !== pb) return pa - pb;
+  if (a.due_date && b.due_date && a.due_date !== b.due_date) return a.due_date < b.due_date ? -1 : 1;
+  if (a.due_date && !b.due_date) return -1;
+  if (!a.due_date && b.due_date) return 1;
+  return new Date(b.created_at) - new Date(a.created_at);
+}
+function dueHtml(t){
+  if (!t.due_date) return '';
+  var today = todayISO(), cls = '';
+  if (t.status !== 'done'){
+    if (t.due_date < today) cls = 'late';
+    else { var in2 = new Date(); in2.setDate(in2.getDate() + 2); if (t.due_date <= in2.toISOString().slice(0, 10)) cls = 'soon'; }
+  }
+  return '<span class="due ' + cls + '">' + ic('cal') + (cls === 'late' ? 'En retard · ' : '') + esc(fmtDay(t.due_date)) + '</span>';
+}
+
+async function loadTasks(){
+  $('board').innerHTML = STATUSES.map(function(){ return '<div class="col"><div class="skel" style="height:18px;width:50%;margin:6px 6px 14px"></div><div class="skel" style="height:86px;margin-bottom:8px"></div><div class="skel" style="height:86px"></div></div>'; }).join('');
+  var r = await sb.from('symphony_tasks').select('*').order('created_at', { ascending:false }).limit(500);
+  if (r.error){ $('board').innerHTML = '<div class="empty" style="grid-column:1/-1">' + esc(errMsg(r.error)) + '</div>'; return; }
+  tasks = r.data || [];
+  var c = await sb.from('symphony_task_comments').select('task_id').limit(5000);
+  commentCounts = {};
+  (c.data || []).forEach(function(x){ commentCounts[x.task_id] = (commentCounts[x.task_id] || 0) + 1; });
+  setBadge(tasks.filter(function(t){ return t.assignee_email === me.email && t.status !== 'done'; }).length);
+  renderBoard();
+}
+
+function visibleTasks(){
+  var today = todayISO();
+  return tasks.filter(function(t){
+    if (tFilter.scope === 'mine' && t.assignee_email !== me.email) return false;
+    if (tFilter.scope === 'late' && !(t.status !== 'done' && t.due_date && t.due_date < today)) return false;
+    if (tFilter.dept && t.department !== tFilter.dept) return false;
+    if (tFilter.q){
+      var hay = (t.title + ' ' + (t.description || '') + ' ' + (t.related_label || '') + ' ' + nameOf(t.assignee_email)).toLowerCase();
+      if (hay.indexOf(tFilter.q) === -1) return false;
+    }
+    return true;
+  });
+}
+
+function renderBoard(){
+  var list = visibleTasks();
+  $('board').innerHTML = STATUSES.map(function(s){
+    var items = list.filter(function(t){ return t.status === s.k; }).sort(taskSort);
+    if (s.k === 'done') items.sort(function(a, b){ return new Date(b.completed_at || b.updated_at) - new Date(a.completed_at || a.updated_at); });
+    return '<div class="col" data-status="' + s.k + '"><div class="col-h"><span class="col-dot" style="background:' + s.c + '"></span><span class="col-t">' + s.l +
+      '</span><span class="col-n num">' + items.length + '</span><button class="col-add" data-add="' + s.k + '" aria-label="Ajouter une tâche dans ' + s.l + '">' + ic('plus') + '</button></div>' +
+      '<div class="col-list">' + (items.length ? items.map(taskCard).join('') : '<div class="empty" style="padding:18px 8px;font-size:12px">Aucune tâche</div>') + '</div></div>';
+  }).join('');
+
+  $('board').querySelectorAll('[data-add]').forEach(function(b){ b.onclick = function(){ openTask(null, { status:b.dataset.add }); }; });
+  $('board').querySelectorAll('.task').forEach(function(el){
+    el.onclick = function(){ var t = taskById(el.dataset.id); if (t) openTask(t); };
+    el.addEventListener('keydown', function(e){ if (e.key === 'Enter') el.click(); });
+    el.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text/plain', el.dataset.id); e.dataTransfer.effectAllowed = 'move'; el.classList.add('dragging'); });
+    el.addEventListener('dragend', function(){ el.classList.remove('dragging'); });
+  });
+  $('board').querySelectorAll('.col').forEach(function(col){
+    col.addEventListener('dragover', function(e){ e.preventDefault(); col.classList.add('drop'); });
+    col.addEventListener('dragleave', function(e){ if (!col.contains(e.relatedTarget)) col.classList.remove('drop'); });
+    col.addEventListener('drop', function(e){
+      e.preventDefault(); col.classList.remove('drop');
+      moveTask(e.dataTransfer.getData('text/plain'), col.dataset.status);
+    });
+  });
+}
+function taskById(id){ for (var i = 0; i < tasks.length; i++) if (tasks[i].id === id) return tasks[i]; return null; }
+function taskCard(t){
+  var meta = '';
+  if (t.priority === 'urgent' || t.priority === 'high') meta += '<span class="chip ' + PRIORITIES[t.priority].c + '">' + PRIORITIES[t.priority].l + '</span>';
+  if (t.department) meta += '<span class="chip chip-p">' + esc(DEPTS[t.department] || t.department) + '</span>';
+  if (t.related_label) meta += '<span class="chip chip-n">' + esc(RELATED[t.related_type] ? RELATED[t.related_type] + ' · ' : '') + esc(t.related_label) + '</span>';
+  var n = commentCounts[t.id] || 0;
+  return '<article class="task p-' + t.priority + (t.status === 'done' ? ' done' : '') + '" draggable="true" tabindex="0" data-id="' + t.id + '">' +
+    '<div class="task-t">' + esc(t.title) + '</div>' + (meta ? '<div class="task-meta">' + meta + '</div>' : '') +
+    '<div class="task-foot">' + dueHtml(t) + (n ? '<span class="cmt-n">' + ic('msg', ' style="width:13px;height:13px"') + n + '</span>' : '') + avatar(t.assignee_email) + '</div></article>';
+}
+async function moveTask(id, status){
+  var t = taskById(id);
+  if (!t || t.status === status) return;
+  var prev = t.status;
+  t.status = status; renderBoard();
+  var r = await sb.from('symphony_tasks').update({ status:status }).eq('id', id).select().single();
+  if (r.error){ t.status = prev; renderBoard(); toast(errMsg(r.error), true); return; }
+  Object.assign(t, r.data); renderBoard();
+  toast('Tâche déplacée dans « ' + statusLabel(status) + ' »');
+}
+
+/* ── Panneau latéral ──────────────────────────────────────────── */
+function openDrawer(title, body, foot){
+  $('dr-t').textContent = title; $('dr-b').innerHTML = body; $('dr-f').innerHTML = foot;
+  $('drawer').classList.add('on'); $('dr-scrim').classList.add('on');
+  setTimeout(function(){ var f = $('dr-b').querySelector('input:not([disabled]),textarea,select'); if (f && window.innerWidth > 640) f.focus(); }, 320);
+}
+function closeDrawer(){ $('drawer').classList.remove('on'); $('dr-scrim').classList.remove('on'); }
+function options(map, sel, empty){
+  var h = empty !== undefined ? '<option value="">' + esc(empty) + '</option>' : '';
+  Object.keys(map).forEach(function(k){ h += '<option value="' + k + '"' + (k === sel ? ' selected' : '') + '>' + esc(typeof map[k] === 'string' ? map[k] : map[k].l) + '</option>'; });
+  return h;
+}
+
+function openTask(t, preset){
+  var isNew = !t;
+  t = t || Object.assign({ title:'', description:'', status:'todo', priority:'normal', department:me.department || '', assignee_email:me.email, due_date:'', related_type:'', related_label:'' }, preset || {});
+  var stat = {}; STATUSES.forEach(function(s){ stat[s.k] = s.l; });
+  var people = {}; team.filter(function(m){ return m.is_active; }).forEach(function(m){ people[m.email] = m.full_name + (m.email === me.email ? ' (moi)' : ''); });
+  if (me.owner && !people[me.email]) people[me.email] = me.full_name + ' (moi)';
+  var canDelete = !isNew && (can('tasks.view_all') || t.created_by_email === me.email);
+
+  var body =
+    '<label class="field"><span>Titre</span><input class="inp" id="f-title" maxlength="160" value="' + esc(t.title) + '" placeholder="Ex. Relancer les médecins sans KYC à Béjaïa"></label>' +
+    '<label class="field"><span>Description</span><textarea class="inp" id="f-desc" maxlength="4000" placeholder="Contexte, étapes, critère de fin…">' + esc(t.description || '') + '</textarea></label>' +
+    '<div class="row2"><label class="field"><span>Statut</span><select class="inp" id="f-status">' + options(stat, t.status) + '</select></label>' +
+    '<label class="field"><span>Priorité</span><select class="inp" id="f-prio">' + options(PRIORITIES, t.priority) + '</select></label></div>' +
+    '<div class="row2"><label class="field"><span>Département</span><select class="inp" id="f-dept">' + options(DEPTS, t.department || '', 'Aucun') + '</select></label>' +
+    '<label class="field"><span>Assignée à</span><select class="inp" id="f-assignee">' + options(people, t.assignee_email || '', 'Non assignée') + '</select></label></div>' +
+    '<div class="row2"><label class="field"><span>Échéance</span><input class="inp" type="date" id="f-due" value="' + esc(t.due_date || '') + '"></label>' +
+    '<label class="field"><span>Lié à</span><select class="inp" id="f-rtype">' + options(RELATED, t.related_type || '', 'Rien') + '</select></label></div>' +
+    '<label class="field" id="f-rlabel-wrap"' + (t.related_type ? '' : ' hidden') + '><span>Référence</span><input class="inp" id="f-rlabel" maxlength="160" value="' + esc(t.related_label || '') + '" placeholder="Ex. Dr Benali · Béjaïa, virement #4821"></label>' +
+    (isNew ? '' : '<div class="sep-t" style="margin-top:6px">Commentaires</div><div class="cmts" id="cmts"><div class="skel" style="height:48px"></div></div>' +
+      '<div style="display:flex;gap:8px;align-items:flex-end"><textarea class="inp" id="f-cmt" style="min-height:44px" maxlength="2000" placeholder="Ajouter un commentaire…"></textarea><button class="btn btn-s" id="f-cmt-send">Envoyer</button></div>' +
+      '<div class="card-sub">Créée par ' + esc(nameOf(t.created_by_email)) + ' · ' + esc(new Date(t.created_at).toLocaleDateString('fr-FR')) + (t.completed_at ? ' · terminée le ' + esc(new Date(t.completed_at).toLocaleDateString('fr-FR')) : '') + '</div>');
+  var foot = (canDelete ? '<button class="btn btn-d btn-sm" id="f-del">Supprimer</button>' : '') +
+    '<span style="flex:1"></span><button class="btn btn-g" id="f-cancel">Annuler</button><button class="btn btn-p" id="f-save">' + (isNew ? 'Créer la tâche' : 'Enregistrer') + '</button>';
+  openDrawer(isNew ? 'Nouvelle tâche' : 'Tâche', body, foot);
+
+  $('f-rtype').onchange = function(){ $('f-rlabel-wrap').hidden = !this.value; };
+  $('f-cancel').onclick = closeDrawer;
+  $('f-save').onclick = async function(){
+    var btn = this;
+    var payload = {
+      title: $('f-title').value.trim(), description: $('f-desc').value.trim() || null,
+      status: $('f-status').value, priority: $('f-prio').value,
+      department: $('f-dept').value || null, assignee_email: $('f-assignee').value || null,
+      due_date: $('f-due').value || null, related_type: $('f-rtype').value || null,
+      related_label: $('f-rtype').value ? ($('f-rlabel').value.trim() || null) : null
+    };
+    if (payload.title.length < 2){ toast('Donnez un titre à la tâche.', true); $('f-title').focus(); return; }
+    btn.disabled = true;
+    var r = isNew ? await sb.from('symphony_tasks').insert(payload).select().single()
+                  : await sb.from('symphony_tasks').update(payload).eq('id', t.id).select().single();
+    btn.disabled = false;
+    if (r.error){ toast(errMsg(r.error), true); return; }
+    closeDrawer();
+    toast(isNew ? 'Tâche créée' : 'Tâche enregistrée');
+    if (view === 'tasks') loadTasks(); else renderOverview();
+  };
+  if (canDelete) $('f-del').onclick = async function(){
+    var b = this;
+    if (b.dataset.confirm !== '1'){ b.dataset.confirm = '1'; b.textContent = 'Confirmer la suppression'; return; }
+    var r = await sb.from('symphony_tasks').delete().eq('id', t.id);
+    if (r.error){ toast(errMsg(r.error), true); return; }
+    closeDrawer(); toast('Tâche supprimée');
+    if (view === 'tasks') loadTasks(); else renderOverview();
+  };
+  if (!isNew){
+    loadComments(t.id);
+    $('f-cmt-send').onclick = async function(){
+      var txt = $('f-cmt').value.trim(); if (!txt) return;
+      this.disabled = true;
+      var r = await sb.from('symphony_task_comments').insert({ task_id:t.id, body:txt });
+      this.disabled = false;
+      if (r.error){ toast(errMsg(r.error), true); return; }
+      $('f-cmt').value = '';
+      commentCounts[t.id] = (commentCounts[t.id] || 0) + 1;
+      loadComments(t.id);
+    };
+  }
+}
+async function loadComments(taskId){
+  var r = await sb.from('symphony_task_comments').select('*').eq('task_id', taskId).order('created_at');
+  var el = $('cmts'); if (!el) return;
+  var rows = r.data || [];
+  el.innerHTML = rows.length ? rows.map(function(c){
+    return '<div class="cmt">' + avatar(c.author_email) + '<div class="cmt-b"><div class="cmt-a">' + esc(nameOf(c.author_email)) + '<span>' + esc(ago(c.created_at).replace('En ligne', 'À l’instant')) +
+      '</span></div><div class="cmt-x">' + esc(c.body) + '</div></div></div>';
+  }).join('') : '<div class="card-sub">Pas encore de commentaire.</div>';
+}
+
+/* ── Équipe ───────────────────────────────────────────────────── */
+function isOwnerEmail(e){ return OWNER_EMAILS.indexOf(String(e || '').toLowerCase()) !== -1; }
+function renderTeam(){
+  var active = team.filter(function(m){ return m.is_active; });
+  var online = active.filter(function(m){ return m.last_seen_at && Date.now() - new Date(m.last_seen_at) < 864e5; });
+  var depts = {}; active.forEach(function(m){ depts[m.department] = 1; });
+  var custom = active.filter(function(m){ return m.permissions && m.permissions.length; });
+  $('team-stats').innerHTML = [
+    ['Membres actifs', active.length], ['Connectés aujourd’hui', online.length],
+    ['Départements couverts', Object.keys(depts).length + ' / 8'], ['Accès personnalisés', custom.length]
+  ].map(function(k){ return '<div class="kpi"><div class="kpi-l">' + k[0] + '</div><div class="kpi-v num">' + k[1] + '</div></div>'; }).join('');
+
+  var list = teamFilter === 'active' ? active : team;
+  if (!list.length){
+    $('team-list').innerHTML = '<div class="card"><div class="empty"><strong>Aucun membre pour l’instant</strong>' +
+      (can('team.manage') ? 'Ajoutez votre première recrue : choisissez son département et son niveau, ses accès se configurent automatiquement.' : '') + '</div></div>';
+    return;
+  }
+  var manage = can('team.manage');
+  $('team-list').innerHTML = Object.keys(DEPTS).map(function(d){
+    var ms = list.filter(function(m){ return m.department === d; });
+    if (!ms.length) return '';
+    return '<div class="dept"><div class="dept-h"><span class="dept-t">' + esc(DEPTS[d]) + '</span><span class="dept-n">' + ms.length + '</span></div><div class="members">' +
+      ms.map(function(m){
+        var live = m.last_seen_at && Date.now() - new Date(m.last_seen_at) < 10 * 60e3;
+        var editable = manage && !isOwnerEmail(m.email) && (m.role !== 'super_admin' || me.owner);
+        var lvlChip = m.role === 'super_admin' ? 'chip-ok' : m.role === 'l3' ? 'chip-o' : m.role === 'l2' ? 'chip-p' : 'chip-n';
+        return '<div class="mem' + (m.is_active ? '' : ' off') + '"><div class="mem-av" style="background:' + colorOf(m.email) + '">' + esc(initials(m.full_name)) + (live ? '<span class="live" title="En ligne"></span>' : '') + '</div>' +
+          '<div class="mem-main"><div class="mem-n">' + esc(m.full_name) + '</div><div class="mem-t">' + esc(m.title || DEPTS[m.department]) + ' · ' + esc(m.email) + '</div>' +
+          '<div class="mem-chips"><span class="chip ' + lvlChip + '">' + esc(LEVEL_SHORT[m.role] || m.role) + '</span>' +
+          (m.permissions && m.permissions.length ? '<span class="chip chip-w">Accès personnalisés</span>' : '') +
+          (m.is_active ? '' : '<span class="chip chip-b">Désactivé</span>') + '<span class="chip chip-n">' + esc(m.employee_id || '') + '</span></div>' +
+          '<div class="mem-seen">' + esc(ago(m.last_seen_at)) + '</div></div>' +
+          (editable ? '<div class="mem-act"><button class="icon-btn" data-edit="' + esc(m.email) + '" title="Modifier le poste et les accès" aria-label="Modifier">' + ic('edit') + '</button>' +
+            '<button class="icon-btn" data-toggle="' + esc(m.email) + '" title="' + (m.is_active ? 'Désactiver' : 'Réactiver') + '" aria-label="' + (m.is_active ? 'Désactiver' : 'Réactiver') + '">' + ic('power') + '</button></div>' : '') +
+          '</div>';
+      }).join('') + '</div></div>';
+  }).join('');
+
+  $('team-list').querySelectorAll('[data-edit]').forEach(function(b){ b.onclick = function(){ openMember(memberByEmail(b.dataset.edit)); }; });
+  $('team-list').querySelectorAll('[data-toggle]').forEach(function(b){ b.onclick = function(){ toggleMember(memberByEmail(b.dataset.toggle), b); }; });
+}
+
+async function toggleMember(m, btn){
+  if (!m) return;
+  if (m.is_active && btn.dataset.confirm !== '1'){
+    btn.dataset.confirm = '1'; btn.style.color = '#F04438'; btn.title = 'Cliquez à nouveau pour désactiver ' + m.full_name;
+    toast('Cliquez à nouveau pour désactiver ' + m.full_name + ' : il perdra l’accès à Symphony.');
+    setTimeout(function(){ btn.dataset.confirm = ''; btn.style.color = ''; }, 4000);
+    return;
+  }
+  var r = await sb.rpc('symphony_set_member_active', { p_email:m.email, p_active:!m.is_active });
+  if (r.error){ toast(errMsg(r.error), true); return; }
+  toast(m.is_active ? m.full_name + ' n’a plus accès à Symphony' : m.full_name + ' a de nouveau accès');
+  await loadTeam(); renderTeam();
+}
+
+function openMember(m){
+  var isNew = !m;
+  m = m || { email:'', full_name:'', title:'', department:'customer_success', role:'l1', permissions:null };
+  var levels = {}; Object.keys(LEVELS).forEach(function(k){ if (k !== 'super_admin' || me.owner) levels[k] = LEVELS[k]; });
+  var custom = !!(m.permissions && m.permissions.length);
+  var body =
+    '<label class="field"><span>Email professionnel</span><input class="inp" type="email" id="m-email" value="' + esc(m.email) + '"' + (isNew ? '' : ' disabled') + ' placeholder="prenom@docline.health" autocomplete="off"></label>' +
+    '<div class="row2"><label class="field"><span>Nom complet</span><input class="inp" id="m-name" maxlength="80" value="' + esc(m.full_name) + '" placeholder="Prénom Nom"></label>' +
+    '<label class="field"><span>Poste</span><input class="inp" id="m-title" maxlength="80" value="' + esc(m.title || '') + '" placeholder="Ex. Chargée de succès client"></label></div>' +
+    '<div class="row2"><label class="field"><span>Département</span><select class="inp" id="m-dept">' + options(DEPTS, m.department) + '</select></label>' +
+    '<label class="field"><span>Niveau</span><select class="inp" id="m-role">' + options(levels, m.role) + '</select></label></div>' +
+    '<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="sep-t">Accès</div>' +
+    '<label style="margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;cursor:pointer"><input type="checkbox" id="m-custom"' + (custom ? ' checked' : '') + ' style="accent-color:var(--p)"> Personnaliser</label></div>' +
+    '<div class="card-sub" id="m-perm-hint" style="margin-bottom:10px"></div><div class="perm-grid" id="m-perms"></div></div>' +
+    (isNew ? '<div class="note">' + ic('info') + '<div>Pour se connecter, la personne a besoin d’un compte avec <b>cet email</b>. Envoyez-lui une invitation depuis ' +
+      '<a href="https://supabase.com/dashboard/project/ferkzwzypmdtuypxribz/auth/users" target="_blank" rel="noopener">Supabase › Authentication › Users › Invite user</a>. À sa première connexion, elle arrive directement dans Symphony.</div></div>' : '');
+  var foot = '<span style="flex:1"></span><button class="btn btn-g" id="m-cancel">Annuler</button><button class="btn btn-p" id="m-save">' + (isNew ? 'Ajouter à l’équipe' : 'Enregistrer') + '</button>';
+  openDrawer(isNew ? 'Ajouter un membre' : 'Modifier ' + m.full_name, body, foot);
+
+  var current = custom ? m.permissions.slice() : null;
+  async function refreshPerms(){
+    var isCustom = $('m-custom').checked, dept = $('m-dept').value, role = $('m-role').value;
+    var preset = [];
+    if (role === 'super_admin') preset = ['*'];
+    else {
+      var r = await sb.rpc('symphony_default_perms', { p_dept:dept, p_level:role });
+      preset = r.data || [];
+    }
+    var selected = isCustom ? (current || preset.slice()) : preset;
+    if (isCustom && !current) current = preset.slice();
+    var all = preset.indexOf('*') !== -1;
+    $('m-perm-hint').textContent = all ? 'Super Admin : accès complet à tous les modules.'
+      : isCustom ? 'Accès personnalisés : cochez les modules autorisés pour cette personne.'
+      : 'Accès par défaut du poste « ' + DEPTS[dept] + ' · ' + LEVEL_SHORT[role] + ' ». Ils évoluent automatiquement si vous changez son poste.';
+    $('m-perms').innerHTML = PERMS.map(function(p){
+      var on = all || selected.indexOf(p.k) !== -1;
+      var locked = all || !isCustom;
+      return '<label class="perm' + (locked ? ' locked' : '') + '"><input type="checkbox" data-perm="' + p.k + '"' + (on ? ' checked' : '') + (locked ? ' disabled' : '') + '><span><b>' + esc(p.l) + '</b><small>' + esc(p.d) + '</small></span></label>';
+    }).join('');
+    $('m-perms').querySelectorAll('input[data-perm]').forEach(function(cb){
+      cb.onchange = function(){
+        current = current || [];
+        var k = cb.dataset.perm, i = current.indexOf(k);
+        if (cb.checked && i === -1) current.push(k);
+        if (!cb.checked && i !== -1) current.splice(i, 1);
+      };
+    });
+  }
+  $('m-dept').onchange = function(){ if (!$('m-custom').checked) current = null; refreshPerms(); };
+  $('m-role').onchange = function(){ if (!$('m-custom').checked) current = null; refreshPerms(); };
+  $('m-custom').onchange = function(){ if (!this.checked) current = null; refreshPerms(); };
+  refreshPerms();
+
+  $('m-cancel').onclick = closeDrawer;
+  $('m-save').onclick = async function(){
+    var email = $('m-email').value.trim().toLowerCase(), name = $('m-name').value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('Saisissez un email valide.', true); $('m-email').focus(); return; }
+    if (name.length < 2){ toast('Saisissez le nom complet.', true); $('m-name').focus(); return; }
+    var isCustom = $('m-custom').checked && $('m-role').value !== 'super_admin';
+    var perms = isCustom ? ['overview'].concat((current || []).filter(function(k){ return k !== 'overview'; })) : null;
+    this.disabled = true;
+    var r = await sb.rpc('symphony_save_member', {
+      p_email:email, p_full_name:name, p_department:$('m-dept').value, p_role:$('m-role').value,
+      p_title:$('m-title').value.trim() || null, p_permissions:perms
+    });
+    this.disabled = false;
+    if (r.error){ toast(errMsg(r.error), true); return; }
+    closeDrawer();
+    toast(isNew ? name + ' a rejoint l’équipe · ' + (r.data && r.data.employee_id || '') : 'Poste de ' + name + ' mis à jour');
+    await loadTeam(); renderTeam();
+  };
+}
+
+/* ── Demande marché ───────────────────────────────────────────── */
+async function loadDemand(){
+  $('d-rows').innerHTML = '<div style="padding:16px 18px"><div class="skel" style="height:36px;margin-bottom:8px"></div><div class="skel" style="height:36px;margin-bottom:8px"></div><div class="skel" style="height:36px"></div></div>';
+  var r = await sb.rpc('symphony_demand', { p_days:demandDays });
+  if (r.error){
+    demandRows = [];
+    $('d-kpis').innerHTML = '';
+    $('d-rows').innerHTML = '<div class="empty"><strong>Données indisponibles</strong>' + (/search_events/.test(r.error.message || '')
+      ? 'Exécutez d’abord la migration <code>20261006_search_insights.sql</code> pour enregistrer les recherches patients.' : esc(errMsg(r.error))) + '</div>';
+    return;
+  }
+  demandRows = r.data || [];
+  renderDemand();
+}
+function renderDemand(){
+  var rows = demandRows || [];
+  var total = rows.reduce(function(s, x){ return s + Number(x.searches); }, 0);
+  var gaps = rows.filter(function(x){ return Number(x.doctors) === 0 && x.wilaya !== '(non précisée)'; });
+  var wil = {}; rows.forEach(function(x){ if (x.wilaya !== '(non précisée)') wil[x.wilaya] = 1; });
+  $('d-kpis').innerHTML = [
+    ['Recherches · ' + demandDays + ' j', fmtN(total)],
+    ['Combinaisons sans médecin', fmtN(gaps.length)],
+    ['Wilayas où l’on cherche', fmtN(Object.keys(wil).length) + ' / 58']
+  ].map(function(k){ return '<div class="kpi"><div class="kpi-l">' + k[0] + '</div><div class="kpi-v num">' + k[1] + '</div></div>'; }).join('');
+
+  var list = demandOnlyGaps ? gaps : rows;
+  var max = list.reduce(function(m, x){ return Math.max(m, Number(x.searches)); }, 1);
+  $('d-rows').innerHTML = list.length ? list.slice(0, 150).map(function(x){
+    var gap = Number(x.doctors) === 0;
+    return '<div class="dem-row' + (gap ? ' gap' : '') + '"><div class="dem-spec">' + esc(x.specialty) + '</div><div class="dem-w">' + esc(x.wilaya) + '</div>' +
+      '<div class="dem-cnt"><span class="num" style="font-weight:800">' + fmtN(x.searches) + '</span><div class="dem-bar"><i style="width:' + Math.max(4, Math.round(100 * x.searches / max)) + '%"></i></div></div>' +
+      '<div class="dem-doc">' + (gap ? '<span class="chip chip-o">À recruter</span>' : '<span class="chip chip-ok">' + fmtN(x.doctors) + ' médecin' + (x.doctors > 1 ? 's' : '') + '</span>') + '</div></div>';
+  }).join('') : '<div class="empty"><strong>' + (demandOnlyGaps ? 'Aucune recherche sans médecin' : 'Aucune recherche sur la période') + '</strong>' +
+    (demandOnlyGaps ? 'Chaque recherche récente trouve au moins un médecin.' : 'Les recherches des patients apparaissent ici au fil de l’eau.') + '</div>';
+}
+
+boot().catch(function(e){ console.error(e); toast('Le QG n’a pas pu se charger. Rechargez la page.', true); });
+})();
+
+</script>
+</body>
+</html>

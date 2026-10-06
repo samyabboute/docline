@@ -624,6 +624,18 @@ var _supa = supabase.createClient(
   (typeof DOCLINE_CONFIG !== 'undefined' ? DOCLINE_CONFIG.SUPA_KEY : '') || ''
 );
 
+// Membre de l'équipe Docline (vérifié côté serveur) → QG Symphony, sinon redirection habituelle
+async function goAfterLogin(email){
+  var dest = getRedirectUrl(email);
+  if(!_returnUrl){
+    try{
+      var r = await _supa.rpc('symphony_is_staff');
+      if(r && r.data === true) dest = '/symphony-hq';
+    }catch(e){}
+  }
+  window.location.href = dest;
+}
+
 var _fails = 0, _lockUntil = 0;
 function isLocked(){ return Date.now() < _lockUntil; }
 function recordFail(){
@@ -643,7 +655,7 @@ function runLockCountdown(){
 // ── SESSION CHECK ─────────────────────────────────────────────
 (async function(){
   var s = await _supa.auth.getSession();
-  if(s.data.session){ window.location.href = getRedirectUrl(s.data.session.user.email); return; }
+  if(s.data.session){ goAfterLogin(s.data.session.user.email); return; }
 
   var h = window.location.hash;
   if(h.includes('access_token')){
@@ -651,11 +663,11 @@ function runLockCountdown(){
     var done = false;
     var sub = _supa.auth.onAuthStateChange(function(event, session){
       if(done) return;
-      if(event==='SIGNED_IN' && session){ done=true; sub.data.subscription.unsubscribe(); window.location.href = getRedirectUrl(session.user.email); }
+      if(event==='SIGNED_IN' && session){ done=true; sub.data.subscription.unsubscribe(); goAfterLogin(session.user.email); }
     });
     setTimeout(function(){
       if(done) return;
-      _supa.auth.getSession().then(function(r){ if(r.data.session){ done=true; window.location.href = getRedirectUrl(r.data.session.user.email); } });
+      _supa.auth.getSession().then(function(r){ if(r.data.session){ done=true; goAfterLogin(r.data.session.user.email); } });
     }, 4000);
     return;
   }
@@ -711,7 +723,7 @@ async function signIn(){
     var r = await _supa.auth.signInWithPassword({email, password:pw});
     if(r.error) throw r.error;
     _fails = 0;
-    window.location.href = getRedirectUrl(email);
+    goAfterLogin(email);
   }catch(e){
     var msg = e.message || 'Échec de la connexion.';
     if(msg.includes('Invalid login')){ msg = 'Email ou mot de passe incorrect.'; recordFail(); }

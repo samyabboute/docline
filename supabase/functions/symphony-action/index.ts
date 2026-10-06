@@ -167,8 +167,7 @@ serve(async (req) => {
     if (action === "delete_user") {
       if (!targetId) throw new Error("targetId required");
 
-      // 1. Delete all related data
-      await admin.from("symphony_audit_log").delete().eq("target_id", targetId);
+      // 1. Delete related data (symphony_audit_log is kept: the audit trail must survive the deletion)
       await admin.from("kyc_audit_log").delete().eq("doctor_id", targetId);
       await admin.from("subscriptions").delete().eq("user_id", targetId);
       await admin.from("profiles").delete().eq("id", targetId);
