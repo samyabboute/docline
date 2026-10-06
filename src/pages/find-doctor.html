@@ -851,6 +851,295 @@ button,input,select,textarea{font-family:inherit}
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
 <link rel="stylesheet" href="premium.css">
+<style id="docline-wow">
+/* Couche d'effets — identité Docline : Inter, blanc/lavande, violet #4C1D95 + orange #EA580C.
+   Mouvements sobres : pas de rebond, pas de rotation, durées courtes. */
+@property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+:root{
+  --teal:#EA580C;--teal-light:#FFF4ED;--teal-glow:rgba(234,88,12,.12);
+  --ease-out:cubic-bezier(.22,1,.36,1);
+}
+
+/* ── HERO : halos, grille de points, lumière qui suit la souris ── */
+@media(min-width:641px){
+  .hero{
+    background:
+      radial-gradient(520px circle at var(--mx,72%) var(--my,28%),rgba(139,92,246,.09),transparent 62%),
+      linear-gradient(135deg,#F7F6FF 0%,#FFFFFF 55%,#F7F6FF 100%)}
+}
+.hero::before{
+  top:-180px;right:auto;left:50%;width:900px;height:620px;margin-left:-450px;
+  background:radial-gradient(ellipse,rgba(139,92,246,.14) 0%,rgba(109,40,217,.05) 45%,transparent 70%);
+  animation:wowOrb 14s ease-in-out infinite}
+.hero::after{
+  bottom:-120px;left:auto;right:4%;width:520px;height:420px;
+  background:radial-gradient(ellipse,rgba(234,88,12,.08) 0%,transparent 70%);
+  animation:wowOrb 16s ease-in-out 3s infinite}
+@keyframes wowOrb{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(1.06)}}
+
+.hero-fx{position:absolute;inset:0;pointer-events:none;z-index:0}
+.hero-dots{
+  position:absolute;inset:0;
+  background-image:radial-gradient(rgba(76,29,149,.11) 1px,transparent 1.2px);
+  background-size:24px 24px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000 10%,transparent 70%);
+          mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000 10%,transparent 70%)}
+
+/* Cartes en verre autour du titre (grand écran uniquement) */
+.float-chip{
+  position:absolute;display:none;align-items:center;gap:10px;
+  padding:10px 14px 10px 10px;border-radius:14px;
+  background:rgba(255,255,255,.78);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);
+  border:1px solid rgba(255,255,255,.95);
+  box-shadow:0 16px 40px rgba(76,29,149,.10),0 1px 3px rgba(13,5,32,.06);
+  font-size:.78rem;color:var(--text-1);white-space:nowrap;will-change:transform}
+.float-chip strong{display:block;font-weight:700;font-size:.8rem;letter-spacing:-.01em}
+.float-chip span{display:block;font-weight:500;color:var(--text-3);font-size:.72rem;margin-top:2px}
+.fc-ic{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fc-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fc-ic.o{background:#FFF4ED;color:#EA580C}
+.fc-ic.g{background:#ECFDF5;color:#059669}
+.fc-live{width:8px;height:8px;border-radius:50%;background:#10B981;flex-shrink:0;animation:wowRing 2.4s ease-out infinite}
+@keyframes wowRing{0%{box-shadow:0 0 0 0 rgba(16,185,129,.4)}100%{box-shadow:0 0 0 8px rgba(16,185,129,0)}}
+.fc-inner{display:flex;align-items:center;gap:10px;animation:wowBob 8s ease-in-out infinite}
+.fc-2 .fc-inner{animation-delay:-2s}.fc-3 .fc-inner{animation-delay:-4s}.fc-4 .fc-inner{animation-delay:-6s}
+@keyframes wowBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.fc-1{top:150px;left:max(24px,calc(50% - 640px))}
+.fc-2{top:118px;right:max(24px,calc(50% - 640px))}
+.fc-3{top:372px;left:max(16px,calc(50% - 690px))}
+.fc-4{top:392px;right:max(16px,calc(50% - 680px))}
+.fc-avatars{display:flex}
+.fc-avatars i{width:24px;height:24px;border-radius:50%;border:2px solid #fff;margin-left:-8px;
+  display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.6rem;font-weight:700;color:#fff}
+.fc-avatars i:first-child{margin-left:0}
+@media(min-width:1180px){.float-chip{display:flex;animation:wowChipIn .7s var(--ease-out) backwards}
+  .fc-1{animation-delay:.5s}.fc-2{animation-delay:.6s}.fc-3{animation-delay:.7s}.fc-4{animation-delay:.8s}}
+@keyframes wowChipIn{from{opacity:0;translate:0 10px}}
+
+/* ── TITRE ─────────────────────────────────────────────────────── */
+.hero-left{min-width:0}
+.hero-title{font-weight:900;letter-spacing:-.045em;line-height:1.06}
+@media(min-width:860px){.hero-title{font-size:clamp(2.75rem,4.8vw,4rem);max-width:760px}}
+#tw-text{
+  background:linear-gradient(120deg,#6D28D9 0%,#8B5CF6 45%,#F97316 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  padding-bottom:.08em}
+.hero-title .tw-cursor{color:#F97316;font-weight:400;margin-left:2px;-webkit-text-fill-color:#F97316}
+.hero-title .tw-word{display:inline-block;white-space:nowrap;color:var(--text-1)}
+.hero-title .tw-ch{color:inherit;display:inline-block;animation:wowChar .7s var(--ease-out) backwards;animation-delay:calc(var(--i) * 18ms + .1s)}
+@keyframes wowChar{from{opacity:0;transform:translateY(.3em);filter:blur(4px)}}
+.hero-sub{color:var(--text-3)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── BARRE DE RECHERCHE ────────────────────────────────────────── */
+.search-card{
+  border:1.5px solid transparent!important;
+  background:
+    linear-gradient(#fff,#fff) padding-box,
+    conic-gradient(from var(--ang),rgba(76,29,149,.14),rgba(139,92,246,.40),rgba(249,115,22,.36),rgba(76,29,149,.14) 70%) border-box;
+  box-shadow:0 14px 44px rgba(76,29,149,.11),0 2px 6px rgba(13,5,32,.04)!important;
+  animation:wowSpin 14s linear infinite;
+  transition:box-shadow .3s var(--ease-out)}
+.search-card:focus-within{
+  animation-duration:5s;
+  box-shadow:0 0 0 6px rgba(139,92,246,.10),0 20px 56px rgba(76,29,149,.18)!important}
+@keyframes wowSpin{to{--ang:360deg}}
+.sf-icon{transition:color .2s}
+.sf:focus-within .sf-icon{color:var(--p2)}
+.search-btn{background-color:var(--brand);
+  background-image:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.22) 50%,transparent 60%);
+  background-size:260% 100%;background-repeat:no-repeat;
+  animation:wowSweep 6s ease-in-out 2s infinite;
+  box-shadow:0 6px 20px rgba(76,29,149,.28),inset 0 1px 0 rgba(255,255,255,.16)}
+.search-btn:hover{background-color:var(--p2)}
+@keyframes wowSweep{0%{background-position:130% 0}35%,100%{background-position:-130% 0}}
+
+/* Retour tactile au clic, sans effet de rebond */
+.search-btn:active,.card-rdv-btn:active,.sg-item:active,.pill:active,.bm-opt:active{transform:scale(.98)!important;transition-duration:.08s}
+
+/* Icônes de fermeture en SVG */
+.sf-clear svg,.chip-x svg,.pwa-dismiss svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;display:block}
+.pwa-dismiss svg{width:12px;height:12px}
+
+/* Stats */
+.hero-stat-val{font-weight:900;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+@media(min-width:860px){.hero-stat-val{font-size:1.875rem}}
+
+/* ── CHOIX « TOUS / RÉSERVER EN LIGNE » ───────────────────────── */
+.search-sub{flex-direction:column;align-items:center;gap:10px}
+@media(max-width:859px){.search-sub{align-items:stretch}}
+.search-sub .rdv-label,.search-sub .search-hint{display:none!important}
+.book-mode{
+  position:relative;display:grid;grid-template-columns:1fr 1fr;
+  padding:4px;border-radius:999px;
+  background:#F1EFFB;border:1px solid rgba(76,29,149,.08);
+  box-shadow:inset 0 1px 2px rgba(13,5,32,.04)}
+.bm-glider{
+  position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:999px;
+  background:#fff;box-shadow:0 2px 10px rgba(76,29,149,.12),0 1px 2px rgba(13,5,32,.06);
+  transition:transform .4s var(--ease-out),background .3s,box-shadow .3s}
+.book-mode.is-rdv .bm-glider{
+  transform:translateX(100%);
+  background:linear-gradient(135deg,#4C1D95 0%,#6D28D9 100%);
+  box-shadow:0 6px 18px rgba(76,29,149,.30)}
+.bm-opt{
+  position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border:none;background:none;cursor:pointer;border-radius:999px;min-height:40px;
+  padding:9px 18px;font:600 .84rem/1 'Inter',sans-serif;color:var(--text-3);white-space:nowrap;
+  transition:color .25s}
+.bm-opt:hover{color:var(--text-1)}
+.bm-opt.is-on{color:var(--text-1);font-weight:700}
+.book-mode.is-rdv .bm-opt.is-on{color:#fff}
+.bm-opt:focus-visible{outline:2px solid var(--p3);outline-offset:2px}
+/* Option « Réserver en ligne » mise en avant, même quand elle n'est pas choisie */
+.bm-opt[data-rdv="1"]{color:var(--brand);font-weight:700}
+.bm-ic-box{width:24px;height:24px;border-radius:7px;flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#FFF4ED,#FFE4D2);box-shadow:inset 0 0 0 1px rgba(234,88,12,.15);
+  transition:background .3s,box-shadow .3s}
+.bm-ic{width:14px;height:14px;fill:none;stroke:#EA580C;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s}
+.book-mode.is-rdv .bm-opt.is-on .bm-ic-box{background:rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+.book-mode.is-rdv .bm-opt.is-on .bm-ic{stroke:#FDBA74}
+.book-mode:not(.is-rdv) .bm-opt[data-rdv="1"] .bm-txt{
+  background:linear-gradient(100deg,#4C1D95 0%,#4C1D95 38%,#EA580C 50%,#4C1D95 62%,#4C1D95 100%);
+  background-size:260% 100%;background-position:100% 0;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:bmShine 5s ease-in-out 1.5s infinite}
+@keyframes bmShine{0%{background-position:100% 0}45%,100%{background-position:0 0}}
+#bm-rdv{background:#FFF4ED;color:#C2410C}
+@media(hover:hover){
+  .book-mode:not(.is-rdv) .bm-opt[data-rdv="1"]:hover{background:rgba(255,255,255,.65)}
+  .book-mode:not(.is-rdv) .bm-opt[data-rdv="1"]:hover .bm-ic-box{box-shadow:inset 0 0 0 1px rgba(234,88,12,.35)}
+}
+.bm-count{
+  min-width:22px;padding:3px 7px;border-radius:999px;font-size:.7rem;font-weight:700;
+  background:rgba(76,29,149,.08);color:var(--p2);font-variant-numeric:tabular-nums}
+.bm-count:empty{display:none}
+.book-mode.is-rdv .bm-opt.is-on .bm-count{background:rgba(255,255,255,.18);color:#fff}
+.bm-help{display:block;text-align:center;font-size:.78rem;line-height:1.45;font-weight:500;color:var(--text-3);margin:0;min-height:18px}
+.bm-help svg{display:inline-block;vertical-align:-2px;margin-right:6px;width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bm-help.is-rdv{color:#047857}
+.bm-help.swap{animation:wowFade .3s var(--ease-out)}
+@keyframes wowFade{from{opacity:0}}
+
+/* ── SUGGESTIONS DE RECHERCHE ─────────────────────────────────── */
+.suggest{display:flex;align-items:center;justify-content:center;gap:12px;margin:22px auto 0;max-width:min(760px,100%);min-width:0}
+.suggest[hidden]{display:none}
+.sg-lbl{font-size:.75rem;font-weight:600;color:var(--text-4);white-space:nowrap;flex-shrink:0}
+.sg-list{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-width:0}
+.sg-item{
+  display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:999px;
+  border:1px solid rgba(13,5,32,.09);background:#fff;cursor:pointer;
+  font:600 .78rem/1 'Inter',sans-serif;color:var(--text-2);white-space:nowrap;
+  transition:border-color .2s,color .2s,background .2s,box-shadow .2s}
+.sg-item .sg-city{color:var(--text-4);font-weight:500}
+.sg-item svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.55;flex-shrink:0}
+.sg-item:focus-visible{outline:2px solid var(--p3);outline-offset:2px}
+@media(hover:hover){
+  .sg-item:hover{border-color:rgba(76,29,149,.3);color:var(--brand);background:#FAF9FF;box-shadow:0 2px 8px rgba(76,29,149,.08)}
+  .sg-item:hover .sg-city{color:var(--p3)}
+}
+
+.sg-item.is-near{border-color:rgba(234,88,12,.28);background:#FFF8F3;color:#C2410C}
+.sg-item.is-near svg{opacity:1}
+@media(hover:hover){
+  .sg-item.is-near:hover{border-color:rgba(234,88,12,.5);background:#FFF1E6;color:#9A3412}
+}
+.geo-note{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:.75rem;font-weight:500;color:var(--text-3)}
+.geo-note[hidden]{display:none}
+.geo-note svg{width:12px;height:12px;fill:none;stroke:#EA580C;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* ── SPÉCIALITÉS : plus rien de rogné, état actif sobre ───────── */
+.spec-label{margin-bottom:12px}
+.spec-grid{padding:6px 4px 18px;scroll-snap-type:x proximity;scroll-padding-left:4px}
+@media(min-width:900px){.spec-grid{overflow:visible}}
+.pill{scroll-snap-align:start;
+  transition:transform .25s var(--ease-out),box-shadow .25s,background .2s,border-color .2s,color .2s;
+  animation:wowPillIn .5s var(--ease-out) backwards}
+.pill:focus{outline:none}
+.pill:focus-visible{outline:2px solid var(--p3);outline-offset:3px}
+.pill .pill-ic{transition:background .2s,color .2s}
+@media(hover:hover){
+  .pill:hover:not(.active){transform:translateY(-2px);box-shadow:0 4px 10px rgba(13,5,32,.06)}
+}
+.pill.active{
+  transform:none;background:var(--pc-bg);border-color:var(--pc);color:var(--pc);
+  box-shadow:inset 0 0 0 1px var(--pc)}
+.pill.active .pill-ic{background:var(--pc);color:#fff}
+.pill:nth-child(2){animation-delay:.03s}.pill:nth-child(3){animation-delay:.06s}
+.pill:nth-child(4){animation-delay:.09s}.pill:nth-child(5){animation-delay:.12s}
+.pill:nth-child(6){animation-delay:.15s}.pill:nth-child(7){animation-delay:.18s}
+.pill:nth-child(8){animation-delay:.21s}.pill:nth-child(9){animation-delay:.24s}
+.pill:nth-child(10){animation-delay:.27s}.pill:nth-child(11){animation-delay:.3s}
+.pill:nth-child(12){animation-delay:.33s}
+@keyframes wowPillIn{from{opacity:0;transform:translateY(8px)}}
+
+/* ── CARTES MÉDECINS : inclinaison légère + lumière sous la souris ── */
+.doctor-card{position:relative}
+.doctor-card.sr{animation:none;
+  transition:opacity .6s var(--ease-out),transform .6s var(--ease-out),box-shadow .3s,border-color .3s}
+.doctor-card::after{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(340px circle at var(--cx,50%) var(--cy,0%),rgba(139,92,246,.08),transparent 60%);
+  opacity:0;transition:opacity .3s}
+.doctor-card > *{position:relative;z-index:1}
+@media(hover:hover){
+  .doctor-card:hover::after{opacity:1}
+  .doctor-card:hover{box-shadow:0 20px 48px rgba(76,29,149,.13),0 3px 10px rgba(13,5,32,.05);border-color:rgba(109,40,217,.2)}
+}
+.avail-dot{animation:wowRingG 2.4s ease-out infinite}
+@keyframes wowRingG{0%{box-shadow:0 0 0 0 rgba(5,150,105,.45)}100%{box-shadow:0 0 0 6px rgba(5,150,105,0)}}
+
+/* ── MODE PROJECTEUR (ordinateur) ─────────────────────────────── */
+.focus-veil{position:fixed;inset:0;z-index:150;pointer-events:none;opacity:0;
+  background:rgba(247,246,255,.6);transition:opacity .3s var(--ease-out)}
+body.sfocus .focus-veil{opacity:1;pointer-events:auto}
+body.sfocus .hero{z-index:151}
+.hero-sub,.hero-stats,.suggest,.hero-fx .float-chip{transition:opacity .3s var(--ease-out)}
+body.sfocus .hero-sub,body.sfocus .hero-stats,body.sfocus .suggest,body.sfocus .float-chip{opacity:.35}
+
+/* ── PROGRESSION + COMPTEUR ───────────────────────────────────── */
+.wow-progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:260;pointer-events:none;
+  transform-origin:0 50%;transform:scaleX(0);
+  background:linear-gradient(90deg,#4C1D95,#8B5CF6 55%,#F97316)}
+#result-count.bump{animation:wowFlash .8s var(--ease-out)}
+@keyframes wowFlash{0%{color:#EA580C}}
+
+/* ── MOBILE ───────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .nav-cta{white-space:nowrap;padding:8px 14px;font-size:.78rem}
+  .hero{padding-bottom:36px}
+  .hero-title{font-size:2rem;line-height:1.08}
+  .search-sub{margin-top:14px}
+  .bm-opt{padding:9px 10px;font-size:.8rem;gap:6px}
+  .bm-help{font-size:.75rem;padding:0 8px}
+  .suggest{flex-direction:column;align-items:stretch;gap:8px;margin-top:18px}
+  .sg-lbl{text-align:center}
+  .sg-list{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;
+    scroll-snap-type:x proximity;scroll-padding:0 16px;margin:0 -16px;padding:2px 16px 4px;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 16px,#000 calc(100% - 24px),transparent);
+            mask-image:linear-gradient(90deg,transparent,#000 16px,#000 calc(100% - 24px),transparent)}
+  .sg-list::-webkit-scrollbar{display:none}
+  .sg-item{flex-shrink:0;height:36px;scroll-snap-align:start}
+  .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:22px;text-align:center}
+  .hero-stat-val{font-size:1.25rem}
+  .hero-stat-lbl{font-size:.6rem;letter-spacing:.04em}
+  .spec-grid{gap:8px}
+  .pill{min-width:84px;padding:12px 12px}
+}
+@media(max-width:380px){
+  .bm-count{display:none}
+  .bm-opt{font-size:.76rem}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero::before,.hero::after,.fc-inner,.fc-live,.search-card,.search-btn,.pill,.avail-dot,.float-chip,
+  .hero-title .tw-ch,#result-count.bump,.bm-help.swap,.bm-txt{animation:none!important}
+  .bm-glider{transition:none}
+}
+</style>
 </head>
 <body>
 
@@ -899,7 +1188,7 @@ button,input,select,textarea{font-family:inherit}
       </span>
     </div>
     <button class="pwa-install-btn" id="pwa-install-btn" onclick="installPWA()">Installer</button>
-    <button class="pwa-dismiss" onclick="dismissPWA()" title="Fermer">✕</button>
+    <button class="pwa-dismiss" onclick="dismissPWA()" title="Fermer" aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
   </div>
 </div>
 
@@ -922,14 +1211,33 @@ button,input,select,textarea{font-family:inherit}
 
 <!-- ══ HERO (LIGHT, TWO-COLUMN) ══════════════════════════════ -->
 <section class="hero">
+  <div class="hero-fx" aria-hidden="true">
+    <div class="hero-dots"></div>
+    <div class="float-chip fc-1" data-depth="18"><div class="fc-inner">
+      <div class="fc-ic g"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div><strong>RDV confirmé</strong><span>Demain · 10:30</span></div>
+    </div></div>
+    <div class="float-chip fc-2" data-depth="26"><div class="fc-inner">
+      <span class="fc-live"></span>
+      <div><strong>Disponible aujourd'hui</strong><span>Cardiologie · Tizi-Ouzou</span></div>
+    </div></div>
+    <div class="float-chip fc-3" data-depth="12"><div class="fc-inner">
+      <div class="fc-ic o"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <div><strong>Réservé en 30 s</strong><span>Sans appel, sans attente</span></div>
+    </div></div>
+    <div class="float-chip fc-4" data-depth="22"><div class="fc-inner">
+      <div class="fc-avatars"><i style="background:#6D28D9">A</i><i style="background:#EA580C">K</i><i style="background:#059669">S</i></div>
+      <div><strong>Alger, Oran, Béjaïa…</strong><span>Partout en Algérie</span></div>
+    </div></div>
+  </div>
   <div class="hero-inner">
 
     <!-- Left: text + search -->
     <div class="hero-left">
 
       <h1 class="hero-title rv">
-        Trouvez votre médecin<br>
-        <span id="tw-text">en Algérie</span><span class="tw-cursor" aria-hidden="true">|</span>
+        Trouvez votre<br>
+        <span id="tw-text">médecin</span><span class="tw-cursor" aria-hidden="true">|</span>
       </h1>
       <p class="hero-sub rv d1">Prenez rendez-vous en ligne avec les meilleurs spécialistes, sans attente.</p>
 
@@ -942,7 +1250,7 @@ button,input,select,textarea{font-family:inherit}
           </div>
           <input type="text" id="s-smart" placeholder="Médecin, spécialité…" autocomplete="off"
             style="flex:1;border:none;outline:none;font-family:'Inter',sans-serif;font-size:.875rem;background:transparent;color:var(--text-1);min-width:0">
-          <button class="sf-clear" id="sf-clear" title="Effacer" onclick="clearSmart()">×</button>
+          <button class="sf-clear" id="sf-clear" title="Effacer" onclick="clearSmart()" aria-label="Effacer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
         </div>
         <!-- Ville (recherche city + wilaya) -->
         <div class="sf sf-ville" id="sf-ville-wrap">
@@ -950,7 +1258,7 @@ button,input,select,textarea{font-family:inherit}
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
           <input type="text" id="s-ville" placeholder="Ville, wilaya…" autocomplete="off">
-          <button class="sf-clear" id="sv-clear" title="Effacer la ville" onclick="clearVille()" style="display:none">×</button>
+          <button class="sf-clear" id="sv-clear" title="Effacer la ville" onclick="clearVille()" style="display:none" aria-label="Effacer la ville"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
           <button class="geo-btn" id="geo-btn" onclick="geoSearch()" title="Utiliser ma position">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 2" opacity=".4"/></svg>
           </button>
@@ -965,6 +1273,20 @@ button,input,select,textarea{font-family:inherit}
       </div>
       <!-- Sub-row: toggle RDV -->
       <div class="search-sub">
+        <div class="book-mode" id="book-mode" role="radiogroup" aria-label="Quels médecins afficher">
+          <span class="bm-glider" aria-hidden="true"></span>
+          <button type="button" class="bm-opt is-on" role="radio" aria-checked="true" data-rdv="0">
+            Tous les médecins <span class="bm-count" id="bm-all"></span>
+          </button>
+          <button type="button" class="bm-opt" role="radio" aria-checked="false" data-rdv="1">
+            <span class="bm-ic-box" aria-hidden="true"><svg class="bm-ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></span>
+            <span class="bm-txt">Réserver en ligne</span> <span class="bm-count" id="bm-rdv"></span>
+          </button>
+        </div>
+        <p class="bm-help" id="bm-help" aria-live="polite">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>Affiche aussi les médecins qui prennent RDV par téléphone.</span>
+        </p>
         <label class="rdv-label">
           <button class="toggle-track" id="rdv-toggle" onclick="toggleRdv()" type="button" aria-label="Filtrer RDV en ligne">
             <div class="toggle-thumb"></div>
@@ -972,6 +1294,12 @@ button,input,select,textarea{font-family:inherit}
           RDV en ligne
         </label>
         <span class="search-hint">Les résultats se mettent à jour en temps réel</span>
+      </div>
+
+      <!-- Suggestions : recherches récentes du patient + recherches fréquentes réelles -->
+      <div class="suggest" id="suggest" hidden>
+        <span class="sg-lbl" id="sg-lbl">Suggestions</span>
+        <div class="sg-list" id="sg-list"></div>
       </div>
 
 
@@ -1880,11 +2208,11 @@ function renderChips(){
   var vil   = document.getElementById('s-ville').value.trim();
   if(smart) chips.push({label:smart, clear:function(){clearSmart();}});
   if(vil)   chips.push({label:'Lieu : '+vil, clear:function(){document.getElementById('s-ville').value='';doSearch();}});
-  if(_rdvOnly) chips.push({label:'RDV en ligne', clear:function(){_rdvOnly=false;document.getElementById('rdv-toggle').classList.remove('on');doSearch();}});
+  if(_rdvOnly) chips.push({label:'RDV en ligne', clear:function(){toggleRdv();}});
   if(!chips.length){ bar.innerHTML=''; return; }
   bar.innerHTML = chips.map(function(c,i){
     return '<span class="f-chip" id="chip-'+i+'">'+c.label
-      +'<button class="chip-x" aria-label="Supprimer">×</button></span>';
+      +'<button class="chip-x" aria-label="Supprimer"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M18 6 6 18M6 6l12 12\"/></svg></button></span>';
   }).join('')+(chips.length>1?'<button class="chip-clear" onclick="resetSearch()">Tout effacer</button>':'');
   chips.forEach(function(c,i){
     var x = bar.querySelector('#chip-'+i+' .chip-x');
@@ -2003,7 +2331,7 @@ function renderCards(docs){
       +'<div>'
       +'<div class="card-price-val">'+price+'</div>'
       +'<div class="card-price-lbl">Consultation</div>'
-      +(d.accepts_rdv?'<div class="avail-badge" style="margin-top:6px"><span class="avail-dot"></span>Disponible</div>':'')
+      +(d.accepts_rdv?'<div class="avail-badge" style="margin-top:6px"><span class="avail-dot"></span>RDV en ligne</div>':'')
       +(langs?'<div class="card-languages" style="margin-top:5px">'+langs+'</div>':'')
       +'</div>'
       // RDV button
@@ -2387,9 +2715,8 @@ renderCards = function(docs){
 /* ── Typewriter hero animation ───────────────────────────── */
 (function(){
   var phrases = [
-    'en Algérie','à Tizi-Ouzou','Dentiste','à Azazga',
-    'Cardiologue','à Fréha','Pédiatre','à Alger',
-    'Dermatologue','à Béjaïa','Ophtalmologue','en Algérie'
+    'médecin','cardiologue','pédiatre','dentiste','gynécologue',
+    'dermatologue','ophtalmologue','généraliste','psychiatre'
   ];
   var el      = document.getElementById('tw-text');
   var idx     = 0;
@@ -2572,6 +2899,472 @@ if('serviceWorker' in navigator){
 (function(){
   var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('show');io.unobserve(x.target);}});},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
   document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+})();
+</script>
+<script>
+/* ── Effets Docline : parallaxe, spotlight, tilt, compteurs ── */
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine   = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  // Compteurs : animent la valeur dès que le JS de la page l'écrit
+  ['stat-docs','stat-wilayas'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el || reduce) return;
+    var busy = false;
+    new MutationObserver(function(){
+      if(busy) return;
+      var to = parseInt(el.textContent, 10);
+      if(!(to > 0)) return;
+      busy = true;
+      var t0 = performance.now(), dur = 1300;
+      (function step(now){
+        var p = Math.min((now - t0) / dur, 1);
+        el.textContent = Math.round((1 - Math.pow(1 - p, 4)) * to);
+        if(p < 1) requestAnimationFrame(step); else setTimeout(function(){ busy = false; }, 0);
+      })(t0);
+    }).observe(el, {childList:true, characterData:true, subtree:true});
+  });
+
+  if(reduce || !fine) return;
+
+  // Hero : spotlight + cartes flottantes en profondeur + titre
+  var hero  = document.querySelector('.hero');
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.float-chip'));
+  var title = document.querySelector('.hero-title');
+  if(hero){
+    var tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+    hero.addEventListener('mousemove', function(e){
+      var r = hero.getBoundingClientRect();
+      tx = (e.clientX - r.left) / r.width  - .5;
+      ty = (e.clientY - r.top)  / r.height - .5;
+      hero.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      if(!raf) raf = requestAnimationFrame(loop);
+    }, {passive:true});
+    hero.addEventListener('mouseleave', function(){ tx = 0; ty = 0; if(!raf) raf = requestAnimationFrame(loop); });
+    function loop(){
+      cx += (tx - cx) * .07; cy += (ty - cy) * .07;
+      chips.forEach(function(c){
+        var d = +c.dataset.depth || 15;
+        c.style.transform = 'translate3d(' + (cx * -d * 1.2).toFixed(2) + 'px,' + (cy * -d).toFixed(2) + 'px,0)';
+      });
+      if(title && title.classList.contains('show')){
+        title.style.transform = 'translate3d(' + (cx * -6).toFixed(2) + 'px,' + (cy * -4).toFixed(2) + 'px,0)';
+      }
+      if(Math.abs(tx - cx) > .001 || Math.abs(ty - cy) > .001) raf = requestAnimationFrame(loop);
+      else raf = null;
+    }
+  }
+
+  // Cartes médecins : tilt 3D + spotlight (délégation, les cartes sont injectées)
+  var grid = document.getElementById('cards-grid');
+  if(grid){
+    var current = null;
+    grid.addEventListener('mousemove', function(e){
+      var card = e.target.closest('.doctor-card');
+      if(current && current !== card) reset(current);
+      current = card;
+      if(!card) return;
+      var r = card.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+      card.style.setProperty('--cx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--cy', (e.clientY - r.top) + 'px');
+      card.style.transition = 'box-shadow .3s,border-color .3s';
+      card.style.transform = 'perspective(1000px) rotateX(' + (-y * 2.5).toFixed(2) + 'deg) rotateY(' + (x * 3).toFixed(2) + 'deg) translateY(-3px)';
+    }, {passive:true});
+    grid.addEventListener('mouseleave', function(){ if(current) reset(current); current = null; });
+    function reset(c){
+      c.style.transition = 'transform .6s cubic-bezier(.22,1,.36,1),box-shadow .3s,border-color .3s';
+      c.style.transform = '';
+    }
+  }
+})();
+
+/* ── UX : choix RDV, suggestions intelligentes, projecteur, titre ── */
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var desk   = window.matchMedia('(min-width: 860px)');
+  var smartInp = document.getElementById('s-smart');
+  var villeInp = document.getElementById('s-ville');
+
+  function scrollToResults(){
+    var hdr = document.getElementById('results-header');
+    var el  = (hdr && hdr.style.display !== 'none') ? hdr : document.querySelector('.cards-wrap');
+    if(!el) return;
+    window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - 84, behavior: reduce ? 'auto' : 'smooth'});
+  }
+
+  /* 1. Choix « Tous / Réserver en ligne » — pilote toggleRdv() existant */
+  var bm   = document.getElementById('book-mode');
+  var help = document.getElementById('bm-help');
+  var HELP = {
+    off: {ic:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
+          tx:'Affiche aussi les médecins qui prennent RDV par téléphone.'},
+    on:  {ic:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/>',
+          tx:'Vous choisissez un créneau, il est réservé. Pas besoin d’appeler.'}
+  };
+  function syncBM(){
+    if(!bm) return;
+    var on = !!window._rdvOnly;
+    bm.classList.toggle('is-rdv', on);
+    bm.querySelectorAll('.bm-opt').forEach(function(o){
+      var sel = (o.dataset.rdv === '1') === on;
+      o.classList.toggle('is-on', sel);
+      o.setAttribute('aria-checked', sel ? 'true' : 'false');
+    });
+    var h = on ? HELP.on : HELP.off;
+    help.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + h.ic + '</svg><span>' + h.tx + '</span>';
+    help.classList.toggle('is-rdv', on);
+    help.classList.remove('swap'); void help.offsetWidth; help.classList.add('swap');
+  }
+  if(bm){
+    bm.addEventListener('click', function(e){
+      var opt = e.target.closest('.bm-opt');
+      if(!opt) return;
+      if((opt.dataset.rdv === '1') !== !!window._rdvOnly) toggleRdv();
+    });
+    bm.addEventListener('keydown', function(e){
+      if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault(); toggleRdv();
+      bm.querySelector('.bm-opt.is-on').focus();
+    });
+  }
+  var _origToggle = toggleRdv;
+  toggleRdv = function(){ _origToggle.apply(this, arguments); syncBM(); };
+  var _origReset = resetSearch;
+  resetSearch = function(){ _origReset.apply(this, arguments); syncBM(); };
+
+  /* 2. Recherche intelligente
+        - localisation approximative du patient (wilaya, via Cloudflare, sans popup ni stockage)
+        - recherches récentes du patient (sur son appareil)
+        - recherches les plus fréquentes de tous les patients (Supabase, 30 derniers jours)
+        - à défaut : spécialité + ville où il y a le plus de médecins inscrits */
+  var SPEC_LABEL = {
+    'Médecine générale':'Généraliste','Cardiologie':'Cardiologue','Pédiatrie':'Pédiatre',
+    'Chirurgie dentaire':'Dentiste','Gynécologie-Obstétrique':'Gynécologue','Dermatologie':'Dermatologue',
+    'Ophtalmologie':'Ophtalmologue','Neurologie':'Neurologue','Psychiatrie':'Psychiatre','ORL':'ORL',
+    'Orthopédie':'Orthopédiste','Pneumologie':'Pneumologue','Gastro-entérologie':'Gastro-entérologue',
+    'Endocrinologie':'Endocrinologue','Urologie':'Urologue','Rhumatologie':'Rhumatologue',
+    'Oncologie':'Oncologue','Néphrologie':'Néphrologue','Radiologie':'Radiologue','Infectiologie':'Infectiologue'
+  };
+  var WILAYAS = ['Adrar','Chlef','Laghouat','Oum El Bouaghi','Batna','Béjaïa','Biskra','Béchar','Blida','Bouira',
+    'Tamanrasset','Tébessa','Tlemcen','Tiaret','Tizi Ouzou','Alger','Djelfa','Jijel','Sétif','Saïda',
+    'Skikda','Sidi Bel Abbès','Annaba','Guelma','Constantine','Médéa','Mostaganem','M\'Sila','Mascara','Ouargla',
+    'Oran','El Bayadh','Illizi','Bordj Bou Arréridj','Boumerdès','El Tarf','Tindouf','Tissemsilt','El Oued','Khenchela',
+    'Souk Ahras','Tipaza','Mila','Aïn Defla','Naâma','Aïn Témouchent','Ghardaïa','Relizane','Timimoun','Bordj Badji Mokhtar',
+    'Ouled Djellal','Béni Abbès','In Salah','In Guezzam','Touggourt','Djanet','El M\'Ghair','El Meniaa'];
+  function norm(v){
+    return (v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()
+      .replace(/[-'’]/g,' ').replace(/\s+/g,' ').trim();
+  }
+  var specMap = {};
+  function addSpec(name){ if(name){ specMap[norm(name)] = name; if(SPEC_LABEL[name]) specMap[norm(SPEC_LABEL[name])] = name; } }
+  Object.keys(SPEC_LABEL).forEach(addSpec);
+  if(window.SPEC_ICONS) Object.keys(SPEC_ICONS).forEach(addSpec);
+  document.querySelectorAll('.pill[data-sp]').forEach(function(p){ addSpec(p.dataset.sp); });
+
+  // Wilayas (58) + communes connues → wilaya. « Algiers » est le nom renvoyé en anglais par Cloudflare.
+  var wilayaMap = {'algiers':'Alger','el djazair':'Alger','tamanghasset':'Tamanrasset'};
+  WILAYAS.forEach(function(w){ wilayaMap[norm(w)] = w; });
+  var cityMap = {}, communeWilaya = {};
+  WILAYAS.forEach(function(w){ cityMap[norm(w)] = w; });
+  if(window.WILAYA_CITIES) Object.keys(WILAYA_CITIES).forEach(function(w){
+    var cw = wilayaMap[norm(w)] || w;
+    cityMap[norm(w)] = cw;
+    WILAYA_CITIES[w].forEach(function(c){ cityMap[norm(c)] = c; communeWilaya[norm(c)] = cw; });
+  });
+  function canonSpec(v){ return specMap[norm(v)] || null; }
+  function canonCity(v){
+    var n = norm(v);
+    if(!n) return null;
+    if(cityMap[n]) return cityMap[n];
+    var d = (window._allDoctors || []).find(function(x){ return norm(x.city) === n || norm(x.wilaya) === n; });
+    return d ? (norm(d.city) === n ? d.city : d.wilaya) : null;
+  }
+  function wilayaOf(place){
+    var n = norm(place).replace(/ (province|wilaya)$/, '');
+    if(!n) return null;
+    if(wilayaMap[n]) return wilayaMap[n];
+    if(communeWilaya[n]) return communeWilaya[n];
+    var d = (window._allDoctors || []).find(function(x){ return norm(x.city) === n; });
+    return d ? (wilayaMap[norm(d.wilaya)] || d.wilaya || null) : null;
+  }
+  function label(spec){ return SPEC_LABEL[spec] || spec; }
+
+  /* Localisation du patient */
+  var geo = null;
+  function doctorWilaya(d){ return wilayaMap[norm(d.wilaya)] || wilayaOf(d.city); }
+  function isLocal(d){ return !!geo && doctorWilaya(d) === geo.wilaya; }
+  function localCount(){ return geo ? (window._allDoctors || []).filter(isLocal).length : 0; }
+  function setGeo(d){
+    if(!d || d.country !== 'DZ') return;
+    var w = wilayaOf(d.region) || wilayaOf(d.city);
+    if(!w) return;
+    geo = {wilaya: w};
+    renderSuggest();
+    if((window._allDoctors || []).length && !villeInp.value.trim() && !smartInp.value.trim()) doSearch();
+  }
+  try {
+    var cached = sessionStorage.getItem('docline_geo');
+    if(cached){ setTimeout(function(){ setGeo(JSON.parse(cached)); }, 0); }
+    else {
+      fetch('/api/geo', {credentials:'omit'})
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(d){
+          if(!d) return;
+          try { sessionStorage.setItem('docline_geo', JSON.stringify(d)); } catch(e){}
+          setGeo(d);
+        })
+        .catch(function(){});
+    }
+  } catch(e){}
+
+  var RECENT_KEY = 'docline_recent_searches';
+  function readRecent(){
+    try { var a = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); return Array.isArray(a) ? a : []; }
+    catch(e){ return []; }
+  }
+  function saveRecent(s, c){
+    var list = readRecent().filter(function(x){ return !(x.s === s && (x.c||'') === (c||'')); });
+    list.unshift({s:s, c:c||''});
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 5))); } catch(e){}
+  }
+
+  // Enregistre la recherche une fois stable : spécialité reconnue uniquement, jamais un nom de médecin.
+  // Sans ville saisie, on rattache la recherche à la wilaya approximative du patient (aucune IP stockée).
+  var logged = {}, recTimer = null;
+  function recordSearch(){
+    var s = canonSpec(smartInp.value);
+    if(!s) return;
+    var c = canonCity(villeInp.value);
+    var w = c ? wilayaOf(c) : (geo ? geo.wilaya : null);
+    saveRecent(s, c);
+    var key = s + '|' + (c||'') + '|' + (w||'');
+    if(logged[key]) return;
+    logged[key] = true;
+    try { _supa.rpc('log_search', {p_specialty:s, p_city:c, p_wilaya:w}).then(function(){}, function(){}); } catch(e){}
+  }
+  function scheduleRecord(){ clearTimeout(recTimer); recTimer = setTimeout(recordSearch, 1500); }
+
+  /* Résultats : médecins de la wilaya du patient en premier (sauf ville saisie ou tri choisi) */
+  var userSorted = false;
+  var _origSort = sortResults;
+  sortResults = function(){ userSorted = true; return _origSort.apply(this, arguments); };
+  var _origSearch = doSearch;
+  doSearch = function(){ userSorted = false; _origSearch.apply(this, arguments); scheduleRecord(); revealActivePill(); };
+
+  var geoNote = document.createElement('span');
+  geoNote.className = 'geo-note'; geoNote.hidden = true;
+  var countBox = document.querySelector('.results-count');
+  if(countBox) countBox.appendChild(geoNote);
+  var _prevRender = renderCards;
+  renderCards = function(docs){
+    var localFirst = !!geo && !userSorted && !villeInp.value.trim() && docs.some(isLocal);
+    if(localFirst){
+      docs = docs.map(function(d, i){ return [d, i]; }).sort(function(a, b){
+        return ((b[0].featured?1:0) - (a[0].featured?1:0)) || ((isLocal(b[0])?1:0) - (isLocal(a[0])?1:0)) || (a[1] - b[1]);
+      }).map(function(x){ return x[0]; });
+    }
+    _prevRender.call(this, docs);
+    geoNote.hidden = !localFirst;
+    if(localFirst){
+      geoNote.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+      geoNote.appendChild(document.createTextNode('Médecins de ' + geo.wilaya + ' en premier'));
+    }
+  };
+
+  // Fait glisser la spécialité active dans le bandeau horizontal, sans faire défiler la page
+  function revealActivePill(){
+    var strip = document.getElementById('pills'), pill = strip && strip.querySelector('.pill.active');
+    if(!pill || strip.scrollWidth <= strip.clientWidth) return;
+    var sr = strip.getBoundingClientRect(), pr = pill.getBoundingClientRect();
+    var left = strip.scrollLeft + (pr.left - sr.left) - (sr.width - pr.width) / 2;
+    strip.scrollTo({left: Math.max(0, left), behavior: reduce ? 'auto' : 'smooth'});
+  }
+  smartInp.addEventListener('change', scheduleRecord);
+  villeInp.addEventListener('change', scheduleRecord);
+
+  /* Suggestions */
+  var box = document.getElementById('suggest'), list = document.getElementById('sg-list'), lbl = document.getElementById('sg-lbl');
+  var popular = null;
+  var ICON = {
+    recent:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    popular:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>',
+    near:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+  };
+
+  function fromDoctors(){
+    var counts = {}, wil = {};
+    (window._allDoctors || []).forEach(function(d){
+      var s = canonSpec(d.specialty); if(!s) return;
+      var c = d.city || d.wilaya || '';
+      if(!c) return;
+      var k = s + '|' + c;
+      counts[k] = (counts[k] || 0) + 1;
+      wil[k] = doctorWilaya(d);
+    });
+    return Object.keys(counts).sort(function(a,b){ return counts[b] - counts[a]; }).map(function(k){
+      var p = k.split('|'); return {s:p[0], c:p[1], w:wil[k]};
+    });
+  }
+  function renderSuggest(){
+    var items = [], seen = {}, hasLocal = !!geo && localCount() > 0;
+    function push(it, kind){
+      var k = it.s + '|' + (it.c||'');
+      if(seen[k] || items.length >= 6) return;
+      seen[k] = true; items.push({s:it.s, c:it.c||'', kind:kind});
+    }
+    if(hasLocal) items.push({kind:'nearAll', c:geo.wilaya});
+    readRecent().slice(0, 2).forEach(function(it){ if(canonSpec(it.s)) push(it, 'recent'); });
+    var pop = (popular || []).map(function(r){ return {s:canonSpec(r.specialty), c:r.place, w:r.wilaya}; })
+      .filter(function(r){ return r.s && r.c; });
+    var docs = fromDoctors();
+    if(geo){
+      pop.filter(function(r){ return r.w === geo.wilaya; }).forEach(function(r){ push(r, 'near'); });
+      docs.filter(function(r){ return r.w === geo.wilaya; }).forEach(function(r){ push(r, 'near'); });
+    }
+    pop.forEach(function(r){ push(r, 'popular'); });
+    docs.forEach(function(r){ push(r, 'doctors'); });
+
+    list.textContent = '';
+    items.forEach(function(it){
+      var b = document.createElement('button');
+      b.type = 'button';
+      if(it.kind === 'nearAll'){
+        b.className = 'sg-item is-near';
+        b.dataset.city = it.c; b.dataset.near = '1';
+        b.insertAdjacentHTML('beforeend', ICON.near);
+        var n = document.createElement('span'); n.textContent = 'Médecins autour de ' + it.c; b.appendChild(n);
+        list.appendChild(b);
+        return;
+      }
+      b.className = 'sg-item';
+      b.dataset.spec = it.s; b.dataset.city = it.c;
+      if(ICON[it.kind]) b.insertAdjacentHTML('beforeend', ICON[it.kind]);
+      if(it.kind === 'recent') b.title = 'Recherche récente';
+      var t = document.createElement('span'); t.textContent = label(it.s); b.appendChild(t);
+      if(it.c){ var c = document.createElement('span'); c.className = 'sg-city'; c.textContent = '· ' + it.c; b.appendChild(c); }
+      list.appendChild(b);
+    });
+    lbl.textContent = hasLocal ? 'Près de chez vous' : (pop.length ? 'Recherches fréquentes' : 'Suggestions');
+    box.hidden = !items.length;
+  }
+  list.addEventListener('click', function(e){
+    var b = e.target.closest('.sg-item');
+    if(!b) return;
+    if(b.dataset.spec){
+      smartInp.value = b.dataset.spec;
+      document.getElementById('sf-clear').classList.add('show');
+    }
+    if(b.dataset.city){
+      villeInp.value = b.dataset.city;
+      var sv = document.getElementById('sv-clear'); if(sv) sv.style.display = 'flex';
+    }
+    smartClose(); villeDropClose();
+    doSearch();
+    clearTimeout(recTimer); recordSearch();
+    renderSuggest();
+    setTimeout(scrollToResults, 60);
+  });
+  renderSuggest();
+  try {
+    _supa.rpc('popular_searches', {p_limit:12}).then(function(r){
+      if(r && !r.error && r.data && r.data.length){ popular = r.data; renderSuggest(); }
+    }, function(){});
+  } catch(e){}
+
+  // Compteurs du sélecteur + suggestions basées sur les médecins, dès que la liste est chargée
+  var statDocs = document.getElementById('stat-docs');
+  if(statDocs){
+    var filled = false;
+    new MutationObserver(function(){
+      if(filled) return;
+      var all = window._allDoctors || [];
+      if(!all.length) return;
+      filled = true;
+      document.getElementById('bm-all').textContent = all.length;
+      document.getElementById('bm-rdv').textContent = all.filter(function(d){ return d.accepts_rdv; }).length;
+      renderSuggest();
+      if(geo && !villeInp.value.trim() && !smartInp.value.trim()) doSearch();
+    }).observe(statDocs, {childList:true, characterData:true, subtree:true});
+  }
+
+  /* 3. Bouton Rechercher : ferme le projecteur et descend vers les résultats */
+  var sBtn = document.querySelector('.search-btn');
+  if(sBtn) sBtn.addEventListener('click', function(){
+    if(document.activeElement) document.activeElement.blur();
+    endFocus();
+    setTimeout(scrollToResults, 60);
+  });
+
+  /* 4. Mode projecteur sur la recherche (ordinateur) */
+  var card = document.querySelector('.search-card');
+  var veil = document.createElement('div');
+  veil.className = 'focus-veil'; veil.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(veil);
+  function endFocus(){ document.body.classList.remove('sfocus'); }
+  if(card){
+    card.addEventListener('focusin', function(){
+      if(desk.matches && window.scrollY < 400) document.body.classList.add('sfocus');
+    });
+    card.addEventListener('focusout', function(){
+      setTimeout(function(){ if(!card.contains(document.activeElement)) endFocus(); }, 0);
+    });
+  }
+  veil.addEventListener('click', function(){ if(document.activeElement) document.activeElement.blur(); endFocus(); });
+  window.addEventListener('scroll', function(){ if(window.scrollY > 120) endFocus(); }, {passive:true});
+  desk.addEventListener('change', function(){ if(!desk.matches) endFocus(); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && document.body.classList.contains('sfocus')){
+      if(document.activeElement) document.activeElement.blur(); endFocus();
+    }
+  });
+
+  /* 5. Titre qui apparaît lettre par lettre */
+  var h1 = document.querySelector('.hero-title');
+  if(h1 && !reduce){
+    var node = Array.prototype.find.call(h1.childNodes, function(n){ return n.nodeType === 3 && n.textContent.trim(); });
+    if(node){
+      var text = node.textContent.trim(), i = 0;
+      var wrap = document.createElement('span');
+      wrap.setAttribute('aria-hidden', 'true');
+      wrap.innerHTML = text.split(' ').map(function(w){
+        return '<span class="tw-word">' + w.split('').map(function(ch){
+          return '<span class="tw-ch" style="--i:' + (i++) + '">' + ch + '</span>';
+        }).join('') + '</span>';
+      }).join(' ');
+      var sr = document.createElement('span');
+      sr.className = 'sr-only'; sr.textContent = text;
+      h1.replaceChild(wrap, node);
+      h1.insertBefore(sr, wrap);
+    }
+  }
+
+  /* 6. Barre de progression de lecture */
+  var bar = document.createElement('div');
+  bar.className = 'wow-progress'; bar.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(bar);
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if(ticking) return; ticking = true;
+    requestAnimationFrame(function(){
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(window.scrollY / max, 1) : 0) + ')';
+      ticking = false;
+    });
+  }, {passive:true});
+
+  /* 7. Le nombre de résultats change de couleur un instant quand il change */
+  var rc = document.getElementById('result-count');
+  if(rc && !reduce){
+    var last = rc.textContent;
+    new MutationObserver(function(){
+      if(rc.textContent === last) return;
+      last = rc.textContent;
+      rc.classList.remove('bump'); void rc.offsetWidth; rc.classList.add('bump');
+    }).observe(rc, {childList:true, characterData:true, subtree:true});
+  }
 })();
 </script>
 </body>

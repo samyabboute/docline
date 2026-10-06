@@ -50,6 +50,15 @@ export default {
       return env.ASSETS.fetch(new URL('/dr.html', request.url).href);
     }
 
+    // Localisation approximative du visiteur (déduite de l'IP par Cloudflare), rien n'est stocké
+    if (path === '/api/geo') {
+      const cf = request.cf || {};
+      return Response.json(
+        { country: cf.country || null, region: cf.region || null, city: cf.city || null },
+        { headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
+
     // /sitemap.xml → Supabase
     if (path === '/sitemap.xml') {
       return fetch('https://ferkzwzypmdtuypxribz.supabase.co/functions/v1/sitemap');
