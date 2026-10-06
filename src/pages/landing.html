@@ -420,6 +420,60 @@ footer { background: var(--bg); border-top: 1px solid var(--border); padding: 56
 }
 /* GSAP char animation */
 .hero-h1 .char { display: inline-block; will-change: transform; transform-style: preserve-3d }
+
+/* ═══ RESPONSIVE MOBILE ═══ */
+.nav-login, .nav-cta, .btn-primary, .btn-secondary, .btn-white, .btn-ghost { white-space: nowrap }
+@media (max-width: 768px) {
+  .stats, .features, .how, .testi, .pricing, .cta-section { padding-top: 80px; padding-bottom: 80px }
+  .hero { min-height: auto; padding: 110px 20px 64px }
+  .hero-dash { margin-top: 48px }
+  .dash-3d, .hero-dash:hover .dash-3d { transform: none }
+}
+@media (max-width: 560px) {
+  nav { padding: 0 16px; height: 58px }
+  .logo img { height: 26px !important }
+  .nav-right { gap: 6px }
+  .nav-login { padding: 7px 12px; font-size: 13px }
+  .nav-cta { padding: 8px 14px; font-size: 13px; gap: 5px }
+
+  .hero { padding: 96px 16px 56px }
+  .announce-pill { margin-bottom: 24px; max-width: 100% }
+  .pill-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+  .hero-h1 { font-size: clamp(36px, 10.5vw, 46px); letter-spacing: -2px; line-height: 1.02; margin-bottom: 18px }
+  .hero-sub { font-size: 15px; margin-bottom: 30px }
+  .hero-ctas, .cta-btns { flex-direction: column; align-items: stretch; width: 100%; max-width: 360px; margin-left: auto; margin-right: auto }
+  .hero-ctas .btn-primary, .hero-ctas .btn-secondary, .cta-btns .btn-white, .cta-btns .btn-ghost { justify-content: center; padding: 15px 22px; font-size: 15px }
+  .hero-trust { margin-top: 28px; gap: 8px 16px }
+  .trust-sep { display: none }
+
+  .dash-body { grid-template-columns: 1fr 1fr }
+  .dkpi { padding: 14px 12px }
+  .dkpi-val { font-size: 22px }
+  .dqueue { padding: 12px }
+  .dq-time { display: none }
+  .chrome-url { font-size: 10px; overflow: hidden; white-space: nowrap }
+
+  .stats, .features, .how, .testi, .pricing, .cta-section { padding: 64px 16px }
+  .stats-inner { gap: 36px }
+  .scard { padding: 22px 16px }
+  .bento { margin-top: 36px }
+  .bcard { padding: 22px 18px }
+  .bcard-desc { max-width: none }
+  .steps { grid-template-columns: 1fr; gap: 22px; margin-top: 36px }
+  .step { display: grid; grid-template-columns: 48px 1fr; column-gap: 16px; align-items: start }
+  .step-n { margin-bottom: 0; grid-row: span 2 }
+  .testi-grid { margin-top: 36px }
+  .tcard { padding: 22px 18px }
+  .billing-toggle { margin: 20px auto 32px }
+  .btog { padding: 7px 14px }
+  .pcard { padding: 26px 20px }
+  .cta-h2 { letter-spacing: -1.5px }
+  footer { padding: 44px 16px 28px }
+  .footer-bottom { flex-direction: column; align-items: flex-start }
+}
+@media (max-width: 360px) {
+  .nav-login { display: none }
+}
 </style>
 <!-- Three.js + GSAP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>

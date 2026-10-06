@@ -385,6 +385,14 @@ button{font-family:inherit;cursor:pointer}
   .shell-page{padding:14px}
   .tb-ham{display:flex}
   .tb-search{display:none}
+  /* Tableaux : défilement horizontal dans leur cadre au lieu d'être coupés */
+  .shell-main table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .shell-main img,.shell-main video{max-width:100%;height:auto}
+  /* iOS zoome sur tout champ < 16px : on l'évite */
+  .shell-main input:not([type=checkbox]):not([type=radio]):not([type=range]),.shell-main select,.shell-main textarea{font-size:16px}
+  .page-header{margin-bottom:18px}
+  .page-title{font-size:20px}
+  .shell-toast-na{white-space:normal;max-width:calc(100% - 32px);text-align:center}
 }
 @media(min-width:769px){
   /* Auto-hide sidebar: smooth slide + grid collapse */

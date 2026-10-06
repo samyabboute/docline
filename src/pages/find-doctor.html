@@ -1127,6 +1127,9 @@ body.sfocus .hero-sub,body.sfocus .hero-stats,body.sfocus .suggest,body.sfocus .
   .hero-stat-val{font-size:1.25rem}
   .hero-stat-lbl{font-size:.6rem;letter-spacing:.04em}
   .spec-grid{gap:8px}
+  .spec-inner::after{right:-16px}
+  /* iOS zoome sur tout champ < 16px : on l'évite */
+  #s-smart,#s-ville,#sbar-ville,#sbar-spec,#modal input,#modal select,#modal textarea{font-size:16px!important}
   .pill{min-width:84px;padding:12px 12px}
 }
 @media(max-width:380px){
