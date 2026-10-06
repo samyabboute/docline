@@ -216,7 +216,7 @@
                 </div>
                 <div>
                   <div class="toggle-label">Profil visible publiquement</div>
-                  <div class="toggle-sub">Les patients peuvent me trouver sur la plateforme</div>
+                  <div class="toggle-sub">Activé automatiquement après la vérification de votre dossier. Vous pouvez vous masquer à tout moment.</div>
                 </div>
               </div>
               <label class="toggle"><input type="checkbox" id="t-public" onchange="updatePreview()"><span class="toggle-slider"></span></label>
@@ -668,6 +668,8 @@ window.saveProfile = async function() {
     consultation_price: parseInt(getVal('f-price')) || 0,
     bio:                getVal('f-bio')       || null,
     is_public:          _kycStatus === 'approved' ? document.getElementById('t-public').checked : false,
+    // Choix explicite du médecin : décoché = il ne veut pas apparaître (respecté par la base)
+    public_opt_out:     _kycStatus === 'approved' ? !document.getElementById('t-public').checked : undefined,
     accepts_rdv:        _kycStatus === 'approved' ? document.getElementById('t-rdv').checked   : false,
     updated_at:         new Date().toISOString(),
   };
