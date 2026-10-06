@@ -603,7 +603,7 @@ var _cityTags = [];
           return;
         }
         AdminSidebar.init('ads', session.user);
-        _sbRestoreState();
+        (typeof _sbRestoreState === 'function' ? _sbRestoreState() : document.addEventListener('DOMContentLoaded', function () { _sbRestoreState(); }));
         loadCampaigns();
         var startsEl = document.getElementById('m-starts-at');
         if (startsEl) startsEl.value = new Date().toISOString().slice(0, 10);
@@ -611,7 +611,7 @@ var _cityTags = [];
       .catch(function() {
         /* If admin_roles table doesn't exist, just init */
         AdminSidebar.init('ads', session.user);
-        _sbRestoreState();
+        (typeof _sbRestoreState === 'function' ? _sbRestoreState() : document.addEventListener('DOMContentLoaded', function () { _sbRestoreState(); }));
         loadCampaigns();
       });
   }).catch(function() {
@@ -639,7 +639,7 @@ function loadCampaigns() {
       renderStats();
       renderCampaigns();
     })
-    .catch(function(err) {
+    .then(null, function(err) {
       Toast.error('Erreur', err.message || 'Impossible de charger les campagnes.');
       renderCampaigns();
     });
@@ -1132,6 +1132,6 @@ function _sbRestoreState() {
   } catch(e) {}
 }
 </script>
-<script src="symphony-access.js?v=1" defer></script>
+<script src="symphony-access.js?v=2" defer></script>
 </body>
 </html>

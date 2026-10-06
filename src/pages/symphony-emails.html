@@ -574,7 +574,7 @@ async function init() {
   const sbEl = document.getElementById('admin-sidebar');
   if (sbEl) {
     sbEl.innerHTML = AdminSidebar.render('emails', session.user);
-    _sbRestoreState();
+    (typeof _sbRestoreState === 'function' ? _sbRestoreState() : document.addEventListener('DOMContentLoaded', function () { _sbRestoreState(); }));
     document.addEventListener('click', (e)=>{
       if(!document.getElementById('sb-user-btn')?.contains(e.target)&&!document.getElementById('sb-user-menu')?.contains(e.target)){
         const m=document.getElementById('sb-user-menu'); if(m) m.style.display='none'; AdminSidebar._menuOpen=false;
@@ -1132,6 +1132,6 @@ function _sbRestoreState() {
   } catch(e) {}
 }
 </script>
-<script src="symphony-access.js?v=1" defer></script>
+<script src="symphony-access.js?v=2" defer></script>
 </body>
 </html>

@@ -374,6 +374,7 @@
   <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
+<style id="css-vars-fallback">/* Variables utilisées par la page mais jamais définies */:root{--text-sm:.8125rem;--text-md:.9375rem;--text-base:.875rem;--shadow-xl:0 24px 64px rgba(13,5,32,.14);--t-slow:320ms cubic-bezier(.4,0,.2,1);--text-lg:1.0625rem}</style>
 </head>
 <body>
 <div class="toasts" id="toasts"></div>
@@ -746,7 +747,7 @@ let _users=[], _subs=[], _filtered=[], _selectedUser=null;
     if(!s) return;
 
     // Sidebar — ne doit jamais bloquer le reste
-    try { AdminSidebar.init('users', s.user); _sbRestoreState(); } catch(sErr) {
+    try { AdminSidebar.init('users', s.user); (typeof _sbRestoreState === 'function' ? _sbRestoreState() : document.addEventListener('DOMContentLoaded', function () { _sbRestoreState(); })); } catch(sErr) {
       console.error('[admin-users] sidebar error:', sErr);
     }
 
@@ -812,8 +813,8 @@ function renderKPIs(){
   const free = _subs.filter(s=>s.plan==='free');
   const can  = _subs.filter(s=>s.status==='canceled');
   const tw   = _users.filter(u=>new Date(u.created_at)>new Date(now-7*86400000));
-  const trial= _users.filter(u=>(u.trial_end||u.trial_ends_at) && new Date(u.trial_end||u.trial_ends_at)>new Date(now));
-  const trialExpired = _users.filter(u=>(u.trial_end||u.trial_ends_at) && new Date(u.trial_end||u.trial_ends_at)<=new Date(now));
+  const trial= _users.filter(u=>(u.trial_ends_at||u.trial_ends_at) && new Date(u.trial_ends_at||u.trial_ends_at)>new Date(now));
+  const trialExpired = _users.filter(u=>(u.trial_ends_at||u.trial_ends_at) && new Date(u.trial_ends_at||u.trial_ends_at)<=new Date(now));
   const active24h = _users.filter(u=>u.last_seen_at && new Date(u.last_seen_at)>new Date(now-86400000));
   const activeWeek = _users.filter(u=>u.last_seen_at && new Date(u.last_seen_at)>new Date(now-7*86400000));
   const kyc_pending = _users.filter(u=>u.kyc_status==='pending_review');
@@ -892,14 +893,14 @@ function renderTable(){
     const planClass = isEnt ? 'badge-brand' : isPro ? 'badge-brand' : isCan ? 'badge-danger' : 'badge-neutral';
 
     // Trial
-    const trialEnd = u.trial_end ? new Date(u.trial_end) : null;
+    const trialEnd = u.trial_ends_at ? new Date(u.trial_ends_at) : null;
     const onTrial  = trialEnd && trialEnd > new Date(now);
     const trialExpired = trialEnd && trialEnd <= new Date(now);
     const trialCell = onTrial
       ? `<span style="display:inline-flex;align-items:center;gap:4px;background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px">
-           <span style="width:6px;height:6px;border-radius:50%;background:#F97316;flex-shrink:0"></span>Essai · expire ${formatDate(u.trial_end)}</span>`
+           <span style="width:6px;height:6px;border-radius:50%;background:#F97316;flex-shrink:0"></span>Essai · expire ${formatDate(u.trial_ends_at)}</span>`
       : trialExpired
-        ? `<span style="font-size:10px;color:var(--text-faint)">Expiré ${formatDate(u.trial_end)}</span>`
+        ? `<span style="font-size:10px;color:var(--text-faint)">Expiré ${formatDate(u.trial_ends_at)}</span>`
         : `<button class="btn btn-xs btn-secondary" onclick="event.stopPropagation();grantTrial('${u.id}','${sanitize(u.email||u.id)}')" title="Donner 2 mois d'accès gratuit">+ Essai 2 mois</button>`;
 
     // Last seen
@@ -1090,18 +1091,18 @@ async function grantTrialByEmail() {
 
 function renderTrialList() {
   const now = Date.now();
-  const trialUsers = _users.filter(u => u.trial_end);
-  const active = trialUsers.filter(u => new Date(u.trial_end) > new Date(now));
+  const trialUsers = _users.filter(u => u.trial_ends_at);
+  const active = trialUsers.filter(u => new Date(u.trial_ends_at) > new Date(now));
   const el = document.getElementById('trial-counter');
   if (el) el.textContent = active.length + ' / 10 offerts';
   const list = document.getElementById('trial-list');
   if (!list) return;
   if (!trialUsers.length) { list.innerHTML = '<span style="font-size:.6875rem;color:var(--text-faint)">Aucun accès offert pour l\'instant.</span>'; return; }
   list.innerHTML = trialUsers.map(u => {
-    const isActive = new Date(u.trial_end) > new Date(now);
+    const isActive = new Date(u.trial_ends_at) > new Date(now);
     return `<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.6875rem;font-weight:600;background:${isActive?'#FFF7ED':'var(--bg-subtle)'};border:1px solid ${isActive?'#FED7AA':'var(--border)'};color:${isActive?'#C2410C':'var(--text-muted)'}">
       <span style="width:6px;height:6px;border-radius:50%;background:${isActive?'#F97316':'var(--text-faint)'}"></span>
-      ${sanitize(u.email)} — ${isActive?'expire '+formatDate(u.trial_end):'expiré'}
+      ${sanitize(u.email)} — ${isActive?'expire '+formatDate(u.trial_ends_at):'expiré'}
       ${isActive?`<button onclick="revokeTrial('${u.id}','${sanitize(u.email)}')" style="background:none;border:none;cursor:pointer;color:#F04438;font-size:11px;padding:0;margin-left:2px;font-family:inherit">&times;</button>`:''}
     </span>`;
   }).join('');
@@ -1122,7 +1123,6 @@ async function grantTrial(userId, email, months) {
     if (!resp.ok) throw new Error(data.error || 'Erreur activation');
     // Also mark trial_ends_at in profile
     await _supa.from('profiles').update({
-      trial_end: data.expires_at,
       trial_ends_at: data.expires_at,
       trial_granted_months: months
     }).eq('id', userId);
@@ -1135,7 +1135,7 @@ async function grantTrial(userId, email, months) {
 
 async function revokeTrial(userId, email) {
   if (!confirm(`Révoquer l'accès d'essai de ${email} ?`)) return;
-  await _supa.from('profiles').update({ trial_end: new Date(Date.now()-1000).toISOString() }).eq('id', userId);
+  await _supa.from('profiles').update({ trial_ends_at: new Date(Date.now()-1000).toISOString() }).eq('id', userId);
   await _supa.from('subscriptions').update({ plan: 'free', status: 'active' }).eq('user_id', userId);
   Toast.info('Accès révoqué', email);
   await load();
@@ -1377,37 +1377,34 @@ async function loadKyc() {
   loading.style.display = 'block'; wrap.style.display = 'none'; empty.style.display = 'none';
 
   const { data, error } = await _supa
-    .from('kyc_submissions')
-    .select('id,user_id,document_url,submitted_at,ai_score,ai_verdict,status,profiles(full_name,email)')
-    .eq('status', 'pending')
-    .order('submitted_at', { ascending: true });
+    .from('profiles')
+    .select('id,email,full_name,first_name,last_name,kyc_submitted_at,kyc_document_url')
+    .eq('kyc_status', 'pending_review')
+    .order('kyc_submitted_at', { ascending: true });
 
   loading.style.display = 'none';
   if (error || !data || !data.length) { empty.style.display = 'block'; return; }
 
   wrap.style.display = 'block';
   tbl.innerHTML = data.map(k => {
-    const name  = k.profiles?.full_name || '—';
-    const email = k.profiles?.email || k.user_id?.slice(0,8) + '…';
-    const date  = k.submitted_at ? new Date(k.submitted_at).toLocaleDateString('fr-FR') : '—';
-    const score = k.ai_score != null ? Math.round(k.ai_score * 100) + '%' : '—';
-    const verdict = k.ai_verdict || '—';
-    const docUrl = k.document_url ? `<a href="${k.document_url}" target="_blank" style="color:var(--brand);text-decoration:underline">Voir doc</a>` : '—';
+    const name  = k.full_name || ((k.first_name || '') + ' ' + (k.last_name || '')).trim() || '—';
+    const date  = k.kyc_submitted_at ? new Date(k.kyc_submitted_at).toLocaleDateString('fr-FR') : '—';
+    const docLink = k.kyc_document_url ? '<a href="/symphony-kyc" style="color:var(--brand);text-decoration:underline">Voir le dossier</a>' : '—';
     return `<tr>
-      <td><strong>${name}</strong></td>
-      <td style="color:var(--text-muted)">${email}</td>
-      <td>${docUrl}</td>
+      <td><strong>${sanitize(name)}</strong></td>
+      <td style="color:var(--text-muted)">${sanitize(k.email || '')}</td>
+      <td>${docLink}</td>
       <td>${date}</td>
-      <td><span style="font-weight:700;color:${k.ai_score>=0.8?'var(--success)':k.ai_score>=0.5?'var(--warning)':'var(--danger)'}">${score}</span> <span style="font-size:11px;color:var(--text-muted)">${verdict}</span></td>
+      <td><span style="font-size:11px;color:var(--text-muted)">À vérifier</span></td>
       <td style="display:flex;gap:6px">
-        <button class="btn btn-success btn-sm" onclick="kycAction('${k.id}','${k.user_id}','approve')">Approuver</button>
-        <button class="btn btn-danger btn-sm" onclick="kycAction('${k.id}','${k.user_id}','reject')">Rejeter</button>
+        <button class="btn btn-success btn-sm" onclick="kycAction('${k.id}','approve')">Approuver</button>
+        <button class="btn btn-danger btn-sm" onclick="kycAction('${k.id}','reject')">Rejeter</button>
       </td>
     </tr>`;
   }).join('');
 }
 
-async function kycAction(kycId, userId, action) {
+async function kycAction(userId, action) {
   const label = action === 'approve' ? 'approuver' : 'rejeter';
   if (!confirm(`Voulez-vous ${label} cette vérification KYC ?`)) return;
   try {
@@ -1415,7 +1412,7 @@ async function kycAction(kycId, userId, action) {
     const res = await fetch(EDGE_BASE + '/admin-kyc-action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-      body: JSON.stringify({ kyc_id: kycId, user_id: userId, action })
+      body: JSON.stringify({ doctorId: userId, action })
     });
     if (!res.ok) throw new Error(await res.text());
     Toast.success('KYC ' + (action === 'approve' ? 'approuvé' : 'rejeté'), 'Le statut a été mis à jour.');
@@ -1456,5 +1453,5 @@ function _sbRestoreState() {
 }
 </script>
 
-<script src="symphony-access.js?v=1" defer></script>
+<script src="symphony-access.js?v=2" defer></script>
 </body></html>

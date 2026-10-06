@@ -630,6 +630,7 @@ ul,ol{list-style:none}
   <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
+<style id="css-vars-fallback">/* Variables utilisées par la page mais jamais définies */:root{--brand-border:rgba(76,29,149,.2);--surface:#FFFFFF}</style>
 </head>
 <body>
 
@@ -1849,7 +1850,7 @@ async function init() {
   // Apply section visibility based on role
   applyRoleRestrictions();
 
-  _sbRestoreState();
+  (typeof _sbRestoreState === 'function' ? _sbRestoreState() : document.addEventListener('DOMContentLoaded', function () { _sbRestoreState(); }));
 
   // Load default section
   if (_adminRole === 'kyc_agent') {
@@ -2011,7 +2012,7 @@ async function loadDashboard() {
   try {
     // ══ GROUP 1: Users & KYC (all roles) ═════════════════════
     const { count: totalDoctors } = await _sb
-      .from('profiles').select('id', { count:'exact', head:true }).eq('role','doctor');
+      .from('profiles').select('id', { count:'exact', head:true });
 
     const { count: pendingCount } = await _sb
       .from('profiles').select('id', { count:'exact', head:true }).eq('kyc_status','pending_review');
@@ -2127,7 +2128,7 @@ async function loadDashboard() {
       try {
         const d30 = new Date(); d30.setDate(d30.getDate() - 30);
         const { count: aiCount } = await _sb
-          .from('audit_log').select('id', { count:'exact', head:true })
+          .from('kyc_audit_log').select('id', { count:'exact', head:true })
           .eq('action', 'ai_analysis')
           .gte('created_at', d30.toISOString());
         setEl('kpi-ai-requests', aiCount ?? '0');
@@ -2492,7 +2493,7 @@ async function openCrmPanel(profile) {
   if (isBlocked)  pills.push(`<span class="crm-pill crm-pill-blocked">Suspendu</span>`);
   if (profile.kyc_status === 'pending_review') pills.push(`<span class="crm-pill crm-pill-warn">KYC en attente</span>`);
   if (profile.kyc_status === 'approved')       pills.push(`<span class="crm-pill crm-pill-pro">KYC vérifié</span>`);
-  if (profile.trial_end && new Date(profile.trial_end) > new Date()) pills.push(`<span class="crm-pill crm-pill-info">Essai actif</span>`);
+  if (profile.trial_ends_at && new Date(profile.trial_ends_at) > new Date()) pills.push(`<span class="crm-pill crm-pill-info">Essai actif</span>`);
   document.getElementById('crm-status-row').innerHTML = pills.join('');
 
   // Block button label
@@ -2711,7 +2712,7 @@ async function crmExtendDeadline() {
     const newDate = new Date(Date.now() + 7 * 86400000).toISOString();
     await _sb.from('profiles').update({ payment_deadline: newDate, extension_count: (_crmDoctor.extension_count || 0) + 1 }).eq('id', _crmDoctor.id);
     if (_crmExtensionCount >= 1) {
-      await _sb.from('payment_requests').insert({ user_id: _crmDoctor.id, plan: 'pro', billing: 'monthly', amount: 500, method: 'penalty', status: 'pending', notes: 'Frais 2ème extension' }).catch(()=>{});
+      await _sb.from('payment_requests').insert({ user_id: _crmDoctor.id, plan: 'pro', billing: 'monthly', amount: 500, method: 'penalty', status: 'pending', notes: 'Frais 2ème extension' }).then(null, ()=>{});
     }
     _crmExtensionCount++;
     document.getElementById('crm-penalty-block').style.display = _crmExtensionCount >= 1 ? 'block' : 'none';
@@ -2739,6 +2740,12 @@ async function crmGrantCredit() {
   } catch(e) { showToast('error', 'Erreur', e.message); }
 }
 
+// Envoi d'email via la fonction serveur : lève une erreur lisible si l'envoi échoue
+async function _mailFetch(url, opts) {
+  const r = await fetch(url, opts);
+  if (!r.ok) { let m = ''; try { m = (await r.json()).error || ''; } catch (_) {} throw new Error('Email non envoyé' + (m ? ' : ' + m : '')); }
+  return r;
+}
 async function crmSendInvoice() {
   if (!_crmDoctor) return;
   if (!_crmDoctor.email) { showToast('error', 'Email manquant', 'Ce profil n\'a pas d\'adresse email.'); return; }
@@ -2746,7 +2753,7 @@ async function crmSendInvoice() {
   // In v1: simulate via email
   try {
     const session = (await _sb.auth.getSession()).data.session;
-    await fetch(SUPA_URL + '/functions/v1/send-email', {
+    await _mailFetch(SUPA_URL + '/functions/v1/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
       body: JSON.stringify({
@@ -2870,7 +2877,7 @@ async function crmSendSupportEmail() {
   if (!msg) return;
   try {
     const session = (await _sb.auth.getSession()).data.session;
-    await fetch(SUPA_URL + '/functions/v1/send-email', {
+    await _mailFetch(SUPA_URL + '/functions/v1/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
       body: JSON.stringify({ to: _crmDoctor.email, subject: 'Message de l\'équipe Docline', html: `<p>${msg.replace(/\n/g,'<br>')}</p>` })
@@ -4263,6 +4270,6 @@ function _sbRestoreState() {
   </div>
 </div>
 
-<script src="symphony-access.js?v=1" defer></script>
+<script src="symphony-access.js?v=2" defer></script>
 </body>
 </html>

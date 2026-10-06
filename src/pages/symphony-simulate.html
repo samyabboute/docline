@@ -383,8 +383,8 @@ function openCrm(){ window.open((typeof ghpNav==='function'?ghpNav('/symphony-cr
   const [docRes, subRes, rdvRes, patRes] = await Promise.all([
     _sb.from('profiles').select('*').eq('id', uid).single(),
     _sb.from('subscriptions').select('*').eq('user_id', uid).maybeSingle(),
-    _sb.from('appointments').select('*').eq('doctor_id', uid).order('start_time',{ascending:false}).limit(20),
-    _sb.from('patients').select('*').eq('doctor_id', uid).order('created_at',{ascending:false}).limit(10),
+    _sb.from('appointments').select('*').eq('doctor_id', uid).order('requested_date',{ascending:false}).limit(20),
+    _sb.from('clients').select('*').eq('user_id', uid).order('created_at',{ascending:false}).limit(10),
   ]);
 
   const doc = docRes.data;
@@ -422,7 +422,7 @@ function openCrm(){ window.open((typeof ghpNav==='function'?ghpNav('/symphony-cr
 
   // Plan banner
   const banner = document.getElementById('plan-banner');
-  const isTrial = doc.trial_end && new Date(doc.trial_end)>new Date();
+  const isTrial = doc.trial_ends_at && new Date(doc.trial_ends_at)>new Date();
   if(isPro && sub.payment_status==='paid'){
     banner.className='plan-banner pb-pro';
     document.getElementById('plan-title').textContent='Abonnement PRO PAYANT actif';
@@ -430,7 +430,7 @@ function openCrm(){ window.open((typeof ghpNav==='function'?ghpNav('/symphony-cr
   } else if(isTrial){
     banner.className='plan-banner pb-trial';
     document.getElementById('plan-title').textContent='Essai PRO gratuit en cours';
-    document.getElementById('plan-sub').textContent = `Expire le ${fmtDate(doc.trial_end)} · Aucune facturation`;
+    document.getElementById('plan-sub').textContent = `Expire le ${fmtDate(doc.trial_ends_at)} · Aucune facturation`;
   } else if(isPro){
     banner.className='plan-banner pb-trial';
     document.getElementById('plan-title').textContent='Plan PRO actif — paiement en attente';
@@ -678,6 +678,6 @@ async function generateNPS() {
   }
 }
 </script>
-<script src="symphony-access.js?v=1" defer></script>
+<script src="symphony-access.js?v=2" defer></script>
 </body>
 </html>

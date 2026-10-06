@@ -1535,8 +1535,8 @@ button{font-family:inherit;cursor:pointer}
             var email = sess.user.email || opts.userEmail || '';
             var numDoc = _tbFmtNum(uid);
             Promise.all([
-              _rdvClient.from('profiles').select('full_name,first_name,last_name').eq('id',uid).maybeSingle().catch(function(){return{data:null};}),
-              _rdvClient.from('subscriptions').select('plan,status,created_at,expires_at,interval').eq('user_id',uid).order('created_at',{ascending:false}).limit(1).maybeSingle().catch(function(){return{data:null};})
+              _rdvClient.from('profiles').select('full_name,first_name,last_name').eq('id',uid).maybeSingle().then(null, function(){return{data:null};}),
+              _rdvClient.from('subscriptions').select('plan,status,created_at,expires_at,interval').eq('user_id',uid).order('created_at',{ascending:false}).limit(1).maybeSingle().then(null, function(){return{data:null};})
             ]).then(function(res) {
               var pr = res[0].data; var sub = res[1].data;
               var name = opts.userName||email.split('@')[0]||'Médecin';

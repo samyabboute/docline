@@ -673,6 +673,25 @@ serve(async (req) => {
     return new Response(JSON.stringify({ error: "Specify payload.to or payload.broadcast:true" }), { status: 400, headers: CORS });
   }
 
+  // ── Email libre rédigé dans Symphony (CRM, hub) — réservé à l'équipe ──
+  // Accepte { type: "admin_custom", payload: { to, subject, html } } ou l'ancien format { to, subject, html }.
+  const custom = type === "admin_custom" ? payload : (!type && body?.subject && body?.html ? body : null);
+  if (custom) {
+    const { data: isStaff } = await supabase.rpc("symphony_is_staff");
+    if (isStaff !== true) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: CORS });
+    }
+    const to = String(custom.to ?? "").trim();
+    const subject = String(custom.subject ?? "").trim().slice(0, 200);
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to) || !subject || !custom.html) {
+      return new Response(JSON.stringify({ error: "to, subject et html requis" }), { status: 400, headers: CORS });
+    }
+    const html = buildBaseEmail(subject, String(custom.html));
+    ok = await sendEmail(to, subject, html);
+    await logEmail({ type: "admin_custom", to, subject, status: ok ? "sent" : "failed", triggeredBy: userEmail });
+    return new Response(JSON.stringify({ success: ok }), { status: ok ? 200 : 500, headers: { ...CORS, "Content-Type": "application/json" } });
+  }
+
   // ── Templates DB (welcome, trial_granted, etc.) ──────────────
   if (type === "welcome" && profile?.welcome_email_sent && !payload?.force) {
     return new Response(JSON.stringify({ success: true, skipped: true }), { status: 200, headers: { ...CORS, "Content-Type": "application/json" } });

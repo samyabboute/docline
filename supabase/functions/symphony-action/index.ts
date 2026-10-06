@@ -151,7 +151,7 @@ serve(async (req) => {
           target_email: targetEmail ?? null,
           details: { error: "wrong_employee_id", provided: employeeId },
           ip_address: req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for") ?? null,
-        }).catch(() => {});
+        }).then(null, () => {});
         return new Response(
           JSON.stringify({ error: "INVALID_EMPLOYEE_ID", message: "Numéro employé incorrect" }),
           { status: 403, headers: { ...CORS, "Content-Type": "application/json" } }
@@ -187,7 +187,7 @@ serve(async (req) => {
       const { email, fullName, department, role: newRole } = payload ?? {};
       if (!email || !fullName || !department) throw new Error("email, fullName, department requis");
       // Generate employee_id
-      const { data: empIdRow } = await admin.rpc("generate_employee_id").single().catch(() => ({ data: null }));
+      const { data: empIdRow } = await admin.rpc("generate_employee_id").single().then(null, () => ({ data: null }));
       const newEmpId = empIdRow ?? ("EMP-" + String(Date.now()).slice(-6));
       const { error: insertErr } = await admin.from("symphony_staff").insert({
         email, employee_id: newEmpId,
@@ -197,7 +197,7 @@ serve(async (req) => {
       });
       if (insertErr) throw new Error("Insert staff failed: " + insertErr.message);
       // Also add to admin_roles for admin panel access
-      await admin.from("admin_roles").upsert({ email, role: newRole || "l1" }, { onConflict: "email" }).catch(() => {});
+      await admin.from("admin_roles").upsert({ email, role: newRole || "l1" }, { onConflict: "email" }).then(null, () => {});
       result = { employee_id: newEmpId };
 
     } else if (action === "remove_staff") {
@@ -230,7 +230,7 @@ serve(async (req) => {
       ip_address:    req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for") ?? null,
       user_agent:    req.headers.get("user-agent") ?? null,
       created_at:    now,
-    }).catch(() => {});
+    }).then(null, () => {});
 
     return new Response(
       JSON.stringify({ ok: true, ...result }),

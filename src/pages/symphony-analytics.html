@@ -400,13 +400,13 @@ document.addEventListener('click', function(e) {
     /* Build sidebar */
     var sb = document.getElementById('admin-sidebar');
     if (sb) sb.innerHTML = buildSidebar(session.user);
-    _sbRestoreState();
+    (typeof _sbRestoreState === 'function' ? _sbRestoreState() : document.addEventListener('DOMContentLoaded', function () { _sbRestoreState(); }));
     var chip = document.getElementById('admin-chip-email');
     if (chip) chip.innerHTML = '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' + sanitize((session.user.email||'').split('@')[0]);
 
     /* Load data */
     var [profRes, subRes, fbRes, auditRes] = await Promise.all([
-      _supa.from('profiles').select('id,email,created_at').eq('role','doctor'),
+      _supa.from('profiles').select('id,email,created_at'),
       _supa.from('subscriptions').select('plan,status,interval,payment_status'),
       _supa.from('feedback').select('rating,nps_score,category,comment,created_at').order('created_at',{ascending:false}).limit(200),
       _supa.from('audit_log').select('event,created_at,metadata').order('created_at',{ascending:false}).limit(20)
@@ -624,6 +624,6 @@ function _sbRestoreState() {
   } catch(e) {}
 }
 </script>
-<script src="symphony-access.js?v=1" defer></script>
+<script src="symphony-access.js?v=2" defer></script>
 </body>
 </html>

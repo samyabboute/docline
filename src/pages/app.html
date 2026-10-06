@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="config.js?v=3"></script>
-<script src="shell.js?v=11"></script>
+<script src="shell.js?v=12"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── PAGE STYLES (complètent shell.js) ─────────────────── */
@@ -1025,12 +1025,14 @@ async function load() {
   document.getElementById('content').style.display  = 'block';
 
   await load();
-  _npsInit(_uid);
+  // _npsInit est défini dans un script plus bas : on attend qu'il soit chargé
+  if (typeof _npsInit === 'function') _npsInit(_uid);
+  else document.addEventListener('DOMContentLoaded', function() { _npsInit(_uid); });
 
   // Realtime queue updates
   _supa.channel('queue-dash')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'queue_entries', filter: 'clinic_id=eq.'+_uid }, function() {
-      _supa.from('queue_entries').select('*').eq('clinic_id', _uid).order('position').then(function(r) { renderQueue(r.data); });
+      _supa.from('queue_entries').select('*').eq('clinic_id', _uid).order('number').then(function(r) { renderQueue(r.data); });
     })
     .subscribe();
 })();

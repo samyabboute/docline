@@ -1199,6 +1199,8 @@ let _sub          = null;
 let _payments     = [];
 let _emailLog     = [];
 let _auditAll     = [];    // full timeline
+// audit_log stocke event/metadata ; l'affichage CRM utilise action/details/performed_by
+function _auditNorm(r) { const m = r.metadata || {}; return Object.assign({}, r, { action: r.event, details: m, performed_by: m.performed_by || null }); }
 let _crmNotes     = [];    // crm_note actions
 let _patientsCount = 0;
 let _rdvCount      = 0;
@@ -1229,23 +1231,23 @@ const uid = new URLSearchParams(location.search).get('uid');
     // Load email log from audit_log
     const { data: logs } = await _sb.from('audit_log')
       .select('*').eq('user_id', uid)
-      .eq('action', 'email_sent')
+      .eq('event', 'email_sent')
       .order('created_at', { ascending: false })
       .limit(30);
-    _emailLog = logs || [];
+    _emailLog = (logs || []).map(_auditNorm);
 
     // Load full audit trail (timeline)
     const { data: trail } = await _sb.from('audit_log')
       .select('*').eq('user_id', uid)
       .order('created_at', { ascending: false })
       .limit(30);
-    _auditAll = trail || [];
+    _auditAll = (trail || []).map(_auditNorm);
 
     // Load CRM notes
     _crmNotes = _auditAll.filter(e => e.action === 'crm_note');
 
     // Patients count (non-blocking)
-    _sb.from('patients').select('id', { count:'exact', head:true }).eq('doctor_id', uid)
+    _sb.from('clients').select('id', { count:'exact', head:true }).eq('user_id', uid)
       .then(({ count }) => {
         _patientsCount = count || 0;
         const el = document.getElementById('kpi-patients');
@@ -1361,7 +1363,7 @@ function renderPlanBanner() {
   const bSub   = document.getElementById('banner-sub');
 
   const isPro = _sub && _sub.plan !== 'free' && _sub.status === 'active';
-  const isTrial = _doctor.trial_end && new Date(_doctor.trial_end) > new Date();
+  const isTrial = _doctor.trial_ends_at && new Date(_doctor.trial_ends_at) > new Date();
   const blocked = _doctor.is_active === false;
 
   if (blocked) {
@@ -1390,7 +1392,7 @@ function renderPlanBanner() {
     banner.className = 'plan-banner plan-banner-trial';
     bLabel.textContent = 'Essai gratuit en cours';
     bTitle.textContent = 'ESSAI PRO — Aucune facturation';
-    bSub.textContent = `Expire le ${fmtDate(_doctor.trial_end)}  —  Passage en Free à l'expiration`;
+    bSub.textContent = `Expire le ${fmtDate(_doctor.trial_ends_at)}  —  Passage en Free à l'expiration`;
   } else {
     banner.className = 'plan-banner plan-banner-free';
     bLabel.textContent = 'Compte gratuit';
@@ -1566,7 +1568,7 @@ function computeHealth() {
   let pts = 0;
   const strengths = [], churnFactors = [];
   const isPro = _sub && _sub.plan !== 'free' && _sub.status === 'active';
-  const isTrial = _doctor.trial_end && new Date(_doctor.trial_end) > new Date();
+  const isTrial = _doctor.trial_ends_at && new Date(_doctor.trial_ends_at) > new Date();
   const blocked = _doctor.is_active === false;
 
   // — Plan — (35 pts max)
@@ -1947,7 +1949,7 @@ async function confirmPlanChange() {
       }, { onConflict: 'user_id' });
 
       if (type === 'trial' || type === 'credit') {
-        await _sb.from('profiles').update({ trial_end: expDate.toISOString() }).eq('id', uid);
+        await _sb.from('profiles').update({ trial_ends_at: expDate.toISOString() }).eq('id', uid);
       }
     }
 
@@ -1955,7 +1957,7 @@ async function confirmPlanChange() {
     const subj = document.getElementById('preview-subject').textContent;
     const body = document.getElementById('preview-body').textContent;
     if (_doctor.email && session) {
-      await fetch(SUPA_URL + '/functions/v1/send-email', {
+      await _mailFetch(SUPA_URL + '/functions/v1/send-email', {
         method: 'POST',
         headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token },
         body: JSON.stringify({ to: _doctor.email, subject: subj, html: body.replace(/\n/g,'<br>') })
@@ -1964,10 +1966,9 @@ async function confirmPlanChange() {
       // Log to audit_log
       await _sb.from('audit_log').insert({
         user_id: uid,
-        performed_by: session.user.id,
-        action: 'email_sent',
-        details: { subject: subj, plan, type, duration: dur }
-      }).catch(()=>{});
+        event: 'email_sent',
+        metadata: { performed_by: session.user.email, subject: subj, plan, type, duration: dur }
+      }).then(null, ()=>{});
     }
 
     showToast('success', 'Plan mis à jour', `${plan.toUpperCase()} activé — Email envoyé à ${_doctor.email}`);
@@ -1983,6 +1984,12 @@ async function confirmPlanChange() {
   }
 }
 
+// Envoi d'email via la fonction serveur : lève une erreur lisible si l'envoi échoue
+async function _mailFetch(url, opts) {
+  const r = await fetch(url, opts);
+  if (!r.ok) { let m = ''; try { m = (await r.json()).error || ''; } catch (_) {} throw new Error('Email non envoyé' + (m ? ' : ' + m : '')); }
+  return r;
+}
 async function sendSupportEmail() {
   if (!_doctor?.email) { showToast('error', 'Email manquant', 'Aucune adresse email sur ce profil'); return; }
   const subject = document.getElementById('email-subject').value.trim();
@@ -1991,20 +1998,20 @@ async function sendSupportEmail() {
 
   try {
     const { data: { session } } = await _sb.auth.getSession();
-    await fetch(SUPA_URL + '/functions/v1/send-email', {
+    await _mailFetch(SUPA_URL + '/functions/v1/send-email', {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token },
       body: JSON.stringify({ to: _doctor.email, subject, html: body.replace(/\n/g,'<br>') })
     });
     await _sb.from('audit_log').insert({
-      user_id: uid, performed_by: session.user.id,
-      action: 'email_sent', details: { subject }
-    }).catch(()=>{});
+      user_id: uid,
+      event: 'email_sent', metadata: { performed_by: session.user.email, subject }
+    }).then(null, ()=>{});
     showToast('success', 'Email envoyé', `Envoyé à ${_doctor.email}`);
     closeModal('email-modal');
     // Refresh email log
-    const { data: logs } = await _sb.from('audit_log').select('*').eq('user_id', uid).eq('action', 'email_sent').order('created_at',{ascending:false}).limit(30);
-    _emailLog = logs || [];
+    const { data: logs } = await _sb.from('audit_log').select('*').eq('user_id', uid).eq('event', 'email_sent').order('created_at',{ascending:false}).limit(30);
+    _emailLog = (logs || []).map(_auditNorm);
     renderSupportTab();
   } catch(e) { showToast('error', 'Erreur envoi', e.message); }
 }
@@ -2237,16 +2244,15 @@ async function saveCrmNote() {
   try {
     await _sb.from('audit_log').insert({
       user_id: uid,
-      performed_by: session.user.id,
-      action: 'crm_note',
-      details: { note }
+      event: 'crm_note',
+      metadata: { performed_by: session.user.email, note }
     });
     inp.value = '';
     // Refresh notes
     const { data: fresh } = await _sb.from('audit_log')
-      .select('*').eq('user_id', uid).eq('action','crm_note')
+      .select('*').eq('user_id', uid).eq('event','crm_note')
       .order('created_at',{ascending:false}).limit(10);
-    _crmNotes = fresh || [];
+    _crmNotes = (fresh || []).map(_auditNorm);
     renderCrmNotes();
     showToast('success', 'Note sauvegardée', '');
   } catch(e) { showToast('error', 'Erreur', e.message); }
@@ -2436,14 +2442,13 @@ async function confirmGeste() {
       current_period_end: expDate.toISOString(),
     }, { onConflict: 'user_id' });
 
-    await _sb.from('profiles').update({ trial_end: expDate.toISOString() }).eq('id', uid);
+    await _sb.from('profiles').update({ trial_ends_at: expDate.toISOString() }).eq('id', uid);
 
     // Audit log — mandatory
     await _sb.from('audit_log').insert({
       user_id: uid,
-      performed_by: session.user.id,
-      action: 'geste_commercial',
-      details: {
+      event: 'geste_commercial',
+      metadata: { performed_by: session.user.email,
         motif: motifVal,
         motif_label: motif.label,
         plan, duration: dur,
@@ -2460,22 +2465,22 @@ async function confirmGeste() {
       amount: 0, method: 'complimentary',
       status: 'approved',
       notes: `[${motif.code}] Geste commercial : ${motif.label}${note ? ' — ' + note : ''}`,
-    }).catch(()=>{});
+    }).then(null, ()=>{});
 
     // Email to doctor
     if (notify && _doctor.email && session) {
       const subject = `Votre abonnement ${plan.toUpperCase()} Docline est offert`;
       const body = `Bonjour Dr. ${doctorName(_doctor)},\n\nNous avons le plaisir de vous offrir un accès ${plan.toUpperCase()} Docline pendant ${dur} mois.\n\nPlan : ${plan.toUpperCase()}\nValable jusqu'au : ${fmtDate(expDate)}\nOffert par l'équipe Docline\n\nProfitez de toutes les fonctionnalités sans restriction.\n\nL'équipe Docline`;
-      await fetch(SUPA_URL + '/functions/v1/send-email', {
+      await _mailFetch(SUPA_URL + '/functions/v1/send-email', {
         method: 'POST',
         headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token },
         body: JSON.stringify({ to: _doctor.email, subject, html: body.replace(/\n/g,'<br>') })
       });
 
       await _sb.from('audit_log').insert({
-        user_id: uid, performed_by: session.user.id,
-        action: 'email_sent', details: { subject, template: 'geste_commercial' }
-      }).catch(()=>{});
+        user_id: uid,
+        event: 'email_sent', metadata: { performed_by: session.user.email, subject, template: 'geste_commercial' }
+      }).then(null, ()=>{});
     }
 
     showToast('success', 'Geste commercial validé',
@@ -2496,6 +2501,6 @@ async function confirmGeste() {
   }
 }
 </script>
-<script src="symphony-access.js?v=1" defer></script>
+<script src="symphony-access.js?v=2" defer></script>
 </body>
 </html>

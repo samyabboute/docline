@@ -105,6 +105,7 @@
     if (!sb || sb.querySelector('.sx-group')) return;
     var head = sb.querySelector('[class*="sidebar-head"], .sb-head');
     var g = buildGroup();
+    if (!g.querySelector('.sx-link')) return;
     if (head && head.parentNode === sb) sb.insertBefore(g, head.nextSibling);
     else sb.insertBefore(g, sb.firstChild);
     refreshBadge();

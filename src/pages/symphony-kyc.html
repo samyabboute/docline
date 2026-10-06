@@ -75,7 +75,7 @@ button,input,select,textarea{font-family:inherit}
 #sb-user-menu{display:none;position:absolute;bottom:calc(100% + 4px);left:8px;right:8px;background:#1C1F28;border:1px solid rgba(255,255,255,.09);border-radius:var(--r-lg);padding:6px;box-shadow:0 -12px 32px rgba(0,0,0,.5);z-index:300}
 
 /* ── Topbar ── */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:100}
+.topbar{background:var(--surface,#fff);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:100}
 .topbar-title{font-size:.9375rem;font-weight:800;color:var(--text);letter-spacing:-.2px}
 .topbar-badge{padding:2px 8px;border-radius:var(--r-full);font-size:.625rem;font-weight:700;background:rgba(217,119,6,.12);color:#D97706;letter-spacing:.04em}
 .topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
@@ -96,7 +96,7 @@ button,input,select,textarea{font-family:inherit}
 
 /* ── Stats ── */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
-.stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:18px 20px 14px;position:relative;overflow:hidden;cursor:default}
+.stat-card{background:var(--surface,#fff);border:1.5px solid var(--border);border-radius:16px;padding:18px 20px 14px;position:relative;overflow:hidden;cursor:default}
 .stat-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
 .stat-ico svg{width:18px;height:18px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .stat-num{font-size:26px;font-weight:900;line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums}
@@ -111,17 +111,17 @@ button,input,select,textarea{font-family:inherit}
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:240px;max-width:380px}
 .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;stroke-linecap:round;pointer-events:none}
-.search-input{width:100%;height:38px;border:1.5px solid var(--border);border-radius:10px;padding:0 12px 0 36px;font-size:.8125rem;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
+.search-input{width:100%;height:38px;border:1.5px solid var(--border);border-radius:10px;padding:0 12px 0 36px;font-size:.8125rem;color:var(--text);background:var(--surface,#fff);outline:none;transition:border-color .15s}
 .search-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(76,29,149,.07)}
 .search-input::placeholder{color:var(--text4)}
-.filter-select{height:38px;border:1.5px solid var(--border);border-radius:10px;padding:0 12px;font-size:.8125rem;color:var(--text2);background:var(--surface);outline:none;cursor:pointer;transition:border-color .15s}
+.filter-select{height:38px;border:1.5px solid var(--border);border-radius:10px;padding:0 12px;font-size:.8125rem;color:var(--text2);background:var(--surface,#fff);outline:none;cursor:pointer;transition:border-color .15s}
 .filter-select:focus{border-color:var(--brand)}
-.chip{padding:5px 14px;border-radius:var(--r-full);font-size:.75rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text3);transition:all .12s;white-space:nowrap}
+.chip{padding:5px 14px;border-radius:var(--r-full);font-size:.75rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface,#fff);color:var(--text3);transition:all .12s;white-space:nowrap}
 .chip:hover{border-color:var(--brand);color:var(--brand)}
 .chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
 
 /* ── Table card ── */
-.table-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;overflow:hidden}
+.table-card{background:var(--surface,#fff);border:1.5px solid var(--border);border-radius:18px;overflow:hidden}
 .table-card-head{padding:16px 20px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
 .table-card-title{font-size:.875rem;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--text)}
 .table-card-title svg{width:16px;height:16px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;flex-shrink:0}
@@ -144,7 +144,7 @@ tr:hover td{background:#FAFBFF}
 
 .status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--r-full);font-size:.6875rem;font-weight:700}
 .status-pill.pending{background:var(--warning-bg);color:var(--warning)}
-.status-pill.in-review{background:var(--info-bg);color:var(--info)}
+.status-pill.in-review,.status-pill.not_submitted{background:var(--info-bg);color:var(--info)}
 .status-pill.approved{background:var(--success-bg);color:var(--success)}
 .status-pill.rejected{background:var(--danger-bg);color:var(--danger)}
 .status-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
@@ -171,9 +171,9 @@ tr:hover td{background:#FAFBFF}
 /* ── Modal ── */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:flex;align-items:flex-start;justify-content:flex-end;animation:fadein .18s ease}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
-.modal-panel{width:520px;max-width:100vw;height:100vh;background:var(--surface);overflow-y:auto;box-shadow:var(--shadow-md);display:flex;flex-direction:column;animation:slidein .22s cubic-bezier(.4,0,.2,1)}
+.modal-panel{width:520px;max-width:100vw;height:100vh;background:var(--surface,#fff);overflow-y:auto;box-shadow:var(--shadow-md);display:flex;flex-direction:column;animation:slidein .22s cubic-bezier(.4,0,.2,1)}
 @keyframes slidein{from{transform:translateX(100%)}to{transform:translateX(0)}}
-.modal-head{padding:20px 24px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;background:var(--surface);z-index:10}
+.modal-head{padding:20px 24px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;background:var(--surface,#fff);z-index:10}
 .modal-title{font-size:1rem;font-weight:800;color:var(--text);letter-spacing:-.2px}
 .modal-close{width:30px;height:30px;border-radius:8px;border:none;background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:background .12s}
 .modal-close:hover{background:var(--border);color:var(--text)}
@@ -191,7 +191,7 @@ tr:hover td{background:#FAFBFF}
 
 .action-panel{background:var(--surface2);border-radius:12px;padding:16px;margin-top:16px}
 .action-panel-title{font-size:.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
-.action-panel textarea{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:.8125rem;font-family:inherit;color:var(--text);background:var(--surface);resize:vertical;min-height:80px;outline:none;transition:border-color .12s;margin-bottom:12px}
+.action-panel textarea{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:.8125rem;font-family:inherit;color:var(--text);background:var(--surface,#fff);resize:vertical;min-height:80px;outline:none;transition:border-color .12s;margin-bottom:12px}
 .action-panel textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(76,29,149,.07)}
 .action-panel textarea::placeholder{color:var(--text4)}
 .action-buttons{display:flex;gap:8px;flex-wrap:wrap}
@@ -251,6 +251,7 @@ tr:hover td{background:#FAFBFF}
   .modal-panel{width:100vw}
 }
 </style>
+<style id="css-vars-fallback">/* Variables utilisées par la page mais jamais définies */:root{--text:#0D0520;--surface:#FFFFFF;--text3:#6B7280;--surface2:#F7F6FF;--brand-dim:rgba(76,29,149,.08);--text4:#9CA3B8;--text2:#2D1B69}</style>
 </head>
 <body>
 <div class="app">
@@ -300,7 +301,7 @@ tr:hover td{background:#FAFBFF}
         <div class="stat-card blue">
           <div class="stat-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
           <div class="stat-num" id="stat-review">–</div>
-          <div class="stat-lbl">En cours de revue</div>
+          <div class="stat-lbl">Pas encore soumis</div>
         </div>
         <div class="stat-card green">
           <div class="stat-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
@@ -328,7 +329,7 @@ tr:hover td{background:#FAFBFF}
         <select class="filter-select" id="status-filter" onchange="applyFilters()">
           <option value="">Tous les statuts</option>
           <option value="pending">En attente</option>
-          <option value="in-review">En révision</option>
+          <option value="not_submitted">Non soumis</option>
           <option value="approved">Approuvé</option>
           <option value="rejected">Rejeté</option>
         </select>
@@ -344,7 +345,7 @@ tr:hover td{background:#FAFBFF}
       <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
         <button class="chip active" id="chip-all"      onclick="setChip('all')">Tous</button>
         <button class="chip"        id="chip-pending"  onclick="setChip('pending')">En attente</button>
-        <button class="chip"        id="chip-review"   onclick="setChip('in-review')">En révision</button>
+        <button class="chip"        id="chip-review"   onclick="setChip('not_submitted')">Non soumis</button>
         <button class="chip"        id="chip-approved" onclick="setChip('approved')">Approuvés</button>
         <button class="chip"        id="chip-rejected" onclick="setChip('rejected')">Rejetés</button>
       </div>
@@ -535,112 +536,61 @@ async function signOut() {
   window.location.href = (typeof ghpNav === 'function' ? ghpNav('/login') : '/login');
 }
 
-/* ── Load KYC data ── */
+/* ── Load KYC data (source : profiles.kyc_*) ── */
+// Statuts en base : not_submitted · pending_review · approved · rejected
+var KYC_FROM_DB = { not_submitted:'not_submitted', pending_review:'pending', approved:'approved', rejected:'rejected' };
 async function loadKyc() {
   if (!_supa) return;
-
   try {
-    // Fetch subscriptions joined with metadata
-    var { data: subs, error: subErr } = await _supa
-      .from('subscriptions')
-      .select('user_id, plan, status, created_at')
-      .order('created_at', { ascending: false })
-      .limit(500);
+    var [profRes, subRes] = await Promise.all([
+      _supa.from('profiles')
+        .select('id,email,full_name,first_name,last_name,specialty,wilaya,city,plan,created_at,kyc_status,kyc_document_url,kyc_document_type,kyc_order_number,kyc_submitted_at,kyc_reject_reason')
+        .order('kyc_submitted_at', { ascending: false, nullsFirst: false })
+        .limit(1000),
+      _supa.from('subscriptions').select('user_id,plan,status')
+    ]);
+    if (profRes.error) throw profRes.error;
+    var planOf = {};
+    (subRes.data || []).forEach(function(s) { if (s.status === 'active' || s.status === 'trialing') planOf[s.user_id] = s.plan; });
 
-    if (subErr) throw subErr;
-
-    // Fetch user metadata from profiles table if available
-    var { data: profiles, error: profErr } = await _supa
-      .from('user_metadata')
-      .select('user_id, full_name, specialty, phone, rpps, address_city, kyc_status, kyc_note, kyc_docs')
-      .limit(500);
-
-    if (profErr && profErr.code !== '42P01') throw profErr;
-
-    var profileMap = {};
-    if (profiles) {
-      profiles.forEach(function(p) { profileMap[p.user_id] = p; });
-    }
-
-    // Build rows
-    _allRows = (subs || []).map(function(s) {
-      var meta = profileMap[s.user_id] || {};
-      var docs = meta.kyc_docs || {};
-      var docsCount = Object.keys(docs).length;
-      var approvedDocs = Object.values(docs).filter(function(d) { return d === 'ok'; }).length;
-      var score = docsCount > 0 ? Math.round((approvedDocs / docsCount) * 100) : 0;
+    _allRows = (profRes.data || []).map(function(p) {
+      var name = p.full_name || ((p.first_name || '') + ' ' + (p.last_name || '')).trim() || p.email || '—';
+      var docs = { document: p.kyc_document_url ? 'ok' : 'missing', ordre: p.kyc_order_number ? 'ok' : 'missing' };
+      var ok = (docs.document === 'ok' ? 1 : 0) + (docs.ordre === 'ok' ? 1 : 0);
       return {
-        user_id: s.user_id,
-        full_name: meta.full_name || '—',
-        specialty: meta.specialty || '',
-        city: meta.address_city || '',
-        rpps: meta.rpps || '',
-        plan: s.plan || 'free',
-        kyc_status: meta.kyc_status || 'pending',
-        kyc_note: meta.kyc_note || '',
-        docs: docs,
-        score: score,
-        created_at: s.created_at,
+        user_id: p.id, email: p.email, full_name: name, specialty: p.specialty || '',
+        city: p.city || p.wilaya || '', rpps: p.kyc_order_number || '',
+        plan: planOf[p.id] || p.plan || 'free',
+        kyc_status: KYC_FROM_DB[p.kyc_status] || 'not_submitted',
+        kyc_note: p.kyc_reject_reason || '',
+        doc_url: p.kyc_document_url || '', doc_type: p.kyc_document_type || '',
+        docs: docs, score: Math.round(ok * 50),
+        created_at: p.kyc_submitted_at || p.created_at
       };
     });
-
-    // Update stats
-    var pending  = _allRows.filter(function(r) { return r.kyc_status === 'pending'; }).length;
-    var review   = _allRows.filter(function(r) { return r.kyc_status === 'in-review'; }).length;
-    var approved = _allRows.filter(function(r) { return r.kyc_status === 'approved'; }).length;
-    var rejected = _allRows.filter(function(r) { return r.kyc_status === 'rejected'; }).length;
-
-    document.getElementById('stat-pending').textContent  = pending;
-    document.getElementById('stat-review').textContent   = review;
-    document.getElementById('stat-approved').textContent = approved;
-    document.getElementById('stat-rejected').textContent = rejected;
-    document.getElementById('stat-total').textContent    = _allRows.length;
-
-    // Topbar badge
-    var badge = document.getElementById('tb-pending-badge');
-    if (pending > 0) {
-      badge.textContent = pending + ' en attente';
-      badge.style.display = 'inline-flex';
-    } else {
-      badge.style.display = 'none';
-    }
-
-    // Timestamp
+    refreshKycStats();
     var now = new Date();
     document.getElementById('last-refresh').textContent = 'Mis à jour à ' + now.getHours() + 'h' + String(now.getMinutes()).padStart(2,'0');
-
-    // Apply current chip/filter
     applyFilters();
-
   } catch(e) {
     console.error('[KYC] Load error:', e);
-    // Show fallback with mock data if table doesn't exist
-    if (e.code === '42P01' || (e.message && e.message.includes('does not exist'))) {
-      renderMockData();
-    } else {
-      document.getElementById('kyc-tbody').innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg></div><div class="empty-title">Erreur de chargement</div><div class="empty-sub">' + (e.message || 'Erreur inconnue') + '</div></div></td></tr>';
-    }
+    document.getElementById('kyc-tbody').innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-title">Erreur de chargement</div><div class="empty-sub">' + esc(e.message || 'Erreur inconnue') + '</div></div></td></tr>';
   }
 }
 
-/* ── Mock data fallback ── */
-function renderMockData() {
-  var mock = [
-    { user_id: '1', full_name: 'Dr. Amina Boumediene', specialty: 'Cardiologie', city: 'Alger', rpps: '10003456789', plan: 'pro', kyc_status: 'pending', docs: { cni: 'ok', diplome: 'ok', ordre: 'missing' }, score: 67, created_at: new Date().toISOString() },
-    { user_id: '2', full_name: 'Dr. Karim Mansouri', specialty: 'Pédiatrie', city: 'Oran', rpps: '10007654321', plan: 'pro', kyc_status: 'in-review', docs: { cni: 'ok', diplome: 'ok', ordre: 'ok' }, score: 100, created_at: new Date(Date.now()-86400000).toISOString() },
-    { user_id: '3', full_name: 'Dr. Fatima Zerrouki', specialty: 'Gynécologie', city: 'Constantine', rpps: '', plan: 'free', kyc_status: 'rejected', docs: { cni: 'rejected', diplome: 'missing' }, score: 0, created_at: new Date(Date.now()-172800000).toISOString() },
-    { user_id: '4', full_name: 'Dr. Youcef Hamidi', specialty: 'Médecine générale', city: 'Annaba', rpps: '10009876543', plan: 'clinic', kyc_status: 'approved', docs: { cni: 'ok', diplome: 'ok', ordre: 'ok', justif: 'ok' }, score: 100, created_at: new Date(Date.now()-259200000).toISOString() },
-    { user_id: '5', full_name: 'Dr. Nadia Belkacem', specialty: 'Dermatologie', city: 'Alger', rpps: '10001234567', plan: 'pro', kyc_status: 'pending', docs: { cni: 'ok', diplome: 'missing', ordre: 'missing' }, score: 33, created_at: new Date(Date.now()-3600000).toISOString() },
-  ];
-  _allRows = mock;
-  document.getElementById('stat-pending').textContent  = mock.filter(function(r) { return r.kyc_status === 'pending'; }).length;
-  document.getElementById('stat-review').textContent   = mock.filter(function(r) { return r.kyc_status === 'in-review'; }).length;
-  document.getElementById('stat-approved').textContent = mock.filter(function(r) { return r.kyc_status === 'approved'; }).length;
-  document.getElementById('stat-rejected').textContent = mock.filter(function(r) { return r.kyc_status === 'rejected'; }).length;
-  document.getElementById('stat-total').textContent    = mock.length;
-  _filtered = mock;
-  renderTable();
-  document.getElementById('last-refresh').textContent = 'Démo — table user_metadata non migrée';
+function refreshKycStats() {
+  function n(st) { return _allRows.filter(function(r) { return r.kyc_status === st; }).length; }
+  document.getElementById('stat-pending').textContent  = n('pending');
+  document.getElementById('stat-review').textContent   = n('not_submitted');
+  document.getElementById('stat-approved').textContent = n('approved');
+  document.getElementById('stat-rejected').textContent = n('rejected');
+  document.getElementById('stat-total').textContent    = _allRows.length;
+  var badge = document.getElementById('tb-pending-badge');
+  if (badge) {
+    var p = n('pending');
+    badge.textContent = p + ' en attente';
+    badge.style.display = p > 0 ? 'inline-flex' : 'none';
+  }
 }
 
 /* ── Filters ── */
@@ -648,7 +598,7 @@ function setChip(val) {
   _chip = val;
   ['all','pending','review','approved','rejected'].forEach(function(k) {
     var el = document.getElementById('chip-' + k);
-    if (el) el.classList.toggle('active', k === val || ('in-review' === val && k === 'review'));
+    if (el) el.classList.toggle('active', k === val || ('not_submitted' === val && k === 'review'));
   });
   applyFilters();
 }
@@ -676,7 +626,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /* ── Render table ── */
-var DOC_LABELS = { cni:'CNI', diplome:'Diplôme', ordre:'Ordre', justif:'Justificatif', rpps:'RPPS', assurance:'Assurance' };
+var DOC_LABELS = { document:'Pièce justificative', ordre:'N° d’ordre', cni:'CNI', diplome:'Diplôme', justif:'Justificatif', rpps:'RPPS', assurance:'Assurance' };
 
 function renderTable() {
   var tbody = document.getElementById('kyc-tbody');
@@ -688,8 +638,8 @@ function renderTable() {
   }
 
   tbody.innerHTML = _filtered.map(function(r) {
-    var statusClass = { pending:'pending', 'in-review':'in-review', approved:'approved', rejected:'rejected' }[r.kyc_status] || 'pending';
-    var statusLabel = { pending:'En attente', 'in-review':'En révision', approved:'Approuvé', rejected:'Rejeté' }[r.kyc_status] || r.kyc_status;
+    var statusClass = { pending:'pending', 'not_submitted':'not_submitted', approved:'approved', rejected:'rejected' }[r.kyc_status] || 'pending';
+    var statusLabel = { pending:'En attente', 'not_submitted':'Non soumis', approved:'Approuvé', rejected:'Rejeté' }[r.kyc_status] || r.kyc_status;
     var planBadge = { free:'background:#F3F4F6;color:#6B7280', pro:'background:#EDE9FE;color:#6D28D9', clinic:'background:#D1FAE5;color:#065F46' }[r.plan] || '';
     var scoreColor = r.score >= 80 ? 'var(--success)' : r.score >= 50 ? 'var(--warning)' : 'var(--danger)';
 
@@ -713,7 +663,7 @@ function renderTable() {
       + '<td><div class="doc-score"><div class="score-bar"><div class="score-fill" style="width:' + r.score + '%;background:' + scoreColor + '"></div></div><span style="font-size:.75rem;font-weight:700;color:' + scoreColor + '">' + r.score + '%</span></div></td>'
       + '<td style="font-size:.75rem;color:var(--text3);white-space:nowrap">' + dateStr + '</td>'
       + '<td><div class="action-row"><button class="btn btn-ghost btn-sm" onclick="openDetail(\'' + r.user_id + '\')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Voir</button>'
-      + (r.kyc_status === 'pending' || r.kyc_status === 'in-review' ? '<button class="btn btn-success btn-sm" onclick="setKycStatus(\'' + r.user_id + '\',\'approved\')"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Approuver</button>' : '')
+      + (r.kyc_status === 'pending' ? '<button class="btn btn-success btn-sm" onclick="setKycStatus(\'' + r.user_id + '\',\'approved\')"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Approuver</button>' : '')
       + (r.kyc_status !== 'rejected' ? '<button class="btn btn-danger btn-sm" onclick="setKycStatus(\'' + r.user_id + '\',\'rejected\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Rejeter</button>' : '')
       + '</div></td>'
       + '</tr>';
@@ -739,8 +689,8 @@ function openDetail(userId) {
   }).join('');
 
   var planBadge = { free:'background:#F3F4F6;color:#6B7280', pro:'background:#EDE9FE;color:#6D28D9', clinic:'background:#D1FAE5;color:#065F46' }[r.plan] || '';
-  var statusClass = { pending:'pending', 'in-review':'in-review', approved:'approved', rejected:'rejected' }[r.kyc_status] || 'pending';
-  var statusLabel = { pending:'En attente', 'in-review':'En révision', approved:'Approuvé', rejected:'Rejeté' }[r.kyc_status] || r.kyc_status;
+  var statusClass = { pending:'pending', 'not_submitted':'not_submitted', approved:'approved', rejected:'rejected' }[r.kyc_status] || 'pending';
+  var statusLabel = { pending:'En attente', 'not_submitted':'Non soumis', approved:'Approuvé', rejected:'Rejeté' }[r.kyc_status] || r.kyc_status;
 
   document.getElementById('modal-body').innerHTML =
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">'
@@ -753,12 +703,12 @@ function openDetail(userId) {
     + (r.rpps ? '<div style="background:var(--surface2);border-radius:8px;padding:8px 12px;margin-bottom:16px;font-size:.75rem;color:var(--text3)">RPPS: <strong style="color:var(--text);font-family:monospace">' + esc(r.rpps) + '</strong></div>' : '')
     + '<div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text4);margin-bottom:10px">Documents</div>'
     + '<div class="doc-grid">' + (docGrid || '<div style="color:var(--text3);font-size:.8125rem;grid-column:1/-1">Aucun document fourni</div>') + '</div>'
+    + (r.doc_url ? '<button class="btn btn-ghost" style="margin:12px 0 4px" onclick="openKycDoc(\'' + r.user_id + '\')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Ouvrir le document</button>' : '')
     + '<div class="action-panel">'
     + '<div class="action-panel-title">Note KYC</div>'
     + '<textarea id="kyc-note-input" placeholder="Note interne sur le dossier…">' + esc(r.kyc_note || '') + '</textarea>'
     + '<div class="action-buttons">'
     + '<button class="btn btn-success" onclick="setKycStatus(\'' + r.user_id + '\',\'approved\',true)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Approuver</button>'
-    + '<button class="btn" style="background:var(--info-bg);color:var(--info);border:1.5px solid var(--info-border)" onclick="setKycStatus(\'' + r.user_id + '\',\'in-review\',true)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Mettre en révision</button>'
     + '<button class="btn btn-danger" onclick="setKycStatus(\'' + r.user_id + '\',\'rejected\',true)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Rejeter</button>'
     + '</div></div>';
 
@@ -773,40 +723,45 @@ function closeModal(e) {
   if (e.target === document.getElementById('detail-modal')) closeDetail();
 }
 
-/* ── KYC status update ── */
+/* ── KYC status update (profiles + kyc_audit_log) ── */
+var KYC_TO_DB = { approved:'approved', rejected:'rejected', pending:'pending_review', not_submitted:'not_submitted' };
 async function setKycStatus(userId, status, fromModal) {
   if (!_supa) return;
-  var note = fromModal ? (document.getElementById('kyc-note-input') || {}).value || '' : '';
-
+  var note = fromModal ? ((document.getElementById('kyc-note-input') || {}).value || '').trim() : '';
+  if (status === 'rejected' && !note && fromModal) { showToast('Indiquez le motif du refus dans la note.', true); return; }
   try {
-    var { error } = await _supa
-      .from('user_metadata')
-      .update({ kyc_status: status, kyc_note: note, updated_at: new Date().toISOString() })
-      .eq('user_id', userId);
+    var sess = (await _supa.auth.getSession()).data.session;
+    var upd = { kyc_status: KYC_TO_DB[status], kyc_reviewed_at: new Date().toISOString(), kyc_reviewer_id: sess ? sess.user.id : null };
+    if (status === 'rejected') upd.kyc_reject_reason = note || 'Dossier incomplet';
+    if (status === 'approved') upd.kyc_reject_reason = null;
+    var { error } = await _supa.from('profiles').update(upd).eq('id', userId);
+    if (error) throw error;
+    await _supa.from('kyc_audit_log').insert({ doctor_id: userId, action: status, reviewer_id: upd.kyc_reviewer_id, note: note || null }).then(null, function() {});
 
-    if (error) {
-      if (error.code === '42P01') { showToast('Table user_metadata non migrée — démo seulement', true); return; }
-      throw error;
-    }
-
-    // Update locally
     var row = _allRows.find(function(r) { return r.user_id === userId; });
-    if (row) { row.kyc_status = status; row.kyc_note = note; }
-
-    var labels = { approved:'Approuvé ✓', rejected:'Rejeté', 'in-review':'En révision' };
-    showToast(labels[status] || status);
+    if (row) { row.kyc_status = status; row.kyc_note = upd.kyc_reject_reason || ''; }
+    showToast({ approved:'Dossier approuvé', rejected:'Dossier refusé' }[status] || 'Statut mis à jour');
     if (fromModal) closeDetail();
+    refreshKycStats();
     applyFilters();
-
-    // Refresh stats
-    document.getElementById('stat-pending').textContent  = _allRows.filter(function(r){ return r.kyc_status==='pending'; }).length;
-    document.getElementById('stat-review').textContent   = _allRows.filter(function(r){ return r.kyc_status==='in-review'; }).length;
-    document.getElementById('stat-approved').textContent = _allRows.filter(function(r){ return r.kyc_status==='approved'; }).length;
-    document.getElementById('stat-rejected').textContent = _allRows.filter(function(r){ return r.kyc_status==='rejected'; }).length;
-
   } catch(e) {
-    showToast('Erreur: ' + e.message, true);
+    var msg = (e && e.message) || 'Erreur inconnue';
+    if (/row-level security|permission denied/i.test(msg)) msg = 'Votre poste ne permet pas de décider un dossier KYC.';
+    showToast('Erreur : ' + msg, true);
   }
+}
+
+/* Ouvre le document KYC via une URL signée d'une heure (stockage privé doctor-kyc) */
+async function openKycDoc(userId) {
+  var r = _allRows.find(function(x) { return x.user_id === userId; });
+  if (!r || !r.doc_url) return;
+  var w = window.open('', '_blank');
+  try {
+    var path = r.doc_url.indexOf('doctor-kyc/') !== -1 ? r.doc_url.substring(r.doc_url.indexOf('doctor-kyc/') + 11).split('?')[0] : r.doc_url;
+    var res = await _supa.storage.from('doctor-kyc').createSignedUrl(path, 3600);
+    if (res.error) throw res.error;
+    w.location = res.data.signedUrl;
+  } catch(e) { if (w) w.close(); showToast('Document introuvable : ' + (e.message || ''), true); }
 }
 
 /* ── Helpers ── */
@@ -829,6 +784,6 @@ function showToast(msg, isErr) {
   setTimeout(function() { if (t.parentNode) t.remove(); }, 3000);
 }
 </script>
-<script src="symphony-access.js?v=1" defer></script>
+<script src="symphony-access.js?v=2" defer></script>
 </body>
 </html>

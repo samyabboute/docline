@@ -142,7 +142,7 @@ serve(async (req) => {
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle()
-        .catch(() => ({ data: null }));
+        .then(null, () => ({ data: null }));
       const interval = sub?.interval || 'month';
       const startDate = sub?.created_at ? new Date(sub.created_at) : new Date();
       const endDate = new Date(startDate);

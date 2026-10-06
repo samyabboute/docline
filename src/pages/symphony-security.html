@@ -365,6 +365,7 @@
   <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
+<style id="css-vars-fallback">/* Variables utilisées par la page mais jamais définies */:root{--text-sm:.8125rem;--text-md:.9375rem;--text-base:.875rem;--shadow-xl:0 24px 64px rgba(13,5,32,.14);--t-slow:320ms cubic-bezier(.4,0,.2,1);--text-lg:1.0625rem;--brand-border:rgba(76,29,149,.2)}</style>
 </head>
 <body>
 <div class="toasts" id="toasts"></div>
@@ -478,7 +479,7 @@ const AdminAuth = {
         user_id: session.user.id,
         event: 'admin.unauthorized_access',
         metadata: { page: window.location.pathname, attempted_at: new Date().toISOString() }
-      }).catch(()=>{});
+      }).then(null, ()=>{});
       window.location.href=ghpNav('/dashboard');
       return null;
     }
@@ -607,7 +608,7 @@ const SEC_CHECKS = [
 (async()=>{
   const s = await AdminAuth.requireAdmin(); if(!s) return;
   AdminSidebar.init('security', s.user);
-  _sbRestoreState();
+  (typeof _sbRestoreState === 'function' ? _sbRestoreState() : document.addEventListener('DOMContentLoaded', function () { _sbRestoreState(); }));
   await load();
   document.getElementById('ev-filter').addEventListener('click',e=>{
     const p=e.target.closest('.filter-pill'); if(!p) return;
@@ -722,5 +723,5 @@ function _sbRestoreState() {
 </script>
 
 <script src="docline-animations.js"></script>
-<script src="symphony-access.js?v=1" defer></script>
+<script src="symphony-access.js?v=2" defer></script>
 </body></html>
