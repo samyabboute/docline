@@ -1208,7 +1208,7 @@ let _rdvCount      = 0;
 const uid = new URLSearchParams(location.search).get('uid');
 
 (async () => {
-  if (!uid) { showError('Aucun médecin spécifié. Revenez à la liste.'); return; }
+  if (!uid) { showDoctorPicker(); return; }
 
   // Auth check
   const { data: { session } } = await _sb.auth.getSession();
@@ -2326,13 +2326,45 @@ function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
 
+// Sans médecin dans l'adresse : liste de recherche pour choisir la fiche CRM à ouvrir
+async function showDoctorPicker() {
+  document.querySelectorAll('.topbar-actions, .crm-topbar-actions').forEach(el => { el.style.display = 'none'; });
+  const box = document.getElementById('loading-state');
+  box.innerHTML = `<div style="max-width:760px;margin:32px auto;padding:0 16px">
+      <h1 style="font-size:1.25rem;font-weight:800;margin-bottom:4px">CRM médecin</h1>
+      <p style="color:var(--text-muted);margin-bottom:16px">Choisissez un médecin pour ouvrir sa fiche : abonnement, rétention, support et historique.</p>
+      <input id="crm-pick-q" type="search" autocomplete="off" placeholder="Rechercher par nom, email, spécialité ou wilaya…"
+        style="width:100%;height:42px;padding:0 14px;border:1px solid var(--border);border-radius:10px;font:inherit;font-size:16px;margin-bottom:12px">
+      <div id="crm-pick-list" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff">
+        <div style="padding:20px;color:var(--text-muted)">Chargement des médecins…</div></div></div>`;
+  const { data, error } = await _sb.from('profiles')
+    .select('id,email,full_name,first_name,last_name,specialty,wilaya,plan,kyc_status,created_at')
+    .order('created_at', { ascending: false }).limit(1000);
+  const list = document.getElementById('crm-pick-list');
+  if (error) { list.innerHTML = `<div style="padding:20px;color:var(--danger)">${esc(error.message)}</div>`; return; }
+  const rows = (data || []).map(p => ({ ...p, name: p.full_name || ((p.first_name || '') + ' ' + (p.last_name || '')).trim() || p.email || '—' }));
+  const render = q => {
+    q = (q || '').toLowerCase().trim();
+    const f = rows.filter(p => !q || [p.name, p.email, p.specialty, p.wilaya].some(v => (v || '').toLowerCase().includes(q))).slice(0, 200);
+    list.innerHTML = f.length ? f.map(p => `<a href="/symphony-crm?uid=${encodeURIComponent(p.id)}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--border);color:inherit;text-decoration:none">
+        <span style="width:34px;height:34px;border-radius:10px;background:var(--brand-light,#EEECFB);color:var(--brand,#4C1D95);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0">${esc((p.name[0] || '?').toUpperCase())}</span>
+        <span style="flex:1;min-width:0"><span style="display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</span>
+        <span style="display:block;font-size:.75rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc([p.email, p.specialty, p.wilaya].filter(Boolean).join(' · '))}</span></span>
+        <span style="font-size:.6875rem;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--bg-subtle,#F7F6FF);color:var(--text-secondary,#2D1B69)">${esc((p.plan || 'free').toUpperCase())}</span></a>`).join('')
+      : '<div style="padding:20px;color:var(--text-muted)">Aucun médecin ne correspond à cette recherche.</div>';
+    const first = list.querySelector('a'); if (first) first.style.borderTop = '0';
+  };
+  render('');
+  document.getElementById('crm-pick-q').addEventListener('input', e => render(e.target.value));
+}
+
 function showError(msg) {
   document.getElementById('loading-state').innerHTML =
     `<div style="text-align:center;padding:60px;color:var(--danger)">
       <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;margin:0 auto 12px;display:block"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <p style="font-weight:700;font-size:.9375rem;margin-bottom:6px">Erreur</p>
       <p style="color:var(--text-muted)">${esc(msg)}</p>
-      <a href="/admin" style="display:inline-block;margin-top:16px" class="btn btn-secondary">← Retour admin</a>
+      <a href="/symphony-crm" style="display:inline-block;margin-top:16px" class="btn btn-secondary">← Choisir un autre médecin</a>
     </div>`;
 }
 
@@ -2501,6 +2533,6 @@ async function confirmGeste() {
   }
 }
 </script>
-<script src="symphony-access.js?v=2" defer></script>
+<script src="symphony-access.js?v=3" defer></script>
 </body>
 </html>

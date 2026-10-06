@@ -157,7 +157,9 @@
 
     client.rpc('symphony_me').then(function (r) {
       if (r.error) { me = undefined; }       // migration pas encore appliquée
-      else { me = r.data || null; }
+      else if (!r.data) { me = null; }
+      else if (typeof r.data === 'object' && Array.isArray(r.data.permissions)) { me = r.data; }
+      else { me = undefined; }               // réponse inattendue : on ne masque rien
       if (me === null) {
         // Compte connecté mais pas membre de l'équipe
         var page = PAGE_PERMS[path(location.pathname)];
