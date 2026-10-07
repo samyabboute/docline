@@ -276,11 +276,8 @@ function esc(s) {
     return;
   }
 
-  // Lookup appointment by token (anonymous access via RLS policy)
-  var r = await _supa.from('appointments')
-    .select('id, patient_name, patient_phone, requested_date, requested_time, status, patient_confirmed, doctor_id')
-    .eq('confirmation_token', _token)
-    .maybeSingle();
+  // Lookup appointment by token (RPC vérifie le jeton côté serveur)
+  var r = await _supa.rpc('get_confirmation', { p_token: _token });
 
   if (r.error || !r.data) {
     showState('state-error');
@@ -289,15 +286,7 @@ function esc(s) {
 
   _appt = r.data;
 
-  // Load doctor name
-  var doctorLabel = 'votre médecin';
-  var profR = await _supa.from('profiles')
-    .select('full_name, clinic_name, is_clinic')
-    .eq('id', _appt.doctor_id)
-    .maybeSingle();
-  if (profR.data) {
-    doctorLabel = profR.data.full_name || (profR.data.is_clinic ? profR.data.clinic_name : doctorLabel);
-  }
+  var doctorLabel = _appt.doctor_label || 'votre médecin';
 
   updateTop(_appt, doctorLabel);
 
@@ -325,9 +314,8 @@ window.doConfirm = async function() {
   txt.style.display = 'none';
   spin.style.display = 'block';
 
-  var r = await _supa.from('appointments')
-    .update({ patient_confirmed: true })
-    .eq('confirmation_token', _token);
+  var r = await _supa.rpc('respond_confirmation', { p_token: _token, p_action: 'confirm' });
+  if (!r.error && r.data === false) r.error = { message: 'Ce rendez-vous ne peut plus être confirmé.' };
 
   btn.disabled = false;
   txt.style.display = 'block';
@@ -353,9 +341,7 @@ window.doConfirm = async function() {
 // ── Cancel ────────────────────────────────────────────────────
 window.showCancelConfirm = function() {
   if (!confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ? Le médecin sera informé.')) return;
-  _supa.from('appointments')
-    .update({ status: 'cancelled' })
-    .eq('confirmation_token', _token)
+  _supa.rpc('respond_confirmation', { p_token: _token, p_action: 'cancel' })
     .then(function(){
       showState('state-cancelled');
     });

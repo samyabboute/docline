@@ -676,13 +676,9 @@ async function selectDate(iso, dayIdx, btn) {
 }
 
 async function loadTakenSlots(date) {
-  const { data } = await _sb.from('appointments')
-    .select('requested_time')
-    .eq('doctor_id', doctorId)
-    .eq('requested_date', date)
-    .in('status', ['pending','confirmed']);
+  const { data } = await _sb.rpc('booked_slots', { p_doctor: doctorId, p_date: date });
 
-  takenSlots[date] = new Set((data ?? []).map(r => r.requested_time));
+  takenSlots[date] = new Set((data ?? []).map(r => typeof r === 'string' ? r : (r.booked_slots || r.requested_time)));
 }
 
 function renderSlots(date, dayIdx) {

@@ -184,18 +184,7 @@ async function init() {
   const token  = params.get('t');
   if (!token) { showError('Lien invalide', 'Ce lien de ticket n\'est pas valide.'); return; }
 
-  const { data: appt, error } = await _sb
-    .from('appointments')
-    .select(`
-      id, patient_name, patient_phone, requested_date, requested_time,
-      status, ticket_token, created_at,
-      profiles:doctor_id (
-        first_name, last_name, clinic_name, is_clinic, specialty,
-        wilaya, city, avatar_url, address, phone_public
-      )
-    `)
-    .eq('ticket_token', token)
-    .single();
+  const { data: appt, error } = await _sb.rpc('get_ticket', { p_token: token });
 
   if (error || !appt) {
     showError('Ticket introuvable', 'Ce ticket est invalide ou a expiré. Si votre RDV a été annulé, le ticket n\'est plus accessible.');

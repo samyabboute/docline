@@ -624,46 +624,10 @@ async function lookupRdv() {
     var now   = new Date();
     var nowMin = now.getHours()*60 + now.getMinutes();
 
-    // Normalise le numéro (enlève le 0 initial si présent)
-    var phone = rawPhone.replace(/^0/, '');
-    var phoneVariants = [rawPhone, phone, '+213'+phone, '213'+phone];
-
-    // Cherche un RDV confirmé aujourd'hui avec ce numéro
-    var { data: appts } = await _supa.from('appointments')
-      .select('id, patient_name, requested_time, status, confirmation_token')
-      .eq('doctor_id', _clinicId)
-      .eq('requested_date', today)
-      .in('status', ['pending','confirmed'])
-      .is('no_show', false);
-
-    // Filtre par numéro de téléphone et créneau ±30 min
-    var matched = (appts||[]).filter(function(a) {
-      if(!a.requested_time) return false;
-      // Match téléphone
-      var phoneMatch = false;
-      try {
-        var { data: pdata } = { data: null }; // local fallback
-        // On vérifie dans les variantes — on fera le match via la colonne
-      } catch(e){}
-      // Check horaire ±30 min
-      var parts = a.requested_time.split(':');
-      var apptMin = parseInt(parts[0])*60 + parseInt(parts[1]);
-      return Math.abs(apptMin - nowMin) <= 30;
-    });
-
-    // Refetch avec filtre téléphone (les variantes)
-    var matchedFull = [];
-    for(var i=0;i<phoneVariants.length;i++){
-      var variant = phoneVariants[i];
-      var { data: r2 } = await _supa.from('appointments')
-        .select('id, patient_name, requested_time, status, confirmation_token, arrived_at')
-        .eq('doctor_id', _clinicId)
-        .eq('requested_date', today)
-        .eq('patient_phone', variant)
-        .in('status', ['pending','confirmed'])
-        .is('no_show', false);
-      if(r2 && r2.length){ matchedFull = r2; break; }
-    }
+    // Recherche côté serveur (le numéro doit correspondre, aucune donnée exposée)
+    window._foundPhone = rawPhone;
+    var { data: matchedFull } = await _supa.rpc('queue_find_appointment', { p_doctor: _clinicId, p_phone: rawPhone });
+    matchedFull = matchedFull || [];
 
     // Filtre ±30 min
     matchedFull = matchedFull.filter(function(a){
@@ -732,9 +696,7 @@ async function joinQueueRdv() {
 
     // Marquer le RDV comme arrivé
     if(_foundAppt) {
-      await _supa.from('appointments')
-        .update({ arrived_at: new Date().toISOString(), patient_confirmed: true })
-        .eq('id', _foundAppt.id);
+      await _supa.rpc('queue_mark_arrived', { p_appt: _foundAppt.id, p_phone: window._foundPhone || '' });
     }
 
     _myNumber = nextNum;
