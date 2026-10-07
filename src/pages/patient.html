@@ -39,7 +39,7 @@ button,input,select{font:inherit;color:inherit}
 a{color:inherit}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 h1,h2,h3{text-wrap:balance;letter-spacing:-.03em}
-.wrap{max-width:1120px;margin:0 auto;padding-inline:32px}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:24px}
 :focus{outline:none}
 :focus-visible{box-shadow:0 0 0 3px rgba(76,29,149,.28)!important}
 .tnum{font-variant-numeric:tabular-nums}
@@ -50,17 +50,20 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.03em}
 .rise{animation:rise .6s var(--ease) both}
 .d1{animation-delay:.06s}.d2{animation-delay:.12s}.d3{animation-delay:.18s}.d4{animation-delay:.24s}.d5{animation-delay:.3s}
 
-/* ── Barre du haut ───────────────────────────── */
-.top{position:sticky;top:0;z-index:50;background:rgba(251,250,253,.8);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid transparent;transition:border-color .3s}
-.top.scrolled{border-bottom-color:var(--line)}
-.top-in{display:flex;align-items:center;gap:8px;height:76px;padding-top:env(safe-area-inset-top,0px)}
-.logo img{height:30px;display:block}
+/* ── En-tête : identique à la recherche et à l'accueil ── */
+.top{position:sticky;top:0;z-index:50;height:56px;background:transparent;border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
+.top.scrolled{background:rgba(251,250,253,.86);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom-color:var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;text-decoration:none}
+.logo svg{display:block;height:30px;width:auto}
 .top-sp{flex:1}
-.link-btn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:999px;text-decoration:none;font-size:.875rem;font-weight:600;color:var(--ink2);transition:background .2s}
-.link-btn:hover{background:var(--fill)}
-.avatar-btn{width:38px;height:38px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:.875rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .3s var(--ease),box-shadow .3s}
-.avatar-btn:hover{box-shadow:0 0 0 4px var(--accent-soft)}
-.avatar-btn:active{transform:scale(.94)}
+.nav-cta{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:8px 14px 8px 16px;font-size:.8125rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;white-space:nowrap;transition:background .2s}
+.nav-cta:hover,.nav-cta[aria-expanded="true"]{background:var(--accent-h)}
+.nav-cta>svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.nav-cta .chev{width:13px;height:13px;stroke-width:2.4;opacity:.8;transition:transform .35s var(--ease)}
+.nav-cta[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.nav-cta .ini{width:22px;height:22px;margin-left:-8px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700}
+.menu-anchor{max-width:1240px;margin:0 auto;padding:0 24px;position:relative}
 
 /* Boutons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 22px;border-radius:999px;border:0;cursor:pointer;font-weight:600;font-size:.9375rem;text-decoration:none;transition:background .2s,transform .3s var(--ease),box-shadow .3s var(--ease),opacity .2s;white-space:nowrap;position:relative}
@@ -80,15 +83,14 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.03em}
 @keyframes rot{to{transform:rotate(360deg)}}
 
 /* ══ INVITÉ ═════════════════════════════════════ */
-.guest{position:relative;padding-block:56px 96px;min-height:calc(100vh - 76px);display:flex;align-items:center}
+.guest{position:relative;padding-block:56px 96px;min-height:calc(100vh - 56px);display:flex;align-items:center}
 .guest:before{content:"";position:absolute;inset:0;background:radial-gradient(40% 50% at 78% 38%,rgba(124,58,237,.09),transparent 70%),radial-gradient(30% 40% at 10% 90%,rgba(234,88,12,.035),transparent 70%);pointer-events:none;z-index:-1}
 .g-grid{width:100%;display:grid;grid-template-columns:1.05fr .95fr;grid-template-areas:'head auth' 'demo auth';column-gap:112px;row-gap:12px;align-items:center}
 .g-head{grid-area:head;align-self:end}
 .g-demo{grid-area:demo;align-self:start}
 .auth{grid-area:auth}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
-.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
-.g-title{font-size:clamp(2.4rem,5.2vw,4.1rem);line-height:1.02;font-weight:800;letter-spacing:-.052em;margin:22px 0 22px}
+.kicker{font-size:1.1875rem;font-weight:600;letter-spacing:-.02em;color:var(--accent)}
+.g-title{font-size:clamp(2.4rem,5.2vw,4.1rem);line-height:1.02;font-weight:800;letter-spacing:-.052em;margin:10px 0 22px}
 .g-title .grad{background:linear-gradient(100deg,var(--accent) 10%,var(--accent-2) 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .g-sub{font-size:1.1875rem;line-height:1.55;color:var(--ink3);max-width:27em}
 
@@ -371,7 +373,7 @@ body.in-app{background:var(--bg)}
 @keyframes shimmer{to{background-position:-200% 0}}
 
 /* Menu avatar */
-.menu{position:absolute;right:20px;top:6px;width:250px;background:rgba(255,255,255,.94);-webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 60px -18px rgba(13,5,32,.3);padding:8px;opacity:0;transform:translateY(-6px) scale(.96);filter:blur(4px);transform-origin:top right;pointer-events:none;transition:opacity .25s var(--ease),transform .4s var(--ease),filter .25s var(--ease);z-index:60}
+.menu{position:absolute;right:24px;top:6px;width:250px;background:rgba(255,255,255,.94);-webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 60px -18px rgba(13,5,32,.3);padding:8px;opacity:0;transform:translateY(-6px) scale(.96);filter:blur(4px);transform-origin:top right;pointer-events:none;transition:opacity .25s var(--ease),transform .4s var(--ease),filter .25s var(--ease);z-index:60}
 .menu.on{opacity:1;transform:none;filter:none;pointer-events:auto}
 .menu .who{display:flex;gap:12px;align-items:center;padding:10px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:6px}
 .menu .who b{display:block;font-size:.9375rem}
@@ -405,13 +407,12 @@ body.in-app{background:var(--bg)}
   .quick{grid-template-columns:1fr 1fr}
 }
 @media(max-width:900px){
-  .wrap{padding-inline:24px}
   .g-grid{row-gap:36px}
   .card{padding:28px}
 }
 @media(max-width:640px){
-  .wrap{padding-inline:20px}
-  .top-in{height:60px}
+  .wrap{padding-inline:24px}
+  .nav-cta{padding:7px 14px;font-size:.78rem}
   .app{padding-block:32px 160px}
   .hello{margin-bottom:28px}
   .sec{margin-top:52px}
@@ -423,9 +424,8 @@ body.in-app{background:var(--bg)}
   .empty{padding:48px 24px}
   .empty-next{border-radius:28px}
   .nudge{padding:18px 20px}
-  .logo img{height:26px}
-  .top .link-btn span{display:none}
-  .g-title{font-size:2.35rem;margin:16px 0 14px}
+  .g-title{font-size:2.35rem;margin:6px 0 14px}
+  .kicker{font-size:1.0625rem}
   .auth{padding:30px 22px 26px;border-radius:28px}
   .otp{gap:6px}.otp input{height:54px;font-size:1.35rem}
   .tabs{display:none}
@@ -480,13 +480,20 @@ body.in-app{background:var(--bg)}
 <body>
 
 <header class="top" id="top">
-  <div class="wrap top-in">
-    <a class="logo" href="/find-doctor" aria-label="Docline, accueil"><img src="docline-logo.svg" alt="Docline"></a>
+  <div class="top-in">
+    <a class="logo" href="/find-doctor" aria-label="Docline, accueil"><svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg"  role="img" aria-label="Docline"><g fill="#3B1772"><g><g><path d="M73,0.8c9.6-2,19.8,7.6,17,17.4c-1.9,9.1-14.1,12.8-21.3,7.5c-4.9-2.9-7.8-9.2-6.6-14.8C63.2,5.7,67.7,1.4,73,0.8z M73.9,7.9c-5.5,1.1-6.4,9.1-1.6,11.7c3.4,2.6,9.1,1.4,10.4-2.9C84.8,11.6,78.9,6.4,73.9,7.9z"/></g><g><path d="M37.2,15.5c5.7-0.9,11.7-0.2,16.5,3.1c6.5,4.4,10.5,11.7,13,19.1c8.6-3.8,17.7-7.3,27.2-6.9c7.7,0.4,14.7,5.6,17.4,12.7c2.2,8.9-2,17.7-7.1,24.7c-9.4,13-23.4,23.9-39.8,25.5c-5.3,4.8-13.3,7.6-20.2,4.6c-8.3-3.8-13.4-11.8-17.6-19.5c-6.5-13.5-9.9-28.9-7.6-43.8C20.8,25.7,27.4,16.8,37.2,15.5z M39.1,23.2c-7.9,1.1-12.2,9.6-12.6,16.9c-0.5,14.9,3.6,30,11.9,42.4c3.3,5,8.7,10.7,15.2,8.5c-0.5-2-3.3-2.4-4.4-4.1c-5.7-5.7-9.3-14-8-22.1c0.2-5.6,4.2-10.8,9.6-12.4c6.7-2.5,15.2,0.3,18.6,6.8c4.6,7.6,3.4,17.1,1,25.3c6.8-1.8,12.5-6.3,18-10.7c6.5-6.3,12.9-13.6,15.1-22.6c1.9-5.8-3-11.5-8.5-12.3c-11.8-2.1-21.4,5.7-31.9,9.2c-4.7,1-8.9-3.8-8.4-8.3c1.2-0.8,2.5-0.1,3.8-0.1C56.4,31.1,49.1,21.1,39.1,23.2z M53.9,59.8c-3,0.8-4.7,3.9-4.5,7c-0.7,7.4,4.1,15.5,11.3,17.6c4.4-6.3,4.8-15.5,1-22.2C59.7,60.1,56.8,59,53.9,59.8z"/></g></g><g><path d="M166.9,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-1,0-1.9-0.2-2.7-0.7c-0.8-0.5-1.4-1.1-1.9-1.8c-1.5,0.9-3.2,1.7-4.9,2.2c-1.8,0.5-3.6,0.8-5.5,0.8c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9c0-2.8,0.5-5.4,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c1.8,0,3.5,0.2,5.1,0.6c1.6,0.4,3.2,1,4.6,1.8V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z M137.6,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8v-0.4c-0.1-1.3-0.3-2.5-0.9-3.7c-0.5-1.1-1.2-2.1-2.1-2.9c-0.9-0.8-1.9-1.5-3-2c-1.2-0.5-2.4-0.7-3.7-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C136.9,58.8,137.1,60.1,137.6,61.3z"/><path d="M174.7,49.6c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.9,1.6c2.5,1.1,4.6,2.5,6.4,4.4c1.8,1.8,3.3,4,4.3,6.5c1.1,2.5,1.6,5.1,1.6,7.9c0,2.8-0.5,5.4-1.6,7.9c-1.1,2.5-2.5,4.6-4.3,6.5c-1.8,1.8-4,3.3-6.4,4.3c-2.5,1.1-5.1,1.6-7.9,1.6c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9C173.1,54.7,173.6,52,174.7,49.6z M184.4,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8c0-1.4-0.3-2.6-0.8-3.8c-0.5-1.2-1.2-2.2-2.1-3.1c-0.9-0.9-1.9-1.6-3.1-2.1c-1.2-0.5-2.5-0.7-3.8-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C183.7,58.8,183.9,60.1,184.4,61.3z"/><path d="M233.6,48.7c-1.1,0.6-2,1.3-2.8,2.2c-0.8,0.9-1.4,1.9-1.9,3.1c-0.5,1.1-0.7,2.3-0.7,3.5c0,1.1,0.2,2.3,0.7,3.4c0.5,1.1,1.1,2.1,1.9,3c0.8,0.9,1.7,1.6,2.8,2.2c1.1,0.6,2.3,0.9,3.6,0.9c1.2,0.1,2.3,0,3.4-0.3c1.1-0.3,2.2-0.9,3.4-1.8c0.5-0.4,1.1-0.8,1.7-1.2c0.6-0.4,1.3-0.7,2-0.8c0.7-0.2,1.5-0.1,2.2,0c0.8,0.2,1.6,0.6,2.5,1.4c0.6,0.5,1,1.1,1.3,1.7c0.3,0.7,0.4,1.3,0.4,2.1c0,0.7-0.2,1.4-0.5,2.2c-0.3,0.7-0.8,1.4-1.4,2c-1.8,1.8-3.9,3.2-6.3,4.1c-2.4,0.9-5,1.4-7.6,1.4c-2.9,0-5.6-0.5-8.1-1.6c-2.5-1-4.7-2.5-6.6-4.3c-1.9-1.8-3.4-3.9-4.5-6.4c-1.1-2.5-1.6-5.1-1.6-8c0-2.8,0.5-5.5,1.6-8c1.1-2.5,2.6-4.7,4.5-6.5c1.9-1.8,4.1-3.3,6.6-4.4c2.5-1.1,5.2-1.6,8.1-1.6c2.7,0,5.3,0.5,7.7,1.4c2.4,0.9,4.5,2.3,6.3,4.1c0.6,0.6,1.1,1.3,1.4,2c0.3,0.7,0.5,1.5,0.5,2.2c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.3,1.7c-0.9,0.7-1.7,1.2-2.5,1.4c-0.8,0.2-1.5,0.2-2.2,0c-0.7-0.2-1.4-0.5-2-0.9c-0.6-0.4-1.2-0.8-1.7-1.2c-1.2-0.9-2.3-1.5-3.4-1.7c-1.1-0.3-2.2-0.4-3.4-0.4C235.8,47.9,234.6,48.2,233.6,48.7z"/><path d="M270.7,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M279.2,25.7c0.3-0.7,0.7-1.3,1.2-1.8c0.5-0.5,1.1-0.9,1.8-1.2c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.1,2.2,0.4c0.7,0.3,1.3,0.7,1.8,1.2c0.5,0.5,0.9,1.1,1.2,1.8c0.3,0.7,0.4,1.4,0.4,2.2c0,0.8-0.1,1.5-0.4,2.2c-0.3,0.7-0.7,1.3-1.2,1.8c-0.5,0.5-1.1,0.9-1.8,1.2c-0.7,0.3-1.4,0.4-2.2,0.4c-0.8,0-1.5-0.1-2.2-0.4c-0.7-0.3-1.3-0.7-1.8-1.2c-0.5-0.5-0.9-1.1-1.2-1.8c-0.3-0.7-0.4-1.4-0.4-2.2C278.8,27.1,278.9,26.4,279.2,25.7z M289.8,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.2,0.6,1.6,1.1c0.5,0.5,0.8,1,1.1,1.7c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M303.7,37.1c1.2,0,2.2,0.4,3.1,1.1c0.9,0.7,1.5,1.6,1.8,2.7c1.4-1.2,2.9-2.1,4.5-2.7c1.6-0.7,3.2-1,5-1c2.5,0,4.8,0.5,6.9,1.5s3.9,2.4,5.4,4.2c1.5,1.8,2.7,3.9,3.5,6.3c0.8,2.4,1.3,5,1.3,7.7v15.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.7,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.7,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V56.9c0-1.3-0.2-2.5-0.6-3.6c-0.4-1.1-0.9-2.1-1.5-2.9c-0.7-0.8-1.4-1.5-2.4-2c-0.9-0.5-2-0.7-3.2-0.7c-1.2,0-2.2,0.2-3.2,0.6c-1,0.4-1.8,1-2.5,1.8c-0.7,0.8-1.3,1.7-1.7,2.7c-0.4,1.1-0.6,2.2-0.7,3.5v15.8c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1C302.3,37.2,303,37.1,303.7,37.1z"/><path d="M352.6,62.2c0.8,1.6,2,3,3.6,3.9c1.5,1,3.3,1.5,5.1,1.5c0.8,0,1.4,0,2-0.1c0.6-0.1,1-0.2,1.5-0.4c0.4-0.2,0.8-0.3,1.2-0.6c0.3-0.2,0.7-0.5,1-0.7c0.9-0.7,1.9-1.2,2.7-1.3c0.9-0.1,1.7,0,2.5,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.9,1.1,1.4c0.3,0.5,0.5,1.1,0.7,1.7c0.1,0.6,0.2,1.2,0.1,1.8c-0.1,0.6-0.3,1.2-0.6,1.8c-0.3,0.6-0.8,1.1-1.4,1.6c-0.6,0.5-1.2,1-2,1.4c-0.7,0.5-1.6,0.9-2.6,1.2c-1,0.4-2.1,0.6-3.3,0.9c-1.3,0.2-2.7,0.3-4.3,0.3c-2.8,0-5.5-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.9-1.8-3.3-4-4.4-6.4c-1.1-2.5-1.6-5.1-1.6-7.9s0.5-5.5,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.9-1.8,4-3.3,6.5-4.3c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.8,1.6c2.5,1,4.6,2.5,6.5,4.3c1.8,1.8,3.3,3.9,4.4,6.4c1.1,2.4,1.7,5,1.7,7.8c0,1.5-0.5,2.7-1.4,3.6c-1,0.9-2.2,1.4-3.8,1.4H352.6z M370.8,53.4c-0.7-1.9-1.9-3.4-3.6-4.5c-1.7-1.1-3.6-1.7-5.8-1.7c-1.1,0-2.1,0.2-3.1,0.5c-1,0.3-1.8,0.7-2.6,1.3c-0.8,0.6-1.5,1.2-2.1,2c-0.6,0.8-1.1,1.6-1.4,2.5H370.8z"/></g></g></svg></a>
     <span class="top-sp"></span>
-    <a class="link-btn" href="/find-doctor"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Trouver un médecin</span></a>
-    <button class="avatar-btn" id="avatarBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Mon compte" hidden></button>
+    <button type="button" class="nav-cta" id="spaceBtn" data-space-menu>
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mon espace
+      <svg class="chev ds-btn-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <button type="button" class="nav-cta" id="avatarBtn" aria-haspopup="menu" aria-expanded="false" hidden>
+      <span class="ini" id="avIni"></span><span id="avName">Mon espace</span>
+      <svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
   </div>
-  <div class="wrap" style="position:relative">
+  <div class="menu-anchor">
     <div class="menu" id="menu" role="menu">
       <div class="who"><span class="av" id="mAv"></span><div><b id="mName">—</b><span id="mPhone"></span></div></div>
       <button type="button" data-tab-go="profil" role="menuitem"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Mon profil</button>
@@ -501,7 +508,7 @@ body.in-app{background:var(--bg)}
 <main class="guest" id="guest" hidden>
   <div class="wrap g-grid">
     <div class="g-head">
-      <span class="eyebrow rise"><i></i>Espace patient</span>
+      <p class="kicker rise">Espace patient</p>
       <h1 class="g-title rise d1">Votre santé,<br><span class="grad">enfin organisée.</span></h1>
       <p class="g-sub rise d2">Vos rendez-vous, ceux de vos proches et vos résultats d'analyses au même endroit. Pas de mot de passe : un code par SMS suffit.</p>
     </div>
@@ -938,7 +945,7 @@ function session(){ return read(KEY); }
 function showGuest(){
   clearInterval(tick);
   document.body.classList.remove('in-app');
-  $('app').hidden = true; $('tabbar').hidden = true; $('avatarBtn').hidden = true; $('guest').hidden = false;
+  $('app').hidden = true; $('tabbar').hidden = true; $('avatarBtn').hidden = true; $('spaceBtn').hidden = false; $('guest').hidden = false;
   curStep = 'stPhone'; ['stCode','stDone'].forEach(function(s){ $(s).classList.remove('on','in-r','in-l'); }); $('stPhone').classList.add('on');
   setMode(location.hash === '#signup' ? 'signup' : 'login');
   startDemo();
@@ -947,7 +954,7 @@ function showGuest(){
 async function enterApp(welcome){
   stopDemo();
   document.body.classList.add('in-app');
-  $('guest').hidden = true; $('app').hidden = false; $('tabbar').hidden = false; $('avatarBtn').hidden = false;
+  $('guest').hidden = true; $('app').hidden = false; $('tabbar').hidden = false; $('avatarBtn').hidden = false; $('spaceBtn').hidden = true;
   $('appLoading').hidden = false;
   document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
   window.scrollTo(0, 0);
@@ -1004,7 +1011,8 @@ function mapsUrl(d){ var q = [d && d.address, d && d.city, d && d.wilaya, 'Algé
 
 function renderAll(){
   var me = S.me, f = first(me.full_name);
-  $('avatarBtn').textContent = f ? f.charAt(0).toUpperCase() : '·';
+  $('avIni').textContent = f ? f.charAt(0).toUpperCase() : '·';
+  $('avName').textContent = f || 'Mon espace';
   $('mAv').textContent = f ? f.charAt(0).toUpperCase() : '·';
   $('mName').textContent = me.full_name || 'Mon espace';
   $('mPhone').textContent = prettyPhone(me.phone);
@@ -1310,5 +1318,6 @@ if (session()) enterApp(); else {
 }
 })();
 </script>
+<script src="docline-space.js?v=3" defer></script>
 </body>
 </html>
