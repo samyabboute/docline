@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Mon espace patient — Docline</title>
+<meta name="description" content="Vos rendez-vous médicaux, vos proches et vos résultats d'analyses au même endroit. Sans mot de passe, connexion par SMS.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FBFAFD">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Docline">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="config.js?v=3"></script>
+<style>
+/* Identité Docline, version Apple : un seul fond clair, encre violette, accent violet, orange très rare. */
+:root{
+  --bg:#FBFAFD; --surface:#FFFFFF; --fill:#F4F2F8; --fill2:#ECE8F4;
+  --line:rgba(13,5,32,.08); --line2:rgba(13,5,32,.13);
+  --ink:#0D0520; --ink2:#3B3551; --ink3:#6E6880; --ink4:#A29DB0;
+  --accent:#4C1D95; --accent-h:#5B21B6; --accent-soft:#F1EEFA;
+  --ok:#1E7F4E; --ok-soft:#EDF7F1; --warn:#B45309; --warn-soft:#FEF6E7; --bad:#B42318; --bad-soft:#FDF0EF;
+  --orange:#EA580C;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --r-lg:24px; --r-md:16px; --r-sm:12px;
+  --shadow:0 1px 2px rgba(13,5,32,.04),0 12px 32px -16px rgba(13,5,32,.18);
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;letter-spacing:-.005em;min-height:100vh;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+h1,h2,h3{text-wrap:balance;letter-spacing:-.03em}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px}
+:focus{outline:none}
+:focus-visible{box-shadow:0 0 0 3px rgba(76,29,149,.28)!important;border-radius:10px}
+
+/* ── Barre du haut ───────────────────────────── */
+.top{position:sticky;top:0;z-index:50;background:rgba(251,250,253,.82);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid transparent;transition:border-color .3s}
+.top.scrolled{border-bottom-color:var(--line)}
+.top-in{display:flex;align-items:center;gap:12px;height:64px;padding-top:env(safe-area-inset-top,0px)}
+.logo img{height:30px;display:block}
+.top-sp{flex:1}
+.link-btn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:999px;text-decoration:none;font-size:.875rem;font-weight:600;color:var(--ink2);transition:background .2s}
+.link-btn:hover{background:var(--fill)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 20px;border-radius:999px;border:0;cursor:pointer;font-weight:600;font-size:.9375rem;text-decoration:none;transition:background .2s,transform .3s var(--ease),box-shadow .2s;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 10px 24px -14px rgba(76,29,149,.8)}
+.btn-primary:hover{background:var(--accent-h)}
+.btn-primary[disabled]{opacity:.55;cursor:default}
+.btn-soft{background:var(--fill);color:var(--ink)}
+.btn-soft:hover{background:var(--fill2)}
+.btn-ghost{background:transparent;color:var(--accent)}
+.btn-ghost:hover{background:var(--accent-soft)}
+.btn-sm{height:36px;padding:0 14px;font-size:.8125rem}
+.btn-danger{background:transparent;color:var(--bad)}
+.btn-danger:hover{background:var(--bad-soft)}
+.avatar-btn{width:38px;height:38px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:.875rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.top-book{display:none}
+
+/* ── Invité : hero + carte de connexion ─────── */
+.guest{padding-block:40px 64px;min-height:calc(100vh - 64px);display:flex;flex-direction:column;justify-content:center;position:relative}
+.guest:before{content:"";position:absolute;right:-10%;top:10%;width:640px;height:640px;max-width:80vw;border-radius:50%;background:radial-gradient(closest-side,rgba(124,58,237,.10),transparent);pointer-events:none;z-index:-1}
+.g-grid{width:100%}
+.g-grid{display:grid;grid-template-columns:1.1fr .9fr;grid-template-areas:'head auth' 'more auth';column-gap:56px;align-items:center}
+.g-head{grid-area:head;align-self:end}.g-more{grid-area:more;align-self:start}.auth{grid-area:auth}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:6px 12px;border-radius:999px}
+.g-title{font-size:clamp(2.1rem,4.6vw,3.4rem);line-height:1.04;font-weight:800;letter-spacing:-.045em;margin:18px 0 16px}
+.g-title em{font-style:normal;color:var(--accent)}
+.g-sub{font-size:1.0625rem;color:var(--ink3);max-width:30em}
+.benefits{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;margin:30px 0 28px}
+.benefits li{display:flex;gap:12px;align-items:flex-start}
+.b-ic{width:38px;height:38px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
+.benefits b{display:block;font-size:.9375rem;font-weight:600;letter-spacing:-.01em}
+.benefits span{display:block;font-size:.8125rem;color:var(--ink3);line-height:1.45;margin-top:2px}
+.no-account{display:inline-flex;align-items:center;gap:8px;font-size:.875rem;color:var(--ink3);text-decoration:none}
+.no-account b{color:var(--accent);font-weight:600}
+.no-account:hover b{text-decoration:underline}
+
+.auth{background:var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:0 1px 2px rgba(13,5,32,.04),0 30px 70px -30px rgba(76,29,149,.35);padding:28px;position:relative}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--fill);border-radius:999px;padding:4px;position:relative;margin-bottom:24px}
+.seg button{position:relative;z-index:1;height:38px;border:0;background:transparent;border-radius:999px;font-weight:600;font-size:.875rem;color:var(--ink3);cursor:pointer;transition:color .25s}
+.seg button[aria-selected="true"]{color:var(--ink)}
+.seg-pill{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:var(--surface);border-radius:999px;box-shadow:0 1px 3px rgba(13,5,32,.1);transition:transform .4s var(--ease)}
+.seg[data-mode="signup"] .seg-pill{transform:translateX(100%)}
+.a-title{font-size:1.5rem;font-weight:700;letter-spacing:-.03em}
+.a-sub{color:var(--ink3);font-size:.9rem;margin:6px 0 22px}
+.field{display:block;margin-bottom:14px}
+.field>span{display:block;font-size:.8125rem;font-weight:600;color:var(--ink2);margin-bottom:6px}
+.input{width:100%;height:50px;border:1px solid var(--line2);border-radius:14px;background:var(--surface);padding:0 14px;font-size:1rem;transition:border-color .2s,box-shadow .2s}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(76,29,149,.12)}
+.phone{display:flex;align-items:center;border:1px solid var(--line2);border-radius:14px;height:50px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.phone:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(76,29,149,.12)}
+.phone .cc{padding:0 12px 0 14px;font-weight:600;color:var(--ink2);border-right:1px solid var(--line);height:100%;display:flex;align-items:center;gap:6px;font-size:.9375rem}
+.phone input{flex:1;border:0;height:100%;padding:0 14px;font-size:1.0625rem;letter-spacing:.02em;font-variant-numeric:tabular-nums;background:transparent;min-width:0}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:.8125rem;color:var(--ink3);margin:4px 0 18px;line-height:1.45;cursor:pointer}
+.consent input{width:18px;height:18px;accent-color:var(--accent);margin-top:1px;flex-shrink:0}
+.consent a{color:var(--accent)}
+.full{width:100%}
+.alert{display:none;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;font-size:.875rem;margin-bottom:14px;line-height:1.45}
+.alert.show{display:flex}
+.alert.err{background:var(--bad-soft);color:var(--bad)}
+.alert.info{background:var(--accent-soft);color:var(--accent)}
+.otp{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:6px 0 16px}
+.otp input{height:58px;text-align:center;font-size:1.5rem;font-weight:700;border:1px solid var(--line2);border-radius:14px;background:var(--surface);font-variant-numeric:tabular-nums;transition:border-color .2s,box-shadow .2s,background .2s;min-width:0}
+.otp input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(76,29,149,.12)}
+.otp input.filled{background:var(--accent-soft);border-color:transparent}
+.otp.shake{animation:shake .4s var(--ease)}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.otp-meta{display:flex;justify-content:space-between;align-items:center;font-size:.8125rem;color:var(--ink3);margin-top:14px}
+.otp-meta button{border:0;background:none;color:var(--accent);font-weight:600;cursor:pointer;padding:4px 6px;border-radius:8px}
+.otp-meta button[disabled]{color:var(--ink4);cursor:default}
+.a-foot{display:flex;gap:8px;align-items:flex-start;font-size:.75rem;color:var(--ink3);margin-top:18px;padding-top:16px;border-top:1px solid var(--line);line-height:1.45}
+.a-foot svg{color:var(--ok);width:16px;height:16px}
+.step{display:none}.step.on{display:block;animation:fadeUp .45s var(--ease)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ── Espace connecté ──────────────────────────── */
+.app{padding-block:28px 120px}
+.hello{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px}
+.hello h1{font-size:clamp(1.75rem,3.6vw,2.4rem);font-weight:800;letter-spacing:-.04em;line-height:1.1}
+.hello p{color:var(--ink3);margin-top:4px}
+.tabs{display:flex;gap:4px;background:var(--fill);padding:4px;border-radius:999px;width:max-content;margin-bottom:28px}
+.tabs button{height:36px;padding:0 16px;border:0;background:transparent;border-radius:999px;font-weight:600;font-size:.875rem;color:var(--ink3);cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .25s,color .25s}
+.tabs button svg{width:16px;height:16px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(13,5,32,.1)}
+.tabs .count{font-size:.6875rem;background:var(--accent);color:#fff;border-radius:999px;padding:1px 6px;font-weight:700}
+.view{display:none}.view.on{display:block;animation:fadeUp .45s var(--ease)}
+.h2{font-size:1.125rem;font-weight:700;letter-spacing:-.02em;margin:0 0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.h2 a,.h2 button{font-size:.8125rem;font-weight:600;color:var(--accent);text-decoration:none;border:0;background:none;cursor:pointer}
+.sec{margin-top:36px}
+
+/* Prochain RDV */
+.next{position:relative;overflow:hidden;border-radius:28px;background:var(--accent);color:#fff;padding:28px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;box-shadow:0 30px 60px -30px rgba(76,29,149,.8)}
+.next:before{content:"";position:absolute;inset:0;background:radial-gradient(60% 90% at 100% 0%,rgba(255,255,255,.14),transparent 60%),radial-gradient(40% 60% at 0% 100%,rgba(234,88,12,.18),transparent 70%);pointer-events:none}
+.next>*{position:relative}
+.cal-tile{width:112px;border-radius:20px;background:#fff;color:var(--ink);text-align:center;overflow:hidden;box-shadow:0 12px 30px -14px rgba(0,0,0,.5)}
+.cal-tile .m{background:var(--orange);color:#fff;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 0}
+.cal-tile .d{font-size:2.75rem;font-weight:800;letter-spacing:-.05em;line-height:1;padding:10px 0 2px;font-variant-numeric:tabular-nums}
+.cal-tile .w{font-size:.75rem;color:var(--ink3);font-weight:600;padding-bottom:10px;text-transform:capitalize}
+.next-label{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.next-when{font-size:clamp(1.5rem,3vw,2rem);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin:6px 0 4px}
+.next-doc{font-size:1rem;opacity:.92}
+.next-doc span{opacity:.75}
+.next-addr{display:flex;gap:6px;align-items:center;font-size:.875rem;opacity:.8;margin-top:6px}
+.next-addr svg{width:15px;height:15px}
+.countdown{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);padding:5px 11px;border-radius:999px;font-size:.8125rem;font-weight:600;margin-top:14px}
+.countdown i{width:7px;height:7px;border-radius:50%;background:#7CE0A8;display:block}
+.next-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.next-actions .btn{height:40px;font-size:.8125rem;padding:0 14px;background:rgba(255,255,255,.14);color:#fff;box-shadow:none}
+.next-actions .btn:hover{background:rgba(255,255,255,.24)}
+.next-actions .btn.solid{background:#fff;color:var(--accent)}
+.next-actions .btn.solid:hover{background:#F4F2F8}
+.next-actions svg{width:16px;height:16px}
+.short-l{display:none}
+
+.empty-next{border-radius:28px;background:var(--surface);border:1px solid var(--line);padding:32px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.empty-next h3{font-size:1.25rem;font-weight:700}
+.empty-next p{color:var(--ink3);font-size:.9375rem;margin-top:4px}
+
+/* Raccourcis */
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.q{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:20px;background:var(--surface);border:1px solid var(--line);text-decoration:none;cursor:pointer;text-align:left;transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .2s}
+.q:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:transparent}
+.q .b-ic{background:var(--accent-soft);border:0}
+.q b{font-size:.9375rem;font-weight:600;letter-spacing:-.01em}
+.q span{font-size:.8125rem;color:var(--ink3);display:block;margin-top:2px}
+
+/* Médecins */
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.doc{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.doc-av{width:46px;height:46px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;overflow:hidden}
+.doc-av img{width:100%;height:100%;object-fit:cover}
+.doc-txt{flex:1;min-width:0}
+.doc-txt b{display:block;font-size:.9375rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-txt span{display:block;font-size:.8125rem;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Profil à compléter */
+.nudge{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:20px;background:var(--accent-soft);margin-top:16px}
+.ring{--p:0;width:48px;height:48px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),rgba(76,29,149,.14) 0);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ring:after{content:attr(data-v);width:38px;height:38px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--accent)}
+.nudge div{flex:1;min-width:0}
+.nudge b{display:block;font-size:.9375rem}
+.nudge span{display:block;font-size:.8125rem;color:var(--ink3)}
+
+/* Liste des RDV */
+.subseg{display:inline-flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.subseg button{height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);font-size:.8125rem;font-weight:600;color:var(--ink2);cursor:pointer;transition:all .2s}
+.subseg button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.list{display:flex;flex-direction:column;gap:10px}
+.appt{display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:center;padding:16px;border-radius:20px;background:var(--surface);border:1px solid var(--line)}
+.mini-cal{width:64px;border-radius:14px;background:var(--fill);text-align:center;padding:8px 0}
+.mini-cal .m{font-size:.6875rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange)}
+.mini-cal .d{font-size:1.5rem;font-weight:800;letter-spacing:-.04em;line-height:1.1;font-variant-numeric:tabular-nums}
+.mini-cal .t{font-size:.75rem;color:var(--ink3);font-weight:600;font-variant-numeric:tabular-nums}
+.appt-main{min-width:0}
+.appt-main b{display:block;font-size:1rem;font-weight:600;letter-spacing:-.01em}
+.appt-main .sp{font-size:.8125rem;color:var(--ink3);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;padding:3px 9px;border-radius:999px;margin-top:6px}
+.pill i{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.wait{background:var(--warn-soft);color:var(--warn)}
+.pill.off{background:var(--fill);color:var(--ink3)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.appt-act{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ic-btn{width:38px;height:38px;border-radius:12px;border:0;background:var(--fill);color:var(--ink2);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+.ic-btn:hover{background:var(--accent-soft);color:var(--accent)}
+.ic-btn svg{width:17px;height:17px}
+.ic-btn.danger:hover{background:var(--bad-soft);color:var(--bad)}
+
+.empty{padding:40px 24px;text-align:center;border-radius:22px;border:1px dashed var(--line2);color:var(--ink3)}
+.empty b{display:block;color:var(--ink);font-size:1rem;margin-bottom:4px}
+.empty .btn{margin-top:16px}
+
+/* Cartes génériques */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row{display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0;padding-top:0}
+.row:last-child{padding-bottom:0}
+.row-txt{flex:1;min-width:0}
+.row-txt b{display:block;font-size:.9375rem;font-weight:600}
+.row-txt span{display:block;font-size:.8125rem;color:var(--ink3)}
+.switch{position:relative;width:46px;height:28px;flex-shrink:0}
+.switch input{position:absolute;opacity:0;inset:0;cursor:pointer;z-index:1}
+.switch span{position:absolute;inset:0;border-radius:999px;background:var(--fill2);transition:background .25s}
+.switch span:after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .3s var(--ease)}
+.switch input:checked+span{background:var(--ok)}
+.switch input:checked+span:after{transform:translateX(18px)}
+.switch input:focus-visible+span{box-shadow:0 0 0 3px rgba(76,29,149,.28)}
+.verified{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:600;color:var(--ok);background:var(--ok-soft);padding:2px 8px;border-radius:999px;margin-left:6px}
+.verified svg{width:12px;height:12px}
+.code-in{display:flex;gap:8px}
+.code-in .input{text-transform:uppercase;letter-spacing:.2em;font-weight:600}
+.rel-form{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:10px;align-items:end;margin-top:16px}
+.rel-form .field{margin:0}
+.danger-zone{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.small{font-size:.8125rem;color:var(--ink3)}
+
+/* Menu avatar */
+.menu{position:absolute;right:20px;top:60px;width:240px;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:18px;box-shadow:0 24px 60px -18px rgba(13,5,32,.3);padding:8px;opacity:0;transform:translateY(-6px) scale(.97);transform-origin:top right;pointer-events:none;transition:opacity .25s var(--ease),transform .35s var(--ease)}
+.menu.on{opacity:1;transform:none;pointer-events:auto}
+.menu .who{padding:10px 12px 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.menu .who b{display:block;font-size:.9375rem}
+.menu .who span{font-size:.8125rem;color:var(--ink3);font-variant-numeric:tabular-nums}
+.menu button,.menu a{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;background:none;border-radius:12px;font-size:.875rem;font-weight:500;cursor:pointer;text-decoration:none;color:var(--ink2);text-align:left}
+.menu button:hover,.menu a:hover{background:var(--fill)}
+.menu svg{width:17px;height:17px}
+
+/* Barre d'onglets mobile */
+.tabbar{display:none}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;font-size:.875rem;font-weight:500;opacity:0;pointer-events:none;transition:opacity .3s var(--ease),transform .4s var(--ease);z-index:200;max-width:calc(100vw - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.loading{padding:80px 0;display:flex;justify-content:center}
+.loading .spin{border-color:rgba(76,29,149,.2);border-top-color:var(--accent);width:28px;height:28px}
+
+@media(max-width:900px){
+  .g-grid{grid-template-columns:1fr;grid-template-areas:'head' 'auth' 'more';row-gap:24px}
+  .guest{padding-block:16px 48px;min-height:0;display:block}
+  .g-sub{font-size:1rem}
+  .quick{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .wrap{padding-inline:16px}
+  .top-in{height:58px}
+  .logo img{height:26px}
+  .top .link-btn span{display:none}
+  .g-title{font-size:2rem;margin:12px 0 10px}
+  .benefits{grid-template-columns:1fr;gap:14px;margin:8px 0 22px}
+  .auth{padding:22px 18px;border-radius:24px}
+  .otp{gap:6px}.otp input{height:52px;font-size:1.3rem}
+  .tabs{display:none}
+  .hello{margin-bottom:18px}
+  .hello .btn{display:none}
+  .next{grid-template-columns:1fr;gap:18px;padding:22px;border-radius:24px}
+  .cal-tile{width:auto;display:flex;align-items:stretch;text-align:left}
+  .cal-tile .m{writing-mode:vertical-rl;transform:rotate(180deg);padding:0 8px;display:flex;align-items:center;justify-content:center}
+  .cal-tile .d{padding:10px 14px 10px 16px;font-size:2.25rem}
+  .cal-tile .w{padding:0;display:flex;align-items:center;font-size:.875rem}
+  .next-actions{display:grid;grid-template-columns:1fr 1fr}
+  .next-actions .btn.solid{grid-column:1/-1}
+  .next-actions .btn:last-child:nth-child(even),.next-actions.nt .btn:last-child:nth-child(odd){grid-column:1/-1}
+  .next-actions.nt .btn:last-child:nth-child(even){grid-column:auto}
+  .long-l{display:none}.short-l{display:inline}
+  .nudge{flex-wrap:wrap;gap:12px 14px}
+  .nudge div{flex:1 1 calc(100% - 64px)}
+  .nudge .btn{width:100%}
+  .empty-next{flex-direction:column;align-items:flex-start;padding:24px}
+  .appt{grid-template-columns:56px 1fr;gap:12px;padding:14px}
+  .mini-cal{width:56px}
+  .appt-act{grid-column:1/-1;justify-content:flex-start}
+  .grid2{grid-template-columns:1fr}
+  .rel-form{grid-template-columns:1fr 1fr}
+  .rel-form .field:first-child,.rel-form .btn{grid-column:1/-1}
+  .app{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(251,250,253,.9);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+  .tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:.6875rem;font-weight:600;color:var(--ink4);cursor:pointer;transition:color .2s}
+  .tabbar button svg{width:22px;height:22px}
+  .tabbar button[aria-selected="true"]{color:var(--accent)}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wrap top-in">
+    <a class="logo" href="/find-doctor" aria-label="Docline, accueil"><img src="docline-logo.svg" alt="Docline"></a>
+    <span class="top-sp"></span>
+    <a class="link-btn" href="/find-doctor"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Trouver un médecin</span></a>
+    <button class="avatar-btn" id="avatarBtn" type="button" aria-haspopup="menu" aria-expanded="false" hidden>·</button>
+  </div>
+  <div class="wrap" style="position:relative">
+    <div class="menu" id="menu" role="menu">
+      <div class="who"><b id="mName">—</b><span id="mPhone"></span></div>
+      <button type="button" data-tab-go="profil" role="menuitem"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Mon profil</button>
+      <button type="button" data-tab-go="proches" role="menuitem"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 0 1 8 14h2a5.5 5.5 0 0 1 5.5 5.5v.5"/><circle cx="17.5" cy="9.5" r="2.5"/><path d="M16 14.2a4.5 4.5 0 0 1 5.5 4.3v.5"/></svg>Mes proches</button>
+      <button type="button" id="logoutBtn" role="menuitem"><svg class="i" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>Se déconnecter</button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ INVITÉ ══════════════════════════════════════ -->
+<main class="guest wrap" id="guest" hidden>
+  <div class="g-grid">
+    <div class="g-head">
+      <span class="eyebrow">Espace patient</span>
+      <h1 class="g-title">Votre santé,<br><em>enfin organisée.</em></h1>
+      <p class="g-sub">Vos rendez-vous, ceux de vos proches et vos résultats d'analyses au même endroit. Pas de mot de passe : un code par SMS suffit.</p>
+    </div>
+    <div class="g-more">
+      <ul class="benefits">
+        <li><span class="b-ic"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 15.5 2 2 4-4"/></svg></span><div><b>Tous vos rendez-vous</b><span>Annulez ou reprenez rendez-vous sans appeler le cabinet.</span></div></li>
+        <li><span class="b-ic"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 0 1 8 14h2a5.5 5.5 0 0 1 5.5 5.5v.5"/><circle cx="17.5" cy="9.5" r="2.5"/><path d="M16 14.2a4.5 4.5 0 0 1 5.5 4.3v.5"/></svg></span><div><b>Toute la famille</b><span>Réservez pour vos enfants ou vos parents en quelques secondes.</span></div></li>
+        <li><span class="b-ic"><svg class="i" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><div><b>Rappels automatiques</b><span>Un SMS avant chaque rendez-vous, pour ne plus rien oublier.</span></div></li>
+        <li><span class="b-ic"><svg class="i" viewBox="0 0 24 24"><path d="M9 2v6L4 18a2 2 0 0 0 1.8 3h12.4a2 2 0 0 0 1.8-3L15 8V2"/><path d="M8 2h8M7 15h10"/></svg></span><div><b>Résultats d'analyses</b><span>Retrouvez les documents déposés par vos médecins.</span></div></li>
+      </ul>
+      <a class="no-account" href="/find-doctor">Pas encore prêt ? <b>Prendre rendez-vous sans compte</b><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px;color:var(--accent)"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+
+    <section class="auth" aria-labelledby="aTitle">
+      <div class="seg" id="seg" data-mode="login" role="tablist">
+        <span class="seg-pill"></span>
+        <button type="button" role="tab" aria-selected="true" data-mode="login">Se connecter</button>
+        <button type="button" role="tab" aria-selected="false" data-mode="signup">Créer un compte</button>
+      </div>
+
+      <div class="step on" id="stPhone">
+        <h2 class="a-title" id="aTitle">Bon retour parmi nous</h2>
+        <p class="a-sub" id="aSub">Entrez votre numéro, nous vous envoyons un code.</p>
+        <div class="alert err" id="errPhone"></div>
+        <label class="field" id="nameField" hidden><span>Nom et prénom</span><input class="input" id="fName" autocomplete="name" maxlength="80" placeholder="Ex. Amina Benali"></label>
+        <label class="field"><span>Numéro de téléphone</span>
+          <div class="phone"><span class="cc">+213</span><input id="fPhone" type="tel" inputmode="tel" autocomplete="tel-national" maxlength="14" placeholder="5 55 12 34 56"></div>
+        </label>
+        <label class="consent" id="consentRow" hidden><input type="checkbox" id="fConsent"><span>J'accepte que Docline conserve mes informations pour gérer mes rendez-vous. <a href="/privacy" target="_blank" rel="noopener">Confidentialité</a></span></label>
+        <button class="btn btn-primary full" id="sendBtn" type="button">Recevoir le code</button>
+      </div>
+
+      <div class="step" id="stCode">
+        <h2 class="a-title">Entrez le code</h2>
+        <p class="a-sub">Envoyé par SMS au <b id="sentTo" style="color:var(--ink);font-variant-numeric:tabular-nums"></b></p>
+        <div class="alert err" id="errCode"></div>
+        <div class="alert info" id="devCode"></div>
+        <div class="otp" id="otp">
+          <input inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Chiffre 1"><input inputmode="numeric" maxlength="1" aria-label="Chiffre 2"><input inputmode="numeric" maxlength="1" aria-label="Chiffre 3"><input inputmode="numeric" maxlength="1" aria-label="Chiffre 4"><input inputmode="numeric" maxlength="1" aria-label="Chiffre 5"><input inputmode="numeric" maxlength="1" aria-label="Chiffre 6">
+        </div>
+        <button class="btn btn-primary full" id="verifyBtn" type="button">Valider</button>
+        <div class="otp-meta"><button type="button" id="editPhone">Modifier le numéro</button><button type="button" id="resendBtn" disabled>Renvoyer</button></div>
+      </div>
+
+      <p class="a-foot"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>Aucun mot de passe à retenir. Vous pouvez supprimer votre espace à tout moment depuis votre profil.</span></p>
+    </section>
+  </div>
+</main>
+
+<!-- ══ CONNECTÉ ════════════════════════════════════ -->
+<main class="app wrap" id="app" hidden>
+  <div class="hello">
+    <div><h1 id="helloTitle">Bonjour</h1><p id="helloSub">Voici ce qui vous attend.</p></div>
+    <a class="btn btn-primary" href="/find-doctor"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M12 5v14M5 12h14"/></svg>Prendre rendez-vous</a>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-tab="accueil" aria-selected="true"><svg class="i" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</button>
+    <button type="button" role="tab" data-tab="rdv" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Rendez-vous <span class="count" id="cntUp" hidden></span></button>
+    <button type="button" role="tab" data-tab="resultats" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><path d="M9 2v6L4 18a2 2 0 0 0 1.8 3h12.4a2 2 0 0 0 1.8-3L15 8V2"/><path d="M8 2h8M7 15h10"/></svg>Résultats</button>
+    <button type="button" role="tab" data-tab="proches" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 0 1 8 14h2a5.5 5.5 0 0 1 5.5 5.5v.5"/><circle cx="17.5" cy="9.5" r="2.5"/><path d="M16 14.2a4.5 4.5 0 0 1 5.5 4.3v.5"/></svg>Proches</button>
+    <button type="button" role="tab" data-tab="profil" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Profil</button>
+  </nav>
+
+  <div class="loading" id="appLoading"><span class="spin"></span></div>
+
+  <!-- Accueil -->
+  <section class="view" id="v-accueil">
+    <div id="nextBox"></div>
+    <div id="nudgeBox"></div>
+    <div class="sec">
+      <h2 class="h2">Raccourcis</h2>
+      <div class="quick">
+        <a class="q" href="/find-doctor"><span class="b-ic"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><div><b>Trouver un médecin</b><span>Par spécialité ou ville</span></div></a>
+        <button class="q" type="button" data-tab-go="rdv"><span class="b-ic"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><div><b>Mes rendez-vous</b><span id="qRdv">À venir et passés</span></div></button>
+        <button class="q" type="button" data-tab-go="resultats"><span class="b-ic"><svg class="i" viewBox="0 0 24 24"><path d="M9 2v6L4 18a2 2 0 0 0 1.8 3h12.4a2 2 0 0 0 1.8-3L15 8V2"/><path d="M8 2h8M7 15h10"/></svg></span><div><b>Résultats</b><span>Analyses et documents</span></div></button>
+        <button class="q" type="button" data-tab-go="proches"><span class="b-ic"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 0 1 8 14h2a5.5 5.5 0 0 1 5.5 5.5v.5"/><path d="M19 8v6M16 11h6"/></svg></span><div><b>Ajouter un proche</b><span>Enfant, parent, conjoint</span></div></button>
+      </div>
+    </div>
+    <div class="sec" id="docsSec" hidden>
+      <h2 class="h2">Mes médecins</h2>
+      <div class="docs" id="docsList"></div>
+    </div>
+  </section>
+
+  <!-- Rendez-vous -->
+  <section class="view" id="v-rdv">
+    <div class="subseg" role="tablist" id="rdvSeg">
+      <button type="button" data-f="up" aria-selected="true">À venir</button>
+      <button type="button" data-f="past" aria-selected="false">Passés</button>
+      <button type="button" data-f="cancel" aria-selected="false">Annulés</button>
+    </div>
+    <div class="list" id="rdvList"></div>
+  </section>
+
+  <!-- Résultats -->
+  <section class="view" id="v-resultats">
+    <div class="card" style="margin-bottom:16px">
+      <h2 class="h2" style="margin-bottom:6px">Vous avez un code ?</h2>
+      <p class="small" style="margin-bottom:14px">Saisissez le code à 6 caractères remis par votre médecin ou votre laboratoire.</p>
+      <div class="code-in"><input class="input" id="labCode" maxlength="8" placeholder="AB12CD" autocomplete="off"><button class="btn btn-primary" id="labGo" type="button">Ouvrir</button></div>
+    </div>
+    <div class="list" id="labList"></div>
+  </section>
+
+  <!-- Proches -->
+  <section class="view" id="v-proches">
+    <div class="card">
+      <h2 class="h2" style="margin-bottom:6px">Mes proches</h2>
+      <p class="small">Ajoutez les membres de votre famille pour réserver pour eux plus vite.</p>
+      <div id="relList" style="margin-top:16px"></div>
+      <form class="rel-form" id="relForm" autocomplete="off">
+        <label class="field"><span>Nom et prénom</span><input class="input" id="rName" maxlength="80" required></label>
+        <label class="field"><span>Lien</span><select class="input" id="rRel"><option value="enfant">Enfant</option><option value="conjoint">Conjoint(e)</option><option value="parent">Parent</option><option value="autre">Autre</option></select></label>
+        <label class="field"><span>Date de naissance</span><input class="input" id="rBirth" type="date"></label>
+        <button class="btn btn-primary" type="submit">Ajouter</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Profil -->
+  <section class="view" id="v-profil">
+    <div class="card">
+      <h2 class="h2">Mes informations</h2>
+      <form id="profForm" autocomplete="on">
+        <div class="grid2">
+          <label class="field"><span>Nom et prénom</span><input class="input" id="pName" autocomplete="name" maxlength="80"></label>
+          <label class="field"><span>Téléphone <span class="verified"><svg class="i" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>vérifié</span></span><input class="input" id="pPhone" disabled></label>
+          <label class="field"><span>Email (facultatif)</span><input class="input" id="pEmail" type="email" autocomplete="email" maxlength="120" placeholder="Pour recevoir vos confirmations"></label>
+          <label class="field"><span>Date de naissance</span><input class="input" id="pBirth" type="date"></label>
+          <label class="field"><span>Wilaya</span><select class="input" id="pWilaya"><option value="">Choisir…</option></select></label>
+        </div>
+        <h2 class="h2" style="margin-top:14px">Rappels</h2>
+        <div class="row"><div class="row-txt"><b>Rappels par SMS</b><span>Avant chacun de vos rendez-vous</span></div><label class="switch"><input type="checkbox" id="pSms" aria-label="Rappels par SMS"><span></span></label></div>
+        <div class="row"><div class="row-txt"><b>Rappels par email</b><span>Nécessite une adresse email</span></div><label class="switch"><input type="checkbox" id="pMail" aria-label="Rappels par email"><span></span></label></div>
+        <div style="margin-top:20px"><button class="btn btn-primary" type="submit" id="profSave">Enregistrer</button></div>
+      </form>
+      <div class="danger-zone">
+        <button class="btn btn-soft btn-sm" type="button" id="logout2">Se déconnecter</button>
+        <button class="btn btn-danger btn-sm" type="button" id="delAcc">Supprimer mon espace</button>
+      </div>
+      <p class="small" style="margin-top:12px">La suppression efface votre espace, vos proches et vos préférences. Vos rendez-vous restent dans le dossier de votre médecin.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar" id="tabbar" hidden aria-label="Navigation">
+  <button type="button" data-tab="accueil" aria-selected="true"><svg class="i" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</button>
+  <button type="button" data-tab="rdv" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>RDV</button>
+  <button type="button" data-tab="resultats" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><path d="M9 2v6L4 18a2 2 0 0 0 1.8 3h12.4a2 2 0 0 0 1.8-3L15 8V2"/><path d="M8 2h8M7 15h10"/></svg>Résultats</button>
+  <button type="button" data-tab="proches" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 0 1 8 14h2a5.5 5.5 0 0 1 5.5 5.5v.5"/><circle cx="17.5" cy="9.5" r="2.5"/><path d="M16 14.2a4.5 4.5 0 0 1 5.5 4.3v.5"/></svg>Proches</button>
+  <button type="button" data-tab="profil" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Profil</button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+var _sb = supabase.createClient(SUPA_URL, ANON_KEY);
+var KEY = 'docline_patient_session', NAME_KEY = 'docline_patient_name';
+var MONTHS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+var MONTHS_FULL = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+var DAYS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+var WILAYAS = ['Adrar','Chlef','Laghouat','Oum El Bouaghi','Batna','Béjaïa','Biskra','Béchar','Blida','Bouira','Tamanrasset','Tébessa','Tlemcen','Tiaret','Tizi Ouzou','Alger','Djelfa','Jijel','Sétif','Saïda','Skikda','Sidi Bel Abbès','Annaba','Guelma','Constantine','Médéa','Mostaganem',"M'Sila",'Mascara','Ouargla','Oran','El Bayadh','Illizi','Bordj Bou Arréridj','Boumerdès','El Tarf','Tindouf','Tissemsilt','El Oued','Khenchela','Souk Ahras','Tipaza','Mila','Aïn Defla','Naâma','Aïn Témouchent','Ghardaïa','Relizane','Timimoun','Bordj Badji Mokhtar','Ouled Djellal','Béni Abbès','In Salah','In Guezzam','Touggourt','Djanet',"El M'Ghair",'El Meniaa'];
+
+var $ = function(id){ return document.getElementById(id); };
+function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return '&#' + c.charCodeAt(0) + ';'; }); }
+function store(k, v){ try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch(e){} }
+function read(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+var toastT;
+function toast(msg){ var t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ t.classList.remove('on'); }, 3200); }
+var ICON = {
+  ticket:'<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v2M13 17v2M13 11v2"/>',
+  cal:'<rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/>',
+  map:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  again:'<path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/>',
+  phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+  doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>',
+  trash:'<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
+  pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>'
+};
+function ic(k){ return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">' + ICON[k] + '</svg>'; }
+
+/* ── Topbar ombre au défilement ─────────────────── */
+window.addEventListener('scroll', function(){ $('top').classList.toggle('scrolled', window.scrollY > 4); }, { passive:true });
+
+/* ══ AUTHENTIFICATION ═════════════════════════════ */
+var mode = 'login', phoneE = '', resendT = null;
+
+function setMode(m){
+  mode = m;
+  $('seg').dataset.mode = m;
+  document.querySelectorAll('#seg button').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.mode === m ? 'true' : 'false'); });
+  var su = m === 'signup';
+  $('nameField').hidden = !su; $('consentRow').hidden = !su;
+  $('aTitle').textContent = su ? 'Créez votre espace' : 'Bon retour parmi nous';
+  $('aSub').textContent = su ? 'Gratuit, sans mot de passe. Prêt en 30 secondes.' : 'Entrez votre numéro, nous vous envoyons un code.';
+  $('sendBtn').textContent = su ? 'Créer mon espace' : 'Recevoir le code';
+  showStep('stPhone');
+  hideAlert('errPhone');
+}
+document.querySelectorAll('#seg button').forEach(function(b){ b.addEventListener('click', function(){ setMode(b.dataset.mode); }); });
+
+function showStep(id){ ['stPhone','stCode'].forEach(function(s){ $(s).classList.toggle('on', s === id); }); }
+function alertMsg(id, msg){ var a = $(id); a.textContent = msg; a.classList.add('show'); }
+function hideAlert(id){ $(id).classList.remove('show'); }
+function busy(btn, on, label){ btn.disabled = on; btn.innerHTML = on ? '<span class="spin"></span>' : label; }
+
+function normPhone(raw){
+  var p = String(raw || '').replace(/[^\d+]/g, '');
+  if (/^\+213[5-7]\d{8}$/.test(p)) return p;
+  if (/^00213[5-7]\d{8}$/.test(p)) return '+' + p.slice(2);
+  if (/^0[5-7]\d{8}$/.test(p)) return '+213' + p.slice(1);
+  if (/^[5-7]\d{8}$/.test(p)) return '+213' + p;
+  return null;
+}
+function prettyPhone(e){ var d = String(e || '').replace('+213',''); return '0' + d.replace(/(\d)(\d{2})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5'); }
+
+$('fPhone').addEventListener('input', function(){
+  var d = this.value.replace(/\D/g,'').replace(/^213/,'').replace(/^0/,'').slice(0,9);
+  this.value = d.replace(/(\d)(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,2})/, function(_, a, b, c, e, f){ return [a,b,c,e,f].filter(Boolean).join(' '); });
+});
+$('fPhone').addEventListener('keydown', function(e){ if (e.key === 'Enter') sendCode(); });
+$('fName').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('fPhone').focus(); });
+$('sendBtn').addEventListener('click', sendCode);
+
+async function sendCode(){
+  hideAlert('errPhone');
+  var p = normPhone($('fPhone').value);
+  if (!p){ alertMsg('errPhone', 'Numéro invalide. Exemple : 0555 12 34 56.'); $('fPhone').focus(); return; }
+  if (mode === 'signup'){
+    if ($('fName').value.trim().length < 3){ alertMsg('errPhone', 'Indiquez votre nom et prénom.'); $('fName').focus(); return; }
+    if (!$('fConsent').checked){ alertMsg('errPhone', 'Merci d\'accepter la conservation de vos informations pour continuer.'); return; }
+  }
+  phoneE = p;
+  var btn = $('sendBtn'), label = btn.textContent;
+  busy(btn, true);
+  try {
+    var r = await fetch(EDGE_BASE + '/send-otp', { method:'POST', headers:{ 'Content-Type':'application/json', apikey:ANON_KEY, Authorization:'Bearer ' + ANON_KEY }, body: JSON.stringify({ phone: p }) });
+    var d = await r.json().catch(function(){ return {}; });
+    if (!r.ok || d.error){ alertMsg('errPhone', d.message || 'Envoi impossible. Réessayez dans un instant.'); return; }
+    $('sentTo').textContent = prettyPhone(p);
+    hideAlert('errCode');
+    if (d.channel === 'dev' && d.otp){ $('devCode').textContent = 'Mode test : votre code est ' + d.otp; $('devCode').classList.add('show'); } else $('devCode').classList.remove('show');
+    showStep('stCode');
+    clearOtp();
+    startResend();
+  } catch(e){ alertMsg('errPhone', 'Connexion impossible. Vérifiez votre accès à Internet.'); }
+  finally { busy(btn, false, label); }
+}
+
+var otpIn = Array.prototype.slice.call(document.querySelectorAll('#otp input'));
+function clearOtp(){ otpIn.forEach(function(i){ i.value = ''; i.classList.remove('filled'); }); setTimeout(function(){ otpIn[0].focus(); }, 60); }
+function code(){ return otpIn.map(function(i){ return i.value; }).join(''); }
+otpIn.forEach(function(inp, idx){
+  inp.addEventListener('input', function(){
+    var v = inp.value.replace(/\D/g,'');
+    if (v.length > 1){ v.split('').slice(0, 6 - idx).forEach(function(ch, k){ otpIn[idx+k].value = ch; otpIn[idx+k].classList.add('filled'); }); var nx = Math.min(idx + v.length, 5); otpIn[nx].focus(); }
+    else { inp.value = v; inp.classList.toggle('filled', !!v); if (v && idx < 5) otpIn[idx+1].focus(); }
+    if (code().length === 6) verify();
+  });
+  inp.addEventListener('keydown', function(e){
+    if (e.key === 'Backspace' && !inp.value && idx > 0){ otpIn[idx-1].focus(); otpIn[idx-1].value = ''; otpIn[idx-1].classList.remove('filled'); }
+    if (e.key === 'Enter') verify();
+  });
+  inp.addEventListener('paste', function(e){
+    var t = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+    if (!t) return; e.preventDefault();
+    t.split('').forEach(function(ch, k){ otpIn[k].value = ch; otpIn[k].classList.add('filled'); });
+    otpIn[Math.min(t.length, 5)].focus();
+    if (t.length === 6) verify();
+  });
+});
+$('verifyBtn').addEventListener('click', verify);
+$('editPhone').addEventListener('click', function(){ showStep('stPhone'); $('fPhone').focus(); });
+$('resendBtn').addEventListener('click', function(){ sendCode(); });
+function startResend(){
+  var n = 60, b = $('resendBtn'); b.disabled = true; clearInterval(resendT);
+  b.textContent = 'Renvoyer dans ' + n + ' s';
+  resendT = setInterval(function(){ n--; if (n <= 0){ clearInterval(resendT); b.disabled = false; b.textContent = 'Renvoyer le code'; } else b.textContent = 'Renvoyer dans ' + n + ' s'; }, 1000);
+}
+
+var verifying = false;
+async function verify(){
+  if (verifying) return;
+  var c = code();
+  if (c.length !== 6){ alertMsg('errCode', 'Saisissez les 6 chiffres du code.'); return; }
+  verifying = true; hideAlert('errCode');
+  var btn = $('verifyBtn'); busy(btn, true);
+  try {
+    var r = await fetch(EDGE_BASE + '/patient-auth', { method:'POST', headers:{ 'Content-Type':'application/json', apikey:ANON_KEY, Authorization:'Bearer ' + ANON_KEY }, body: JSON.stringify({ phone: phoneE, otp: c, fullName: mode === 'signup' ? $('fName').value.trim() : '' }) });
+    var d = await r.json().catch(function(){ return {}; });
+    if (!r.ok || !d.session){
+      alertMsg('errCode', d.message || 'Code incorrect.');
+      var o = $('otp'); o.classList.remove('shake'); void o.offsetWidth; o.classList.add('shake');
+      if (d.error === 'OTP_EXPIRED' || d.error === 'OTP_MAX_ATTEMPTS') clearInterval(resendT), $('resendBtn').disabled = false, $('resendBtn').textContent = 'Renvoyer le code';
+      clearOtp();
+      return;
+    }
+    store(KEY, d.session);
+    clearInterval(resendT);
+    await enterApp(d.isNew ? 'new' : 'back');
+  } catch(e){ alertMsg('errCode', 'Connexion impossible. Vérifiez votre accès à Internet.'); }
+  finally { verifying = false; busy(btn, false, 'Valider'); }
+}
+
+/* ══ ESPACE ═══════════════════════════════════════ */
+var S = { me:null, appts:[], labs:[], rdvFilter:'up' };
+function session(){ return read(KEY); }
+
+function showGuest(){
+  $('app').hidden = true; $('tabbar').hidden = true; $('avatarBtn').hidden = true; $('guest').hidden = false;
+  if (location.hash === '#signup') setMode('signup'); else setMode('login');
+}
+
+async function enterApp(welcome){
+  $('guest').hidden = true; $('app').hidden = false; $('tabbar').hidden = false; $('avatarBtn').hidden = false;
+  $('appLoading').style.display = 'flex';
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+  var s = session();
+  var res = await Promise.all([
+    _sb.rpc('patient_me', { p_session: s }),
+    _sb.rpc('patient_appointments', { p_session: s }),
+    _sb.rpc('patient_lab_results', { p_session: s })
+  ]);
+  if (!res[0].data){ store(KEY, null); store(NAME_KEY, null); $('appLoading').style.display = 'none'; showGuest(); if (welcome) toast('Votre session a expiré. Reconnectez-vous.'); return; }
+  S.me = res[0].data; S.appts = res[1].data || []; S.labs = res[2].data || [];
+  store(NAME_KEY, S.me.full_name || '');
+  $('appLoading').style.display = 'none';
+  renderAll();
+  var h = (location.hash || '').replace('#','');
+  go(['rdv','resultats','proches','profil'].indexOf(h) >= 0 ? h : 'accueil', true);
+  if (welcome === 'new') toast('Bienvenue. Votre espace est prêt.');
+  if (welcome === 'new' && !S.me.full_name) go('profil');
+}
+
+function first(n){ return String(n || '').trim().split(/\s+/)[0] || ''; }
+function docName(d){
+  if (!d) return 'Votre médecin';
+  if (d.is_clinic && d.clinic_name) return d.clinic_name;
+  var n = [d.first_name, d.last_name].filter(Boolean).join(' ') || d.full_name || '';
+  return n ? 'Dr ' + n.replace(/^dr\.?\s*/i,'') : 'Votre médecin';
+}
+function apptDate(a){ var t = String(a.requested_time || '00:00').slice(0,5); return new Date(a.requested_date + 'T' + t + ':00'); }
+function isUpcoming(a){ return (a.status === 'pending' || a.status === 'confirmed') && apptDate(a).getTime() > Date.now() - 3600000; }
+function statusPill(a){
+  if (a.status === 'confirmed') return isUpcoming(a) ? '<span class="pill ok"><i></i>Confirmé</span>' : '<span class="pill off"><i></i>Passé</span>';
+  if (a.status === 'pending') return isUpcoming(a) ? '<span class="pill wait"><i></i>En attente du cabinet</span>' : '<span class="pill off"><i></i>Passé</span>';
+  if (a.status === 'cancelled') return '<span class="pill bad"><i></i>Annulé</span>';
+  if (a.status === 'completed') return '<span class="pill off"><i></i>Consultation terminée</span>';
+  return '<span class="pill off"><i></i>' + esc(a.status) + '</span>';
+}
+function relDays(d){
+  var today = new Date(); today.setHours(0,0,0,0);
+  var day = new Date(d); day.setHours(0,0,0,0);
+  var n = Math.round((day - today) / 86400000);
+  if (n === 0){ var h = Math.round((d - Date.now()) / 3600000); return h <= 1 ? 'Dans moins d\'une heure' : 'Aujourd\'hui, dans ' + h + ' h'; }
+  if (n === 1) return 'Demain';
+  return 'Dans ' + n + ' jours';
+}
+function mapsUrl(d){ var q = [d && d.address, d && d.city, d && d.wilaya, 'Algérie'].filter(Boolean).join(', '); return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); }
+
+function renderAll(){
+  var me = S.me, f = first(me.full_name);
+  $('avatarBtn').textContent = f ? f.charAt(0).toUpperCase() : '·';
+  $('mName').textContent = me.full_name || 'Mon espace';
+  $('mPhone').textContent = prettyPhone(me.phone);
+  var up = S.appts.filter(isUpcoming).sort(function(a,b){ return apptDate(a) - apptDate(b); });
+  var h = new Date().getHours();
+  $('helloTitle').textContent = (h < 18 && h >= 5 ? 'Bonjour' : 'Bonsoir') + (f ? ' ' + f : '');
+  $('helloSub').textContent = up.length ? (up.length === 1 ? 'Vous avez un rendez-vous à venir.' : 'Vous avez ' + up.length + ' rendez-vous à venir.') : 'Aucun rendez-vous prévu pour le moment.';
+  $('cntUp').hidden = !up.length; $('cntUp').textContent = up.length;
+  $('qRdv').textContent = up.length ? up.length + ' à venir' : 'À venir et passés';
+  renderNext(up[0]);
+  renderNudge();
+  renderDocs();
+  renderRdv();
+  renderLabs();
+  renderRelatives();
+  fillProfile();
+}
+
+function renderNext(a){
+  var box = $('nextBox');
+  if (!a){
+    box.innerHTML = '<div class="empty-next"><div><h3>Aucun rendez-vous prévu</h3><p>Trouvez un médecin disponible près de chez vous et réservez en ligne en une minute.</p></div><a class="btn btn-primary" href="/find-doctor">Prendre rendez-vous</a></div>';
+    return;
+  }
+  var d = apptDate(a), doc = a.doctor || {};
+  box.innerHTML =
+    '<article class="next">' +
+      '<div class="cal-tile"><div class="m">' + MONTHS[d.getMonth()] + '</div><div class="d">' + d.getDate() + '</div><div class="w">' + DAYS[d.getDay()] + '</div></div>' +
+      '<div><div class="next-label">Prochain rendez-vous</div>' +
+        '<div class="next-when">' + esc(DAYS[d.getDay()].replace(/^./, function(c){ return c.toUpperCase(); })) + ' ' + d.getDate() + ' ' + MONTHS_FULL[d.getMonth()] + ' à ' + esc(String(a.requested_time).slice(0,5)) + '</div>' +
+        '<div class="next-doc">' + esc(docName(doc)) + (doc.specialty ? ' <span>· ' + esc(doc.specialty) + '</span>' : '') + '</div>' +
+        ((doc.address || doc.city) ? '<div class="next-addr">' + ic('pin') + esc([doc.address, doc.city].filter(Boolean).join(', ')) + '</div>' : '') +
+        '<div class="countdown"><i></i>' + relDays(d) + (a.status === 'pending' ? ' · en attente de confirmation' : '') + '</div>' +
+        '<div class="next-actions' + (a.ticket_token ? '' : ' nt') + '">' +
+          (a.ticket_token ? '<a class="btn solid" href="/ticket?t=' + encodeURIComponent(a.ticket_token) + '">' + ic('ticket') + 'Mon ticket</a>' : '') +
+          '<button class="btn" type="button" data-ics="' + esc(a.id) + '">' + ic('cal') + '<span class="long-l">Ajouter au calendrier</span><span class="short-l">Calendrier</span></button>' +
+          '<a class="btn" href="' + mapsUrl(doc) + '" target="_blank" rel="noopener">' + ic('map') + 'Itinéraire</a>' +
+          (doc.phone_public ? '<a class="btn" href="tel:' + esc(doc.phone_public) + '">' + ic('phone') + 'Appeler</a>' : '') +
+          '<button class="btn" type="button" data-cancel="' + esc(a.id) + '">' + ic('x') + 'Annuler</button>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+}
+
+function renderNudge(){
+  var me = S.me, items = [!!me.full_name, !!me.email, !!me.birth_date, !!me.wilaya, (me.relatives || []).length > 0];
+  var done = items.filter(Boolean).length, pct = Math.round(done / items.length * 100);
+  if (pct >= 100){ $('nudgeBox').innerHTML = ''; return; }
+  var next = !me.full_name ? 'Ajoutez votre nom' : !me.email ? 'Ajoutez votre email pour recevoir vos confirmations' : !me.birth_date ? 'Ajoutez votre date de naissance' : !me.wilaya ? 'Indiquez votre wilaya pour des médecins proches de vous' : 'Ajoutez un proche pour réserver pour lui';
+  $('nudgeBox').innerHTML = '<div class="nudge"><span class="ring" style="--p:' + pct + '" data-v="' + pct + '%"></span><div><b>Complétez votre profil</b><span>' + esc(next) + '. Vos prochaines réservations seront pré-remplies.</span></div><button class="btn btn-soft btn-sm" type="button" data-tab-go="' + ((me.relatives || []).length || !me.full_name || !me.email || !me.birth_date || !me.wilaya ? 'profil' : 'proches') + '">Compléter</button></div>';
+}
+
+function renderDocs(){
+  var seen = {}, docs = [];
+  S.appts.forEach(function(a){ var d = a.doctor; if (d && d.id && !seen[d.id]){ seen[d.id] = 1; docs.push(d); } });
+  $('docsSec').hidden = !docs.length;
+  $('docsList').innerHTML = docs.slice(0, 6).map(function(d){
+    var n = docName(d), ini = n.replace(/^Dr\s+/,'').charAt(0).toUpperCase();
+    return '<div class="doc"><span class="doc-av">' + (d.avatar_url ? '<img src="' + esc(d.avatar_url) + '" alt="">' : esc(ini)) + '</span>' +
+      '<span class="doc-txt"><b>' + esc(n) + '</b><span>' + esc([d.specialty, d.city || d.wilaya].filter(Boolean).join(' · ')) + '</span></span>' +
+      '<a class="btn btn-soft btn-sm" href="/book?doctor=' + encodeURIComponent(d.id) + '">Reprendre RDV</a></div>';
+  }).join('');
+}
+
+function renderRdv(){
+  var f = S.rdvFilter, list = S.appts.filter(function(a){
+    if (f === 'up') return isUpcoming(a);
+    if (f === 'cancel') return a.status === 'cancelled';
+    return a.status !== 'cancelled' && !isUpcoming(a);
+  });
+  list.sort(function(a,b){ return f === 'up' ? apptDate(a) - apptDate(b) : apptDate(b) - apptDate(a); });
+  if (!list.length){
+    var msg = f === 'up' ? ['Aucun rendez-vous à venir', 'Vos prochaines réservations apparaîtront ici automatiquement.'] : f === 'past' ? ['Aucun rendez-vous passé', 'Votre historique de consultations s\'affichera ici.'] : ['Aucun rendez-vous annulé', ''];
+    $('rdvList').innerHTML = '<div class="empty"><b>' + msg[0] + '</b>' + esc(msg[1]) + (f === 'up' ? '<br><a class="btn btn-primary" href="/find-doctor">Prendre rendez-vous</a>' : '') + '</div>';
+    return;
+  }
+  $('rdvList').innerHTML = list.map(function(a){
+    var d = apptDate(a), doc = a.doctor || {}, up = isUpcoming(a);
+    var acts = up
+      ? (a.ticket_token ? '<a class="ic-btn" title="Mon ticket" aria-label="Mon ticket" href="/ticket?t=' + encodeURIComponent(a.ticket_token) + '">' + ic('ticket') + '</a>' : '') +
+        '<button class="ic-btn" type="button" title="Ajouter au calendrier" aria-label="Ajouter au calendrier" data-ics="' + esc(a.id) + '">' + ic('cal') + '</button>' +
+        '<a class="ic-btn" title="Itinéraire" aria-label="Itinéraire" target="_blank" rel="noopener" href="' + mapsUrl(doc) + '">' + ic('map') + '</a>' +
+        '<button class="ic-btn danger" type="button" title="Annuler" aria-label="Annuler le rendez-vous" data-cancel="' + esc(a.id) + '">' + ic('x') + '</button>'
+      : (doc.id ? '<a class="btn btn-soft btn-sm" href="/book?doctor=' + encodeURIComponent(doc.id) + '">' + ic('again').replace('class="i"','class="i" style="width:15px;height:15px"') + 'Reprendre RDV</a>' : '');
+    return '<article class="appt"><div class="mini-cal"><div class="m">' + MONTHS[d.getMonth()] + '</div><div class="d">' + d.getDate() + '</div><div class="t">' + esc(String(a.requested_time).slice(0,5)) + '</div></div>' +
+      '<div class="appt-main"><b>' + esc(docName(doc)) + '</b><span class="sp">' + esc([doc.specialty, doc.city || doc.wilaya].filter(Boolean).join(' · ')) + (a.patient_name && S.me.full_name && first(a.patient_name) !== first(S.me.full_name) ? ' · pour ' + esc(a.patient_name) : '') + '</span>' + statusPill(a) + '</div>' +
+      '<div class="appt-act">' + acts + '</div></article>';
+  }).join('');
+}
+
+function renderLabs(){
+  if (!S.labs.length){ $('labList').innerHTML = '<div class="empty"><b>Aucun résultat pour l\'instant</b>Les documents que vos médecins rattachent à votre espace apparaîtront ici.</div>'; return; }
+  $('labList').innerHTML = S.labs.map(function(l){
+    var c = new Date(l.created_at), e = new Date(l.expires_at), left = Math.max(0, Math.ceil((e - Date.now()) / 86400000));
+    return '<article class="appt" style="grid-template-columns:auto 1fr auto"><span class="b-ic" style="background:var(--accent-soft);border:0">' + ic('doc') + '</span>' +
+      '<div class="appt-main"><b>' + esc(l.title || 'Résultat') + '</b><span class="sp">' + esc(l.clinic || '') + ' · déposé le ' + c.getDate() + ' ' + MONTHS[c.getMonth()] + '</span><span class="pill ' + (left <= 3 ? 'wait' : 'off') + '"><i></i>Disponible encore ' + left + ' jour' + (left > 1 ? 's' : '') + '</span></div>' +
+      '<a class="btn btn-primary btn-sm" href="/results-view?code=' + encodeURIComponent(l.access_code) + '">Ouvrir</a></article>';
+  }).join('');
+}
+
+var REL = { enfant:'Enfant', conjoint:'Conjoint(e)', parent:'Parent', autre:'Proche' };
+function age(b){ if (!b) return ''; var d = new Date(b), n = new Date(), a = n.getFullYear() - d.getFullYear(); if (n < new Date(n.getFullYear(), d.getMonth(), d.getDate())) a--; return a >= 0 ? a + ' an' + (a > 1 ? 's' : '') : ''; }
+function renderRelatives(){
+  var r = S.me.relatives || [];
+  $('relList').innerHTML = r.length ? r.map(function(x){
+    return '<div class="row"><span class="doc-av">' + esc(first(x.full_name).charAt(0).toUpperCase()) + '</span><div class="row-txt"><b>' + esc(x.full_name) + '</b><span>' + esc([REL[x.relation] || 'Proche', age(x.birth_date)].filter(Boolean).join(' · ')) + '</span></div>' +
+      '<button class="ic-btn danger" type="button" aria-label="Retirer ' + esc(x.full_name) + '" data-rel-del="' + esc(x.id) + '">' + ic('trash') + '</button></div>';
+  }).join('') : '<p class="small">Aucun proche pour le moment.</p>';
+}
+
+function fillProfile(){
+  var me = S.me, sel = $('pWilaya');
+  if (sel.options.length < 2) WILAYAS.forEach(function(w, i){ var o = document.createElement('option'); o.value = w; o.textContent = String(i + 1).padStart(2,'0') + ' · ' + w; sel.appendChild(o); });
+  $('pName').value = me.full_name || '';
+  $('pPhone').value = prettyPhone(me.phone);
+  $('pEmail').value = me.email || '';
+  $('pBirth').value = me.birth_date || '';
+  sel.value = me.wilaya || '';
+  $('pSms').checked = me.sms_reminders !== false;
+  $('pMail').checked = me.email_reminders !== false;
+}
+
+/* ── Navigation ───────────────────────────────── */
+function go(tab, silent){
+  document.querySelectorAll('[data-tab]').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.tab === tab ? 'true' : 'false'); });
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.toggle('on', v.id === 'v-' + tab); });
+  if (!silent) window.scrollTo({ top: 0, behavior: 'smooth' });
+  try { history.replaceState(null, '', tab === 'accueil' ? location.pathname : '#' + tab); } catch(e){}
+  closeMenu();
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-tab]'); if (t){ go(t.dataset.tab); return; }
+  var g = e.target.closest('[data-tab-go]'); if (g){ go(g.dataset.tabGo); return; }
+  var ics = e.target.closest('[data-ics]'); if (ics){ downloadIcs(ics.dataset.ics); return; }
+  var c = e.target.closest('[data-cancel]'); if (c){ cancelAppt(c.dataset.cancel); return; }
+  var rd = e.target.closest('[data-rel-del]'); if (rd){ removeRelative(rd.dataset.relDel); return; }
+});
+document.querySelectorAll('#rdvSeg button').forEach(function(b){
+  b.addEventListener('click', function(){
+    S.rdvFilter = b.dataset.f;
+    document.querySelectorAll('#rdvSeg button').forEach(function(x){ x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+    renderRdv();
+  });
+});
+
+/* Menu avatar */
+function closeMenu(){ $('menu').classList.remove('on'); $('avatarBtn').setAttribute('aria-expanded','false'); }
+$('avatarBtn').addEventListener('click', function(e){ e.stopPropagation(); var on = !$('menu').classList.contains('on'); $('menu').classList.toggle('on', on); this.setAttribute('aria-expanded', on ? 'true' : 'false'); });
+document.addEventListener('click', function(e){ if (!e.target.closest('#menu') && !e.target.closest('#avatarBtn')) closeMenu(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeMenu(); });
+
+/* ── Actions ──────────────────────────────────── */
+function downloadIcs(id){
+  var a = S.appts.find(function(x){ return x.id === id; }); if (!a) return;
+  var d = apptDate(a), end = new Date(d.getTime() + 30 * 60000);
+  function f(x){ return x.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''); }
+  var doc = a.doctor || {}, loc = [doc.address, doc.city, doc.wilaya].filter(Boolean).join(', ');
+  var ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Docline//Espace patient//FR','BEGIN:VEVENT',
+    'UID:' + a.id + '@docline.health','DTSTAMP:' + f(new Date()),'DTSTART:' + f(d),'DTEND:' + f(end),
+    'SUMMARY:' + ('Rendez-vous ' + docName(doc)).replace(/[,;]/g,' '),
+    'LOCATION:' + loc.replace(/[,;]/g,' '),
+    'DESCRIPTION:Réservé avec Docline' + (a.ticket_token ? ' - Ticket : https://docline.health/ticket?t=' + a.ticket_token : ''),
+    'BEGIN:VALARM','TRIGGER:-PT2H','ACTION:DISPLAY','DESCRIPTION:Rendez-vous médical','END:VALARM',
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  var url = URL.createObjectURL(new Blob([ics], { type:'text/calendar;charset=utf-8' }));
+  var l = document.createElement('a'); l.href = url; l.download = 'rendez-vous-docline.ics'; document.body.appendChild(l); l.click(); l.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+}
+
+async function cancelAppt(id){
+  var a = S.appts.find(function(x){ return x.id === id; }); if (!a) return;
+  var d = apptDate(a);
+  if (!confirm('Annuler le rendez-vous du ' + d.getDate() + ' ' + MONTHS_FULL[d.getMonth()] + ' à ' + String(a.requested_time).slice(0,5) + ' avec ' + docName(a.doctor) + ' ?\nLe créneau sera libéré pour un autre patient.')) return;
+  var r = await _sb.rpc('patient_cancel', { p_session: session(), p_appt: id });
+  if (r.error || !r.data){ toast('Annulation impossible. Contactez le cabinet.'); return; }
+  a.status = 'cancelled';
+  renderAll();
+  toast('Rendez-vous annulé. Le cabinet est prévenu.');
+}
+
+$('relForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  var n = $('rName').value.trim(); if (n.length < 2){ $('rName').focus(); return; }
+  var r = await _sb.rpc('patient_add_relative', { p_session: session(), p_full_name: n, p_relation: $('rRel').value, p_birth_date: $('rBirth').value || null });
+  if (r.error || !r.data){ toast(r.error && /TOO_MANY/.test(r.error.message) ? 'Vous avez atteint 10 proches.' : 'Ajout impossible. Réessayez.'); return; }
+  S.me.relatives = (S.me.relatives || []).concat([{ id:r.data, full_name:n, relation:$('rRel').value, birth_date:$('rBirth').value || null }]);
+  this.reset(); renderRelatives(); renderNudge();
+  toast(n + ' a été ajouté(e) à vos proches.');
+});
+async function removeRelative(id){
+  var x = (S.me.relatives || []).find(function(r){ return r.id === id; }); if (!x) return;
+  if (!confirm('Retirer ' + x.full_name + ' de vos proches ?')) return;
+  var r = await _sb.rpc('patient_remove_relative', { p_session: session(), p_id: id });
+  if (r.error || !r.data){ toast('Suppression impossible.'); return; }
+  S.me.relatives = S.me.relatives.filter(function(r){ return r.id !== id; });
+  renderRelatives(); renderNudge();
+}
+
+$('profForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  var btn = $('profSave'); busy(btn, true);
+  var p = { p_session: session(), p_full_name: $('pName').value.trim(), p_email: $('pEmail').value.trim(), p_birth_date: $('pBirth').value || null, p_wilaya: $('pWilaya').value, p_sms: $('pSms').checked, p_email_rem: $('pMail').checked };
+  var r = await _sb.rpc('patient_update_profile', p);
+  busy(btn, false, 'Enregistrer');
+  if (r.error){ toast(/EMAIL_INVALID/.test(r.error.message) ? 'Adresse email invalide.' : 'Enregistrement impossible. Réessayez.'); return; }
+  S.me.full_name = p.p_full_name || S.me.full_name; S.me.email = p.p_email || null; S.me.birth_date = p.p_birth_date; S.me.wilaya = p.p_wilaya || null; S.me.sms_reminders = p.p_sms; S.me.email_reminders = p.p_email_rem;
+  store(NAME_KEY, S.me.full_name || '');
+  renderAll();
+  toast('Profil enregistré.');
+});
+
+async function logout(){
+  var s = session();
+  store(KEY, null); store(NAME_KEY, null);
+  if (s) await _sb.rpc('patient_logout', { p_session: s }).then(null, function(){});
+  closeMenu(); history.replaceState(null, '', location.pathname);
+  showGuest(); window.scrollTo(0,0);
+  toast('Vous êtes déconnecté.');
+}
+$('logoutBtn').addEventListener('click', logout);
+$('logout2').addEventListener('click', logout);
+$('delAcc').addEventListener('click', async function(){
+  if (!confirm('Supprimer définitivement votre espace patient ?\nVos proches et préférences seront effacés. Vos rendez-vous restent chez votre médecin.')) return;
+  var r = await _sb.rpc('patient_delete_account', { p_session: session() });
+  if (r.error || !r.data){ toast('Suppression impossible. Réessayez.'); return; }
+  store(KEY, null); store(NAME_KEY, null);
+  showGuest(); toast('Votre espace a été supprimé.');
+});
+
+$('labGo').addEventListener('click', function(){ var c = $('labCode').value.trim().toUpperCase(); if (c.length >= 6) location.href = '/results-view?code=' + encodeURIComponent(c); else $('labCode').focus(); });
+$('labCode').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('labGo').click(); });
+
+/* ── Démarrage ────────────────────────────────── */
+window.addEventListener('hashchange', function(){ if (!$('guest').hidden) setMode(location.hash === '#signup' ? 'signup' : 'login'); });
+if (session()) enterApp(); else {
+  showGuest();
+  try {
+    var pf = JSON.parse(sessionStorage.getItem('docline_prefill') || 'null');
+    if (pf){ sessionStorage.removeItem('docline_prefill'); if (pf.name) $('fName').value = pf.name; if (pf.phone){ var np = normPhone(pf.phone); if (np){ $('fPhone').value = np.slice(4); $('fPhone').dispatchEvent(new Event('input')); } } }
+  } catch(e){}
+}
+})();
+</script>
+</body>
+</html>

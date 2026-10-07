@@ -226,6 +226,20 @@ button,input{font-family:inherit}
   transition:all var(--t)}
 .ticket-btn:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,23,114,.36)}
 .ticket-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.acc-card{margin-top:22px;text-align:left;border-radius:20px;background:#F1EEFA;padding:20px}
+.acc-card h3{font-size:1rem;font-weight:700;letter-spacing:-.02em;color:#0D0520;margin:0 0 10px}
+.acc-card ul{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:7px}
+.acc-card li{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;color:#3B3551;line-height:1.4}
+.acc-card li svg{width:16px;height:16px;flex-shrink:0;fill:none;stroke:#4C1D95;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+.acc-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;border:0;border-radius:999px;background:#4C1D95;color:#fff;font:600 .9375rem 'Inter',sans-serif;cursor:pointer;text-decoration:none;transition:background .2s}
+.acc-btn:hover{background:#5B21B6}
+.acc-note{font-size:.75rem;color:#6E6880;margin:10px 0 0;text-align:center}
+.acc-done{display:flex;align-items:center;gap:12px}
+.acc-done p{margin:0;font-size:.875rem;color:#3B3551;flex:1}
+.acc-done a{font-weight:600;color:#4C1D95;font-size:.875rem;white-space:nowrap}
+.for-who{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.for-who button{height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(13,5,32,.13);background:#fff;font:600 .8125rem 'Inter',sans-serif;color:#3B3551;cursor:pointer;transition:all .2s}
+.for-who button[aria-pressed="true"]{background:#0D0520;border-color:#0D0520;color:#fff}
 .sms-note{font-size:.75rem;color:var(--text-4);margin-top:12px;display:flex;align-items:center;justify-content:center;gap:5px}
 .sms-note svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 
@@ -375,6 +389,7 @@ button,input{font-family:inherit}
       </div>
       <div class="card-body">
         <div id="contactAlert"></div>
+        <div class="for-who" id="forWho" hidden></div>
 
         <div class="form-group">
           <label class="form-label">Nom complet <span>*</span></label>
@@ -488,6 +503,8 @@ button,input{font-family:inherit}
             <svg viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/></svg>
             Voir mon ticket QR Code
           </button>
+
+          <div class="acc-card" id="accCard" hidden></div>
 
           <p class="sms-note">
             <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3-8.63A2 2 0 0 1 3.67 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -966,6 +983,7 @@ async function verifyOtp() {
 
     // Succès
     ticketUrl = data.ticketUrl;
+    renderAccountCard(data.patientSession);
     clearInterval(timerInterval);
 
     // Remplir le récap
@@ -989,6 +1007,63 @@ async function verifyOtp() {
     btn.disabled = false;
   }
 }
+
+// ── ESPACE PATIENT (facultatif) ───────────────────────────────────────
+const PATIENT_KEY = 'docline_patient_session';
+function patientSession() { try { return localStorage.getItem(PATIENT_KEY); } catch (e) { return null; } }
+const CHECK_SVG = '<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>';
+
+function renderAccountCard(shortSession) {
+  const box = document.getElementById('accCard');
+  if (patientSession()) {
+    box.innerHTML = '<div class="acc-done">' + CHECK_SVG.replace('<svg', '<svg style="width:22px;height:22px;fill:none;stroke:#1E7F4E;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"') +
+      '<p>Ce rendez-vous est enregistré dans votre espace patient.</p><a href="/patient#rdv">Voir</a></div>';
+    box.hidden = false;
+    return;
+  }
+  if (!shortSession) return;
+  box.innerHTML = '<h3>Retrouvez ce rendez-vous dans votre espace</h3><ul>' +
+    '<li>' + CHECK_SVG + 'Annulez ou déplacez-le sans appeler le cabinet</li>' +
+    '<li>' + CHECK_SVG + 'Réservez la prochaine fois en un clic, pour vous et vos proches</li>' +
+    '<li>' + CHECK_SVG + 'Vos rendez-vous et résultats au même endroit</li></ul>' +
+    '<button class="acc-btn" id="accBtn" type="button">Activer mon espace gratuit</button>' +
+    '<p class="acc-note">Votre numéro est déjà vérifié. Aucun mot de passe.</p>';
+  box.hidden = false;
+  document.getElementById('accBtn').onclick = async () => {
+    const b = document.getElementById('accBtn');
+    b.disabled = true; b.textContent = 'Activation…';
+    const { data, error } = await _sb.rpc('patient_activate', { p_session: shortSession });
+    if (error || !data) { b.disabled = false; b.textContent = 'Réessayer'; return; }
+    try {
+      localStorage.setItem(PATIENT_KEY, shortSession);
+      localStorage.setItem('docline_patient_name', document.getElementById('inputName').value.trim());
+    } catch (e) {}
+    box.innerHTML = '<div class="acc-done">' + CHECK_SVG.replace('<svg', '<svg style="width:22px;height:22px;fill:none;stroke:#1E7F4E;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"') +
+      '<p>Votre espace est activé.</p><a href="/patient">Ouvrir mon espace</a></div>';
+  };
+}
+
+// Patient connecté : formulaire pré-rempli + choix « pour qui »
+(async function prefillFromAccount() {
+  const s = patientSession(); if (!s) return;
+  const { data: me } = await _sb.rpc('patient_me', { p_session: s });
+  if (!me) return;
+  const nameIn = document.getElementById('inputName'), phoneIn = document.getElementById('inputPhone');
+  if (!nameIn.value && me.full_name) nameIn.value = me.full_name;
+  if (!phoneIn.value && me.phone) phoneIn.value = me.phone;
+  const people = [{ label: 'Moi', name: me.full_name || '' }].concat((me.relatives || []).map(r => ({ label: r.full_name.split(' ')[0], name: r.full_name })));
+  if (people.length < 2) return;
+  const box = document.getElementById('forWho');
+  box.innerHTML = people.map((p, i) => '<button type="button" aria-pressed="' + (i === 0) + '" data-i="' + i + '"></button>').join('');
+  box.querySelectorAll('button').forEach((b, i) => {
+    b.textContent = i === 0 ? 'Pour moi' : 'Pour ' + people[i].label;
+    b.onclick = () => {
+      box.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      nameIn.value = people[i].name;
+    };
+  });
+  box.hidden = false;
+})();
 
 // ── UI HELPERS ────────────────────────────────────────────────────────
 function showAlert(containerId, type, message) {

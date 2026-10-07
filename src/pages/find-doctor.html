@@ -1141,6 +1141,12 @@ body.sfocus .hero-sub,body.sfocus .hero-stats,body.sfocus .suggest{opacity:.35}
   .hero-title .tw-ch,.pill,.bm-help.swap{animation:none!important}
   .bm-glider{transition:none}
 }
+.acc-cta-in{margin-top:20px;text-align:left;border-radius:18px;background:var(--ap-accent-soft);padding:16px 18px;display:grid;gap:4px}
+.acc-cta-in b{font-size:.9375rem;font-weight:700;color:var(--ap-ink);letter-spacing:-.01em}
+.acc-cta-in span{font-size:.8125rem;color:var(--ap-ink2);line-height:1.45}
+.acc-cta-in a{margin-top:10px;display:flex;align-items:center;justify-content:center;height:44px;border-radius:999px;background:var(--ap-accent);color:#fff;font-weight:600;font-size:.875rem;text-decoration:none;transition:background .2s}
+.acc-cta-in a:hover{background:var(--ap-accent-h)}
+.acc-cta-in.done a{background:#fff;color:var(--ap-accent)}
 </style>
 </head>
 <body>
@@ -1805,7 +1811,8 @@ body.sfocus .hero-sub,body.sfocus .hero-stats,body.sfocus .suggest{opacity:.35}
             Vos données sont protégées
           </div>
         </div>
-        <button class="btn btn-ghost-light" onclick="closeModal()" style="margin-top:24px;width:100%;justify-content:center">Fermer</button>
+        <div class="acc-cta" id="m-acc-cta"></div>
+        <button class="btn btn-ghost-light" onclick="closeModal()" style="margin-top:12px;width:100%;justify-content:center">Fermer</button>
       </div>
     </div>
   </div>
@@ -2573,6 +2580,7 @@ async function submitBooking(){
     if(error) throw error;
     document.getElementById('modal-form-view').style.display='none';
     document.getElementById('modal-success-view').style.display='block';
+    renderAccCta(name, phone);
   } catch(e){
     errEl.textContent='Erreur : '+(e.message||'Réessayez dans quelques instants.');
     errEl.style.display='block';
@@ -2580,6 +2588,18 @@ async function submitBooking(){
     btn.disabled=false;
     btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirmer le rendez-vous';
   }
+}
+
+/* ── Espace patient : incitation après une demande de RDV ── */
+function renderAccCta(name, phone){
+  var box = document.getElementById('m-acc-cta'); if(!box) return;
+  var logged = null; try { logged = localStorage.getItem('docline_patient_session'); } catch(e){}
+  if(logged){
+    box.innerHTML = '<div class="acc-cta-in done"><b>Suivez la confirmation dans votre espace</b><span>Cette demande y apparaît automatiquement.</span><a href="/patient#rdv">Ouvrir mon espace</a></div>';
+    return;
+  }
+  try { sessionStorage.setItem('docline_prefill', JSON.stringify({ name:name||'', phone:phone||'' })); } catch(e){}
+  box.innerHTML = '<div class="acc-cta-in"><b>Suivez cette demande en temps réel</b><span>Créez votre espace patient : confirmation, rappels et annulation en un clic. Gratuit, sans mot de passe.</span><a href="/patient#signup">Créer mon espace</a></div>';
 }
 
 /* ── Live search listeners ───────────────────────────────── */
@@ -3364,6 +3384,6 @@ if('serviceWorker' in navigator){
   }
 })();
 </script>
-<script src="docline-space.js?v=2" defer></script>
+<script src="docline-space.js?v=3" defer></script>
 </body>
 </html>

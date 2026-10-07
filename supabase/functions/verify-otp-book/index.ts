@@ -186,9 +186,22 @@ serve(async (req) => {
     // Envoyer SMS de confirmation
     await sendConfirmSMS(phoneE164, { patientName, doctorName, date, time });
 
+    // Session courte (2 h) : le téléphone vient d'être vérifié, le patient peut
+    // activer son espace en un clic (patient_activate la prolonge à 90 jours).
+    let patientSession: string | null = null;
+    try {
+      const s = generateToken() + generateToken();
+      const { error: se } = await supabase.from("patient_sessions").insert({
+        patient_id: patientId,
+        token_hash: await sha256hex(s),
+        expires_at: new Date(Date.now() + 2 * 3_600_000).toISOString(),
+      });
+      if (!se) patientSession = s;
+    } catch (_) { /* l'espace patient reste optionnel */ }
+
     const ticketUrl = `${APP_URL}/ticket.html?t=${ticketToken}`;
     return new Response(
-      JSON.stringify({ success: true, ticketToken, ticketUrl, appointmentId: appt.id, message: "RDV confirmé ! Confirmation envoyée par SMS." }),
+      JSON.stringify({ success: true, ticketToken, ticketUrl, appointmentId: appt.id, patientSession, message: "RDV confirmé ! Confirmation envoyée par SMS." }),
       { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
     );
 

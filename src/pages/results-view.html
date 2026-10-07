@@ -247,11 +247,7 @@ async function fetchResult() {
   clearError();
 
   try {
-    var { data, error } = await _supa
-      .from('lab_results')
-      .select('*')
-      .eq('access_code', code)
-      .single();
+    var { data, error } = await _supa.rpc('get_lab_result', { p_code: code });
 
     if (error || !data) {
       showLoading(false);
@@ -266,11 +262,7 @@ async function fetchResult() {
       return;
     }
 
-    // Increment view count
-    await _supa.from('lab_results').update({
-      view_count: data.view_count + 1,
-      viewed_at: data.viewed_at || new Date().toISOString()
-    }).eq('id', data.id);
+    // Le compteur de vues est incrémenté côté serveur par get_lab_result
 
     showLoading(false);
     displayResult(data);

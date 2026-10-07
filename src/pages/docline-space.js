@@ -24,7 +24,7 @@
     '.ds-opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:transparent;cursor:pointer;' +
       'padding:14px;border-radius:16px;color:inherit;font:inherit;text-decoration:none;transition:background .2s,transform .3s cubic-bezier(.22,1,.36,1)}' +
     '.ds-opt+.ds-opt{margin-top:4px}' +
-    '.ds-opt:hover,.ds-opt:focus-visible{background:#F4F2F8;outline:none}' +
+    '.ds-opt:focus{outline:none}.ds-opt:focus-visible{background:#F4F2F8}' +
     '.ds-opt:active{transform:scale(.985)}' +
     '.ds-ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#F1EEFA;color:#4C1D95;transition:background .25s,color .25s}' +
     '.ds-opt:hover .ds-ic{background:#4C1D95;color:#fff}' +
@@ -36,6 +36,23 @@
     '.ds-opt:hover .ds-chev{transform:translateX(3px);stroke:#4C1D95}' +
     '.ds-back{display:inline-flex;align-items:center;gap:4px;border:0;background:none;cursor:pointer;font:600 13px Inter,system-ui,sans-serif;color:#4C1D95;padding:4px 6px;margin:0 0 8px -2px;border-radius:8px}' +
     '.ds-back:hover{background:#F1EEFA}' +
+    '.ds-back:focus{outline:none}.ds-back:focus-visible{box-shadow:0 0 0 3px rgba(76,29,149,.25)}' +
+    '.ds-opt:hover{background:#F4F2F8}' +
+    '.ds-auth{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 6px}' +
+    '.ds-auth a{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:62px;padding:10px 14px;border-radius:16px;text-decoration:none;' +
+      'font:600 14.5px Inter,system-ui,sans-serif;letter-spacing:-.01em;transition:background .2s,transform .3s cubic-bezier(.22,1,.36,1),box-shadow .2s}' +
+    '.ds-auth a small{font-weight:500;font-size:11.5px;letter-spacing:0;opacity:.75}' +
+    '.ds-auth a:active{transform:scale(.98)}' +
+    '.ds-auth .ds-in{background:#F4F2F8;color:#0D0520}.ds-auth .ds-in:hover{background:#ECE8F4}' +
+    '.ds-auth .ds-up{background:#4C1D95;color:#fff;box-shadow:0 8px 20px -10px rgba(76,29,149,.7)}.ds-auth .ds-up:hover{background:#5B21B6}' +
+    '.ds-auth a:focus{outline:none}.ds-auth a:focus-visible{box-shadow:0 0 0 3px rgba(76,29,149,.3)}' +
+    '.ds-sep{display:flex;align-items:center;gap:10px;margin:14px 4px 4px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#A29DB0}' +
+    '.ds-sep:after{content:"";flex:1;height:1px;background:rgba(13,5,32,.08)}' +
+    '.ds-hello{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 6px;border-radius:16px;background:#4C1D95;color:#fff;text-decoration:none;transition:background .2s}' +
+    '.ds-hello:hover{background:#5B21B6}.ds-hello:focus{outline:none}.ds-hello:focus-visible{box-shadow:0 0 0 3px rgba(76,29,149,.3)}' +
+    '.ds-av{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font:700 15px Inter,system-ui,sans-serif;flex-shrink:0}' +
+    '.ds-hello b{display:block;font-size:15px;font-weight:600}.ds-hello span{display:block;font-size:12.5px;opacity:.8;margin-top:1px}' +
+    '.ds-hello .ds-chev{stroke:#fff;margin-left:auto}' +
     '.ds-back svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}' +
     '.ds-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;margin-top:6px;border-radius:999px;' +
       'background:#4C1D95;color:#fff;font:600 15px Inter,system-ui,sans-serif;text-decoration:none;transition:background .2s}' +
@@ -79,6 +96,19 @@
   var onSearchPage = !!document.getElementById('s-smart');
   var bookHref = onSearchPage ? '#' : '/find-doctor';
 
+  var session = null, pName = '';
+  try { session = localStorage.getItem('docline_patient_session'); pName = localStorage.getItem('docline_patient_name') || ''; } catch (e) {}
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+  function patientAccount() {
+    if (session) {
+      var first = (pName.split(' ')[0] || '').trim();
+      return '<a class="ds-hello" href="/patient"><span class="ds-av">' + (first ? esc(first.charAt(0).toUpperCase()) : svg('patient')) + '</span>' +
+        '<span><b>' + (first ? 'Bonjour ' + esc(first) : 'Mon espace patient') + '</b><span>Rendez-vous, proches, résultats</span></span>' + svg('chev', 'ds-chev') + '</a>';
+    }
+    return '<div class="ds-auth"><a class="ds-in" href="/patient">Se connecter<small>J’ai déjà un compte</small></a>' +
+      '<a class="ds-up" href="/patient#signup">Créer mon compte<small>Gratuit, sans mot de passe</small></a></div>';
+  }
+
   function build() {
     var style = document.createElement('style'); style.textContent = CSS; document.head.appendChild(style);
     var scrim = document.createElement('div'); scrim.className = 'ds-scrim';
@@ -89,9 +119,11 @@
         opt('button', 'type="button" data-go="1"', 'patient', 'Patient', 'Rendez-vous, résultats d’analyses') +
         opt('button', 'type="button" data-go="2"', 'pro', 'Professionnel de santé', 'Agenda, patients, ordonnances') + '</section>' +
       '<section class="ds-pane" data-pane="1"><button type="button" class="ds-back" data-go="0">' + svg('back') + 'Vous êtes</button><h2 class="ds-title">Espace patient</h2>' +
+        patientAccount() +
+        '<p class="ds-sep">' + (session ? 'Raccourcis' : 'Ou sans compte') + '</p>' +
         opt('a', 'href="' + bookHref + '" data-book', 'cal', 'Prendre rendez-vous', 'Trouvez un médecin disponible près de chez vous') +
-        opt('a', 'href="/results-view"', 'lab', 'Mes résultats d’analyses', 'Avec le code remis par votre médecin') +
-        '<p class="ds-note">' + svg('shield') + 'Aucun compte nécessaire : vos rendez-vous sont confirmés par SMS.</p></section>' +
+        opt('a', 'href="/results-view"', 'lab', 'Résultats d’analyses', 'Avec le code remis par votre médecin') +
+        (session ? '' : '<p class="ds-note">' + svg('shield') + 'Le rendez-vous reste possible sans compte, confirmé par SMS.</p>') + '</section>' +
       '<section class="ds-pane" data-pane="2"><button type="button" class="ds-back" data-go="0">' + svg('back') + 'Vous êtes</button><h2 class="ds-title">Espace professionnel</h2>' +
         opt('a', 'href="/login"', 'login', 'Se connecter', 'Accéder à votre cabinet') +
         opt('a', 'href="/login#register"', 'plus', 'Créer mon espace', '30 jours gratuits, sans carte bancaire') + '</section>' +
@@ -101,7 +133,9 @@
     return { scrim: scrim, pop: pop };
   }
 
-  var ui = null, btn = null, pane = 0;
+  var ui = null, btn = null, pane = 0, kbd = false;
+  document.addEventListener('keydown', function () { kbd = true; }, true);
+  document.addEventListener('pointerdown', function () { kbd = false; }, true);
 
   function setPane(n, instant) {
     pane = n;
@@ -113,7 +147,7 @@
     vp.style.height = panes[n].offsetHeight + 'px';
     if (instant) { void track.offsetWidth; track.style.transition = ''; vp.style.transition = ''; }
     var f = panes[n].querySelector('.ds-opt, .ds-back');
-    if (f && !instant) setTimeout(function () { f.focus({ preventScroll: true }); }, 60);
+    if (f && !instant && kbd) setTimeout(function () { f.focus({ preventScroll: true }); }, 60);
   }
 
   function place() {
@@ -132,7 +166,7 @@
     ui.scrim.classList.add('on');
     ui.pop.classList.add('on');
     btn.setAttribute('aria-expanded', 'true');
-    setTimeout(function () { var f = ui.pop.querySelector('.ds-pane.cur .ds-opt'); if (f) f.focus({ preventScroll: true }); }, 80);
+    if (kbd) setTimeout(function () { var f = ui.pop.querySelector('.ds-pane.cur .ds-opt'); if (f) f.focus({ preventScroll: true }); }, 80);
   }
   function close(focusBack) {
     if (!ui || !ui.pop.classList.contains('on')) return;

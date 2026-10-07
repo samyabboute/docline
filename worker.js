@@ -36,6 +36,8 @@ const ROUTES = {
   '/confirm':           '/confirm.html',
   '/ticket':            '/ticket.html',
   '/results-view':      '/results-view.html',
+  '/patient':           '/patient.html',
+  '/mon-espace':        '/patient.html',
   '/payment-return':    '/payment-return.html',
   '/landing':           '/landing.html',
 };
