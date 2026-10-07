@@ -123,7 +123,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.03em}
 .step.in-r{animation:inR .5s var(--ease) both}.step.in-l{animation:inL .5s var(--ease) both}
 @keyframes inR{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
 @keyframes inL{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
-.a-title{font-size:1.75rem;font-weight:700;letter-spacing:-.035em}
+.a-title{font-size:1.75rem;font-weight:700;letter-spacing:-.035em;margin-bottom:28px}
 .a-sub{color:var(--ink3);font-size:1rem;margin:8px 0 30px}
 .field{display:block;margin-bottom:18px}
 .field>span{display:block;font-size:.8125rem;font-weight:600;color:var(--ink2);margin-bottom:8px}
@@ -182,7 +182,7 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 /* ══ ESPACE ════════════════════════════════════ */
 body.in-app{background:var(--bg)}
 .app{padding-block:64px 160px}
-.hello{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:44px}
+.hello{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:56px}
 .hello .date{font-size:.8125rem;font-weight:600;color:var(--ink4);letter-spacing:.01em}
 .hello h1{font-size:clamp(2.1rem,4.6vw,3.3rem);font-weight:800;letter-spacing:-.05em;line-height:1.04;margin-top:6px}
 .hello p{color:var(--ink3);margin-top:8px;font-size:1.0625rem}
@@ -199,7 +199,7 @@ body.in-app{background:var(--bg)}
 .view.on>*:nth-child(2){animation-delay:.05s}.view.on>*:nth-child(3){animation-delay:.1s}.view.on>*:nth-child(4){animation-delay:.15s}.view.on>*:nth-child(5){animation-delay:.2s}
 .h2{font-size:1.375rem;font-weight:700;letter-spacing:-.03em;margin:0 0 20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .h2 small{font-size:.8125rem;font-weight:500;color:var(--ink4);letter-spacing:0}
-.sec{margin-top:72px}
+.sec{margin-top:88px}
 
 /* Prochain RDV */
 .next{position:relative;overflow:hidden;border-radius:36px;background:linear-gradient(135deg,#4C1D95 0%,#5B21B6 55%,#6D28D9 100%);color:#fff;padding:44px 48px;box-shadow:0 30px 60px -30px rgba(76,29,149,.85)}
@@ -250,7 +250,7 @@ body.in-app{background:var(--bg)}
 .empty-next p{color:var(--ink3);font-size:.9375rem;margin-top:4px;max-width:34em}
 
 /* Profil à compléter */
-.nudge{display:flex;align-items:center;gap:18px;padding:22px 26px;border-radius:26px;background:var(--surface);border:1px solid var(--hair);margin-top:20px}
+.nudge{display:flex;align-items:center;gap:18px;padding:22px 26px;border-radius:26px;background:var(--surface);border:1px solid var(--hair);margin-top:24px}
 .ring{width:46px;height:46px;flex-shrink:0;position:relative}
 .ring svg{width:46px;height:46px;transform:rotate(-90deg)}
 .ring circle{fill:none;stroke-width:4}
@@ -262,7 +262,7 @@ body.in-app{background:var(--bg)}
 .nudge>div span{display:block;font-size:.8125rem;color:var(--ink3)}
 
 /* Raccourcis */
-.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
 .q{display:flex;flex-direction:column;justify-content:space-between;gap:22px;min-height:168px;padding:26px;border-radius:28px;background:var(--surface);border:1px solid var(--hair);text-decoration:none;cursor:pointer;text-align:left;transition:transform .45s var(--ease),box-shadow .45s var(--ease),border-color .3s}
 .q:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:transparent}
 .q:active{transform:translateY(-1px) scale(.99)}
@@ -292,7 +292,7 @@ body.in-app{background:var(--bg)}
 .subseg .tabs-pill{top:4px;bottom:4px}
 .month{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink4);margin:44px 8px 14px}
 .month:first-child{margin-top:0}
-.list{display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:16px}
 .appt{display:grid;grid-template-columns:64px 1fr auto;gap:22px;align-items:center;padding:20px 24px 20px 20px;border-radius:26px;background:var(--surface);border:1px solid var(--hair);transition:box-shadow .4s var(--ease),border-color .3s,opacity .4s,transform .4s var(--ease)}
 .appt:hover{box-shadow:var(--shadow);border-color:transparent}
 .appt.out{opacity:0;transform:translateX(20px) scale(.98)}
@@ -327,7 +327,7 @@ body.in-app{background:var(--bg)}
 
 /* Cartes génériques */
 .card{background:var(--surface);border:1px solid var(--hair);border-radius:30px;padding:36px 40px}
-.card+.card{margin-top:20px}
+.card+.card{margin-top:24px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px}
 .row{display:flex;align-items:center;gap:16px;padding:18px 0;border-top:1px solid var(--hair)}
 .row:first-child{border-top:0}
@@ -430,24 +430,24 @@ body.in-app{background:var(--bg)}
 
 @media(max-width:900px){
   .g-grid{grid-template-columns:1fr;grid-template-areas:'head' 'auth' 'demo';row-gap:24px}
-  .guest{padding-block:28px 64px;min-height:0;display:block}
+  .guest{padding-block:48px 88px;min-height:0;display:block}
   .g-sub{font-size:1rem}
   .notif-stage{margin-top:8px;max-width:none}
   .quick{grid-template-columns:1fr 1fr}
 }
 @media(max-width:900px){
-  .g-grid{row-gap:36px}
+  .g-grid{row-gap:44px}
   .card{padding:28px}
 }
 @media(max-width:640px){
   .wrap{padding-inline:24px}
   .nav-cta{padding:7px 14px;font-size:.78rem}
-  .app{padding-block:32px 160px}
-  .hello{margin-bottom:28px}
-  .sec{margin-top:52px}
-  .h2{font-size:1.1875rem;margin-bottom:16px}
-  .quick{gap:10px}
-  .q{min-height:0;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;padding:14px;border-radius:22px}
+  .app{padding-block:44px 160px}
+  .hello{margin-bottom:36px}
+  .sec{margin-top:64px}
+  .h2{font-size:1.25rem;margin-bottom:18px}
+  .quick{gap:12px}
+  .q{min-height:0;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;padding:18px 16px;border-radius:22px}
   .q:hover{transform:none;box-shadow:none;border-color:var(--hair)}
   .q:active{transform:scale(.97);background:var(--fill)}
   .q .q-ic{width:40px;height:40px;flex-shrink:0}
@@ -455,7 +455,7 @@ body.in-app{background:var(--bg)}
   .q b svg{display:none}
   .q span{font-size:.75rem;margin-top:1px}
   .doc:active{background:var(--fill)}
-  .subseg{display:grid;grid-template-columns:repeat(3,1fr);width:100%;margin-bottom:24px}
+  .subseg{display:grid;grid-template-columns:repeat(3,1fr);width:100%;margin-bottom:32px}
   .subseg button{justify-content:center;padding:0 8px}
   .grab{display:block;width:40px;height:5px;border-radius:3px;background:rgba(13,5,32,.16);margin:-12px auto 16px}
   .dsheet{max-width:none;padding:24px 20px calc(20px + env(safe-area-inset-bottom,0px));border-radius:30px 30px 0 0;max-height:92vh}
@@ -465,26 +465,26 @@ body.in-app{background:var(--bg)}
   .next-when{font-size:1.4rem}
   .next-actions .btn{height:44px}
   .doc{padding:16px;border-radius:22px}
-  .docs{grid-template-columns:1fr;gap:12px}
-  .month{margin:32px 6px 12px}
+  .docs{grid-template-columns:1fr;gap:14px}
+  .month{margin:40px 6px 14px}
   .empty{padding:48px 24px}
   .empty-next{border-radius:28px}
-  .nudge{padding:18px 20px}
-  .g-title{font-size:2.35rem;margin:6px 0 14px}
+  .nudge{padding:20px 22px;margin-top:20px}
+  .g-title{font-size:2.35rem;margin:8px 0 16px}
   .kicker{font-size:1.0625rem}
-  .auth{padding:30px 22px 26px;border-radius:28px}
+  .auth{padding:32px 24px 32px;border-radius:28px}
   .otp{gap:6px}.otp input{height:54px;font-size:1.35rem}
   .tabs{display:none}
   .hello{margin-bottom:20px}
   .hello .btn{display:none}
-  .next{padding:26px 24px;border-radius:30px}
+  .next{padding:30px 26px;border-radius:30px}
   .next-top{grid-template-columns:auto 1fr;gap:16px;align-items:start}
   .cal-tile{width:76px;border-radius:16px}
   .cal-tile .d{font-size:2rem;padding:6px 0 0}
   .cal-tile .w{font-size:.6875rem;padding-bottom:7px}
   .cal-tile .m{font-size:.625rem;padding:4px 0}
   .next-when{font-size:1.375rem;margin-top:4px}
-  .track{margin:28px 0 24px}
+  .track{margin:32px 0 28px}
   .t-step{font-size:.6875rem}
   .next-actions{display:grid;grid-template-columns:1fr 1fr}
   .next-actions .btn.solid{grid-column:1/-1}
@@ -496,7 +496,7 @@ body.in-app{background:var(--bg)}
   .nudge>div{flex:1 1 calc(100% - 64px)}
   .nudge .btn{width:100%}
   .q{min-height:118px}
-  .appt{grid-template-columns:56px 1fr 18px;gap:14px;padding:16px 14px 16px 16px;border-radius:24px;-webkit-user-select:none;user-select:none}
+  .appt{grid-template-columns:56px 1fr 18px;gap:14px;padding:20px 16px 20px 18px;border-radius:24px;-webkit-user-select:none;user-select:none}
   .appt:active{transform:scale(.985);background:var(--fill)}
   .appt:hover{box-shadow:none;border-color:var(--hair)}
   .mini-cal{width:56px}
@@ -507,7 +507,7 @@ body.in-app{background:var(--bg)}
   .grid2{grid-template-columns:1fr}
   .rel-form{grid-template-columns:1fr 1fr}
   .rel-form .field:first-child,.rel-form .btn{grid-column:1/-1}
-  .card{padding:24px 22px;border-radius:26px}
+  .card{padding:28px 24px;border-radius:26px}
   .app{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
   .savebar{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(251,250,253,.9);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
@@ -562,26 +562,24 @@ body.in-app{background:var(--bg)}
     <div class="g-head">
       <p class="kicker rise">Espace patient</p>
       <h1 class="g-title rise d1">Votre santé,<br><span class="grad">enfin organisée.</span></h1>
-      <p class="g-sub rise d2">Vos rendez-vous, ceux de vos proches et vos résultats d'analyses au même endroit. Pas de mot de passe : un code par SMS suffit.</p>
+      <p class="g-sub rise d2">Rendez-vous, proches et résultats au même endroit. Sans mot de passe.</p>
     </div>
 
     <div class="g-demo rise d3">
       <div class="notif-stage" id="stage" aria-hidden="true"></div>
-      <p class="demo-cap">Exemple des notifications que vous recevez</p>
       <a class="no-account" href="/find-doctor">Pas encore prêt ? <b>Prendre rendez-vous sans compte</b><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
 
     <section class="auth rise d2" aria-labelledby="aTitle">
       <div class="seg" id="seg" data-mode="login" role="tablist">
         <span class="seg-pill"></span>
-        <button type="button" role="tab" aria-selected="true" data-mode="login">Se connecter</button>
-        <button type="button" role="tab" aria-selected="false" data-mode="signup">Créer un compte</button>
+        <button type="button" role="tab" aria-selected="true" data-mode="login">Connexion</button>
+        <button type="button" role="tab" aria-selected="false" data-mode="signup">Inscription</button>
       </div>
 
       <div class="a-viewport" id="aView">
         <div class="step on" id="stPhone">
-          <h2 class="a-title" id="aTitle">Bon retour parmi nous</h2>
-          <p class="a-sub" id="aSub">Entrez votre numéro, nous vous envoyons un code.</p>
+          <h2 class="a-title" id="aTitle">Bon retour</h2>
           <div class="alert err" id="errPhone"><div><p></p></div></div>
           <div class="reveal" id="nameReveal"><div>
             <label class="field"><span>Nom et prénom</span><input class="input" id="fName" autocomplete="name" autocapitalize="words" enterkeyhint="next" maxlength="80" placeholder="Ex. Amina Benali" tabindex="-1"></label>
@@ -590,13 +588,13 @@ body.in-app{background:var(--bg)}
             <div class="phone" id="phoneBox"><span class="cc">+213</span><input id="fPhone" type="tel" inputmode="tel" enterkeyhint="send" autocomplete="tel-national" maxlength="14" placeholder="5 55 12 34 56"><span class="ok-dot" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span></div>
           </label>
           <div class="reveal" id="consentReveal"><div>
-            <label class="consent"><input type="checkbox" id="fConsent" tabindex="-1"><span>J'accepte que Docline conserve mes informations pour gérer mes rendez-vous. <a href="/privacy" target="_blank" rel="noopener">Confidentialité</a></span></label>
+            <label class="consent"><input type="checkbox" id="fConsent" tabindex="-1"><span>J'accepte la <a href="/privacy" target="_blank" rel="noopener">politique de confidentialité</a></span></label>
           </div></div>
           <button class="btn btn-primary full" id="sendBtn" type="button">Recevoir le code</button>
         </div>
 
         <div class="step" id="stCode">
-          <h2 class="a-title">Entrez le code</h2>
+          <h2 class="a-title" style="margin-bottom:0">Entrez le code</h2>
           <p class="a-sub">Envoyé par SMS au <b id="sentTo" class="tnum" style="color:var(--ink)"></b></p>
           <div class="alert err" id="errCode"><div><p></p></div></div>
           <div class="alert info" id="devCode"><div><p></p></div></div>
@@ -616,11 +614,6 @@ body.in-app{background:var(--bg)}
         </div>
       </div>
 
-      <p class="a-foot">
-        <span><svg class="i" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Sans mot de passe</span>
-        <span><svg class="i" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Gratuit</span>
-        <span><svg class="i" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Supprimable à tout moment</span>
-      </p>
     </section>
   </div>
 </main>
@@ -873,8 +866,7 @@ function setMode(m){
   document.querySelectorAll('#seg button').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.mode === m ? 'true' : 'false'); });
   var su = m === 'signup';
   reveal('nameReveal', su); reveal('consentReveal', su);
-  $('aTitle').textContent = su ? 'Créez votre espace' : 'Bon retour parmi nous';
-  $('aSub').textContent = su ? 'Gratuit, sans mot de passe. Prêt en 30 secondes.' : 'Entrez votre numéro, nous vous envoyons un code.';
+  $('aTitle').textContent = su ? 'Bienvenue' : 'Bon retour';
   $('sendBtn').textContent = su ? 'Créer mon espace' : 'Recevoir le code';
   if (curStep !== 'stPhone') showStep('stPhone', 'back');
   hideAlert('errPhone');
@@ -920,7 +912,7 @@ async function sendCode(){
   var p = normPhone($('fPhone').value);
   if (mode === 'signup' && $('fName').value.trim().length < 3){ alertMsg('errPhone', 'Indiquez votre nom et prénom.'); $('fName').focus(); return; }
   if (!p){ alertMsg('errPhone', 'Numéro invalide. Exemple : 0555 12 34 56.'); $('fPhone').focus(); return; }
-  if (mode === 'signup' && !$('fConsent').checked){ alertMsg('errPhone', 'Cochez la case pour accepter la conservation de vos informations.'); return; }
+  if (mode === 'signup' && !$('fConsent').checked){ alertMsg('errPhone', 'Acceptez la politique de confidentialité pour continuer.'); return; }
   phoneE = p;
   var btn = $('sendBtn'), label = btn.textContent;
   busy(btn, true);
