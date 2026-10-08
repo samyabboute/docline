@@ -306,7 +306,8 @@
       .kpi-row{grid-template-columns:1fr 1fr}
       .kpi-value{font-size:22px}
     }
-  </style>
+  .dl-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:#F1EEFA;color:#4C1D95;white-space:nowrap}.dl-chip.src{background:#F4F2F8;color:#6E6880}.dl-chip svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+</style>
 <script src="loader.js"></script>
   <!-- Sentry monitoring -->
   <script src="https://browser.sentry-cdn.com/8.28.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
@@ -636,7 +637,8 @@ function cardHTML(rdv){
     +    (rdv.requested_time ? '<span class="rdv-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+esc(rdv.requested_time)+'</span>' : '')
     +    (rdv.patient_phone  ? '<span class="rdv-meta-item"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 21.72 16.92z"/></svg>'+esc(rdv.patient_phone)+'</span>' : '')
     +    (rdv.patient_email  ? '<span class="rdv-meta-item"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'+esc(rdv.patient_email)+'</span>' : '')
-    +    '<span class="status-badge '+st+'">'+STATUS_LABELS[st]+'</span>'
+    +    '<span class="status-badge '+st+'">'+(st==='cancelled' && rdv.cancelled_by==='patient' ? 'Annulé par le patient' : (STATUS_LABELS[st]||st))+'</span>'
+    +    (rdv.patient_id ? '<span class="dl-chip" title="Le patient suit ce rendez-vous dans son espace Docline"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Espace Docline</span>' : '')
     +    smsBadge(rdv)
     +  '</div>'
     +  (rdv.notes ? '<div class="rdv-notes">'+esc(rdv.notes)+'</div>' : '')
