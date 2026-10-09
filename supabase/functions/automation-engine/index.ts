@@ -15,6 +15,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { captureException } from "../_shared/sentry.ts";
+import { details, layout, para, sendEmail } from "../_shared/email.ts";
+
+const DA = (n: number) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(n || 0) + " DA";
 
 const SUPA_URL   = Deno.env.get('SUPABASE_URL')!;
 const SUPA_KEY   = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -29,18 +32,6 @@ const cors = {
   'Content-Type': 'application/json',
 };
 
-async function sendEmail(to: string, subject: string, html: string) {
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: 'Docline <noreply@docline.health>', to: [to], subject, html }),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    console.error('[automation] sendEmail failed:', err);
-  }
-  return res.ok;
-}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -81,14 +72,14 @@ serve(async (req) => {
         client_email:   p.client_email,
         type:           'invoice',
         subtotal:       p.amount_ht   ?? 0,
-        vat_rate:       p.tva_rate    ?? 20,
+        vat_rate:       p.tva_rate    ?? 19,
         vat_amount:     vatAmount,
         total:          p.amount_ttc  ?? 0,
-        currency:       p.currency    ?? 'EUR',
+        currency:       p.currency    ?? 'DZD',
         status:         'sent',
         issue_date:     new Date().toISOString().slice(0, 10),
         due_date:       due.toISOString().slice(0, 10),
-        notes:          'Auto-generated from signed Smart File',
+        notes:          'Facture générée automatiquement après signature du devis',
         line_items:     p.line_items  ?? [],
       }).select().single();
 
@@ -96,8 +87,14 @@ serve(async (req) => {
 
       await sendEmail(
         p.client_email,
-        `Invoice from ${p.project_title}`,
-        `<div style="font-family:sans-serif;max-width:560px;margin:0 auto"><h2 style="color:#003399">Invoice ready</h2><p>Hi ${p.client_name},</p><p>Invoice for <strong>${p.project_title}</strong>: <strong>€${p.amount_ttc?.toFixed(2)}</strong> due ${due.toLocaleDateString('fr-FR')}.</p></div>`,
+        `Votre facture · ${p.project_title}`,
+        layout({
+          preheader: `Montant : ${DA(p.amount_ttc)}, échéance le ${due.toLocaleDateString('fr-FR')}`,
+          title: 'Votre facture est prête',
+          body: para(`Bonjour ${p.client_name || ''},\n\nVotre devis **${p.project_title}** a été signé : voici la facture correspondante.`)
+            + details([['Montant TTC', DA(p.amount_ttc)], ['Échéance', due.toLocaleDateString('fr-FR')]]),
+          reason: 'Facture envoyée via Docline.',
+        }),
       );
 
       await supa.from('audit_log').insert({
@@ -132,8 +129,14 @@ serve(async (req) => {
 
         await sendEmail(
           inv.client_email,
-          `Payment reminder — ${inv.invoice_number ?? inv.id.slice(0, 8)}`,
-          `<div style="font-family:sans-serif;max-width:560px"><h2 style="color:#DC2626">Payment reminder</h2><p>Hi ${inv.client_name},</p><p>Invoice <strong>${inv.invoice_number ?? ''}</strong> for <strong>€${inv.total?.toFixed(2)}</strong> is ${days} days overdue.</p></div>`,
+          `Rappel de paiement · facture ${inv.invoice_number ?? inv.id.slice(0, 8)}`,
+          layout({
+            preheader: `Facture échue depuis ${days} jour${days > 1 ? 's' : ''}`,
+            title: 'Petit rappel de paiement',
+            body: para(`Bonjour ${inv.client_name || ''},\n\nSauf erreur de notre part, la facture ci-dessous reste à régler. Si le paiement a déjà été fait, merci de ne pas tenir compte de ce message.`)
+              + details([['Facture', inv.invoice_number ?? ''], ['Montant TTC', DA(inv.total)], ['Retard', `${days} jour${days > 1 ? 's' : ''}`]]),
+            reason: 'Rappel envoyé via Docline.',
+          }),
         );
 
         await supa.from('payment_reminders').insert({

@@ -84,7 +84,8 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   try {
-    const { phone, otp, patientName, doctorId, date, time } = await req.json();
+    const { phone, otp, patientName, doctorId, date, time, patientEmail } = await req.json();
+    const email = typeof patientEmail === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(patientEmail.trim()) ? patientEmail.trim().slice(0, 120) : null;
 
     if (!phone || !otp || !patientName || !doctorId || !date || !time) {
       return new Response(JSON.stringify({ error: "MISSING_FIELDS" }),
@@ -164,6 +165,7 @@ serve(async (req) => {
         patient_id:      patientId,
         patient_name:    patientName,
         patient_phone:   phoneE164,
+        patient_email:   email,
         requested_date:  date,
         requested_time:  time,
         scheduled_at_ts: scheduledAtTs,

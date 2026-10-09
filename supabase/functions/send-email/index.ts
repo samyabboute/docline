@@ -1,21 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { captureException } from "../_shared/sentry.ts";
+import { APP_URL, button, details, esc, layout, logEmail, para, pill, sendEmail } from "../_shared/email.ts";
 
-const RESEND_KEY = Deno.env.get("RESEND_API_KEY")!;
-const APP_URL    = Deno.env.get("APP_URL") ?? "https://docline.health";
-
-// ── Brand ────────────────────────────────────────────────────────
-const BRAND      = "#3B1772";
-const BRAND_MID  = "#5B21B6";
 const ADMIN_EMAILS_LIST = ["samyabboute5@gmail.com", "contact@docline.health"];
-
-// ── Logo Docline ─────────────────────────────────────────────────
-// PNG à créer : exporter docline-logo-white.png depuis le fichier SVG source
-// SVG supporté par Apple Mail, iOS, Outlook.com — Gmail : affiche alt="Docline"
-// Pour Gmail avec logo visible : ajouter docline-logo-white.png dans le projet
-const LOGO_PNG = "https://docline.health/docline-logo-white.png"; // PNG (à créer)
-const LOGO_SVG = "https://docline.health/docline-logo-white.svg"; // SVG (déployé)
+const SUPPORT_REPLY_TO = "contact@docline.health";
 
 // ── CORS dynamique ───────────────────────────────────────────────
 function buildCors(req: Request) {
@@ -37,432 +26,110 @@ function decodeJwt(token: string): Record<string, unknown> | null {
   } catch { return null; }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────
-async function sendEmail(to: string, subject: string, html: string, replyTo?: string): Promise<boolean> {
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { "Authorization": `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: "Docline <noreply@docline.health>", to: [to], subject, html, reply_to: replyTo }),
-  });
-  return res.ok;
-}
-
 function interpolate(text: string, vars: Record<string, string>): string {
   return text.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? "");
 }
-
-async function logEmail(p: {
-  type: string; to: string; name?: string; subject?: string;
-  status: "sent" | "failed"; triggeredBy?: string; metadata?: Record<string, unknown>;
-}) {
-  try {
-    const s = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-    await s.from("email_logs").insert({
-      type: p.type, recipient_email: p.to, recipient_name: p.name ?? null,
-      subject: p.subject ?? null, status: p.status,
-      triggered_by: p.triggeredBy ?? null, metadata: p.metadata ?? {},
-    });
-  } catch (_) {}
-}
-
-// ════════════════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════════════════
 
 function formatDuration(ms: number): string {
   const mins = Math.round(ms / 60000);
   if (mins < 1)  return "moins d'une minute";
   if (mins < 60) return `${mins} minute${mins > 1 ? "s" : ""}`;
   const h = Math.floor(mins / 60), m = mins % 60;
-  return m === 0 ? `${h}h` : `${h}h${m.toString().padStart(2, "0")}`;
+  return m === 0 ? `${h} h` : `${h} h ${m.toString().padStart(2, "0")}`;
 }
+
+const DOCTOR_REASON = "Vous recevez cet email car vous avez un compte médecin Docline.";
 
 // ════════════════════════════════════════════════════════════════
-// EMAIL TEMPLATES — Design system Docline
+// MODÈLES — tous construits sur _shared/email.ts (charte graphique v1.0)
 // ════════════════════════════════════════════════════════════════
 
-const FONT = `font-family:'Helvetica Neue',Helvetica,Arial,sans-serif`;
-
-// ── Shell ────────────────────────────────────────────────────────
-
-const emailWrapper = (inner: string) => `<!DOCTYPE html>
-<html lang="fr"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light">
-<title>Docline</title>
-</head>
-<body style="margin:0;padding:0;background:#E8E0F4;${FONT}">
-<table width="100%" cellpadding="0" cellspacing="0" border="0"
-       style="background:#E8E0F4;padding:40px 16px">
-  <tr><td align="center">
-    <table width="580" cellpadding="0" cellspacing="0" border="0"
-           style="max-width:580px;width:100%;border-radius:12px;
-                  box-shadow:0 4px 32px rgba(20,5,60,.16)">
-      ${inner}
-    </table>
-  </td></tr>
-</table>
-</body></html>`;
-
-// ── Header : wordmark texte — 100% compatible tous clients mail ──
-const emailHeader = (badgeText?: string) => `
-<tr>
-  <td style="background:linear-gradient(145deg,#140533 0%,#2E0F60 40%,#5118A8 100%);
-             border-radius:12px 12px 0 0;padding:40px 48px 36px;text-align:center">
-    <a href="${APP_URL}" style="text-decoration:none;border:0;display:inline-block">
-      <span style="display:inline-block;${FONT}">
-        <span style="font-size:28px;font-weight:800;color:#FFFFFF;letter-spacing:-0.5px;line-height:1">doc</span><span style="font-size:28px;font-weight:800;color:#A78BFA;letter-spacing:-0.5px;line-height:1">line</span>
-        <span style="display:inline-block;width:7px;height:7px;background:#A78BFA;border-radius:50%;margin-left:2px;vertical-align:middle;position:relative;top:-3px"></span>
-      </span>
-    </a>
-    ${badgeText ? `
-    <div style="display:inline-block;margin-top:18px;
-                background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
-                border-radius:4px;padding:5px 14px;
-                color:rgba(255,255,255,.85);font-size:10px;font-weight:700;
-                letter-spacing:1.2px;text-transform:uppercase;${FONT}">${badgeText}</div>` : ""}
-  </td>
-</tr>`;
-
-// ── Footer ───────────────────────────────────────────────────────
-const emailFooter = () => `
-<tr>
-  <td style="background:#F4F1FA;border:1px solid #DDD5ED;border-top:none;
-             border-radius:0 0 12px 12px;padding:20px 48px;text-align:center">
-    <p style="margin:0;font-size:11px;color:#9B8CB8;line-height:2;${FONT}">
-      <a href="${APP_URL}" style="color:#6D28D9;font-weight:600;text-decoration:none">docline.health</a>
-      &nbsp;&middot;&nbsp;
-      <a href="${APP_URL}/privacy" style="color:#9B8CB8;text-decoration:none">Confidentialité</a>
-      &nbsp;&middot;&nbsp;
-      <a href="mailto:contact@docline.health" style="color:#9B8CB8;text-decoration:none">contact@docline.health</a>
-      <br>Données hébergées en Europe &nbsp;&middot;&nbsp; Conforme RGPD
-    </p>
-  </td>
-</tr>`;
-
-// ── Corps principal ───────────────────────────────────────────────
-function bodyRow(content: string) {
-  return `<tr>
-  <td style="background:#ffffff;padding:40px 48px 36px;
-             border-left:1px solid #DDD5ED;border-right:1px solid #DDD5ED">
-    ${content}
-  </td>
-</tr>`;
+// Modèle générique (modèles stockés en base, emails libres)
+function buildBaseEmail(heading: string, content: string, cta?: { text: string; url: string }, badgeLabel?: string): string {
+  return layout({
+    preheader: content.split("\n").find((l) => l.trim() && !/^bonjour/i.test(l.trim())) ?? heading,
+    title: heading,
+    body: (badgeLabel ? `<div style="margin-bottom:18px">${pill(badgeLabel, "ok")}</div>` : "")
+      + para(content) + (cta ? button(cta.text, cta.url) : ""),
+    reason: DOCTOR_REASON,
+  });
 }
 
-// ── Typographie ───────────────────────────────────────────────────
-function h1(text: string) {
-  return `<h1 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#0F0520;
-                     line-height:1.3;letter-spacing:-.3px;${FONT}">${text}</h1>`;
-}
-
-function p(text: string) {
-  return text.split(/\n\n/).map(t =>
-    `<p style="margin:0 0 14px;color:#3A2E56;font-size:15px;line-height:1.75;${FONT}">` +
-    t.replace(/\n/g, "<br>")
-     .replace(/\*\*(.+?)\*\*/g, `<strong style="color:#0F0520">$1</strong>`) +
-    `</p>`
-  ).join("");
-}
-
-// ── Bouton CTA ────────────────────────────────────────────────────
-const ctaButton = (text: string, url: string) =>
-  `<div style="text-align:left;margin:28px 0 24px">
-    <a href="${url}"
-       style="display:inline-block;background:#3B1772;
-              color:#ffffff;font-weight:600;padding:13px 32px;border-radius:6px;
-              text-decoration:none;font-size:14px;letter-spacing:.1px;${FONT}">${text}</a>
-  </div>`;
-
-// ── Signature Docline ─────────────────────────────────────────────
-function signOff() {
-  return `<div style="margin-top:28px;padding-top:20px;border-top:1px solid #EAE2F4">
-    <p style="margin:0;font-size:13px;color:#0F0520;font-weight:600;${FONT}">Docline</p>
-  </div>`;
-}
-
-// ── Badge statut (point coloré + label, sans icône) ───────────────
-function statusBadge(label: string, color: { bg: string; border: string; dot: string; text: string }) {
-  return `<div style="margin-bottom:28px">
-    <span style="display:inline-flex;align-items:center;gap:7px;
-                 padding:8px 16px;background:${color.bg};
-                 border:1px solid ${color.border};border-radius:6px">
-      <span style="width:7px;height:7px;border-radius:50%;
-                   background:${color.dot};display:inline-block"></span>
-      <span style="font-size:11px;font-weight:700;color:${color.text};
-                   letter-spacing:.7px;text-transform:uppercase;${FONT}">${label}</span>
-    </span>
-  </div>`;
-}
-
-// ── buildBaseEmail — template universel ──────────────────────────
-function buildBaseEmail(
-  heading: string, content: string,
-  cta?: { text: string; url: string },
-  badgeLabel?: string
-): string {
-  return emailWrapper(
-    emailHeader(badgeLabel) +
-    bodyRow(h1(heading) + p(content) + (cta ? ctaButton(cta.text, cta.url) : "") + signOff()) +
-    emailFooter()
-  );
-}
-
-// ════════════════════════════════════════════════════════════════
-// TEMPLATES TRANSACTIONNELS
-// ════════════════════════════════════════════════════════════════
-
-// ── Bienvenue ────────────────────────────────────────────────────
 function buildWelcomeEmail(firstName: string): string {
-  return emailWrapper(
-    emailHeader("Compte activé") +
-    bodyRow(
-      h1(`Bienvenue, ${firstName}.`) +
-      p(`Votre compte Docline est actif.
-
-Gérez vos rendez-vous, patients, ordonnances et factures depuis votre tableau de bord.`) +
-      ctaButton("Accéder à mon espace", APP_URL) +
-      `<table width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 20px">
-        <tr>
-          <td style="background:#F5F0FC;padding:14px 18px;border-radius:6px;
-                     border-left:3px solid #6D28D9">
-            <p style="margin:0;font-size:13px;color:#4A3D72;line-height:1.65;${FONT}">
-              Une question ? Contactez-nous à
-              <a href="mailto:contact@docline.health"
-                 style="color:#5B21B6;text-decoration:none;font-weight:600">contact@docline.health</a>
-            </p>
-          </td>
-        </tr>
-      </table>` +
-      signOff()
-    ) +
-    emailFooter()
-  );
+  return layout({
+    preheader: "Trois étapes pour accueillir vos premiers patients en ligne.",
+    title: `Bienvenue, ${firstName}.`,
+    body: para("Votre cabinet Docline est prêt. Pour bien démarrer :\n\n**1.** Renseignez vos horaires de consultation.\n**2.** Ajoutez ou importez vos patients.\n**3.** Partagez votre lien de réservation : vos patients prennent rendez-vous sans appeler.")
+      + button("Ouvrir mon cabinet", `${APP_URL}/dashboard`)
+      + para("\nUne question ? Répondez simplement à cet email, nous vous répondons sous 24 heures ouvrées."),
+    reason: DOCTOR_REASON,
+  });
 }
 
-// ── Maintenance activée (tous les médecins) ──────────────────────
 function buildMaintenanceActivatedEmail(firstName: string): string {
-  return emailWrapper(
-    emailHeader() +
-    bodyRow(
-      statusBadge("Maintenance en cours", {
-        bg: "#FFF8ED", border: "#FDDBA0",
-        dot: "#CA8A04", text: "#78350F"
-      }) +
-      h1(`Bonjour ${firstName},`) +
-      p(`La plateforme Docline est momentanément indisponible pour maintenance.
-
-**Votre espace médecin reste accessible.** Rendez-vous, patients et ordonnances ne sont pas affectés.
-
-Vous serez notifié dès la reprise du service.`) +
-      ctaButton("Accéder à mon espace", APP_URL) +
-      signOff()
-    ) +
-    emailFooter()
-  );
+  return layout({
+    preheader: "Une courte maintenance est en cours. Vos données ne sont pas affectées.",
+    title: `Bonjour ${firstName},`,
+    body: `<div style="margin-bottom:18px">${pill("Maintenance en cours", "wait")}</div>`
+      + para("Docline est momentanément en maintenance pour une mise à jour.\n\n**Vos rendez-vous, patients et ordonnances ne sont pas affectés.** Nous vous écrirons dès que le service est rétabli."),
+    reason: DOCTOR_REASON,
+  });
 }
 
-// ── Reprise après maintenance (tous les médecins + inscrits) ─────
 function buildMaintenanceResumeEmail(firstName: string, duration?: string): string {
-  const durationLine = duration
-    ? `\n\nLa maintenance a duré **${duration}**.`
-    : "";
-  return emailWrapper(
-    emailHeader("Service rétabli") +
-    bodyRow(
-      statusBadge("Plateforme disponible", {
-        bg: "#F0FDF4", border: "#BBF7D0",
-        dot: "#16A34A", text: "#15803D"
-      }) +
-      h1(`Bonjour ${firstName},`) +
-      p(`La maintenance est terminée. La plateforme Docline est de nouveau entièrement disponible.${durationLine}
-
-Merci pour votre patience.`) +
-      ctaButton("Accéder à la plateforme", APP_URL) +
-      signOff()
-    ) +
-    emailFooter()
-  );
+  return layout({
+    preheader: "Docline est de nouveau entièrement disponible.",
+    title: `Bonjour ${firstName},`,
+    body: `<div style="margin-bottom:18px">${pill("Service rétabli", "ok")}</div>`
+      + para(`La maintenance est terminée : Docline est de nouveau entièrement disponible.${duration ? `\n\nElle a duré **${duration}**.` : ""}\n\nMerci pour votre patience.`)
+      + button("Ouvrir mon cabinet", `${APP_URL}/dashboard`),
+    reason: DOCTOR_REASON,
+  });
 }
 
-// ════════════════════════════════════════════════════════════════
-// TEMPLATES OCCASIONS SPÉCIALES
-// ════════════════════════════════════════════════════════════════
+function buildOccasionEmail(title: string, text: string, preheader: string): string {
+  return layout({ preheader, title, body: para(text) + para("\nL'équipe Docline"), reason: DOCTOR_REASON });
+}
+const buildEidAlFitrEmail = (fn: string) => buildOccasionEmail(`Eid Moubarak, ${fn}.`,
+  "Toute l'équipe Docline vous souhaite un joyeux Eid el-Fitr, entouré de vos proches.", "Nos meilleurs vœux pour l'Aïd.");
+const buildEidAlAdhaEmail = (fn: string) => buildOccasionEmail(`Eid Moubarak, ${fn}.`,
+  "Toute l'équipe Docline vous souhaite un Eid el-Adha béni, en famille, dans la joie et la santé.", "Nos meilleurs vœux pour l'Aïd.");
+const buildRamadanEmail = (fn: string) => buildOccasionEmail(`Ramadan Kareem, ${fn}.`,
+  "Toute l'équipe Docline vous souhaite un mois de Ramadan serein, plein de santé et de bénédictions.", "Nos meilleurs vœux pour le mois de Ramadan.");
 
-// ── Eid Al-Fitr ──────────────────────────────────────────────────
-function buildEidAlFitrEmail(firstName: string): string {
-  return emailWrapper(
-    emailHeader("Eid Al-Fitr") +
-    bodyRow(
-      h1(`Eid Moubarak, ${firstName}.`) +
-      p(`Toute l'équipe Docline vous souhaite un joyeux Eid Al-Fitr.
-
-Que cette fête soit l'occasion de partager de beaux moments avec vos proches.`) +
-      signOff()
-    ) +
-    emailFooter()
-  );
+function buildNewsletterEmail(_subject: string, heading: string, body: string, cta?: { text: string; url: string }): string {
+  return layout({
+    preheader: body.split("\n")[0].slice(0, 120),
+    title: heading,
+    body: para(body) + (cta?.text && cta?.url ? button(cta.text, cta.url) : ""),
+    reason: DOCTOR_REASON,
+  });
 }
 
-// ── Eid Al-Adha ──────────────────────────────────────────────────
-function buildEidAlAdhaEmail(firstName: string): string {
-  return emailWrapper(
-    emailHeader("Eid Al-Adha") +
-    bodyRow(
-      h1(`Eid Moubarak, ${firstName}.`) +
-      p(`Docline vous souhaite un Eid Al-Adha béni, partagé en famille dans la joie et la santé.`) +
-      signOff()
-    ) +
-    emailFooter()
-  );
-}
-
-// ── Ramadan Kareem ───────────────────────────────────────────────
-function buildRamadanEmail(firstName: string): string {
-  return emailWrapper(
-    emailHeader("Ramadan Kareem") +
-    bodyRow(
-      h1(`Ramadan Kareem, ${firstName}.`) +
-      p(`L'équipe Docline vous souhaite un mois de Ramadan plein de sérénité, de santé et de bénédictions.`) +
-      signOff()
-    ) +
-    emailFooter()
-  );
-}
-
-// ── Newsletter ───────────────────────────────────────────────────
-function buildNewsletterEmail(
-  subject: string, heading: string, body: string,
-  cta?: { text: string; url: string }
-): string {
-  return emailWrapper(
-    emailHeader("Docline News") +
-    bodyRow(
-      h1(heading) +
-      p(body) +
-      (cta ? ctaButton(cta.text, cta.url) : "") +
-      signOff()
-    ) +
-    emailFooter()
-  );
-}
-
-// ── Template facture ─────────────────────────────────────────────
+// Facture envoyée par un médecin à son patient
 function buildInvoiceEmail(inv: any, from: string): string {
-  const total = new Intl.NumberFormat("fr-DZ", { style: "currency", currency: "DZD" })
-    .format(inv.total || 0)
-    .replace("DZD", "DA");
-
-  const itemsHtml = Array.isArray(inv.items) && inv.items.length
-    ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
-        <tr style="background:#F7F4FE">
-          <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;
-                     color:#7B6DA0;text-transform:uppercase;letter-spacing:.8px;${FONT}">Description</th>
-          <th style="text-align:center;padding:10px 14px;font-size:11px;font-weight:700;
-                     color:#7B6DA0;text-transform:uppercase;letter-spacing:.8px;${FONT}">Qté</th>
-          <th style="text-align:right;padding:10px 14px;font-size:11px;font-weight:700;
-                     color:#7B6DA0;text-transform:uppercase;letter-spacing:.8px;${FONT}">Montant</th>
-        </tr>
-        ${inv.items.map((it: any) => `
-        <tr>
-          <td style="padding:11px 14px;border-bottom:1px solid #EDE5FA;color:#4A3D6A;
-                     font-size:13px;${FONT}">${it.description || "–"}</td>
-          <td style="padding:11px 14px;border-bottom:1px solid #EDE5FA;text-align:center;
-                     color:#7B6DA0;font-size:13px;${FONT}">${it.quantity || 1}</td>
-          <td style="padding:11px 14px;border-bottom:1px solid #EDE5FA;text-align:right;
-                     font-weight:700;color:#1A0E2E;font-size:13px;${FONT}">
-                     ${new Intl.NumberFormat("fr-DZ", { style: "currency", currency: "DZD" })
-                       .format(it.unit_price || 0).replace("DZD", "DA")}</td>
+  const money = (n: number) => new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n || 0) + " DA";
+  const items = Array.isArray(inv.items) && inv.items.length
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 4px">
+        ${inv.items.map((it: any) => `<tr>
+          <td style="padding:10px 0;border-bottom:1px solid #ECE8F4;font-family:Inter,Arial,sans-serif;font-size:14px;color:#3B3551">${esc(it.description || "—")}${(it.quantity || 1) > 1 ? ` × ${esc(it.quantity)}` : ""}</td>
+          <td style="padding:10px 0;border-bottom:1px solid #ECE8F4;font-family:Inter,Arial,sans-serif;font-size:14px;color:#0D0520;font-weight:600;text-align:right">${money((it.unit_price || 0) * (it.quantity || 1))}</td>
         </tr>`).join("")}
-      </table>`
-    : "";
-
-  const body = bodyRow(
-    `<!-- From / To -->
-    <table width="100%" style="margin-bottom:28px"><tr>
-      <td style="vertical-align:top">
-        <div style="font-size:10px;font-weight:700;color:#9B8CB8;text-transform:uppercase;
-                    letter-spacing:1px;margin-bottom:6px;${FONT}">Émis par</div>
-        <div style="font-size:14px;font-weight:700;color:#1A0E2E;${FONT}">${from}</div>
-      </td>
-      <td style="text-align:right;vertical-align:top">
-        <div style="font-size:10px;font-weight:700;color:#9B8CB8;text-transform:uppercase;
-                    letter-spacing:1px;margin-bottom:6px;${FONT}">Destinataire</div>
-        <div style="font-size:14px;font-weight:700;color:#1A0E2E;${FONT}">
-          ${inv.client_name || inv.client_email}</div>
-      </td>
-    </tr></table>
-
-    <!-- Meta -->
-    <table width="100%" style="background:#F7F4FE;border-radius:12px;
-                                border:1px solid #E8DFF5;margin-bottom:24px">
-      <tr>
-        <td style="padding:12px 18px;border-bottom:1px solid #E8DFF5">
-          <span style="font-size:12px;color:#7B6DA0;${FONT}">Numéro</span>
-          <span style="float:right;font-weight:700;color:#1A0E2E;font-size:13px;${FONT}">
-            ${inv.invoice_number}</span>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding:12px 18px;border-bottom:1px solid #E8DFF5">
-          <span style="font-size:12px;color:#7B6DA0;${FONT}">Date d'émission</span>
-          <span style="float:right;color:#1A0E2E;font-size:13px;${FONT}">
-            ${inv.issue_date || "–"}</span>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding:12px 18px">
-          <span style="font-size:12px;color:#7B6DA0;${FONT}">Échéance</span>
-          <span style="float:right;color:#1A0E2E;font-size:13px;${FONT}">
-            ${inv.due_date || "–"}</span>
-        </td>
-      </tr>
-    </table>
-
-    ${itemsHtml}
-
-    <!-- Total -->
-    <table width="100%" style="margin-bottom:24px"><tr>
-      <td style="background:linear-gradient(135deg,#2D1259,#5B21B6);border-radius:12px;padding:18px 24px">
-        <table width="100%"><tr>
-          <td style="color:rgba(255,255,255,.7);font-size:13px;font-weight:600;${FONT}">Total TTC</td>
-          <td style="text-align:right;color:#fff;font-size:26px;font-weight:900;${FONT}">${total}</td>
-        </tr></table>
-      </td>
-    </tr></table>
-
-    ${inv.notes ? `<div style="padding:14px 18px;background:#FFFBEB;border-left:3px solid #F79009;
-                               border-radius:0 10px 10px 0;font-size:13px;color:#6B4E00;
-                               margin-bottom:24px;${FONT}">
-                    <strong>Note :</strong> ${inv.notes}</div>` : ""}
-
-    <div style="border-top:1px solid #EDE5F7;padding-top:18px">
-      <p style="margin:0;font-size:12px;color:#9B8CB8;${FONT}">
-        Envoyé par <strong style="color:#4A3570">${from}</strong> via Docline
-      </p>
-    </div>`
-  );
-
-  return emailWrapper(
-    `<tr><td style="background:linear-gradient(145deg,#140533 0%,#2E0F60 40%,#5118A8 100%);
-                    border-radius:12px 12px 0 0;padding:32px 48px">
-      <table width="100%" cellpadding="0" cellspacing="0"><tr>
-        <td style="vertical-align:middle">
-          <img src="${LOGO_PNG}" alt="Docline" width="140" height="26" border="0"
-               style="display:block;border:0;max-width:140px;height:auto">
-        </td>
-        <td style="text-align:right;vertical-align:middle">
-          <div style="color:rgba(255,255,255,.45);font-size:10px;text-transform:uppercase;
-                      letter-spacing:1.5px;font-weight:600;${FONT}">Facture</div>
-          <div style="color:#fff;font-size:20px;font-weight:700;margin-top:4px;${FONT}">
-            ${inv.invoice_number}</div>
-        </td>
-      </tr></table>
-    </td></tr>
-    ${body}
-    ${emailFooter()}`
-  );
+      </table>` : "";
+  return layout({
+    preheader: `Facture ${inv.invoice_number} · ${money(inv.total)}`,
+    title: `Facture ${inv.invoice_number}`,
+    body: para(`Bonjour ${inv.client_name || ""},\n\nVoici votre facture de **${from}**.`)
+      + details([["Numéro", inv.invoice_number], ["Date d'émission", inv.issue_date], ["Échéance", inv.due_date]])
+      + items
+      + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 6px;background:#4C1D95;border-radius:16px">
+          <tr><td style="padding:16px 20px;font-family:Inter,Arial,sans-serif;font-size:14px;color:rgba(255,255,255,.8)">Total TTC</td>
+              <td style="padding:16px 20px;font-family:Inter,Arial,sans-serif;font-size:22px;font-weight:800;color:#FFFFFF;text-align:right">${money(inv.total)}</td></tr>
+        </table>`
+      + (inv.notes ? para(`\n**Note :** ${inv.notes}`) : "")
+      + para(`\nPour toute question sur cette facture, répondez à cet email : votre message est transmis à ${from}.`),
+    reason: `Facture envoyée par ${from} via Docline.`,
+  });
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -686,8 +353,9 @@ serve(async (req) => {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to) || !subject || !custom.html) {
       return new Response(JSON.stringify({ error: "to, subject et html requis" }), { status: 400, headers: CORS });
     }
-    const html = buildBaseEmail(subject, String(custom.html));
-    ok = await sendEmail(to, subject, html);
+    // Contenu rédigé par l'équipe dans Symphony : HTML de confiance (accès réservé au staff)
+    const html = layout({ preheader: subject, title: subject, body: `<div style="font-family:Inter,Arial,sans-serif;font-size:15px;line-height:1.6;color:#3B3551">${String(custom.html)}</div>`, reason: "Message de l'équipe Docline." });
+    ok = await sendEmail(to, subject, html, SUPPORT_REPLY_TO);
     await logEmail({ type: "admin_custom", to, subject, status: ok ? "sent" : "failed", triggeredBy: userEmail });
     return new Response(JSON.stringify({ success: ok }), { status: ok ? 200 : 500, headers: { ...CORS, "Content-Type": "application/json" } });
   }
@@ -714,15 +382,15 @@ serve(async (req) => {
   } else {
     const badges: Record<string, string | undefined> = {
       trial_granted:     "Accès Pro activé",
-      trial_expiring:    "Essai bientôt terminé",
-      payment_confirmed: "Paiement confirmé",
+      trial_expiring:    undefined,
+      payment_confirmed: "Paiement reçu",
       contact_autoreply: undefined,
     };
     html = buildBaseEmail(heading, intro, cta, badges[type]);
   }
 
   const recipient = payload?.to ?? userEmail;
-  ok = await sendEmail(recipient, subject, html);
+  ok = await sendEmail(recipient, subject, html, SUPPORT_REPLY_TO);
   await logEmail({ type, to: recipient, name: firstName, subject, status: ok ? "sent" : "failed", triggeredBy: userEmail });
 
   if (type === "welcome" && ok) {
