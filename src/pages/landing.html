@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Docline — Le cabinet médical, simplement</title>
-<meta name="description" content="Agenda, prise de rendez-vous en ligne, dossiers patients, ordonnances et file d'attente : tout votre cabinet dans un seul outil, pensé pour les médecins algériens.">
+<title>Docline, le logiciel de gestion de cabinet médical</title>
+<meta name="description" content="Docline gère votre agenda, vos rendez-vous en ligne, les dossiers de vos patients et vos ordonnances. Un logiciel de cabinet médical conçu pour les médecins algériens.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#FBFAFD">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -150,6 +150,16 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 
 /* Bandeau des spécialités */
 
+
+
+/* C'est quoi Docline : les mots s'allument au défilement */
+.what{padding:120px 0 80px}
+.say{font-size:clamp(1.85rem,3.7vw,3.1rem);font-weight:700;letter-spacing:-.035em;line-height:1.24;max-width:24em;margin-top:22px}
+.say .wd{color:rgba(13,5,32,.13);transition:color .35s ease-out}
+.say .wd.lit{color:var(--ink)}
+.say .wd.k.lit{color:var(--accent)}
+@media(max-width:560px){.what{padding:80px 0 40px}}
+@media(prefers-reduced-motion:reduce){.say .wd{color:var(--ink)}.say .wd.k{color:var(--accent)}}
 
 /* Vitrine : aperçu du tableau de bord, redressé par le défilement */
 .showcase{padding:40px 0 40px}
@@ -343,6 +353,7 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
 <header class="top" id="top">
   <div class="top-in">
     <a class="logo" href="/" aria-label="Docline, accueil"><svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Docline"><g fill="#3B1772"><g><g><path d="M73,0.8c9.6-2,19.8,7.6,17,17.4c-1.9,9.1-14.1,12.8-21.3,7.5c-4.9-2.9-7.8-9.2-6.6-14.8C63.2,5.7,67.7,1.4,73,0.8z M73.9,7.9c-5.5,1.1-6.4,9.1-1.6,11.7c3.4,2.6,9.1,1.4,10.4-2.9C84.8,11.6,78.9,6.4,73.9,7.9z"/></g><g><path d="M37.2,15.5c5.7-0.9,11.7-0.2,16.5,3.1c6.5,4.4,10.5,11.7,13,19.1c8.6-3.8,17.7-7.3,27.2-6.9c7.7,0.4,14.7,5.6,17.4,12.7c2.2,8.9-2,17.7-7.1,24.7c-9.4,13-23.4,23.9-39.8,25.5c-5.3,4.8-13.3,7.6-20.2,4.6c-8.3-3.8-13.4-11.8-17.6-19.5c-6.5-13.5-9.9-28.9-7.6-43.8C20.8,25.7,27.4,16.8,37.2,15.5z M39.1,23.2c-7.9,1.1-12.2,9.6-12.6,16.9c-0.5,14.9,3.6,30,11.9,42.4c3.3,5,8.7,10.7,15.2,8.5c-0.5-2-3.3-2.4-4.4-4.1c-5.7-5.7-9.3-14-8-22.1c0.2-5.6,4.2-10.8,9.6-12.4c6.7-2.5,15.2,0.3,18.6,6.8c4.6,7.6,3.4,17.1,1,25.3c6.8-1.8,12.5-6.3,18-10.7c6.5-6.3,12.9-13.6,15.1-22.6c1.9-5.8-3-11.5-8.5-12.3c-11.8-2.1-21.4,5.7-31.9,9.2c-4.7,1-8.9-3.8-8.4-8.3c1.2-0.8,2.5-0.1,3.8-0.1C56.4,31.1,49.1,21.1,39.1,23.2z M53.9,59.8c-3,0.8-4.7,3.9-4.5,7c-0.7,7.4,4.1,15.5,11.3,17.6c4.4-6.3,4.8-15.5,1-22.2C59.7,60.1,56.8,59,53.9,59.8z"/></g></g><g><path d="M166.9,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-1,0-1.9-0.2-2.7-0.7c-0.8-0.5-1.4-1.1-1.9-1.8c-1.5,0.9-3.2,1.7-4.9,2.2c-1.8,0.5-3.6,0.8-5.5,0.8c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9c0-2.8,0.5-5.4,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c1.8,0,3.5,0.2,5.1,0.6c1.6,0.4,3.2,1,4.6,1.8V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z M137.6,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8v-0.4c-0.1-1.3-0.3-2.5-0.9-3.7c-0.5-1.1-1.2-2.1-2.1-2.9c-0.9-0.8-1.9-1.5-3-2c-1.2-0.5-2.4-0.7-3.7-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C136.9,58.8,137.1,60.1,137.6,61.3z"/><path d="M174.7,49.6c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.9,1.6c2.5,1.1,4.6,2.5,6.4,4.4c1.8,1.8,3.3,4,4.3,6.5c1.1,2.5,1.6,5.1,1.6,7.9c0,2.8-0.5,5.4-1.6,7.9c-1.1,2.5-2.5,4.6-4.3,6.5c-1.8,1.8-4,3.3-6.4,4.3c-2.5,1.1-5.1,1.6-7.9,1.6c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9C173.1,54.7,173.6,52,174.7,49.6z M184.4,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8c0-1.4-0.3-2.6-0.8-3.8c-0.5-1.2-1.2-2.2-2.1-3.1c-0.9-0.9-1.9-1.6-3.1-2.1c-1.2-0.5-2.5-0.7-3.8-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C183.7,58.8,183.9,60.1,184.4,61.3z"/><path d="M233.6,48.7c-1.1,0.6-2,1.3-2.8,2.2c-0.8,0.9-1.4,1.9-1.9,3.1c-0.5,1.1-0.7,2.3-0.7,3.5c0,1.1,0.2,2.3,0.7,3.4c0.5,1.1,1.1,2.1,1.9,3c0.8,0.9,1.7,1.6,2.8,2.2c1.1,0.6,2.3,0.9,3.6,0.9c1.2,0.1,2.3,0,3.4-0.3c1.1-0.3,2.2-0.9,3.4-1.8c0.5-0.4,1.1-0.8,1.7-1.2c0.6-0.4,1.3-0.7,2-0.8c0.7-0.2,1.5-0.1,2.2,0c0.8,0.2,1.6,0.6,2.5,1.4c0.6,0.5,1,1.1,1.3,1.7c0.3,0.7,0.4,1.3,0.4,2.1c0,0.7-0.2,1.4-0.5,2.2c-0.3,0.7-0.8,1.4-1.4,2c-1.8,1.8-3.9,3.2-6.3,4.1c-2.4,0.9-5,1.4-7.6,1.4c-2.9,0-5.6-0.5-8.1-1.6c-2.5-1-4.7-2.5-6.6-4.3c-1.9-1.8-3.4-3.9-4.5-6.4c-1.1-2.5-1.6-5.1-1.6-8c0-2.8,0.5-5.5,1.6-8c1.1-2.5,2.6-4.7,4.5-6.5c1.9-1.8,4.1-3.3,6.6-4.4c2.5-1.1,5.2-1.6,8.1-1.6c2.7,0,5.3,0.5,7.7,1.4c2.4,0.9,4.5,2.3,6.3,4.1c0.6,0.6,1.1,1.3,1.4,2c0.3,0.7,0.5,1.5,0.5,2.2c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.3,1.7c-0.9,0.7-1.7,1.2-2.5,1.4c-0.8,0.2-1.5,0.2-2.2,0c-0.7-0.2-1.4-0.5-2-0.9c-0.6-0.4-1.2-0.8-1.7-1.2c-1.2-0.9-2.3-1.5-3.4-1.7c-1.1-0.3-2.2-0.4-3.4-0.4C235.8,47.9,234.6,48.2,233.6,48.7z"/><path d="M270.7,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M279.2,25.7c0.3-0.7,0.7-1.3,1.2-1.8c0.5-0.5,1.1-0.9,1.8-1.2c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.1,2.2,0.4c0.7,0.3,1.3,0.7,1.8,1.2c0.5,0.5,0.9,1.1,1.2,1.8c0.3,0.7,0.4,1.4,0.4,2.2c0,0.8-0.1,1.5-0.4,2.2c-0.3,0.7-0.7,1.3-1.2,1.8c-0.5,0.5-1.1,0.9-1.8,1.2c-0.7,0.3-1.4,0.4-2.2,0.4c-0.8,0-1.5-0.1-2.2-0.4c-0.7-0.3-1.3-0.7-1.8-1.2c-0.5-0.5-0.9-1.1-1.2-1.8c-0.3-0.7-0.4-1.4-0.4-2.2C278.8,27.1,278.9,26.4,279.2,25.7z M289.8,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.2,0.6,1.6,1.1c0.5,0.5,0.8,1,1.1,1.7c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M303.7,37.1c1.2,0,2.2,0.4,3.1,1.1c0.9,0.7,1.5,1.6,1.8,2.7c1.4-1.2,2.9-2.1,4.5-2.7c1.6-0.7,3.2-1,5-1c2.5,0,4.8,0.5,6.9,1.5s3.9,2.4,5.4,4.2c1.5,1.8,2.7,3.9,3.5,6.3c0.8,2.4,1.3,5,1.3,7.7v15.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.7,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.7,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V56.9c0-1.3-0.2-2.5-0.6-3.6c-0.4-1.1-0.9-2.1-1.5-2.9c-0.7-0.8-1.4-1.5-2.4-2c-0.9-0.5-2-0.7-3.2-0.7c-1.2,0-2.2,0.2-3.2,0.6c-1,0.4-1.8,1-2.5,1.8c-0.7,0.8-1.3,1.7-1.7,2.7c-0.4,1.1-0.6,2.2-0.7,3.5v15.8c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1C302.3,37.2,303,37.1,303.7,37.1z"/><path d="M352.6,62.2c0.8,1.6,2,3,3.6,3.9c1.5,1,3.3,1.5,5.1,1.5c0.8,0,1.4,0,2-0.1c0.6-0.1,1-0.2,1.5-0.4c0.4-0.2,0.8-0.3,1.2-0.6c0.3-0.2,0.7-0.5,1-0.7c0.9-0.7,1.9-1.2,2.7-1.3c0.9-0.1,1.7,0,2.5,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.9,1.1,1.4c0.3,0.5,0.5,1.1,0.7,1.7c0.1,0.6,0.2,1.2,0.1,1.8c-0.1,0.6-0.3,1.2-0.6,1.8c-0.3,0.6-0.8,1.1-1.4,1.6c-0.6,0.5-1.2,1-2,1.4c-0.7,0.5-1.6,0.9-2.6,1.2c-1,0.4-2.1,0.6-3.3,0.9c-1.3,0.2-2.7,0.3-4.3,0.3c-2.8,0-5.5-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.9-1.8-3.3-4-4.4-6.4c-1.1-2.5-1.6-5.1-1.6-7.9s0.5-5.5,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.9-1.8,4-3.3,6.5-4.3c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.8,1.6c2.5,1,4.6,2.5,6.5,4.3c1.8,1.8,3.3,3.9,4.4,6.4c1.1,2.4,1.7,5,1.7,7.8c0,1.5-0.5,2.7-1.4,3.6c-1,0.9-2.2,1.4-3.8,1.4H352.6z M370.8,53.4c-0.7-1.9-1.9-3.4-3.6-4.5c-1.7-1.1-3.6-1.7-5.8-1.7c-1.1,0-2.1,0.2-3.1,0.5c-1,0.3-1.8,0.7-2.6,1.3c-0.8,0.6-1.5,1.2-2.1,2c-0.6,0.8-1.1,1.6-1.4,2.5H370.8z"/></g></g></svg></a>
+    <a class="nav-a" href="#quoi">Docline</a>
     <a class="nav-a" href="#parcours">Comment ça marche</a>
     <a class="nav-a" href="#fonctions">Fonctionnalités</a>
     <a class="nav-a" href="#tarifs">Tarifs</a>
@@ -359,9 +370,9 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <p class="kicker">Docline pour les médecins</p>
+      <p class="kicker">Logiciel de gestion de cabinet médical</p>
       <h1 class="h1 reveal-words"><span class="w"><span style="animation-delay:.08s">Moins</span></span> <span class="w"><span style="animation-delay:.16s">d'appels.</span></span><br><span class="w"><span class="grad" style="animation-delay:.3s">Plus de soin.</span></span></h1>
-      <p class="lead">Agenda, rendez-vous en ligne, dossiers patients, ordonnances et file d'attente : tout votre cabinet dans un seul outil, pensé pour les médecins algériens.</p>
+      <p class="lead">Docline gère votre agenda, vos rendez-vous en ligne, les dossiers de vos patients et vos ordonnances. Vos patients réservent seuls, votre téléphone sonne moins et vous gardez votre temps pour consulter.</p>
       <div class="ctas">
         <a class="btn btn-primary" href="/login#register">Créer mon cabinet gratuitement <svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a class="btn btn-ghost" href="#parcours">Voir comment ça marche</a>
@@ -382,22 +393,22 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
         </div>
         <div class="layer l-day">
           <div class="day-head"><b>Aujourd'hui</b><span>12 rendez-vous</span></div>
-          <div class="slot"><time>09:00</time><div><b>Consultation</b><small>Arrivé · salle 1</small></div><span class="tag ok">Arrivé</span></div>
+          <div class="slot"><time>09:00</time><div><b>Consultation</b><small>Salle 1</small></div><span class="tag ok">Arrivé</span></div>
           <div class="slot"><time>09:30</time><div><b>Suivi CNAS</b><small>Ordonnance à renouveler</small></div><span class="tag ok">Confirmé</span></div>
           <div class="now"></div>
           <div class="slot"><time>10:15</time><div><b>Contrôle tension</b><small>Rappel envoyé</small></div><span class="tag ok">Confirmé</span></div>
-          <div class="slot"><time>11:00</time><div><b>Pédiatrie · Lina</b><small>Réservé par sa mère</small></div><span class="tag wait">À confirmer</span></div>
+          <div class="slot"><time>11:00</time><div><b>Lina, pédiatrie</b><small>Réservé par sa mère</small></div><span class="tag wait">À confirmer</span></div>
           <div class="slot"><time>11:30</time><div><b>Première visite</b><small>Réservé en ligne</small></div><span class="tag new">Nouveau</span></div>
         </div>
         <div class="layer l-phone">
           <div class="phone-screen">
             <div class="ps-top"><span>09:41</span><span>docline.health</span></div>
             <div class="ps-title">Prendre rendez-vous</div>
-            <div class="ps-sub">Cardiologue · Hydra</div>
+            <div class="ps-sub">Cardiologue à Hydra</div>
             <div class="ps-days"><span>Lun<b>13</b></span><span class="on">Mar<b>14</b></span><span>Mer<b>15</b></span><span>Jeu<b>16</b></span></div>
             <div class="ps-slots"><span>09:00</span><span>09:30</span><span>10:15</span><span class="on">11:30</span><span>14:00</span><span>15:30</span></div>
             <div class="ps-btn">Confirmer</div>
-            <div class="ps-note">Sans compte · code par SMS</div>
+            <div class="ps-note">Sans compte, avec un code par SMS</div>
           </div>
         </div>
         <div class="notifs" id="notifs"></div>
@@ -408,12 +419,20 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
 
 </section>
 
+<!-- ══ C'EST QUOI DOCLINE ══ -->
+<section class="what" id="quoi">
+  <div class="wrap">
+    <p class="eyebrow">C'est quoi Docline ?</p>
+    <p class="say" id="say">Docline est le logiciel qui gère votre [cabinet médical]. Vos patients prennent rendez-vous [en ligne], à toute heure, sans vous appeler. Vous retrouvez leur dossier, vous rédigez l'ordonnance et vous gérez la salle d'attente depuis [un seul écran], sur votre ordinateur ou votre téléphone.</p>
+  </div>
+</section>
+
 <!-- ══ VITRINE ══ -->
 <section class="showcase">
   <div class="wrap">
     <div class="show-head sr">
       <p class="eyebrow">Votre tableau de bord</p>
-      <h2 class="h2">Toute votre journée,<br>d'un seul regard.</h2>
+      <h2 class="h2">Votre journée<br>sur un seul écran.</h2>
     </div>
     <div class="stage3d">
       <div class="frame" id="frame" aria-hidden="true">
@@ -431,7 +450,7 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
               <div class="f-tile"><b>2</b><span>demandes en ligne</span></div>
             </div>
             <div class="f-list">
-              <div class="slot"><time>09:00</time><div><b>Consultation</b><small>Arrivé · salle 1</small></div><span class="tag ok">Arrivé</span></div>
+              <div class="slot"><time>09:00</time><div><b>Consultation</b><small>Salle 1</small></div><span class="tag ok">Arrivé</span></div>
               <div class="slot"><time>09:30</time><div><b>Suivi CNAS</b><small>Ordonnance à renouveler</small></div><span class="tag ok">Confirmé</span></div>
               <div class="slot"><time>10:15</time><div><b>Contrôle tension</b><small>Rappel envoyé</small></div><span class="tag ok">Confirmé</span></div>
               <div class="slot"><time>11:30</time><div><b>Première visite</b><small>Réservé en ligne</small></div><span class="tag new">Nouveau</span></div>
@@ -446,7 +465,7 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
         </div>
       </div>
     </div>
-    <p class="show-note">Illustration, données d'exemple</p>
+    <p class="show-note">Illustration avec des données d'exemple</p>
   </div>
 </section>
 
@@ -455,29 +474,29 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
   <div class="wrap">
     <div class="center sr">
       <p class="eyebrow">Comment ça marche</p>
-      <h2 class="h2">Du premier clic au <em>cabinet</em>, sans un appel.</h2>
-      <p class="sub">Vos patients réservent seuls, vous gardez la main sur votre agenda, et le jour J tout s'enchaîne.</p>
+      <h2 class="h2">Un rendez-vous,<br>du début à la fin.</h2>
+      <p class="sub">Voici ce qui se passe quand un patient vous trouve sur Docline.</p>
     </div>
     <div class="flow">
       <article class="fstep sr d1">
         <span class="fnum">1</span>
         <h3>Le patient réserve en ligne</h3>
-        <p>Il trouve votre cabinet, choisit un créneau libre et confirme avec un code reçu par SMS. Sans compte, sans attendre au téléphone.</p>
+        <p>Il choisit un créneau libre sur votre page et confirme avec le code reçu par SMS. Il n'a besoin ni de créer un compte ni de vous appeler.</p>
         <div class="fmini"><div class="row"><b>Mardi 14</b><span>11:30</span></div><div class="row"><span>Première visite</span><span class="tag new">Nouveau</span></div></div>
       </article>
       <article class="fstep sr d2">
         <span class="fnum">2</span>
-        <h3>Vous confirmez en un geste</h3>
-        <p>La demande arrive dans votre agenda et par email. Vous confirmez, le patient est prévenu automatiquement et son dossier est créé.</p>
-        <div class="fmini"><div class="row"><b>Amina B.</b><span class="tag ok">Confirmé</span></div><div class="row"><span>Dossier patient</span><span>créé</span></div></div>
+        <h3>Vous confirmez d'un clic</h3>
+        <p>La demande s'affiche dans votre agenda et vous arrive par email. Dès que vous confirmez, le patient est prévenu et sa fiche rejoint vos patients.</p>
+        <div class="fmini"><div class="row"><b>Amina B.</b><span class="tag ok">Confirmé</span></div><div class="row"><span>Fiche patient</span><span>ajoutée</span></div></div>
       </article>
       <article class="fstep sr d3">
         <span class="fnum">3</span>
-        <h3>Le jour J, tout est fluide</h3>
-        <p>Le patient scanne le QR code à l'accueil et rejoint la file d'attente. Vous rédigez l'ordonnance et l'imprimez en PDF.</p>
+        <h3>Le jour du rendez-vous</h3>
+        <p>En arrivant, il scanne le QR code de l'accueil et prend sa place dans la file. Après la consultation, vous imprimez son ordonnance.</p>
         <div class="fmini" style="display:flex;gap:14px;align-items:center">
           <span class="qr"><i></i><i></i><i class="o"></i><i></i><i></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i></i><i></i><i class="o"></i><i></i><i></i></span>
-          <div><b style="font-size:.875rem">File d'attente</b><div style="font-size:.8125rem;color:var(--ink3);margin-top:2px">Votre tour : n° 3</div></div>
+          <div><b style="font-size:.875rem">File d'attente</b><div style="font-size:.8125rem;color:var(--ink3);margin-top:2px">Vous êtes le numéro 3</div></div>
         </div>
       </article>
     </div>
@@ -489,14 +508,14 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
   <div class="wrap">
     <div class="sr">
       <p class="eyebrow">Fonctionnalités</p>
-      <h2 class="h2">Tout votre cabinet.<br>Rien de superflu.</h2>
-      <p class="sub">Chaque outil répond à une vraie journée de consultation.</p>
+      <h2 class="h2">Tout ce qu'il faut<br>pour tenir un cabinet.</h2>
+      <p class="sub">Des outils simples, faits pour une journée de consultation.</p>
     </div>
     <div class="bento">
       <article class="card c-4 sr">
         <span class="c-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
         <h3>Agenda et rendez-vous en ligne</h3>
-        <p>Vos horaires, vos jours de congé, vos créneaux. Votre page publique permet aux patients de réserver 24 h/24, et les rappels partent tout seuls.</p>
+        <p>Vous fixez vos horaires et vos jours de congé, Docline s'occupe du reste. Vos patients réservent sur votre page à toute heure et reçoivent un rappel avant leur rendez-vous.</p>
         <div class="week" aria-hidden="true">
           <div class="wk"><span>Dim</span><div class="wk-track"><i style="left:4%;width:18%"></i><i class="v" style="left:26%;width:12%"></i><i style="left:58%;width:22%"></i></div></div>
           <div class="wk"><span>Lun</span><div class="wk-track"><i class="s" style="left:6%;width:26%"></i><i class="v" style="left:40%;width:10%"></i><i style="left:64%;width:14%"></i></div></div>
@@ -508,34 +527,34 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
       <article class="card c-2 sr d1">
         <span class="c-ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span>
         <h3>Ordonnances en PDF</h3>
-        <p>Rédigées en quelques secondes, numérotées, imprimées et archivées dans le dossier.</p>
+        <p>Vous la rédigez en quelques secondes. Elle est numérotée, imprimée et rangée dans le dossier du patient.</p>
         <div class="rx-card" aria-hidden="true"><div class="rx-line m"></div><div class="rx-line"></div><div class="rx-line s"></div><svg viewBox="0 0 110 30"><path d="M4 22c8-14 14-16 16-8s-4 12 2 8 8-14 14-12-2 14 6 10 10-12 16-10 0 10 8 8 14-8 24-6"/></svg></div>
       </article>
       <article class="card c-2 sr">
         <span class="c-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></span>
         <h3>Dossiers patients</h3>
-        <p>Antécédents, allergies, groupe sanguin, CNAS ou CASNOS, historique des consultations.</p>
+        <p>Antécédents, allergies, groupe sanguin, assurance CNAS ou CASNOS et historique des consultations, au même endroit.</p>
       </article>
       <article class="card c-2 sr d1">
         <span class="c-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h7v-4"/></svg></span>
         <h3>File d'attente QR</h3>
-        <p>Les patients scannent à l'entrée, l'écran de la salle affiche les numéros. Fini les disputes de passage.</p>
+        <p>Les patients scannent un QR code en arrivant et l'écran de la salle affiche les numéros. Chacun sait quand vient son tour.</p>
       </article>
       <article class="card c-2 sr d2">
         <span class="c-ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
         <h3>Espace patient</h3>
-        <p>Vos patients retrouvent leurs rendez-vous et vos résultats d'analyses, sans mot de passe.</p>
+        <p>Vos patients retrouvent leurs rendez-vous et les résultats que vous leur envoyez, sans mot de passe.</p>
       </article>
       <article class="card c-3 sr">
         <span class="c-ic"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg></span>
         <h3>Cliniques et cabinets de groupe</h3>
-        <p>Plusieurs médecins, une seule base : agenda partagé, secrétariat, droits d'accès par rôle et files d'attente par salle.</p>
+        <p>Plusieurs médecins partagent la même base. Le secrétariat gère tous les agendas et chacun n'accède qu'à ce qui le concerne.</p>
         <div class="chips"><span>Médecins</span><span>Secrétariat</span><span>Accueil</span><span>Salles</span></div>
       </article>
       <article class="card c-3 sr d1">
         <span class="c-ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></svg></span>
         <h3>Facturation en dinars</h3>
-        <p>Reçus et factures en DA, et suivi des paiements de vos patients.</p>
+        <p>Vos reçus et factures en dinars, avec le suivi des paiements.</p>
         <div class="chips"><span>Reçus</span><span>Factures</span><span>Paiements</span></div>
       </article>
     </div>
@@ -546,14 +565,14 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
 <section class="section" style="padding-top:40px">
   <div class="wrap">
     <div class="dz sr">
-      <p class="eyebrow">Pensé pour l'Algérie</p>
-      <h2 class="h2">Conçu ici, pour la façon dont vous travaillez.</h2>
-      <p class="sub">Pas un logiciel étranger traduit à la hâte : chaque détail suit la réalité d'un cabinet algérien.</p>
+      <p class="eyebrow">Fait pour l'Algérie</p>
+      <h2 class="h2">Conçu en Algérie, pour vos patients.</h2>
+      <p class="sub">Les prix sont en dinars, l'assurance de chaque patient a sa place dans son dossier et vos patients vous trouvent dans leur wilaya.</p>
       <div class="dz-grid">
-        <div class="dz-item"><b>Prix en dinars</b><span>Paiement mensuel ou annuel, sans surprise.</span></div>
-        <div class="dz-item"><b>CNAS · CASNOS</b><span>Le type d'assurance dans chaque dossier.</span></div>
-        <div class="dz-item"><b>58 wilayas</b><span>Vos patients vous trouvent par ville et par spécialité.</span></div>
-        <div class="dz-item"><b>Numéros algériens</b><span>Confirmation des rendez-vous par code SMS.</span></div>
+        <div class="dz-item"><b>Prix en dinars</b><span>Vous payez au mois ou à l'année.</span></div>
+        <div class="dz-item"><b>CNAS et CASNOS</b><span>L'assurance du patient figure dans son dossier.</span></div>
+        <div class="dz-item"><b>58 wilayas</b><span>Vos patients vous trouvent près de chez eux.</span></div>
+        <div class="dz-item"><b>Numéros algériens</b><span>Les rendez-vous sont confirmés par SMS.</span></div>
       </div>
     </div>
   </div>
@@ -564,8 +583,8 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
   <div class="wrap center">
     <div class="sr">
       <p class="eyebrow">Tarifs</p>
-      <h2 class="h2">Simple, en dinars, sans engagement.</h2>
-      <p class="sub">Commencez gratuitement. Passez à Pro quand votre cabinet grandit.</p>
+      <h2 class="h2">Des tarifs clairs, en dinars.</h2>
+      <p class="sub">Commencez gratuitement et passez à Pro quand vous êtes prêt.</p>
     </div>
     <div class="toggle" id="billing" data-y="0">
       <button type="button" aria-pressed="true" data-b="m">Mensuel</button>
@@ -576,11 +595,11 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
         <div class="p-name">Découverte</div>
         <p class="p-desc">Pour essayer Docline sans engagement.</p>
         <div class="p-price"><b>0</b><span>DA</span></div>
-        <p class="p-note">Pour toujours</p>
+        <p class="p-note">Sans limite de durée</p>
         <ul class="p-list">
           <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Jusqu'à 30 patients</li>
           <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Agenda et rendez-vous en ligne</li>
-          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Dossiers patients CNAS · CASNOS</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Dossiers patients CNAS et CASNOS</li>
           <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>5 ordonnances par mois</li>
           <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>File d'attente QR</li>
         </ul>
@@ -588,7 +607,7 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
       </article>
       <article class="plan hl sr d1">
         <div class="p-name">Pro Médecin <span class="p-badge">Le plus choisi</span></div>
-        <p class="p-desc">Tout illimité, pour un cabinet entièrement numérique.</p>
+        <p class="p-desc">Pour le médecin qui veut tout gérer sur Docline.</p>
         <div class="p-price"><b data-m="5 900" data-y="4 900">5 900</b><span>DA / mois</span></div>
         <p class="p-note" data-m="Sans engagement" data-y="Facturé 59 000 DA par an">Sans engagement</p>
         <ul class="p-list">
@@ -625,10 +644,10 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
   <div class="wrap">
     <div class="center sr">
       <p class="eyebrow">Questions fréquentes</p>
-      <h2 class="h2">Tout ce que vous vous demandez.</h2>
+      <h2 class="h2">Vos questions.</h2>
     </div>
     <div class="faq">
-      <details class="sr"><summary>Faut-il installer quelque chose ?</summary><p>Non. Docline fonctionne dans le navigateur, sur ordinateur, tablette et téléphone. Vous créez votre compte et vous pouvez recevoir vos premières réservations le jour même.</p></details>
+      <details class="sr"><summary>Faut-il installer quelque chose ?</summary><p>Non. Docline s'ouvre dans votre navigateur, sur ordinateur, tablette ou téléphone. Vous créez votre compte et vous pouvez recevoir vos premières réservations le jour même.</p></details>
       <details class="sr"><summary>Mes patients doivent-ils créer un compte ?</summary><p>Non. Ils réservent avec leur numéro de téléphone et un code reçu par SMS. Ceux qui le souhaitent peuvent créer un espace patient gratuit, sans mot de passe, pour retrouver leurs rendez-vous.</p></details>
       <details class="sr"><summary>Qui peut voir mes dossiers patients ?</summary><p>Vous seul, et les membres de votre équipe à qui vous donnez l'accès. Chaque médecin ne voit que ses propres patients. Docline ne revend ni ne partage vos données.</p></details>
       <details class="sr"><summary>Puis-je arrêter quand je veux ?</summary><p>Oui. L'abonnement mensuel est sans engagement. L'offre Découverte reste gratuite, sans limite de durée, jusqu'à 30 patients.</p></details>
@@ -640,7 +659,7 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
 <!-- ══ APPEL FINAL ══ -->
 <section class="final">
   <div class="wrap sr">
-    <p class="eyebrow">Prêt à commencer ?</p>
+    <p class="eyebrow">Prêt à essayer ?</p>
     <h2 class="h2">Votre cabinet mérite mieux qu'un <span class="grad" style="animation:sheen 7s ease-in-out infinite">cahier et un téléphone.</span></h2>
     <div class="ctas">
       <a class="btn btn-primary" href="/login#register">Créer mon cabinet gratuitement <svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -653,7 +672,7 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
 <footer>
   <div class="wrap">
     <div class="f-grid">
-      <div><a class="logo" href="/" aria-label="Docline"><svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Docline"><g fill="#3B1772"><g><g><path d="M73,0.8c9.6-2,19.8,7.6,17,17.4c-1.9,9.1-14.1,12.8-21.3,7.5c-4.9-2.9-7.8-9.2-6.6-14.8C63.2,5.7,67.7,1.4,73,0.8z M73.9,7.9c-5.5,1.1-6.4,9.1-1.6,11.7c3.4,2.6,9.1,1.4,10.4-2.9C84.8,11.6,78.9,6.4,73.9,7.9z"/></g><g><path d="M37.2,15.5c5.7-0.9,11.7-0.2,16.5,3.1c6.5,4.4,10.5,11.7,13,19.1c8.6-3.8,17.7-7.3,27.2-6.9c7.7,0.4,14.7,5.6,17.4,12.7c2.2,8.9-2,17.7-7.1,24.7c-9.4,13-23.4,23.9-39.8,25.5c-5.3,4.8-13.3,7.6-20.2,4.6c-8.3-3.8-13.4-11.8-17.6-19.5c-6.5-13.5-9.9-28.9-7.6-43.8C20.8,25.7,27.4,16.8,37.2,15.5z M39.1,23.2c-7.9,1.1-12.2,9.6-12.6,16.9c-0.5,14.9,3.6,30,11.9,42.4c3.3,5,8.7,10.7,15.2,8.5c-0.5-2-3.3-2.4-4.4-4.1c-5.7-5.7-9.3-14-8-22.1c0.2-5.6,4.2-10.8,9.6-12.4c6.7-2.5,15.2,0.3,18.6,6.8c4.6,7.6,3.4,17.1,1,25.3c6.8-1.8,12.5-6.3,18-10.7c6.5-6.3,12.9-13.6,15.1-22.6c1.9-5.8-3-11.5-8.5-12.3c-11.8-2.1-21.4,5.7-31.9,9.2c-4.7,1-8.9-3.8-8.4-8.3c1.2-0.8,2.5-0.1,3.8-0.1C56.4,31.1,49.1,21.1,39.1,23.2z M53.9,59.8c-3,0.8-4.7,3.9-4.5,7c-0.7,7.4,4.1,15.5,11.3,17.6c4.4-6.3,4.8-15.5,1-22.2C59.7,60.1,56.8,59,53.9,59.8z"/></g></g><g><path d="M166.9,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-1,0-1.9-0.2-2.7-0.7c-0.8-0.5-1.4-1.1-1.9-1.8c-1.5,0.9-3.2,1.7-4.9,2.2c-1.8,0.5-3.6,0.8-5.5,0.8c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9c0-2.8,0.5-5.4,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c1.8,0,3.5,0.2,5.1,0.6c1.6,0.4,3.2,1,4.6,1.8V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z M137.6,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8v-0.4c-0.1-1.3-0.3-2.5-0.9-3.7c-0.5-1.1-1.2-2.1-2.1-2.9c-0.9-0.8-1.9-1.5-3-2c-1.2-0.5-2.4-0.7-3.7-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C136.9,58.8,137.1,60.1,137.6,61.3z"/><path d="M174.7,49.6c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.9,1.6c2.5,1.1,4.6,2.5,6.4,4.4c1.8,1.8,3.3,4,4.3,6.5c1.1,2.5,1.6,5.1,1.6,7.9c0,2.8-0.5,5.4-1.6,7.9c-1.1,2.5-2.5,4.6-4.3,6.5c-1.8,1.8-4,3.3-6.4,4.3c-2.5,1.1-5.1,1.6-7.9,1.6c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9C173.1,54.7,173.6,52,174.7,49.6z M184.4,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8c0-1.4-0.3-2.6-0.8-3.8c-0.5-1.2-1.2-2.2-2.1-3.1c-0.9-0.9-1.9-1.6-3.1-2.1c-1.2-0.5-2.5-0.7-3.8-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C183.7,58.8,183.9,60.1,184.4,61.3z"/><path d="M233.6,48.7c-1.1,0.6-2,1.3-2.8,2.2c-0.8,0.9-1.4,1.9-1.9,3.1c-0.5,1.1-0.7,2.3-0.7,3.5c0,1.1,0.2,2.3,0.7,3.4c0.5,1.1,1.1,2.1,1.9,3c0.8,0.9,1.7,1.6,2.8,2.2c1.1,0.6,2.3,0.9,3.6,0.9c1.2,0.1,2.3,0,3.4-0.3c1.1-0.3,2.2-0.9,3.4-1.8c0.5-0.4,1.1-0.8,1.7-1.2c0.6-0.4,1.3-0.7,2-0.8c0.7-0.2,1.5-0.1,2.2,0c0.8,0.2,1.6,0.6,2.5,1.4c0.6,0.5,1,1.1,1.3,1.7c0.3,0.7,0.4,1.3,0.4,2.1c0,0.7-0.2,1.4-0.5,2.2c-0.3,0.7-0.8,1.4-1.4,2c-1.8,1.8-3.9,3.2-6.3,4.1c-2.4,0.9-5,1.4-7.6,1.4c-2.9,0-5.6-0.5-8.1-1.6c-2.5-1-4.7-2.5-6.6-4.3c-1.9-1.8-3.4-3.9-4.5-6.4c-1.1-2.5-1.6-5.1-1.6-8c0-2.8,0.5-5.5,1.6-8c1.1-2.5,2.6-4.7,4.5-6.5c1.9-1.8,4.1-3.3,6.6-4.4c2.5-1.1,5.2-1.6,8.1-1.6c2.7,0,5.3,0.5,7.7,1.4c2.4,0.9,4.5,2.3,6.3,4.1c0.6,0.6,1.1,1.3,1.4,2c0.3,0.7,0.5,1.5,0.5,2.2c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.3,1.7c-0.9,0.7-1.7,1.2-2.5,1.4c-0.8,0.2-1.5,0.2-2.2,0c-0.7-0.2-1.4-0.5-2-0.9c-0.6-0.4-1.2-0.8-1.7-1.2c-1.2-0.9-2.3-1.5-3.4-1.7c-1.1-0.3-2.2-0.4-3.4-0.4C235.8,47.9,234.6,48.2,233.6,48.7z"/><path d="M270.7,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M279.2,25.7c0.3-0.7,0.7-1.3,1.2-1.8c0.5-0.5,1.1-0.9,1.8-1.2c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.1,2.2,0.4c0.7,0.3,1.3,0.7,1.8,1.2c0.5,0.5,0.9,1.1,1.2,1.8c0.3,0.7,0.4,1.4,0.4,2.2c0,0.8-0.1,1.5-0.4,2.2c-0.3,0.7-0.7,1.3-1.2,1.8c-0.5,0.5-1.1,0.9-1.8,1.2c-0.7,0.3-1.4,0.4-2.2,0.4c-0.8,0-1.5-0.1-2.2-0.4c-0.7-0.3-1.3-0.7-1.8-1.2c-0.5-0.5-0.9-1.1-1.2-1.8c-0.3-0.7-0.4-1.4-0.4-2.2C278.8,27.1,278.9,26.4,279.2,25.7z M289.8,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.2,0.6,1.6,1.1c0.5,0.5,0.8,1,1.1,1.7c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M303.7,37.1c1.2,0,2.2,0.4,3.1,1.1c0.9,0.7,1.5,1.6,1.8,2.7c1.4-1.2,2.9-2.1,4.5-2.7c1.6-0.7,3.2-1,5-1c2.5,0,4.8,0.5,6.9,1.5s3.9,2.4,5.4,4.2c1.5,1.8,2.7,3.9,3.5,6.3c0.8,2.4,1.3,5,1.3,7.7v15.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.7,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.7,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V56.9c0-1.3-0.2-2.5-0.6-3.6c-0.4-1.1-0.9-2.1-1.5-2.9c-0.7-0.8-1.4-1.5-2.4-2c-0.9-0.5-2-0.7-3.2-0.7c-1.2,0-2.2,0.2-3.2,0.6c-1,0.4-1.8,1-2.5,1.8c-0.7,0.8-1.3,1.7-1.7,2.7c-0.4,1.1-0.6,2.2-0.7,3.5v15.8c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1C302.3,37.2,303,37.1,303.7,37.1z"/><path d="M352.6,62.2c0.8,1.6,2,3,3.6,3.9c1.5,1,3.3,1.5,5.1,1.5c0.8,0,1.4,0,2-0.1c0.6-0.1,1-0.2,1.5-0.4c0.4-0.2,0.8-0.3,1.2-0.6c0.3-0.2,0.7-0.5,1-0.7c0.9-0.7,1.9-1.2,2.7-1.3c0.9-0.1,1.7,0,2.5,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.9,1.1,1.4c0.3,0.5,0.5,1.1,0.7,1.7c0.1,0.6,0.2,1.2,0.1,1.8c-0.1,0.6-0.3,1.2-0.6,1.8c-0.3,0.6-0.8,1.1-1.4,1.6c-0.6,0.5-1.2,1-2,1.4c-0.7,0.5-1.6,0.9-2.6,1.2c-1,0.4-2.1,0.6-3.3,0.9c-1.3,0.2-2.7,0.3-4.3,0.3c-2.8,0-5.5-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.9-1.8-3.3-4-4.4-6.4c-1.1-2.5-1.6-5.1-1.6-7.9s0.5-5.5,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.9-1.8,4-3.3,6.5-4.3c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.8,1.6c2.5,1,4.6,2.5,6.5,4.3c1.8,1.8,3.3,3.9,4.4,6.4c1.1,2.4,1.7,5,1.7,7.8c0,1.5-0.5,2.7-1.4,3.6c-1,0.9-2.2,1.4-3.8,1.4H352.6z M370.8,53.4c-0.7-1.9-1.9-3.4-3.6-4.5c-1.7-1.1-3.6-1.7-5.8-1.7c-1.1,0-2.1,0.2-3.1,0.5c-1,0.3-1.8,0.7-2.6,1.3c-0.8,0.6-1.5,1.2-2.1,2c-0.6,0.8-1.1,1.6-1.4,2.5H370.8z"/></g></g></svg></a><p class="f-tag">Le cabinet médical, simplement. Pensé pour les médecins algériens et leurs patients.</p></div>
+      <div><a class="logo" href="/" aria-label="Docline"><svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Docline"><g fill="#3B1772"><g><g><path d="M73,0.8c9.6-2,19.8,7.6,17,17.4c-1.9,9.1-14.1,12.8-21.3,7.5c-4.9-2.9-7.8-9.2-6.6-14.8C63.2,5.7,67.7,1.4,73,0.8z M73.9,7.9c-5.5,1.1-6.4,9.1-1.6,11.7c3.4,2.6,9.1,1.4,10.4-2.9C84.8,11.6,78.9,6.4,73.9,7.9z"/></g><g><path d="M37.2,15.5c5.7-0.9,11.7-0.2,16.5,3.1c6.5,4.4,10.5,11.7,13,19.1c8.6-3.8,17.7-7.3,27.2-6.9c7.7,0.4,14.7,5.6,17.4,12.7c2.2,8.9-2,17.7-7.1,24.7c-9.4,13-23.4,23.9-39.8,25.5c-5.3,4.8-13.3,7.6-20.2,4.6c-8.3-3.8-13.4-11.8-17.6-19.5c-6.5-13.5-9.9-28.9-7.6-43.8C20.8,25.7,27.4,16.8,37.2,15.5z M39.1,23.2c-7.9,1.1-12.2,9.6-12.6,16.9c-0.5,14.9,3.6,30,11.9,42.4c3.3,5,8.7,10.7,15.2,8.5c-0.5-2-3.3-2.4-4.4-4.1c-5.7-5.7-9.3-14-8-22.1c0.2-5.6,4.2-10.8,9.6-12.4c6.7-2.5,15.2,0.3,18.6,6.8c4.6,7.6,3.4,17.1,1,25.3c6.8-1.8,12.5-6.3,18-10.7c6.5-6.3,12.9-13.6,15.1-22.6c1.9-5.8-3-11.5-8.5-12.3c-11.8-2.1-21.4,5.7-31.9,9.2c-4.7,1-8.9-3.8-8.4-8.3c1.2-0.8,2.5-0.1,3.8-0.1C56.4,31.1,49.1,21.1,39.1,23.2z M53.9,59.8c-3,0.8-4.7,3.9-4.5,7c-0.7,7.4,4.1,15.5,11.3,17.6c4.4-6.3,4.8-15.5,1-22.2C59.7,60.1,56.8,59,53.9,59.8z"/></g></g><g><path d="M166.9,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-1,0-1.9-0.2-2.7-0.7c-0.8-0.5-1.4-1.1-1.9-1.8c-1.5,0.9-3.2,1.7-4.9,2.2c-1.8,0.5-3.6,0.8-5.5,0.8c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9c0-2.8,0.5-5.4,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c1.8,0,3.5,0.2,5.1,0.6c1.6,0.4,3.2,1,4.6,1.8V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z M137.6,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8v-0.4c-0.1-1.3-0.3-2.5-0.9-3.7c-0.5-1.1-1.2-2.1-2.1-2.9c-0.9-0.8-1.9-1.5-3-2c-1.2-0.5-2.4-0.7-3.7-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C136.9,58.8,137.1,60.1,137.6,61.3z"/><path d="M174.7,49.6c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.9,1.6c2.5,1.1,4.6,2.5,6.4,4.4c1.8,1.8,3.3,4,4.3,6.5c1.1,2.5,1.6,5.1,1.6,7.9c0,2.8-0.5,5.4-1.6,7.9c-1.1,2.5-2.5,4.6-4.3,6.5c-1.8,1.8-4,3.3-6.4,4.3c-2.5,1.1-5.1,1.6-7.9,1.6c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9C173.1,54.7,173.6,52,174.7,49.6z M184.4,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8c0-1.4-0.3-2.6-0.8-3.8c-0.5-1.2-1.2-2.2-2.1-3.1c-0.9-0.9-1.9-1.6-3.1-2.1c-1.2-0.5-2.5-0.7-3.8-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C183.7,58.8,183.9,60.1,184.4,61.3z"/><path d="M233.6,48.7c-1.1,0.6-2,1.3-2.8,2.2c-0.8,0.9-1.4,1.9-1.9,3.1c-0.5,1.1-0.7,2.3-0.7,3.5c0,1.1,0.2,2.3,0.7,3.4c0.5,1.1,1.1,2.1,1.9,3c0.8,0.9,1.7,1.6,2.8,2.2c1.1,0.6,2.3,0.9,3.6,0.9c1.2,0.1,2.3,0,3.4-0.3c1.1-0.3,2.2-0.9,3.4-1.8c0.5-0.4,1.1-0.8,1.7-1.2c0.6-0.4,1.3-0.7,2-0.8c0.7-0.2,1.5-0.1,2.2,0c0.8,0.2,1.6,0.6,2.5,1.4c0.6,0.5,1,1.1,1.3,1.7c0.3,0.7,0.4,1.3,0.4,2.1c0,0.7-0.2,1.4-0.5,2.2c-0.3,0.7-0.8,1.4-1.4,2c-1.8,1.8-3.9,3.2-6.3,4.1c-2.4,0.9-5,1.4-7.6,1.4c-2.9,0-5.6-0.5-8.1-1.6c-2.5-1-4.7-2.5-6.6-4.3c-1.9-1.8-3.4-3.9-4.5-6.4c-1.1-2.5-1.6-5.1-1.6-8c0-2.8,0.5-5.5,1.6-8c1.1-2.5,2.6-4.7,4.5-6.5c1.9-1.8,4.1-3.3,6.6-4.4c2.5-1.1,5.2-1.6,8.1-1.6c2.7,0,5.3,0.5,7.7,1.4c2.4,0.9,4.5,2.3,6.3,4.1c0.6,0.6,1.1,1.3,1.4,2c0.3,0.7,0.5,1.5,0.5,2.2c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.3,1.7c-0.9,0.7-1.7,1.2-2.5,1.4c-0.8,0.2-1.5,0.2-2.2,0c-0.7-0.2-1.4-0.5-2-0.9c-0.6-0.4-1.2-0.8-1.7-1.2c-1.2-0.9-2.3-1.5-3.4-1.7c-1.1-0.3-2.2-0.4-3.4-0.4C235.8,47.9,234.6,48.2,233.6,48.7z"/><path d="M270.7,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M279.2,25.7c0.3-0.7,0.7-1.3,1.2-1.8c0.5-0.5,1.1-0.9,1.8-1.2c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.1,2.2,0.4c0.7,0.3,1.3,0.7,1.8,1.2c0.5,0.5,0.9,1.1,1.2,1.8c0.3,0.7,0.4,1.4,0.4,2.2c0,0.8-0.1,1.5-0.4,2.2c-0.3,0.7-0.7,1.3-1.2,1.8c-0.5,0.5-1.1,0.9-1.8,1.2c-0.7,0.3-1.4,0.4-2.2,0.4c-0.8,0-1.5-0.1-2.2-0.4c-0.7-0.3-1.3-0.7-1.8-1.2c-0.5-0.5-0.9-1.1-1.2-1.8c-0.3-0.7-0.4-1.4-0.4-2.2C278.8,27.1,278.9,26.4,279.2,25.7z M289.8,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.2,0.6,1.6,1.1c0.5,0.5,0.8,1,1.1,1.7c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M303.7,37.1c1.2,0,2.2,0.4,3.1,1.1c0.9,0.7,1.5,1.6,1.8,2.7c1.4-1.2,2.9-2.1,4.5-2.7c1.6-0.7,3.2-1,5-1c2.5,0,4.8,0.5,6.9,1.5s3.9,2.4,5.4,4.2c1.5,1.8,2.7,3.9,3.5,6.3c0.8,2.4,1.3,5,1.3,7.7v15.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.7,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.7,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V56.9c0-1.3-0.2-2.5-0.6-3.6c-0.4-1.1-0.9-2.1-1.5-2.9c-0.7-0.8-1.4-1.5-2.4-2c-0.9-0.5-2-0.7-3.2-0.7c-1.2,0-2.2,0.2-3.2,0.6c-1,0.4-1.8,1-2.5,1.8c-0.7,0.8-1.3,1.7-1.7,2.7c-0.4,1.1-0.6,2.2-0.7,3.5v15.8c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1C302.3,37.2,303,37.1,303.7,37.1z"/><path d="M352.6,62.2c0.8,1.6,2,3,3.6,3.9c1.5,1,3.3,1.5,5.1,1.5c0.8,0,1.4,0,2-0.1c0.6-0.1,1-0.2,1.5-0.4c0.4-0.2,0.8-0.3,1.2-0.6c0.3-0.2,0.7-0.5,1-0.7c0.9-0.7,1.9-1.2,2.7-1.3c0.9-0.1,1.7,0,2.5,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.9,1.1,1.4c0.3,0.5,0.5,1.1,0.7,1.7c0.1,0.6,0.2,1.2,0.1,1.8c-0.1,0.6-0.3,1.2-0.6,1.8c-0.3,0.6-0.8,1.1-1.4,1.6c-0.6,0.5-1.2,1-2,1.4c-0.7,0.5-1.6,0.9-2.6,1.2c-1,0.4-2.1,0.6-3.3,0.9c-1.3,0.2-2.7,0.3-4.3,0.3c-2.8,0-5.5-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.9-1.8-3.3-4-4.4-6.4c-1.1-2.5-1.6-5.1-1.6-7.9s0.5-5.5,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.9-1.8,4-3.3,6.5-4.3c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.8,1.6c2.5,1,4.6,2.5,6.5,4.3c1.8,1.8,3.3,3.9,4.4,6.4c1.1,2.4,1.7,5,1.7,7.8c0,1.5-0.5,2.7-1.4,3.6c-1,0.9-2.2,1.4-3.8,1.4H352.6z M370.8,53.4c-0.7-1.9-1.9-3.4-3.6-4.5c-1.7-1.1-3.6-1.7-5.8-1.7c-1.1,0-2.1,0.2-3.1,0.5c-1,0.3-1.8,0.7-2.6,1.3c-0.8,0.6-1.5,1.2-2.1,2c-0.6,0.8-1.1,1.6-1.4,2.5H370.8z"/></g></g></svg></a><p class="f-tag">Le logiciel de gestion de cabinet médical conçu pour les médecins algériens et leurs patients.</p></div>
       <div><h5>Produit</h5><a href="#parcours">Comment ça marche</a><a href="#fonctions">Fonctionnalités</a><a href="#tarifs">Tarifs</a></div>
       <div><h5>Accès</h5><a href="/login">Espace médecin</a><a href="/patient">Espace patient</a><a href="/find-doctor">Trouver un médecin</a></div>
       <div><h5>Docline</h5><a href="mailto:contact@docline.health">contact@docline.health</a><a href="/terms">Conditions d'utilisation</a><a href="/privacy">Confidentialité</a></div>
@@ -682,6 +701,35 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
   } else els.forEach(function(el){ el.classList.add('in'); });
 
 
+
+  // « C'est quoi Docline » : chaque mot s'allume au rythme du défilement
+  var say = document.getElementById('say');
+  if (say){
+    var txt = say.textContent, html = '', key = false;
+    txt.split(/(\[|\]|\s+)/).forEach(function(t){
+      if (t === '[') { key = true; return; }
+      if (t === ']') { key = false; return; }
+      if (!t) return;
+      if (/^\s+$/.test(t)) { html += ' '; return; }
+      html += '<span class="wd' + (key ? ' k' : '') + '">' + t + '</span>';
+    });
+    say.innerHTML = html;
+    var words = say.querySelectorAll('.wd');
+    if (rm){ words.forEach(function(w){ w.classList.add('lit'); }); }
+    else {
+      var sr2 = null;
+      function light(){
+        sr2 = null;
+        var r = say.getBoundingClientRect(), vh = innerHeight;
+        var p = (vh * .82 - r.top) / (r.height + vh * .25);
+        var n = Math.round(Math.max(0, Math.min(1, p)) * words.length);
+        for (var i = 0; i < words.length; i++) words[i].classList.toggle('lit', i < n);
+      }
+      window.addEventListener('scroll', function(){ if (!sr2) sr2 = requestAnimationFrame(light); }, { passive:true });
+      window.addEventListener('resize', light); light();
+    }
+  }
+
   // Vitrine : le tableau de bord se redresse au défilement
   var frame = document.getElementById('frame');
   if (frame && !rm){
@@ -699,9 +747,9 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
 
   // Notifications de la scène
   var N = [
-    { c:'', t:'Nouvelle demande', s:'Réservée en ligne · 11:30', p:'<rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
+    { c:'', t:'Nouvelle demande', s:'Réservée en ligne pour 11:30', p:'<rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
     { c:'ok', t:'Rendez-vous confirmé', s:'Le patient est prévenu', p:'<path d="m5 12 5 5 9-10"/>' },
-    { c:'or', t:'Patient arrivé', s:'File d’attente · n° 3', p:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>' }
+    { c:'or', t:'Patient arrivé', s:'Numéro 3 dans la file', p:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>' }
   ];
   var box = document.getElementById('notifs'), k = 0, cur = null;
   function show(){
