@@ -1,6 +1,6 @@
 /* Docline shared app loader — principal logo fills with brand purple
  * Usage: <script src="loader.js"></script> in <head>
- * Auto-injects CSS + HTML, auto-hides on window.load (+600ms) with 5s failsafe
+ * Auto-injects CSS + HTML, hides as soon as the page is usable (DOM ready), 2.5s failsafe
  */
 (function(){
   if(window.__doclineLoaderInit) return;
@@ -10,7 +10,7 @@
   var css = ''
     + '#app-loader{position:fixed;inset:0;z-index:9999;background:#fff;'
     + 'display:flex;align-items:center;justify-content:center;'
-    + 'transition:opacity .5s ease,visibility .5s ease;'
+    + 'transition:opacity .35s cubic-bezier(.22,1,.36,1),visibility .35s;'
     + 'font-family:"Sora",system-ui,sans-serif}'
     + '#app-loader.hidden{opacity:0;visibility:hidden;pointer-events:none}'
     + '.dl-loader-logo{width:min(78vw,360px);height:auto;display:block;'
@@ -68,10 +68,11 @@
   inject();
 
   // ── 4. Hide on window.load with min display time + failsafe ─
-  // Min display: 1900ms so user sees a full fill→drain cycle (1.8s loop)
+  // La page est utilisable dès que le DOM est prêt : on ne fait plus attendre
+  // les polices, scripts externes et images (window.load pouvait prendre plusieurs secondes).
   var loaderStart = Date.now();
-  var MIN_DISPLAY = 1900;
-  var FAILSAFE = 6000;
+  var MIN_DISPLAY = 250;
+  var FAILSAFE = 2500;
   function hide(){
     var el = document.getElementById('app-loader');
     if(!el) return;
@@ -82,6 +83,7 @@
     }
     el.classList.add('hidden');
   }
-  window.addEventListener('load', function(){ setTimeout(hide, 100); });
+  if (document.readyState !== 'loading') setTimeout(hide, 0);
+  else document.addEventListener('DOMContentLoaded', function(){ setTimeout(hide, 0); });
   setTimeout(hide, FAILSAFE);
 })();
