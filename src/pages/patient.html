@@ -527,9 +527,38 @@ body.in-app{background:var(--bg)}
   .sheet .s-act .btn:first-child{order:2}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}.check circle,.check path{stroke-dashoffset:0}}
+
+/* ════ Langage visuel partagé avec /login : aurore, grille, verre, titre animé ════ */
+.aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none;background:var(--bg)}
+.aurora i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;will-change:transform}
+.aurora .a1{width:62vw;height:62vw;left:38%;top:-22%;background:radial-gradient(circle at 40% 40%,#C4B5FD,rgba(196,181,253,0) 65%);animation:drift1 26s ease-in-out infinite alternate}
+.aurora .a2{width:48vw;height:48vw;left:-12%;top:38%;background:radial-gradient(circle at 50% 50%,#DDD6FE,rgba(221,214,254,0) 65%);animation:drift2 32s ease-in-out infinite alternate}
+.aurora .a3{width:34vw;height:34vw;left:58%;top:58%;background:radial-gradient(circle at 50% 50%,#FED7AA,rgba(254,215,170,0) 65%);opacity:.38;animation:drift3 28s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(-9vw,8vh) scale(1.12)}}
+@keyframes drift2{to{transform:translate(12vw,-7vh) scale(.92)}}
+@keyframes drift3{to{transform:translate(-14vw,-10vh) scale(1.15)}}
+.grid-lines{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(76,29,149,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(76,29,149,.05) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 30% 45%,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse 70% 60% at 30% 45%,#000 20%,transparent 75%)}
+body.in-app .aurora,body.in-app .grid-lines{display:none}
+.guest:before{display:none}
+.g-title .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
+.g-title .w>span{display:inline-block;transform:translateY(105%);animation:wordUp .9s var(--ease) forwards}
+@keyframes wordUp{to{transform:none}}
+.g-title .grad{background:linear-gradient(100deg,#4C1D95 0%,#7C3AED 35%,#A78BFA 50%,#7C3AED 65%,#4C1D95 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:wordUp .9s var(--ease) forwards,sheen 7s ease-in-out 1.4s infinite}
+@keyframes sheen{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.auth{background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);border:1px solid rgba(255,255,255,.85);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 50px 100px -40px rgba(46,16,101,.45),0 18px 36px -24px rgba(46,16,101,.25);overflow:visible}
+.auth:before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(140deg,rgba(124,58,237,.55),rgba(255,255,255,0) 35%,rgba(255,255,255,0) 65%,rgba(234,88,12,.35));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.auth .input,.auth .phone{background:rgba(255,255,255,.9)}
+.auth .seg{background:rgba(244,242,248,.85)}
+.btn-primary{overflow:hidden}
+.btn-primary:after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-18deg);transition:left .8s var(--ease);pointer-events:none}
+.btn-primary:hover:after{left:120%}
+@media(max-width:900px){.grid-lines{-webkit-mask-image:radial-gradient(ellipse 90% 50% at 50% 20%,#000 10%,transparent 75%);mask-image:radial-gradient(ellipse 90% 50% at 50% 20%,#000 10%,transparent 75%)}}
+@media(prefers-reduced-motion:reduce){.g-title .w>span,.g-title .grad{transform:none!important}}
 </style>
 </head>
 <body>
+<div class="aurora" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
+<div class="grid-lines" aria-hidden="true"></div>
 
 <header class="top" id="top">
   <div class="top-in">
@@ -561,7 +590,7 @@ body.in-app{background:var(--bg)}
   <div class="wrap g-grid">
     <div class="g-head">
       <p class="kicker rise">Espace patient</p>
-      <h1 class="g-title rise d1">Votre santé,<br><span class="grad">enfin organisée.</span></h1>
+      <h1 class="g-title"><span class="w"><span style="animation-delay:.05s">Votre</span></span> <span class="w"><span style="animation-delay:.14s">santé,</span></span><br><span class="w"><span class="grad" style="animation-delay:.26s">enfin organisée.</span></span></h1>
       <p class="g-sub rise d2">Rendez-vous, proches et résultats au même endroit. Sans mot de passe.</p>
     </div>
 

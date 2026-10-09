@@ -46,6 +46,12 @@ a{color:inherit}
 .logo{display:flex;align-items:center;text-decoration:none}
 .logo svg{display:block;height:30px;width:auto}
 .top-sp{flex:1}
+.nav-cta{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:8px 14px 8px 16px;font-size:.8125rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s}
+.nav-cta:hover,.nav-cta[aria-expanded="true"]{background:var(--accent-h)}
+.nav-cta>svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.nav-cta .chev{width:13px;height:13px;stroke-width:2.4;opacity:.8;transition:transform .35s var(--ease)}
+.nav-cta[aria-expanded="true"] .chev{transform:rotate(180deg)}
+@media(max-width:640px){.nav-cta{padding:7px 14px;font-size:.78rem}}
 .top-link{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:999px;font-size:.8125rem;font-weight:600;color:var(--ink2);text-decoration:none;transition:background .2s}
 .top-link:hover{background:var(--fill)}
 .top-link svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -84,11 +90,11 @@ a{color:inherit}
 
 /* Carte d'authentification */
 .auth-card{background:var(--surface);border:1px solid var(--hair);border-radius:34px;padding:44px 40px 34px;box-shadow:0 1px 2px rgba(13,5,32,.04),0 34px 80px -34px rgba(76,29,149,.38);animation:rise .7s var(--ease) .1s both}
-.card-header{margin-bottom:28px}
+.card-header{margin:30px 0 26px}
 .card-icon{display:none}
 .card-title{font-size:1.875rem;font-weight:800;letter-spacing:-.04em;line-height:1.1}
 .card-sub{font-size:1rem;color:var(--ink3);margin-top:8px}
-.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--fill);border-radius:999px;padding:4px;margin-bottom:28px}
+.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--fill);border-radius:999px;padding:4px;margin-bottom:0}
 .tabs:before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:var(--surface);border-radius:999px;box-shadow:0 1px 3px rgba(13,5,32,.1),0 4px 10px -6px rgba(13,5,32,.15);transition:transform .5s var(--ease)}
 .tabs:has(#tab-register.active):before{transform:translateX(100%)}
 .tab{position:relative;z-index:1;height:40px;border:0;background:transparent;border-radius:999px;font-weight:600;font-size:.9375rem;color:var(--ink3);cursor:pointer;transition:color .3s}
@@ -166,9 +172,81 @@ a{color:inherit}
 .legal{font-size:.75rem;color:var(--ink3);text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--hair);line-height:1.6}
 .legal a{color:var(--ink2);font-weight:600;text-decoration:none}
 .legal a:hover{color:var(--accent)}
-.below{display:flex;justify-content:center;gap:22px;margin-top:22px}
+.below{position:relative;z-index:2;display:flex;justify-content:center;gap:22px;margin-top:40px;isolation:isolate}
 .below a{font-size:.8125rem;color:var(--ink3);text-decoration:none;font-weight:500;transition:color .2s}
 .below a:hover{color:var(--accent)}
+
+
+/* ════ Effet « wow » : aurore, composition 3D, verre ════ */
+.aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none;background:var(--bg)}
+.aurora i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;will-change:transform}
+.aurora .a1{width:62vw;height:62vw;left:38%;top:-22%;background:radial-gradient(circle at 40% 40%,#C4B5FD,rgba(196,181,253,0) 65%);animation:drift1 26s ease-in-out infinite alternate}
+.aurora .a2{width:48vw;height:48vw;left:-12%;top:38%;background:radial-gradient(circle at 50% 50%,#DDD6FE,rgba(221,214,254,0) 65%);animation:drift2 32s ease-in-out infinite alternate}
+.aurora .a3{width:34vw;height:34vw;left:58%;top:58%;background:radial-gradient(circle at 50% 50%,#FED7AA,rgba(254,215,170,0) 65%);opacity:.38;animation:drift3 28s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(-9vw,8vh) scale(1.12)}}
+@keyframes drift2{to{transform:translate(12vw,-7vh) scale(.92)}}
+@keyframes drift3{to{transform:translate(-14vw,-10vh) scale(1.15)}}
+.grid-lines{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(76,29,149,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(76,29,149,.05) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 30% 45%,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse 70% 60% at 30% 45%,#000 20%,transparent 75%)}
+.stage:before{display:none}
+
+/* Titre : les mots montent un à un */
+.hero-title .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
+.hero-title .w>span{display:inline-block;transform:translateY(105%);animation:wordUp .9s var(--ease) forwards}
+@keyframes wordUp{to{transform:none}}
+.hero-title .grad{background:linear-gradient(100deg,#4C1D95 0%,#7C3AED 35%,#A78BFA 50%,#7C3AED 65%,#4C1D95 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:wordUp .9s var(--ease) forwards,sheen 7s ease-in-out 1.4s infinite}
+@keyframes sheen{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+
+/* Composition produit en perspective */
+.scene{position:relative;margin-top:96px;height:380px;perspective:1800px}
+.rig{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(7deg) rotateY(-12deg) rotateZ(1deg);transition:transform 1.2s var(--ease);animation:rigIn 1.4s var(--ease) .35s backwards}
+@keyframes rigIn{from{opacity:0;transform:rotateX(22deg) rotateY(-26deg) translateY(40px)}}
+.layer{position:absolute;border-radius:24px;background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);border:1px solid rgba(255,255,255,.9);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 40px 80px -36px rgba(46,16,101,.45),0 12px 24px -16px rgba(46,16,101,.25)}
+.l-rx{left:-10px;top:70px;width:230px;padding:20px 22px;transform:translateZ(-60px) rotate(-4deg)}
+.rx-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.rx-head b{font-size:.8125rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.rx-head span{font-size:.6875rem;color:var(--ink4);font-variant-numeric:tabular-nums}
+.rx-line{height:7px;border-radius:4px;background:var(--fill2);margin-bottom:9px}
+.rx-line.s{width:62%}.rx-line.m{width:82%}
+.rx-sig{margin-top:18px;height:28px;border-bottom:1px dashed var(--line2);position:relative}
+.rx-sig svg{position:absolute;left:4px;bottom:2px;width:110px;height:30px;fill:none;stroke:#4C1D95;stroke-width:1.6;stroke-linecap:round;stroke-dasharray:240;stroke-dashoffset:240;animation:sign 2.2s var(--ease) 1.6s forwards}
+@keyframes sign{to{stroke-dashoffset:0}}
+.l-day{left:130px;top:0;width:390px;padding:20px 20px 8px;transform:translateZ(30px)}
+.l-day .day-head{display:flex;justify-content:space-between;align-items:baseline;padding:0 4px 8px}
+.l-day .day-head b{font-size:1rem;font-weight:700;letter-spacing:-.02em}
+.l-day .day-head span{font-size:.75rem;color:var(--ink3);font-variant-numeric:tabular-nums}
+.l-day .slot{opacity:0;transform:translateY(8px);animation:slotIn .7s var(--ease) forwards}
+.l-day .slot:nth-of-type(2){animation-delay:1s}.l-day .slot:nth-of-type(3){animation-delay:1.15s}.l-day .slot:nth-of-type(4){animation-delay:1.3s}.l-day .slot:nth-of-type(5){animation-delay:1.45s}.l-day .slot:nth-of-type(6){animation-delay:1.6s}
+@keyframes slotIn{to{opacity:1;transform:none}}
+.now{position:relative;height:0;margin:2px 4px}
+.now:before{content:"";position:absolute;left:44px;right:0;top:0;height:2px;border-radius:2px;background:linear-gradient(90deg,#EA580C,rgba(234,88,12,0))}
+.now:after{content:"";position:absolute;left:40px;top:-3px;width:8px;height:8px;border-radius:50%;background:#EA580C;box-shadow:0 0 0 4px rgba(234,88,12,.15)}
+.l-patient{left:360px;top:318px;width:236px;padding:16px;transform:translateZ(90px);display:flex;gap:12px;align-items:center}
+.l-patient .pav{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#4C1D95,#7C3AED);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9375rem;flex-shrink:0}
+.l-patient b{display:block;font-size:.875rem;font-weight:600}
+.l-patient small{display:block;font-size:.75rem;color:var(--ink3)}
+.l-patient .chip{display:inline-block;margin-top:5px;font-size:.6875rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--accent)}
+.notifs{position:absolute;left:300px;top:-46px;width:270px;height:64px;transform:translateZ(130px)}
+.notif{position:absolute;inset:0;display:flex;align-items:center;gap:12px;padding:10px 14px 10px 10px;border-radius:18px;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--line);box-shadow:0 22px 44px -22px rgba(46,16,101,.5);opacity:0;transform:translateY(10px) scale(.97);transition:opacity .6s var(--ease),transform .7s var(--ease)}
+.notif.on{opacity:1;transform:none}
+.notif.out{opacity:0;transform:translateY(-12px) scale(.97)}
+.notif i{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#4C1D95}
+.notif i.ok{background:#1E7F4E}.notif i.or{background:#EA580C}
+.notif i svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.notif b{display:block;font-size:.8125rem;font-weight:600}
+.notif span{display:block;font-size:.75rem;color:var(--ink3)}
+.example{position:absolute;right:-6px;bottom:-6px;font-size:.6875rem;font-weight:600;color:var(--ink4);letter-spacing:.02em}
+
+/* Carte en verre dépoli avec liseré lumineux */
+.auth-card{position:relative;background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);border:1px solid rgba(255,255,255,.85);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 50px 100px -40px rgba(46,16,101,.45),0 18px 36px -24px rgba(46,16,101,.25)}
+.auth-card:before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(140deg,rgba(124,58,237,.55),rgba(255,255,255,0) 35%,rgba(255,255,255,0) 65%,rgba(234,88,12,.35));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.fi{background:rgba(255,255,255,.9)}
+.tabs{background:rgba(244,242,248,.85)}
+.btn-sub{overflow:hidden}
+.btn-sub:after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-18deg);transition:left .8s var(--ease)}
+.btn-sub:hover:after{left:120%}
+
+@media(max-width:980px){.scene{display:none}.grid-lines{-webkit-mask-image:radial-gradient(ellipse 90% 50% at 50% 20%,#000 10%,transparent 75%);mask-image:radial-gradient(ellipse 90% 50% at 50% 20%,#000 10%,transparent 75%)}}
+@media(prefers-reduced-motion:reduce){.hero-title .w>span,.hero-title .grad{transform:none!important}.l-day .slot{opacity:1;transform:none}.notif{transition:none}.rx-sig svg{stroke-dashoffset:0}}
 
 @media(max-width:980px){
   .stage{grid-template-columns:1fr;gap:32px;padding:28px 24px 64px;min-height:0}
@@ -193,49 +271,60 @@ a{color:inherit}
 <link rel="stylesheet" href="premium.css">
 </head>
 <body>
+<div class="aurora" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
+<div class="grid-lines" aria-hidden="true"></div>
 <header class="top">
   <div class="top-in">
     <a class="logo" href="/find-doctor" aria-label="Docline, accueil"><svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Docline"><g fill="#3B1772"><g><g><path d="M73,0.8c9.6-2,19.8,7.6,17,17.4c-1.9,9.1-14.1,12.8-21.3,7.5c-4.9-2.9-7.8-9.2-6.6-14.8C63.2,5.7,67.7,1.4,73,0.8z M73.9,7.9c-5.5,1.1-6.4,9.1-1.6,11.7c3.4,2.6,9.1,1.4,10.4-2.9C84.8,11.6,78.9,6.4,73.9,7.9z"/></g><g><path d="M37.2,15.5c5.7-0.9,11.7-0.2,16.5,3.1c6.5,4.4,10.5,11.7,13,19.1c8.6-3.8,17.7-7.3,27.2-6.9c7.7,0.4,14.7,5.6,17.4,12.7c2.2,8.9-2,17.7-7.1,24.7c-9.4,13-23.4,23.9-39.8,25.5c-5.3,4.8-13.3,7.6-20.2,4.6c-8.3-3.8-13.4-11.8-17.6-19.5c-6.5-13.5-9.9-28.9-7.6-43.8C20.8,25.7,27.4,16.8,37.2,15.5z M39.1,23.2c-7.9,1.1-12.2,9.6-12.6,16.9c-0.5,14.9,3.6,30,11.9,42.4c3.3,5,8.7,10.7,15.2,8.5c-0.5-2-3.3-2.4-4.4-4.1c-5.7-5.7-9.3-14-8-22.1c0.2-5.6,4.2-10.8,9.6-12.4c6.7-2.5,15.2,0.3,18.6,6.8c4.6,7.6,3.4,17.1,1,25.3c6.8-1.8,12.5-6.3,18-10.7c6.5-6.3,12.9-13.6,15.1-22.6c1.9-5.8-3-11.5-8.5-12.3c-11.8-2.1-21.4,5.7-31.9,9.2c-4.7,1-8.9-3.8-8.4-8.3c1.2-0.8,2.5-0.1,3.8-0.1C56.4,31.1,49.1,21.1,39.1,23.2z M53.9,59.8c-3,0.8-4.7,3.9-4.5,7c-0.7,7.4,4.1,15.5,11.3,17.6c4.4-6.3,4.8-15.5,1-22.2C59.7,60.1,56.8,59,53.9,59.8z"/></g></g><g><path d="M166.9,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-1,0-1.9-0.2-2.7-0.7c-0.8-0.5-1.4-1.1-1.9-1.8c-1.5,0.9-3.2,1.7-4.9,2.2c-1.8,0.5-3.6,0.8-5.5,0.8c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9c0-2.8,0.5-5.4,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c1.8,0,3.5,0.2,5.1,0.6c1.6,0.4,3.2,1,4.6,1.8V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z M137.6,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8v-0.4c-0.1-1.3-0.3-2.5-0.9-3.7c-0.5-1.1-1.2-2.1-2.1-2.9c-0.9-0.8-1.9-1.5-3-2c-1.2-0.5-2.4-0.7-3.7-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C136.9,58.8,137.1,60.1,137.6,61.3z"/><path d="M174.7,49.6c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.9,1.6c2.5,1.1,4.6,2.5,6.4,4.4c1.8,1.8,3.3,4,4.3,6.5c1.1,2.5,1.6,5.1,1.6,7.9c0,2.8-0.5,5.4-1.6,7.9c-1.1,2.5-2.5,4.6-4.3,6.5c-1.8,1.8-4,3.3-6.4,4.3c-2.5,1.1-5.1,1.6-7.9,1.6c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9C173.1,54.7,173.6,52,174.7,49.6z M184.4,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8c0-1.4-0.3-2.6-0.8-3.8c-0.5-1.2-1.2-2.2-2.1-3.1c-0.9-0.9-1.9-1.6-3.1-2.1c-1.2-0.5-2.5-0.7-3.8-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C183.7,58.8,183.9,60.1,184.4,61.3z"/><path d="M233.6,48.7c-1.1,0.6-2,1.3-2.8,2.2c-0.8,0.9-1.4,1.9-1.9,3.1c-0.5,1.1-0.7,2.3-0.7,3.5c0,1.1,0.2,2.3,0.7,3.4c0.5,1.1,1.1,2.1,1.9,3c0.8,0.9,1.7,1.6,2.8,2.2c1.1,0.6,2.3,0.9,3.6,0.9c1.2,0.1,2.3,0,3.4-0.3c1.1-0.3,2.2-0.9,3.4-1.8c0.5-0.4,1.1-0.8,1.7-1.2c0.6-0.4,1.3-0.7,2-0.8c0.7-0.2,1.5-0.1,2.2,0c0.8,0.2,1.6,0.6,2.5,1.4c0.6,0.5,1,1.1,1.3,1.7c0.3,0.7,0.4,1.3,0.4,2.1c0,0.7-0.2,1.4-0.5,2.2c-0.3,0.7-0.8,1.4-1.4,2c-1.8,1.8-3.9,3.2-6.3,4.1c-2.4,0.9-5,1.4-7.6,1.4c-2.9,0-5.6-0.5-8.1-1.6c-2.5-1-4.7-2.5-6.6-4.3c-1.9-1.8-3.4-3.9-4.5-6.4c-1.1-2.5-1.6-5.1-1.6-8c0-2.8,0.5-5.5,1.6-8c1.1-2.5,2.6-4.7,4.5-6.5c1.9-1.8,4.1-3.3,6.6-4.4c2.5-1.1,5.2-1.6,8.1-1.6c2.7,0,5.3,0.5,7.7,1.4c2.4,0.9,4.5,2.3,6.3,4.1c0.6,0.6,1.1,1.3,1.4,2c0.3,0.7,0.5,1.5,0.5,2.2c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.3,1.7c-0.9,0.7-1.7,1.2-2.5,1.4c-0.8,0.2-1.5,0.2-2.2,0c-0.7-0.2-1.4-0.5-2-0.9c-0.6-0.4-1.2-0.8-1.7-1.2c-1.2-0.9-2.3-1.5-3.4-1.7c-1.1-0.3-2.2-0.4-3.4-0.4C235.8,47.9,234.6,48.2,233.6,48.7z"/><path d="M270.7,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M279.2,25.7c0.3-0.7,0.7-1.3,1.2-1.8c0.5-0.5,1.1-0.9,1.8-1.2c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.1,2.2,0.4c0.7,0.3,1.3,0.7,1.8,1.2c0.5,0.5,0.9,1.1,1.2,1.8c0.3,0.7,0.4,1.4,0.4,2.2c0,0.8-0.1,1.5-0.4,2.2c-0.3,0.7-0.7,1.3-1.2,1.8c-0.5,0.5-1.1,0.9-1.8,1.2c-0.7,0.3-1.4,0.4-2.2,0.4c-0.8,0-1.5-0.1-2.2-0.4c-0.7-0.3-1.3-0.7-1.8-1.2c-0.5-0.5-0.9-1.1-1.2-1.8c-0.3-0.7-0.4-1.4-0.4-2.2C278.8,27.1,278.9,26.4,279.2,25.7z M289.8,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.2,0.6,1.6,1.1c0.5,0.5,0.8,1,1.1,1.7c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M303.7,37.1c1.2,0,2.2,0.4,3.1,1.1c0.9,0.7,1.5,1.6,1.8,2.7c1.4-1.2,2.9-2.1,4.5-2.7c1.6-0.7,3.2-1,5-1c2.5,0,4.8,0.5,6.9,1.5s3.9,2.4,5.4,4.2c1.5,1.8,2.7,3.9,3.5,6.3c0.8,2.4,1.3,5,1.3,7.7v15.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.7,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.7,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V56.9c0-1.3-0.2-2.5-0.6-3.6c-0.4-1.1-0.9-2.1-1.5-2.9c-0.7-0.8-1.4-1.5-2.4-2c-0.9-0.5-2-0.7-3.2-0.7c-1.2,0-2.2,0.2-3.2,0.6c-1,0.4-1.8,1-2.5,1.8c-0.7,0.8-1.3,1.7-1.7,2.7c-0.4,1.1-0.6,2.2-0.7,3.5v15.8c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1C302.3,37.2,303,37.1,303.7,37.1z"/><path d="M352.6,62.2c0.8,1.6,2,3,3.6,3.9c1.5,1,3.3,1.5,5.1,1.5c0.8,0,1.4,0,2-0.1c0.6-0.1,1-0.2,1.5-0.4c0.4-0.2,0.8-0.3,1.2-0.6c0.3-0.2,0.7-0.5,1-0.7c0.9-0.7,1.9-1.2,2.7-1.3c0.9-0.1,1.7,0,2.5,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.9,1.1,1.4c0.3,0.5,0.5,1.1,0.7,1.7c0.1,0.6,0.2,1.2,0.1,1.8c-0.1,0.6-0.3,1.2-0.6,1.8c-0.3,0.6-0.8,1.1-1.4,1.6c-0.6,0.5-1.2,1-2,1.4c-0.7,0.5-1.6,0.9-2.6,1.2c-1,0.4-2.1,0.6-3.3,0.9c-1.3,0.2-2.7,0.3-4.3,0.3c-2.8,0-5.5-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.9-1.8-3.3-4-4.4-6.4c-1.1-2.5-1.6-5.1-1.6-7.9s0.5-5.5,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.9-1.8,4-3.3,6.5-4.3c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.8,1.6c2.5,1,4.6,2.5,6.5,4.3c1.8,1.8,3.3,3.9,4.4,6.4c1.1,2.4,1.7,5,1.7,7.8c0,1.5-0.5,2.7-1.4,3.6c-1,0.9-2.2,1.4-3.8,1.4H352.6z M370.8,53.4c-0.7-1.9-1.9-3.4-3.6-4.5c-1.7-1.1-3.6-1.7-5.8-1.7c-1.1,0-2.1,0.2-3.1,0.5c-1,0.3-1.8,0.7-2.6,1.3c-0.8,0.6-1.5,1.2-2.1,2c-0.6,0.8-1.1,1.6-1.4,2.5H370.8z"/></g></g></svg></a>
     <span class="top-sp"></span>
-    <a class="top-link" href="/patient"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Vous êtes patient ?</span></a>
+    <button type="button" class="nav-cta" data-space-menu>
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mon espace
+      <svg class="chev ds-btn-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
   </div>
 </header>
 
 <main class="stage">
   <section>
     <p class="kicker rise">Espace professionnel</p>
-    <h1 class="hero-title rise d1">Votre cabinet,<br><span class="grad">simplement.</span></h1>
+    <h1 class="hero-title"><span class="w"><span style="animation-delay:.05s">Votre</span></span> <span class="w"><span style="animation-delay:.14s">cabinet,</span></span><br><span class="w"><span class="grad" style="animation-delay:.26s">simplement.</span></span></h1>
     <p class="hero-sub rise d2">Agenda, dossiers patients, ordonnances et prise de rendez-vous en ligne, réunis dans un seul espace pensé pour les médecins algériens.</p>
 
-    <div class="visual rise d3" aria-hidden="true">
-      <div class="toast-demo"><i><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></i><div><b>Nouvelle demande</b><span>Réservée en ligne · 11:30</span></div></div>
-      <div class="day">
-        <div class="day-head"><b>Aujourd'hui</b><span>Exemple</span></div>
-        <div class="slot"><time>09:00</time><div><b>Consultation</b><small>Patient confirmé</small></div><span class="tag ok">Arrivé</span></div>
-        <div class="slot"><time>09:30</time><div><b>Suivi CNAS</b><small>Ordonnance à renouveler</small></div><span class="tag ok">Confirmé</span></div>
-        <div class="slot"><time>11:30</time><div><b>Première visite</b><small>Réservé en ligne</small></div><span class="tag new">Nouveau</span></div>
+    <div class="scene" id="scene" aria-hidden="true">
+      <div class="rig" id="rig">
+        <div class="layer l-rx">
+          <div class="rx-head"><b>Ordonnance</b><span>N° 0412</span></div>
+          <div class="rx-line m"></div><div class="rx-line"></div><div class="rx-line s"></div><div class="rx-line m"></div>
+          <div class="rx-sig"><svg viewBox="0 0 110 30"><path d="M4 22c8-14 14-16 16-8s-4 12 2 8 8-14 14-12-2 14 6 10 10-12 16-10 0 10 8 8 14-8 24-6"/></svg></div>
+        </div>
+        <div class="layer l-day">
+          <div class="day-head"><b>Aujourd'hui</b><span>12 rendez-vous</span></div>
+          <div class="slot"><time>09:00</time><div><b>Consultation</b><small>Arrivé · salle 1</small></div><span class="tag ok">Arrivé</span></div>
+          <div class="slot"><time>09:30</time><div><b>Suivi CNAS</b><small>Ordonnance à renouveler</small></div><span class="tag ok">Confirmé</span></div>
+          <div class="now"></div>
+          <div class="slot"><time>10:15</time><div><b>Contrôle tension</b><small>Rappel envoyé</small></div><span class="tag ok">Confirmé</span></div>
+          <div class="slot"><time>11:30</time><div><b>Première visite</b><small>Réservé en ligne</small></div><span class="tag new">Nouveau</span></div>
+        </div>
+        <div class="notifs" id="notifs"></div>
       </div>
+      <span class="example">Illustration</span>
     </div>
-
-    <ul class="points rise d4">
-      <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Rendez-vous en ligne 24 h/24</li>
-      <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Ordonnances en PDF</li>
-      <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>File d'attente par QR code</li>
-    </ul>
   </section>
 
   <section>
     <div class="auth-card">
+      <div class="tabs" role="tablist">
+        <button class="tab active" id="tab-login" role="tab" onclick="switchTab('login')">Connexion</button>
+        <button class="tab" id="tab-register" role="tab" onclick="switchTab('register')">Inscription</button>
+      </div>
+
       <div class="card-header">
         <div class="card-icon" id="card-icon"></div>
         <h2 class="card-title" id="auth-title">Bon retour</h2>
         <p class="card-sub" id="auth-sub">Connectez-vous à votre cabinet.</p>
       </div>
 
-      <div class="tabs" role="tablist">
-        <button class="tab active" id="tab-login" role="tab" onclick="switchTab('login')">Connexion</button>
-        <button class="tab" id="tab-register" role="tab" onclick="switchTab('register')">Inscription</button>
-      </div>
 
       <div class="msg msg-ok" id="msg-ok" role="status"><span></span><span id="msg-ok-text"></span></div>
       <div class="msg msg-err" id="msg-err" role="alert"><span></span><span id="msg-err-text"></span></div>
@@ -653,5 +742,42 @@ window.addEventListener('unhandledrejection', function(e){ console.error('[Login
   document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
 })();
 </script>
+<script>
+(function(){
+  var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var N = [
+    { c:'', t:'Nouvelle demande', s:'Réservée en ligne · 11:30', p:'<rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
+    { c:'ok', t:'Patient arrivé', s:'Salle d’attente · 09:00', p:'<path d="m5 12 5 5 9-10"/>' },
+    { c:'or', t:'Ordonnance envoyée', s:'Dans l’espace du patient', p:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>' }
+  ];
+  var box = document.getElementById('notifs'), k = 0, cur = null;
+  function show(){
+    if (!box) return;
+    var n = N[k++ % N.length], el = document.createElement('div');
+    el.className = 'notif';
+    el.innerHTML = '<i class="'+n.c+'"><svg viewBox="0 0 24 24">'+n.p+'</svg></i><div><b>'+n.t+'</b><span>'+n.s+'</span></div>';
+    box.appendChild(el);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('on'); }); });
+    if (cur){ var old = cur; old.classList.add('out'); setTimeout(function(){ old.remove(); }, 800); }
+    cur = el;
+  }
+  setTimeout(show, 1900);
+  if (!rm) setInterval(function(){ if (!document.hidden) show(); }, 3600);
+
+  var rig = document.getElementById('rig'), scene = document.getElementById('scene');
+  if (rig && scene && !rm && window.matchMedia('(pointer: fine)').matches){
+    var raf = null;
+    window.addEventListener('mousemove', function(e){
+      if (raf) return;
+      raf = requestAnimationFrame(function(){
+        raf = null;
+        var x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
+        rig.style.transform = 'rotateX(' + (7 - y * 6).toFixed(2) + 'deg) rotateY(' + (-12 + x * 8).toFixed(2) + 'deg) rotateZ(1deg)';
+      });
+    }, { passive:true });
+  }
+})();
+</script>
+<script src="docline-space.js?v=3" defer></script>
 </body>
 </html>
