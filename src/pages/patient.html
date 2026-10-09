@@ -537,8 +537,8 @@ body.in-app{background:var(--bg)}
 @keyframes drift1{to{transform:translate(-9vw,8vh) scale(1.12)}}
 @keyframes drift2{to{transform:translate(12vw,-7vh) scale(.92)}}
 @keyframes drift3{to{transform:translate(-14vw,-10vh) scale(1.15)}}
-.grid-lines{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(76,29,149,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(76,29,149,.05) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 30% 45%,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse 70% 60% at 30% 45%,#000 20%,transparent 75%)}
-body.in-app .aurora,body.in-app .grid-lines{display:none}
+
+body.in-app .aurora{display:none}
 .guest:before{display:none}
 .g-title .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
 .g-title .w>span{display:inline-block;transform:translateY(105%);animation:wordUp .9s var(--ease) forwards}
@@ -552,13 +552,12 @@ body.in-app .aurora,body.in-app .grid-lines{display:none}
 .btn-primary{overflow:hidden}
 .btn-primary:after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-18deg);transition:left .8s var(--ease);pointer-events:none}
 .btn-primary:hover:after{left:120%}
-@media(max-width:900px){.grid-lines{-webkit-mask-image:radial-gradient(ellipse 90% 50% at 50% 20%,#000 10%,transparent 75%);mask-image:radial-gradient(ellipse 90% 50% at 50% 20%,#000 10%,transparent 75%)}}
+
 @media(prefers-reduced-motion:reduce){.g-title .w>span,.g-title .grad{transform:none!important}}
 </style>
 </head>
 <body>
 <div class="aurora" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
-<div class="grid-lines" aria-hidden="true"></div>
 
 <header class="top" id="top">
   <div class="top-in">
