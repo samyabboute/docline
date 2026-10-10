@@ -195,38 +195,6 @@ body{padding-top:92px} /* 56px banner + 36px admin tools bar */
     <span class="atb-badge">⚙ Non visibles par le médecin</span>
   </div>
   <div class="atb-body">
-    <!-- Générateur NPS -->
-    <div class="atb-card">
-      <div class="atb-section-title">🎯 Générateur de feedback NPS</div>
-      <p style="font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:12px;line-height:1.5">Injecte des réponses NPS réalistes pour tester les KPIs Symphony sans données réelles.</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div>
-          <div class="atb-label">Profil de distribution</div>
-          <select id="nps-preset" onchange="updateNpsDesc()" class="atb-select">
-            <option value="excellent">Excellent — NPS ~ +65</option>
-            <option value="bon" selected>Bon — NPS ~ +38 (DZ réaliste)</option>
-            <option value="moyen">Moyen — NPS ~ +12</option>
-            <option value="critique">Critique — NPS ~ −15</option>
-            <option value="custom">Aléatoire pur</option>
-          </select>
-        </div>
-        <div>
-          <div class="atb-label">Nombre de réponses</div>
-          <select id="nps-count" class="atb-select">
-            <option value="5">5 réponses</option>
-            <option value="15" selected>15 réponses</option>
-            <option value="30">30 réponses</option>
-            <option value="50">50 réponses</option>
-          </select>
-        </div>
-      </div>
-      <div id="nps-preset-desc" class="atb-desc">Profil réaliste DZ : promoteurs majoritaires (9–10), passifs modérés (7–8), peu de détracteurs.</div>
-      <button onclick="generateNPS()" id="nps-gen-btn" class="atb-btn">
-        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Générer le feedback NPS
-      </button>
-      <div id="nps-gen-status" class="atb-status"></div>
-    </div>
     <!-- Infos rapides -->
     <div class="atb-card">
       <div class="atb-section-title">📋 Contexte admin</div>
@@ -238,7 +206,7 @@ body{padding-top:92px} /* 56px banner + 36px admin tools bar */
       </div>
       <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
         <button onclick="openCrm()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:6px 12px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir CRM</button>
-        <button onclick="window.open('admin-users.html','_blank')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:6px 12px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit">Gestion Users</button>
+        <button onclick="window.open('/symphony-users','_blank')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:6px 12px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit">Gestion Users</button>
       </div>
     </div>
   </div>
@@ -373,25 +341,45 @@ function avatarGrad(name){
 function initials(name){ return (name||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
 function openCrm(){ window.open((typeof ghpNav==='function'?ghpNav('/symphony-crm'):'/symphony-crm')+'?uid='+uid,'_blank'); }
 
-(async()=>{
-  if(!uid){ document.getElementById('loading').innerHTML='<p style="text-align:center;padding:60px;color:var(--danger)">UID manquant</p>'; return; }
+function showPicker(){
+  document.getElementById('sim-doctor-name').textContent = 'un médecin (à choisir ci-dessous)';
+  document.getElementById('loading').innerHTML =
+    '<div style="max-width:640px;margin:40px auto;padding:0 16px">' +
+    '<h1 style="font-size:1.25rem;font-weight:800;margin-bottom:6px">Simulation</h1>' +
+    '<p style="color:var(--text-muted);font-size:.875rem;margin-bottom:16px">Voir l\u2019espace d\u2019un médecin tel qu\u2019il le voit, en lecture seule. Choisissez le médecin.</p>' +
+    '<input id="sim-q" placeholder="Nom, email ou spécialité" autocomplete="off" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);font:inherit;font-size:.9375rem;margin-bottom:12px">' +
+    '<div id="sim-res" style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden"></div></div>';
+  const run = async q => {
+    let req = _sb.from('profiles').select('id,full_name,first_name,last_name,email,specialty,wilaya').order('created_at',{ascending:false}).limit(20);
+    if (q) { const t = '%' + q.replace(/[%,()]/g,' ') + '%'; req = req.or('full_name.ilike.'+t+',email.ilike.'+t+',specialty.ilike.'+t); }
+    const { data, error } = await req;
+    const box = document.getElementById('sim-res');
+    if (error || !data || !data.length) { box.innerHTML = '<p style="padding:18px;color:var(--text-muted);font-size:.875rem">Aucun médecin trouvé.</p>'; return; }
+    box.innerHTML = data.map(d => '<a href="?uid=' + encodeURIComponent(d.id) + '" style="display:flex;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit">' +
+      '<span><b style="font-size:.875rem">' + esc(doctorName(d)) + '</b><br><span style="color:var(--text-muted);font-size:.75rem">' + esc(d.email||'') + '</span></span>' +
+      '<span style="color:var(--text-muted);font-size:.75rem">' + esc([d.specialty,d.wilaya].filter(Boolean).join(' · ')) + '</span></a>').join('');
+  };
+  let t; document.getElementById('sim-q').addEventListener('input', e => { clearTimeout(t); const v = e.target.value.trim(); t = setTimeout(() => run(v), 250); });
+  run('');
+}
 
+(async()=>{
   // Auth check
   const { data:{session} } = await _sb.auth.getSession();
   if(!session){ location.href=ghpNav('/login'); return; }
+  if(!uid){ showPicker(); return; }
 
   // Load all data in parallel
-  const [docRes, subRes, rdvRes, patRes] = await Promise.all([
+  const [docRes, subRes, hubRes] = await Promise.all([
     _sb.from('profiles').select('*').eq('id', uid).single(),
     _sb.from('subscriptions').select('*').eq('user_id', uid).maybeSingle(),
-    _sb.from('appointments').select('*').eq('doctor_id', uid).order('requested_date',{ascending:false}).limit(20),
-    _sb.from('clients').select('*').eq('user_id', uid).order('created_at',{ascending:false}).limit(10),
+    _sb.rpc('doctor_hub', { p_doctor: uid }),
   ]);
 
   const doc = docRes.data;
   const sub = subRes.data;
-  const rdvs = rdvRes.data || [];
-  const patients = patRes.data || [];
+  // Secret médical : l'équipe ne voit que des totaux, jamais les patients ni leurs rendez-vous
+  const act = (hubRes.data && hubRes.data.activity) || null;
 
   if(!doc){ document.getElementById('loading').innerHTML='<p style="text-align:center;padding:60px;color:var(--danger)">Médecin introuvable</p>'; return; }
 
@@ -446,10 +434,9 @@ function openCrm(){ window.open((typeof ghpNav==='function'?ghpNav('/symphony-cr
   _fillAdminContext(doc, isPro ? (sub.plan||'PRO').toUpperCase() : (isTrial ? 'TRIAL' : 'FREE'));
 
   // KPIs
-  document.getElementById('kpi-patients').textContent = patients.length || '0';
-  document.getElementById('kpi-rdv').textContent = rdvs.length || '0';
-  const now = new Date(); const m0 = new Date(now.getFullYear(), now.getMonth(), 1);
-  document.getElementById('kpi-rdv-month').textContent = rdvs.filter(r=>new Date(r.start_time||r.date)>=m0).length || '0';
+  document.getElementById('kpi-patients').textContent = act ? act.patients : '\u2014';
+  document.getElementById('kpi-rdv').textContent = act ? act.appointments : '\u2014';
+  document.getElementById('kpi-rdv-month').textContent = act ? act.appointments_30d : '\u2014';
   document.getElementById('kpi-public').textContent = doc.is_public ? 'Visible' : 'Masqué';
 
   // Profile rows
@@ -471,38 +458,9 @@ function openCrm(){ window.open((typeof ghpNav==='function'?ghpNav('/symphony-cr
     `<div class="profile-row"><span class="profile-key">${k}</span><span class="profile-val">${esc(String(v))}</span></div>`
   ).join('');
 
-  // RDV list
-  const rdvEl = document.getElementById('rdv-list');
-  if(!rdvs.length){
-    rdvEl.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><p>Aucun rendez-vous</p></div>';
-  } else {
-    const statBadge = s => s==='confirmed'?'<span class="badge badge-success">Confirmé</span>':s==='pending'?'<span class="badge badge-warning">En attente</span>':'<span class="badge badge-neutral">'+esc(s||'?')+'</span>';
-    rdvEl.innerHTML = rdvs.slice(0,10).map(r=>`
-      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border)">
-        <div style="width:36px;height:36px;background:var(--brand-light);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.6875rem;font-weight:700;color:var(--brand)">${new Date(r.start_time||r.date||Date.now()).getDate()}</div>
-        <div style="flex:1">
-          <div style="font-weight:600;font-size:.8125rem">${esc(r.patient_name||r.patient_id||'—')}</div>
-          <div style="font-size:.75rem;color:var(--text-muted)">${fmtDate(r.start_time||r.date)} ${r.start_time?'à '+fmtTime(r.start_time):''}</div>
-        </div>
-        ${statBadge(r.status)}
-      </div>
-    `).join('');
-  }
-
-  // Patients table
-  const pTbody = document.getElementById('patients-tbody');
-  if(!patients.length){
-    pTbody.innerHTML='<tr><td colspan="4"><div class="empty"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>Aucun patient</p></div></td></tr>';
-  } else {
-    pTbody.innerHTML = patients.map(p=>`
-      <tr>
-        <td style="font-weight:600">${esc((p.first_name||'')+' '+(p.last_name||''))||'—'}</td>
-        <td style="color:var(--text-muted)">${esc(p.phone||'—')}</td>
-        <td style="color:var(--text-muted)">${fmtDate(p.last_visit||p.created_at)}</td>
-        <td><span class="badge badge-success">Actif</span></td>
-      </tr>
-    `).join('');
-  }
+  // Secret médical : listes jamais chargées
+  document.getElementById('rdv-list').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><p>Secret médical : les patients et leurs rendez-vous ne sont pas visibles par l\u2019équipe Docline.</p></div>';
+  document.getElementById('patients-tbody').innerHTML = '<tr><td colspan="4">' + '<div class="empty"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><p>Secret médical : les patients et leurs rendez-vous ne sont pas visibles par l\u2019équipe Docline.</p></div>' + '</td></tr>';
 
   // Notifications
   const notifEl = document.getElementById('notifs');
@@ -605,6 +563,8 @@ function _randDate(daysBack) {
 }
 
 async function generateNPS() {
+  // Désactivé : l'injection de faux avis dans les données de production est interdite
+  return;
   if (!uid) { alert('UID médecin requis'); return; }
   const btn = document.getElementById('nps-gen-btn');
   const status = document.getElementById('nps-gen-status');
