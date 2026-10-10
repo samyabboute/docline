@@ -449,37 +449,8 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:var(--ink);letter-spacin
 
       <!-- VIREMENT FORM -->
       <div id="form-virement" class="pm-form">
-        <div class="pm-rib-box">
-          <strong>Coordonnées bancaires — Virements vers</strong>
-          <div class="pm-rib-row">
-            <span>Titulaire</span>
-            <div class="pm-rib-row-inner">
-              <span>ABBOUTE SAMY</span>
-              <button class="pm-copy-btn" title="Copier" onclick="copyRib('ABBOUTE SAMY')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-            </div>
-          </div>
-          <div class="pm-rib-row">
-            <span>Banque</span>
-            <div class="pm-rib-row-inner">
-              <span>BNA — Alger Centre</span>
-              <button class="pm-copy-btn" title="Copier" onclick="copyRib('BNA - Alger Centre')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-            </div>
-          </div>
-          <div class="pm-rib-row">
-            <span>RIB</span>
-            <div class="pm-rib-row-inner">
-              <span>002 00001 0000000000 00</span>
-              <button class="pm-copy-btn" title="Copier" onclick="copyRib('002 00001 0000000000 00')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-            </div>
-          </div>
-          <div class="pm-rib-row">
-            <span>CCP</span>
-            <div class="pm-rib-row-inner">
-              <span>1234567 / Clé 00</span>
-              <button class="pm-copy-btn" title="Copier" onclick="copyRib('1234567')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-            </div>
-          </div>
-        </div>
+        <!-- Coordonnées lues dans les réglages (app_settings.billing_bank) : jamais de valeur inventée -->
+        <div class="pm-rib-box" id="pm-rib"><strong>Coordonnées bancaires</strong><div style="color:var(--ink3);line-height:1.5">Chargement…</div></div>
         <div class="pm-field">
           <label>N° de virement ou référence (optionnel)</label>
           <input type="text" id="virement-ref" placeholder="Ex : VIR-20240419-1234">
@@ -526,6 +497,27 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:var(--ink);letter-spacin
 
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+(function loadBank(){
+  var box = document.getElementById('pm-rib');
+  if (!box) return;
+  function esc(v){ return String(v).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function row(label, val){
+    return '<div class="pm-rib-row"><span>' + label + '</span><div class="pm-rib-row-inner"><span>' + esc(val) + '</span>' +
+      '<button class="pm-copy-btn" type="button" title="Copier" data-copy="' + esc(val) + '"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>';
+  }
+  _supa.from('app_settings').select('value').eq('key', 'billing_bank').maybeSingle().then(function(r){
+    var b = r && r.data && r.data.value;
+    if (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = null; } }
+    if (!b || !(b.rib || b.ccp)) {
+      box.innerHTML = '<strong>Coordonnées bancaires</strong><div style="color:var(--ink3);line-height:1.5">Envoyez votre demande : notre équipe vous communique les coordonnées de virement par email avant tout paiement.</div>';
+      return;
+    }
+    box.innerHTML = '<strong>Coordonnées bancaires, virements vers</strong>' +
+      (b.holder ? row('Titulaire', b.holder) : '') + (b.bank ? row('Banque', b.bank) : '') +
+      (b.rib ? row('RIB', b.rib) : '') + (b.ccp ? row('CCP', b.ccp + (b.ccp_key ? ' / Clé ' + b.ccp_key : '')) : '');
+    box.querySelectorAll('[data-copy]').forEach(function(btn){ btn.onclick = function(){ copyRib(btn.getAttribute('data-copy')); }; });
+  });
+})();
 var _billing = 'monthly';
 var _selectedMethod = 'virement';
 var _pendingPlan = null;
@@ -649,8 +641,8 @@ async function submitManual(method) {
         var { data: upData, error: upErr } = await _supa.storage.from('payment-proofs').upload(path, file, { upsert: true });
         if (upErr) { console.warn('Upload preuve échoué:', upErr.message); }
         else {
-          var { data: urlData } = _supa.storage.from('payment-proofs').getPublicUrl(path);
-          proofUrl = urlData ? urlData.publicUrl : null;
+          // Stockage privé : on garde le chemin, l'équipe l'ouvre par une URL signée
+          proofUrl = 'payment-proofs/' + path;
         }
       }
     }
