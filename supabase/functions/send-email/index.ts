@@ -370,6 +370,13 @@ serve(async (req) => {
     return new Response(JSON.stringify({ error: "Template not found or inactive" }), { status: 404, headers: CORS });
   }
 
+  // Envoyer un modèle à quelqu'un d'autre que soi est réservé à l'équipe
+  if (payload?.to && String(payload.to).toLowerCase() !== String(userEmail ?? "").toLowerCase()) {
+    const { data: isStaff } = await supabase.rpc("symphony_is_staff");
+    if (isStaff !== true) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: CORS });
+    vars.first_name = String(payload.first_name ?? "Docteur");
+  }
+
   const subject = interpolate(tmpl.subject, vars);
   const heading = interpolate(tmpl.heading, vars);
   const intro   = interpolate(tmpl.intro_text, vars);

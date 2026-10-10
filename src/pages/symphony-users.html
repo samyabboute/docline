@@ -1121,7 +1121,7 @@ async function grantTrial(userId, email, months) {
       body: JSON.stringify({ target_user_id: userId, plan: 'pro', billing: 'monthly', months: months, is_trial: true })
     });
     const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || 'Erreur activation');
+    if (!resp.ok) throw new Error(data.message || ({ FORBIDDEN:'Votre poste ne permet pas cette action.', REQUEST_NOT_FOUND:'Demande introuvable.' })[data.error] || data.error || 'Erreur activation');
     // Also mark trial_ends_at in profile
     await _supa.from('profiles').update({
       trial_ends_at: data.expires_at,
@@ -1299,7 +1299,7 @@ async function approvePayRequest(requestId, userId, plan, billing) {
       body: JSON.stringify({ target_user_id: userId, plan, billing, request_id: requestId })
     });
     const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || 'Erreur activation');
+    if (!resp.ok) throw new Error(data.message || ({ FORBIDDEN:'Votre poste ne permet pas cette action.', REQUEST_NOT_FOUND:'Demande introuvable.' })[data.error] || data.error || 'Erreur activation');
     Toast.success('Plan activé', 'Expiration : ' + formatDate(data.expires_at));
     loadPaymentRequests();
   } catch(e) {
@@ -1309,10 +1309,11 @@ async function approvePayRequest(requestId, userId, plan, billing) {
 
 async function rejectPayRequest(requestId) {
   if (!confirm('Rejeter cette demande de paiement ?')) return;
-  const { error } = await _supa.from('payment_requests')
+  const { data: done, error } = await _supa.from('payment_requests')
     .update({ status: 'rejected', updated_at: new Date().toISOString() })
-    .eq('id', requestId);
+    .eq('id', requestId).eq('status', 'pending').select('id');
   if (error) { Toast.error('Erreur', error.message); return; }
+  if (!done || !done.length) { Toast.error('Rien n’a changé', 'Demande déjà traitée ou poste non autorisé.'); return; }
   Toast.info('Demande rejetée', '');
   loadPaymentRequests();
 }
@@ -1348,7 +1349,7 @@ async function activatePlanManual() {
       body: JSON.stringify({ target_user_id: userId, plan, billing: months >= 12 ? 'yearly' : 'monthly', months })
     });
     const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || 'Erreur activation');
+    if (!resp.ok) throw new Error(data.message || ({ FORBIDDEN:'Votre poste ne permet pas cette action.', REQUEST_NOT_FOUND:'Demande introuvable.' })[data.error] || data.error || 'Erreur activation');
     showActMsg('Plan ' + plan + ' activé jusqu\'au ' + formatDate(data.expires_at), true);
     await load();
   } catch(e) {

@@ -6,95 +6,108 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
+// Moyen de paiement d'une demande → valeur acceptée par subscriptions.payment_method
+const SUB_METHOD: Record<string, string> = { virement: "transfer", cash: "cash", cib: "online", edahabia: "online", baridimob: "online" };
+
+// Trois cas :
+//  - request_id : validation d'un paiement reçu (permission payments.decide) → abonnement payé,
+//    demande approuvée, facture et paiement inscrits au registre par la base
+//  - plan "free" : retour au gratuit (doctors.edit)
+//  - sinon : accès offert sans paiement (doctors.edit), jamais marqué comme payé
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
-
   const jwt = req.headers.get("Authorization")?.replace("Bearer ", "");
-  if (!jwt) return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), { status: 401, headers: CORS });
+  if (!jwt) return json({ error: "UNAUTHORIZED" }, 401);
 
   try {
-    const SUPER_ADMIN = Deno.env.get("ADMIN_EMAIL") ?? "samyabboute5@gmail.com";
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-
-    // Verify caller is admin
-    const caller = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: `Bearer ${jwt}` } } }
-    );
+    const caller = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: `Bearer ${jwt}` } } });
     const { data: { user } } = await caller.auth.getUser();
-    if (!user) return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), { status: 401, headers: { ...CORS, "Content-Type": "application/json" } });
+    if (!user) return json({ error: "UNAUTHORIZED" }, 401);
 
-    if (user.email !== SUPER_ADMIN) {
-      const { data: roleRow } = await admin.from("admin_roles").select("role").eq("email", user.email).single();
-      if (!roleRow) return new Response(JSON.stringify({ error: "FORBIDDEN" }), { status: 403, headers: { ...CORS, "Content-Type": "application/json" } });
-    }
+    const { target_user_id, plan, months = 1, is_trial = false, request_id = null } = await req.json();
+    if (!target_user_id || !plan) return json({ error: "MISSING_FIELDS" }, 400);
+    if (!["free", "pro", "clinic"].includes(plan)) return json({ error: "INVALID_PLAN" }, 400);
 
-    const { target_user_id, plan, billing = "monthly", months = 1, is_trial = false } = await req.json();
-
-    if (!target_user_id || !plan) {
-      return new Response(JSON.stringify({ error: "MISSING_FIELDS" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
-    }
-
-    // Accept 'pro' and 'clinic' (schema allows free/pro/clinic)
-    const validPlans = ["free", "pro", "clinic"];
-    if (!validPlans.includes(plan)) {
-      return new Response(JSON.stringify({ error: "INVALID_PLAN" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
-    }
+    const perm = request_id ? "payments.decide" : "doctors.edit";
+    const { data: allowed } = await caller.rpc("symphony_can", { p_perm: perm });
+    if (allowed !== true) return json({ error: "FORBIDDEN" }, 403);
 
     const now = new Date();
-    const trialEnd = new Date(now);
-    if (plan !== "free") trialEnd.setMonth(trialEnd.getMonth() + Number(months));
+    const { data: current } = await admin.from("subscriptions").select("expires_at,plan").eq("user_id", target_user_id).maybeSingle();
 
-    // trial_end is the correct column name (schema: trial_end timestamptz)
-    const upsertData: Record<string, unknown> = {
-      user_id:    target_user_id,
-      plan,
-      status:     is_trial ? "trialing" : (plan === "free" ? "active" : "active"),
-      updated_at: now.toISOString(),
-    };
-
-    if (plan !== "free") {
-      upsertData.trial_end         = trialEnd.toISOString();
-      upsertData.current_period_start = now.toISOString();
-      upsertData.current_period_end   = trialEnd.toISOString();
-    } else {
-      upsertData.trial_end = null;
+    if (plan === "free") {
+      const { error } = await admin.from("subscriptions").upsert({
+        user_id: target_user_id, plan: "free", status: "active", payment_status: null, expires_at: null,
+        trial_end_date: null, invoice_notes: null, updated_at: now.toISOString(),
+      }, { onConflict: "user_id" });
+      if (error) throw error;
+      await admin.from("kyc_audit_log").insert({ doctor_id: target_user_id, action: "set_plan", reviewer_id: user.id, note: "free" });
+      return json({ ok: true, mode: "free", expires_at: null });
     }
 
-    // billing column may not exist in schema — only set if provided and plan is paid
-    if (plan !== "free" && billing) {
-      upsertData.billing = billing;
+    let n = Math.round(Number(months));
+    let request: Record<string, unknown> | null = null;
+    if (request_id) {
+      const { data: r } = await admin.from("payment_requests").select("*").eq("id", request_id).maybeSingle();
+      if (!r || r.user_id !== target_user_id) return json({ error: "REQUEST_NOT_FOUND" }, 404);
+      if (r.status !== "pending") return json({ error: "REQUEST_ALREADY_PROCESSED", message: "Cette demande a déjà été traitée." }, 409);
+      request = r;
+      n = r.billing === "yearly" ? 12 : 1;
+    }
+    if (!(n >= 1 && n <= 24)) return json({ error: "DURATION_INVALID" }, 400);
+
+    // Un renouvellement prolonge l'abonnement en cours au lieu de l'écraser
+    const start = current?.expires_at && new Date(current.expires_at as string) > now && current.plan === plan
+      ? new Date(current.expires_at as string) : now;
+    const end = new Date(start); end.setMonth(end.getMonth() + n);
+    const interval = n >= 12 ? "year" : "month";
+
+    if (request) {
+      // La demande passe d'abord en « approuvée » : la base s'en sert pour le montant inscrit au registre
+      const { error: rErr } = await admin.from("payment_requests")
+        .update({ status: "approved", updated_at: now.toISOString() }).eq("id", request_id).eq("status", "pending");
+      if (rErr) throw rErr;
+      const { error } = await admin.from("subscriptions").upsert({
+        user_id: target_user_id, plan, status: "active", interval, billing: n >= 12 ? "yearly" : "monthly",
+        payment_status: "paid", paid_at: now.toISOString(), payment_method: SUB_METHOD[request.method as string] ?? null,
+        invoice_notes: null, started_at: start.toISOString(), expires_at: end.toISOString(),
+        current_period_start: start.toISOString(), current_period_end: end.toISOString(), updated_at: now.toISOString(),
+      }, { onConflict: "user_id" });
+      if (error) throw error;
+      await admin.from("profiles").update({ is_active: true, plan, plan_interval: interval }).eq("id", target_user_id);
+      await admin.from("kyc_audit_log").insert({ doctor_id: target_user_id, action: "approve_payment", reviewer_id: user.id,
+        note: `${plan} ${n} mois · demande ${request_id}` });
+      return json({ ok: true, mode: "payment", expires_at: end.toISOString() });
     }
 
-    const { error } = await admin.from("subscriptions").upsert(upsertData, { onConflict: "user_id" });
+    // Accès offert : jamais marqué comme payé
+    const { error } = await admin.from("subscriptions").upsert({
+      user_id: target_user_id, plan, status: "active", interval, payment_status: "complimentary", invoice_notes: "admin_grant",
+      started_at: start.toISOString(), expires_at: end.toISOString(), trial_end_date: is_trial ? end.toISOString() : null,
+      current_period_start: start.toISOString(), current_period_end: end.toISOString(), updated_at: now.toISOString(),
+    }, { onConflict: "user_id" });
     if (error) throw error;
+    await admin.from("profiles").update({ trial_ends_at: end.toISOString(), trial_granted_months: n }).eq("id", target_user_id);
+    await admin.from("kyc_audit_log").insert({ doctor_id: target_user_id, action: "set_plan", reviewer_id: user.id,
+      note: `${plan} offert ${n} mois` });
 
-    // Auto-send trial_granted email when a trial is activated (best-effort)
-    if (is_trial && plan !== "free") {
+    if (is_trial) {
       try {
-        const SEND_EMAIL_URL = Deno.env.get("SUPABASE_URL")! + "/functions/v1/send-email";
-        await fetch(SEND_EMAIL_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${jwt}`,
-          },
-          body: JSON.stringify({ type: "trial_granted", payload: {} }),
+        const { data: doc } = await admin.from("profiles").select("email,first_name").eq("id", target_user_id).maybeSingle();
+        if (doc?.email) await fetch(Deno.env.get("SUPABASE_URL")! + "/functions/v1/send-email", {
+          method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
+          body: JSON.stringify({ type: "trial_granted", payload: { to: doc.email, first_name: doc.first_name ?? "Docteur" } }),
         });
-      } catch (_) { /* non-blocking */ }
+      } catch (_) { /* envoi non bloquant */ }
     }
-
-    return new Response(
-      JSON.stringify({ ok: true, expires_at: trialEnd.toISOString() }),
-      { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return json({ ok: true, mode: "grant", expires_at: end.toISOString() });
   } catch (e) {
     console.error("activate-plan error:", e);
-    return new Response(
-      JSON.stringify({ error: "INTERNAL_ERROR", message: String(e) }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return json({ error: "INTERNAL_ERROR", message: String(e) }, 500);
   }
 });
