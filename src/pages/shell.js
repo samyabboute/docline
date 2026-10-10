@@ -92,6 +92,8 @@ Shell = (function () {
 
     // ── Revenus & Finance
     { section: 'Revenus & Finance' },
+    { href:'/symphony-ledger',   key:'symphony-ledger',   label:'LedgerDesk',
+      icon:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 14h4"/>' },
     { href:'/symphony-revenue',  key:'symphony-revenue',  label:'Revenus & Finance',
       icon:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/>' },
 

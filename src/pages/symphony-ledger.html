@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LedgerDesk · Docline Symphony</title>
+<script src="config.js?v=3"></script>
+<script src="shell.js?v=14"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#4C1D95">
+<style>
+:root{--lg-line:rgba(13,5,32,.07);--lg-soft:#F4F2FF;--lg-debit:#B91C1C;--lg-credit:#047857}
+.lg-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.lg-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
+.lg-title{font-size:26px;font-weight:900;letter-spacing:-.7px;line-height:1.1}
+.lg-sub{font-size:13.5px;color:var(--text-3);margin-top:6px;max-width:62ch}
+.lg-grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--lg-line);border-radius:16px}
+.side{padding:14px;position:sticky;top:70px;display:flex;flex-direction:column;gap:12px}
+.side input{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--lg-line);font:500 14px Inter,sans-serif;color:var(--text);background:var(--surface);outline:none}
+.side input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.1)}
+.res{display:flex;flex-direction:column;max-height:46vh;overflow-y:auto}
+.res button{display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;padding:10px;border:none;border-radius:10px;background:none;cursor:pointer;font-family:inherit}
+.res button:hover,.res button.on{background:var(--lg-soft)}
+.res .n{font-size:13.5px;font-weight:650;color:var(--text)}
+.res .m{font-size:11.5px;color:var(--text-3)}
+.amt{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;white-space:nowrap}
+.amt.due{color:var(--lg-debit)}.amt.cr{color:var(--lg-credit)}
+.sec{font-size:11.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3)}
+.pend{display:flex;flex-direction:column;gap:8px}
+.pend-it{padding:10px;border-radius:12px;background:#FFFBEB;font-size:12.5px;line-height:1.45;color:#78350F}
+.pend-it b{color:#451A03}
+.pend-it .acts{display:flex;gap:6px;margin-top:8px}
+.main{padding:22px;display:flex;flex-direction:column;gap:22px;min-height:420px}
+.empty{padding:60px 20px;text-align:center;color:var(--text-3);font-size:14px}
+.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+.acc-top{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.acc-name{font-size:22px;font-weight:850;letter-spacing:-.5px}
+.acc-meta{font-size:13px;color:var(--text-3);margin-top:4px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.acc-meta a{color:var(--brand)}
+.bal{text-align:right;margin-left:auto}
+.bal .k{font-size:12px;color:var(--text-3);font-weight:600}
+.bal .v{font-size:30px;font-weight:900;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.bal .v.due{color:var(--lg-debit)}.bal .v.cr{color:var(--lg-credit)}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.fact{padding:12px 14px;border-radius:12px;background:var(--lg-soft)}
+.fact .k{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3)}
+.fact .v{font-size:14px;font-weight:700;margin-top:4px}
+.fact .v.late{color:var(--lg-debit)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.b{padding:9px 14px;border-radius:10px;border:1px solid var(--lg-line);background:var(--surface);font:650 13px Inter,sans-serif;color:var(--text);cursor:pointer;white-space:nowrap}
+.b:hover{border-color:var(--brand);color:var(--brand)}
+.b.p{background:#0D0520;border-color:#0D0520;color:#fff}
+.b.p:hover{background:var(--brand);border-color:var(--brand);color:#fff}
+.b.sm{padding:6px 10px;font-size:12px}
+.b:disabled{opacity:.45;cursor:not-allowed}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--lg-line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3);padding:10px 12px;background:#FCFBFF;border-bottom:1px solid var(--lg-line)}
+td{padding:10px 12px;border-bottom:1px solid var(--lg-line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kind{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.k-invoice{background:#FEF2F2;color:#B91C1C}.k-payment{background:#ECFDF5;color:#047857}.k-credit{background:#EFF6FF;color:#1D4ED8}.k-adjustment{background:#F5F3FF;color:#6D28D9}
+.ref{font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text-2)}
+.muted{color:var(--text-3);font-size:12px}
+.list{display:flex;flex-direction:column}
+.li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--lg-line);font-size:13px;align-items:center;flex-wrap:wrap}
+.li:last-child{border-bottom:none}
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:650;background:var(--lg-soft);color:var(--text-2)}
+.pill.ok{background:#ECFDF5;color:#047857}.pill.wait{background:#FFFBEB;color:#B45309}.pill.no{background:#FEF2F2;color:#B91C1C}
+.md-wrap{position:fixed;inset:0;z-index:950;display:none;align-items:flex-start;justify-content:center;padding:5vh 16px 16px;background:rgba(13,5,32,.4);backdrop-filter:blur(4px);overflow-y:auto}
+.md-wrap.on{display:flex}
+.md{width:min(560px,100%);background:var(--surface);border-radius:20px;box-shadow:0 30px 80px rgba(13,5,32,.25);overflow:hidden}
+.md.wide{width:min(860px,100%)}
+.md-h{padding:22px 24px 4px}
+.md-t{font-size:19px;font-weight:800;letter-spacing:-.4px}
+.md-s{font-size:13px;color:var(--text-3);margin-top:3px;line-height:1.5}
+.md-b{padding:16px 24px 20px;display:flex;flex-direction:column;gap:14px}
+.md-f{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;padding:16px 24px;border-top:1px solid var(--lg-line);background:#FCFBFF}
+.fld label{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+.fld input,.fld select,.fld textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--lg-line);font:500 14px Inter,sans-serif;color:var(--text);background:var(--surface);outline:none}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--brand)}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hint{font-size:12.5px;color:var(--text-3);line-height:1.5}
+.warn{padding:12px 14px;border-radius:12px;background:#FFFBEB;color:#78350F;font-size:13px;line-height:1.5}
+iframe.doc{width:100%;height:60vh;border:1px solid var(--lg-line);border-radius:12px;background:#fff}
+.lg-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#0D0520;color:#fff;padding:11px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all .25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
+.lg-toast.on{opacity:1;transform:translateX(-50%)}.lg-toast.err{background:#B91C1C}
+.lg-grid>*{min-width:0}
+@media (max-width:980px){.lg-grid{grid-template-columns:minmax(0,1fr)}.side{position:static}.facts{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.bal{text-align:left}.fld-row{grid-template-columns:1fr}.md-wrap{padding:0;align-items:stretch}.md{border-radius:0;min-height:100%}}
+</style>
+<script src="loader.js?v=2"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="shell-page">
+      <div class="page-wrap">
+        <div class="lg-head">
+          <div>
+            <div class="lg-eyebrow">Symphony · Facturation</div>
+            <h1 class="lg-title">LedgerDesk</h1>
+            <p class="lg-sub">Le compte de chaque médecin : factures, paiements, avoirs et ajustements sur douze mois, échéances, relevés et bordereaux de versement.</p>
+          </div>
+        </div>
+        <div class="lg-grid">
+          <aside class="card side">
+            <input id="q" type="search" placeholder="Nom, email ou téléphone du médecin" autocomplete="off" aria-label="Rechercher un médecin">
+            <div class="res" id="res"></div>
+            <div id="pend-box" hidden><div class="sec" style="margin-bottom:8px">Prolongations à valider</div><div class="pend" id="pend"></div></div>
+          </aside>
+          <section class="card main" id="acc"><div class="empty"><strong>Choisissez un médecin</strong>Recherchez par nom, email ou téléphone pour ouvrir son compte.</div></section>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="md-wrap" id="md"><div class="md" id="md-box" role="dialog" aria-modal="true" aria-labelledby="md-t">
+  <div class="md-h"><div class="md-t" id="md-t"></div><div class="md-s" id="md-s"></div></div>
+  <div class="md-b" id="md-b"></div>
+  <div class="md-f" id="md-f"></div>
+</div></div>
+<div class="lg-toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+var A = null, current = null;
+var KIND = { invoice:'Facture', payment:'Paiement', credit:'Avoir', adjustment:'Ajustement' };
+var METHOD = { virement:'Virement bancaire', ccp:'Versement CCP', baridimob:'BaridiMob', cib:'Carte CIB', edahabia:'Edahabia', especes:'Espèces', cheque:'Chèque', chargily:'Chargily', autre:'Autre' };
+var EXT = { pending:['En attente','wait'], approved:['Validée','ok'], rejected:['Refusée','no'], cancelled:['Annulée',''] };
+var ERR = { FORBIDDEN:'Votre poste ne permet pas cette action.', AMOUNT_INVALID:'Indiquez un montant positif en dinars.', METHOD_REQUIRED:'Indiquez le moyen de paiement.',
+  NOTE_REQUIRED:'Une justification d’au moins 5 caractères est obligatoire.', REASON_REQUIRED:'Indiquez la raison (au moins 5 caractères).',
+  DATE_INVALID:'La nouvelle échéance doit être après l’échéance actuelle.', EXTENSION_TOO_LONG:'Une prolongation ne peut pas dépasser 30 jours.',
+  TOO_MANY_EXTENSIONS:'Ce compte a déjà eu 3 prolongations : la décision revient à la Direction.', ALREADY_PENDING:'Une demande de prolongation attend déjà une validation.',
+  FOUR_EYES:'Une autre personne doit valider votre propre demande.', ALREADY_DECIDED:'Cette demande a déjà été traitée.', DIRECTION_REQUIRED:'Choisissez le sens de l’ajustement.',
+  INVOICE_UNKNOWN:'Facture introuvable pour ce médecin.' };
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function da(n){ return new Intl.NumberFormat('fr-FR').format(Math.abs(Math.round(n || 0))).replace(/ | /g, ' ') + ' DA'; }
+function d(v){ return v ? new Date(v).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' }) : '—'; }
+function toast(m, err){ var t = document.getElementById('toast'); t.textContent = m; t.className = 'lg-toast on' + (err ? ' err' : ''); clearTimeout(t._h); t._h = setTimeout(function(){ t.className = 'lg-toast'; }, 3600); }
+function errMsg(e){ var m = (e && e.message) || ''; for (var k in ERR) if (m.indexOf(k) !== -1) return ERR[k]; return m || 'Erreur inattendue.'; }
+async function rpc(fn, a){ var r = await sb.rpc(fn, a || {}); if (r.error) throw r.error; return r.data; }
+function today(off){ var x = new Date(); x.setDate(x.getDate() + (off || 0)); return x.toISOString().slice(0, 10); }
+function bankInfo(){ var b = A && A.bank; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = null; } } return b && (b.rib || b.ccp) ? b : null; }
+function clientRef(){ return 'DL-' + current.replace(/-/g, '').slice(0, 8).toUpperCase(); }
+
+/* ── Recherche ── */
+var qt;
+async function search(q){
+  try {
+    var r = await rpc('billing_search', { p_q: q });
+    document.getElementById('res').innerHTML = r.length ? r.map(function(x){
+      return '<button type="button" data-doc="' + x.id + '" class="' + (x.id === current ? 'on' : '') + '"><span><span class="n">' + esc(x.name) + '</span><br><span class="m">' + esc(x.email || x.phone || '') + '</span></span>' +
+        '<span class="amt ' + (x.balance > 0 ? 'due' : x.balance < 0 ? 'cr' : '') + '">' + (x.balance ? da(x.balance) : '') + '</span></button>';
+    }).join('') : '<p class="muted" style="padding:8px">Aucun médecin trouvé.</p>';
+  } catch (e) { document.getElementById('res').innerHTML = '<p class="muted" style="padding:8px">' + esc(errMsg(e)) + '</p>'; }
+}
+async function loadPending(){
+  try {
+    var r = await rpc('billing_pending_extensions');
+    document.getElementById('pend-box').hidden = !r.length;
+    document.getElementById('pend').innerHTML = r.map(function(x){
+      return '<div class="pend-it"><b>' + esc(x.doctor_name) + '</b> : échéance du ' + d(x.old_due) + ' au <b>' + d(x.new_due) + '</b><br>' + esc(x.reason) + '<br><span>Demandé par ' + esc(x.requested_by_name) + '</span>' +
+        '<div class="acts"><button class="b sm p" type="button" data-ext="' + x.id + '" data-ok="1">Valider</button><button class="b sm" type="button" data-ext="' + x.id + '" data-ok="0">Refuser</button><button class="b sm" type="button" data-doc="' + x.doctor_id + '">Ouvrir</button></div></div>';
+    }).join('');
+  } catch (e) {}
+}
+
+/* ── Compte ── */
+async function openAccount(id){
+  current = id;
+  document.querySelectorAll('#res button').forEach(function(b){ b.classList.toggle('on', b.dataset.doc === id); });
+  var box = document.getElementById('acc');
+  box.innerHTML = '<div class="empty">Chargement du compte</div>';
+  try { A = await rpc('billing_account', { p_doctor: id }); } catch (e) { box.innerHTML = '<div class="empty"><strong>Compte indisponible</strong>' + esc(errMsg(e)) + '</div>'; return; }
+  if (current !== id) return;
+  history.replaceState(null, '', '?doctor=' + id);
+  render();
+}
+function rows(){
+  var list = A.entries.slice().sort(function(a, b){ return new Date(a.created_at) - new Date(b.created_at); });
+  var run = A.opening_balance;
+  return list.map(function(e){ run += e.amount_da * e.direction; e._run = run; return e; }).reverse();
+}
+function render(){
+  var doc = A.doctor, sub = A.subscription || {}, c = A.can || {};
+  var late = doc.payment_deadline && new Date(doc.payment_deadline) < new Date() && A.balance > 0;
+  var list = rows();
+  document.getElementById('acc').innerHTML =
+    '<div class="acc-top"><div><div class="acc-name">' + esc(doc.name) + '</div><div class="acc-meta">' +
+      (doc.specialty ? '<span>' + esc(doc.specialty) + '</span>' : '') + (doc.wilaya ? '<span>' + esc(doc.wilaya) + '</span>' : '') +
+      (doc.email ? '<span>' + esc(doc.email) + '</span>' : '') + (doc.phone ? '<span>' + esc(doc.phone) + '</span>' : '') +
+      '<a href="/symphony-crm?id=' + encodeURIComponent(doc.id) + '">Fiche médecin</a>' +
+      '<a href="/symphony-tickets?new=1&doctor=' + encodeURIComponent(doc.id) + '&doctor_name=' + encodeURIComponent(doc.name) + '">Créer un ticket</a></div></div>' +
+    '<div class="bal"><div class="k">' + (A.balance > 0 ? 'Reste à payer' : A.balance < 0 ? 'En faveur du médecin' : 'Solde') + '</div><div class="v ' + (A.balance > 0 ? 'due' : A.balance < 0 ? 'cr' : '') + '">' + da(A.balance) + '</div></div></div>' +
+    '<div class="facts">' +
+      '<div class="fact"><div class="k">Abonnement</div><div class="v">' + esc(sub.plan ? (sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1)) : 'Aucun') + (sub.interval ? ' · ' + (sub.interval === 'year' ? 'annuel' : 'mensuel') : '') + '</div></div>' +
+      '<div class="fact"><div class="k">Statut du paiement</div><div class="v">' + esc({ paid:'Payé', pending:'En attente', failed:'Refusé' }[sub.payment_status] || '—') + '</div></div>' +
+      '<div class="fact"><div class="k">Échéance</div><div class="v' + (late ? ' late' : '') + '">' + d(doc.payment_deadline) + (late ? ' (dépassée)' : '') + '</div></div>' +
+      '<div class="fact"><div class="k">Prolongations</div><div class="v">' + doc.extension_count + ' sur 3</div></div>' +
+    '</div>' +
+    '<div class="btns">' +
+      (c.record ? '<button class="b" type="button" data-new="invoice">Facture</button>' : '') +
+      (c.payment ? '<button class="b p" type="button" data-new="payment">Enregistrer un paiement</button>' : '') +
+      (c.record ? '<button class="b" type="button" data-new="credit">Avoir</button><button class="b" type="button" data-new="adjustment">Ajustement</button>' : '') +
+      (c.extend ? '<button class="b" type="button" data-act="extend">Prolonger l’échéance</button>' : '') +
+      '<button class="b" type="button" data-act="statement">Relevé de compte</button>' +
+      '<button class="b" type="button" data-act="slip">Bordereau de versement</button>' +
+    '</div>' +
+    '<div><div class="sec" style="margin-bottom:10px">Douze derniers mois</div>' +
+      (list.length ? '<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Pièce</th><th>Libellé</th><th class="num">Débit</th><th class="num">Crédit</th><th class="num">Solde</th></tr></thead><tbody>' +
+        list.map(function(e){
+          return '<tr><td>' + d(e.created_at) + '</td><td><span class="kind k-' + e.kind + '">' + KIND[e.kind] + '</span><br><span class="ref">' + esc(e.number) + '</span></td>' +
+            '<td>' + esc(e.label) + (e.method ? '<br><span class="muted">' + esc(METHOD[e.method]) + (e.external_ref ? ' · réf. ' + esc(e.external_ref) : '') + '</span>' : '') +
+            (e.due_date ? '<br><span class="muted">À régler avant le ' + d(e.due_date) + '</span>' : '') + (e.note ? '<br><span class="muted">' + esc(e.note) + '</span>' : '') +
+            '<br><span class="muted">' + (e.source === 'subscription' ? 'Paiement d’abonnement validé' : 'Saisi par ' + esc(e.created_by_name)) + '</span></td>' +
+            '<td class="num">' + (e.direction > 0 ? da(e.amount_da) : '') + '</td><td class="num">' + (e.direction < 0 ? da(e.amount_da) : '') + '</td>' +
+            '<td class="num"><b>' + (e._run < 0 ? '−' : '') + da(e._run) + '</b></td></tr>';
+        }).join('') + '</tbody></table></div>' + (A.opening_balance ? '<p class="muted" style="margin-top:8px">Solde reporté d’avant douze mois : ' + da(A.opening_balance) + '</p>' : '')
+      : '<p class="muted">Aucune écriture sur les douze derniers mois. Les paiements d’abonnement validés s’inscrivent ici automatiquement.</p>') + '</div>' +
+    (A.requests.length ? '<div><div class="sec" style="margin-bottom:6px">Demandes de paiement du médecin</div><div class="list">' + A.requests.map(function(r){
+      return '<div class="li"><span>' + d(r.created_at) + ' · ' + esc(r.plan || '') + ' ' + esc(r.billing || '') + ' · ' + (r.amount ? da(r.amount) : 'montant non indiqué') + ' · ' + esc(METHOD[r.method] || r.method || '') + (r.reference ? ' · réf. ' + esc(r.reference) : '') + '</span>' +
+        '<span style="display:flex;gap:8px;align-items:center"><span class="pill">' + esc(r.status) + '</span>' + (r.has_proof ? '<button class="b sm" type="button" data-proof="' + esc(r.proof_path) + '">Justificatif</button>' : '') + '</span></div>';
+    }).join('') + '</div></div>' : '') +
+    (A.extensions.length ? '<div><div class="sec" style="margin-bottom:6px">Prolongations</div><div class="list">' + A.extensions.map(function(x){
+      var s = EXT[x.status] || [x.status, ''];
+      return '<div class="li"><span>' + d(x.old_due) + ' → <b>' + d(x.new_due) + '</b> · ' + esc(x.reason) + '<br><span class="muted">Demandé par ' + esc(x.requested_by_name) + (x.decided_by_name ? ', ' + s[0].toLowerCase() + ' par ' + esc(x.decided_by_name) : '') + (x.decision_note ? ' : ' + esc(x.decision_note) : '') + '</span></span><span class="pill ' + s[1] + '">' + s[0] + '</span></div>';
+    }).join('') + '</div></div>' : '') +
+    (A.documents.length ? '<div><div class="sec" style="margin-bottom:6px">Documents envoyés</div><div class="list">' + A.documents.map(function(x){
+      var oc = { sent:['Envoyé','ok'], failed:['Échec','no'], opened:['Ouvert, envoi non confirmé','wait'], printed:['Imprimé','ok'] }[x.outcome] || [x.outcome, ''];
+      return '<div class="li"><span>' + d(x.created_at) + ' · ' + (x.doc_type === 'statement' ? 'Relevé' : 'Bordereau') + ' · ' + ({ print:'Impression', email:'Email', whatsapp:'WhatsApp' }[x.channel]) + ' · ' + esc(x.actor_name) + (x.detail ? '<br><span class="muted">' + esc(x.detail) + '</span>' : '') + '</span><span class="pill ' + oc[1] + '">' + oc[0] + '</span></div>';
+    }).join('') + '</div></div>' : '');
+}
+
+/* ── Fenêtre ── */
+function modal(title, sub, body, foot, wide){
+  document.getElementById('md-t').textContent = title; document.getElementById('md-s').textContent = sub || '';
+  document.getElementById('md-b').innerHTML = body; document.getElementById('md-f').innerHTML = foot;
+  document.getElementById('md-box').className = 'md' + (wide ? ' wide' : '');
+  document.getElementById('md').classList.add('on');
+}
+function closeModal(){ document.getElementById('md').classList.remove('on'); }
+
+function entryForm(kind){
+  var invoices = A.entries.filter(function(e){ return e.kind === 'invoice'; });
+  var invSel = '<div class="fld"><label for="f-inv">Facture concernée</label><select id="f-inv"><option value="">Aucune</option>' + invoices.map(function(e){ return '<option value="' + e.id + '">' + esc(e.number + ' · ' + e.label + ' · ' + da(e.amount_da)) + '</option>'; }).join('') + '</select></div>';
+  var body = '<div class="fld-row"><div class="fld"><label for="f-amt">Montant en dinars</label><input id="f-amt" type="number" min="1" step="1" inputmode="numeric"></div>' +
+    (kind === 'adjustment' ? '<div class="fld"><label for="f-dir">Sens</label><select id="f-dir"><option value="1">Augmente ce que doit le médecin</option><option value="-1">Réduit ce que doit le médecin</option></select></div>'
+      : kind === 'invoice' ? '<div class="fld"><label for="f-due">À régler avant le</label><input id="f-due" type="date" value="' + today(15) + '"></div>'
+      : kind === 'payment' ? '<div class="fld"><label for="f-met">Moyen de paiement</label><select id="f-met">' + Object.keys(METHOD).map(function(k){ return '<option value="' + k + '">' + METHOD[k] + '</option>'; }).join('') + '</select></div>' : '<div></div>') + '</div>' +
+    '<div class="fld"><label for="f-lab">Libellé</label><input id="f-lab" maxlength="200" value="' + esc({ invoice:'Abonnement Docline', payment:'Règlement', credit:'Avoir', adjustment:'Ajustement' }[kind]) + '"></div>' +
+    (kind === 'invoice' ? '<div class="fld-row"><div class="fld"><label for="f-ps">Période du</label><input id="f-ps" type="date" value="' + today() + '"></div><div class="fld"><label for="f-pe">au</label><input id="f-pe" type="date" value="' + today(30) + '"></div></div>' : '') +
+    (kind === 'payment' ? '<div class="fld"><label for="f-ref">Référence du paiement</label><input id="f-ref" maxlength="80" placeholder="Numéro du virement ou du reçu, tel qu’il figure sur le justificatif"></div>' + invSel : '') +
+    (kind === 'credit' || kind === 'adjustment' ? invSel + '<div class="fld"><label for="f-note">Justification</label><textarea id="f-note" rows="3" maxlength="500" placeholder="Pourquoi cette écriture ? Elle reste dans l’historique."></textarea></div>' : '') +
+    '<p class="hint">Une écriture enregistrée ne peut plus être modifiée. Pour corriger une erreur, enregistrez un avoir ou un ajustement.</p>';
+  modal({ invoice:'Nouvelle facture', payment:'Enregistrer un paiement', credit:'Nouvel avoir', adjustment:'Nouvel ajustement' }[kind], A.doctor.name, body,
+    '<button class="b" type="button" data-close>Annuler</button><button class="b p" type="button" data-save="' + kind + '">Enregistrer</button>');
+}
+async function saveEntry(kind, btn){
+  var g = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  btn.disabled = true;
+  try {
+    var r = await rpc('billing_record', { p_doctor: current, p_kind: kind, p_amount_da: parseInt(g('f-amt'), 10) || 0, p_label: g('f-lab'),
+      p_direction: kind === 'adjustment' ? parseInt(g('f-dir'), 10) : null, p_due_date: g('f-due') || null, p_period_start: g('f-ps') || null, p_period_end: g('f-pe') || null,
+      p_method: kind === 'payment' ? g('f-met') : null, p_external_ref: g('f-ref') || null, p_invoice_id: g('f-inv') || null, p_note: g('f-note') || null });
+    closeModal(); toast(r.number + ' enregistré'); await openAccount(current); search(document.getElementById('q').value.trim());
+  } catch (e) { toast(errMsg(e), true); btn.disabled = false; }
+}
+function extendForm(){
+  var base = A.doctor.payment_deadline && new Date(A.doctor.payment_deadline) > new Date() ? new Date(A.doctor.payment_deadline) : new Date();
+  var max = new Date(base); max.setDate(max.getDate() + 30); var def = new Date(base); def.setDate(def.getDate() + 7);
+  modal('Prolonger l’échéance', 'Échéance actuelle : ' + d(A.doctor.payment_deadline) + '. Une autre personne habilitée devra valider la demande.',
+    '<div class="fld"><label for="x-date">Nouvelle échéance</label><input id="x-date" type="date" min="' + today(1) + '" max="' + max.toISOString().slice(0,10) + '" value="' + def.toISOString().slice(0,10) + '"></div>' +
+    '<div class="fld"><label for="x-why">Raison</label><textarea id="x-why" rows="3" maxlength="500" placeholder="Ce que le médecin a demandé, ce qui justifie le délai"></textarea></div>' +
+    '<p class="hint">30 jours au plus par prolongation, 3 prolongations au plus par compte.</p>',
+    '<button class="b" type="button" data-close>Annuler</button><button class="b p" type="button" data-save="extend">Envoyer pour validation</button>');
+}
+async function saveExtend(btn){
+  btn.disabled = true;
+  try { await rpc('billing_extension_request', { p_doctor: current, p_new_due: document.getElementById('x-date').value, p_reason: document.getElementById('x-why').value });
+    closeModal(); toast('Demande envoyée pour validation'); openAccount(current); loadPending(); }
+  catch (e) { toast(errMsg(e), true); btn.disabled = false; }
+}
+async function decideExt(id, ok, btn){
+  var note = null;
+  if (!ok) { note = prompt('Raison du refus (visible dans l’historique) :'); if (!note) return; }
+  btn.disabled = true;
+  try { await rpc('billing_extension_decide', { p_id: id, p_approve: ok, p_note: note }); toast(ok ? 'Prolongation validée' : 'Prolongation refusée'); loadPending(); if (current) openAccount(current); }
+  catch (e) { toast(errMsg(e), true); btn.disabled = false; }
+}
+
+/* ── Documents ── */
+var DOC_CSS = 'body{font-family:Inter,Arial,sans-serif;color:#0D0520;margin:0;padding:32px;font-size:13px}h1{font-size:20px;margin:0 0 4px}' +
+  '.top{display:flex;justify-content:space-between;gap:20px;border-bottom:2px solid #0D0520;padding-bottom:14px;margin-bottom:18px}.brand{font-size:22px;font-weight:800;color:#4C1D95}' +
+  '.muted{color:#6B7280}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{padding:8px;border-bottom:1px solid #E5E7EB;text-align:left}th{font-size:11px;text-transform:uppercase;color:#6B7280}' +
+  '.num{text-align:right;white-space:nowrap}.tot{font-size:16px;font-weight:800}.box{border:1px solid #D1D5DB;border-radius:10px;padding:14px;margin-top:14px}.row{display:flex;justify-content:space-between;padding:5px 0}' +
+  '.foot{margin-top:28px;font-size:11px;color:#6B7280}@media print{body{padding:0}}';
+function docHead(title){
+  var doc = A.doctor;
+  return '<div class="top"><div><div class="brand">Docline</div><div class="muted">docline.health</div></div><div style="text-align:right"><h1>' + title + '</h1><div class="muted">Édité le ' + d(new Date()) + '</div></div></div>' +
+    '<div><b>' + esc(doc.name) + '</b>' + (doc.clinic_name ? '<br>' + esc(doc.clinic_name) : '') + (doc.address ? '<br>' + esc(doc.address) : '') +
+    (doc.city || doc.wilaya ? '<br>' + esc([doc.city, doc.wilaya].filter(Boolean).join(', ')) : '') + (doc.email ? '<br>' + esc(doc.email) : '') + '<br><span class="muted">Référence client : ' + clientRef() + '</span></div>';
+}
+function statementHtml(){
+  var list = rows().slice().reverse();
+  return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Relevé de compte</title><style>' + DOC_CSS + '</style></head><body>' + docHead('Relevé de compte') +
+    '<p class="muted">Période : douze derniers mois, jusqu’au ' + d(new Date()) + '</p>' +
+    '<table><thead><tr><th>Date</th><th>Pièce</th><th>Libellé</th><th class="num">Débit</th><th class="num">Crédit</th><th class="num">Solde</th></tr></thead><tbody>' +
+    '<tr><td colspan="5">Solde reporté</td><td class="num">' + da(A.opening_balance) + '</td></tr>' +
+    list.map(function(e){ return '<tr><td>' + d(e.created_at) + '</td><td>' + esc(e.number) + '</td><td>' + esc(e.label) + (e.external_ref ? ' (réf. ' + esc(e.external_ref) + ')' : '') + '</td><td class="num">' + (e.direction > 0 ? da(e.amount_da) : '') + '</td><td class="num">' + (e.direction < 0 ? da(e.amount_da) : '') + '</td><td class="num">' + (e._run < 0 ? '−' : '') + da(e._run) + '</td></tr>'; }).join('') +
+    '</tbody></table><div class="box"><div class="row tot"><span>' + (A.balance > 0 ? 'Reste à payer' : A.balance < 0 ? 'Solde en votre faveur' : 'Solde') + '</span><span>' + da(A.balance) + '</span></div>' +
+    (A.doctor.payment_deadline && A.balance > 0 ? '<div class="row"><span>À régler avant le</span><span>' + d(A.doctor.payment_deadline) + '</span></div>' : '') + '</div>' +
+    '<div class="foot">Relevé établi à partir du registre de facturation Docline. Pour toute question : contact@docline.health</div></body></html>';
+}
+function slipHtml(){
+  var b = bankInfo(), due = Math.max(0, A.balance);
+  return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Bordereau de versement</title><style>' + DOC_CSS + '</style></head><body>' + docHead('Bordereau de versement') +
+    '<div class="box"><div class="row tot"><span>Montant à verser</span><span>' + da(due) + '</span></div>' +
+    (A.doctor.payment_deadline ? '<div class="row"><span>Avant le</span><span>' + d(A.doctor.payment_deadline) + '</span></div>' : '') +
+    '<div class="row"><span>Référence à indiquer sur le versement</span><b>' + clientRef() + '</b></div></div>' +
+    '<div class="box"><b>Bénéficiaire</b>' + (b.holder ? '<div class="row"><span>Titulaire</span><span>' + esc(b.holder) + '</span></div>' : '') + (b.bank ? '<div class="row"><span>Banque</span><span>' + esc(b.bank) + '</span></div>' : '') +
+    (b.rib ? '<div class="row"><span>RIB</span><b>' + esc(b.rib) + '</b></div>' : '') + (b.ccp ? '<div class="row"><span>CCP</span><b>' + esc(b.ccp) + (b.ccp_key ? ' / Clé ' + esc(b.ccp_key) : '') + '</b></div>' : '') + '</div>' +
+    '<div class="foot">Après le versement, envoyez le justificatif depuis votre espace Docline (Tarifs, paiement par virement) ou à contact@docline.health en indiquant la référence ci-dessus.</div></body></html>';
+}
+function showDoc(type){
+  if (type === 'slip') {
+    if (!bankInfo()) { modal('Bordereau indisponible', '', '<div class="warn">Les coordonnées bancaires de Docline ne sont pas encore renseignées dans les réglages (clé <b>billing_bank</b>). Le bordereau ne peut pas être produit sans elles.</div>', '<button class="b" type="button" data-close>Fermer</button>'); return; }
+    if (A.balance <= 0) { modal('Rien à verser', '', '<p class="hint">Le compte de ce médecin ne présente aucun montant dû.</p>', '<button class="b" type="button" data-close>Fermer</button>'); return; }
+  }
+  var html = type === 'slip' ? slipHtml() : statementHtml();
+  var phone = (A.doctor.phone || '').replace(/\D/g, '');
+  if (phone.charAt(0) === '0') phone = '213' + phone.slice(1);
+  modal(type === 'slip' ? 'Bordereau de versement' : 'Relevé de compte', 'Aperçu du document. Pour un PDF, choisissez « Enregistrer au format PDF » dans la fenêtre d’impression.',
+    '<iframe class="doc" id="doc-frame" title="Aperçu"></iframe>',
+    '<button class="b" type="button" data-close>Fermer</button>' +
+    '<button class="b" type="button" data-send="whatsapp" data-type="' + type + '"' + (phone.length >= 11 ? '' : ' disabled title="Aucun numéro de téléphone sur la fiche"') + '>WhatsApp</button>' +
+    '<button class="b" type="button" data-send="email" data-type="' + type + '"' + (A.doctor.email ? '' : ' disabled') + '>Envoyer par email</button>' +
+    '<button class="b p" type="button" data-send="print" data-type="' + type + '">Imprimer ou PDF</button>', true);
+  document.getElementById('doc-frame').srcdoc = html;
+  document.getElementById('doc-frame').dataset.phone = phone;
+}
+async function sendDoc(channel, type, btn){
+  var docType = type === 'slip' ? 'payment_slip' : 'statement', label = type === 'slip' ? 'bordereau de versement' : 'relevé de compte';
+  if (channel === 'print') {
+    document.getElementById('doc-frame').contentWindow.print();
+    rpc('billing_log_document', { p_doctor: current, p_doc: docType, p_channel: 'print', p_outcome: 'opened', p_detail: 'Fenêtre d’impression ouverte' }).then(function(){ openAccount(current); });
+    return;
+  }
+  if (channel === 'email') {
+    btn.disabled = true;
+    var s = (await sb.auth.getSession()).data.session, ok = false, detail = '';
+    try {
+      var html = (type === 'slip' ? slipHtml() : statementHtml()).replace(/^[\s\S]*<body>|<\/body>[\s\S]*$/g, '');
+      var res = await fetch(EDGE_BASE + '/send-email', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + s.access_token, 'apikey': SUPA_KEY },
+        body: JSON.stringify({ type:'admin_custom', payload:{ to: A.doctor.email, subject:'Votre ' + label + ' Docline', html: '<style>' + DOC_CSS.replace(/body\{[^}]*\}/, '') + '</style>' + html } }) });
+      var j = await res.json().catch(function(){ return {}; });
+      ok = res.ok && j.success === true; detail = ok ? 'Envoyé à ' + A.doctor.email : 'Échec de l’envoi à ' + A.doctor.email + (j.error ? ' : ' + j.error : '');
+    } catch (e) { detail = 'Échec : ' + (e.message || 'réseau'); }
+    await rpc('billing_log_document', { p_doctor: current, p_doc: docType, p_channel: 'email', p_outcome: ok ? 'sent' : 'failed', p_detail: detail }).catch(function(){});
+    toast(ok ? 'Email envoyé à ' + A.doctor.email : 'L’email n’est pas parti. ' + detail, !ok); btn.disabled = false; openAccount(current);
+    return;
+  }
+  if (channel === 'whatsapp') {
+    var phone = document.getElementById('doc-frame').dataset.phone;
+    var msg = 'Bonjour ' + A.doctor.name + ', voici le point sur votre compte Docline : ' + (A.balance > 0 ? 'reste à payer ' + da(A.balance) + (A.doctor.payment_deadline ? ' avant le ' + d(A.doctor.payment_deadline) : '') : 'aucun montant dû') +
+      '. Référence client : ' + clientRef() + '. Le document détaillé vous est envoyé par email. L’équipe Docline';
+    window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+    await rpc('billing_log_document', { p_doctor: current, p_doc: docType, p_channel: 'whatsapp', p_outcome: 'opened', p_detail: 'WhatsApp ouvert pour +' + phone + ' ; envoi à confirmer dans WhatsApp' }).catch(function(){});
+    toast('WhatsApp est ouvert. Le message ne part que lorsque vous appuyez sur Envoyer dans WhatsApp.'); openAccount(current);
+  }
+}
+async function openProof(path, btn){
+  btn.disabled = true;
+  var w = window.open('', '_blank');
+  try {
+    var p = String(path).replace(/^payment-proofs\//, '');
+    var r = await sb.storage.from('payment-proofs').createSignedUrl(p, 600);
+    if (r.error || !r.data) throw r.error || new Error('Fichier introuvable');
+    w.location = r.data.signedUrl;
+  } catch (e) { if (w) w.close(); toast('Justificatif indisponible : ' + errMsg(e), true); }
+  btn.disabled = false;
+}
+
+/* ── Événements ── */
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-doc],[data-new],[data-act],[data-save],[data-close],[data-send],[data-ext],[data-proof]');
+  if (!t || t.disabled) return;
+  if (t.dataset.doc) return openAccount(t.dataset.doc);
+  if (t.dataset.new) return entryForm(t.dataset.new);
+  if (t.dataset.act === 'extend') return extendForm();
+  if (t.dataset.act === 'statement') return showDoc('statement');
+  if (t.dataset.act === 'slip') return showDoc('slip');
+  if (t.dataset.save === 'extend') return saveExtend(t);
+  if (t.dataset.save) return saveEntry(t.dataset.save, t);
+  if (t.hasAttribute('data-close')) return closeModal();
+  if (t.dataset.send) return sendDoc(t.dataset.send, t.dataset.type, t);
+  if (t.dataset.ext) return decideExt(t.dataset.ext, t.dataset.ok === '1', t);
+  if (t.dataset.proof) return openProof(t.dataset.proof, t);
+});
+document.getElementById('md').addEventListener('click', function(e){ if (e.target === this) closeModal(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+document.getElementById('q').addEventListener('input', function(){ var v = this.value.trim(); clearTimeout(qt); qt = setTimeout(function(){ search(v); }, 250); });
+
+(async function(){
+  var s = await sb.auth.getSession();
+  if (!s.data.session) { location.href = '/login'; return; }
+  var u = s.data.session.user;
+  Shell.init({ page:'symphony-ledger', title:'LedgerDesk', isPro:true, plan:'admin', isSymphony:true,
+    userName:Shell.displayName(u.user_metadata || {}, u.email), userEmail:u.email });
+  search(''); loadPending();
+  var p = new URLSearchParams(location.search).get('doctor');
+  if (p) openAccount(p);
+})();
+</script>
+<script src="symphony-access.js?v=5" defer></script>
+</body>
+</html>
