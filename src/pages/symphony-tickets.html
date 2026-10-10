@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tickets · Docline Symphony</title>
+<script src="config.js?v=3"></script>
+<script src="shell.js?v=13"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#4C1D95">
+<style>
+:root{
+  --tk-urgent:#DC2626;--tk-high:#EA580C;--tk-normal:#6D28D9;--tk-low:#94A3B8;
+  --tk-line:rgba(13,5,32,.07);--tk-soft:#F4F2FF;
+}
+.tk-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.tk-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
+.tk-title{font-size:26px;font-weight:900;letter-spacing:-.7px;line-height:1.1}
+.tk-sub{font-size:13.5px;color:var(--text-3);margin-top:6px;max-width:56ch}
+.tk-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tk-avail{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--tk-line);border-radius:999px;padding:5px 6px 5px 12px;font-size:12.5px;font-weight:600;color:var(--text-2)}
+.tk-avail select{border:none;background:var(--tk-soft);border-radius:999px;padding:6px 10px;font:600 12.5px Inter,sans-serif;color:var(--text);cursor:pointer}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dot.available{background:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.18)}.dot.busy{background:#F59E0B}.dot.away{background:#94A3B8}.dot.offline{background:#CBD5E1}
+
+.tk-views{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.tk-views::-webkit-scrollbar{display:none}
+.tk-view{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;border:1px solid var(--tk-line);background:var(--surface);font:600 13px Inter,sans-serif;color:var(--text-3);cursor:pointer;transition:all .15s}
+.tk-view:hover{color:var(--text)}
+.tk-view.on{background:#0D0520;border-color:#0D0520;color:#fff}
+.tk-view b{font-weight:700;font-size:11px;min-width:18px;padding:2px 6px;border-radius:999px;background:var(--tk-soft);color:var(--text-2);text-align:center;font-variant-numeric:tabular-nums}
+.tk-view.on b{background:rgba(255,255,255,.16);color:#fff}
+.tk-view.alert b{background:#FEE2E2;color:#B91C1C}
+.tk-search{position:relative;margin-bottom:14px}
+.tk-search input{width:100%;padding:11px 14px 11px 38px;border-radius:12px;border:1px solid var(--tk-line);background:var(--surface);font:500 14px Inter,sans-serif;color:var(--text);outline:none}
+.tk-search input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.12)}
+.tk-search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:none;stroke:var(--text-3);stroke-width:2}
+
+.tk-list{background:var(--surface);border:1px solid var(--tk-line);border-radius:16px;overflow:hidden}
+.tk-row{display:grid;grid-template-columns:4px 1fr auto;gap:14px;align-items:center;padding:14px 18px 14px 0;border-bottom:1px solid var(--tk-line);cursor:pointer;transition:background .12s}
+.tk-row:last-child{border-bottom:none}
+.tk-row:hover{background:#FBFAFF}
+.tk-row:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+.tk-bar{align-self:stretch;border-radius:0 3px 3px 0}
+.tk-bar.urgent{background:var(--tk-urgent)}.tk-bar.high{background:var(--tk-high)}.tk-bar.normal{background:var(--tk-normal);opacity:.35}.tk-bar.low{background:var(--tk-low);opacity:.4}
+.tk-main{min-width:0}
+.tk-line1{display:flex;align-items:center;gap:8px;min-width:0}
+.tk-ref{font:600 11.5px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text-3);flex-shrink:0}
+.tk-name{font-size:14px;font-weight:650;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-line2{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:5px;font-size:12px;color:var(--text-3)}
+.tk-line2 .late{color:#B91C1C;font-weight:600}
+.tk-side{display:flex;align-items:center;gap:10px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:650;white-space:nowrap}
+.st-queued{background:#EEF2FF;color:#3730A3}.st-assigned{background:#F3E8FF;color:#6B21A8}.st-in_progress{background:#ECFDF5;color:#047857}
+.st-waiting_requester,.st-waiting_team{background:#FFFBEB;color:#B45309}.st-escalated{background:#FEF2F2;color:#B91C1C}
+.st-resolved{background:#F0FDF4;color:#15803D}.st-closed{background:#F1F5F9;color:#475569}
+.btn-claim{padding:7px 14px;border-radius:10px;border:none;background:#0D0520;color:#fff;font:700 12px Inter,sans-serif;cursor:pointer}
+.btn-claim:hover{background:var(--brand)}
+.btn-claim:disabled{opacity:.5;cursor:wait}
+.tk-empty{padding:56px 24px;text-align:center;color:var(--text-3);font-size:14px}
+.tk-empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+
+/* Panneau de détail */
+.tk-scrim{position:fixed;inset:0;background:rgba(13,5,32,.28);backdrop-filter:blur(2px);z-index:900;opacity:0;pointer-events:none;transition:opacity .2s}
+.tk-scrim.on{opacity:1;pointer-events:auto}
+.tk-drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100vw);background:var(--surface);z-index:901;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(13,5,32,.12)}
+.tk-drawer.on{transform:none}
+.dw-head{padding:20px 22px 16px;border-bottom:1px solid var(--tk-line)}
+.dw-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.dw-close{width:34px;height:34px;border-radius:10px;border:none;background:var(--tk-soft);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dw-close svg{width:16px;height:16px;stroke:var(--text);stroke-width:2.2;fill:none}
+.dw-title{font-size:19px;font-weight:800;letter-spacing:-.4px;line-height:1.25;text-wrap:balance}
+.dw-body{flex:1;overflow-y:auto;padding:18px 22px 28px;display:flex;flex-direction:column;gap:20px}
+.dw-desc{font-size:14px;line-height:1.6;color:var(--text-2);white-space:pre-wrap}
+.dw-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px}
+.dw-k{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text-3);margin-bottom:3px}
+.dw-v{font-size:13.5px;font-weight:600;color:var(--text)}
+.dw-v a{color:var(--brand);text-decoration:underline}
+.dw-v.late{color:#B91C1C}
+.dw-btns{display:flex;flex-wrap:wrap;gap:8px}
+.dw-btn{padding:9px 14px;border-radius:10px;border:1px solid var(--tk-line);background:var(--surface);font:650 13px Inter,sans-serif;color:var(--text);cursor:pointer}
+.dw-btn:hover{border-color:var(--brand);color:var(--brand)}
+.dw-btn.primary{background:#0D0520;border-color:#0D0520;color:#fff}
+.dw-btn.primary:hover{background:var(--brand);border-color:var(--brand);color:#fff}
+.dw-btn.danger{color:#B91C1C}
+.dw-sec{font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);margin-bottom:10px}
+.dw-assign{display:flex;gap:8px;flex-wrap:wrap}
+.dw-assign select,.dw-assign input{flex:1;min-width:160px;padding:9px 12px;border-radius:10px;border:1px solid var(--tk-line);font:500 13px Inter,sans-serif;background:var(--surface);color:var(--text)}
+.dw-comment textarea{width:100%;min-height:80px;padding:11px 13px;border-radius:12px;border:1px solid var(--tk-line);font:500 14px/1.5 Inter,sans-serif;resize:vertical;outline:none;color:var(--text);background:var(--surface)}
+.dw-comment textarea:focus{border-color:var(--brand)}
+.dw-comment .row{display:flex;justify-content:flex-end;margin-top:8px}
+.tl{display:flex;flex-direction:column}
+.tl-it{display:grid;grid-template-columns:14px 1fr;gap:12px;padding-bottom:14px;position:relative}
+.tl-it:before{content:"";position:absolute;left:6px;top:14px;bottom:0;width:1px;background:var(--tk-line)}
+.tl-it:last-child:before{display:none}
+.tl-dot{width:13px;height:13px;border-radius:50%;background:var(--surface);border:2px solid #C4B5FD;margin-top:3px}
+.tl-it.cm .tl-dot{background:var(--brand);border-color:var(--brand)}
+.tl-txt{font-size:13px;color:var(--text-2);line-height:1.5}
+.tl-txt b{color:var(--text);font-weight:650}
+.tl-when{font-size:11.5px;color:var(--text-3);margin-top:2px}
+.tl-body{margin-top:6px;padding:10px 12px;border-radius:10px;background:var(--tk-soft);font-size:13.5px;color:var(--text);white-space:pre-wrap;line-height:1.55}
+
+/* Création */
+.md-wrap{position:fixed;inset:0;z-index:950;display:none;align-items:flex-start;justify-content:center;padding:6vh 16px 16px;background:rgba(13,5,32,.4);backdrop-filter:blur(4px);overflow-y:auto}
+.md-wrap.on{display:flex}
+.md{width:min(640px,100%);background:var(--surface);border-radius:20px;box-shadow:0 30px 80px rgba(13,5,32,.25);overflow:hidden}
+.md-h{padding:22px 24px 6px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.md-t{font-size:19px;font-weight:800;letter-spacing:-.4px}
+.md-s{font-size:13px;color:var(--text-3);margin-top:3px}
+.md-b{padding:14px 24px 22px}
+.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.svc{text-align:left;padding:14px;border-radius:14px;border:1px solid var(--tk-line);background:var(--surface);cursor:pointer;font-family:inherit;transition:all .15s}
+.svc:hover{border-color:var(--brand);background:#FBFAFF}
+.svc strong{display:block;font-size:14px;color:var(--text);margin-bottom:4px}
+.svc span{font-size:12.5px;color:var(--text-3);line-height:1.45}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+.fld input,.fld textarea,.fld select{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--tk-line);font:500 14px Inter,sans-serif;color:var(--text);background:var(--surface);outline:none}
+.fld textarea{min-height:110px;resize:vertical;line-height:1.5}
+.fld input:focus,.fld textarea:focus,.fld select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.1)}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:70px;padding:9px 8px;border-radius:10px;border:1px solid var(--tk-line);background:var(--surface);font:650 12.5px Inter,sans-serif;color:var(--text-3);cursor:pointer}
+.seg button.on{border-color:#0D0520;background:#0D0520;color:#fff}
+.route{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--tk-soft);font-size:13px;color:var(--text-2);line-height:1.5;margin-bottom:16px}
+.route svg{width:16px;height:16px;flex-shrink:0;margin-top:2px;stroke:var(--brand);fill:none;stroke-width:2}
+.doc-res{border:1px solid var(--tk-line);border-radius:12px;margin-top:6px;overflow:hidden}
+.doc-res button{display:block;width:100%;text-align:left;padding:9px 12px;border:none;border-bottom:1px solid var(--tk-line);background:var(--surface);font:500 13px Inter,sans-serif;color:var(--text);cursor:pointer}
+.doc-res button:last-child{border-bottom:none}
+.doc-res button:hover{background:var(--tk-soft)}
+.doc-chip{display:inline-flex;gap:8px;align-items:center;padding:7px 8px 7px 12px;border-radius:999px;background:var(--tk-soft);font-size:13px;font-weight:600}
+.doc-chip button{border:none;background:none;cursor:pointer;color:var(--text-3);font-size:16px;line-height:1}
+.md-f{display:flex;justify-content:space-between;gap:10px;padding:16px 24px;border-top:1px solid var(--tk-line);background:#FCFBFF}
+.note-md .md{width:min(460px,100%)}
+
+.tk-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#0D0520;color:#fff;padding:11px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all .25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
+.tk-toast.on{opacity:1;transform:translateX(-50%)}
+.tk-toast.err{background:#B91C1C}
+
+@media (max-width:720px){
+  .tk-title{font-size:22px}
+  .tk-row{grid-template-columns:4px 1fr;padding-right:14px}
+  .tk-side{grid-column:2;justify-content:flex-start}
+  .svc-grid,.fld-row,.dw-grid{grid-template-columns:1fr}
+  .md-wrap{padding:0;align-items:stretch}
+  .md{border-radius:0;min-height:100%}
+}
+@media (prefers-reduced-motion:reduce){.tk-drawer,.tk-scrim,.tk-toast{transition:none}}
+</style>
+<script src="loader.js?v=2"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="shell-page">
+      <div class="page-wrap">
+        <div class="tk-head">
+          <div>
+            <div class="tk-eyebrow">Symphony · Opérations</div>
+            <h1 class="tk-title">Tickets</h1>
+            <p class="tk-sub">Chaque demande arrive dans la file de l'équipe concernée, puis est confiée à un agent disponible qui a la bonne compétence.</p>
+          </div>
+          <div class="tk-actions">
+            <label class="tk-avail" for="avail"><span class="dot offline" id="avail-dot"></span>Mon statut
+              <select id="avail">
+                <option value="available">Disponible</option>
+                <option value="busy">Occupé</option>
+                <option value="away">Absent</option>
+                <option value="offline">Hors ligne</option>
+              </select>
+            </label>
+            <button class="btn-primary" id="btn-new" type="button"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nouveau ticket</button>
+          </div>
+        </div>
+
+        <div class="tk-views" id="views" role="tablist"></div>
+        <div class="tk-search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Rechercher par référence, titre ou contenu" autocomplete="off">
+        </div>
+        <div class="tk-list" id="list"><div class="tk-empty">Chargement des tickets</div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="tk-scrim" id="scrim"></div>
+<aside class="tk-drawer" id="drawer" aria-label="Détail du ticket"></aside>
+
+<div class="md-wrap" id="create">
+  <div class="md" role="dialog" aria-modal="true" aria-labelledby="create-t">
+    <div class="md-h">
+      <div><div class="md-t" id="create-t">Nouveau ticket</div><div class="md-s" id="create-s">Choisissez le service concerné</div></div>
+      <button class="dw-close" type="button" data-close="create" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="md-b" id="create-b"></div>
+    <div class="md-f" id="create-f" hidden>
+      <button class="dw-btn" type="button" id="create-back">Changer de service</button>
+      <button class="btn-primary" type="button" id="create-go">Créer le ticket</button>
+    </div>
+  </div>
+</div>
+
+<div class="md-wrap note-md" id="note">
+  <div class="md" role="dialog" aria-modal="true" aria-labelledby="note-t">
+    <div class="md-h"><div><div class="md-t" id="note-t"></div><div class="md-s" id="note-s"></div></div></div>
+    <div class="md-b"><div class="fld"><textarea id="note-txt" maxlength="2000"></textarea></div></div>
+    <div class="md-f"><button class="dw-btn" type="button" id="note-cancel">Annuler</button><button class="btn-primary" type="button" id="note-ok">Valider</button></div>
+  </div>
+</div>
+
+<div class="tk-toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+var VIEWS = [
+  ['mine','Mes tickets'],['available','À prendre'],['team','File de l’équipe'],['unassigned','Non affectés'],
+  ['overdue','En retard'],['waiting','En attente'],['escalated','Escaladés'],['resolved','Résolus'],['all','Tous']
+];
+var STATUS = { queued:'En file', assigned:'Affecté', in_progress:'En cours', waiting_requester:'Attente du médecin',
+  waiting_team:'Attente d’une équipe', escalated:'Escaladé', resolved:'Résolu', closed:'Clos' };
+var PRIO = { urgent:'Urgente', high:'Haute', normal:'Normale', low:'Basse' };
+var IMPACT = { one:'Un médecin', several:'Plusieurs médecins', all:'Toute la plateforme' };
+var ERR = {
+  FORBIDDEN:'Votre poste ne permet pas cette action.',
+  ALREADY_CLAIMED:'Un autre agent vient de prendre ce ticket.',
+  AGENT_NOT_ELIGIBLE:'Ce ticket demande une équipe ou une compétence que ce profil n’a pas.',
+  NOTE_REQUIRED:'Ajoutez une note pour expliquer cette étape.',
+  REASON_REQUIRED:'Indiquez la raison du changement.',
+  TICKET_CHANGED:'Le ticket a changé entre temps. Rechargez puis réessayez.',
+  TICKET_CLOSED:'Ce ticket est déjà résolu ou clos.',
+  TRANSITION_NOT_ALLOWED:'Cette étape n’est pas possible depuis le statut actuel.',
+  SERVICE_UNKNOWN:'Service inconnu.', TEAM_UNKNOWN:'Équipe inconnue.'
+};
+var state = { view:'mine', q:'', counts:{}, services:[], skills:{}, open:null, me:null };
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(m, err){ var t = document.getElementById('toast'); t.textContent = m; t.className = 'tk-toast on' + (err ? ' err' : ''); clearTimeout(t._h); t._h = setTimeout(function(){ t.className = 'tk-toast'; }, 3200); }
+function errMsg(e){ var m = (e && e.message) || ''; for (var k in ERR) if (m.indexOf(k) !== -1) return ERR[k]; return m || 'Erreur inattendue.'; }
+function rel(d){
+  if (!d) return '';
+  var s = (new Date(d) - Date.now()) / 1000, a = Math.abs(s), u;
+  if (a < 60) u = 'moins d’une minute';
+  else if (a < 3600) u = Math.round(a/60) + ' min';
+  else if (a < 86400) u = Math.round(a/3600) + ' h';
+  else u = Math.round(a/86400) + ' j';
+  return s >= 0 ? 'dans ' + u : 'il y a ' + u;
+}
+function fmt(d){ return d ? new Date(d).toLocaleString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '—'; }
+async function rpc(fn, args){ var r = await sb.rpc(fn, args || {}); if (r.error) throw r.error; return r.data; }
+
+/* ── Liste ── */
+function renderViews(){
+  document.getElementById('views').innerHTML = VIEWS.map(function(v){
+    var n = state.counts[v[0]], alert = (v[0] === 'overdue' || v[0] === 'escalated') && n > 0;
+    return '<button class="tk-view' + (state.view === v[0] ? ' on' : '') + (alert ? ' alert' : '') + '" role="tab" aria-selected="' + (state.view === v[0]) + '" data-view="' + v[0] + '">' +
+      esc(v[1]) + (n != null ? ' <b>' + n + '</b>' : '') + '</button>';
+  }).join('');
+}
+function rowHtml(t){
+  var due = t.status === 'resolved' || t.status === 'closed' ? 'Résolu ' + rel(t.resolved_at)
+          : (t.overdue ? '<span class="late">En retard, échéance ' + rel(t.resolution_due_at) + '</span>' : 'Échéance ' + rel(t.resolution_due_at));
+  var side = state.view === 'available' && t.status === 'queued'
+    ? '<button class="btn-claim" type="button" data-claim="' + t.id + '">Prendre</button>'
+    : '<span class="pill st-' + t.status + '">' + esc(STATUS[t.status]) + '</span>';
+  return '<div class="tk-row" tabindex="0" data-id="' + t.id + '">' +
+    '<span class="tk-bar ' + t.priority + '" title="Priorité ' + esc(PRIO[t.priority]) + '"></span>' +
+    '<div class="tk-main"><div class="tk-line1"><span class="tk-ref">' + esc(t.ref) + '</span><span class="tk-name">' + esc(t.title) + '</span></div>' +
+    '<div class="tk-line2"><span>' + esc(t.service_name) + (t.category ? ' · ' + esc(t.category) : '') + '</span>' +
+    '<span>' + (t.assignee_name ? esc(t.assignee_name) : 'Non affecté') + '</span>' +
+    (t.doctor_name ? '<span>' + esc(t.doctor_name) + '</span>' : '') + '<span>' + due + '</span></div></div>' +
+    '<div class="tk-side">' + side + '</div></div>';
+}
+var EMPTY = {
+  mine:['Aucun ticket en cours','Les tickets qui vous sont confiés apparaissent ici.'],
+  available:['Rien à prendre pour l’instant','Les tickets en file de vos équipes, pour lesquels vous avez la compétence, apparaissent ici.'],
+  overdue:['Aucun retard','Tous les tickets sont dans les délais.']
+};
+async function load(){
+  try {
+    var r = await rpc('ticket_list', { p_view: state.view, p_search: state.q || null });
+    state.counts = r.counts || {};
+    renderViews();
+    var list = document.getElementById('list');
+    if (!r.tickets.length) {
+      var e = EMPTY[state.view] || ['Aucun ticket', state.q ? 'Aucun résultat pour cette recherche.' : 'Cette vue est vide.'];
+      list.innerHTML = '<div class="tk-empty"><strong>' + esc(e[0]) + '</strong>' + esc(e[1]) + '</div>';
+    } else list.innerHTML = r.tickets.map(rowHtml).join('');
+  } catch (e) {
+    document.getElementById('list').innerHTML = '<div class="tk-empty"><strong>Impossible de charger les tickets</strong>' + esc(errMsg(e)) + '</div>';
+  }
+}
+
+async function claim(id, btn){
+  if (btn) btn.disabled = true;
+  try { await rpc('ticket_claim', { p_ticket:id }); toast('Ticket pris en charge'); await load(); openTicket(id); }
+  catch (e) { toast(errMsg(e), true); load(); }
+}
+
+/* ── Note obligatoire ── */
+function askNote(title, sub, placeholder){
+  return new Promise(function(res){
+    var w = document.getElementById('note'), tx = document.getElementById('note-txt');
+    document.getElementById('note-t').textContent = title;
+    document.getElementById('note-s').textContent = sub || '';
+    tx.value = ''; tx.placeholder = placeholder || '';
+    w.classList.add('on'); setTimeout(function(){ tx.focus(); }, 30);
+    function done(v){ w.classList.remove('on'); ok.onclick = cancel.onclick = null; res(v); }
+    var ok = document.getElementById('note-ok'), cancel = document.getElementById('note-cancel');
+    ok.onclick = function(){ var v = tx.value.trim(); if (!v) { tx.focus(); return; } done(v); };
+    cancel.onclick = function(){ done(null); };
+  });
+}
+
+/* ── Détail ── */
+var EVT = {
+  created: function(e){ return '<b>' + esc(e.actor_name || 'Système') + '</b> a créé le ticket'; },
+  assigned: function(e){ var m = e.meta || {}; return m.method === 'auto' ? 'Confié automatiquement à <b>' + esc(e.to_value) + '</b>'
+    : m.method === 'claim' ? '<b>' + esc(e.to_value) + '</b> a pris le ticket' : '<b>' + esc(e.actor_name) + '</b> a confié le ticket à <b>' + esc(e.to_value) + '</b>'; },
+  reassigned: function(e){ return '<b>' + esc(e.actor_name || 'Système') + '</b> a réaffecté le ticket de ' + esc(e.from_value) + ' à <b>' + esc(e.to_value) + '</b>'; },
+  released: function(e){ return '<b>' + esc(e.actor_name) + '</b> a rendu le ticket à la file'; },
+  requeued: function(e){ return 'Retour en file : ' + esc(e.from_value) + ' ne l’a pas pris en main à temps'; },
+  no_eligible_agent: function(){ return 'Aucun agent disponible avec la compétence requise : le ticket attend dans la file'; },
+  status: function(e){ return '<b>' + esc(e.actor_name || 'Système') + '</b> : ' + esc(STATUS[e.from_value] || e.from_value) + ' → ' + esc(STATUS[e.to_value] || e.to_value); },
+  reopened: function(e){ return '<b>' + esc(e.actor_name) + '</b> a rouvert le ticket'; },
+  escalated: function(){ return 'Escaladé automatiquement après dépassement du délai'; },
+  sla_breach: function(e){ return 'Délai de ' + (e.to_value === 'response' ? 'première réponse' : 'résolution') + ' dépassé'; }
+};
+function timeline(d){
+  var items = d.events.filter(function(e){ return e.kind !== 'comment'; }).map(function(e){
+    var f = EVT[e.kind], note = e.meta && (e.meta.note || e.meta.reason);
+    return { at:e.created_at, html:'<div class="tl-txt">' + (f ? f(e) : esc(e.kind)) + '</div>' + (note ? '<div class="tl-body">' + esc(note) + '</div>' : '') };
+  }).concat(d.comments.map(function(c){
+    return { at:c.created_at, cm:true, html:'<div class="tl-txt"><b>' + esc(c.author_name) + '</b> a commenté</div><div class="tl-body">' + esc(c.body) + '</div>' };
+  }));
+  items.sort(function(a,b){ return new Date(b.at) - new Date(a.at); });
+  return items.map(function(i){ return '<div class="tl-it' + (i.cm ? ' cm' : '') + '"><span class="tl-dot"></span><div>' + i.html + '<div class="tl-when">' + fmt(i.at) + '</div></div></div>'; }).join('');
+}
+function actions(t, can){
+  var b = [], s = t.status, owner = can.work, lead = can.lead;
+  if (can.claim) b.push(['claim','Prendre ce ticket','primary']);
+  if (owner && (s === 'assigned' || s === 'escalated')) b.push(['in_progress','Commencer','primary']);
+  if (owner && (s === 'waiting_requester' || s === 'waiting_team')) b.push(['in_progress','Reprendre','primary']);
+  if (owner && ['assigned','in_progress','escalated'].indexOf(s) !== -1) { b.push(['waiting_requester','Attente du médecin']); b.push(['waiting_team','Attente d’une équipe']); }
+  if ((owner || lead) && ['assigned','in_progress','waiting_requester','waiting_team'].indexOf(s) !== -1) b.push(['escalated','Escalader','danger']);
+  if ((owner || lead) && ['assigned','in_progress','waiting_requester','waiting_team','escalated'].indexOf(s) !== -1) b.push(['resolved','Résoudre','primary']);
+  if ((owner || lead) && s === 'resolved') b.push(['closed','Clore']);
+  if (s === 'resolved' || s === 'closed') b.push(['queued','Rouvrir']);
+  if ((owner || lead) && t.assignee_id && ['resolved','closed'].indexOf(s) === -1) b.push(['release','Rendre à la file']);
+  return b;
+}
+async function openTicket(id){
+  state.open = id;
+  var dw = document.getElementById('drawer');
+  document.getElementById('scrim').classList.add('on'); dw.classList.add('on');
+  dw.innerHTML = '<div class="dw-body"><div class="tk-empty">Chargement</div></div>';
+  var d;
+  try { d = await rpc('ticket_detail', { p_ticket:id }); } catch (e) { dw.innerHTML = '<div class="dw-body"><div class="tk-empty">' + esc(errMsg(e)) + '</div></div>'; return; }
+  if (state.open !== id) return;
+  var t = d.ticket, can = d.can || {};
+  var btns = actions(t, can).map(function(a){ return '<button class="dw-btn ' + (a[2] || '') + '" type="button" data-act="' + a[0] + '">' + esc(a[1]) + '</button>'; }).join('');
+  var assign = can.assign && ['resolved','closed'].indexOf(t.status) === -1
+    ? '<div><div class="dw-sec">Affecter</div><div class="dw-assign"><select id="as-who">' +
+      d.candidates.map(function(c){ return '<option value="' + c.id + '"' + (c.eligible ? '' : ' disabled') + (c.id === t.assignee_id ? ' selected' : '') + '>' +
+        esc(c.name) + ' · ' + c.load + '/' + c.max + ' · ' + ({available:'disponible',busy:'occupé',away:'absent',offline:'hors ligne'}[c.availability] || '') + (c.eligible ? '' : ' · compétence manquante') + '</option>'; }).join('') +
+      '</select>' + (t.assignee_id ? '<input id="as-why" placeholder="Raison de la réaffectation" maxlength="300">' : '') +
+      '<button class="dw-btn" type="button" data-act="assign">Affecter</button></div>' +
+      (d.candidates.length ? '' : '<p class="tk-sub">Aucun membre dans l’équipe ' + esc(t.team_name) + '. Ajoutez des agents depuis la page Équipe.</p>') + '</div>'
+    : '';
+  var paused = t.sla_paused_at ? ' (en pause)' : '';
+  dw.innerHTML =
+    '<div class="dw-head"><div class="dw-top"><div style="display:flex;gap:8px;align-items:center"><span class="tk-ref">' + esc(t.ref) + '</span><span class="pill st-' + t.status + '">' + esc(STATUS[t.status]) + '</span></div>' +
+    '<button class="dw-close" type="button" data-close="drawer" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>' +
+    '<div class="dw-title">' + esc(t.title) + '</div></div>' +
+    '<div class="dw-body">' +
+      (t.description ? '<div class="dw-desc">' + esc(t.description) + '</div>' : '') +
+      '<div class="dw-grid">' +
+        '<div><div class="dw-k">Service</div><div class="dw-v">' + esc(t.service_name) + (t.category ? ' · ' + esc(t.category) : '') + '</div></div>' +
+        '<div><div class="dw-k">File</div><div class="dw-v">' + esc(t.team_name) + '</div></div>' +
+        '<div><div class="dw-k">Responsable</div><div class="dw-v">' + (t.assignee_name ? esc(t.assignee_name) : 'Non affecté') + '</div></div>' +
+        '<div><div class="dw-k">Priorité</div><div class="dw-v">' + esc(PRIO[t.priority]) + ' · ' + esc(IMPACT[t.impact]) + '</div></div>' +
+        '<div><div class="dw-k">Première réponse</div><div class="dw-v' + (t.response_breached ? ' late' : '') + '">' + (t.first_response_at ? fmt(t.first_response_at) : 'Avant le ' + fmt(t.response_due_at)) + '</div></div>' +
+        '<div><div class="dw-k">Résolution</div><div class="dw-v' + (t.overdue || t.resolution_breached ? ' late' : '') + '">' + (t.resolved_at ? fmt(t.resolved_at) : 'Avant le ' + fmt(t.resolution_due_at) + paused) + '</div></div>' +
+        (t.doctor_id ? '<div><div class="dw-k">Médecin</div><div class="dw-v"><a href="/symphony-crm?id=' + encodeURIComponent(t.doctor_id) + '">' + esc(t.doctor_name || 'Fiche médecin') + '</a></div></div>' : '') +
+        '<div><div class="dw-k">Créé par</div><div class="dw-v">' + esc(t.creator_name) + ', ' + fmt(t.created_at) + '</div></div>' +
+      '</div>' +
+      (t.resolution_note ? '<div><div class="dw-sec">Résolution</div><div class="tl-body">' + esc(t.resolution_note) + '</div></div>' : '') +
+      (btns ? '<div class="dw-btns">' + btns + '</div>' : '') + assign +
+      '<div class="dw-comment"><div class="dw-sec">Note interne</div><textarea id="cm-txt" maxlength="5000" placeholder="Ce que vous avez fait, ce qui reste à faire"></textarea><div class="row"><button class="dw-btn primary" type="button" data-act="comment">Ajouter la note</button></div></div>' +
+      '<div><div class="dw-sec">Historique</div><div class="tl">' + timeline(d) + '</div></div>' +
+    '</div>';
+  dw.dataset.assignee = t.assignee_id || '';
+}
+function closeDrawer(){ state.open = null; document.getElementById('drawer').classList.remove('on'); document.getElementById('scrim').classList.remove('on'); }
+
+async function act(kind, btn){
+  var id = state.open; if (!id) return;
+  btn.disabled = true;
+  try {
+    if (kind === 'claim') { await rpc('ticket_claim', { p_ticket:id }); toast('Ticket pris en charge'); }
+    else if (kind === 'comment') {
+      var v = document.getElementById('cm-txt').value.trim(); if (!v) { btn.disabled = false; return; }
+      await rpc('ticket_comment', { p_ticket:id, p_body:v, p_internal:true }); toast('Note ajoutée');
+    } else if (kind === 'assign') {
+      var who = document.getElementById('as-who').value, why = document.getElementById('as-why');
+      await rpc('ticket_assign', { p_ticket:id, p_staff:who, p_reason: why ? why.value.trim() : null }); toast('Ticket affecté');
+    } else if (kind === 'release') {
+      var r = await askNote('Rendre à la file', 'Le ticket sera proposé à un autre agent de l’équipe.', 'Pourquoi le rendre ?');
+      if (!r) { btn.disabled = false; return; }
+      await rpc('ticket_release', { p_ticket:id, p_reason:r }); toast('Ticket rendu à la file');
+    } else {
+      var note = null;
+      if (kind === 'resolved') note = await askNote('Résoudre le ticket', 'Cette note est visible dans l’historique.', 'Ce qui a été fait');
+      if (kind === 'escalated') note = await askNote('Escalader', 'Le responsable de l’équipe sera alerté.', 'Pourquoi escalader ?');
+      if (kind === 'queued') note = await askNote('Rouvrir le ticket', 'Il repartira dans la file de l’équipe.', 'Pourquoi le rouvrir ?');
+      if ((kind === 'resolved' || kind === 'escalated' || kind === 'queued') && !note) { btn.disabled = false; return; }
+      await rpc('ticket_transition', { p_ticket:id, p_status:kind, p_note:note });
+      toast(kind === 'resolved' ? 'Ticket résolu' : kind === 'queued' ? 'Ticket rouvert' : 'Statut mis à jour');
+    }
+    await Promise.all([openTicket(id), load()]);
+  } catch (e) { toast(errMsg(e), true); btn.disabled = false; }
+}
+
+/* ── Création guidée ── */
+var draft = null;
+function openCreate(presetDoctor){
+  draft = { service:null, priority:'normal', impact:'one', doctor: presetDoctor || null };
+  document.getElementById('create').classList.add('on');
+  stepServices();
+}
+function closeCreate(){ document.getElementById('create').classList.remove('on'); }
+function stepServices(){
+  document.getElementById('create-s').textContent = 'Quel service doit traiter la demande ?';
+  document.getElementById('create-f').hidden = true;
+  document.getElementById('create-b').innerHTML = '<div class="svc-grid">' + state.services.map(function(s){
+    return '<button class="svc" type="button" data-svc="' + esc(s.key) + '"><strong>' + esc(s.name) + '</strong><span>' + esc(s.description) + '</span></button>';
+  }).join('') + '</div>';
+}
+function stepForm(){
+  var s = draft.service;
+  document.getElementById('create-s').textContent = s.name;
+  document.getElementById('create-f').hidden = false;
+  var seg = function(name, opts, cur){ return '<div class="seg" data-seg="' + name + '">' + Object.keys(opts).map(function(k){ return '<button type="button" data-v="' + k + '" class="' + (k === cur ? 'on' : '') + '">' + esc(opts[k]) + '</button>'; }).join('') + '</div>'; };
+  document.getElementById('create-b').innerHTML =
+    '<div class="route"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><div>Ce ticket ira dans la file <b>' + esc(s.team_name || 'du département') + '</b>' +
+      (s.skill_name ? ' et sera confié à un agent disponible formé en <b>' + esc(s.skill_name) + '</b>' : '') + '.' + (s.escalation_rule ? '<br>' + esc(s.escalation_rule) + '.' : '') + '</div></div>' +
+    '<div class="fld"><label for="c-cat">Catégorie</label><select id="c-cat"><option value="">Choisir</option>' + (s.categories || []).map(function(c){ return '<option>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
+    '<div class="fld"><label for="c-title">Résumé</label><input id="c-title" maxlength="160" placeholder="En une phrase, ce qui se passe"></div>' +
+    '<div class="fld"><label for="c-desc">Détails</label><textarea id="c-desc" maxlength="5000" placeholder="Contexte, ce qui a déjà été tenté, ce que le médecin attend"></textarea></div>' +
+    '<div class="fld"><label>Priorité</label>' + seg('priority', PRIO, draft.priority) + '</div>' +
+    '<div class="fld"><label>Impact</label>' + seg('impact', IMPACT, draft.impact) + '</div>' +
+    '<div class="fld"><label for="c-doc">Médecin concerné <span style="font-weight:500;color:var(--text-3)">(facultatif)</span></label><div id="c-doc-box"></div></div>';
+  renderDoctor();
+  setTimeout(function(){ document.getElementById('c-title').focus(); }, 30);
+}
+function renderDoctor(){
+  var box = document.getElementById('c-doc-box'); if (!box) return;
+  if (draft.doctor) { box.innerHTML = '<span class="doc-chip">' + esc(draft.doctor.name) + '<button type="button" id="c-doc-x" aria-label="Retirer">×</button></span>'; return; }
+  box.innerHTML = '<input id="c-doc" placeholder="Nom ou email du médecin" autocomplete="off"><div id="c-doc-res"></div>';
+}
+var docTimer;
+async function searchDoctor(q){
+  var res = document.getElementById('c-doc-res'); if (!res) return;
+  if (q.length < 2) { res.innerHTML = ''; return; }
+  var term = '%' + q.replace(/[%,()]/g, ' ') + '%';
+  var r = await sb.from('profiles').select('id,full_name,first_name,last_name,email,specialty').or('full_name.ilike.' + term + ',email.ilike.' + term + ',last_name.ilike.' + term).limit(6);
+  if (r.error || !r.data.length) { res.innerHTML = '<div class="doc-res"><button type="button" disabled>Aucun médecin trouvé</button></div>'; return; }
+  res.innerHTML = '<div class="doc-res">' + r.data.map(function(p){
+    var n = ((p.first_name || '') + ' ' + (p.last_name || '')).trim() || p.full_name || p.email;
+    return '<button type="button" data-doc="' + p.id + '" data-name="' + esc(n) + '">' + esc(n) + ' <span style="color:var(--text-3)">' + esc(p.specialty || p.email || '') + '</span></button>';
+  }).join('') + '</div>';
+}
+async function submitCreate(btn){
+  var title = document.getElementById('c-title').value.trim();
+  if (title.length < 3) { toast('Écrivez un résumé d’au moins 3 caractères.', true); document.getElementById('c-title').focus(); return; }
+  btn.disabled = true;
+  try {
+    var r = await rpc('ticket_create', {
+      p_title:title, p_description:document.getElementById('c-desc').value, p_service_key:draft.service.key,
+      p_priority:draft.priority, p_category:document.getElementById('c-cat').value || null, p_impact:draft.impact,
+      p_doctor_id: draft.doctor ? draft.doctor.id : null, p_related_type:null, p_related_id:null, p_team_id:null
+    });
+    closeCreate();
+    toast(r.ref + (r.assignee ? ' confié à ' + r.assignee : ' en attente dans la file'));
+    await load(); openTicket(r.id);
+  } catch (e) { toast(errMsg(e), true); }
+  btn.disabled = false;
+}
+
+/* ── Événements ── */
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-view],[data-claim],[data-close],[data-act],[data-svc],[data-doc],#c-doc-x,.seg button,.tk-row');
+  if (!t) return;
+  if (t.dataset.view) { state.view = t.dataset.view; load(); return; }
+  if (t.dataset.claim) { e.stopPropagation(); claim(t.dataset.claim, t); return; }
+  if (t.dataset.close === 'drawer') { closeDrawer(); return; }
+  if (t.dataset.close === 'create') { closeCreate(); return; }
+  if (t.dataset.act) { act(t.dataset.act, t); return; }
+  if (t.dataset.svc) { draft.service = state.services.filter(function(s){ return s.key === t.dataset.svc; })[0]; stepForm(); return; }
+  if (t.dataset.doc) { draft.doctor = { id:t.dataset.doc, name:t.dataset.name }; renderDoctor(); return; }
+  if (t.id === 'c-doc-x') { draft.doctor = null; renderDoctor(); return; }
+  if (t.parentNode.dataset && t.parentNode.dataset.seg) {
+    draft[t.parentNode.dataset.seg] = t.dataset.v;
+    t.parentNode.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b === t); });
+    return;
+  }
+  if (t.classList.contains('tk-row')) openTicket(t.dataset.id);
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') { if (document.getElementById('note').classList.contains('on')) return; closeDrawer(); closeCreate(); }
+  if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('tk-row')) openTicket(e.target.dataset.id);
+});
+document.addEventListener('input', function(e){
+  if (e.target.id === 'q') { clearTimeout(state.qt); state.qt = setTimeout(function(){ state.q = e.target.value.trim(); load(); }, 250); }
+  if (e.target.id === 'c-doc') { clearTimeout(docTimer); var v = e.target.value.trim(); docTimer = setTimeout(function(){ searchDoctor(v); }, 250); }
+});
+document.getElementById('scrim').onclick = closeDrawer;
+document.getElementById('btn-new').onclick = function(){ openCreate(); };
+document.getElementById('create-back').onclick = stepServices;
+document.getElementById('create-go').onclick = function(){ submitCreate(this); };
+document.getElementById('avail').onchange = async function(){
+  var v = this.value;
+  try { await rpc('org_set_availability', { p_status:v, p_staff:null }); document.getElementById('avail-dot').className = 'dot ' + v; toast(v === 'available' ? 'Vous recevez de nouveaux tickets' : 'Statut mis à jour'); load(); }
+  catch (e) { toast(errMsg(e), true); }
+};
+
+/* ── Démarrage ── */
+(async function(){
+  var s = await sb.auth.getSession();
+  if (!s.data.session) { location.href = '/login'; return; }
+  var u = s.data.session.user;
+  Shell.init({ page:'symphony-tickets', title:'Tickets', isPro:true, plan:'admin', isSymphony:true,
+    userName:Shell.displayName(u.user_metadata || {}, u.email), userEmail:u.email });
+  try {
+    var dir = await rpc('org_directory');
+    var me = (dir.staff || []).filter(function(x){ return x.id === dir.me; })[0];
+    if (me) { document.getElementById('avail').value = me.availability; document.getElementById('avail-dot').className = 'dot ' + me.availability; }
+    var teams = {}; (dir.teams || []).forEach(function(t){ teams[t.id] = t.name; });
+    (dir.skills || []).forEach(function(k){ state.skills[k.key] = k.name; });
+    var sv = await sb.from('ticket_services').select('*').eq('active', true).order('sort');
+    state.services = (sv.data || []).map(function(x){ x.team_name = teams[x.default_team_id]; x.skill_name = state.skills[x.required_skill_key]; return x; });
+  } catch (e) { toast(errMsg(e), true); }
+  var p = new URLSearchParams(location.search);
+  if (p.get('view')) state.view = p.get('view');
+  await load();
+  if (p.get('id')) openTicket(p.get('id'));
+  if (p.get('new') && p.get('doctor')) openCreate({ id:p.get('doctor'), name:p.get('doctor_name') || 'Médecin sélectionné' });
+  setInterval(function(){ if (!document.hidden) load(); }, 30000);
+})();
+</script>
+<script src="symphony-access.js?v=4" defer></script>
+</body>
+</html>

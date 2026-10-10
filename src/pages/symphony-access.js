@@ -12,7 +12,7 @@
     '/symphony-users': 'doctors.view', '/symphony-crm': 'doctors.view', '/symphony-featured': 'doctors.view',
     '/symphony-revenue': 'revenue.view', '/symphony-ads': 'marketing.view', '/symphony-emails': 'marketing.view',
     '/symphony-agents': 'team.view', '/symphony-simulate': 'simulate.use', '/symphony-security': 'security.view',
-    '/symphony-settings': 'settings.manage', '/symphony-incidents': 'incidents.view'
+    '/symphony-settings': 'settings.manage', '/symphony-incidents': 'incidents.view', '/symphony-tickets': 'tickets.work'
   };
   // Boutons internes du hub (sections affichées sans changer de page)
   var HUB_BUTTONS = { 'nav-paiements': 'payments.view', 'nav-equipe': 'team.view', 'nav-medecins': 'doctors.view' };

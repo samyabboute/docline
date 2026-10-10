@@ -74,6 +74,11 @@ Shell = (function () {
     { href:'/symphony-analytics',key:'symphony-analytics',label:'Analytics',
       icon:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>' },
 
+    // ── Opérations
+    { section: 'Opérations' },
+    { href:'/symphony-tickets',  key:'symphony-tickets',  label:'Tickets',
+      icon:'<path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z"/><path d="M13 5v14" stroke-dasharray="2 2"/>' },
+
     // ── Clients & CRM
     { section: 'Clients & CRM' },
     { href:'/symphony-kyc',      key:'symphony-kyc',      label:'KYC & Onboarding',
@@ -1668,8 +1673,8 @@ button{font-family:inherit;cursor:pointer}
     // Lance le voyant RDV en attente (léger délai pour laisser supabase se charger)
     setTimeout(_watchRdv, 250);
 
-    // Lance l'onboarding à la première connexion
-    _launchOnboarding();
+    // Lance l'onboarding à la première connexion (médecins seulement, pas dans Symphony)
+    if (!opts.isSymphony) _launchOnboarding();
 
     // Heartbeat last_seen_at — toutes les 5 min
     _startHeartbeat();

@@ -36,7 +36,7 @@ function ghpNav(path) {
     '/symphony-revenue':'/symphony-revenue.html', '/symphony-security':'/symphony-security.html',
     '/symphony-settings':'/symphony-settings.html', '/symphony-analytics':'/symphony-analytics.html',
     '/symphony-ads':'/symphony-ads.html', '/symphony-agents':'/symphony-agents.html',
-    '/symphony-kyc':'/symphony-kyc.html', '/symphony-incidents':'/symphony-incidents.html',
+    '/symphony-kyc':'/symphony-kyc.html', '/symphony-incidents':'/symphony-incidents.html', '/symphony-tickets':'/symphony-tickets.html',
     // Legacy admin routes — redirect to symphony equivalents
     '/admin':'/symphony.html', '/admin-crm':'/symphony-crm.html', '/admin-simulate':'/symphony-simulate.html', '/admin-users':'/symphony-users.html',
     '/admin-featured':'/symphony-featured.html', '/admin-emails':'/symphony-emails.html',
