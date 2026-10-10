@@ -706,7 +706,7 @@ function openDetail(userId) {
     + (r.doc_url ? '<button class="btn btn-ghost" style="margin:12px 0 4px" onclick="openKycDoc(\'' + r.user_id + '\')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Ouvrir le document</button>' : '')
     + '<div class="action-panel">'
     + '<div class="action-panel-title">Note KYC</div>'
-    + '<textarea id="kyc-note-input" placeholder="Note interne sur le dossier…">' + esc(r.kyc_note || '') + '</textarea>'
+    + '<textarea id="kyc-note-input" placeholder="Motif du refus, visible par le médecin (obligatoire pour rejeter)">' + esc(r.kyc_note || '') + '</textarea>'
     + '<div class="action-buttons">'
     + '<button class="btn btn-success" onclick="setKycStatus(\'' + r.user_id + '\',\'approved\',true)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Approuver</button>'
     + '<button class="btn btn-danger" onclick="setKycStatus(\'' + r.user_id + '\',\'rejected\',true)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Rejeter</button>'
@@ -727,27 +727,27 @@ function closeModal(e) {
 var KYC_TO_DB = { approved:'approved', rejected:'rejected', pending:'pending_review', not_submitted:'not_submitted' };
 async function setKycStatus(userId, status, fromModal) {
   if (!_supa) return;
+  // Un refus demande toujours un motif : on passe par la fiche du dossier
+  if (status === 'rejected' && !fromModal) { openDetail(userId); showToast('Indiquez le motif du refus, puis cliquez sur Rejeter.'); return; }
   var note = fromModal ? ((document.getElementById('kyc-note-input') || {}).value || '').trim() : '';
-  if (status === 'rejected' && !note && fromModal) { showToast('Indiquez le motif du refus dans la note.', true); return; }
+  if (status === 'rejected' && note.length < 5) { showToast('Indiquez le motif du refus (au moins 5 caractères).', true); return; }
   try {
-    var sess = (await _supa.auth.getSession()).data.session;
-    var upd = { kyc_status: KYC_TO_DB[status], kyc_reviewed_at: new Date().toISOString(), kyc_reviewer_id: sess ? sess.user.id : null };
-    if (status === 'rejected') upd.kyc_reject_reason = note || 'Dossier incomplet';
-    if (status === 'approved') upd.kyc_reject_reason = null;
-    var { error } = await _supa.from('profiles').update(upd).eq('id', userId);
-    if (error) throw error;
-    await _supa.from('kyc_audit_log').insert({ doctor_id: userId, action: status, reviewer_id: upd.kyc_reviewer_id, note: note || null }).then(null, function() {});
-
-    var row = _allRows.find(function(r) { return r.user_id === userId; });
-    if (row) { row.kyc_status = status; row.kyc_note = upd.kyc_reject_reason || ''; }
-    showToast({ approved:'Dossier approuvé', rejected:'Dossier refusé' }[status] || 'Statut mis à jour');
+    // Décision enregistrée par le serveur : il identifie lui-même le vérificateur et tient le journal
+    var r = await _supa.rpc('kyc_decide', { p_doctor: userId, p_decision: KYC_TO_DB[status], p_reason: status === 'rejected' ? note : null });
+    if (r.error) throw r.error;
+    var row = _allRows.find(function(x) { return x.user_id === userId; });
+    if (row) { row.kyc_status = status; row.kyc_note = status === 'rejected' ? note : ''; }
+    showToast({ approved:'Dossier approuvé', rejected:'Dossier refusé' }[status] + (r.data && r.data.reviewer ? ' par ' + r.data.reviewer : ''));
     if (fromModal) closeDetail();
     refreshKycStats();
     applyFilters();
   } catch(e) {
     var msg = (e && e.message) || 'Erreur inconnue';
-    if (/row-level security|permission denied/i.test(msg)) msg = 'Votre poste ne permet pas de décider un dossier KYC.';
-    showToast('Erreur : ' + msg, true);
+    var map = { FORBIDDEN:'Votre poste ne permet pas de décider un dossier KYC.', REASON_REQUIRED:'Indiquez le motif du refus.',
+      NO_DOCUMENT:'Aucun document n’a été envoyé : impossible d’approuver.', ALREADY_APPROVED:'Ce dossier est déjà approuvé.',
+      ALREADY_REJECTED:'Ce dossier est déjà refusé.', DOCTOR_NOT_FOUND:'Médecin introuvable.' };
+    for (var k in map) if (msg.indexOf(k) !== -1) { msg = map[k]; break; }
+    showToast(msg, true);
   }
 }
 

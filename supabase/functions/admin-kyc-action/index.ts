@@ -8,7 +8,13 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") ?? "samyabboute5@gmail.com";
+// Permission Symphony exigée pour chaque action (vérifiée côté serveur avec le jeton de l'agent)
+const ACTION_PERM: Record<string, string> = {
+  approve: "kyc.decide", reject: "kyc.decide",
+  set_plan: "doctors.edit", toggle_active: "doctors.edit", deactivate: "doctors.edit",
+  approve_payment: "payments.decide", reject_payment: "payments.decide",
+  delete_user: "users.sensitive",
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -27,36 +33,25 @@ serve(async (req) => {
 
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-    // Allow super_admin or any admin_roles entry
-    if (user.email !== ADMIN_EMAIL) {
-      const { data: roleRow } = await admin.from("admin_roles").select("role").eq("email", user.email).single();
-      if (!roleRow) return new Response(JSON.stringify({ error: "FORBIDDEN" }), { status: 403, headers: { ...CORS, "Content-Type": "application/json" } });
-    }
-
     const { doctorId, action, note, interval, adminGrant } = await req.json();
-    // action: "approve" | "reject" | "set_plan" | "toggle_active" | "deactivate"
     if (!doctorId || !action) {
       return new Response(JSON.stringify({ error: "MISSING_FIELDS" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
     }
+    const perm = ACTION_PERM[action];
+    if (!perm) return new Response(JSON.stringify({ error: "UNKNOWN_ACTION" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+    const { data: allowed } = await supa.rpc("symphony_can", { p_perm: perm });
+    if (allowed !== true) return new Response(JSON.stringify({ error: "FORBIDDEN" }), { status: 403, headers: { ...CORS, "Content-Type": "application/json" } });
     const now   = new Date().toISOString();
+    const log = (a: string, n: unknown = null) =>
+      admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: a, reviewer_id: user.id, note: n ?? null });
 
-    if (action === "approve") {
-      await admin.from("profiles").update({
-        kyc_status:      "approved",
-        kyc_reviewed_at: now,
-        kyc_reviewer_id: user.id,
-        kyc_reject_reason: null,
-      }).eq("id", doctorId);
-      await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "approved", note: note ?? null });
-
-    } else if (action === "reject") {
-      await admin.from("profiles").update({
-        kyc_status:        "rejected",
-        kyc_reviewed_at:   now,
-        kyc_reviewer_id:   user.id,
-        kyc_reject_reason: note ?? "Document non valide.",
-      }).eq("id", doctorId);
-      await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "rejected", note: note ?? null });
+    if (action === "approve" || action === "reject") {
+      // Même règle que la page KYC : le serveur décide, identifie le vérificateur et tient le journal
+      const { data, error } = await supa.rpc("kyc_decide", {
+        p_doctor: doctorId, p_decision: action === "approve" ? "approved" : "rejected", p_reason: note ?? null,
+      });
+      if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ ok: true, ...data }), { status: 200, headers: { ...CORS, "Content-Type": "application/json" } });
 
     } else if (action === "set_plan") {
       // 1. Update profiles.plan
@@ -120,19 +115,19 @@ serve(async (req) => {
           if (subErr) throw new Error("subscriptions insert failed: " + subErr.message);
         }
       }
-      try { await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "set_plan", note: note ?? null }); } catch (_) {}
+      await log("set_plan", note);
 
     } else if (action === "toggle_active") {
       const { data: p } = await admin.from("profiles").select("is_active").eq("id", doctorId).single();
       const newVal = !(p?.is_active ?? true);
       await admin.from("profiles").update({ is_active: newVal }).eq("id", doctorId);
-      await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: newVal ? "activated" : "deactivated", note: null });
+      await log(newVal ? "activated" : "deactivated");
 
     } else if (action === "deactivate") {
       // Force-deactivate: always sets is_active=false AND is_public=false (no toggle risk)
       await admin.from("profiles").update({ is_active: false, is_public: false }).eq("id", doctorId);
       await admin.from("subscriptions").update({ status: "suspended" }).eq("user_id", doctorId);
-      await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "deactivated", note: note ?? null });
+      await log("deactivated", note);
 
     } else if (action === "approve_payment") {
       const now2 = new Date().toISOString();
@@ -158,19 +153,30 @@ serve(async (req) => {
       }).eq("user_id", doctorId);
       if (subErr) throw new Error("Payment approval failed: " + subErr.message);
       await admin.from("profiles").update({ is_active: true }).eq("id", doctorId);
-      try { await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "approve_payment", note: note ?? null }); } catch(_) {}
+      await log("approve_payment", note);
 
     } else if (action === "reject_payment") {
       const { error: subErr2 } = await admin.from("subscriptions").update({
         payment_status: 'failed',
       }).eq("user_id", doctorId);
       if (subErr2) throw new Error("Payment rejection failed: " + subErr2.message);
-      try { await admin.from("kyc_audit_log").insert({ doctor_id: doctorId, action: "reject_payment", note: note ?? null }); } catch(_) {}
+      await log("reject_payment", note);
 
     } else if (action === "delete_user") {
-      // 1. Delete all related data
-      await admin.from("kyc_audit_log").delete().eq("doctor_id", doctorId);
-      await admin.from("subscriptions").delete().eq("user_id", doctorId);
+      // Un compte qui porte un historique de paiement n'est jamais supprimé : on le désactive.
+      const { count: paid } = await admin.from("subscriptions").select("id", { count: "exact", head: true })
+        .eq("user_id", doctorId).not("paid_at", "is", null);
+      const { count: requests } = await admin.from("payment_requests").select("id", { count: "exact", head: true })
+        .eq("user_id", doctorId);
+      if ((paid ?? 0) > 0 || (requests ?? 0) > 0) {
+        return new Response(JSON.stringify({ error: "HAS_FINANCIAL_RECORDS", message: "Ce compte a un historique de paiement : désactivez-le au lieu de le supprimer." }),
+          { status: 409, headers: { ...CORS, "Content-Type": "application/json" } });
+      }
+      // Trace de la suppression, conservée après l'effacement du compte
+      const { data: target } = await admin.from("profiles").select("email,full_name").eq("id", doctorId).maybeSingle();
+      const { data: actor } = await admin.from("symphony_staff").select("id,full_name").ilike("email", user.email ?? "").maybeSingle();
+      await admin.from("org_events").insert({ actor_id: actor?.id ?? null, actor_name: actor?.full_name ?? user.email, kind: "doctor_deleted",
+        detail: { doctor_id: doctorId, email: target?.email ?? null, name: target?.full_name ?? null, reason: note ?? null } });
       await admin.from("profiles").delete().eq("id", doctorId);
       // 2. Delete from Supabase Auth (frees the email for re-registration)
       const { error: authErr } = await admin.auth.admin.deleteUser(doctorId);

@@ -707,8 +707,7 @@ async function kycSubmit() {
       kyc_submitted_at: new Date().toISOString(),
     }).eq('id', _uid);
     if (dbErr) throw dbErr;
-    // Log
-    await _supa.from('kyc_audit_log').insert({ doctor_id: _uid, action: 'submitted', document_url: path }).select();
+    // Le journal KYC est tenu par le serveur (déclencheur profiles_kyc_log)
     closeKycModal();
     // Remplace le bouton "Soumettre" par bannière "en cours"
     showKycBanner('pending_review', null);

@@ -1405,16 +1405,19 @@ async function loadKyc() {
 }
 
 async function kycAction(userId, action) {
-  const label = action === 'approve' ? 'approuver' : 'rejeter';
-  if (!confirm(`Voulez-vous ${label} cette vérification KYC ?`)) return;
+  let note = null;
+  if (action === 'reject') {
+    note = (prompt('Motif du refus (visible par le médecin) :') || '').trim();
+    if (note.length < 5) { if (note) Toast.error('Motif trop court', 'Indiquez au moins 5 caractères.'); return; }
+  } else if (!confirm('Voulez-vous approuver cette vérification KYC ?')) return;
   try {
     const { data: { session } } = await _supa.auth.getSession();
     const res = await fetch(EDGE_BASE + '/admin-kyc-action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-      body: JSON.stringify({ doctorId: userId, action })
+      body: JSON.stringify({ doctorId: userId, action, note })
     });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(({ FORBIDDEN:'Votre poste ne permet pas de décider un dossier KYC.', NO_DOCUMENT:'Aucun document envoyé.', ALREADY_APPROVED:'Dossier déjà approuvé.', ALREADY_REJECTED:'Dossier déjà refusé.' })[(j.error||'').split(':')[0]] || j.message || j.error || 'Erreur'); }
     Toast.success('KYC ' + (action === 'approve' ? 'approuvé' : 'rejeté'), 'Le statut a été mis à jour.');
     loadKyc();
   } catch(e) {
