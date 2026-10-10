@@ -1933,7 +1933,7 @@ function renderStars(rating){
 /* ── Load doctors ────────────────────────────────────────── */
 (async function(){
   try {
-    var { data, error } = await _supa.from('profiles')
+    var { data, error } = await _supa.from('public_doctors')
       .select('id,full_name,is_clinic,clinic_name,specialty,wilaya,city,address,bio,consultation_price,accepts_rdv,phone_public,languages,avatar_url,featured,is_public')
       .not('full_name','is',null)
       .not('specialty','is',null)

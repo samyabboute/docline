@@ -724,9 +724,7 @@ function wmoDesc(code) {
 ═══════════════════════════════════════════════════════════════════ */
 async function loadClinicInfo() {
   try {
-    var r = await _supa.from('profiles')
-      .select('first_name,last_name,clinic_name,wilaya,city')
-      .eq('id', _clinicId).single();
+    var r = await _supa.rpc('public_profile_card', { p_id: _clinicId });
     if (r.data) {
       var name = r.data.clinic_name
         || ((r.data.first_name || '') + ' ' + (r.data.last_name || '')).trim()

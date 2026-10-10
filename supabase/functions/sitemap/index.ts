@@ -18,9 +18,8 @@ serve(async () => {
 
   // Récupérer tous les médecins actifs avec un slug
   const { data: doctors } = await sb
-    .from("profiles")
+    .from("public_doctors")
     .select("slug, specialty, wilaya, updated_at")
-    .eq("is_active", true)
     .not("slug", "is", null)
     .order("updated_at", { ascending: false });
 

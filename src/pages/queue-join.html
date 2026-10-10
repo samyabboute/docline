@@ -535,9 +535,7 @@ var _audioCtx   = null;
 
 async function loadClinicInfo() {
   try {
-    var { data } = await _supa.from('profiles')
-      .select('full_name, clinic_name, specialty, avatar_url')
-      .eq('id', _clinicId).single();
+    var { data } = await _supa.rpc('public_profile_card', { p_id: _clinicId });
     if (data) {
       var name = data.clinic_name || data.full_name || 'Cabinet médical';
       document.getElementById('hdr-name').textContent = name;

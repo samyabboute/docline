@@ -554,7 +554,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // ── LOAD DOCTOR ───────────────────────────────────────────────────────
 async function loadDoctor() {
-  const { data, error } = await _sb.from('profiles')
+  const { data, error } = await _sb.from('public_doctors')
     .select('id, first_name, last_name, clinic_name, is_clinic, specialty, wilaya, city, consultation_price, avatar_url, accepts_rdv, is_public')
     .eq('id', doctorId)
     .eq('is_public', true)

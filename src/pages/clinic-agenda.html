@@ -333,11 +333,7 @@ async function addDoctor(){
 
   try {
     // Rechercher le profil par email
-    var { data: prof, error: profErr } = await _supa
-      .from('profiles')
-      .select('id,full_name,specialty,email')
-      .eq('email', email)
-      .single();
+    var { data: prof, error: profErr } = await _supa.rpc('clinic_find_doctor', { p_email: email });
 
     if(profErr || !prof){
       errEl.textContent = 'Aucun compte Docline trouvé pour cet email.';
