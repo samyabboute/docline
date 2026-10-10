@@ -390,7 +390,7 @@ a{color:inherit}
               <div class="plan-opt-left"><span class="plan-opt-name">Annuel</span><span class="plan-opt-interval" style="color:#1E7F4E;font-weight:600">2 mois offerts</span></div>
               <span class="plan-opt-price">59 000 DA<span style="font-size:11px;font-weight:500;color:var(--ink3)"> /an</span></span>
             </label>
-            <div class="plan-trial-note show" style="margin-top:10px">7 jours d'essai gratuit, sans paiement à l'inscription.</div>
+            <div class="plan-trial-note show" style="margin-top:10px">30 jours d'essai gratuit, sans paiement à l'inscription.</div>
           </div>
         </div>
 
@@ -406,7 +406,7 @@ a{color:inherit}
             <div class="plan-opt-left"><span class="plan-opt-name">Annuel</span><span class="plan-opt-interval" style="color:#1E7F4E;font-weight:600">2 mois offerts</span></div>
             <span class="plan-opt-price">139 000 DA<span style="font-size:11px;font-weight:500;color:var(--ink3)"> /an</span></span>
           </label>
-          <div class="plan-trial-note show" style="margin-top:10px">7 jours d'essai gratuit, sans paiement à l'inscription.</div>
+          <div class="plan-trial-note show" style="margin-top:10px">30 jours d'essai gratuit, sans paiement à l'inscription.</div>
         </div>
 
         <div class="clinic-field" id="clinic-field">
@@ -679,7 +679,7 @@ async function register(){
 
         if(planInfo.plan !== 'free'){
           var trialEnd = new Date();
-          trialEnd.setDate(trialEnd.getDate() + 7);
+          trialEnd.setDate(trialEnd.getDate() + 30);
           await _supa.from('subscriptions').upsert({
             user_id: r.data.user.id,
             plan: planInfo.plan,

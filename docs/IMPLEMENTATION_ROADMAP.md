@@ -14,7 +14,7 @@
 | 3 | Page Tickets (9 vues, création guidée, détail, actions) | Fait, vérifiée avec données d'exemple ; à vérifier avec un vrai compte |
 | 4 | KYC : décision serveur, motif obligatoire, vérificateur serveur, journal | Fait |
 | 4 | Fonction `admin-kyc-action` sur permissions, plus d'effacement du journal | Déployée, non testée de bout en bout |
-| 4 | Fiche médecin centrale (CRM) reliée aux tickets et à la facturation | Liens en place depuis Tickets et LedgerDesk ; la fiche CRM elle-même n'est pas encore refondue |
+| 4 | Fiche médecin centrale (CRM) reliée aux tickets, à la facturation et au KYC (`20261011_doctor_hub.sql`) | Fait, vérifiée avec données d'exemple |
 | 4 | Gestion des utilisateurs : revue bouton par bouton | À faire |
 | 5 | LedgerDesk : registre, compte, 12 mois, prolongations, relevé, bordereau, email, WhatsApp | Fait, vérifié avec données d'exemple |
 | 5 | Bordereau de versement | **Bloqué** : coordonnées bancaires de Docline non fournies |
@@ -29,7 +29,6 @@
 
 1. Renseigner `billing_bank` dans les réglages (dès réception des coordonnées).
 2. Revue de la page Médecins et Cliniques : chaque bouton.
-3. Fiche médecin : onglets Tickets, Facturation, KYC, Publicité.
 4. Statistiques avec définitions et période de comparaison.
 5. Publicité : campagnes, contenus, validations ; indicateurs limités aux vues réellement mesurées.
 6. Recherche globale (médecins, tickets, pièces comptables).

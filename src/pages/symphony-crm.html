@@ -120,6 +120,27 @@ ul{list-style:none}
 .crm-tab:hover{color:var(--text-secondary)}
 .crm-tab.active{color:var(--brand);border-bottom-color:var(--brand)}
 .crm-tab svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.crm-kpi4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1100px){.crm-kpi4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.hub-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.hub-card{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.hub-k{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted)}
+.hub-v{font-size:20px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.hub-v.due{color:#B91C1C}.hub-v.ok{color:#047857}
+.hub-s{font-size:12px;color:var(--text-muted);line-height:1.45}
+.hub-a{margin-top:auto;font-size:12.5px;font-weight:700;color:#6D28D9;text-decoration:none;background:none;border:none;padding:0;text-align:left;cursor:pointer;font-family:inherit}
+.hub-a:hover{text-decoration:underline}
+.hub-list{display:flex;flex-direction:column}
+.hub-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;flex-wrap:wrap}
+.hub-row:last-child{border-bottom:none}
+.hub-row a{color:inherit;text-decoration:none}
+.hub-row a:hover b{text-decoration:underline}
+.hub-ref{font:600 11.5px ui-monospace,Menlo,monospace;color:var(--text-muted);margin-right:6px}
+.hub-pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:650;background:#F4F2FF;color:#2D1B69;white-space:nowrap}
+.hub-pill.ok{background:#ECFDF5;color:#047857}.hub-pill.wait{background:#FFFBEB;color:#B45309}.hub-pill.no{background:#FEF2F2;color:#B91C1C}
+.hub-empty{padding:28px 10px;text-align:center;color:var(--text-muted);font-size:13.5px}
+@media (max-width:900px){.hub-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.hub-strip{grid-template-columns:minmax(0,1fr)}}
 .crm-pane{display:none}
 .crm-pane.active{display:block}
 
@@ -551,7 +572,6 @@ ul{list-style:none}
       <div class="field" style="margin-top:14px">
         <label>Type d'activation</label>
         <select id="modal-type" onchange="updateEmailPreview()">
-          <option value="paid">Payant (facturation normale)</option>
           <option value="trial">Essai gratuit (aucune facturation)</option>
           <option value="credit">Crédit commercial (offert)</option>
         </select>
@@ -759,6 +779,14 @@ ul{list-style:none}
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           Résumé
         </button>
+        <button class="crm-tab" onclick="switchTab('tickets',this)">
+          <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z"/></svg>
+          Tickets <span id="tab-tickets-n"></span>
+        </button>
+        <button class="crm-tab" onclick="switchTab('kyc',this)">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          KYC
+        </button>
         <button class="crm-tab" onclick="switchTab('billing',this)">
           <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           Billing
@@ -783,9 +811,10 @@ ul{list-style:none}
 
       <!-- ── TAB: RÉSUMÉ ── -->
       <div class="crm-pane active" id="pane-resume">
+        <div class="hub-strip" id="hub-strip"></div>
 
         <!-- KPI ROW 1: 4 standard KPIs -->
-        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+        <div class="kpi-grid crm-kpi4" style="margin-bottom:14px">
           <!-- HEALTH SCORE -->
           <div class="kpi kpi-success" id="kpi-health-card">
             <div class="kpi-label">Santé Client</div>
@@ -805,9 +834,9 @@ ul{list-style:none}
           </div>
           <!-- REVENUE -->
           <div class="kpi kpi-success">
-            <div class="kpi-label">Revenu Validé</div>
+            <div class="kpi-label">Payé sur 12 mois</div>
             <div class="kpi-value" id="kpi-revenue">—</div>
-            <div class="kpi-sub">paiements confirmés</div>
+            <div class="kpi-sub">registre de facturation</div>
           </div>
           <!-- RDV -->
           <div class="kpi kpi-brand">
@@ -890,7 +919,10 @@ ul{list-style:none}
       </div>
 
       <!-- ── TAB: BILLING ── -->
+      <div class="crm-pane" id="pane-tickets"><div class="card" style="padding:18px 20px"><div id="hub-tickets"><div class="hub-empty">Chargement</div></div></div></div>
+      <div class="crm-pane" id="pane-kyc"><div class="card" style="padding:18px 20px"><div id="hub-kyc"><div class="hub-empty">Chargement</div></div></div></div>
       <div class="crm-pane" id="pane-billing">
+        <div class="card" style="padding:18px 20px;margin-bottom:14px" id="hub-billing"></div>
 
         <!-- REVENUE SPARKLINE -->
         <div class="card" style="margin-bottom:20px">
@@ -1205,7 +1237,7 @@ let _crmNotes     = [];    // crm_note actions
 let _patientsCount = 0;
 let _rdvCount      = 0;
 
-const uid = new URLSearchParams(location.search).get('uid');
+const uid = new URLSearchParams(location.search).get('uid') || new URLSearchParams(location.search).get('id');
 
 (async () => {
   if (!uid) { showDoctorPicker(); return; }
@@ -1246,21 +1278,8 @@ const uid = new URLSearchParams(location.search).get('uid');
     // Load CRM notes
     _crmNotes = _auditAll.filter(e => e.action === 'crm_note');
 
-    // Patients count (non-blocking)
-    _sb.from('clients').select('id', { count:'exact', head:true }).eq('user_id', uid)
-      .then(({ count }) => {
-        _patientsCount = count || 0;
-        const el = document.getElementById('kpi-patients');
-        if (el) el.textContent = _patientsCount;
-      }).catch(()=>{});
-
-    // RDV count (non-blocking)
-    _sb.from('appointments').select('id', { count:'exact', head:true }).eq('doctor_id', uid)
-      .then(({ count }) => {
-        _rdvCount = count || 0;
-        const el = document.getElementById('kpi-rdv');
-        if (el) el.textContent = _rdvCount;
-      }).catch(()=>{});
+    // Activité, tickets, facturation et KYC : lus côté serveur (doctor_hub)
+    loadHub();
 
     renderAll();
     document.getElementById('loading-state').style.display = 'none';
@@ -1269,6 +1288,81 @@ const uid = new URLSearchParams(location.search).get('uid');
     showError(e.message);
   }
 })();
+
+
+/* ══ FICHE CENTRALE (doctor_hub) ═══════════════════════ */
+let _hub = null;
+const HUB_STATUS = { queued:['En file',''], assigned:['Affecté',''], in_progress:['En cours','wait'], waiting_requester:['Attente du médecin','wait'],
+  waiting_team:['Attente équipe','wait'], escalated:['Escaladé','no'], resolved:['Résolu','ok'], closed:['Clos','ok'] };
+const HUB_KYC = { submitted:['Dossier déposé',''], approved:['Approuvé','ok'], rejected:['Refusé','no'], activated:['Compte réactivé','ok'],
+  deactivated:['Compte suspendu','no'], set_plan:['Plan modifié',''], approve_payment:['Paiement validé','ok'], reject_payment:['Paiement refusé','no'], not_submitted:['Dossier réinitialisé',''] };
+function hubDa(n) { return new Intl.NumberFormat('fr-FR').format(Math.abs(Math.round(n || 0))).replace(/\u202f|\u00a0/g, ' ') + ' DA'; }
+function hubTicketUrl() { return '/symphony-tickets?new=1&doctor=' + encodeURIComponent(uid) + '&doctor_name=' + encodeURIComponent(doctorName(_doctor)); }
+
+async function loadHub() {
+  const { data, error } = await _sb.rpc('doctor_hub', { p_doctor: uid });
+  if (error) { document.getElementById('hub-strip').innerHTML = '<div class="hub-card" style="grid-column:1/-1"><div class="hub-s">Vue consolidée indisponible : ' + esc(error.message) + '</div></div>'; return; }
+  _hub = data;
+  _patientsCount = data.activity.patients; _rdvCount = data.activity.appointments;
+  const kp = document.getElementById('kpi-patients'); if (kp) kp.textContent = _patientsCount;
+  const kr = document.getElementById('kpi-rdv'); if (kr) kr.textContent = _rdvCount;
+  renderHub();
+  renderResumeKPIs();
+}
+
+function renderHub() {
+  if (!_hub || !_doctor) return;
+  const a = _hub.activity, t = _hub.tickets, b = _hub.billing, can = _hub.can || {};
+  const kyc = { approved:['Vérifié','ok'], pending_review:['À vérifier',''], rejected:['Refusé','due'], not_submitted:['Non déposé',''] }[_doctor.kyc_status] || ['Non déposé',''];
+  document.getElementById('tab-tickets-n').textContent = t.open ? '(' + t.open + ')' : '';
+  document.getElementById('hub-strip').innerHTML =
+    '<div class="hub-card"><div class="hub-k">Activité 30 jours</div><div class="hub-v">' + a.appointments_30d + ' RDV</div>' +
+      '<div class="hub-s">' + a.online_bookings_30d + ' réservés en ligne · ' + a.patients_30d + ' nouveaux patients · ' + a.patients + ' patients au total</div></div>' +
+    '<div class="hub-card"><div class="hub-k">Tickets</div><div class="hub-v">' + t.open + ' ouvert' + (t.open > 1 ? 's' : '') + '</div>' +
+      '<div class="hub-s">' + t.total + ' au total</div>' +
+      (can.tickets ? '<a class="hub-a" href="' + hubTicketUrl() + '">Créer un ticket</a>' : '') + '</div>' +
+    (b ? '<div class="hub-card"><div class="hub-k">Facturation</div><div class="hub-v ' + (b.balance > 0 ? 'due' : '') + '">' + (b.balance > 0 ? hubDa(b.balance) + ' dus' : b.balance < 0 ? hubDa(b.balance) + ' en sa faveur' : 'À jour') + '</div>' +
+      '<div class="hub-s">' + hubDa(b.paid_12m) + ' payés sur 12 mois' + (b.pending_extension ? ' · prolongation en attente' : '') + '</div>' +
+      '<a class="hub-a" href="/symphony-ledger?doctor=' + encodeURIComponent(uid) + '">Ouvrir le compte</a></div>' : '') +
+    '<div class="hub-card"><div class="hub-k">Vérification</div><div class="hub-v ' + kyc[1] + '">' + kyc[0] + '</div>' +
+      '<div class="hub-s">' + (_doctor.kyc_reviewed_at ? 'Décision du ' + fmtDate(_doctor.kyc_reviewed_at) : _doctor.kyc_submitted_at ? 'Déposé le ' + fmtDate(_doctor.kyc_submitted_at) : 'Aucun document') + '</div>' +
+      '<button class="hub-a" type="button" onclick="switchTab(\'kyc\', null)">Voir le dossier</button></div>';
+
+  document.getElementById('hub-tickets').innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><b>Tickets liés à ce médecin</b>' +
+    (can.tickets ? '<a class="btn btn-primary btn-sm" href="' + hubTicketUrl() + '">Créer un ticket</a>' : '') + '</div>' +
+    (t.items.length ? '<div class="hub-list">' + t.items.map(function (x) {
+      const st = HUB_STATUS[x.status] || [x.status, ''];
+      return '<div class="hub-row"><a href="/symphony-tickets?id=' + x.id + '&view=all"><span class="hub-ref">' + esc(x.ref) + '</span><b>' + esc(x.title) + '</b><br>' +
+        '<span class="hub-s">' + esc(x.service || '') + ' · ' + (x.assignee ? esc(x.assignee) : 'non affecté') + ' · ' + fmtDate(x.created_at) + '</span></a>' +
+        '<span class="hub-pill ' + st[1] + '">' + st[0] + '</span></div>';
+    }).join('') + '</div>' : '<div class="hub-empty">Aucun ticket pour ce médecin.</div>');
+
+  const k = document.getElementById('hub-kyc');
+  if (!can.kyc) { k.innerHTML = '<div class="hub-empty">Votre poste ne donne pas accès aux dossiers KYC.</div>'; }
+  else {
+    k.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><b>Dossier de vérification</b>' +
+      (can.kyc_decide && _doctor.kyc_status === 'pending_review' ? '<a class="btn btn-primary btn-sm" href="/symphony-kyc">Traiter dans la file KYC</a>' : '') + '</div>' +
+      '<div class="hub-s" style="margin-bottom:8px">Statut : <b>' + kyc[0] + '</b>' + (_doctor.kyc_document_type ? ' · pièce : ' + esc(_doctor.kyc_document_type) : '') +
+      (_doctor.kyc_reject_reason ? '<br>Motif du refus : ' + esc(_doctor.kyc_reject_reason) : '') + '</div>' +
+      ((_hub.kyc_log || []).length ? '<div class="hub-list">' + _hub.kyc_log.map(function (x) {
+        const l = HUB_KYC[x.action] || [x.action, ''];
+        return '<div class="hub-row"><span><b>' + l[0] + '</b>' + (x.reviewer ? ' par ' + esc(x.reviewer) : '') + '<br><span class="hub-s">' + fmtDate(x.created_at) + (x.note ? ' · ' + esc(x.note) : '') + '</span></span><span class="hub-pill ' + l[1] + '">' + l[0] + '</span></div>';
+      }).join('') + '</div>' : '<div class="hub-empty">Aucun événement dans le journal.</div>');
+  }
+
+  const hb = document.getElementById('hub-billing');
+  if (!b) { hb.innerHTML = '<div class="hub-s">Votre poste ne donne pas accès au registre de facturation.</div>'; }
+  else {
+    const KIND = { invoice:'Facture', payment:'Paiement', credit:'Avoir', adjustment:'Ajustement' };
+    hb.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><div class="hub-k">Registre LedgerDesk</div>' +
+      '<div class="hub-v ' + (b.balance > 0 ? 'due' : '') + '">' + (b.balance > 0 ? 'Reste à payer ' + hubDa(b.balance) : b.balance < 0 ? hubDa(b.balance) + ' en faveur du médecin' : 'Compte à jour') + '</div></div>' +
+      '<a class="btn btn-primary btn-sm" href="/symphony-ledger?doctor=' + encodeURIComponent(uid) + '">Ouvrir dans LedgerDesk</a></div>' +
+      (b.recent.length ? '<div class="hub-list" style="margin-top:8px">' + b.recent.map(function (e) {
+        return '<div class="hub-row"><span><span class="hub-ref">' + esc(e.number) + '</span>' + KIND[e.kind] + ' · ' + esc(e.label) + '<br><span class="hub-s">' + fmtDate(e.created_at) + '</span></span><b>' + (e.direction > 0 ? '' : '\u2212') + hubDa(e.amount_da) + '</b></div>';
+      }).join('') + '</div>' : '<div class="hub-s" style="margin-top:8px">Aucune écriture pour l\u2019instant.</div>');
+  }
+}
 
 /* ══ RENDER ════════════════════════════════════════════ */
 function renderAll() {
@@ -1283,6 +1377,7 @@ function renderAll() {
   renderCrmNotes();
   renderBillingSparkline();
   updateEmailPreview();
+  renderHub();
 }
 
 function esc(s) {
@@ -1403,10 +1498,8 @@ function renderPlanBanner() {
 
 function renderResumeKPIs() {
   // Revenue
-  const revenue = _payments.filter(p => p.status === 'paid' || p.status === 'approved')
-    .reduce((s,p) => s + (p.amount || 0), 0);
-  document.getElementById('kpi-revenue').textContent = revenue > 0
-    ? revenue.toLocaleString('fr-DZ') + ' DA' : '0 DA';
+  // Source unique : le registre LedgerDesk (rempli par loadHub)
+  document.getElementById('kpi-revenue').textContent = _hub && _hub.billing ? hubDa(_hub.billing.paid_12m) : '\u2014';
 
   // Last payment
   const lastPay = _payments.find(p => p.status === 'paid' || p.status === 'approved');
@@ -1932,26 +2025,10 @@ async function confirmPlanChange() {
   try {
     const { data: { session } } = await _sb.auth.getSession();
 
-    if (isFree) {
-      await _sb.from('subscriptions').upsert({ user_id: uid, plan: 'free', status: 'active', payment_status: 'none' });
-    } else {
-      const expDate = new Date();
-      expDate.setMonth(expDate.getMonth() + dur);
-
-      await _sb.from('subscriptions').upsert({
-        user_id: uid,
-        plan,
-        status: 'active',
-        payment_status: type === 'paid' ? 'paid' : 'none',
-        interval: dur >= 12 ? 'year' : 'month',
-        current_period_start: new Date().toISOString(),
-        current_period_end: expDate.toISOString(),
-      }, { onConflict: 'user_id' });
-
-      if (type === 'trial' || type === 'credit') {
-        await _sb.from('profiles').update({ trial_ends_at: expDate.toISOString() }).eq('id', uid);
-      }
-    }
+    // Le serveur applique le plan et inscrit l'action au journal (auteur identifié par le serveur)
+    const reason = isFree ? 'Retour au plan gratuit' : (type === 'trial' ? 'Essai gratuit prolongé' : 'Crédit commercial');
+    const { error: planErr } = await _sb.rpc('crm_set_plan', { p_doctor: uid, p_plan: plan, p_months: isFree ? null : dur, p_reason: reason, p_note: null });
+    if (planErr) throw new Error(({ FORBIDDEN:'Votre poste ne permet pas de modifier le plan.', DURATION_INVALID:'Durée entre 1 et 24 mois.' })[planErr.message] || planErr.message);
 
     // Send email via edge function
     const subj = document.getElementById('preview-subject').textContent;
@@ -1963,12 +2040,7 @@ async function confirmPlanChange() {
         body: JSON.stringify({ to: _doctor.email, subject: subj, html: body.replace(/\n/g,'<br>') })
       });
 
-      // Log to audit_log
-      await _sb.from('audit_log').insert({
-        user_id: uid,
-        event: 'email_sent',
-        metadata: { performed_by: session.user.email, subject: subj, plan, type, duration: dur }
-      }).then(null, ()=>{});
+      await _sb.from('audit_log').insert({ user_id: uid, event: 'email_sent', metadata: { subject: subj, plan, type, duration: dur } }).then(null, ()=>{});
     }
 
     showToast('success', 'Plan mis à jour', `${plan.toUpperCase()} activé — Email envoyé à ${_doctor.email}`);
@@ -2027,21 +2099,25 @@ async function resetPassword() {
 async function toggleBlock() {
   if (!_doctor) return;
   const blocked = _doctor.is_active === false;
-  if (!confirm((blocked ? 'Réactiver' : 'Suspendre') + ' le compte de ' + doctorName(_doctor) + ' ?')) return;
-  const newVal = !blocked;
-  await _sb.from('profiles').update({ is_active: newVal, is_public: newVal }).eq('id', uid);
+  let reason = null;
+  if (!blocked) {
+    reason = (prompt('Motif de la suspension (conservé dans le journal) :') || '').trim();
+    if (reason.length < 5) { if (reason) showToast('error', 'Motif trop court', 'Au moins 5 caractères.'); return; }
+  } else if (!confirm('Réactiver le compte de ' + doctorName(_doctor) + ' ?')) return;
+  const { error } = await _sb.rpc('crm_set_active', { p_doctor: uid, p_active: blocked, p_reason: reason });
+  if (error) { showToast('error', 'Action refusée', error.message === 'FORBIDDEN' ? 'Votre poste ne permet pas de suspendre un compte.' : error.message); return; }
+  const newVal = blocked;
   _doctor.is_active = newVal;
   showToast('success', newVal ? 'Compte réactivé' : 'Compte suspendu', doctorName(_doctor));
-  // Sync all block buttons including the danger tab one
   ['block-label','block-label2','block-label3'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.textContent = newVal ? 'Réactiver le compte' : 'Suspendre le compte';
+    if (el) el.textContent = newVal ? 'Suspendre le compte' : 'Réactiver le compte';
   });
   ['block-btn','block-btn2','block-btn3'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.className = newVal ? 'btn btn-success' : 'btn btn-danger';
+    if (el) el.className = newVal ? 'btn btn-danger' : 'btn btn-success';
   });
-  renderAll();
+  renderAll(); loadHub();
 }
 
 async function toggleFeatured() {
@@ -2089,51 +2165,45 @@ function checkDeleteConfirm() {
 async function executeDelete() {
   if (!_doctor) return;
   const btn = document.getElementById('delete-confirm-btn');
+  const label = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;animation:spin .7s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.18-4.6"/></svg> Suppression en cours…';
-
+  btn.textContent = 'Suppression en cours…';
   try {
-    // Suppression en cascade de toutes les données utilisateur
-    const tables = [
-      'feedback', 'calendar_tasks', 'appointments', 'consultations',
-      'invoices', 'proposals', 'queue_entries', 'staff_members',
-      'clients', 'subscriptions', 'kyc_documents', 'email_logs',
-      'crm_notes', 'crm_audit', 'payment_requests', 'profiles'
-    ];
-    for (const table of tables) {
-      const col = table === 'appointments' ? 'doctor_id' : 'user_id';
-      await _sb.from(table).delete().eq(col, uid);
-    }
-
+    // Suppression contrôlée par le serveur : permission users.sensitive, refusée si le compte
+    // a un historique de paiement, tracée dans le journal de l'organisation
+    const { data: { session } } = await _sb.auth.getSession();
+    const res = await fetch(SUPA_URL + '/functions/v1/admin-kyc-action', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ doctorId: uid, action: 'delete_user', note: 'Suppression depuis la fiche médecin' })
+    });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error === 'FORBIDDEN' ? 'Votre poste ne permet pas de supprimer un compte.' : (j.message || j.error || 'Échec de la suppression'));
     closeDeleteModal();
-    showToast('success', 'Données supprimées', 'Toutes les données de ' + doctorName(_doctor) + ' ont été supprimées.');
-
-    // Afficher instruction pour supprimer l'auth user
-    setTimeout(() => {
-      const supabaseAuthUrl = 'https://supabase.com/dashboard/project/ferkzwzypmdtuypxribz/auth/users';
-      const confirmed = confirm(
-        '✅ Données supprimées.\n\n' +
-        'Dernière étape : supprimer le compte d\'authentification dans Supabase.\n\n' +
-        'Cliquer OK pour ouvrir le tableau de bord Supabase Auth.'
-      );
-      if (confirmed) window.open(supabaseAuthUrl, '_blank');
-      // Rediriger vers la liste des utilisateurs
-      setTimeout(() => { window.location.href = ghpNav('/symphony-users'); }, 1200);
-    }, 800);
-
+    showToast('success', 'Compte supprimé', doctorName(_doctor));
+    setTimeout(() => { window.location.href = ghpNav('/symphony-users'); }, 1200);
   } catch (err) {
     btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Supprimer définitivement';
-    showToast('error', 'Erreur', err.message || 'Échec de la suppression');
+    btn.innerHTML = label;
+    showToast('error', 'Suppression refusée', err.message);
   }
 }
 
 async function extendDeadline() {
   if (!_doctor) return;
-  if (!confirm('Prolonger le délai de paiement de 7 jours pour ' + doctorName(_doctor) + ' ?')) return;
-  const newDate = new Date(Date.now() + 7 * 86400000).toISOString();
-  await _sb.from('profiles').update({ payment_deadline: newDate }).eq('id', uid);
-  showToast('success', 'Délai prolongé', 'Nouveau délai : ' + fmtDate(newDate));
+  // Même règle que LedgerDesk : demande motivée, validée par une autre personne
+  const base = _doctor.payment_deadline && new Date(_doctor.payment_deadline) > new Date() ? new Date(_doctor.payment_deadline) : new Date();
+  const target = new Date(base.getTime() + 7 * 86400000).toISOString().slice(0, 10);
+  const reason = (prompt('Prolonger l\u2019échéance au ' + fmtDate(target) + '.\nRaison (une autre personne devra valider) :') || '').trim();
+  if (!reason) return;
+  const { error } = await _sb.rpc('billing_extension_request', { p_doctor: uid, p_new_due: target, p_reason: reason });
+  if (error) {
+    const m = { FORBIDDEN:'Votre poste ne permet pas de demander une prolongation.', REASON_REQUIRED:'Raison trop courte (5 caractères minimum).',
+      ALREADY_PENDING:'Une demande attend déjà une validation.', TOO_MANY_EXTENSIONS:'3 prolongations déjà accordées : décision de la Direction.' };
+    showToast('error', 'Demande refusée', Object.keys(m).filter(k => error.message.indexOf(k) !== -1).map(k => m[k])[0] || error.message);
+    return;
+  }
+  showToast('success', 'Demande envoyée', 'La prolongation au ' + fmtDate(target) + ' attend une validation dans LedgerDesk.');
+  loadHub();
 }
 
 function grantFreeMonth(months) {
@@ -2146,14 +2216,9 @@ function grantFreeMonth(months) {
 }
 
 function offerDiscount(pct) {
-  if (!confirm(`Appliquer un rabais de ${pct}% au prochain paiement de ${doctorName(_doctor)} ?`)) return;
-  showToast('success', `Rabais ${pct}% noté`, 'À appliquer manuellement sur la prochaine facture.');
-  const h = document.getElementById('retention-history');
-  h.innerHTML = h.innerHTML.replace(/<div class="empty">[\s\S]*?<\/div>/, '') +
-    `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
-      <span class="badge badge-success">Rabais ${pct}%</span>
-      <span style="font-size:.8125rem;color:var(--text-muted);margin-left:8px">accordé le ${new Date().toLocaleDateString('fr-FR')} par l'admin</span>
-    </div>`;
+  // Une remise est une écriture comptable : elle se saisit comme avoir dans LedgerDesk
+  showToast('success', 'Remise de ' + pct + ' %', 'Saisissez-la comme avoir dans LedgerDesk, avec sa justification.');
+  setTimeout(() => { window.location.href = '/symphony-ledger?doctor=' + encodeURIComponent(uid); }, 900);
 }
 
 /* ══ TIMELINE ══════════════════════════════════════════ */
@@ -2462,42 +2527,10 @@ async function confirmGeste() {
   try {
     const { data: { session } } = await _sb.auth.getSession();
 
-    // Activate plan
-    const expDate = new Date();
-    expDate.setMonth(expDate.getMonth() + dur);
-
-    await _sb.from('subscriptions').upsert({
-      user_id: uid, plan, status: 'active',
-      payment_status: 'complimentary',
-      interval: dur >= 12 ? 'year' : 'month',
-      current_period_start: new Date().toISOString(),
-      current_period_end: expDate.toISOString(),
-    }, { onConflict: 'user_id' });
-
-    await _sb.from('profiles').update({ trial_ends_at: expDate.toISOString() }).eq('id', uid);
-
-    // Audit log — mandatory
-    await _sb.from('audit_log').insert({
-      user_id: uid,
-      event: 'geste_commercial',
-      metadata: { performed_by: session.user.email,
-        motif: motifVal,
-        motif_label: motif.label,
-        plan, duration: dur,
-        cost_estimate: PRICES[plan]?.[dur] || 0,
-        note: note || null,
-        email_sent: notify,
-        expires_at: expDate.toISOString(),
-      }
-    });
-
-    // Payment request entry for traceability
-    await _sb.from('payment_requests').insert({
-      user_id: uid, plan, billing: dur >= 12 ? 'yearly' : 'monthly',
-      amount: 0, method: 'complimentary',
-      status: 'approved',
-      notes: `[${motif.code}] Geste commercial : ${motif.label}${note ? ' — ' + note : ''}`,
-    }).then(null, ()=>{});
+    const { data: granted, error: gErr } = await _sb.rpc('crm_set_plan', { p_doctor: uid, p_plan: plan, p_months: dur,
+      p_reason: '[' + motif.code + '] ' + motif.label, p_note: note || null });
+    if (gErr) throw new Error(gErr.message === 'FORBIDDEN' ? 'Votre poste ne permet pas d\u2019offrir un plan.' : gErr.message);
+    const expDate = new Date(granted.expires_at);
 
     // Email to doctor
     if (notify && _doctor.email && session) {
@@ -2511,7 +2544,7 @@ async function confirmGeste() {
 
       await _sb.from('audit_log').insert({
         user_id: uid,
-        event: 'email_sent', metadata: { performed_by: session.user.email, subject, template: 'geste_commercial' }
+        event: 'email_sent', metadata: { subject, template: 'geste_commercial' }
       }).then(null, ()=>{});
     }
 

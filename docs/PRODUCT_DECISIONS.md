@@ -48,6 +48,17 @@ Chaque décision indique ce qui a été choisi, pourquoi, et ce qui reste ouvert
 | WhatsApp : l'outil ouvre la conversation et note « ouvert, envoi non confirmé ». L'email note « envoyé » ou « échec » selon la réponse réelle du fournisseur. | « WhatsApp must report its real outcome. » |
 | PDF : par la fenêtre d'impression du navigateur. | Pas de dépendance supplémentaire. |
 
+## Fiche médecin
+
+| Décision | Raison |
+|---|---|
+| La fiche (`/symphony-crm`) devient le point d'entrée : synthèse activité, tickets, facturation et vérification, avec onglets Tickets et KYC et liens directs vers LedgerDesk et la création de ticket. | Fiche centrale demandée, sans dupliquer les outils spécialisés. |
+| Les compteurs d'activité viennent de `doctor_hub` (agrégats seulement). | L'équipe ne peut pas lire les dossiers patients ; les compteurs affichaient 0. |
+| Plan gratuit ou offert : `crm_set_plan`, motif obligatoire, journalisé par le serveur. Un plan payant ne s'active plus depuis la fiche : il suit la validation d'un paiement. | L'ancien formulaire échouait en silence et pouvait marquer « payé » sans paiement. |
+| Suspension : `crm_set_active`, motif obligatoire. | Traçabilité ; l'ancienne réactivation ne fonctionnait pas. |
+| Prolongation, remise, suppression : renvoyées vers LedgerDesk (double validation, avoir) et vers la fonction serveur de suppression. | La fiche supprimait patients, rendez-vous et paiements depuis le navigateur. |
+| L'auteur d'une ligne de `audit_log` est fixé par le serveur. | Le navigateur pouvait écrire n'importe quel nom. |
+
 ## Sécurité
 
 | Décision | Raison |
@@ -60,5 +71,5 @@ Chaque décision indique ce qui a été choisi, pourquoi, et ce qui reste ouvert
 
 1. **Coordonnées bancaires réelles de Docline** (titulaire, banque, RIB, CCP et clé) pour la page Tarifs et le bordereau.
 2. **Mentions légales des documents** (raison sociale, NIF, NIS, RC, adresse) : les relevés n'en affichent aucune tant qu'elles ne sont pas fournies.
-3. **Durée de l'essai** : 7 jours dans le code, 30 jours dans certains textes marketing.
-4. **Délais de traitement** des tickets : valeurs de départ à confirmer.
+3. ~~Durée de l'essai~~ : **30 jours**, décidé le 11/10 (code, base et textes alignés).
+4. ~~Délais de traitement~~ : valeurs par défaut **confirmées** le 11/10.
