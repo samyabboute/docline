@@ -29,6 +29,6 @@
 
 1. Renseigner `billing_bank` dans les réglages (dès réception des coordonnées).
 2. Revue de la page Médecins et Cliniques : chaque bouton.
-4. Statistiques avec définitions et période de comparaison.
-5. Publicité : campagnes, contenus, validations ; indicateurs limités aux vues réellement mesurées.
-6. Recherche globale (médecins, tickets, pièces comptables).
+3. Statistiques avec définitions et période de comparaison.
+4. Publicité : campagnes, contenus, validations ; indicateurs limités aux vues réellement mesurées.
+5. Recherche globale (médecins, tickets, pièces comptables).
