@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=3"></script>
+<script src="config.js?v=4"></script>
 <style>
 :root {
   /* New Light Premium palette */
@@ -254,6 +254,7 @@ ul,ol{list-style:none}
   .stats-row{grid-template-columns:repeat(2,1fr)}
 }
 </style>
+<link rel="stylesheet" href="symphony-chrome.css?v=1">
 </head>
 <body>
 <div class="toasts" id="toasts"></div>
@@ -596,10 +597,10 @@ var _cityTags = [];
     _session = session;
 
     /* Check admin access */
-    _supa.from('admin_roles').select('role').eq('email', email).maybeSingle()
+    symphonyIsStaff(_supa).then(function (ok) { return { isStaff: ok }; })
       .then(function(r) {
         /* If no admin_roles entry AND not in ADMIN_EMAILS config, redirect */
-        if (!r.data && _adminEmails.length > 0 && _adminEmails.indexOf(email) === -1) {
+        if (!r.isStaff) {
           window.location.href = '/dashboard';
           return;
         }
@@ -1133,6 +1134,7 @@ function _sbRestoreState() {
   } catch(e) {}
 }
 </script>
-<script src="symphony-access.js?v=5" defer></script>
+<script src="symphony-access.js?v=6" defer></script>
+<script src="symphony-chrome.js?v=1" defer></script>
 </body>
 </html>

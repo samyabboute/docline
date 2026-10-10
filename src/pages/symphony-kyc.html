@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=3"></script>
+<script src="config.js?v=4"></script>
 <style>
 /* ── Reset & base ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -252,6 +252,7 @@ tr:hover td{background:#FAFBFF}
 }
 </style>
 <style id="css-vars-fallback">/* Variables utilisées par la page mais jamais définies */:root{--text:#0D0520;--surface:#FFFFFF;--text3:#6B7280;--surface2:#F7F6FF;--brand-dim:rgba(76,29,149,.08);--text4:#9CA3B8;--text2:#2D1B69}</style>
+<link rel="stylesheet" href="symphony-chrome.css?v=1">
 </head>
 <body>
 <div class="app">
@@ -445,7 +446,7 @@ window.addEventListener('DOMContentLoaded', async function() {
   _uid = session.user.id;
   var email = (session.user.email || '').toLowerCase();
 
-  if ((ADMIN_EMAILS || []).map(function(e){ return e.toLowerCase(); }).indexOf(email) === -1) {
+  if (!(await symphonyIsStaff(_supa))) {
     document.querySelector('.page').innerHTML = '<div class="empty-state"><div class="empty-ico"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="empty-title">Accès réservé</div><div class="empty-sub">Cette section est réservée aux super-administrateurs Docline.</div></div>';
     return;
   }
@@ -785,6 +786,7 @@ function showToast(msg, isErr) {
   setTimeout(function() { if (t.parentNode) t.remove(); }, 3000);
 }
 </script>
-<script src="symphony-access.js?v=5" defer></script>
+<script src="symphony-access.js?v=6" defer></script>
+<script src="symphony-chrome.js?v=1" defer></script>
 </body>
 </html>

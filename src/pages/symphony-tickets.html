@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tickets · Docline Symphony</title>
-<script src="config.js?v=3"></script>
-<script src="shell.js?v=14"></script>
+<script src="config.js?v=4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#4C1D95">
@@ -28,7 +27,7 @@
 .tk-views::-webkit-scrollbar{display:none}
 .tk-view{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;border:1px solid var(--tk-line);background:var(--surface);font:600 13px Inter,sans-serif;color:var(--text-3);cursor:pointer;transition:all .15s}
 .tk-view:hover{color:var(--text)}
-.tk-view.on{background:#0D0520;border-color:#0D0520;color:#fff}
+.tk-view.on{background:var(--p);border-color:var(--p);color:#fff}
 .tk-view b{font-weight:700;font-size:11px;min-width:18px;padding:2px 6px;border-radius:999px;background:var(--tk-soft);color:var(--text-2);text-align:center;font-variant-numeric:tabular-nums}
 .tk-view.on b{background:rgba(255,255,255,.16);color:#fff}
 .tk-view.alert b{background:#FEE2E2;color:#B91C1C}
@@ -55,8 +54,8 @@
 .st-queued{background:#EEF2FF;color:#3730A3}.st-assigned{background:#F3E8FF;color:#6B21A8}.st-in_progress{background:#ECFDF5;color:#047857}
 .st-waiting_requester,.st-waiting_team{background:#FFFBEB;color:#B45309}.st-escalated{background:#FEF2F2;color:#B91C1C}
 .st-resolved{background:#F0FDF4;color:#15803D}.st-closed{background:#F1F5F9;color:#475569}
-.btn-claim{padding:7px 14px;border-radius:10px;border:none;background:#0D0520;color:#fff;font:700 12px Inter,sans-serif;cursor:pointer}
-.btn-claim:hover{background:var(--brand)}
+.btn-claim{padding:7px 14px;border-radius:10px;border:none;background:var(--p);color:#fff;font:700 12px Inter,sans-serif;cursor:pointer}
+.btn-claim:hover{background:var(--p2)}
 .btn-claim:disabled{opacity:.5;cursor:wait}
 .tk-empty{padding:56px 24px;text-align:center;color:var(--text-3);font-size:14px}
 .tk-empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
@@ -81,7 +80,7 @@
 .dw-btns{display:flex;flex-wrap:wrap;gap:8px}
 .dw-btn{padding:9px 14px;border-radius:10px;border:1px solid var(--tk-line);background:var(--surface);font:650 13px Inter,sans-serif;color:var(--text);cursor:pointer}
 .dw-btn:hover{border-color:var(--brand);color:var(--brand)}
-.dw-btn.primary{background:#0D0520;border-color:#0D0520;color:#fff}
+.dw-btn.primary{background:var(--p);border-color:var(--p);color:#fff}
 .dw-btn.primary:hover{background:var(--brand);border-color:var(--brand);color:#fff}
 .dw-btn.danger{color:#B91C1C}
 .dw-sec{font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);margin-bottom:10px}
@@ -147,17 +146,21 @@
   .md{border-radius:0;min-height:100%}
 }
 @media (prefers-reduced-motion:reduce){.tk-drawer,.tk-scrim,.tk-toast{transition:none}}
+.sx-app .btn-primary{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 16px;border-radius:10px;border:1px solid transparent;font:600 13px Inter,sans-serif;cursor:pointer;white-space:nowrap;transition:background .15s}
+.sx-app .btn-primary svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.sx-app .btn-primary:disabled{opacity:.55;cursor:not-allowed}
 </style>
 <script src="loader.js?v=2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="symphony-chrome.css?v=1">
 </head>
-<body>
-<div class="app-shell">
-  <aside class="shell-sidebar" id="shell-sidebar"></aside>
-  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
-  <header class="shell-topbar" id="shell-topbar"></header>
-  <main class="shell-main">
-    <div class="shell-page">
-      <div class="page-wrap">
+<body class="sx">
+<div class="sx-app">
+  <aside id="sx-side" data-sx-chrome aria-label="Navigation Symphony"></aside>
+  <div class="sx-scrim"></div>
+  <div class="sx-main">
+    <header class="sx-top"><button class="sx-ham" type="button" data-sx-ham aria-label="Ouvrir le menu"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><div class="sx-top-title">Tickets</div></header>
+    <main class="sx-page">
         <div class="tk-head">
           <div>
             <div class="tk-eyebrow">Symphony · Opérations</div>
@@ -183,9 +186,8 @@
           <input id="q" type="search" placeholder="Rechercher par référence, titre ou contenu" autocomplete="off">
         </div>
         <div class="tk-list" id="list"><div class="tk-empty">Chargement des tickets</div></div>
-      </div>
-    </div>
-  </main>
+    </main>
+  </div>
 </div>
 
 <div class="tk-scrim" id="scrim"></div>
@@ -533,8 +535,6 @@ document.getElementById('avail').onchange = async function(){
   var s = await sb.auth.getSession();
   if (!s.data.session) { location.href = '/login'; return; }
   var u = s.data.session.user;
-  Shell.init({ page:'symphony-tickets', title:'Tickets', isPro:true, plan:'admin', isSymphony:true,
-    userName:Shell.displayName(u.user_metadata || {}, u.email), userEmail:u.email });
   try {
     var dir = await rpc('org_directory');
     var me = (dir.staff || []).filter(function(x){ return x.id === dir.me; })[0];
@@ -552,6 +552,7 @@ document.getElementById('avail').onchange = async function(){
   setInterval(function(){ if (!document.hidden) load(); }, 30000);
 })();
 </script>
-<script src="symphony-access.js?v=5" defer></script>
+<script src="symphony-access.js?v=6" defer></script>
+<script src="symphony-chrome.js?v=1" defer></script>
 </body>
 </html>

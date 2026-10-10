@@ -4,7 +4,7 @@
   <title>Incidents ITIL — Docline Symphony</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="config.js?v=3"></script>
+  <script src="config.js?v=4"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
   <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -277,6 +277,7 @@
   <meta name="theme-color" content="#4C1D95">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style id="css-vars-fallback">/* Variables utilisées par la page mais jamais définies */:root{--text-sm:.8125rem;--shadow-xl:0 24px 64px rgba(13,5,32,.14);--t-slow:320ms cubic-bezier(.4,0,.2,1);--text-md:.9375rem;--brand-border:rgba(76,29,149,.2)}</style>
+<link rel="stylesheet" href="symphony-chrome.css?v=1">
 </head>
 <body>
 <div class="toasts" id="toasts"></div>
@@ -720,7 +721,7 @@ async function requireAdmin(){
   _session=session;
   if(!session){window.location.href=ghpNav('/login');return null;}
   _userEmail=session.user.email||'';
-  if(!_adminEmails.includes(_userEmail.toLowerCase())){window.location.href=ghpNav('/dashboard');return null;}
+  if(!(await symphonyIsStaff(_supa))){window.location.href=ghpNav('/dashboard');return null;}
   return session;
 }
 
@@ -1122,5 +1123,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   setInterval(loadIncidents,60000);
 })();
 </script>
-<script src="symphony-access.js?v=5" defer></script>
+<script src="symphony-access.js?v=6" defer></script>
+<script src="symphony-chrome.js?v=1" defer></script>
 </body></html>

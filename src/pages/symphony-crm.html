@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=3"></script>
+<script src="config.js?v=4"></script>
 <style>
 :root {
   /* New Light Premium palette */
@@ -370,6 +370,7 @@ ul{list-style:none}
   .action-grid{grid-template-columns:1fr}
 }
 </style>
+<link rel="stylesheet" href="symphony-chrome.css?v=1">
 </head>
 <body>
 <div class="toasts" id="toasts"></div>
@@ -2396,7 +2397,7 @@ async function showDoctorPicker() {
   document.querySelectorAll('.topbar-actions, .crm-topbar-actions').forEach(el => { el.style.display = 'none'; });
   const box = document.getElementById('loading-state');
   box.innerHTML = `<div style="max-width:760px;margin:32px auto;padding:0 16px">
-      <h1 style="font-size:1.25rem;font-weight:800;margin-bottom:4px">CRM médecin</h1>
+      <h1 style="font-size:1.25rem;font-weight:800;margin-bottom:4px">Fiche médecin</h1>
       <p style="color:var(--text-muted);margin-bottom:16px">Choisissez un médecin pour ouvrir sa fiche : abonnement, rétention, support et historique.</p>
       <input id="crm-pick-q" type="search" autocomplete="off" placeholder="Rechercher par nom, email, spécialité ou wilaya…"
         style="width:100%;height:42px;padding:0 14px;border:1px solid var(--border);border-radius:10px;font:inherit;font-size:16px;margin-bottom:12px">
@@ -2566,6 +2567,7 @@ async function confirmGeste() {
   }
 }
 </script>
-<script src="symphony-access.js?v=5" defer></script>
+<script src="symphony-access.js?v=6" defer></script>
+<script src="symphony-chrome.js?v=1" defer></script>
 </body>
 </html>

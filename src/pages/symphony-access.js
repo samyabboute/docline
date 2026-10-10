@@ -102,7 +102,7 @@
     if (me === null) return;
     if (path(location.pathname) === '/symphony-hq') return;  // le QG a sa propre navigation
     var sb = findSidebar();
-    if (!sb || sb.querySelector('.sx-group')) return;
+    if (!sb || sb.hasAttribute('data-sx-chrome') || document.querySelector('[data-sx-chrome]') || sb.querySelector('.sx-group')) return;
     var head = sb.querySelector('[class*="sidebar-head"], .sb-head');
     var g = buildGroup();
     if (!g.querySelector('.sx-link')) return;
@@ -135,9 +135,9 @@
     if (!client || !me) return;
     client.from('symphony_tasks').select('id', { count: 'exact', head: true })
       .eq('assignee_email', me.email).neq('status', 'done')
-      .then(function (r) { if (r && !r.error) { badgeCount = r.count || 0; refreshBadge(); } });
+      .then(function (r) { if (r && !r.error) { badgeCount = r.count || 0; api._badge = badgeCount; refreshBadge(); } });
   }
-  api.refreshBadge = function (n) { badgeCount = n; refreshBadge(); };
+  api.refreshBadge = function (n) { badgeCount = n; api._badge = n; refreshBadge(); };
 
   function deny() {
     var d = document.createElement('div');

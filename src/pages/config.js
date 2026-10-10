@@ -150,3 +150,8 @@ function getRedirectUrl(email) {
     try { document.documentElement.style.opacity='1'; document.documentElement.style.visibility='visible'; } catch(_){}
   }
 })();
+
+// Symphony : un compte fait-il partie de l'équipe ? (vérifié par le serveur, jamais par une liste d'emails)
+window.symphonyIsStaff = async function (client) {
+  try { var r = await client.rpc('symphony_is_staff'); return r.data === true; } catch (e) { return false; }
+};

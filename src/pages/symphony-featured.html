@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=3"></script>
+<script src="config.js?v=4"></script>
 <style>
 :root {
   /* New Light Premium palette */
@@ -229,6 +229,7 @@ button,input,select{font-family:inherit}
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
 <style id="css-vars-fallback">/* Variables utilisées par la page mais jamais définies */:root{--t:200ms cubic-bezier(.4,0,.2,1)}</style>
+<link rel="stylesheet" href="symphony-chrome.css?v=1">
 </head>
 <body>
 
@@ -440,7 +441,7 @@ function toggleSbMenu(){
   if (!session) { window.location.href=ghpNav('/login'); return; }
   var email = (session.user.email || '').toLowerCase();
   var admins = (typeof DOCLINE_CONFIG !== 'undefined' ? (DOCLINE_CONFIG.ADMIN_EMAILS||[]) : []).map(function(e){return e.toLowerCase();});
-  if (!admins.includes(email)) { window.location.href=ghpNav('/dashboard'); return; }
+  if (!(await symphonyIsStaff(_supa))) { window.location.href=ghpNav('/dashboard'); return; }
   renderSidebar(session.user.email);
   (typeof _sbRestoreState === 'function' ? _sbRestoreState() : document.addEventListener('DOMContentLoaded', function () { _sbRestoreState(); }));
   var sbName = document.getElementById('sb-name');
@@ -667,6 +668,7 @@ function _sbRestoreState() {
   } catch(e) {}
 }
 </script>
-<script src="symphony-access.js?v=5" defer></script>
+<script src="symphony-access.js?v=6" defer></script>
+<script src="symphony-chrome.js?v=1" defer></script>
 </body>
 </html>
