@@ -1,5 +1,8 @@
 # Recette
 
+Scénario automatique côté serveur : `.qa/regression.sql` (29 contrôles, transaction annulée, identités réelles de l'équipe et d'un médecin). Dernière exécution le 11/10 : 29/29 OK.
+Contrôle code ↔ base : `node .qa/scan.js` (0 écart le 11/10).
+
 ## Déjà vérifié (tests à blanc sur la base de production, transaction annulée)
 
 ### Billetterie
@@ -38,7 +41,7 @@
 ### Pages
 - [x] Tickets, Équipe et LedgerDesk : syntaxe, rendu avec données d'exemple en largeur bureau et réduite, aucun débordement horizontal.
 
-## À vérifier avec de vrais comptes
+## À vérifier en cliquant, connecté (session requise)
 - [ ] Se mettre « Disponible », créer un ticket Support général, le recevoir, le résoudre.
 - [ ] Ajouter un agent à une équipe et lui donner une compétence, puis vérifier qu'il reçoit les tickets.
 - [ ] Laisser un ticket affecté sans le commencer pendant 30 minutes : il doit revenir en file.

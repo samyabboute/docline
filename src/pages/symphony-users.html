@@ -775,16 +775,19 @@ let _users=[], _subs=[], _filtered=[], _selectedUser=null;
   }
 })();
 
+let _prices = {};
 async function load(){
   const loadEl = document.getElementById('loading');
   loadEl.style.display = 'flex';
   loadEl.innerHTML = '<div class="spinner"></div><div style="color:var(--text-muted);font-size:var(--text-sm)">Chargement des utilisateurs…</div>';
   document.getElementById('content').style.display = 'none';
   try {
-    const [u,s] = await Promise.all([
+    const [u,s,pr] = await Promise.all([
       _supa.from('profiles').select('*').order('created_at',{ascending:false}),
       _supa.from('subscriptions').select('*'),
+      _supa.from('app_settings').select('key,value').like('key','plan_price_%'),
     ]);
+    _prices = {}; (pr.data || []).forEach(r => { _prices[r.key] = Number(r.value) || 0; });
     if (u.error) throw u.error;
     _users = u.data??[]; _subs = s.data??[];
     renderKPIs(); renderAnomalies(); renderTrialList(); applyFilter('','','');
@@ -809,8 +812,10 @@ async function load(){
 
 function renderKPIs(){
   const now  = Date.now();
-  const pro  = _subs.filter(s=>s.plan!=='free'&&s.status==='active');
-  const enterprise = _subs.filter(s=>s.plan==='enterprise'&&s.status==='active');
+  // Abonné payant = paiement validé et abonnement en cours (les accès offerts et paiements en attente ne comptent pas)
+  const pro  = _subs.filter(s=>s.plan!=='free'&&s.status==='active'&&s.payment_status==='paid'&&(!s.expires_at||new Date(s.expires_at)>new Date(now)));
+  const enterprise = pro.filter(s=>s.plan==='clinic'||s.plan==='enterprise');
+  const offered = _subs.filter(s=>s.plan!=='free'&&s.status==='active'&&s.payment_status==='complimentary').length;
   const free = _subs.filter(s=>s.plan==='free');
   const can  = _subs.filter(s=>s.status==='canceled');
   const tw   = _users.filter(u=>new Date(u.created_at)>new Date(now-7*86400000));
@@ -819,8 +824,11 @@ function renderKPIs(){
   const active24h = _users.filter(u=>u.last_seen_at && new Date(u.last_seen_at)>new Date(now-86400000));
   const activeWeek = _users.filter(u=>u.last_seen_at && new Date(u.last_seen_at)>new Date(now-7*86400000));
   const kyc_pending = _users.filter(u=>u.kyc_status==='pending_review');
-  // MRR estimate (DA): pro=2500/mois, enterprise=6500/mois
-  const mrr = (pro.length - enterprise.length) * 2500 + enterprise.length * 6500;
+  // Revenu mensuel récurrent : tarifs configurés (app_settings), un annuel compte pour 1/12
+  const mrr = Math.round(pro.reduce((t, s) => {
+    const p = (s.plan === 'enterprise' ? 'clinic' : s.plan), yearly = s.interval === 'year' || s.billing === 'yearly';
+    return t + (yearly ? (_prices['plan_price_' + p + '_yearly'] || 0) / 12 : (_prices['plan_price_' + p + '_monthly'] || 0));
+  }, 0));
   const mrrFmt = mrr >= 1000000 ? (mrr/1000000).toFixed(1)+'M' : mrr >= 1000 ? (mrr/1000).toFixed(0)+'k' : mrr;
 
   const grid = document.getElementById('user-kpis');
@@ -829,8 +837,8 @@ function renderKPIs(){
   grid.style.gridTemplateColumns = 'repeat(4,1fr)';
   grid.innerHTML = [
     ['Médecins inscrits',   _users.length,    '+'+tw.length+' cette semaine',             'up',      'brand',   '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'],
-    ['Abonnés payants',     pro.length,       Math.round((pro.length/(_users.length||1))*100)+'% conversion', 'up','success','<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
-    ['MRR estimé (DA)',     mrrFmt,           pro.length+' Pro · '+enterprise.length+' Clinic', 'up', 'success','<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>'],
+    ['Abonnés payants',     pro.length,       Math.round((pro.length/(_users.length||1))*100)+'% des inscrits', 'up','success','<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
+    ['Revenu mensuel (DA)', mrrFmt,           (pro.length-enterprise.length)+' Pro · '+enterprise.length+' Clinique · '+offered+' offerts', 'up', 'success','<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>'],
     ['Essai lancement',     trial.length,     trial.length+'/10 actifs · '+trialExpired.length+' expirés', trial.length>=10?'down':'neutral','warning','<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'],
     ['Actifs (24 h)',       active24h.length, activeWeek.length+' actifs cette semaine',    'neutral', 'info',   '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'],
     ['KYC en attente',      kyc_pending.length, kyc_pending.length?'À examiner':'Aucun en attente', kyc_pending.length?'down':'up','warning','<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'],
@@ -1122,11 +1130,6 @@ async function grantTrial(userId, email, months) {
     });
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.message || ({ FORBIDDEN:'Votre poste ne permet pas cette action.', REQUEST_NOT_FOUND:'Demande introuvable.' })[data.error] || data.error || 'Erreur activation');
-    // Also mark trial_ends_at in profile
-    await _supa.from('profiles').update({
-      trial_ends_at: data.expires_at,
-      trial_granted_months: months
-    }).eq('id', userId);
     Toast.success('Accès offert', `${email} — Pro gratuit jusqu'au ${formatDate(data.expires_at)}`);
     await load();
   } catch(e) {
@@ -1135,10 +1138,12 @@ async function grantTrial(userId, email, months) {
 }
 
 async function revokeTrial(userId, email) {
-  if (!confirm(`Révoquer l'accès d'essai de ${email} ?`)) return;
-  await _supa.from('profiles').update({ trial_ends_at: new Date(Date.now()-1000).toISOString() }).eq('id', userId);
-  await _supa.from('subscriptions').update({ plan: 'free', status: 'active' }).eq('user_id', userId);
-  Toast.info('Accès révoqué', email);
+  if (!confirm(`Révoquer l'accès offert à ${email} ? Le compte repasse au plan gratuit.`)) return;
+  const { error } = await _supa.rpc('crm_set_plan', { p_doctor: userId, p_plan: 'free', p_months: null, p_reason: 'Accès offert révoqué', p_note: null });
+  if (error) { Toast.error('Action refusée', error.message.indexOf('FORBIDDEN') !== -1 ? 'Votre poste ne permet pas de modifier un plan.' : error.message); return; }
+  const { error: pErr } = await _supa.from('profiles').update({ trial_ends_at: new Date(Date.now()-1000).toISOString() }).eq('id', userId);
+  if (pErr) { Toast.error('Plan modifié, date d\u2019essai non mise à jour', pErr.message); }
+  else Toast.info('Accès révoqué', email);
   await load();
 }
 
@@ -1179,17 +1184,16 @@ async function blockUser(){
   if(!_selectedUser) return;
   const u = _users.find(x=>x.id===_selectedUser);
   const email = (u ? (u.email || u.full_name || u.id.slice(0,8)) : _selectedUser);
-  const ok = confirm('Désactiver le compte de '+email+' ?\n\nLe médecin sera masqué de l\'annuaire et ne pourra plus accepter de rendez-vous.');
-  if(!ok) return;
-  try {
-    const { error } = await _supa.from('profiles').update({ is_active: false, is_public: false }).eq('id', _selectedUser);
-    if (error) throw error;
-    Toast.success('Compte désactivé', email+' est retiré de l\'annuaire.');
-    await load();
-  } catch(e) {
-    Toast.error('Erreur', e.message||'Impossible de désactiver.');
+  const reason = (prompt('Désactiver le compte de '+email+' ?\nIl sera masqué de l\u2019annuaire et son abonnement suspendu.\n\nMotif (conservé dans le journal) :') || '').trim();
+  if (!reason) return;
+  const { error } = await _supa.rpc('crm_set_active', { p_doctor: _selectedUser, p_active: false, p_reason: reason });
+  if (error) {
+    Toast.error('Action refusée', error.message.indexOf('REASON_REQUIRED') !== -1 ? 'Motif trop court (5 caractères minimum).' : error.message.indexOf('FORBIDDEN') !== -1 ? 'Votre poste ne permet pas de désactiver un compte.' : error.message);
+    return;
   }
+  Toast.success('Compte désactivé', email+' est retiré de l\'annuaire.');
   closeModal();
+  await load();
 }
 
 async function sendPasswordReset(email) {
