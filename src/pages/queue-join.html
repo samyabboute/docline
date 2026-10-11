@@ -496,6 +496,14 @@ body{
   </div>
 
   <!-- INVALID -->
+  <div class="step hidden" id="step-closed">
+    <div class="invalid-state">
+      <div class="invalid-icon" style="background:#F4F2FF"><svg viewBox="0 0 24 24" style="stroke:#6D28D9"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <div class="invalid-title" id="closed-title">File fermée</div>
+      <div class="invalid-sub" id="closed-sub"></div>
+    </div>
+  </div>
+
   <div class="step hidden" id="step-invalid">
     <div class="invalid-state">
       <div class="invalid-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
@@ -531,7 +539,40 @@ var _audioCtx   = null;
     return;
   }
   loadClinicInfo();
+  checkQueueOpen();
 })();
+
+// La file peut être en pause, fermée, hors horaires ou complète : on le dit avant toute saisie
+var QUEUE_REASONS = {
+  paused:            ['File en pause', 'Le cabinet a mis la file d\u2019attente en pause. Merci de patienter ou de vous adresser au secrétariat.'],
+  closed:            ['File fermée', 'Le cabinet n\u2019accepte plus de nouveaux patients pour le moment.'],
+  not_open_yet:      ['File pas encore ouverte', 'La file d\u2019attente ouvre à {from}.'],
+  after_hours:       ['File fermée pour aujourd\u2019hui', 'Les inscriptions sont closes. Revenez demain à partir de {from}.'],
+  last_entry_passed: ['Dernières arrivées passées', 'Le cabinet ferme à {until} : les inscriptions s\u2019arrêtent à {last}.'],
+  full:              ['File complète', 'Le nombre maximum de patients pour aujourd\u2019hui est atteint.']
+};
+function showQueueClosed(st) {
+  var r = QUEUE_REASONS[st.reason] || QUEUE_REASONS.closed;
+  var fill = function(t){ return t.replace('{from}', st.open_from || 'l\u2019heure d\u2019ouverture').replace('{until}', st.open_until || '').replace('{last}', st.last_entry || ''); };
+  document.getElementById('closed-title').textContent = r[0];
+  document.getElementById('closed-sub').textContent = fill(r[1]) + (st.message ? ' ' + st.message : '');
+  var dots = document.getElementById('progress-dots'); if (dots) dots.style.display = 'none';
+  showStep('closed');
+}
+async function checkQueueOpen() {
+  try {
+    var r = await _supa.rpc('queue_status', { p_clinic: _clinicId, p_date: new Date().toISOString().slice(0,10) });
+    if (r.data && r.data.accepting === false) showQueueClosed(r.data);
+  } catch(e) {}
+}
+function joinErrorText(e) {
+  var m = (e && e.message) || '';
+  var map = { QUEUE_PAUSED:'paused', QUEUE_CLOSED:'closed', QUEUE_NOT_OPEN_YET:'not_open_yet', QUEUE_AFTER_HOURS:'after_hours', QUEUE_LAST_ENTRY_PASSED:'last_entry_passed', QUEUE_FULL:'full' };
+  for (var k in map) if (m.indexOf(k) !== -1) { checkQueueOpen(); return QUEUE_REASONS[map[k]][0] + '.'; }
+  if (m.indexOf('NAME_INVALID') !== -1) return 'Entrez un prénom d\u2019au moins 2 lettres.';
+  if (m.indexOf('RATE_LIMITED') !== -1) return 'Trop d\u2019inscriptions en même temps. Réessayez dans une minute.';
+  return null;
+}
 
 async function loadClinicInfo() {
   try {
@@ -560,7 +601,7 @@ function playCallAlert(){var c=getAudio();if(!c)return;[0,.18,.36].forEach(funct
 
 // ── NAVIGATION ────────────────────────────────────────────────
 function showStep(id) {
-  ['choice','rdv','rdv-found','name','priority','confirm','invalid'].forEach(function(s){
+  ['choice','rdv','rdv-found','name','priority','confirm','invalid','closed'].forEach(function(s){
     var el=document.getElementById('step-'+s);
     if(el){el.classList.add('hidden');el.classList.remove('step-enter');}
   });
@@ -691,7 +732,7 @@ async function joinQueueRdv() {
 
   } catch(e) {
     btn.classList.remove('loading'); btn.disabled = false;
-    errEl.textContent = 'Impossible de rejoindre la file. Réessayez.';
+    errEl.textContent = joinErrorText(e) || 'Impossible de rejoindre la file. Réessayez.';
     errEl.classList.add('show');
   }
 }
@@ -719,7 +760,7 @@ async function joinQueue() {
   } catch(e) {
     btn.classList.remove('loading'); btn.disabled = false;
     var errEl = document.getElementById('err-priority');
-    errEl.textContent = 'Impossible de rejoindre la file. Réessayez ou demandez au secrétariat.';
+    errEl.textContent = joinErrorText(e) || 'Impossible de rejoindre la file. Réessayez ou demandez au secrétariat.';
     errEl.classList.add('show');
   }
 }

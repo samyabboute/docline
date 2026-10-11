@@ -104,12 +104,11 @@ serve(async (req) => {
     await supabase.from("otp_verifications").delete().eq("phone_hash", phoneHash);
     await supabase.from("otp_verifications").insert({ phone_hash: phoneHash, otp_hash: otpHash, expires_at: expiresAt });
 
-    // Mode dev
-    if (!TW_SID || Deno.env.get("DEV_SHOW_OTP") === "true") {
-      console.log(`[DEV] OTP pour ${phoneE164}: ${otp}`);
+    // Le code n'est jamais renvoyé au navigateur : sans fournisseur d'envoi, la vérification est impossible
+    if (!TW_SID) {
       return new Response(
-        JSON.stringify({ success: true, channel: "dev", otp, message: `[TEST] Votre code : ${otp}` }),
-        { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "SMS_UNAVAILABLE", message: "L'envoi du code est momentanément indisponible. Réessayez plus tard ou appelez le cabinet." }),
+        { status: 503, headers: { ...CORS, "Content-Type": "application/json" } }
       );
     }
 

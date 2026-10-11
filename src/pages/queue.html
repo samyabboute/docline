@@ -357,6 +357,22 @@
 .planning-loading{padding:24px;text-align:center;font-size:12px;color:var(--text3)}
 .alert-unconfirmed{display:none;align-items:center;gap:10px;padding:10px 16px;background:#FFFBEB;border-bottom:1px solid #FDE68A;font-size:12px;font-weight:600;color:#92400E}
 .alert-unconfirmed svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* Ouverture de la file */
+.qs-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;background:#ECFDF3;color:#027A48;white-space:nowrap}
+.qs-pill i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.qs-pill.paused{background:#FFFAEB;color:#B54708}.qs-pill.closed{background:#FEF3F2;color:#B42318}.qs-pill.limited{background:#F4F2FF;color:#4C1D95}
+.qs-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:12px;background:var(--surface2,#F7F6FF);margin-bottom:14px}
+.qs-seg button{border:0;background:none;padding:9px 6px;border-radius:9px;font:600 12.5px Inter,sans-serif;color:var(--text2,#6B7280);cursor:pointer}
+.qs-seg button.on{background:#fff;color:var(--text,#0D0520);box-shadow:0 1px 3px rgba(13,5,32,.12)}
+.qs-seg button.on[data-st=open]{color:#027A48}.qs-seg button.on[data-st=paused]{color:#B54708}.qs-seg button.on[data-st=closed]{color:#B42318}
+.qs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.qs-f label{display:block;font-size:11.5px;font-weight:600;color:var(--text2,#6B7280);margin-bottom:5px}
+.qs-f input,.qs-f select{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--border,rgba(0,0,0,.08));font:500 13px Inter,sans-serif;background:#fff;color:var(--text,#0D0520)}
+.qs-f input:focus,.qs-f select:focus{outline:none;border-color:var(--brand,#6D28D9)}
+.qs-note{font-size:12px;color:var(--text3,#9CA3B8);line-height:1.5;margin:4px 0 12px}
+.qs-save{width:100%;padding:10px;border:0;border-radius:10px;background:var(--brand,#6D28D9);color:#fff;font:700 13px Inter,sans-serif;cursor:pointer}
+.qs-save:disabled{opacity:.5}
 </style>
 <script src="loader.js?v=2"></script>
   <!-- Sentry monitoring -->
@@ -382,6 +398,7 @@
           <div class="page-sub">Les patients scannent le QR, prennent leur numéro et suivent leur tour en direct.</div>
         </div>
         <div class="hdr-actions">
+          <span class="qs-pill" id="qs-pill" title="État de la file pour les patients"><i></i><span id="qs-pill-txt">Ouverte</span></span>
           <button class="btn-reset" onclick="confirmReset()">
             <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.7"/></svg>
             Réinitialiser la journée
@@ -546,6 +563,32 @@
 
         <!-- RIGHT COLUMN -->
         <div class="right-panel">
+
+          <!-- Ouverture de la file -->
+          <div class="panel-card">
+            <div class="panel-card-head">
+              <div class="panel-card-title">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                Ouverture de la file
+              </div>
+            </div>
+            <div class="panel-card-body">
+              <div class="qs-seg" role="radiogroup" aria-label="État de la file">
+                <button type="button" data-st="open" class="on">Ouverte</button>
+                <button type="button" data-st="paused">En pause</button>
+                <button type="button" data-st="closed">Fermée</button>
+              </div>
+              <div class="qs-grid">
+                <div class="qs-f"><label for="qs-from">Ouverture</label><input id="qs-from" type="time"></div>
+                <div class="qs-f"><label for="qs-until">Fermeture</label><input id="qs-until" type="time"></div>
+                <div class="qs-f"><label for="qs-last">Dernière arrivée</label><select id="qs-last"><option value="0">À la fermeture</option><option value="10">10 min avant</option><option value="15" selected>15 min avant</option><option value="30">30 min avant</option><option value="45">45 min avant</option><option value="60">1 h avant</option></select></div>
+                <div class="qs-f"><label for="qs-max">Patients par jour</label><input id="qs-max" type="number" min="0" max="999" placeholder="Sans limite"></div>
+              </div>
+              <div class="qs-f" style="margin-bottom:10px"><label for="qs-msg">Message aux patients (pause ou fermeture)</label><input id="qs-msg" maxlength="200" placeholder="Ex : reprise à 14 h"></div>
+              <p class="qs-note" id="qs-state">Les patients qui scannent le QR code en dehors de ces règles voient un message et ne sont pas inscrits.</p>
+              <button class="qs-save" type="button" id="qs-save">Enregistrer</button>
+            </div>
+          </div>
 
           <!-- QR Code -->
           <div class="panel-card">
@@ -783,6 +826,55 @@ function playSound(priority) {
   else playCallNormal();
 }
 
+
+// ── OUVERTURE DE LA FILE (règles appliquées par le serveur) ──
+var _qs = { status: 'open' };
+var QS_REASON = { paused:'En pause', closed:'Fermée', not_open_yet:'Pas encore ouverte', after_hours:'Fermée (hors horaires)', last_entry_passed:'Dernières arrivées passées', full:'Complète' };
+function qsPaint(st) {
+  _qs = st || _qs;
+  document.querySelectorAll('.qs-seg button').forEach(function(b){ b.classList.toggle('on', b.dataset.st === _qs.status); });
+  var pill = document.getElementById('qs-pill'), txt = document.getElementById('qs-pill-txt');
+  pill.className = 'qs-pill' + (_qs.accepting ? (_qs.max_per_day ? ' limited' : '') : (_qs.status === 'paused' ? ' paused' : ' closed'));
+  txt.textContent = _qs.accepting ? ('Ouverte' + (_qs.remaining != null ? ' · ' + _qs.remaining + ' place' + (_qs.remaining > 1 ? 's' : '') : '')) : (QS_REASON[_qs.reason] || 'Fermée');
+  var parts = [];
+  if (_qs.open_from || _qs.open_until) parts.push('Ouverte de ' + (_qs.open_from || '—') + ' à ' + (_qs.open_until || '—') + (_qs.last_entry ? ', dernière arrivée ' + _qs.last_entry : ''));
+  if (_qs.max_per_day) parts.push(_qs.count + ' / ' + _qs.max_per_day + ' patients aujourd\u2019hui');
+  document.getElementById('qs-state').textContent = (parts.length ? parts.join(' · ') + '. ' : '') + 'Les patients qui scannent en dehors de ces règles voient un message et ne sont pas inscrits.';
+}
+function qsFill(st) {
+  document.getElementById('qs-from').value = st.open_from || '';
+  document.getElementById('qs-until').value = st.open_until || '';
+  document.getElementById('qs-last').value = String(st.last_entry_min != null ? st.last_entry_min : 15);
+  document.getElementById('qs-max').value = st.max_per_day || '';
+  document.getElementById('qs-msg').value = st.message || '';
+  document.getElementById('opt-name').checked = st.show_name !== false;
+  qsPaint(st);
+}
+async function qsLoad() {
+  var r = await _supa.rpc('queue_status', { p_clinic: _uid, p_date: _todayKey });
+  if (r.data) qsFill(r.data);
+}
+async function qsSave(statusOverride) {
+  var btn = document.getElementById('qs-save'); btn.disabled = true;
+  var r = await _supa.rpc('queue_settings_save', {
+    p_status: statusOverride || _qs.status,
+    p_open_from: document.getElementById('qs-from').value || null,
+    p_open_until: document.getElementById('qs-until').value || null,
+    p_last_entry_min: parseInt(document.getElementById('qs-last').value, 10) || 0,
+    p_max_per_day: parseInt(document.getElementById('qs-max').value, 10) || null,
+    p_show_name: document.getElementById('opt-name').checked,
+    p_message: document.getElementById('qs-msg').value || null
+  });
+  btn.disabled = false;
+  if (r.error) { toast(r.error.message.indexOf('HOURS_INVALID') !== -1 ? 'L\u2019heure de fermeture doit être après l\u2019ouverture.' : 'Réglages non enregistrés : ' + r.error.message); return; }
+  qsPaint(r.data);
+  toast(r.data.accepting ? 'File ouverte aux patients' : 'File : ' + (QS_REASON[r.data.reason] || 'fermée').toLowerCase());
+}
+document.querySelectorAll('.qs-seg button').forEach(function(b){ b.addEventListener('click', function(){ _qs.status = b.dataset.st; qsSave(b.dataset.st); }); });
+document.getElementById('qs-save').addEventListener('click', function(){ qsSave(); });
+document.getElementById('opt-name').addEventListener('change', function(){ qsSave(); });
+setInterval(function(){ if (_uid && !document.hidden) qsLoad(); }, 60000);
+
 // ── INIT ──────────────────────────────────────────────────────
 (async function init() {
   var s = await _supa.auth.getSession();
@@ -798,6 +890,7 @@ function playSound(priority) {
 
   Shell.init({ page:'queue', title:"File d'attente", isPro:isPro, plan:sub?.plan||'free', userName: Shell.displayName(meta, user.email), userEmail:user.email||'' });
   if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  qsLoad();
   if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'queue', "File d'attente");
 
   // Display screen link
