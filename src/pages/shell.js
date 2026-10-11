@@ -959,7 +959,7 @@ button{font-family:inherit;cursor:pointer}
       +   '</a>'
       +   '<div class="sb-pop-sep"></div>'
       /* Contacter le support */
-      +   '<a href="mailto:support@docline.dz" class="sb-pop-item">'
+      +   '<a href="mailto:support@docline.health" class="sb-pop-item">'
       +     '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
       +     'Contacter le support'
       +   '</a>'
@@ -1753,7 +1753,7 @@ button{font-family:inherit;cursor:pointer}
       + '</div>'
       + '<div class="shell-no-access-title">Compte suspendu</div>'
       + '<div class="shell-no-access-sub">Votre compte a ete suspendu par l\'administrateur.<br>Regularisez votre situation pour retrouver l\'acces.</div>'
-      + '<a href="mailto:support@docline.dz" class="shell-no-access-back" style="text-decoration:none">Contacter le support</a>';
+      + '<a href="mailto:support@docline.health" class="shell-no-access-back" style="text-decoration:none">Contacter le support</a>';
     document.body.appendChild(ov);
     var main = document.querySelector('.shell-main');
     if (main) main.style.visibility = 'hidden';
