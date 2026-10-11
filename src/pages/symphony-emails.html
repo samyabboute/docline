@@ -718,77 +718,32 @@ async function saveTemplate() {
   await loadTemplates();
 }
 
-// ── PREVIEW — identité visuelle Docline ──────────────────────
-function buildPreviewHtml(opts) {
-  // opts: { heading, body, ctaText, ctaUrl, badge, statusDot, statusBg, statusBorder, statusText, statusLabel }
-  const appUrl = (typeof DOCLINE_CONFIG !== 'undefined') ? (DOCLINE_CONFIG.APP_URL || 'https://docline.health') : 'https://docline.health';
-  const F = `font-family:'Helvetica Neue',Helvetica,Arial,sans-serif`;
-
-  const badge = opts.badge || '';
-  const badgeHtml = badge
-    ? `<div style="display:inline-block;margin-top:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:4px;padding:5px 14px;color:rgba(255,255,255,.85);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;${F}">${badge}</div>`
-    : '';
-
-  const statusHtml = opts.statusLabel
-    ? `<div style="margin-bottom:28px"><span style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:${opts.statusBg||'#F5F3FF'};border:1px solid ${opts.statusBorder||'#DDD5ED'};border-radius:6px"><span style="width:7px;height:7px;border-radius:50%;background:${opts.statusDot||'#7C3AED'};display:inline-block"></span><span style="font-size:11px;font-weight:700;color:${opts.statusText||'#5B21B6'};letter-spacing:.7px;text-transform:uppercase;${F}">${opts.statusLabel}</span></span></div>`
-    : '';
-
-  const ctaHtml = opts.ctaText
-    ? `<div style="margin:28px 0 24px"><a href="${opts.ctaUrl||appUrl}" style="display:inline-block;background:#4C1D95;color:#fff;font-weight:600;padding:13px 32px;border-radius:6px;text-decoration:none;font-size:14px;${F}">${opts.ctaText}</a></div>`
-    : '';
-
-  const body = (opts.body || '').split(/\n\n/).map(p =>
-    `<p style="margin:0 0 14px;color:#3A2E56;font-size:15px;line-height:1.75;${F}">${
-      p.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong style="color:#0F0520">$1</strong>')
-    }</p>`
-  ).join('');
-
-  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#E8E0F4;${F}">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#E8E0F4;padding:40px 16px">
-<tr><td align="center">
-<table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;border-radius:12px;box-shadow:0 4px 32px rgba(20,5,60,.16)">
-<tr><td style="background:linear-gradient(145deg,#140533 0%,#2E0F60 40%,#5118A8 100%);border-radius:12px 12px 0 0;padding:40px 48px 36px;text-align:center">
-  <a href="${appUrl}" style="text-decoration:none;border:0;display:inline-block">
-    <span style="display:inline-block;${F}">
-      <span style="font-size:28px;font-weight:800;color:#FFFFFF;letter-spacing:-0.5px;line-height:1">doc</span><span style="font-size:28px;font-weight:800;color:#A78BFA;letter-spacing:-0.5px;line-height:1">line</span><span style="display:inline-block;width:7px;height:7px;background:#A78BFA;border-radius:50%;margin-left:2px;vertical-align:middle;position:relative;top:-3px"></span>
-    </span>
-  </a>
-  ${badgeHtml}
-</td></tr>
-<tr><td style="background:#fff;padding:40px 48px 36px;border-left:1px solid #DDD5ED;border-right:1px solid #DDD5ED">
-  ${statusHtml}
-  <h1 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#0F0520;line-height:1.3;letter-spacing:-.3px;${F}">${opts.heading||''}</h1>
-  ${body}
-  ${ctaHtml}
-  <div style="margin-top:28px;padding-top:20px;border-top:1px solid #EAE2F4">
-    <p style="margin:0;font-size:13px;color:#0F0520;font-weight:600;${F}">Docline</p>
-  </div>
-</td></tr>
-<tr><td style="background:#F4F1FA;border:1px solid #DDD5ED;border-top:none;border-radius:0 0 12px 12px;padding:20px 48px;text-align:center">
-  <p style="margin:0;font-size:11px;color:#9B8CB8;line-height:2;${F}">
-    <a href="${appUrl}" style="color:#6D28D9;font-weight:600;text-decoration:none">docline.health</a>
-    &nbsp;&middot;&nbsp;<a href="${appUrl}/privacy" style="color:#9B8CB8;text-decoration:none">Confidentialité</a>
-    &nbsp;&middot;&nbsp;<a href="mailto:contact@docline.health" style="color:#9B8CB8;text-decoration:none">contact@docline.health</a>
-    <br>Données hébergées en Europe &nbsp;&middot;&nbsp; Conforme RGPD
-  </p>
-</td></tr>
-</table></td></tr></table>
-</body></html>`;
+// ── APERÇU — produit par le serveur avec le gabarit réel des emails (aucun envoi) ──
+async function renderPreview(p) {
+  const frame = document.getElementById('preview-frame');
+  frame.srcdoc = '<p style="font-family:-apple-system,Inter,sans-serif;padding:48px;text-align:center;color:#77718C">Chargement de l\u2019aperçu…</p>';
+  try {
+    const s = (await _supa.auth.getSession()).data.session;
+    const res = await fetch(DOCLINE_CONFIG.SUPA_URL + '/functions/v1/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.access_token, 'apikey': DOCLINE_CONFIG.SUPA_KEY },
+      body: JSON.stringify({ type: 'preview', payload: p })
+    });
+    const j = await res.json().catch(() => ({}));
+    frame.srcdoc = res.ok && j.html ? j.html
+      : '<p style="font-family:-apple-system,Inter,sans-serif;padding:48px;text-align:center;color:#B42318">Aperçu indisponible (' + (j.error || res.status) + ').</p>';
+  } catch (e) {
+    frame.srcdoc = '<p style="font-family:-apple-system,Inter,sans-serif;padding:48px;text-align:center;color:#B42318">Aperçu indisponible : connexion impossible.</p>';
+  }
 }
 
 function previewOptsFromDbTemplate(t) {
-  const appUrl = (typeof DOCLINE_CONFIG !== 'undefined') ? (DOCLINE_CONFIG.APP_URL || 'https://docline.health') : 'https://docline.health';
-  const vars   = { first_name: 'Dr. Ahmed', app_url: appUrl, invoice_number: 'FAC-0001', sender_name: 'Dr. Ahmed Benali' };
-  const interp = s => s ? s.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] || '') : '';
   const badgeMap = { welcome:'Compte activé', trial_granted:'Accès Pro activé', trial_expiring:'Essai bientôt terminé', payment_confirmed:'Paiement confirmé' };
-  return {
-    heading:  interp(t.heading),
-    body:     interp(t.intro_text),
-    ctaText:  t.cta_text ? interp(t.cta_text) : null,
-    ctaUrl:   t.cta_url  ? interp(t.cta_url)  : appUrl,
-    badge:    badgeMap[t.id] || '',
-  };
+  return { subject: t.subject, heading: t.heading, intro_text: t.intro_text, cta_text: t.cta_text, cta_url: t.cta_url, badge: badgeMap[t.id] || '' };
+}
+function previewOptsFromHardcoded(t) {
+  const o = t._preview || {};
+  return { subject: t.subject, heading: o.heading, intro_text: o.body, cta_text: o.ctaText, cta_url: null, badge: o.badge || '' };
 }
 
 function openPreview(id) {
@@ -799,12 +754,12 @@ function openPreview(id) {
   if (!t) return;
 
   _currentPreviewId = id;
-  const opts = dbT ? previewOptsFromDbTemplate(dbT) : (hcT._preview || {});
+  const opts = dbT ? previewOptsFromDbTemplate(dbT) : previewOptsFromHardcoded(hcT);
 
-  document.getElementById('preview-title').textContent = `Aperçu — ${t.name}`;
+  document.getElementById('preview-title').textContent = 'Aperçu : ' + t.name;
   document.getElementById('preview-subject-display').textContent = 'Sujet : ' + (t.subject || '');
-  document.getElementById('preview-frame').srcdoc = buildPreviewHtml(opts);
   document.getElementById('preview-modal').classList.add('open');
+  renderPreview(opts);
 }
 
 function closePreview() {
@@ -814,22 +769,20 @@ function closePreview() {
 
 function previewFromEdit() {
   const id = document.getElementById('edit-id').value;
-  const appUrl = (typeof DOCLINE_CONFIG !== 'undefined') ? (DOCLINE_CONFIG.APP_URL || 'https://docline.health') : 'https://docline.health';
-  const vars   = { first_name: 'Dr. Ahmed', app_url: appUrl };
-  const interp = s => s ? s.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] || '') : '';
   const badgeMap = { welcome:'Compte activé', trial_granted:'Accès Pro activé', trial_expiring:'Essai bientôt terminé', payment_confirmed:'Paiement confirmé' };
   const opts = {
-    heading:  interp(document.getElementById('edit-heading').value),
-    body:     interp(document.getElementById('edit-intro').value),
-    ctaText:  document.getElementById('edit-cta-text').value || null,
-    ctaUrl:   document.getElementById('edit-cta-url').value  || appUrl,
-    badge:    badgeMap[id] || '',
+    subject:    document.getElementById('edit-subject').value,
+    heading:    document.getElementById('edit-heading').value,
+    intro_text: document.getElementById('edit-intro').value,
+    cta_text:   document.getElementById('edit-cta-text').value || null,
+    cta_url:    document.getElementById('edit-cta-url').value || null,
+    badge:      badgeMap[id] || '',
   };
   _currentPreviewId = id;
-  document.getElementById('preview-title').textContent = `Aperçu — ${opts.heading || id}`;
-  document.getElementById('preview-subject-display').textContent = 'Sujet : ' + document.getElementById('edit-subject').value;
-  document.getElementById('preview-frame').srcdoc = buildPreviewHtml(opts);
+  document.getElementById('preview-title').textContent = 'Aperçu : ' + (opts.heading || id);
+  document.getElementById('preview-subject-display').textContent = 'Sujet : ' + opts.subject;
   document.getElementById('preview-modal').classList.add('open');
+  renderPreview(opts);
 }
 
 // ── SEND TEST → ouvre le modal ────────────────────────────────

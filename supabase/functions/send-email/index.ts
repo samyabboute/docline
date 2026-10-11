@@ -185,6 +185,18 @@ serve(async (req) => {
 
   let ok = false;
 
+  // ── Aperçu exact d'un modèle (Symphony) : même gabarit que l'envoi réel, rien n'est envoyé ──
+  if (type === "preview") {
+    const { data: isStaff } = await supabase.rpc("symphony_is_staff");
+    if (isStaff !== true) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: CORS });
+    const pv = payload ?? {};
+    const sample: Record<string, string> = { ...vars, first_name: "Ahmed", sender_name: "Dr Ahmed Benali", invoice_number: "FAC-2026-00001" };
+    const fill = (t: unknown) => interpolate(String(t ?? ""), sample);
+    const ctaText = fill(pv.cta_text).trim();
+    const html = buildBaseEmail(fill(pv.heading), fill(pv.intro_text), ctaText ? { text: ctaText, url: fill(pv.cta_url) || APP_URL } : undefined, pv.badge ? String(pv.badge) : undefined);
+    return new Response(JSON.stringify({ html, subject: fill(pv.subject) }), { status: 200, headers: { ...CORS, "Content-Type": "application/json" } });
+  }
+
   // ── Invoice ──────────────────────────────────────────────────
   if (type === "invoice") {
     if (!payload?.client_email) {
