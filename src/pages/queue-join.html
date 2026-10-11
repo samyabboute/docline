@@ -673,24 +673,11 @@ async function joinQueueRdv() {
 
   try {
     var today = new Date().toISOString().slice(0,10);
-    var { data: existing } = await _supa.from('queue_entries')
-      .select('number').eq('clinic_id',_clinicId).eq('queue_date',today)
-      .order('number',{ascending:false}).limit(1);
-    var nextNum = (existing&&existing.length) ? existing[0].number+1 : 1;
-
-    // Préfixe RDV dans les notes
-    var { data: entry, error } = await _supa.from('queue_entries')
-      .insert({
-        clinic_id:    _clinicId,
-        number:       nextNum,
-        patient_name: name,
-        status:       'waiting',
-        priority:     'urgente',   // priorité auto → passe devant les normales
-        queue_date:   today,
-        notes:        'RDV en ligne · ' + (_foundAppt ? _foundAppt.requested_time : '')
-      }).select().single();
-
+    // Le serveur attribue le numéro (aucun doublon possible) ; RDV en ligne = prioritaire
+    var { data: entry, error } = await _supa.rpc('queue_join', { p_clinic: _clinicId, p_date: today, p_name: name,
+      p_priority: 'urgente', p_note: 'RDV en ligne · ' + (_foundAppt ? _foundAppt.requested_time : '') });
     if(error) throw error;
+    var nextNum = entry.number, existing = { length: entry.ahead };
 
     // Marquer le RDV comme arrivé
     if(_foundAppt) {
@@ -720,36 +707,10 @@ async function joinQueue() {
 
   try {
     var today = new Date().toISOString().slice(0,10);
-    var { data: existing } = await _supa.from('queue_entries')
-      .select('number').eq('clinic_id',_clinicId).eq('queue_date',today)
-      .order('number',{ascending:false}).limit(1);
-    var nextNum = (existing&&existing.length) ? existing[0].number+1 : 1;
-
-    var { data: entry, error } = await _supa.from('queue_entries')
-      .insert({ clinic_id:_clinicId, number:nextNum, patient_name:name, status:'waiting', priority:_myPriority, queue_date:today })
-      .select().single();
-
+    var { data: entry, error } = await _supa.rpc('queue_join', { p_clinic: _clinicId, p_date: today, p_name: name, p_priority: _myPriority, p_note: null });
     if(error) throw error;
-
-    // ── Broadcast au médecin — subscribe d'abord, puis envoie ──
-    try {
-      var _bch = _supa.channel('queue-live-' + _clinicId);
-      await new Promise(function(resolve) {
-        _bch.subscribe(function(status) {
-          if (status === 'SUBSCRIBED') {
-            _bch.send({ type: 'broadcast', event: 'new_patient', payload: {
-              id: entry.id, number: nextNum, patient_name: name,
-              priority: _myPriority, queue_date: today,
-              status: 'waiting', created_at: entry.created_at
-            }}).then(function() {
-              setTimeout(function(){ try{_bch.unsubscribe();}catch(e){} }, 1000);
-              resolve();
-            }).catch(resolve);
-          }
-        });
-        setTimeout(resolve, 4000); // timeout fallback
-      });
-    } catch(_) {}
+    var nextNum = entry.number, existing = { length: entry.ahead };
+    // Le cabinet reçoit l'arrivée par sa propre connexion sécurisée (plus de diffusion publique du nom)
 
     _myNumber = nextNum;
     playSuccess();
@@ -785,9 +746,7 @@ async function showConfirmation(entry, positionBefore, isRdv) {
 
   var today = new Date().toISOString().slice(0,10);
   try {
-    var { data: qdata } = await _supa.from('queue_entries')
-      .select('number,status').eq('clinic_id',_clinicId).eq('queue_date',today)
-      .order('number',{ascending:true});
+    var { data: qdata } = await _supa.rpc('queue_board', { p_clinic: _clinicId, p_date: today });
     var current = (qdata||[]).find(function(e){return e.status==='current';});
     document.getElementById('info-current').textContent = current ? String(current.number).padStart(2,'0') : '--';
     var ahead = Math.max(0, positionBefore);
@@ -831,20 +790,15 @@ function updateStatusCard(ahead, room) {
 
 // ── REALTIME ──────────────────────────────────────────────────
 function startRealtime() {
-  _channel = _supa.channel('qj-'+_clinicId+'-'+Date.now())
-    .on('postgres_changes',{event:'*',schema:'public',table:'queue_entries',filter:'clinic_id=eq.'+_clinicId},
-      function(){refreshPosition();})
-    .subscribe();
+  if (window._qjPoll) clearInterval(window._qjPoll);
+  window._qjPoll = setInterval(function(){ if (!document.hidden) refreshPosition(); }, 4000);
 }
 
 async function refreshPosition() {
   if(!_myNumber||!_clinicId) return;
   var today = new Date().toISOString().slice(0,10);
   try {
-    var { data } = await _supa.from('queue_entries')
-      .select('number,status,room,priority')
-      .eq('clinic_id',_clinicId).eq('queue_date',today)
-      .order('number',{ascending:true});
+    var { data } = await _supa.rpc('queue_board', { p_clinic: _clinicId, p_date: today });
     if(!data) return;
     var current = data.find(function(e){return e.status==='current';});
     document.getElementById('info-current').textContent = current ? String(current.number).padStart(2,'0') : '--';
