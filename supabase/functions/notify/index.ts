@@ -2,11 +2,13 @@
 //   appointment_created  : nouvelle réservation (médecin + patient)
 //   appointment_status   : confirmation / annulation (l'autre partie est prévenue)
 //   patient_welcome      : un patient renseigne son email dans son espace
+//   kyc_status, payment_request, payment_recorded, extension_approved, account_status : médecins
+//   appointment_reminders (veille du RDV), trial_reminders (J-3 et dernier jour) : appelés par pg_cron
 // Appel interne uniquement : l'en-tête x-notify-secret doit correspondre au
 // secret stocké dans le coffre Supabase (vault, nom « notify_secret »).
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { APP_URL, apptCard, button, details, esc, frDate, layout, link, logEmail, para, pill, sendEmail } from "../_shared/email.ts";
+import { amount, APP_URL, apptCard, button, details, esc, frDate, layout, link, logEmail, para, pill, sendEmail } from "../_shared/email.ts";
 
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json" } });
 
@@ -59,6 +61,166 @@ serve(async (req) => {
     });
     const r = await deliver("patient_welcome", `welcome:${p.id}:${p.email}`, p.email, p.full_name || "", "Bienvenue dans votre espace Docline", html);
     return json({ result: r });
+  }
+
+  // ════════ Médecins : vérification, paiements, compte ════════
+  const DA = (n: number) => new Intl.NumberFormat("fr-FR").format(Math.round(n || 0)).replace(/ | /g, " ") + " DA";
+  const PLAN: Record<string, string> = { pro: "Pro", clinic: "Clinique", enterprise: "Clinique", free: "Gratuit" };
+  const METHOD: Record<string, string> = { virement: "Virement bancaire", ccp: "Versement CCP", baridimob: "BaridiMob", cib: "Carte CIB", edahabia: "Edahabia", especes: "Espèces", cash: "Espèces", cheque: "Chèque", chargily: "Paiement en ligne", autre: "Autre" };
+  async function doctor(id: string) {
+    const { data } = await admin.from("profiles").select("id, email, first_name, last_name, full_name, is_clinic, clinic_name, kyc_status, kyc_reject_reason, kyc_reviewed_at, kyc_submitted_at, is_active, payment_deadline, specialty, wilaya").eq("id", id).maybeSingle();
+    return data;
+  }
+  const hello = (d: any) => d?.is_clinic && d?.clinic_name ? d.clinic_name : (d?.last_name ? "Dr " + d.last_name : doctorName(d));
+  const BILLING_REPLY = "facturation@docline.health";
+
+  if (event === "kyc_status") {
+    const d = await doctor(body.doctor_id);
+    if (!d) return json({ skipped: "no_doctor" });
+    const st = String(body.status || d.kyc_status);
+    if (st === "pending_review") {
+      return json({ result: await deliver("kyc_received", `kyc:recv:${d.id}:${d.kyc_submitted_at}`, d.email, hello(d), "Votre dossier de vérification est bien reçu",
+        layout({ eyebrow: "Vérification", preheader: "Notre équipe vérifie vos documents.", title: "Dossier bien reçu",
+          body: para(`Merci ${hello(d)}. Notre équipe vérifie vos documents.\n\nVous recevrez un email dès que la vérification est terminée. En attendant, vous pouvez déjà utiliser votre agenda et vos dossiers patients.`)
+            + button("Ouvrir mon cabinet", `${APP_URL}/dashboard`),
+          reason: "Vous recevez cet email car vous avez envoyé un document de vérification sur Docline." })) });
+    }
+    if (st === "approved") {
+      return json({ result: await deliver("kyc_approved", `kyc:ok:${d.id}:${d.kyc_reviewed_at}`, d.email, hello(d), "Votre identité est vérifiée",
+        layout({ eyebrow: "Vérification", preheader: "Votre cabinet peut maintenant recevoir des patients en ligne.", title: "Votre identité est vérifiée",
+          body: pill("Vérifié", "ok")
+            + para(`Bonne nouvelle, ${hello(d)}. Votre compte est vérifié.\n\nDès que votre spécialité et votre wilaya sont renseignées, votre page apparaît dans l'annuaire Docline et les patients peuvent réserver avec vous.`)
+            + button("Compléter mon profil public", `${APP_URL}/profil-public`) + link("Ouvrir mon cabinet", `${APP_URL}/dashboard`),
+          reason: "Vous recevez cet email car votre dossier de vérification Docline a été traité." })) });
+    }
+    if (st === "rejected") {
+      return json({ result: await deliver("kyc_rejected", `kyc:ko:${d.id}:${d.kyc_reviewed_at}`, d.email, hello(d), "Votre dossier de vérification est à compléter",
+        layout({ eyebrow: "Vérification", preheader: "Il manque un élément pour vérifier votre identité.", title: "Votre dossier est à compléter",
+          body: para(`${hello(d)}, nous n'avons pas pu valider votre document pour la raison suivante.`)
+            + details([["Motif", d.kyc_reject_reason || "Document non conforme"]])
+            + para("\nEnvoyez un nouveau document depuis votre cabinet : la vérification reprend aussitôt.")
+            + button("Envoyer un nouveau document", `${APP_URL}/dashboard`),
+          reason: "Vous recevez cet email car votre dossier de vérification Docline a été traité." })) });
+    }
+    return json({ skipped: st });
+  }
+
+  if (event === "payment_request" ) {
+    const { data: r } = await admin.from("payment_requests").select("*").eq("id", body.request_id).maybeSingle();
+    if (!r) return json({ skipped: "no_request" });
+    const d = await doctor(r.user_id);
+    const to = d?.email || r.user_email;
+    if (r.status === "pending") {
+      return json({ result: await deliver("payment_received", `pay:recv:${r.id}`, to, hello(d), "Nous avons bien reçu votre demande de paiement",
+        layout({ eyebrow: "Facturation", preheader: "Votre abonnement sera activé dès la réception du paiement.", title: "Demande de paiement reçue",
+          body: (r.amount ? amount(DA(r.amount), `Abonnement ${PLAN[r.plan] || r.plan}, ${r.billing === "yearly" ? "annuel" : "mensuel"}`) : "")
+            + details([["Moyen de paiement", METHOD[r.method] || r.method], ["Référence", r.reference], ["Date", frDate(r.created_at)]])
+            + para("\nVotre abonnement est activé dès que notre équipe a constaté le paiement. Vous recevrez alors un reçu par email."),
+          reason: "Vous recevez cet email car une demande de paiement a été faite depuis votre compte Docline." }), BILLING_REPLY) });
+    }
+    if (r.status === "rejected") {
+      return json({ result: await deliver("payment_rejected", `pay:ko:${r.id}`, to, hello(d), "Votre paiement n'a pas pu être validé",
+        layout({ eyebrow: "Facturation", preheader: "Nous n'avons pas pu rapprocher votre paiement.", title: "Paiement non validé",
+          body: pill("Non validé", "bad")
+            + details([["Montant", r.amount ? DA(r.amount) : null], ["Moyen de paiement", METHOD[r.method] || r.method], ["Référence", r.reference], ["Date de la demande", frDate(r.created_at)]])
+            + para("\nNous n'avons pas pu rapprocher ce paiement. Répondez simplement à cet email avec votre justificatif : notre équipe facturation vous répond rapidement."),
+          reason: "Vous recevez cet email au sujet d'une demande de paiement de votre compte Docline." }), BILLING_REPLY) });
+    }
+    return json({ skipped: r.status });
+  }
+
+  if (event === "payment_recorded") {
+    const { data: e } = await admin.from("billing_entries").select("*").eq("id", body.entry_id).maybeSingle();
+    if (!e || e.kind !== "payment") return json({ skipped: "not_payment" });
+    const d = await doctor(e.doctor_id);
+    const { data: sub } = await admin.from("subscriptions").select("plan, interval, expires_at").eq("user_id", e.doctor_id).maybeSingle();
+    return json({ result: await deliver("payment_receipt", `receipt:${e.id}`, d?.email, hello(d), `Reçu de paiement ${e.number}`,
+      layout({ eyebrow: "Reçu", preheader: `Paiement de ${DA(e.amount_da)} bien reçu.`, title: "Merci, votre paiement est reçu",
+        body: amount(DA(e.amount_da), e.label)
+          + details([["Pièce", e.number], ["Date", frDate(e.created_at)], ["Moyen de paiement", METHOD[e.method] || e.method], ["Référence", e.external_ref],
+                     ["Abonnement", sub?.plan && sub.plan !== "free" ? `${PLAN[sub.plan] || sub.plan}${sub.expires_at ? ", jusqu'au " + frDate(sub.expires_at) : ""}` : null]])
+          + para("\nConservez cet email : il vaut reçu. Votre relevé de compte complet est disponible sur demande.")
+          + button("Ouvrir mon cabinet", `${APP_URL}/dashboard`),
+        reason: "Vous recevez cet email car un paiement a été enregistré sur votre compte Docline." }), BILLING_REPLY) });
+  }
+
+  if (event === "extension_approved") {
+    const { data: x } = await admin.from("billing_extensions").select("*").eq("id", body.extension_id).maybeSingle();
+    if (!x || x.status !== "approved") return json({ skipped: "not_approved" });
+    const d = await doctor(x.doctor_id);
+    return json({ result: await deliver("deadline_extended", `ext:${x.id}`, d?.email, hello(d), "Votre échéance de paiement est prolongée",
+      layout({ eyebrow: "Facturation", preheader: `Nouvelle échéance : ${frDate(x.new_due)}.`, title: "Échéance prolongée",
+        body: para(`${hello(d)}, votre demande de délai est acceptée.`)
+          + details([["Nouvelle échéance", frDate(x.new_due)], ["Ancienne échéance", x.old_due ? frDate(x.old_due) : null]])
+          + para("\nVotre accès reste actif jusqu'à cette date. Pour toute question, répondez simplement à cet email."),
+        reason: "Vous recevez cet email au sujet de la facturation de votre compte Docline." }), BILLING_REPLY) });
+  }
+
+  if (event === "account_status") {
+    const d = await doctor(body.doctor_id);
+    if (!d) return json({ skipped: "no_doctor" });
+    if (d.is_active === false) {
+      const { data: log } = await admin.from("kyc_audit_log").select("note, created_at").eq("doctor_id", d.id).eq("action", "deactivated").order("created_at", { ascending: false }).limit(1).maybeSingle();
+      return json({ result: await deliver("account_suspended", `susp:${d.id}:${log?.created_at || ""}`, d.email, hello(d), "Votre compte Docline est suspendu",
+        layout({ eyebrow: "Votre compte", preheader: "Votre page n'est plus visible et la réservation en ligne est fermée.", title: "Compte suspendu",
+          body: para(`${hello(d)}, votre compte Docline est suspendu. Votre page n'apparaît plus dans l'annuaire et la réservation en ligne est fermée. Vos données sont conservées.`)
+            + details([["Motif", log?.note || null]])
+            + para("\nPour réactiver votre compte, répondez à cet email : notre équipe vous indique la marche à suivre."),
+          reason: "Vous recevez cet email au sujet de votre compte Docline." }), BILLING_REPLY) });
+    }
+    return json({ result: await deliver("account_reactivated", `react:${d.id}:${new Date().toISOString().slice(0, 13)}`, d.email, hello(d), "Votre compte Docline est réactivé",
+      layout({ eyebrow: "Votre compte", preheader: "Bon retour sur Docline.", title: "Votre compte est réactivé",
+        body: pill("Actif", "ok") + para(`Bon retour, ${hello(d)}. Votre cabinet est de nouveau accessible et vos patients peuvent réserver en ligne.`)
+          + button("Ouvrir mon cabinet", `${APP_URL}/dashboard`),
+        reason: "Vous recevez cet email au sujet de votre compte Docline." })) });
+  }
+
+  // ════════ Envois planifiés (pg_cron) ════════
+  if (event === "appointment_reminders") {
+    const tomorrow = new Date(Date.now() + 86400000 + 3600000).toISOString().slice(0, 10);   // demain, heure d'Alger
+    const { data: list } = await admin.from("appointments")
+      .select("id, doctor_id, patient_id, patient_name, patient_email, requested_date, requested_time, status, ticket_token")
+      .eq("requested_date", tomorrow).eq("status", "confirmed").limit(500);
+    let sent = 0;
+    for (const a of list || []) {
+      let email = a.patient_email;
+      if (!email && a.patient_id) { const { data: pt } = await admin.from("patients").select("email").eq("id", a.patient_id).maybeSingle(); email = pt?.email; }
+      if (!email) continue;
+      const { data: doc } = await admin.from("profiles").select("first_name, last_name, full_name, is_clinic, clinic_name, address, city, wilaya, specialty, phone_public").eq("id", a.doctor_id).maybeSingle();
+      const dn = doctorName(doc);
+      const r = await deliver("appt_reminder", `remind:${a.id}`, email, a.patient_name, `Rappel : votre rendez-vous demain à ${t5(a.requested_time)}`,
+        layout({ eyebrow: "Rappel", preheader: `${dn}, demain à ${t5(a.requested_time)}.`, title: "À demain",
+          body: para(`Bonjour ${String(a.patient_name || "").split(" ")[0]}, nous vous rappelons votre rendez-vous.`)
+            + apptCard(a.requested_date, t5(a.requested_time), dn, [doc?.specialty, place(doc)].filter(Boolean).join(", "))
+            + para("\nSi vous ne pouvez pas venir, prévenez le cabinet : le créneau sera proposé à un autre patient.")
+            + (a.ticket_token ? button("Voir mon ticket", `${APP_URL}/ticket?t=${encodeURIComponent(a.ticket_token)}`) : button("Gérer mon rendez-vous", `${APP_URL}/patient#rdv`))
+            + (doc?.phone_public ? link(`Appeler le cabinet : ${doc.phone_public}`, `tel:${doc.phone_public}`) : ""),
+          reason: "Vous recevez cet email car vous avez un rendez-vous demain sur Docline." }));
+      if (r === "sent") sent++;
+    }
+    return json({ reminders: sent });
+  }
+
+  if (event === "trial_reminders") {
+    const now = Date.now();
+    const { data: subs } = await admin.from("subscriptions").select("user_id, plan, trial_end_date, expires_at, payment_status")
+      .eq("payment_status", "pending").neq("plan", "free").not("trial_end_date", "is", null)
+      .lte("trial_end_date", new Date(now + 3.5 * 86400000).toISOString()).gte("trial_end_date", new Date(now).toISOString()).limit(500);
+    let sent = 0;
+    for (const s of subs || []) {
+      const d = await doctor(s.user_id);
+      const daysLeft = Math.max(0, Math.round((new Date(s.trial_end_date).getTime() - now) / 86400000));
+      const stage = daysLeft <= 1 ? "last" : "j3";
+      const r = await deliver("trial_expiring", `trial:${stage}:${s.user_id}:${String(s.trial_end_date).slice(0, 10)}`, d?.email, hello(d),
+        stage === "last" ? "Votre essai Docline se termine aujourd'hui" : `Votre essai Docline se termine dans ${daysLeft} jours`,
+        layout({ eyebrow: "Votre essai", preheader: `Fin de l'essai le ${frDate(s.trial_end_date)}.`,
+          title: stage === "last" ? "Votre essai se termine aujourd'hui" : `Plus que ${daysLeft} jours d'essai`,
+          body: para(`${hello(d)}, votre essai de la formule ${PLAN[s.plan] || s.plan} se termine le ${frDate(s.trial_end_date)}.\n\nPour garder votre agenda en ligne, vos rappels et votre salle d'attente sans interruption, choisissez votre formule. Vos patients et vos données restent intacts.`)
+            + button("Choisir ma formule", `${APP_URL}/pricing`),
+          reason: "Vous recevez cet email car vous profitez d'un essai Docline." }), BILLING_REPLY);
+      if (r === "sent") sent++;
+    }
+    return json({ trial_reminders: sent });
   }
 
   if (event !== "appointment_created" && event !== "appointment_status") return json({ error: "event" }, 400);

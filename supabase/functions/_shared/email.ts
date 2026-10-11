@@ -1,93 +1,100 @@
-// Docline — modèle d'email commun (charte graphique v1.0).
-// Fond lumière, carte blanche, logo officiel en PNG (les SVG ne s'affichent pas dans Gmail),
-// bouton pilule violet, titres en minuscules, aucun émoji, aucune affirmation non vérifiée.
+// Docline : modèle d'email commun.
+// Esprit Apple aux couleurs Docline : fond lavande très clair, une carte blanche aérée,
+// logo centré, titre à l'encre, bouton violet, aucun émoji, aucune affirmation non vérifiée.
+// Le logo est un PNG (les SVG ne s'affichent pas dans Gmail).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-export const APP_URL = Deno.env.get("APP_URL") ?? "https://docline.health";
+// Adresse publique du site. Elle ne dépend pas d'un réglage serveur : un mauvais réglage
+// envoyait autrefois logo et liens vers un ancien site.
+export const SITE = "https://docline.health";
+export const APP_URL = SITE;
 const RESEND_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-const LOGO = `${APP_URL}/email-logo.png`;
+const LOGO = `${SITE}/email-logo.png`;
 
 const C = {
-  bg: "#FBFAFD", card: "#FFFFFF", fill: "#F4F2F8", line: "#ECE8F4",
-  ink: "#0D0520", ink2: "#3B3551", ink3: "#6E6880", accent: "#4C1D95", soft: "#F1EEFA",
-  orange: "#EA580C", ok: "#1E7F4E", okSoft: "#EDF7F1", warn: "#B45309", warnSoft: "#FEF6E7",
-  bad: "#B42318", badSoft: "#FDF0EF",
+  bg: "#F7F6FF", card: "#FFFFFF", fill: "#F7F5FF", line: "#EEEAF7",
+  ink: "#0D0520", ink2: "#3B3551", ink3: "#77718C", accent: "#4C1D95", accent2: "#6D28D9", soft: "#EDE9FE",
+  ok: "#127A47", okSoft: "#EAF7F0", warn: "#A15C07", warnSoft: "#FEF5E6", bad: "#B42318", badSoft: "#FDF0EF",
 };
-const FONT = "font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+const FONT = "font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Inter,Roboto,Helvetica,Arial,sans-serif";
+const FONT_D = "font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Inter,Roboto,Helvetica,Arial,sans-serif";
 
 export function esc(s: unknown): string {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 }
 
-/** Paragraphe : \n\n sépare les paragraphes, **gras** autorisé. Le texte est échappé. */
+/** Paragraphe centré : \n\n sépare les paragraphes, **gras** autorisé. Le texte est échappé. */
 export function para(text: string): string {
   return text.trim().split(/\n\n/).map((t) =>
-    `<p style="margin:0 0 14px;${FONT};font-size:15px;line-height:1.6;color:${C.ink2}">` +
+    `<p style="margin:0 0 14px;${FONT};font-size:16px;line-height:1.6;color:${C.ink2};text-align:center">` +
     esc(t.trim()).replace(/ ([:;?!»])/g, "&nbsp;$1").replace(/\n/g, "<br>").replace(/\*\*(.+?)\*\*/g, `<strong style="color:${C.ink};font-weight:600">$1</strong>`) +
     `</p>`).join("");
 }
 
+/** Bouton principal, centré. */
 export function button(text: string, url: string): string {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0 22px"><tr>
-    <td style="border-radius:999px;background:${C.accent}">
-      <a href="${esc(url)}" style="display:inline-block;padding:14px 28px;border-radius:999px;background:${C.accent};color:#FFFFFF;${FONT};font-size:15px;font-weight:600;text-decoration:none">${esc(text)}</a>
+  return `<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:30px auto 8px"><tr>
+    <td align="center" style="border-radius:999px;background:${C.accent}">
+      <a href="${esc(url)}" style="display:inline-block;padding:15px 32px;border-radius:999px;background:${C.accent};color:#FFFFFF;${FONT};font-size:16px;font-weight:600;letter-spacing:-.01em;text-decoration:none">${esc(text)}</a>
     </td></tr></table>`;
 }
 
+/** Lien secondaire, centré. */
 export function link(text: string, url: string): string {
-  return `<p style="margin:14px 0 0;${FONT};font-size:14px"><a href="${esc(url)}" style="color:${C.accent};font-weight:600;text-decoration:none">${esc(text)}</a></p>`;
+  return `<p style="margin:16px 0 0;${FONT};font-size:15px;text-align:center"><a href="${esc(url)}" style="color:${C.accent2};font-weight:600;text-decoration:none">${esc(text)} &rsaquo;</a></p>`;
 }
 
 type Tone = "ok" | "wait" | "bad" | "info";
 export function pill(label: string, tone: Tone = "info"): string {
   const t = { ok: [C.okSoft, C.ok], wait: [C.warnSoft, C.warn], bad: [C.badSoft, C.bad], info: [C.soft, C.accent] }[tone];
-  return `<span style="display:inline-block;padding:5px 12px;border-radius:999px;background:${t[0]};color:${t[1]};${FONT};font-size:12px;font-weight:600">${esc(label)}</span>`;
+  return `<p style="margin:0 0 18px;text-align:center"><span style="display:inline-block;padding:6px 14px;border-radius:999px;background:${t[0]};color:${t[1]};${FONT};font-size:13px;font-weight:600">${esc(label)}</span></p>`;
 }
 
-/** Bloc récapitulatif : lignes libellé / valeur sur fond aplat. */
+/** Récapitulatif : libellé à gauche, valeur à droite, sur fond lavande. */
 export function details(rows: Array<[string, string | null | undefined]>): string {
   const r = rows.filter(([, v]) => v);
   if (!r.length) return "";
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0 22px;background:${C.fill};border-radius:16px">
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0 24px;background:${C.fill};border-radius:18px">
     ${r.map(([k, v], i) => `<tr>
-      <td style="padding:12px 18px;${i ? `border-top:1px solid ${C.line};` : ""}${FONT};font-size:14px;color:${C.ink3};white-space:nowrap">${esc(k)}</td>
-      <td style="padding:12px 18px;${i ? `border-top:1px solid ${C.line};` : ""}${FONT};font-size:14px;color:${C.ink};font-weight:600;text-align:right">${esc(v)}</td>
+      <td style="padding:14px 20px;${i ? `border-top:1px solid ${C.line};` : ""}${FONT};font-size:14px;color:${C.ink3};white-space:nowrap;vertical-align:top">${esc(k)}</td>
+      <td style="padding:14px 20px;${i ? `border-top:1px solid ${C.line};` : ""}${FONT};font-size:14px;color:${C.ink};font-weight:600;text-align:right">${esc(v)}</td>
     </tr>`).join("")}
   </table>`;
 }
 
-const MONTHS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+/** Montant mis en avant (reçu, relevé). */
+export function amount(value: string, caption: string): string {
+  return `<p style="margin:6px 0 2px;${FONT_D};font-size:44px;line-height:1.1;font-weight:700;letter-spacing:-.04em;color:${C.ink};text-align:center">${esc(value)}</p>
+    <p style="margin:0 0 6px;${FONT};font-size:14px;color:${C.ink3};text-align:center">${esc(caption)}</p>`;
+}
+
 const MONTHS_FULL = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 const DAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 
 export function frDate(iso: string): string {
-  const d = new Date(iso + "T12:00:00");
+  const d = new Date(String(iso).slice(0, 10) + "T12:00:00");
   const day = DAYS[d.getDay()];
-  return `${day.charAt(0).toUpperCase() + day.slice(1)} ${d.getDate()} ${MONTHS_FULL[d.getMonth()]} ${d.getFullYear()}`;
+  return `${day} ${d.getDate()} ${MONTHS_FULL[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-/** Signature visuelle Docline : mini-calendrier (mois en orange, jour en encre) + texte à droite. */
+/** Carte de rendez-vous : la date en grand, l'heure en violet, puis le médecin et le lieu. */
 export function apptCard(isoDate: string, time: string, title: string, sub: string): string {
-  const d = new Date(isoDate + "T12:00:00");
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0 22px;border:1px solid ${C.line};border-radius:18px">
-    <tr>
-      <td width="72" style="padding:16px 0 16px 16px;vertical-align:middle">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="64" style="background:${C.fill};border-radius:14px">
-          <tr><td align="center" style="padding:8px 0 0;${FONT};font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${C.orange}">${MONTHS[d.getMonth()]}</td></tr>
-          <tr><td align="center" style="${FONT};font-size:26px;font-weight:800;line-height:1.1;color:${C.ink}">${d.getDate()}</td></tr>
-          <tr><td align="center" style="padding:0 0 8px;${FONT};font-size:12px;font-weight:600;color:${C.ink3}">${esc(time)}</td></tr>
-        </table>
-      </td>
-      <td style="padding:16px 18px;vertical-align:middle">
-        <div style="${FONT};font-size:16px;font-weight:700;color:${C.ink};letter-spacing:-.01em">${esc(title)}</div>
-        <div style="${FONT};font-size:14px;color:${C.ink3};margin-top:3px;line-height:1.45">${esc(sub)}</div>
-      </td>
-    </tr>
+  const d = new Date(String(isoDate).slice(0, 10) + "T12:00:00");
+  const day = DAYS[d.getDay()];
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0 24px;background:${C.fill};border-radius:20px">
+    <tr><td align="center" style="padding:26px 22px 24px">
+      <div style="${FONT};font-size:13px;font-weight:600;color:${C.ink3};text-transform:capitalize">${esc(day)}</div>
+      <div style="${FONT_D};font-size:30px;font-weight:700;letter-spacing:-.035em;color:${C.ink};margin-top:2px">${d.getDate()} ${MONTHS_FULL[d.getMonth()]}</div>
+      <div style="${FONT_D};font-size:22px;font-weight:600;letter-spacing:-.02em;color:${C.accent2};margin-top:2px">${esc(time)}</div>
+      <div style="height:1px;background:${C.line};margin:18px auto 16px;width:64px;line-height:1px;font-size:1px">&nbsp;</div>
+      <div style="${FONT};font-size:16px;font-weight:600;color:${C.ink}">${esc(title)}</div>
+      ${sub ? `<div style="${FONT};font-size:14px;color:${C.ink3};margin-top:4px;line-height:1.45">${esc(sub)}</div>` : ""}
+    </td></tr>
   </table>`;
 }
 
-/** Mise en page complète. `body` est du HTML déjà construit avec les helpers ci-dessus. */
-export function layout(o: { preheader: string; title: string; body: string; reason?: string }): string {
+/** Mise en page complète. `body` est du HTML construit avec les helpers ci-dessus. */
+export function layout(o: { preheader: string; title: string; body: string; reason?: string; eyebrow?: string }): string {
   return `<!DOCTYPE html>
 <html lang="fr"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -95,22 +102,23 @@ export function layout(o: { preheader: string; title: string; body: string; reas
 <title>${esc(o.title)}</title>
 </head>
 <body style="margin:0;padding:0;background:${C.bg};-webkit-text-size-adjust:100%">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:${C.bg}">${esc(o.preheader)}&#8199;&#65279;&#847;&#8199;&#65279;&#847;</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:${C.bg}">${esc(o.preheader)}&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.bg}">
-  <tr><td align="center" style="padding:36px 16px 40px">
+  <tr><td align="center" style="padding:44px 16px 48px">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">
-      <tr><td style="padding:0 6px 26px">
-        <a href="${APP_URL}" style="text-decoration:none"><img src="${LOGO}" width="132" height="33" alt="Docline" style="display:block;border:0;width:132px;height:auto"></a>
+      <tr><td align="center" style="padding:0 0 30px">
+        <a href="${SITE}" style="text-decoration:none"><img src="${LOGO}" width="120" height="30" alt="Docline" style="display:block;border:0;width:120px;height:auto;${FONT};font-size:20px;font-weight:700;color:${C.accent}"></a>
       </td></tr>
-      <tr><td style="background:${C.card};border:1px solid ${C.line};border-radius:24px;padding:40px 36px 34px">
-        <h1 style="margin:0 0 16px;${FONT};font-size:26px;line-height:1.2;font-weight:800;letter-spacing:-.03em;color:${C.ink}">${esc(o.title)}</h1>
+      <tr><td style="background:${C.card};border:1px solid ${C.line};border-radius:28px;padding:48px 40px 42px">
+        ${o.eyebrow ? `<p style="margin:0 0 10px;${FONT};font-size:14px;font-weight:600;color:${C.accent2};text-align:center">${esc(o.eyebrow)}</p>` : ""}
+        <h1 style="margin:0 0 18px;${FONT_D};font-size:30px;line-height:1.15;font-weight:700;letter-spacing:-.035em;color:${C.ink};text-align:center">${esc(o.title)}</h1>
         ${o.body}
       </td></tr>
-      <tr><td style="padding:24px 6px 0;${FONT};font-size:12px;line-height:1.7;color:${C.ink3}">
+      <tr><td align="center" style="padding:28px 24px 0;${FONT};font-size:12px;line-height:1.7;color:${C.ink3};text-align:center">
         ${o.reason ? esc(o.reason) + "<br>" : ""}
-        <a href="${APP_URL}" style="color:${C.accent};font-weight:600;text-decoration:none">docline.health</a>
-        &nbsp;·&nbsp;<a href="${APP_URL}/privacy" style="color:${C.ink3};text-decoration:none">Confidentialité</a>
-        &nbsp;·&nbsp;<a href="mailto:contact@docline.health" style="color:${C.ink3};text-decoration:none">contact@docline.health</a>
+        <a href="${SITE}" style="color:${C.ink3};text-decoration:none;font-weight:600">Docline</a>, le logiciel des cabinets médicaux.<br>
+        <a href="${SITE}/privacy" style="color:${C.ink3};text-decoration:underline">Confidentialité</a>
+        &nbsp;&nbsp;<a href="mailto:contact@docline.health" style="color:${C.ink3};text-decoration:underline">contact@docline.health</a>
       </td></tr>
     </table>
   </td></tr>
@@ -123,10 +131,15 @@ export function toText(html: string): string {
   return html
     .replace(/<style[\s\S]*?<\/style>/gi, "")
     .replace(/<div style="display:none[\s\S]*?<\/div>/i, "")
-    .replace(/<a [^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, (_m, href, txt) => `${txt.replace(/<[^>]+>/g, "").trim()} (${href})`)
+    .replace(/<img[^>]*>/gi, "")
+    .replace(/<a [^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, (_m, href, txt) => {
+      const t = txt.replace(/<[^>]+>/g, "").replace(/&rsaquo;/g, "").trim();
+      return t ? `${t} (${href})` : "";
+    })
     .replace(/<\/(p|h1|tr|div)>/gi, "\n").replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&middot;|·/g, "·")
+    .replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&rsaquo;/g, "")
     .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/&#\d+;/g, "")
     .replace(/[ \t]+/g, " ").replace(/\n\s*\n\s*\n+/g, "\n\n").trim();
 }
 
@@ -137,7 +150,7 @@ export async function sendEmail(to: string, subject: string, html: string, reply
     headers: { "Authorization": `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from: "Docline <noreply@docline.health>", to: [to], subject, html, text: toText(html),
-      ...(replyTo ? { reply_to: replyTo } : {}),
+      reply_to: replyTo || "contact@docline.health",
     }),
   });
   if (!res.ok) console.error("[email] Resend", res.status, await res.text());
