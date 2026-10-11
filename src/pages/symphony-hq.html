@@ -618,7 +618,7 @@ async function boot(){
   $('me-av').textContent = initials(me.full_name);
   $('me-av').style.background = 'linear-gradient(135deg,' + colorOf(me.email) + ',#F97316)';
   $('me-name').textContent = me.full_name;
-  $('me-role').textContent = (me.owner ? 'Fondateur' : (me.title || DEPTS[me.department] || '')) + ' · ' + (LEVEL_SHORT[me.role] || me.role);
+  $('me-role').textContent = [me.owner ? 'Fondateur' : (me.title || DEPTS[me.department] || ''), LEVEL_SHORT[me.role] || me.role || ''].filter(Boolean).join(' · ');
   $('btn-new-task').hidden = false;
   $('btn-add-member').hidden = !can('team.manage');
 

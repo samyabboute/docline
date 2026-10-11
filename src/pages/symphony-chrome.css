@@ -76,3 +76,13 @@ body.sx .topbar-title,body.sx .page-title{color:var(--ink);letter-spacing:-.2px}
 body.sx .btn-primary,body.sx .sx-btn-p{background:var(--p);color:#fff;border:1px solid transparent;box-shadow:0 4px 14px rgba(76,29,149,.25)}
 body.sx .btn-primary:hover:not(:disabled),body.sx .sx-btn-p:hover:not(:disabled){background:var(--p2)}
 @media (prefers-reduced-motion:reduce){.sx-app>[data-sx-chrome]{transition:none}}
+
+/* Menu ajouté aux pages qui n'en prévoient pas */
+.sx-float{position:fixed!important;left:0;top:0;bottom:0;width:248px;z-index:1000!important}
+body.sx-has-float{padding-left:248px}
+body.sx-has-float .sim-banner,body.sx-has-float .admin-tools-bar{left:248px!important}
+@media (max-width:960px){
+  .sx-float{display:none!important}
+  body.sx-has-float{padding-left:0}
+  body.sx-has-float .sim-banner,body.sx-has-float .admin-tools-bar{left:0!important}
+}

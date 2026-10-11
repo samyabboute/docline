@@ -113,6 +113,15 @@
 
   function start() {
     document.body.classList.add('sx');
+    // Page sans emplacement de menu (ex. Simulation) : le menu se place à gauche, en position fixe
+    if (!findSide()) {
+      var aside = document.createElement('aside');
+      aside.className = 'sx-float';
+      aside.setAttribute('aria-label', 'Navigation Symphony');
+      aside.setAttribute('data-sx-chrome', '1');
+      document.body.insertBefore(aside, document.body.firstChild);
+      document.body.classList.add('sx-has-float');
+    }
     render();
     // Une page qui redessine son ancien menu est aussitôt ramenée au menu commun
     var el = findSide();
