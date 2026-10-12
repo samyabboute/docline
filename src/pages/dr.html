@@ -114,6 +114,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
 .rvs-item-h b{color:var(--ink);font-weight:700}
 .rvs-stars{color:#7C3AED;letter-spacing:1px;font-size:.85rem}
 .rvs-item p{font-size:.875rem;color:var(--ink2,#2D1B69);line-height:1.6;margin:6px 0 0}
+.rvs-reply{margin-top:8px;border-left:2px solid #DDD6FE;padding-left:10px}
+.rvs-reply b{font-size:.75rem;color:#6D28D9}
+.rvs-reply p{margin-top:2px !important}
 .rvs-note{font-size:.75rem;color:var(--ink3);margin-top:14px;line-height:1.5}
 
 /* ── Review stars ── */
@@ -267,7 +270,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
       if (s.tags && s.tags.length) html += '<div class="rvs-chips">' + s.tags.map(function(t){ return '<span class="rvs-chip">' + escR(TAGS[t.tag] || t.tag) + ' · ' + t.n + '</span>'; }).join('') + '</div>';
       if (list.length) html += '<div class="rvs-list">' + list.map(function(x){
         var m = (x.visit_month || '').split('-');
-        return '<div class="rvs-item"><div class="rvs-item-h"><span><b>' + escR(x.author_label) + '</b> · consultation de ' + (m[1] ? MONTHS[+m[1]-1] + ' ' + m[0] : '') + '</span><span class="rvs-stars" aria-label="' + x.rating + ' sur 5">' + '★★★★★'.slice(0, x.rating) + '</span></div><p>' + escR(x.comment) + '</p></div>';
+        return '<div class="rvs-item"><div class="rvs-item-h"><span><b>' + escR(x.author_label) + '</b> · consultation de ' + (m[1] ? MONTHS[+m[1]-1] + ' ' + m[0] : '') + '</span><span class="rvs-stars" aria-label="' + x.rating + ' sur 5">' + '★★★★★'.slice(0, x.rating) + '</span></div><p>' + escR(x.comment) + '</p>' +
+          (x.reply ? '<div class="rvs-reply"><b>Réponse du médecin</b><p>' + escR(x.reply) + '</p></div>' : '') + '</div>';
       }).join('') + '</div>';
       html += '<p class="rvs-note">Seuls les patients réellement reçus par ce médecin peuvent donner un avis. Les commentaires sont relus par Docline avant publication.</p>';
       document.getElementById('reviews-body').innerHTML = html;

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avis patients — Docline</title>
+<script src="config.js?v=4"></script>
+<script src="shell.js?v=16"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6D28D9">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
+<script src="loader.js?v=2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0D0520;--ink2:#2D1B69;--ink3:#6B6385;--ink4:#9C96B3;--line:rgba(13,5,32,.07);--soft:#F3F0FF;--p:#4C1D95;--p2:#6D28D9;--p3:#8B5CF6}
+.page-wrap{max-width:1100px;margin:0 auto;padding:28px 24px 60px}
+.av-header{margin-bottom:22px;display:block}
+.av-eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--p2);margin-bottom:6px}
+.av-title{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.6px}
+.av-sub{font-size:13.5px;color:var(--ink3);margin-top:6px;max-width:62ch;line-height:1.55}
+
+.av-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.av-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.av-k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink4);margin-bottom:10px;display:flex;justify-content:space-between;gap:8px}
+.av-k span{text-transform:none;letter-spacing:0;font-weight:600;color:var(--ink4)}
+.av-score{display:flex;align-items:baseline;gap:8px}
+.av-score b{font-size:44px;font-weight:800;letter-spacing:-1.5px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+.av-score small{font-size:14px;color:var(--ink3);font-weight:600}
+.av-stars{color:var(--p3);font-size:15px;letter-spacing:2px;margin-top:6px}
+.av-stars i{color:#E6E2F2;font-style:normal}
+.av-note{font-size:12.5px;color:var(--ink3);margin-top:8px;line-height:1.5}
+.av-big{font-size:30px;font-weight:800;letter-spacing:-1px;color:var(--ink);font-variant-numeric:tabular-nums}
+.av-big small{font-size:14px;font-weight:600;color:var(--ink3);letter-spacing:0}
+.dist{display:flex;flex-direction:column;gap:6px}
+.dist-r{display:grid;grid-template-columns:22px 1fr 28px;gap:8px;align-items:center;font-size:12px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.dist-r i{display:block;height:7px;border-radius:7px;background:var(--soft);overflow:hidden}
+.dist-r i span{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,var(--p2),var(--p3))}
+.dist-r b{font-weight:700;color:var(--ink2);text-align:right}
+
+.av-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.tagbars{display:flex;flex-direction:column;gap:8px}
+.tagbar{display:grid;grid-template-columns:minmax(0,170px) 1fr 26px;gap:10px;align-items:center;font-size:12.5px;color:var(--ink2);font-weight:600}
+.tagbar i{display:block;height:7px;border-radius:7px;background:var(--soft);overflow:hidden}
+.tagbar i span{display:block;height:100%;border-radius:7px;background:var(--p3)}
+.tagbar.neg i span{background:#F79009}
+.tagbar b{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink)}
+.private{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;color:#93500B;background:#FFF4E0;border-radius:999px;padding:2px 8px;text-transform:none;letter-spacing:0}
+.empty-mini{font-size:12.5px;color:var(--ink4);line-height:1.5}
+
+.av-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.av-tools h2{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.3px}
+.seg{display:inline-flex;background:var(--soft);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:9px;font:600 12.5px Inter,sans-serif;color:var(--ink3);cursor:pointer}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(13,5,32,.08)}
+.seg button:focus-visible,.btn:focus-visible{outline:2px solid var(--p3);outline-offset:2px}
+
+.list{display:flex;flex-direction:column;gap:10px}
+.rv{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.rv-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.rv-who{display:flex;align-items:center;gap:10px;min-width:0}
+.rv-av{width:34px;height:34px;border-radius:11px;background:var(--soft);color:var(--p);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none}
+.rv-name{font-size:13.5px;font-weight:700;color:var(--ink)}
+.rv-meta{font-size:11.5px;color:var(--ink4)}
+.rv-stars{color:var(--p3);letter-spacing:1.5px;font-size:14px}
+.rv-stars i{color:#E6E2F2;font-style:normal}
+.rv-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.rv-tag{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--ink2)}
+.rv-tag.neg{background:#FFF4E0;color:#93500B}
+.rv-txt{font-size:13.5px;color:var(--ink2);line-height:1.6;margin-top:10px}
+.rv-pending{font-size:12px;color:var(--ink4);margin-top:10px;font-style:italic}
+.rv-wait{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--p);background:var(--soft);border-radius:999px;padding:2px 9px}
+.reply{margin-top:12px;border-left:2px solid #DDD6FE;padding:2px 0 2px 12px}
+.reply-h{font-size:11.5px;font-weight:700;color:var(--p2);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.reply p{font-size:13px;color:var(--ink2);line-height:1.55;margin-top:4px}
+.st{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px}
+.st-pending{background:#FFFAEB;color:#B54708}.st-published{background:#ECFDF3;color:#067647}.st-rejected{background:#FEF3F2;color:#B42318}
+.reply-form{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.reply-form textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:500 13.5px/1.5 Inter,sans-serif;color:var(--ink);resize:vertical;min-height:70px;outline:none;background:#FCFBFF}
+.reply-form textarea:focus{border-color:var(--p3);background:#fff}
+.reply-form .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.reply-form small{font-size:11.5px;color:var(--ink4);line-height:1.45;max-width:46ch}
+.btn{padding:8px 14px;border-radius:10px;font:600 12.5px Inter,sans-serif;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn:hover{border-color:var(--p3);color:var(--p)}
+.btn-primary{background:var(--p);border-color:var(--p);color:#fff}
+.btn-primary:hover{background:var(--p2);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.rv-actions{margin-top:12px;display:flex;gap:8px}
+
+.empty{background:#fff;border:1px solid var(--line);border-radius:18px;padding:36px 24px;text-align:center}
+.empty h3{font-size:17px;font-weight:800;color:var(--ink);margin-bottom:8px;letter-spacing:-.3px}
+.empty p{font-size:13.5px;color:var(--ink3);line-height:1.6;max-width:56ch;margin:0 auto}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;text-align:left}
+.how div{background:#FCFBFF;border:1px solid var(--line);border-radius:14px;padding:14px}
+.how b{display:block;font-size:13px;color:var(--ink);margin-bottom:4px}
+.how span{font-size:12.5px;color:var(--ink3);line-height:1.5}
+.empty a{display:inline-block;margin-top:18px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#0D0520;color:#fff;padding:12px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:1000;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;max-width:90vw}
+.toast.visible{transform:translateX(-50%) translateY(0)}
+.toast.error{background:#B42318}
+@media(max-width:900px){.av-grid{grid-template-columns:1fr 1fr}.av-grid .av-card:first-child{grid-column:1/-1}.av-two{grid-template-columns:1fr}}
+@media(max-width:600px){.page-wrap{padding:16px 14px 40px}.av-grid{grid-template-columns:1fr}.how{grid-template-columns:1fr}.tagbar{grid-template-columns:minmax(0,130px) 1fr 24px}}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+  <div class="shell-page" id="main-content"><div class="page-wrap">
+    <div class="av-header">
+      <div class="av-eyebrow">Rendez-vous en ligne</div>
+      <h1 class="av-title">Avis patients</h1>
+      <p class="av-sub">Des avis vérifiés : seuls les patients reçus en consultation peuvent vous noter, une fois par passage. Vous pouvez répondre publiquement ; les réponses et les commentaires sont relus par Docline avant publication.</p>
+    </div>
+    <div id="content"><div class="empty"><p>Chargement…</p></div></div>
+  </div></div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var DATA = null, FILTER = 'all', OPEN_REPLY = null;
+var POS = { ecoute:'À l’écoute', explications:'Explications claires', confiance:'Inspire confiance', accueil:'Accueil chaleureux',
+  ponctualite:'Ponctuel', rapidite:'Prise en charge rapide', cabinet:'Cabinet agréable' };
+var NEG = { attente:'Attente longue', explications_insuffisantes:'Explications insuffisantes', accueil_ameliorer:'Accueil à améliorer', tarif_flou:'Tarif peu clair' };
+var MONTHS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+function toast(m, type){ var t = document.getElementById('toast'); t.textContent = m; t.className = 'toast visible' + (type === 'error' ? ' error' : ''); clearTimeout(t._h); t._h = setTimeout(function(){ t.className = 'toast'; }, 3200); }
+function stars(n){ n = Math.round(n || 0); return '★★★★★'.slice(0, n) + '<i>' + '★★★★★'.slice(0, 5 - n) + '</i>'; }
+function day(iso){ if (!iso) return ''; var d = new Date(String(iso).length <= 10 ? iso + 'T12:00:00' : iso); return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
+function num(x){ return String(x).replace('.', ','); }
+
+function tagBars(map, labels, neg){
+  var rows = Object.keys(labels).map(function(k){ return [k, map[k] || 0]; }).filter(function(x){ return x[1] > 0; }).sort(function(a, b){ return b[1] - a[1]; });
+  if (!rows.length) return '<p class="empty-mini">' + (neg ? 'Aucun point à améliorer signalé pour l’instant.' : 'Les points forts cités par vos patients apparaîtront ici.') + '</p>';
+  var max = rows[0][1];
+  return '<div class="tagbars">' + rows.map(function(x){
+    return '<div class="tagbar' + (neg ? ' neg' : '') + '"><span>' + labels[x[0]] + '</span><i><span style="width:' + Math.max(6, Math.round(x[1] / max * 100)) + '%"></span></i><b>' + x[1] + '</b></div>';
+  }).join('') + '</div>';
+}
+
+function renderEmpty(){
+  document.getElementById('content').innerHTML =
+    '<div class="empty"><h3>Vos premiers avis arrivent après vos consultations</h3>' +
+    '<p>Vous n’avez rien à demander : Docline invite automatiquement chaque patient reçu, au bon moment, et une seule fois.</p>' +
+    '<div class="how"><div><b>File d’attente</b><span>Le patient a scanné le QR code : quand vous passez au patient suivant, son téléphone lui propose de donner son avis.</span></div>' +
+    '<div><b>Rendez-vous en ligne</b><span>Quand vous marquez le rendez-vous comme terminé, le patient reçoit une invitation par email.</span></div>' +
+    '<div><b>Sur votre page publique</b><span>Votre note apparaît à partir de 3 avis, votre attente mesurée à partir de 10 passages.</span></div></div>' +
+    '<a class="btn btn-primary" href="/queue">Ouvrir ma file d’attente</a></div>';
+}
+
+function render(){
+  var d = DATA, s = d.summary || {};
+  if (!d.count && !d.wait_90_samples) { renderEmpty(); return; }
+  var total = d.count || 0, dist = d.distribution || {}, maxD = Math.max(1, Math.max.apply(null, [1,2,3,4,5].map(function(k){ return dist[k] || 0; })));
+  var html = '<div class="av-grid">' +
+    '<div class="av-card"><div class="av-k">Votre note<span>' + total + ' avis' + (d.last30 ? ' · ' + d.last30 + ' ce mois-ci' : '') + '</span></div>' +
+      (total ? '<div class="av-score"><b>' + num(d.average) + '</b><small>/ 5</small></div><div class="av-stars">' + stars(d.average) + '</div>' : '<div class="av-big">—</div>') +
+      '<p class="av-note">' + (s.rating != null ? 'Affichée sur votre page publique et dans l’annuaire.' : 'Visible publiquement à partir de 3 avis (' + Math.min(total, 3) + ' sur 3).') + '</p></div>' +
+    '<div class="av-card"><div class="av-k">Répartition</div><div class="dist">' + [5,4,3,2,1].map(function(k){
+      return '<div class="dist-r"><span>' + k + '★</span><i><span style="width:' + Math.round((dist[k] || 0) / maxD * 100) + '%"></span></i><b>' + (dist[k] || 0) + '</b></div>';
+    }).join('') + '</div></div>' +
+    '<div class="av-card"><div class="av-k">Attente mesurée<span>médiane</span></div>' +
+      (d.wait_30 != null ? '<div class="av-big">' + d.wait_30 + ' <small>min ce mois-ci</small></div>' : '<div class="av-big">—</div>') +
+      '<p class="av-note">' + (d.wait_90 != null ? d.wait_90 + ' min sur 90 jours (' + d.wait_90_samples + ' passages). ' : '') +
+      (s.wait_median != null ? 'Affichée sur votre page publique.' : 'Mesurée par votre file d’attente, de l’arrivée à l’appel. Publique à partir de 10 passages.') + '</p></div>' +
+    '</div>' +
+    '<div class="av-two">' +
+      '<div class="av-card"><div class="av-k">Ce que vos patients apprécient</div>' + tagBars(d.tags || {}, POS, false) + '</div>' +
+      '<div class="av-card"><div class="av-k">Points à améliorer<span class="private">Visible par vous seul</span></div>' + tagBars(d.tags || {}, NEG, true) + '</div>' +
+    '</div>';
+
+  var rows = (d.rows || []).filter(function(r){
+    if (FILTER === 'comment') return r.comment || r.comment_status === 'pending';
+    if (FILTER === 'reply') return r.comment && r.reply_status === 'none';
+    if (FILTER === 'low') return r.rating <= 3;
+    return true;
+  });
+  html += '<div class="av-tools"><h2>Avis reçus</h2><div class="seg" id="flt">' +
+    [['all','Tous'],['comment','Avec commentaire'],['reply','Sans réponse'],['low','Notes de 1 à 3']].map(function(f){
+      return '<button type="button" data-f="' + f[0] + '" class="' + (FILTER === f[0] ? 'on' : '') + '">' + f[1] + '</button>';
+    }).join('') + '</div></div>';
+
+  html += rows.length ? '<div class="list">' + rows.map(function(r){
+    var tags = (r.tags || []).map(function(t){ return '<span class="rv-tag' + (NEG[t] ? ' neg' : '') + '">' + esc(POS[t] || NEG[t] || t) + '</span>'; }).join('');
+    var body = r.comment ? '<p class="rv-txt">' + esc(r.comment) + '</p>'
+      : r.comment_status === 'pending' ? '<p class="rv-pending">Commentaire en relecture par Docline. Il s’affichera ici une fois publié.</p>' : '';
+    var reply = '';
+    if (r.reply && r.reply_status !== 'none') {
+      var lbl = { pending:'En relecture', published:'Publiée', rejected:'Non publiée' }[r.reply_status];
+      reply = '<div class="reply"><div class="reply-h">Votre réponse <span class="st st-' + r.reply_status + '">' + lbl + '</span></div><p>' + esc(r.reply) + '</p></div>';
+    }
+    var form = '';
+    if (OPEN_REPLY === r.id) {
+      form = '<div class="reply-form"><textarea id="reply-txt" maxlength="600" placeholder="Merci pour votre retour…">' + esc(r.reply || '') + '</textarea>' +
+        '<div class="row"><small>Réponse publique, relue par Docline avant publication. N’indiquez aucune information médicale sur le patient.</small>' +
+        '<span style="display:flex;gap:8px"><button class="btn" type="button" data-cancel>Annuler</button><button class="btn btn-primary" type="button" data-send="' + r.id + '">Envoyer la réponse</button></span></div></div>';
+    } else if (r.comment || r.comment_status === 'pending') {
+      form = '<div class="rv-actions"><button class="btn" type="button" data-reply="' + r.id + '">' + (r.reply ? 'Modifier ma réponse' : 'Répondre publiquement') + '</button>' +
+        (r.reply ? '<button class="btn" type="button" data-remove="' + r.id + '">Retirer ma réponse</button>' : '') + '</div>';
+    }
+    var ini = String(r.author_label || 'P').trim().charAt(0).toUpperCase();
+    return '<article class="rv"><div class="rv-h"><div class="rv-who"><div class="rv-av">' + esc(ini) + '</div><div><div class="rv-name">' + esc(r.author_label) + '</div>' +
+      '<div class="rv-meta">Consultation du ' + day(r.visit_date) + ' · ' + (r.source === 'queue' ? 'file d’attente' : 'rendez-vous en ligne') + '</div></div></div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' + (r.wait_minutes != null ? '<span class="rv-wait">Attente ' + r.wait_minutes + ' min</span>' : '') + '<span class="rv-stars" aria-label="' + r.rating + ' sur 5">' + stars(r.rating) + '</span></div></div>' +
+      (tags ? '<div class="rv-tags">' + tags + '</div>' : '') + body + reply + form + '</article>';
+  }).join('') + '</div>' : '<div class="empty"><p>Aucun avis dans ce filtre.</p></div>';
+
+  document.getElementById('content').innerHTML = html;
+  var t = document.getElementById('reply-txt'); if (t) t.focus();
+}
+
+document.getElementById('content').addEventListener('click', async function(e){
+  var f = e.target.closest('#flt button'); if (f) { FILTER = f.dataset.f; render(); return; }
+  var r = e.target.closest('[data-reply]'); if (r) { OPEN_REPLY = r.dataset.reply; render(); return; }
+  if (e.target.closest('[data-cancel]')) { OPEN_REPLY = null; render(); return; }
+  var s = e.target.closest('[data-send]') || e.target.closest('[data-remove]');
+  if (!s) return;
+  var id = s.dataset.send || s.dataset.remove;
+  var text = s.dataset.send ? (document.getElementById('reply-txt').value || '').trim() : '';
+  if (s.dataset.send && text.length < 3) { toast('Écrivez votre réponse.', 'error'); return; }
+  if (s.dataset.remove && !confirm('Retirer votre réponse à cet avis ?')) return;
+  s.disabled = true;
+  var res = await _supa.rpc('review_reply', { p_id: id, p_text: text });
+  if (res.error) { s.disabled = false; toast('La réponse n’a pas pu être enregistrée. Réessayez.', 'error'); return; }
+  OPEN_REPLY = null;
+  toast(text ? 'Réponse envoyée. Elle sera publiée après relecture.' : 'Réponse retirée.');
+  load();
+});
+
+async function load(){
+  var r = await _supa.rpc('my_reviews');
+  if (r.error) { document.getElementById('content').innerHTML = '<div class="empty"><p>Impossible de charger vos avis. Actualisez la page.</p></div>'; return; }
+  DATA = r.data || {};
+  render();
+}
+
+(async function(){
+  var s = await _supa.auth.getSession();
+  if (!s.data.session) { window.location.href = (typeof ghpNav === 'function' ? ghpNav('/login') : '/login'); return; }
+  var u = s.data.session.user, meta = u.user_metadata || {};
+  var subR = await _supa.from('subscriptions').select('plan,status,expires_at').eq('user_id', u.id).maybeSingle();
+  var sub = subR && subR.data;
+  var isPro = sub && sub.plan !== 'free' && sub.status === 'active' && (!sub.expires_at || new Date(sub.expires_at) > new Date());
+  Shell.init({ page: 'avis', title: 'Avis patients', isPro: isPro, plan: (sub && sub.plan) || 'free', userName: Shell.displayName(meta, u.email), userEmail: u.email });
+  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  if (typeof Shell.checkStaff === 'function') Shell.checkStaff(_supa, 'avis', 'Avis patients');
+  load();
+})();
+</script>
+</body>
+</html>

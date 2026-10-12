@@ -148,7 +148,7 @@ body.ro [data-validate]{display:none!important}
       </div>
       <div class="pv-tools">
         <div class="seg" id="rv-filter">
-          <button type="button" class="on" data-f="pending">Commentaires à relire</button>
+          <button type="button" class="on" data-f="pending">À relire</button>
           <button type="button" data-f="hidden">Mis de côté</button>
           <button type="button" data-f="all">Tous les avis</button>
         </div>
@@ -172,8 +172,8 @@ function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
 function toast(m, err){ var t = $('toast'); t.textContent = m; t.className = 'pv-toast on' + (err ? ' err' : ''); clearTimeout(t._h); t._h = setTimeout(function(){ t.className = 'pv-toast'; }, 3200); }
 function fmt(s){ var d = new Date(s); return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }); }
-var EMPTY = { pending:'Aucun commentaire à relire', hidden:'Aucun avis mis de côté', all:'Aucun avis pour l’instant' };
-var DONE = { publish:'Commentaire publié.', reject:'Commentaire non publié.', hide:'Avis mis de côté.', restore:'Avis rétabli.' };
+var EMPTY = { pending:'Aucun commentaire ni réponse à relire', hidden:'Aucun avis mis de côté', all:'Aucun avis pour l’instant' };
+var DONE = { reply_publish:'Réponse publiée.', reply_reject:'Réponse non publiée.', publish:'Commentaire publié.', reject:'Commentaire non publié.', hide:'Avis mis de côté.', restore:'Avis rétabli.' };
 
 async function load(){
   var r = await sb.rpc('reviews_moderation', { p_status: F, p_limit: 100 });
@@ -188,6 +188,7 @@ async function load(){
     var act = '';
     if (CAN_EDIT) {
       if (x.comment_status === 'pending' && !x.hidden) act += '<button class="pv-btn ok" type="button" data-i="' + i + '" data-a="publish">Publier le commentaire</button><button class="pv-btn bad" type="button" data-i="' + i + '" data-a="reject">Ne pas publier</button>';
+      if (x.reply_status === 'pending' && !x.hidden) act += '<button class="pv-btn ok" type="button" data-i="' + i + '" data-a="reply_publish">Publier la réponse</button><button class="pv-btn bad" type="button" data-i="' + i + '" data-a="reply_reject">Refuser la réponse</button>';
       act += x.hidden ? '<button class="pv-btn" type="button" data-i="' + i + '" data-a="restore">Rétablir l’avis</button>' : '<button class="pv-btn" type="button" data-i="' + i + '" data-a="hide">Mettre de côté</button>';
     }
     var st = x.comment_status === 'published' ? ' <span class="st st-validated">Commentaire publié</span>'
@@ -197,6 +198,9 @@ async function load(){
       '<div class="rv-h"><span class="rv-stars" aria-label="' + x.rating + ' sur 5">' + STARS.slice(0, x.rating) + '<span>' + STARS.slice(0, 5 - x.rating) + '</span></span>' + esc(x.doctor_name || 'Médecin') + st + '</div>' +
       (x.tags && x.tags.length ? '<div class="rv-tags">' + x.tags.map(function(t){ return '<span class="rv-tag' + (NEG[t] ? ' neg' : '') + '">' + esc(TAGS[t] || t) + '</span>'; }).join('') + '</div>' : '') +
       (x.comment ? '<div class="rv-txt">' + esc(x.comment) + '</div>' : '') +
+      (x.reply && x.reply_status !== 'none' ? '<div class="rv-txt" style="border-left:2px solid #DDD6FE;padding-left:10px"><b>Réponse du médecin</b>' +
+        (x.reply_status === 'pending' ? ' <span class="st st-draft">À relire</span>' : x.reply_status === 'published' ? ' <span class="st st-validated">Publiée</span>' : ' <span class="st st-rejected">Non publiée</span>') +
+        '<br>' + esc(x.reply) + '</div>' : '') +
       (x.hidden ? '<div class="rv-flag">' + esc(x.hidden_reason || 'Mis de côté') + '</div>' : '') +
       '<div class="rv-foot">' + esc(x.author_label) + ' · ' + (x.source === 'queue' ? 'file d’attente' : 'rendez-vous en ligne') + ' · consultation du ' + esc(x.visit_date) +
         (x.wait_minutes != null ? ' · attente mesurée ' + x.wait_minutes + ' min' : '') + ' · reçu le ' + fmt(x.created_at) + '</div>' +
