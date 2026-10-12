@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interactions · Docline Symphony</title>
+<script src="config.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#4C1D95">
+<style>
+:root{--pv-line:rgba(13,5,32,.07);--pv-soft:#F4F2FF}
+.sx-page [hidden]{display:none!important}
+.pv-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.pv-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
+.pv-title{font-size:26px;font-weight:900;letter-spacing:-.7px;line-height:1.1;text-wrap:balance}
+.pv-sub{font-size:13.5px;color:var(--text-3);margin-top:6px;max-width:66ch;line-height:1.55}
+.pv-ro{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--pv-soft);font-size:12px;font-weight:700;color:var(--p)}
+
+/* Mise en service */
+.gate{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;background:var(--surface);border:1px solid var(--pv-line);border-radius:20px;padding:22px 24px;margin-bottom:16px;box-shadow:0 1px 2px rgba(13,5,32,.04)}
+.gate-state{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.gate-dot{width:10px;height:10px;border-radius:50%;background:#B8B3C9;box-shadow:0 0 0 5px rgba(184,179,201,.18)}
+.gate.live .gate-dot{background:#12B76A;box-shadow:0 0 0 5px rgba(18,183,106,.16)}
+.gate-note{font-size:13px;color:var(--text-3);margin-top:4px;line-height:1.5}
+.gate-list{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px}
+.gate-item{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--text-3)}
+.gate-item i{width:18px;height:18px;border-radius:50%;border:1.5px solid #D5D0E5;display:flex;align-items:center;justify-content:center;flex:none}
+.gate-item.ok{color:var(--text)}
+.gate-item.ok i{background:#12B76A;border-color:#12B76A}
+.gate-item.ok i::after{content:'';width:8px;height:4px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+
+.pv-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.pv-sum div{background:var(--surface);border:1px solid var(--pv-line);border-radius:14px;padding:14px 16px}
+.pv-sum b{display:block;font-size:22px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.pv-sum span{font-size:12px;color:var(--text-3);font-weight:600}
+
+.pv-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.pv-tab{padding:8px 16px;border-radius:999px;border:1px solid var(--pv-line);background:var(--surface);font:600 13px Inter,sans-serif;color:var(--text-3);cursor:pointer;white-space:nowrap}
+.pv-tab.on{background:var(--p);border-color:var(--p);color:#fff}
+.pv-tab:focus-visible,.pv-btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--p3);outline-offset:2px}
+.pv-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.pv-tools input,.pv-tools select{padding:10px 13px;border-radius:12px;border:1px solid var(--pv-line);background:var(--surface);font:500 13.5px Inter,sans-serif;color:var(--text);outline:none}
+.pv-tools input{flex:1;min-width:200px}
+.pv-tools input:focus,.pv-tools select:focus{border-color:var(--brand)}
+.seg{display:inline-flex;background:var(--pv-soft);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:9px;font:600 12.5px Inter,sans-serif;color:var(--text-3);cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(13,5,32,.08)}
+
+.pv-list{background:var(--surface);border:1px solid var(--pv-line);border-radius:16px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--pv-line)}
+.row:last-child{border-bottom:none}
+.row-name{font-size:14px;font-weight:700;text-transform:capitalize}
+.row-meta{font-size:12px;color:var(--text-3);margin-top:3px;line-height:1.45}
+.maps{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.map{display:inline-flex;align-items:center;gap:6px;padding:4px 5px 4px 10px;border-radius:999px;background:var(--pv-soft);font-size:12.5px;font-weight:600;color:var(--text)}
+.map.validated{background:#ECFDF3;color:#067647}
+.map.rejected{background:#F5F5F7;color:#9CA3B8;text-decoration:line-through}
+.map small{font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em}
+.map button{border:0;width:24px;height:24px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--surface);color:var(--text-3)}
+.map button:hover{color:var(--p)}
+.map button svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+.it{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:16px 18px;border-bottom:1px solid var(--pv-line)}
+.it:last-child{border-bottom:none}
+.it-pair{font-size:14.5px;font-weight:750;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.it-plus{color:var(--text-3);font-weight:500}
+.it-txt{font-size:13px;color:var(--text-2);margin-top:6px;line-height:1.55;max-width:80ch}
+.it-txt b{font-weight:700;color:var(--text)}
+.it-foot{font-size:11.5px;color:var(--text-3);margin-top:8px}
+.it-act{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.kind{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:999px;background:#EEF2FF;color:#3538CD}
+
+.lv{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.lv-contre_indication{background:#FEECEC;color:#B42318}
+.lv-association_deconseillee{background:#FFF1E6;color:#B54708}
+.lv-precaution_emploi{background:#FFF8DB;color:#8A6100}
+.lv-a_prendre_en_compte{background:#EFEBFF;color:#4C1D95}
+.lv-doublon{background:#EFF8FF;color:#175CD3}
+.st{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#F2F4F7;color:#475467}
+.st-validated{background:#ECFDF3;color:#067647}
+.st-draft{background:#FFFAEB;color:#B54708}
+.st-rejected{background:#F5F5F7;color:#98A2B3}
+.st-confirmed{background:#ECFDF3;color:#067647}
+.st-refused{background:#FEF3F2;color:#B42318}
+.st-pending{background:#FFFAEB;color:#B54708}
+
+.pv-btn{padding:8px 13px;border-radius:10px;border:1px solid var(--pv-line);background:var(--surface);font:650 12.5px Inter,sans-serif;color:var(--text);cursor:pointer;white-space:nowrap}
+.pv-btn:hover:not(:disabled){border-color:var(--brand);color:var(--brand)}
+.pv-btn.primary{background:var(--p);border-color:var(--p);color:#fff}
+.pv-btn.primary:hover:not(:disabled){background:var(--p2);border-color:var(--p2);color:#fff}
+.pv-btn.ok{color:#067647}
+.pv-btn.bad{color:#B42318}
+.pv-btn:disabled{opacity:.45;cursor:not-allowed}
+.more{display:flex;justify-content:center;padding:14px}
+.empty{padding:48px 24px;text-align:center;color:var(--text-3);font-size:14px;line-height:1.55}
+.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+
+/* Essai */
+.trial{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--pv-line);border-radius:16px;padding:18px}
+.card h3{font-size:14px;font-weight:800;margin-bottom:4px}
+.card p.note{margin-bottom:14px}
+.tl{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.tl input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--pv-line);font:500 13.5px Inter,sans-serif;color:var(--text);background:var(--surface);outline:none;box-sizing:border-box}
+.tl input:focus{border-color:var(--brand)}
+.res{display:flex;flex-direction:column;gap:10px}
+.alert{border-radius:14px;padding:14px 16px;border:1px solid var(--pv-line);background:#FCFBFF}
+.alert-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:750;font-size:14px}
+.alert-t{font-size:12.5px;color:var(--text-2);margin-top:6px;line-height:1.55}
+.alert-s{font-size:11px;color:var(--text-3);margin-top:6px}
+
+/* Sources, journal */
+.src{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--pv-line)}
+.src:last-child{border-bottom:none}
+.log{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;padding:11px 18px;border-bottom:1px solid var(--pv-line);font-size:13px}
+.log:last-child{border-bottom:none}
+.log time{color:var(--text-3);font-variant-numeric:tabular-nums;font-size:12px}
+
+/* Fenêtres */
+.md-wrap{position:fixed;inset:0;z-index:950;display:none;align-items:flex-start;justify-content:center;padding:6vh 16px 16px;background:rgba(13,5,32,.4);backdrop-filter:blur(4px);overflow-y:auto}
+.md-wrap.on{display:flex}
+.md{width:min(580px,100%);background:var(--surface);border-radius:20px;box-shadow:0 30px 80px rgba(13,5,32,.25);overflow:visible}
+.md-h{padding:22px 24px 4px}
+.md-t{font-size:19px;font-weight:800;letter-spacing:-.4px}
+.md-s{font-size:13px;color:var(--text-3);margin-top:3px;line-height:1.5}
+.md-b{padding:16px 24px 20px;display:flex;flex-direction:column;gap:14px}
+.md-f{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--pv-line);background:#FCFBFF;border-radius:0 0 20px 20px}
+.fld label,.fld .lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+.fld input,.fld select,.fld textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--pv-line);font:500 14px Inter,sans-serif;color:var(--text);background:var(--surface);outline:none;box-sizing:border-box}
+.fld textarea{min-height:76px;resize:vertical;line-height:1.5}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--brand)}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note{font-size:12.5px;color:var(--text-3);line-height:1.5}
+.pick{position:relative}
+.pick-list{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:5;background:var(--surface);border:1px solid var(--pv-line);border-radius:12px;box-shadow:0 14px 36px rgba(13,5,32,.14);padding:4px;max-height:240px;overflow-y:auto}
+.pick-list[hidden]{display:none}
+.pick-item{padding:8px 10px;border-radius:9px;cursor:pointer;font-size:13.5px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.pick-item:hover{background:var(--pv-soft)}
+.pick-item.new{color:var(--p);font-weight:700}
+.chosen{display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:6px 8px 6px 12px;border-radius:999px;background:var(--pv-soft);font-size:13px;font-weight:700}
+.chosen[hidden]{display:none}
+.chosen button{border:0;background:var(--surface);width:22px;height:22px;border-radius:50%;cursor:pointer;color:var(--text-3)}
+.levels{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.levels label{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--pv-line);border-radius:12px;cursor:pointer;font-size:13px;font-weight:600;margin:0}
+.levels input{width:auto;accent-color:var(--p)}
+.levels label:has(input:checked){border-color:var(--p);background:#FBFAFF}
+.pv-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#0D0520;color:#fff;padding:11px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all .25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
+.pv-toast.on{opacity:1;transform:translateX(-50%)}.pv-toast.err{background:#B91C1C}
+[data-validate]{}
+body.ro [data-validate]{display:none!important}
+@media (max-width:820px){
+  .pv-sum{grid-template-columns:1fr 1fr}
+  .gate{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .maps{justify-content:flex-start}
+  .it{grid-template-columns:1fr}
+  .it-act{justify-content:flex-start}
+  .trial{grid-template-columns:1fr}
+  .log{grid-template-columns:1fr;gap:2px}
+  .fld-row,.levels{grid-template-columns:1fr}
+  .md-wrap{padding:0;align-items:stretch}.md{border-radius:0;min-height:100%}.md-f{border-radius:0}
+}
+@media (prefers-reduced-motion:reduce){.pv-toast{transition:none}}
+</style>
+<script src="loader.js?v=2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="symphony-chrome.css?v=2">
+<link rel="stylesheet" href="drug-picker.css?v=1">
+<script src="drug-picker.js?v=1"></script>
+</head>
+<body class="sx">
+<div class="sx-app">
+  <aside id="sx-side" data-sx-chrome aria-label="Navigation Symphony"></aside>
+  <div class="sx-scrim"></div>
+  <div class="sx-main">
+    <header class="sx-top"><button class="sx-ham" type="button" data-sx-ham aria-label="Ouvrir le menu"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><div class="sx-top-title">Interactions médicamenteuses</div></header>
+    <main class="sx-page">
+      <div class="pv-head">
+        <div>
+          <div class="pv-eyebrow">Symphony · Médical</div>
+          <h1 class="pv-title">Interactions médicamenteuses</h1>
+          <p class="pv-sub">Rattachez chaque molécule de la nomenclature nationale à une substance du référentiel, puis saisissez et validez les interactions. Les médecins ne voient rien tant que les alertes ne sont pas mises en service.</p>
+        </div>
+        <span class="pv-ro" id="ro-pill" hidden>Lecture seule</span>
+      </div>
+
+      <section class="gate" id="gate" aria-live="polite">
+        <div>
+          <div class="gate-state"><span class="gate-dot"></span><span id="gate-title">Chargement…</span></div>
+          <div class="gate-note" id="gate-note"></div>
+          <div class="gate-list" id="gate-list"></div>
+        </div>
+        <div><button class="pv-btn primary" type="button" id="btn-live" data-validate disabled>Mettre en service</button></div>
+      </section>
+
+      <div class="pv-sum" id="sum"></div>
+
+      <div class="pv-tabs" role="tablist">
+        <button class="pv-tab on" type="button" data-tab="mol" role="tab">Molécules</button>
+        <button class="pv-tab" type="button" data-tab="int" role="tab">Interactions</button>
+        <button class="pv-tab" type="button" data-tab="ref" role="tab">Substances et classes</button>
+        <button class="pv-tab" type="button" data-tab="trial" role="tab">Essai d’ordonnance</button>
+        <button class="pv-tab" type="button" data-tab="src" role="tab">Sources</button>
+        <button class="pv-tab" type="button" data-tab="log" role="tab">Journal</button>
+      </div>
+
+      <!-- Molécules -->
+      <section data-panel="mol">
+        <div class="pv-tools">
+          <div class="seg" id="mol-filter">
+            <button type="button" class="on" data-f="todo">À valider</button>
+            <button type="button" data-f="unmapped">Sans rattachement</button>
+            <button type="button" data-f="validated">Validées</button>
+            <button type="button" data-f="all">Toutes</button>
+          </div>
+          <input id="mol-q" type="search" placeholder="Rechercher une molécule (ex. amoxicilline)" aria-label="Rechercher une molécule">
+        </div>
+        <div class="pv-list" id="mol-list"></div>
+      </section>
+
+      <!-- Interactions -->
+      <section data-panel="int" hidden>
+        <div class="pv-tools">
+          <div class="seg" id="int-filter">
+            <button type="button" class="on" data-f="draft">À valider</button>
+            <button type="button" data-f="validated">Validées</button>
+            <button type="button" data-f="rejected">Écartées</button>
+            <button type="button" data-f="">Toutes</button>
+          </div>
+          <select id="int-level" aria-label="Niveau">
+            <option value="">Tous les niveaux</option>
+            <option value="contre_indication">Contre-indication</option>
+            <option value="association_deconseillee">Association déconseillée</option>
+            <option value="precaution_emploi">Précaution d’emploi</option>
+            <option value="a_prendre_en_compte">À prendre en compte</option>
+          </select>
+          <input id="int-q" type="search" placeholder="Rechercher une substance" aria-label="Rechercher une substance">
+          <button class="pv-btn primary" type="button" id="btn-new-int" data-validate>Nouvelle interaction</button>
+        </div>
+        <div class="pv-list" id="int-list"></div>
+      </section>
+
+      <!-- Référentiel -->
+      <section data-panel="ref" hidden>
+        <div class="pv-tools">
+          <input id="ref-q" type="search" placeholder="Rechercher une substance ou une classe" aria-label="Rechercher une substance ou une classe">
+          <button class="pv-btn primary" type="button" id="btn-new-sub" data-validate>Nouvelle substance ou classe</button>
+        </div>
+        <div class="pv-list" id="ref-list"></div>
+      </section>
+
+      <!-- Essai -->
+      <section data-panel="trial" hidden>
+        <div class="trial">
+          <div class="card">
+            <h3>Composer une ordonnance</h3>
+            <p class="note">Choisissez les médicaments comme le ferait un médecin. Vous voyez aussi les éléments encore en brouillon, marqués comme tels.</p>
+            <div class="tl" id="trial-lines"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="pv-btn" type="button" id="trial-add">Ajouter un médicament</button>
+              <button class="pv-btn primary" type="button" id="trial-run">Vérifier</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Résultat</h3>
+            <div class="res" id="trial-res"><p class="note">Le résultat s’affiche ici.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sources -->
+      <section data-panel="src" hidden>
+        <div class="pv-tools" id="src-tools" hidden>
+          <button class="pv-btn primary" type="button" id="btn-new-src">Ajouter une source</button>
+        </div>
+        <div class="pv-list" id="src-list"></div>
+        <p class="note" style="margin-top:12px">Le droit de réutilisation d’une source est décidé par la direction. Sans droit confirmé, les alertes ne peuvent pas être mises en service.</p>
+      </section>
+
+      <!-- Journal -->
+      <section data-panel="log" hidden>
+        <div class="pv-list" id="log-list"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Fenêtre : rattacher une molécule -->
+<div class="md-wrap" id="md-map" role="dialog" aria-modal="true" aria-labelledby="md-map-t">
+  <div class="md">
+    <div class="md-h"><div class="md-t" id="md-map-t">Rattacher la molécule</div><div class="md-s" id="md-map-s"></div></div>
+    <div class="md-b">
+      <div class="fld pick">
+        <label for="map-q">Substance du référentiel</label>
+        <input id="map-q" type="search" autocomplete="off" placeholder="Tapez le nom de la substance">
+        <div class="pick-list" id="map-list" hidden></div>
+      </div>
+      <p class="note">Le rattachement est validé dès que vous choisissez une substance. Si elle n’existe pas encore, créez-la depuis la liste.</p>
+    </div>
+    <div class="md-f"><button class="pv-btn" type="button" data-close>Fermer</button></div>
+  </div>
+</div>
+
+<!-- Fenêtre : nouvelle interaction -->
+<div class="md-wrap" id="md-int" role="dialog" aria-modal="true" aria-labelledby="md-int-t">
+  <div class="md">
+    <div class="md-h"><div class="md-t" id="md-int-t">Nouvelle interaction</div><div class="md-s">Enregistrée en brouillon. Elle ne sert aux médecins qu’après validation.</div></div>
+    <div class="md-b">
+      <div class="fld-row">
+        <div class="fld pick"><label for="ia-q">Substance ou classe A</label><input id="ia-q" type="search" autocomplete="off" placeholder="Ex. méthotrexate"><div class="pick-list" id="ia-list" hidden></div><div class="chosen" id="ia-chosen" hidden></div></div>
+        <div class="fld pick"><label for="ib-q">Substance ou classe B</label><input id="ib-q" type="search" autocomplete="off" placeholder="Ex. pénicillines"><div class="pick-list" id="ib-list" hidden></div><div class="chosen" id="ib-chosen" hidden></div></div>
+      </div>
+      <div class="fld">
+        <span class="lbl">Niveau</span>
+        <div class="levels">
+          <label><input type="radio" name="lvl" value="contre_indication"> <span class="lv lv-contre_indication">Contre-indication</span></label>
+          <label><input type="radio" name="lvl" value="association_deconseillee"> <span class="lv lv-association_deconseillee">Association déconseillée</span></label>
+          <label><input type="radio" name="lvl" value="precaution_emploi"> <span class="lv lv-precaution_emploi">Précaution d’emploi</span></label>
+          <label><input type="radio" name="lvl" value="a_prendre_en_compte"> <span class="lv lv-a_prendre_en_compte">À prendre en compte</span></label>
+        </div>
+      </div>
+      <div class="fld"><label for="i-mech">Mécanisme ou risque</label><textarea id="i-mech" maxlength="1200" placeholder="Ex. augmentation de la toxicité hématologique du méthotrexate"></textarea></div>
+      <div class="fld"><label for="i-cond">Conduite à tenir</label><textarea id="i-cond" maxlength="1200" placeholder="Ex. surveillance de la numération formule sanguine"></textarea></div>
+      <div class="fld"><label for="i-src">Source</label><select id="i-src"></select></div>
+    </div>
+    <div class="md-f"><button class="pv-btn" type="button" data-close>Annuler</button><button class="pv-btn primary" type="button" id="i-save">Enregistrer en brouillon</button></div>
+  </div>
+</div>
+
+<!-- Fenêtre : nouvelle substance ou classe -->
+<div class="md-wrap" id="md-sub" role="dialog" aria-modal="true" aria-labelledby="md-sub-t">
+  <div class="md">
+    <div class="md-h"><div class="md-t" id="md-sub-t">Nouvelle substance ou classe</div><div class="md-s">Une classe regroupe plusieurs substances, par exemple « Anticoagulants oraux ». Une interaction posée sur une classe s’applique à chacun de ses membres.</div></div>
+    <div class="md-b">
+      <div class="fld"><label for="s-label">Nom</label><input id="s-label" maxlength="160" placeholder="Ex. Warfarine"></div>
+      <div class="fld"><span class="lbl">Type</span>
+        <div class="seg" id="s-kind"><button type="button" class="on" data-k="substance">Substance</button><button type="button" data-k="class">Classe</button></div>
+      </div>
+      <div class="fld"><label for="s-src">Source</label><select id="s-src"></select></div>
+    </div>
+    <div class="md-f"><button class="pv-btn" type="button" data-close>Annuler</button><button class="pv-btn primary" type="button" id="s-save">Créer</button></div>
+  </div>
+</div>
+
+<!-- Fenêtre : membres d'une classe -->
+<div class="md-wrap" id="md-cls" role="dialog" aria-modal="true" aria-labelledby="md-cls-t">
+  <div class="md">
+    <div class="md-h"><div class="md-t" id="md-cls-t">Membres de la classe</div><div class="md-s" id="md-cls-s"></div></div>
+    <div class="md-b">
+      <div class="fld pick" data-validate><label for="cm-q">Ajouter une substance</label><input id="cm-q" type="search" autocomplete="off" placeholder="Tapez le nom de la substance"><div class="pick-list" id="cm-list" hidden></div></div>
+      <div class="pv-list" id="cm-members"></div>
+    </div>
+    <div class="md-f"><button class="pv-btn" type="button" data-close>Fermer</button></div>
+  </div>
+</div>
+
+<!-- Fenêtre : nouvelle source (direction) -->
+<div class="md-wrap" id="md-src" role="dialog" aria-modal="true" aria-labelledby="md-src-t">
+  <div class="md">
+    <div class="md-h"><div class="md-t" id="md-src-t">Ajouter une source</div><div class="md-s">Une source est enregistrée « droit en attente » jusqu’à votre décision.</div></div>
+    <div class="md-b">
+      <div class="fld"><label for="src-label">Nom</label><input id="src-label" maxlength="200" placeholder="Ex. ANSM, Thésaurus des interactions médicamenteuses"></div>
+      <div class="fld-row">
+        <div class="fld"><label for="src-ver">Version</label><input id="src-ver" maxlength="60" placeholder="Ex. septembre 2023"></div>
+        <div class="fld"><label for="src-date">Date de publication</label><input id="src-date" type="date"></div>
+      </div>
+      <div class="fld"><label for="src-url">Adresse</label><input id="src-url" type="url" maxlength="400" placeholder="https://"></div>
+    </div>
+    <div class="md-f"><button class="pv-btn" type="button" data-close>Annuler</button><button class="pv-btn primary" type="button" id="src-save">Ajouter</button></div>
+  </div>
+</div>
+
+<div class="pv-toast" id="toast" role="status"></div>
+
+<script>
+'use strict';
+var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+var ME = { view:false, validate:false, owner:false };
+var OV = null;
+var LEVELS = { contre_indication:'Contre-indication', association_deconseillee:'Association déconseillée', precaution_emploi:'Précaution d’emploi', a_prendre_en_compte:'À prendre en compte', doublon:'Doublon' };
+var STATUS = { validated:'Validée', draft:'À valider', rejected:'Écartée', proposed:'Proposé' };
+var REUSE = { confirmed:'Droit confirmé', refused:'Droit refusé', pending:'Droit en attente' };
+var ERRORS = { FORBIDDEN:'Action réservée au pharmacien validateur.', NOT_READY:'Mise en service impossible : il faut une source au droit de réutilisation confirmé et au moins une interaction validée.',
+  TWO_SUBSTANCES_REQUIRED:'Choisissez deux substances différentes.', BAD_LEVEL:'Choisissez un niveau.', SOURCE_REQUIRED:'Choisissez une source.', LABEL_REQUIRED:'Indiquez un nom.' };
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+function cap(s){ s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
+function toast(m, err){ var t = $('toast'); t.textContent = m; t.className = 'pv-toast on' + (err ? ' err' : ''); clearTimeout(t._h); t._h = setTimeout(function(){ t.className = 'pv-toast'; }, 3400); }
+function errText(e){ var m = (e && (e.message || e)) || ''; for (var k in ERRORS) if (m.indexOf(k) !== -1) return ERRORS[k]; return 'Erreur : ' + m; }
+async function rpc(name, args){ var r = await sb.rpc(name, args || {}); if (r.error) throw r.error; return r.data; }
+function fmtDate(s){ if (!s) return ''; var d = new Date(s); return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }); }
+function debounce(fn, ms){ var t; return function(){ var a = arguments; clearTimeout(t); t = setTimeout(function(){ fn.apply(null, a); }, ms); }; }
+var ICON_OK = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
+var ICON_X = '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+
+/* ── Vue d'ensemble et mise en service ── */
+async function loadOverview(){
+  try { OV = await rpc('pv_overview'); } catch(e){ toast(errText(e), true); return; }
+  var reuseOk = (OV.sources || []).some(function(s){ return s.reuse === 'confirmed'; });
+  var ready = reuseOk && OV.interactions_validated > 0;
+  $('gate').classList.toggle('live', !!OV.live);
+  $('gate-title').textContent = OV.live ? 'Alertes actives pour les médecins' : 'Alertes désactivées pour les médecins';
+  $('gate-note').textContent = OV.live
+    ? 'Les médecins voient les interactions validées quand ils rédigent une ordonnance.'
+    : 'Le travail de validation peut avancer sans risque : rien n’apparaît dans les ordonnances.';
+  $('gate-list').innerHTML =
+    '<div class="gate-item' + (reuseOk ? ' ok' : '') + '"><i></i>Droit de réutilisation confirmé</div>' +
+    '<div class="gate-item' + (OV.interactions_validated > 0 ? ' ok' : '') + '"><i></i>' + OV.interactions_validated + ' interaction' + (OV.interactions_validated > 1 ? 's' : '') + ' validée' + (OV.interactions_validated > 1 ? 's' : '') + '</div>' +
+    '<div class="gate-item' + (OV.components_validated > 0 ? ' ok' : '') + '"><i></i>' + OV.components_validated + ' molécule' + (OV.components_validated > 1 ? 's' : '') + ' rattachée' + (OV.components_validated > 1 ? 's' : '') + ' sur ' + OV.components + '</div>';
+  var b = $('btn-live');
+  b.textContent = OV.live ? 'Suspendre les alertes' : 'Mettre en service';
+  b.className = 'pv-btn' + (OV.live ? '' : ' primary');
+  b.disabled = !ME.validate || (!OV.live && !ready);
+  b.title = (!OV.live && !ready) ? ERRORS.NOT_READY : '';
+  $('sum').innerHTML =
+    '<div><b>' + OV.mappings_proposed + '</b><span>Rattachements à valider</span></div>' +
+    '<div><b>' + OV.components_validated + '</b><span>Molécules rattachées</span></div>' +
+    '<div><b>' + OV.interactions_draft + '</b><span>Interactions à valider</span></div>' +
+    '<div><b>' + OV.interactions_validated + '</b><span>Interactions validées</span></div>';
+}
+$('btn-live').onclick = async function(){
+  var on = !OV.live;
+  if (!confirm(on ? 'Mettre en service les alertes pour tous les médecins ?' : 'Suspendre les alertes pour tous les médecins ?')) return;
+  try { await rpc('pv_set_live', { p_live: on }); toast(on ? 'Alertes mises en service.' : 'Alertes suspendues.'); loadOverview(); }
+  catch(e){ toast(errText(e), true); }
+};
+
+/* ── Onglets ── */
+var loaded = {};
+document.querySelectorAll('.pv-tab').forEach(function(t){
+  t.onclick = function(){
+    document.querySelectorAll('.pv-tab').forEach(function(x){ x.classList.toggle('on', x === t); x.setAttribute('aria-selected', x === t); });
+    document.querySelectorAll('[data-panel]').forEach(function(p){ p.hidden = p.dataset.panel !== t.dataset.tab; });
+    openTab(t.dataset.tab);
+  };
+});
+function openTab(k){
+  if (k === 'mol') loadMol(true);
+  if (k === 'int') loadInt(true);
+  if (k === 'ref') loadRef();
+  if (k === 'trial' && !loaded.trial) { loaded.trial = true; addTrialLine(); addTrialLine(); }
+  if (k === 'src') loadSrc();
+  if (k === 'log') loadLog();
+}
+function seg(id, cb){
+  $(id).querySelectorAll('button').forEach(function(b){
+    b.onclick = function(){ $(id).querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); cb(b); };
+  });
+}
+
+/* ── Molécules ── */
+var mol = { f:'todo', q:'', off:0, rows:[] };
+seg('mol-filter', function(b){ mol.f = b.dataset.f; loadMol(true); });
+$('mol-q').addEventListener('input', debounce(function(){ mol.q = $('mol-q').value; loadMol(true); }, 220));
+async function loadMol(reset){
+  if (reset) { mol.off = 0; mol.rows = []; }
+  var data;
+  try { data = await rpc('pv_components', { p_q: mol.q || null, p_filter: mol.f, p_limit: 50, p_offset: mol.off }); }
+  catch(e){ $('mol-list').innerHTML = '<div class="empty">' + esc(errText(e)) + '</div>'; return; }
+  mol.rows = mol.rows.concat(data.rows || []); mol.total = data.total; mol.off = mol.rows.length;
+  renderMol();
+}
+function renderMol(){
+  var el = $('mol-list');
+  if (!mol.rows.length) {
+    var msg = { todo:['Aucun rattachement à valider', 'Les propositions apparaissent ici quand des substances sont ajoutées au référentiel.'],
+                unmapped:['Toutes les molécules sont rattachées', ''], validated:['Aucune molécule rattachée pour l’instant', 'Commencez par l’onglet « Sans rattachement ».'],
+                all:['Aucune molécule trouvée', ''] }[mol.f];
+    el.innerHTML = '<div class="empty"><strong>' + msg[0] + '</strong>' + msg[1] + '</div>'; return;
+  }
+  el.innerHTML = mol.rows.map(function(r, i){
+    var maps = (r.mappings || []).filter(function(m){ return m.status !== 'rejected' || mol.f === 'all'; }).map(function(m){
+      var act = '';
+      if (ME.validate) {
+        if (m.status === 'proposed') act = '<button type="button" title="Valider" aria-label="Valider" data-map="' + i + '" data-sub="' + m.substance_id + '" data-st="validated">' + ICON_OK + '</button><button type="button" title="Écarter" aria-label="Écarter" data-map="' + i + '" data-sub="' + m.substance_id + '" data-st="rejected">' + ICON_X + '</button>';
+        else if (m.status === 'validated') act = '<button type="button" title="Retirer" aria-label="Retirer" data-map="' + i + '" data-sub="' + m.substance_id + '" data-st="rejected">' + ICON_X + '</button>';
+      }
+      return '<span class="map ' + m.status + '">' + esc(m.label) + (m.kind === 'class' ? ' <small>classe</small>' : '') +
+        (m.status === 'proposed' ? ' <small>proposé</small>' : '') + act + '</span>';
+    }).join('');
+    return '<div class="row"><div><div class="row-name">' + esc(r.component) + '</div>' +
+      '<div class="row-meta">' + r.n_active + ' médicament' + (r.n_active > 1 ? 's' : '') + ' en vigueur' + (r.brands && r.brands.length ? ' · ' + esc(r.brands.join(', ')) : '') + '</div>' +
+      '<div class="row-meta">DCI : ' + esc((r.dcis || []).join(' ; ')) + '</div></div>' +
+      '<div class="maps">' + maps + (ME.validate ? '<button class="pv-btn" type="button" data-attach="' + i + '">Rattacher</button>' : '') + '</div></div>';
+  }).join('') + (mol.rows.length < mol.total ? '<div class="more"><button class="pv-btn" type="button" id="mol-more">Afficher plus (' + (mol.total - mol.rows.length) + ')</button></div>' : '');
+  var more = $('mol-more'); if (more) more.onclick = function(){ loadMol(false); };
+}
+$('mol-list').addEventListener('click', async function(e){
+  var b = e.target.closest('[data-map]');
+  if (b) {
+    var r = mol.rows[+b.dataset.map];
+    try { await rpc('pv_review_mapping', { p_component: r.component, p_substance_id: +b.dataset.sub, p_status: b.dataset.st });
+      toast(b.dataset.st === 'validated' ? 'Rattachement validé.' : 'Rattachement écarté.'); loadMol(true); loadOverview(); }
+    catch(err){ toast(errText(err), true); }
+    return;
+  }
+  var a = e.target.closest('[data-attach]');
+  if (a) openMap(mol.rows[+a.dataset.attach]);
+});
+
+/* Sélecteur de substance réutilisable */
+function picker(inputId, listId, onPick, opts){
+  opts = opts || {};
+  var inp = $(inputId), list = $(listId);
+  var run = debounce(async function(){
+    var q = inp.value.trim();
+    if (q.length < 2) { list.hidden = true; return; }
+    var rows = [];
+    try { rows = await rpc('pv_substances', { p_q: q, p_limit: 12 }); } catch(e){ toast(errText(e), true); return; }
+    if (opts.onlySubstances) rows = rows.filter(function(s){ return s.kind === 'substance'; });
+    list.innerHTML = rows.map(function(s){
+      return '<div class="pick-item" data-id="' + s.id + '"><span>' + esc(s.label) + '</span>' + (s.kind === 'class' ? '<span class="kind">classe</span>' : '') + '</div>';
+    }).join('') + (opts.allowCreate && ME.validate ? '<div class="pick-item new" data-new="1">Créer la substance « ' + esc(q) + ' »</div>' : '') ||
+      '<div class="pick-item" style="cursor:default;color:var(--text-3)">Aucune substance trouvée</div>';
+    list._rows = rows; list.hidden = false;
+  }, 180);
+  inp.addEventListener('input', run);
+  list.addEventListener('mousedown', async function(e){
+    var it = e.target.closest('.pick-item'); if (!it) return;
+    e.preventDefault();
+    if (it.dataset.new) {
+      try { var id = await rpc('pv_save_substance', { p_label: inp.value.trim(), p_kind: 'substance', p_source_id: null, p_members: null });
+        onPick({ id: id, label: inp.value.trim(), kind: 'substance' }); }
+      catch(err){ toast(errText(err), true); }
+    } else if (it.dataset.id) {
+      onPick((list._rows || []).find(function(s){ return String(s.id) === it.dataset.id; }));
+    }
+    list.hidden = true;
+  });
+  inp.addEventListener('blur', function(){ setTimeout(function(){ list.hidden = true; }, 150); });
+}
+
+/* Rattacher une molécule */
+var mapTarget = null;
+function openMap(r){
+  mapTarget = r;
+  $('md-map-t').textContent = 'Rattacher « ' + cap(r.component) + ' »';
+  $('md-map-s').textContent = r.n_active + ' médicament' + (r.n_active > 1 ? 's' : '') + ' en vigueur. DCI : ' + (r.dcis || []).join(' ; ');
+  $('map-q').value = r.component; $('map-list').hidden = true;
+  openModal('md-map'); $('map-q').focus(); $('map-q').dispatchEvent(new Event('input'));
+}
+picker('map-q', 'map-list', async function(s){
+  if (!s || !mapTarget) return;
+  try { await rpc('pv_review_mapping', { p_component: mapTarget.component, p_substance_id: s.id, p_status: 'validated' });
+    toast('« ' + cap(mapTarget.component) + ' » rattachée à ' + s.label + '.'); closeModal(); loadMol(true); loadOverview(); }
+  catch(e){ toast(errText(e), true); }
+}, { allowCreate: true });
+
+/* ── Interactions ── */
+var it = { f:'draft', level:'', q:'', off:0, rows:[] };
+seg('int-filter', function(b){ it.f = b.dataset.f; loadInt(true); });
+$('int-level').onchange = function(){ it.level = this.value; loadInt(true); };
+$('int-q').addEventListener('input', debounce(function(){ it.q = $('int-q').value; loadInt(true); }, 220));
+async function loadInt(reset){
+  if (reset) { it.off = 0; it.rows = []; }
+  var data;
+  try { data = await rpc('pv_interactions', { p_q: it.q || null, p_status: it.f || null, p_level: it.level || null, p_limit: 50, p_offset: it.off }); }
+  catch(e){ $('int-list').innerHTML = '<div class="empty">' + esc(errText(e)) + '</div>'; return; }
+  it.rows = it.rows.concat(data.rows || []); it.total = data.total; it.off = it.rows.length;
+  var el = $('int-list');
+  if (!it.rows.length) {
+    el.innerHTML = '<div class="empty"><strong>' + (it.f === 'draft' ? 'Aucune interaction à valider' : 'Aucune interaction') + '</strong>' +
+      (ME.validate ? 'Ajoutez une interaction avec le bouton « Nouvelle interaction ».' : '') + '</div>'; return;
+  }
+  el.innerHTML = it.rows.map(function(r, i){
+    var act = !ME.validate ? '' :
+      (r.status !== 'validated' ? '<button class="pv-btn ok" type="button" data-int="' + i + '" data-st="validated">Valider</button>' : '') +
+      (r.status !== 'rejected' ? '<button class="pv-btn bad" type="button" data-int="' + i + '" data-st="rejected">Écarter</button>' : '') +
+      (r.status !== 'draft' ? '<button class="pv-btn" type="button" data-int="' + i + '" data-st="draft">Remettre à valider</button>' : '');
+    return '<div class="it"><div>' +
+      '<div class="it-pair">' + esc(r.a_label) + (r.a_kind === 'class' ? ' <span class="kind">classe</span>' : '') + ' <span class="it-plus">+</span> ' +
+        esc(r.b_label) + (r.b_kind === 'class' ? ' <span class="kind">classe</span>' : '') +
+        ' <span class="lv lv-' + r.level + '">' + LEVELS[r.level] + '</span> <span class="st st-' + r.status + '">' + STATUS[r.status] + '</span></div>' +
+      (r.mechanism ? '<div class="it-txt"><b>Risque.</b> ' + esc(r.mechanism) + '</div>' : '') +
+      (r.conduct ? '<div class="it-txt"><b>Conduite à tenir.</b> ' + esc(r.conduct) + '</div>' : '') +
+      '<div class="it-foot">' + esc(r.source) + (r.source_version ? ', ' + esc(r.source_version) : '') +
+        (r.reviewer ? ' · revue par ' + esc(r.reviewer) + ' le ' + fmtDate(r.reviewed_at) : '') + '</div>' +
+      '</div><div class="it-act">' + act + '</div></div>';
+  }).join('') + (it.rows.length < it.total ? '<div class="more"><button class="pv-btn" type="button" id="int-more">Afficher plus (' + (it.total - it.rows.length) + ')</button></div>' : '');
+  var more = $('int-more'); if (more) more.onclick = function(){ loadInt(false); };
+}
+$('int-list').addEventListener('click', async function(e){
+  var b = e.target.closest('[data-int]'); if (!b) return;
+  var r = it.rows[+b.dataset.int];
+  b.disabled = true;
+  try { await rpc('pv_review_interaction', { p_id: r.id, p_status: b.dataset.st });
+    toast({ validated:'Interaction validée.', rejected:'Interaction écartée.', draft:'Interaction remise à valider.' }[b.dataset.st]); loadInt(true); loadOverview(); }
+  catch(err){ toast(errText(err), true); b.disabled = false; }
+});
+
+/* Nouvelle interaction */
+var pickA = null, pickB = null;
+function showChosen(id, s, clear){
+  var el = $(id);
+  if (!s) { el.hidden = true; el.innerHTML = ''; return; }
+  el.innerHTML = esc(s.label) + (s.kind === 'class' ? ' <span class="kind">classe</span>' : '') + '<button type="button" aria-label="Retirer">×</button>';
+  el.hidden = false;
+  el.querySelector('button').onclick = clear;
+}
+picker('ia-q', 'ia-list', function(s){ pickA = s; $('ia-q').value = ''; showChosen('ia-chosen', s, function(){ pickA = null; showChosen('ia-chosen', null); }); }, { allowCreate: true });
+picker('ib-q', 'ib-list', function(s){ pickB = s; $('ib-q').value = ''; showChosen('ib-chosen', s, function(){ pickB = null; showChosen('ib-chosen', null); }); }, { allowCreate: true });
+function fillSources(sel){
+  var src = (OV && OV.sources) || [];
+  $(sel).innerHTML = src.length ? src.map(function(s){ return '<option value="' + s.id + '">' + esc(s.label) + (s.version ? ', ' + esc(s.version) : '') + ' (' + REUSE[s.reuse].toLowerCase() + ')</option>'; }).join('')
+    : '<option value="">Aucune source : la direction doit en ajouter une</option>';
+}
+$('btn-new-int').onclick = function(){
+  pickA = pickB = null; showChosen('ia-chosen', null); showChosen('ib-chosen', null);
+  $('ia-q').value = $('ib-q').value = $('i-mech').value = $('i-cond').value = '';
+  document.querySelectorAll('input[name=lvl]').forEach(function(x){ x.checked = false; });
+  fillSources('i-src'); openModal('md-int'); $('ia-q').focus();
+};
+$('i-save').onclick = async function(){
+  var lvl = (document.querySelector('input[name=lvl]:checked') || {}).value;
+  if (!pickA || !pickB) { toast(ERRORS.TWO_SUBSTANCES_REQUIRED, true); return; }
+  if (!lvl) { toast(ERRORS.BAD_LEVEL, true); return; }
+  var b = this; b.disabled = true;
+  try { await rpc('pv_add_interaction', { p_a: pickA.id, p_b: pickB.id, p_level: lvl, p_mechanism: $('i-mech').value, p_conduct: $('i-cond').value, p_source_id: +$('i-src').value || null });
+    toast('Interaction enregistrée, à valider.'); closeModal(); loadOverview(); if (!$('int-list').closest('[data-panel]').hidden) loadInt(true); }
+  catch(e){ toast(errText(e), true); }
+  b.disabled = false;
+};
+
+/* ── Substances et classes ── */
+$('ref-q').addEventListener('input', debounce(loadRef, 220));
+var refRows = [];
+async function loadRef(){
+  try { refRows = await rpc('pv_substances', { p_q: $('ref-q').value || null, p_limit: 100 }); }
+  catch(e){ $('ref-list').innerHTML = '<div class="empty">' + esc(errText(e)) + '</div>'; return; }
+  $('ref-list').innerHTML = refRows.length ? refRows.map(function(s, i){
+    return '<div class="row"><div><div class="row-name" style="text-transform:none">' + esc(s.label) + (s.kind === 'class' ? ' <span class="kind">classe</span>' : '') + '</div>' +
+      '<div class="row-meta">' + (s.kind === 'class' ? s.members + ' membre' + (s.members > 1 ? 's' : '') + ' · ' : '') + s.interactions + ' interaction' + (s.interactions > 1 ? 's' : '') + '</div></div>' +
+      '<div class="maps">' + (s.kind === 'class' ? '<button class="pv-btn" type="button" data-cls="' + i + '">Membres</button>' : '') + '</div></div>';
+  }).join('') : '<div class="empty"><strong>Le référentiel est vide</strong>Il se remplira avec l’import de la source validée, ou par vos ajouts.</div>';
+}
+$('ref-list').addEventListener('click', function(e){ var b = e.target.closest('[data-cls]'); if (b) openClass(refRows[+b.dataset.cls]); });
+var subKind = 'substance';
+seg('s-kind', function(b){ subKind = b.dataset.k; });
+$('btn-new-sub').onclick = function(){ $('s-label').value = ''; fillSources('s-src'); $('s-src').insertAdjacentHTML('afterbegin', '<option value="" selected>Sans source</option>'); openModal('md-sub'); $('s-label').focus(); };
+$('s-save').onclick = async function(){
+  var b = this; b.disabled = true;
+  try { await rpc('pv_save_substance', { p_label: $('s-label').value, p_kind: subKind, p_source_id: +$('s-src').value || null, p_members: null });
+    toast(subKind === 'class' ? 'Classe créée.' : 'Substance créée.'); closeModal(); loadRef(); loadOverview(); }
+  catch(e){ toast(errText(e), true); }
+  b.disabled = false;
+};
+
+/* Membres d'une classe */
+var curClass = null;
+async function openClass(c){
+  curClass = c;
+  $('md-cls-t').textContent = c.label; $('md-cls-s').textContent = 'Une interaction posée sur cette classe s’applique à chacun de ses membres.';
+  $('cm-q').value = '';
+  openModal('md-cls'); loadMembers();
+}
+async function loadMembers(){
+  var r = await sb.from('interaction_class_members').select('substance_id, interaction_substances!interaction_class_members_substance_id_fkey(label)').eq('class_id', curClass.id);
+  if (r.error) { $('cm-members').innerHTML = '<div class="empty">' + esc(errText(r.error)) + '</div>'; return; }
+  $('cm-members').innerHTML = (r.data || []).length ? r.data.map(function(m){
+    var l = m.interaction_substances ? m.interaction_substances.label : m.substance_id;
+    return '<div class="src"><div>' + esc(l) + '</div>' + (ME.validate ? '<button class="pv-btn bad" type="button" data-rm="' + m.substance_id + '">Retirer</button>' : '') + '</div>';
+  }).join('') : '<div class="empty">Aucun membre pour l’instant.</div>';
+}
+picker('cm-q', 'cm-list', async function(s){
+  if (!s || !curClass) return;
+  try { await rpc('pv_set_class_member', { p_class_id: curClass.id, p_substance_id: s.id, p_member: true }); $('cm-q').value = ''; loadMembers(); loadRef(); }
+  catch(e){ toast(errText(e), true); }
+}, { allowCreate: true, onlySubstances: true });
+$('cm-members').addEventListener('click', async function(e){
+  var b = e.target.closest('[data-rm]'); if (!b) return;
+  try { await rpc('pv_set_class_member', { p_class_id: curClass.id, p_substance_id: +b.dataset.rm, p_member: false }); loadMembers(); loadRef(); }
+  catch(err){ toast(errText(err), true); }
+});
+
+/* ── Essai d'ordonnance ── */
+var trialPickers = [];
+function addTrialLine(){
+  if (trialPickers.length >= 8) return;
+  var w = document.createElement('div');
+  var inp = document.createElement('input');
+  inp.type = 'text'; inp.placeholder = 'Médicament ' + (trialPickers.length + 1); inp.setAttribute('aria-label', inp.placeholder);
+  w.appendChild(inp); $('trial-lines').appendChild(w);
+  trialPickers.push(DrugPicker.attach(inp, { supa: sb }));
+}
+$('trial-add').onclick = addTrialLine;
+$('trial-run').onclick = async function(){
+  var picked = trialPickers.map(function(p){ return p.get(); }).filter(Boolean);
+  var res = $('trial-res');
+  if (picked.length < 2) { res.innerHTML = '<p class="note">Choisissez au moins deux médicaments dans la liste.</p>'; return; }
+  var names = {}; picked.forEach(function(d){ names[d.drug_id] = d.brand + (d.dosage ? ' ' + d.dosage : ''); });
+  var rows;
+  try { rows = await rpc('prescription_check', { p_drug_ids: picked.map(function(d){ return d.drug_id; }) }); }
+  catch(e){ res.innerHTML = '<p class="note">' + esc(errText(e)) + '</p>'; return; }
+  if (!rows || !rows.length) { res.innerHTML = '<div class="alert"><div class="alert-h">Aucune interaction connue du référentiel</div><div class="alert-t">Le résultat dépend des rattachements et des interactions déjà saisis.</div></div>'; return; }
+  res.innerHTML = rows.map(function(r){
+    var dbl = r.level === 'doublon';
+    return '<div class="alert"><div class="alert-h"><span class="lv lv-' + r.level + '">' + LEVELS[r.level] + '</span>' + (r.reviewed ? '' : '<span class="st st-draft">Non validé</span>') + '</div>' +
+      '<div class="alert-t"><b>' + esc(names[r.drug_a] || r.drug_a) + '</b> et <b>' + esc(names[r.drug_b] || r.drug_b) + '</b>' +
+      (dbl ? ' contiennent tous deux ' + esc(r.substance_a) + '.' : ' : ' + esc(r.substance_a) + ' + ' + esc(r.substance_b) + '.') + '</div>' +
+      (r.mechanism ? '<div class="alert-t"><b>Risque.</b> ' + esc(r.mechanism) + '</div>' : '') +
+      (r.conduct ? '<div class="alert-t"><b>Conduite à tenir.</b> ' + esc(r.conduct) + '</div>' : '') +
+      (r.source ? '<div class="alert-s">' + esc(r.source) + (r.source_version ? ', ' + esc(r.source_version) : '') + '</div>' : '') + '</div>';
+  }).join('');
+};
+
+/* ── Sources ── */
+async function loadSrc(){
+  await loadOverview();
+  $('src-tools').hidden = !ME.owner;
+  var src = (OV && OV.sources) || [];
+  $('src-list').innerHTML = src.length ? src.map(function(s){
+    var act = ME.owner ? ['confirmed', 'pending', 'refused'].filter(function(k){ return k !== s.reuse; }).map(function(k){
+      return '<button class="pv-btn' + (k === 'confirmed' ? ' ok' : k === 'refused' ? ' bad' : '') + '" type="button" data-src="' + s.id + '" data-st="' + k + '">' +
+        { confirmed:'Droit confirmé', pending:'Remettre en attente', refused:'Droit refusé' }[k] + '</button>';
+    }).join('') : '';
+    return '<div class="src"><div><div class="row-name" style="text-transform:none">' + esc(s.label) + '</div><div class="row-meta">' + (s.version ? esc(s.version) + ' · ' : '') +
+      '<span class="st st-' + s.reuse + '">' + REUSE[s.reuse] + '</span></div></div><div class="it-act">' + act + '</div></div>';
+  }).join('') : '<div class="empty"><strong>Aucune source</strong>' + (ME.owner ? 'Ajoutez la source de référence, par exemple le Thésaurus de l’ANSM.' : 'La direction ajoute les sources de référence.') + '</div>';
+}
+$('src-list').addEventListener('click', async function(e){
+  var b = e.target.closest('[data-src]'); if (!b) return;
+  var note = b.dataset.st === 'confirmed' ? prompt('Référence de l’accord (ex. réponse de l’ANSM du …) :') : null;
+  if (b.dataset.st === 'confirmed' && !note) return;
+  try { await rpc('pv_set_source_reuse', { p_source_id: +b.dataset.src, p_status: b.dataset.st, p_note: note }); toast('Source mise à jour.'); loadSrc(); }
+  catch(err){ toast(errText(err), true); }
+});
+$('btn-new-src').onclick = function(){ ['src-label', 'src-ver', 'src-date', 'src-url'].forEach(function(id){ $(id).value = ''; }); openModal('md-src'); $('src-label').focus(); };
+$('src-save').onclick = async function(){
+  var b = this; b.disabled = true;
+  try { await rpc('pv_add_source', { p_label: $('src-label').value, p_version: $('src-ver').value || null, p_published_on: $('src-date').value || null, p_url: $('src-url').value || null });
+    toast('Source ajoutée.'); closeModal(); loadSrc(); }
+  catch(e){ toast(errText(e), true); }
+  b.disabled = false;
+};
+
+/* ── Journal ── */
+var LOG_LABELS = { mapping:'Rattachement', auto_map:'Propositions automatiques', interaction:'Revue d’interaction', interaction_saved:'Interaction enregistrée',
+  substance:'Substance ou classe', class_member:'Membre de classe', source_reuse:'Droit de réutilisation', source_added:'Source ajoutée', live:'Mise en service' };
+async function loadLog(){
+  var r = await sb.from('interaction_review_log').select('created_at, actor_email, action, target, detail').order('created_at', { ascending: false }).limit(100);
+  if (r.error) { $('log-list').innerHTML = '<div class="empty">' + esc(errText(r.error)) + '</div>'; return; }
+  $('log-list').innerHTML = (r.data || []).length ? r.data.map(function(l){
+    var d = l.detail || {};
+    var what = d.status ? (STATUS[d.status] || REUSE[d.status] || d.status) : d.live != null ? (d.live ? 'activée' : 'suspendue') : d.label || '';
+    return '<div class="log"><time>' + fmtDate(l.created_at) + '</time><div><b>' + esc(LOG_LABELS[l.action] || l.action) + '</b>' +
+      (l.target ? ' · ' + esc(l.target) : '') + (what ? ' · ' + esc(what) : '') + '<div class="row-meta">' + esc(l.actor_email || '') + '</div></div></div>';
+  }).join('') : '<div class="empty"><strong>Aucune action enregistrée</strong>Chaque décision de validation sera tracée ici.</div>';
+}
+
+/* ── Fenêtres ── */
+function openModal(id){ document.querySelectorAll('.md-wrap.on').forEach(function(m){ m.classList.remove('on'); }); $(id).classList.add('on'); }
+function closeModal(){ document.querySelectorAll('.md-wrap.on').forEach(function(m){ m.classList.remove('on'); }); }
+document.querySelectorAll('.md-wrap').forEach(function(m){
+  m.addEventListener('click', function(e){ if (e.target === m || e.target.closest('[data-close]')) closeModal(); });
+});
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+
+(async function(){
+  var s = await sb.auth.getSession();
+  if (!s.data.session) { location.href = '/login?return=symphony-interactions'; return; }
+  try { ME = await rpc('pv_me'); } catch(e){ ME = { view:false, validate:false, owner:false }; }
+  if (!ME.view) {
+    document.querySelector('.sx-page').innerHTML = '<div class="empty"><strong>Accès réservé</strong>Cet écran est réservé au pharmacien validateur et aux personnes autorisées.</div>';
+    return;
+  }
+  document.body.classList.toggle('ro', !ME.validate);
+  $('ro-pill').hidden = ME.validate;
+  await loadOverview();
+  loadMol(true);
+})();
+</script>
+<script src="symphony-access.js?v=7" defer></script>
+<script src="symphony-chrome.js?v=3" defer></script>
+</body>
+</html>
