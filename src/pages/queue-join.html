@@ -294,6 +294,8 @@ body{
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
 <link rel="stylesheet" href="premium.css">
+<link rel="stylesheet" href="review-widget.css?v=1">
+<style>#review-slot{margin-top:16px}</style>
 </head>
 <body>
 
@@ -487,7 +489,8 @@ body{
         <div class="status-fill" id="status-fill" style="width:8%"></div>
       </div>
     </div>
-    <div class="info-note">
+    <div id="review-slot" hidden></div>
+    <div class="info-note" id="info-note">
       <div class="info-note-text">
         <strong>Restez à proximité</strong>
         Si vous n'êtes pas présent lorsque votre numéro est appelé, votre tour sera passé.
@@ -519,6 +522,7 @@ body{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js?v=4"></script>
+<script src="review-widget.js?v=1"></script>
 <script>
 var _supa     = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _clinicId = null;
@@ -539,8 +543,27 @@ var _audioCtx   = null;
     return;
   }
   loadClinicInfo();
+  var saved = loadMyTicket();
+  if (saved) { resumeTicket(saved); return; }
   checkQueueOpen();
 })();
+
+// Ticket du jour gardé sur ce téléphone (numéro et clé d'avis), pour reprendre après un rechargement
+var _myTicket;
+function ticketKey(){ return 'dl_queue_' + _clinicId + '_' + new Date().toISOString().slice(0,10); }
+function saveMyTicket(entry, isRdv){
+  _myTicket = { id: entry.id, number: entry.number, secret: entry.secret || null, rdv: !!isRdv, priority: _myPriority };
+  try { localStorage.setItem(ticketKey(), JSON.stringify(_myTicket)); } catch(e){}
+}
+function loadMyTicket(){
+  try { var t = JSON.parse(localStorage.getItem(ticketKey()) || 'null'); return t && t.number ? t : null; } catch(e){ return null; }
+}
+function resumeTicket(t){
+  _myTicket = t; _myNumber = t.number; _myPriority = t.priority || 'normale';
+  document.getElementById('progress-dots') && updateDots(3);
+  showConfirmation({ number: t.number }, 0, t.rdv);
+  startRealtime(); refreshPosition();
+}
 
 // La file peut être en pause, fermée, hors horaires ou complète : on le dit avant toute saisie
 var QUEUE_REASONS = {
@@ -726,6 +749,7 @@ async function joinQueueRdv() {
     }
 
     _myNumber = nextNum;
+    saveMyTicket(entry, true);
     playSuccess();
     showConfirmation(entry, existing ? existing.length : 0, true);
     startRealtime();
@@ -754,6 +778,7 @@ async function joinQueue() {
     // Le cabinet reçoit l'arrivée par sa propre connexion sécurisée (plus de diffusion publique du nom)
 
     _myNumber = nextNum;
+    saveMyTicket(entry, false);
     playSuccess();
     showConfirmation(entry, existing ? existing.length : 0, false);
     startRealtime();
@@ -845,11 +870,28 @@ async function refreshPosition() {
     document.getElementById('info-current').textContent = current ? String(current.number).padStart(2,'0') : '--';
     var myEntry = data.find(function(e){return e.number===_myNumber;});
     if(!myEntry) return;
-    if(myEntry.status==='done'){ renderAhead(0); updateStatusCard(-1,null); return; }
+    if(myEntry.status==='done'){ renderAhead(0); updateStatusCard(-1,null); showReview(); return; }
     if(myEntry.status==='current'){ renderAhead(0); updateStatusCard(0,myEntry.room||null); return; }
     var ahead = data.filter(function(e){return (e.status==='current'||e.status==='waiting')&&e.number<_myNumber;}).length;
     renderAhead(ahead); updateStatusCard(ahead,null);
   } catch(e){}
+}
+
+// Consultation terminée : la file le sait, la page propose aussitôt l'avis vérifié
+var _reviewShown = false;
+function showReview(){
+  if (_reviewShown || !_myTicket || !_myTicket.secret) return;
+  _reviewShown = true;
+  var slot = document.getElementById('review-slot');
+  ReviewWidget.mount(slot, { supa: _supa, kind: 'queue', ref: _myTicket.id, secret: _myTicket.secret,
+    onState: function(s){
+      if (s === 'open' || s === 'already') {
+        slot.hidden = false;
+        var note = document.getElementById('info-note'); if (note) note.style.display = 'none';
+        if (s === 'open') setTimeout(function(){ slot.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 400);
+      }
+      if (s === 'done' && window._qjPoll) { clearInterval(window._qjPoll); }
+    } });
 }
 
 document.addEventListener('touchstart',function(){getAudio();},{once:true,passive:true});

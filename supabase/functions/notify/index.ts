@@ -1,6 +1,6 @@
 // notify — emails transactionnels déclenchés par la base (pg_net) :
 //   appointment_created  : nouvelle réservation (médecin + patient)
-//   appointment_status   : confirmation / annulation (l'autre partie est prévenue)
+//   appointment_status   : confirmation / annulation (l'autre partie est prévenue), invitation à l'avis une fois terminé
 //   patient_welcome      : un patient renseigne son email dans son espace
 //   kyc_status, payment_request, payment_recorded, extension_approved, account_status : médecins
 //   appointment_reminders (veille du RDV), trial_reminders (J-3 et dernier jour) : appelés par pg_cron
@@ -352,6 +352,21 @@ ${BOXES[to]}`)
           reason: "Vous recevez cet email car vous aviez un rendez-vous sur Docline.",
         }));
     }
+  } else if (to === "completed" && from !== "completed" && a.ticket_token) {
+    // Avis vérifié : seul le patient venu en consultation reçoit ce lien personnel
+    out.patient = await deliver("review_invite", `review:${a.id}`, patientEmail, a.patient_name, `Comment s'est passée votre consultation ? · ${dn}`,
+      layout({
+        eyebrow: "Votre avis",
+        preheader: "Deux secondes pour aider les prochains patients.",
+        title: "Comment s'est passée votre consultation ?",
+        body: para(`Merci d'être venu consulter ${dn}.
+
+Votre avis aide les autres patients à choisir. Il est vérifié : seuls les patients réellement reçus peuvent en donner un, et une seule fois.`)
+          + button("Donner mon avis", `${APP_URL}/ticket?t=${encodeURIComponent(a.ticket_token)}#avis`)
+          + para(`
+Le lien reste valable 14 jours.`),
+        reason: "Vous recevez cet email car vous avez eu une consultation réservée sur Docline.",
+      }));
   }
   return json(out);
 });

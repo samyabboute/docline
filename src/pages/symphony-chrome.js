@@ -25,6 +25,7 @@
     eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
     shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
     gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+    chat: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z"/><path d="M8.5 11h7M8.5 14.5h4"/>',
     pill: '<path d="m10.5 20.5-7-7a4.95 4.95 0 0 1 7-7l7 7a4.95 4.95 0 0 1-7 7z"/><path d="m8.5 8.5 7 7"/>',
     out: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
   };
@@ -45,6 +46,7 @@
       { h: '/symphony-users', l: 'Médecins & cliniques', i: 'users', p: 'doctors.view' },
       { h: '/symphony-crm', l: 'Fiche médecin', i: 'crm', p: 'doctors.view' },
       { h: '/symphony-featured', l: 'En vedette', i: 'star', p: 'doctors.view' },
+      { h: '/symphony-reviews', l: 'Avis patients', i: 'chat', p: 'doctors.view' },
       { h: '/symphony-interactions', l: 'Interactions', i: 'pill', p: ['pharmacovigilance.view', 'pharmacovigilance.validate'] } ] },
     { s: 'Finance', items: [
       { h: '/symphony?tab=paiements', l: 'Paiements', i: 'card', p: 'payments.view' },

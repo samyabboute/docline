@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avis patients · Docline Symphony</title>
+<script src="config.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#4C1D95">
+<style>
+
+:root{--pv-line:rgba(13,5,32,.07);--pv-soft:#F4F2FF}
+.sx-page [hidden]{display:none!important}
+.pv-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.pv-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
+.pv-title{font-size:26px;font-weight:900;letter-spacing:-.7px;line-height:1.1;text-wrap:balance}
+.pv-sub{font-size:13.5px;color:var(--text-3);margin-top:6px;max-width:66ch;line-height:1.55}
+.pv-ro{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--pv-soft);font-size:12px;font-weight:700;color:var(--p)}
+
+/* Mise en service */
+.gate{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;background:var(--surface);border:1px solid var(--pv-line);border-radius:20px;padding:22px 24px;margin-bottom:16px;box-shadow:0 1px 2px rgba(13,5,32,.04)}
+.gate-state{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.gate-dot{width:10px;height:10px;border-radius:50%;background:#B8B3C9;box-shadow:0 0 0 5px rgba(184,179,201,.18)}
+.gate.live .gate-dot{background:#12B76A;box-shadow:0 0 0 5px rgba(18,183,106,.16)}
+.gate-note{font-size:13px;color:var(--text-3);margin-top:4px;line-height:1.5}
+.gate-list{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px}
+.gate-item{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--text-3)}
+.gate-item i{width:18px;height:18px;border-radius:50%;border:1.5px solid #D5D0E5;display:flex;align-items:center;justify-content:center;flex:none}
+.gate-item.ok{color:var(--text)}
+.gate-item.ok i{background:#12B76A;border-color:#12B76A}
+.gate-item.ok i::after{content:'';width:8px;height:4px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+
+.pv-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.pv-sum div{background:var(--surface);border:1px solid var(--pv-line);border-radius:14px;padding:14px 16px}
+.pv-sum b{display:block;font-size:22px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.pv-sum span{font-size:12px;color:var(--text-3);font-weight:600}
+
+.pv-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.pv-tab{padding:8px 16px;border-radius:999px;border:1px solid var(--pv-line);background:var(--surface);font:600 13px Inter,sans-serif;color:var(--text-3);cursor:pointer;white-space:nowrap}
+.pv-tab.on{background:var(--p);border-color:var(--p);color:#fff}
+.pv-tab:focus-visible,.pv-btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--p3);outline-offset:2px}
+.pv-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.pv-tools input,.pv-tools select{padding:10px 13px;border-radius:12px;border:1px solid var(--pv-line);background:var(--surface);font:500 13.5px Inter,sans-serif;color:var(--text);outline:none}
+.pv-tools input{flex:1;min-width:200px}
+.pv-tools input:focus,.pv-tools select:focus{border-color:var(--brand)}
+.seg{display:inline-flex;background:var(--pv-soft);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:9px;font:600 12.5px Inter,sans-serif;color:var(--text-3);cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(13,5,32,.08)}
+
+.pv-list{background:var(--surface);border:1px solid var(--pv-line);border-radius:16px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--pv-line)}
+.row:last-child{border-bottom:none}
+.row-name{font-size:14px;font-weight:700;text-transform:capitalize}
+.row-meta{font-size:12px;color:var(--text-3);margin-top:3px;line-height:1.45}
+.maps{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.map{display:inline-flex;align-items:center;gap:6px;padding:4px 5px 4px 10px;border-radius:999px;background:var(--pv-soft);font-size:12.5px;font-weight:600;color:var(--text)}
+.map.validated{background:#ECFDF3;color:#067647}
+.map.rejected{background:#F5F5F7;color:#9CA3B8;text-decoration:line-through}
+.map small{font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em}
+.map button{border:0;width:24px;height:24px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--surface);color:var(--text-3)}
+.map button:hover{color:var(--p)}
+.map button svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+.it{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:16px 18px;border-bottom:1px solid var(--pv-line)}
+.it:last-child{border-bottom:none}
+.it-pair{font-size:14.5px;font-weight:750;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.it-plus{color:var(--text-3);font-weight:500}
+.it-txt{font-size:13px;color:var(--text-2);margin-top:6px;line-height:1.55;max-width:80ch}
+.it-txt b{font-weight:700;color:var(--text)}
+.it-foot{font-size:11.5px;color:var(--text-3);margin-top:8px}
+.it-act{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.kind{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:999px;background:#EEF2FF;color:#3538CD}
+
+.lv{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.lv-contre_indication{background:#FEECEC;color:#B42318}
+.lv-association_deconseillee{background:#FFF1E6;color:#B54708}
+.lv-precaution_emploi{background:#FFF8DB;color:#8A6100}
+.lv-a_prendre_en_compte{background:#EFEBFF;color:#4C1D95}
+.lv-doublon{background:#EFF8FF;color:#175CD3}
+.st{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#F2F4F7;color:#475467}
+.st-validated{background:#ECFDF3;color:#067647}
+.st-draft{background:#FFFAEB;color:#B54708}
+.st-rejected{background:#F5F5F7;color:#98A2B3}
+.st-confirmed{background:#ECFDF3;color:#067647}
+.st-refused{background:#FEF3F2;color:#B42318}
+.st-pending{background:#FFFAEB;color:#B54708}
+
+.pv-btn{padding:8px 13px;border-radius:10px;border:1px solid var(--pv-line);background:var(--surface);font:650 12.5px Inter,sans-serif;color:var(--text);cursor:pointer;white-space:nowrap}
+.pv-btn:hover:not(:disabled){border-color:var(--brand);color:var(--brand)}
+.pv-btn.primary{background:var(--p);border-color:var(--p);color:#fff}
+.pv-btn.primary:hover:not(:disabled){background:var(--p2);border-color:var(--p2);color:#fff}
+.pv-btn.ok{color:#067647}
+.pv-btn.bad{color:#B42318}
+.pv-btn:disabled{opacity:.45;cursor:not-allowed}
+.more{display:flex;justify-content:center;padding:14px}
+.empty{padding:48px 24px;text-align:center;color:var(--text-3);font-size:14px;line-height:1.55}
+.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+
+.pv-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#0D0520;color:#fff;padding:11px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all .25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
+.pv-toast.on{opacity:1;transform:translateX(-50%)}.pv-toast.err{background:#B91C1C}
+[data-validate]{}
+body.ro [data-validate]{display:none!important}
+@media (max-width:820px){
+  .pv-sum{grid-template-columns:1fr 1fr}
+  .gate{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .maps{justify-content:flex-start}
+  .it{grid-template-columns:1fr}
+  .it-act{justify-content:flex-start}
+  .trial{grid-template-columns:1fr}
+  .log{grid-template-columns:1fr;gap:2px}
+  .fld-row,.levels{grid-template-columns:1fr}
+  .md-wrap{padding:0;align-items:stretch}.md{border-radius:0;min-height:100%}.md-f{border-radius:0}
+}
+@media (prefers-reduced-motion:reduce){.pv-toast{transition:none}}
+.rv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:16px 18px;border-bottom:1px solid var(--pv-line)}
+.rv:last-child{border-bottom:none}
+.rv-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:750}
+.rv-stars{color:#7C3AED;letter-spacing:1px}
+.rv-stars span{color:#E4E0EF}
+.rv-txt{font-size:13.5px;color:var(--text-2);line-height:1.6;margin-top:8px;max-width:80ch;white-space:pre-wrap}
+.rv-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.rv-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--pv-soft);color:var(--text-2)}
+.rv-tag.neg{background:#FFF1E6;color:#B54708}
+.rv-foot{font-size:11.5px;color:var(--text-3);margin-top:8px}
+.rv-flag{font-size:12px;color:#B54708;background:#FFFAEB;border-radius:10px;padding:6px 10px;margin-top:8px;display:inline-block}
+@media (max-width:820px){.rv{grid-template-columns:1fr}}
+</style>
+<script src="loader.js?v=2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="symphony-chrome.css?v=2">
+</head>
+<body class="sx">
+<div class="sx-app">
+  <aside id="sx-side" data-sx-chrome aria-label="Navigation Symphony"></aside>
+  <div class="sx-scrim"></div>
+  <div class="sx-main">
+    <header class="sx-top"><button class="sx-ham" type="button" data-sx-ham aria-label="Ouvrir le menu"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><div class="sx-top-title">Avis patients</div></header>
+    <main class="sx-page">
+      <div class="pv-head">
+        <div>
+          <div class="pv-eyebrow">Symphony · Médecins</div>
+          <h1 class="pv-title">Avis patients vérifiés</h1>
+          <p class="pv-sub">Chaque avis vient d’un patient réellement reçu en consultation, une seule fois par passage. Les notes sont publiées aussitôt, les commentaires écrits attendent votre relecture. Les avis suspects sont mis de côté automatiquement.</p>
+        </div>
+        <span class="pv-ro" id="ro-pill" hidden>Lecture seule</span>
+      </div>
+      <div class="pv-tools">
+        <div class="seg" id="rv-filter">
+          <button type="button" class="on" data-f="pending">Commentaires à relire</button>
+          <button type="button" data-f="hidden">Mis de côté</button>
+          <button type="button" data-f="all">Tous les avis</button>
+        </div>
+      </div>
+      <div class="pv-list" id="rv-list"></div>
+      <p class="note" style="margin-top:12px">Publiez un commentaire s’il décrit l’expérience du patient sans information médicale, sans nom propre et sans propos injurieux. Un avis négatif honnête se publie.</p>
+    </main>
+  </div>
+</div>
+<div class="pv-toast" id="toast" role="status"></div>
+<script>
+'use strict';
+var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+var CAN_EDIT = false, F = 'pending', ROWS = [];
+var TAGS = { ecoute:'À l’écoute', explications:'Explications claires', confiance:'Inspire confiance', accueil:'Accueil chaleureux', ponctualite:'Ponctuel',
+  rapidite:'Prise en charge rapide', cabinet:'Cabinet agréable', attente:'Attente longue', explications_insuffisantes:'Explications insuffisantes',
+  accueil_ameliorer:'Accueil à améliorer', tarif_flou:'Tarif peu clair' };
+var NEG = { attente:1, explications_insuffisantes:1, accueil_ameliorer:1, tarif_flou:1 };
+var STARS = '★★★★★';
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+function toast(m, err){ var t = $('toast'); t.textContent = m; t.className = 'pv-toast on' + (err ? ' err' : ''); clearTimeout(t._h); t._h = setTimeout(function(){ t.className = 'pv-toast'; }, 3200); }
+function fmt(s){ var d = new Date(s); return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }); }
+var EMPTY = { pending:'Aucun commentaire à relire', hidden:'Aucun avis mis de côté', all:'Aucun avis pour l’instant' };
+var DONE = { publish:'Commentaire publié.', reject:'Commentaire non publié.', hide:'Avis mis de côté.', restore:'Avis rétabli.' };
+
+async function load(){
+  var r = await sb.rpc('reviews_moderation', { p_status: F, p_limit: 100 });
+  if (r.error) { $('rv-list').innerHTML = '<div class="empty">' + (r.error.message.indexOf('FORBIDDEN') !== -1 ? 'Accès réservé.' : esc(r.error.message)) + '</div>'; return; }
+  ROWS = r.data || [];
+  if (!ROWS.length) {
+    $('rv-list').innerHTML = '<div class="empty"><strong>' + EMPTY[F] + '</strong>' +
+      (F === 'all' ? 'Les avis arrivent après les consultations, par la file d’attente et les tickets de rendez-vous.' : '') + '</div>';
+    return;
+  }
+  $('rv-list').innerHTML = ROWS.map(function(x, i){
+    var act = '';
+    if (CAN_EDIT) {
+      if (x.comment_status === 'pending' && !x.hidden) act += '<button class="pv-btn ok" type="button" data-i="' + i + '" data-a="publish">Publier le commentaire</button><button class="pv-btn bad" type="button" data-i="' + i + '" data-a="reject">Ne pas publier</button>';
+      act += x.hidden ? '<button class="pv-btn" type="button" data-i="' + i + '" data-a="restore">Rétablir l’avis</button>' : '<button class="pv-btn" type="button" data-i="' + i + '" data-a="hide">Mettre de côté</button>';
+    }
+    var st = x.comment_status === 'published' ? ' <span class="st st-validated">Commentaire publié</span>'
+           : x.comment_status === 'rejected' ? ' <span class="st st-rejected">Commentaire non publié</span>'
+           : x.comment_status === 'pending' ? ' <span class="st st-draft">À relire</span>' : '';
+    return '<div class="rv"><div>' +
+      '<div class="rv-h"><span class="rv-stars" aria-label="' + x.rating + ' sur 5">' + STARS.slice(0, x.rating) + '<span>' + STARS.slice(0, 5 - x.rating) + '</span></span>' + esc(x.doctor_name || 'Médecin') + st + '</div>' +
+      (x.tags && x.tags.length ? '<div class="rv-tags">' + x.tags.map(function(t){ return '<span class="rv-tag' + (NEG[t] ? ' neg' : '') + '">' + esc(TAGS[t] || t) + '</span>'; }).join('') + '</div>' : '') +
+      (x.comment ? '<div class="rv-txt">' + esc(x.comment) + '</div>' : '') +
+      (x.hidden ? '<div class="rv-flag">' + esc(x.hidden_reason || 'Mis de côté') + '</div>' : '') +
+      '<div class="rv-foot">' + esc(x.author_label) + ' · ' + (x.source === 'queue' ? 'file d’attente' : 'rendez-vous en ligne') + ' · consultation du ' + esc(x.visit_date) +
+        (x.wait_minutes != null ? ' · attente mesurée ' + x.wait_minutes + ' min' : '') + ' · reçu le ' + fmt(x.created_at) + '</div>' +
+      '</div><div class="it-act">' + act + '</div></div>';
+  }).join('');
+}
+$('rv-list').addEventListener('click', async function(e){
+  var b = e.target.closest('[data-a]'); if (!b) return;
+  var x = ROWS[+b.dataset.i], a = b.dataset.a, reason = null;
+  if (a === 'hide') { reason = prompt('Raison (gardée dans l’historique) :'); if (!reason) return; }
+  b.disabled = true;
+  var r = await sb.rpc('review_moderate', { p_id: x.id, p_action: a, p_reason: reason });
+  if (r.error) { toast(r.error.message.indexOf('FORBIDDEN') !== -1 ? 'Action réservée aux personnes autorisées.' : 'Erreur : ' + r.error.message, true); b.disabled = false; return; }
+  toast(DONE[a]);
+  load();
+});
+$('rv-filter').querySelectorAll('button').forEach(function(b){
+  b.onclick = function(){ $('rv-filter').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); F = b.dataset.f; load(); };
+});
+(async function(){
+  var s = await sb.auth.getSession();
+  if (!s.data.session) { location.href = '/login?return=symphony-reviews'; return; }
+  var c = await sb.rpc('symphony_can', { p_perm: 'doctors.edit' });
+  CAN_EDIT = !!c.data;
+  $('ro-pill').hidden = CAN_EDIT;
+  load();
+})();
+</script>
+<script src="symphony-access.js?v=8" defer></script>
+<script src="symphony-chrome.js?v=4" defer></script>
+</body>
+</html>
