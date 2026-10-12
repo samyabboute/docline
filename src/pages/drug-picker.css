@@ -1,0 +1,29 @@
+/* Docline · sélecteur de médicaments (nomenclature nationale) */
+.dp-wrap{position:relative;min-width:0}
+.dp-wrap.dp-linked > input{border-color:rgba(109,40,217,.35);background:#FBFAFF;padding-right:30px}
+.dp-wrap.dp-linked::after{content:'';position:absolute;right:10px;top:12px;width:14px;height:14px;border-radius:50%;
+  background:#6D28D9 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/9px no-repeat;pointer-events:none}
+.dp-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:11.5px;color:#5B4F78;padding:5px 2px 0;line-height:1.3}
+.dp-meta:empty{display:none}
+.dp-meta svg{width:12px;height:12px;fill:none;stroke:#6D28D9;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.dp-drop{position:absolute;top:calc(100% + 6px);left:0;width:max(100%,min(520px,86vw));z-index:900;max-height:340px;overflow-y:auto;
+  background:rgba(255,255,255,.97);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);
+  border:1px solid rgba(76,29,149,.12);border-radius:14px;box-shadow:0 18px 48px rgba(13,5,32,.14),0 2px 6px rgba(13,5,32,.05);
+  padding:6px;animation:dpFade .14s ease both}
+.dp-drop[hidden]{display:none}
+@keyframes dpFade{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.dp-head{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8A82A3;padding:6px 10px 4px}
+.dp-item{padding:9px 10px;border-radius:10px;cursor:pointer;transition:background .1s}
+.dp-item:hover,.dp-item.hi{background:#F3F0FF}
+.dp-l1{display:flex;align-items:center;gap:8px}
+.dp-brand{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px;font-weight:650;color:#0D0520;letter-spacing:.01em}
+.dp-dose{white-space:nowrap;font-size:12.5px;font-weight:600;color:#4C1D95;font-variant-numeric:tabular-nums}
+.dp-chips{margin-left:auto;display:inline-flex;gap:4px}
+.dp-l2{font-size:11.5px;color:#77718C;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
+.dp-item mark{background:none;color:#6D28D9;font-weight:700}
+.dp-chip{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;background:#EFEBFF;color:#4C1D95;white-space:nowrap}
+.dp-chip.dp-red{background:#FEECEC;color:#B42318}
+.dp-chip.dp-amber{background:#FFF4E0;color:#93500B}
+.dp-empty{font-size:12.5px;color:#77718C;padding:12px 10px;line-height:1.45}
+@media (prefers-reduced-motion:reduce){.dp-drop{animation:none}}
+@media (max-width:600px){.dp-drop{width:100%}}

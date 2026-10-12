@@ -7,6 +7,8 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js?v=4"></script>
 <script src="shell.js?v=15"></script>
+<link rel="stylesheet" href="drug-picker.css?v=1">
+<script src="drug-picker.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 /* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
@@ -134,7 +136,7 @@
 
 /* Med builder */
 .meds-builder{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.med-row{display:grid;grid-template-columns:1fr 1fr 72px auto;gap:8px;align-items:center}
+.med-row{display:grid;grid-template-columns:1fr 1fr 72px auto;gap:8px;align-items:start}
 .med-row input{border:1.5px solid var(--border);border-radius:var(--r);padding:9px 11px;font-size:13px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color .15s;width:100%}
 .med-row input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.07)}
 .med-row input[type=number]{text-align:center;padding:9px 6px}
@@ -311,6 +313,7 @@
     font-size:7pt;font-weight:bold;font-family:Arial,sans-serif;
   }
   .print-med-name{font-size:10.5pt;font-weight:bold;color:#1E0A3C;margin-bottom:0.5mm}
+  .print-med-dci{font-size:8pt;color:#5B4F78;margin:-0.3mm 0 0.6mm}
   .print-med-dosage{font-size:9pt;color:#333;font-style:italic;padding-left:3mm}
   .print-med-dosage::before{content:'→ ';color:#5B21B6;font-style:normal}
   .print-med-boites{
@@ -1179,7 +1182,7 @@ function openModal(id) {
   document.getElementById('f-nss').value       = meta.nss || '';
   document.getElementById('f-assurance').value = meta.assurance || '';
   document.getElementById('f-secure').checked  = !!meta.secure;
-  if (meds.length) { meds.forEach(function(m){ addMedRow(m.name||m.description||'', m.quantity||m.posologie||'', m.boites||1); }); }
+  if (meds.length) { meds.forEach(function(m){ addMedRow(m.name||m.description||'', m.quantity||m.posologie||'', m.boites||1, m.drug_id ? m : null); }); }
   else { addMedRow(); }
   document.getElementById('btn-save').disabled = false;
   document.getElementById('btn-save').textContent = 'Enregistrer';
@@ -1316,7 +1319,7 @@ function initMedAC(inp) {
   });
 }
 
-function addMedRow(name, posologie, boites) {
+function addMedRow(name, posologie, boites, link) {
   var builder = document.getElementById('meds-builder');
   var row = document.createElement('div');
   row.className = 'med-row';
@@ -1361,8 +1364,16 @@ function addMedRow(name, posologie, boites) {
   row.appendChild(delBtn);
   builder.appendChild(row);
 
-  // Activer l'autocomplete sur ce champ
-  initMedAC(medInp);
+  // Recherche dans la nomenclature nationale ; la ligne garde la fiche officielle choisie
+  row._dp = DrugPicker.attach(medInp, {
+    supa: _supa, value: link, fallback: MEDS_DCI,
+    onChange: function(d) {
+      if (d && d.list === 'STUPEFIANT') {
+        var sec = document.getElementById('f-secure');
+        if (sec && !sec.checked) { sec.checked = true; sec.dispatchEvent(new Event('change')); toast('Stupéfiant : ordonnance sécurisée activée.'); }
+      }
+    }
+  });
 }
 function getMeds() {
   var meds = [];
@@ -1371,7 +1382,11 @@ function getMeds() {
     var name   = inputs[0] ? inputs[0].value.trim() : '';
     var pos    = inputs[1] ? inputs[1].value.trim() : '';
     var boites = inputs[2] ? (parseInt(inputs[2].value,10)||1) : 1;
-    if (name) meds.push({ name:name, quantity:pos, boites:boites });
+    if (!name) return;
+    var m = { name:name, quantity:pos, boites:boites };
+    var d = row._dp && row._dp.get();
+    if (d) { m.drug_id = d.drug_id; m.dci = d.dci; m.dci_code = d.dci_code; m.form = d.form; m.dosage = d.dosage; m.list = d.list; m.pharmacy = d.pharmacy; m.hospital = d.hospital; }
+    meds.push(m);
   });
   return meds;
 }
@@ -1492,6 +1507,7 @@ function printOrd(id) {
     return '<div class="print-med-item">'
       + '<div class="print-med-num">'+(i+1)+'</div>'
       + '<div class="print-med-name">'+name+'</div>'
+      + (m.dci ? '<div class="print-med-dci">DCI : '+esc(m.dci.charAt(0)+m.dci.slice(1).toLowerCase())+'</div>' : '')
       + (dosage ? '<div class="print-med-dosage">'+dosage+'</div>' : '')
       + '<div><span class="print-med-boites">'+boites+' bo&#238;te'+(boites>1?'s':'')+'</span></div>'
       + '</div>';

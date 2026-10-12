@@ -7,6 +7,8 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js?v=4"></script>
 <script src="shell.js?v=15"></script>
+<link rel="stylesheet" href="drug-picker.css?v=1">
+<script src="drug-picker.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 /* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
@@ -189,7 +191,7 @@
 .med-header{display:grid;grid-template-columns:1fr 1fr 32px;gap:8px;margin-bottom:6px}
 .med-header span{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.06em;padding-left:4px}
 .med-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.med-row{display:grid;grid-template-columns:1fr 1fr 32px;gap:8px;align-items:center}
+.med-row{display:grid;grid-template-columns:1fr 1fr 32px;gap:8px;align-items:start}
 .med-row input{border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s;font-family:inherit;width:100%}
 .med-row input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(109,40,217,.08)}
 .med-row input::placeholder{color:var(--text4);font-size:12px}
@@ -956,13 +958,22 @@ function renderMedRows() {
   }
   container.innerHTML = _meds.map(function(m, i) {
     return '<div class="med-row">'
-      +'<input type="text" placeholder="Ex : Paracétamol 1g" data-field="name" data-i="'+i+'" value="'+esc(m.name)+'" oninput="syncMed('+i+',\'name\',this.value)">'
+      +'<div><input type="text" placeholder="Doliprane, amoxicilline…" data-field="name" data-i="'+i+'" value="'+esc(m.name)+'" oninput="syncMed('+i+',\'name\',this.value)"></div>'
       +'<input type="text" placeholder="Ex : 1 cp × 3/j — 5 jours" data-field="posologie" data-i="'+i+'" value="'+esc(m.posologie)+'" oninput="syncMed('+i+',\'posologie\',this.value)">'
       +'<button class="btn-rm-med" type="button" onclick="removeMedRow('+i+')" title="Supprimer">'
         +'<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
       +'</button>'
     +'</div>';
   }).join('');
+  // Recherche dans la nomenclature nationale ; chaque ligne garde la fiche officielle choisie
+  container.querySelectorAll('input[data-field="name"]').forEach(function(inp) {
+    var i = parseInt(inp.dataset.i, 10);
+    DrugPicker.attach(inp, { supa: _supa, value: _meds[i].drug || null, onChange: function(d) {
+      if (!_meds[i]) return;
+      _meds[i].name = inp.value;
+      _meds[i].drug = d;
+    }});
+  });
 }
 
 function syncMed(i, field, val) {
@@ -1043,7 +1054,9 @@ async function saveAndPrintOrd() {
     project_title: 'Ordonnance — ' + patient + ' — ' + date,
     status: 'sent',
     line_items: meds.map(function(m, idx) {
-      return { position: idx+1, description: m.name.trim(), quantity: 1, unit_price: 0, posologie: m.posologie.trim() };
+      var li = { position: idx+1, description: m.name.trim(), quantity: 1, unit_price: 0, posologie: m.posologie.trim() };
+      if (m.drug) { li.drug_id = m.drug.drug_id; li.dci = m.drug.dci; li.dci_code = m.drug.dci_code; li.form = m.drug.form; li.dosage = m.drug.dosage; li.list = m.drug.list; li.pharmacy = m.drug.pharmacy; li.hospital = m.drug.hospital; }
+      return li;
     }),
     description: instructions || null,
   };
@@ -1092,7 +1105,7 @@ function showPrintOverlay(patientName, date, meds, instructions) {
   var medsRows = meds.map(function(m, i) {
     return '<tr>'
       +'<td>'+(i+1)+'</td>'
-      +'<td><div class="ordo-med-name">'+esc(m.name)+'</div><div class="ordo-med-pos">'+esc(m.posologie)+'</div></td>'
+      +'<td><div class="ordo-med-name">'+esc(m.name)+'</div>'+(m.drug&&m.drug.dci?'<div class="ordo-med-pos">DCI : '+esc(m.drug.dci.charAt(0)+m.drug.dci.slice(1).toLowerCase())+'</div>':'')+'<div class="ordo-med-pos">'+esc(m.posologie)+'</div></td>'
     +'</tr>';
   }).join('');
 
