@@ -4,6 +4,7 @@
 //   patient_welcome      : un patient renseigne son email dans son espace
 //   kyc_status, payment_request, payment_recorded, extension_approved, account_status : médecins
 //   appointment_reminders (veille du RDV), trial_reminders (J-3 et dernier jour) : appelés par pg_cron
+//   email_test           : test de réception vers les boîtes @docline.health uniquement
 // Appel interne uniquement : l'en-tête x-notify-secret doit correspondre au
 // secret stocké dans le coffre Supabase (vault, nom « notify_secret »).
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -73,6 +74,35 @@ serve(async (req) => {
   }
   const hello = (d: any) => d?.is_clinic && d?.clinic_name ? d.clinic_name : (d?.last_name ? "Dr " + d.last_name : doctorName(d));
   const BILLING_REPLY = "facturation@docline.health";
+
+  // ── Test de réception : uniquement vers les boîtes @docline.health ──
+  if (event === "email_test") {
+    const BOXES: Record<string, string> = {
+      "contact@docline.health": "Adresse générale : réponses aux emails automatiques et messages des visiteurs.",
+      "support@docline.health": "Aide aux médecins : questions sur le cabinet, l'agenda et les ordonnances.",
+      "facturation@docline.health": "Paiements, reçus et factures : les médecins y répondent depuis leurs emails de paiement.",
+      "privacy@docline.health": "Données personnelles : demandes d'accès, de rectification ou de suppression (loi 18-07).",
+      "legal@docline.health": "Questions juridiques et contrats.",
+      "samy@docline.health": "Adresse personnelle du fondateur.",
+    };
+    const run = new Date().toISOString();
+    const out: Record<string, string> = {};
+    for (const to of (Array.isArray(body.to) ? body.to : Object.keys(BOXES))) {
+      if (!BOXES[to]) { out[to] = "refusé"; continue; }
+      const replyTo = to === "facturation@docline.health" ? "facturation@docline.health" : undefined;
+      out[to] = await deliver("email_test", `test:${to}:${run}`, to, "Équipe Docline", "Test de réception : " + to,
+        layout({ eyebrow: "Test", preheader: "Cette boîte reçoit bien les emails Docline.", title: "Cette boîte fonctionne",
+          body: pill("Email de test", "info")
+            + para(`Cet email confirme que ${to} reçoit bien les envois de Docline.
+
+${BOXES[to]}`)
+            + apptCard(new Date(Date.now() + 86400000).toISOString().slice(0, 10), "10:30", "Exemple de rendez-vous", "Aperçu d'une carte de rendez-vous, telle que la reçoivent les patients")
+            + amount("4 900 DA", "Exemple de montant, tel qu'il apparaît sur un reçu")
+            + button("Ouvrir Docline", APP_URL),
+          reason: "Vous recevez cet email car un test de réception a été lancé depuis Docline." }), replyTo);
+    }
+    return json({ result: out });
+  }
 
   if (event === "kyc_status") {
     const d = await doctor(body.doctor_id);

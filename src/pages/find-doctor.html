@@ -1919,16 +1919,7 @@ var AVATAR_GRADIENTS = [
 function avatarGrad(name){var h=0;for(var i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+(h<<5)-h;return AVATAR_GRADIENTS[Math.abs(h)%AVATAR_GRADIENTS.length];}
 function initials(name){return(name||'?').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');}
 
-/* Deterministic star rating 4.1 – 5.0 */
-function starRating(name){var h=0;for(var i=0;i<(name||'').length;i++)h=name.charCodeAt(i)+(h<<5)-h;return(4.1+(Math.abs(h)%10)*.089).toFixed(1);}
-function renderStars(rating){
-  var r=parseFloat(rating),html='<div class="stars">';
-  for(var i=1;i<=5;i++){
-    if(i<=Math.floor(r))html+='<span class="star on">&#9733;</span>';
-    else if(i===Math.ceil(r)&&r%1>=.4)html+='<span class="star half">&#9733;</span>';
-    else html+='<span class="star">&#9733;</span>';
-  }
-  return html+'</div>';}
+
 
 /* ── Load doctors ────────────────────────────────────────── */
 (async function(){
@@ -2302,7 +2293,6 @@ function renderCards(docs){
     var name   = (d.is_clinic && d.clinic_name) ? d.clinic_name : (d.full_name||'Médecin');
     var grad   = avatarGrad(name);
     var inits  = initials(name);
-    var rating = starRating(name);
     var price  = d.consultation_price?new Intl.NumberFormat('fr-DZ').format(d.consultation_price)+' DA':'Sur demande';
     var langs  = (d.languages||['Arabe']).map(function(l){return '<span class="lang-tag">'+l+'</span>';}).join('');
 
@@ -2328,8 +2318,6 @@ function renderCards(docs){
         +'<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([d.address,d.city,d.wilaya,'Algérie'].filter(Boolean).join(', '))+'" target="_blank" rel="noopener" title="Voir sur Google Maps" style="display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:600;color:var(--brand);text-decoration:none;border:1px solid rgba(59,23,114,.2);border-radius:6px;padding:3px 8px;transition:all .15s;flex-shrink:0" onmouseover="this.style.background=\'rgba(59,23,114,.06)\'" onmouseout="this.style.background=\'\'"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Maps</a>'
         +'</div>':'')
       +'</div></div></div>'
-      // Stars
-      +'<div class="stars-row">'+renderStars(rating)+'<span class="rating-num">'+rating+'</span><span class="rating-count">(vérifié)</span></div>'
       // Bio
       +(d.bio?'<div class="card-bio">'+d.bio.substring(0,110)+(d.bio.length>110?'…':'')+'</div>':'')
       // Divider + bottom
