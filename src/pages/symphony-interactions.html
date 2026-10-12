@@ -215,6 +215,7 @@ body.ro [data-validate]{display:none!important}
             <button type="button" data-f="all">Toutes</button>
           </div>
           <input id="mol-q" type="search" placeholder="Rechercher une molécule (ex. amoxicilline)" aria-label="Rechercher une molécule">
+          <button class="pv-btn" type="button" id="btn-exact" data-validate hidden></button>
         </div>
         <div class="pv-list" id="mol-list"></div>
       </section>
@@ -461,6 +462,7 @@ async function loadMol(reset){
   catch(e){ $('mol-list').innerHTML = '<div class="empty">' + esc(errText(e)) + '</div>'; return; }
   mol.rows = mol.rows.concat(data.rows || []); mol.total = data.total; mol.off = mol.rows.length;
   renderMol();
+  if (reset && ME.validate) loadExact();
 }
 function renderMol(){
   var el = $('mol-list');
@@ -499,6 +501,22 @@ $('mol-list').addEventListener('click', async function(e){
   var a = e.target.closest('[data-attach]');
   if (a) openMap(mol.rows[+a.dataset.attach]);
 });
+
+/* Validation groupée des correspondances exactes (même nom des deux côtés) */
+async function loadExact(){
+  var n = 0; try { n = await rpc('pv_exact_pending'); } catch(e){}
+  var b = $('btn-exact');
+  b.hidden = !n;
+  b.textContent = 'Valider les ' + n + ' correspondances exactes';
+  b._n = n;
+}
+$('btn-exact').onclick = async function(){
+  if (!confirm('Valider les ' + this._n + ' rattachements dont le nom est identique dans la nomenclature et dans le référentiel ? Chaque validation sera enregistrée à votre nom.')) return;
+  this.disabled = true;
+  try { var n = await rpc('pv_validate_exact_mappings'); toast(n + ' rattachements validés.'); loadMol(true); loadOverview(); }
+  catch(e){ toast(errText(e), true); }
+  this.disabled = false;
+};
 
 /* Sélecteur de substance réutilisable */
 function picker(inputId, listId, onPick, opts){
@@ -572,7 +590,8 @@ async function loadInt(reset){
     return '<div class="it"><div>' +
       '<div class="it-pair">' + esc(r.a_label) + (r.a_kind === 'class' ? ' <span class="kind">classe</span>' : '') + ' <span class="it-plus">+</span> ' +
         esc(r.b_label) + (r.b_kind === 'class' ? ' <span class="kind">classe</span>' : '') +
-        ' <span class="lv lv-' + r.level + '">' + LEVELS[r.level] + '</span> <span class="st st-' + r.status + '">' + STATUS[r.status] + '</span></div>' +
+        ' <span class="lv lv-' + r.level + '">' + LEVELS[r.level] + '</span>' +
+        (r.level_label && /\s-\s/.test(r.level_label) ? ' <span class="st" title="Libellé d’origine : plusieurs niveaux selon la situation, détaillés dans la conduite à tenir">' + esc(r.level_label) + '</span>' : '') + ' <span class="st st-' + r.status + '">' + STATUS[r.status] + '</span></div>' +
       (r.mechanism ? '<div class="it-txt"><b>Risque.</b> ' + esc(r.mechanism) + '</div>' : '') +
       (r.conduct ? '<div class="it-txt"><b>Conduite à tenir.</b> ' + esc(r.conduct) + '</div>' : '') +
       '<div class="it-foot">' + esc(r.source) + (r.source_version ? ', ' + esc(r.source_version) : '') +
@@ -736,14 +755,14 @@ $('src-save').onclick = async function(){
 };
 
 /* ── Journal ── */
-var LOG_LABELS = { mapping:'Rattachement', auto_map:'Propositions automatiques', interaction:'Revue d’interaction', interaction_saved:'Interaction enregistrée',
+var LOG_LABELS = { mapping:'Rattachement', mapping_bulk_exact:'Correspondances exactes validées', auto_map:'Propositions automatiques', interaction:'Revue d’interaction', interaction_saved:'Interaction enregistrée',
   substance:'Substance ou classe', class_member:'Membre de classe', source_reuse:'Droit de réutilisation', source_added:'Source ajoutée', live:'Mise en service' };
 async function loadLog(){
   var r = await sb.from('interaction_review_log').select('created_at, actor_email, action, target, detail').order('created_at', { ascending: false }).limit(100);
   if (r.error) { $('log-list').innerHTML = '<div class="empty">' + esc(errText(r.error)) + '</div>'; return; }
   $('log-list').innerHTML = (r.data || []).length ? r.data.map(function(l){
     var d = l.detail || {};
-    var what = d.status ? (STATUS[d.status] || REUSE[d.status] || d.status) : d.live != null ? (d.live ? 'activée' : 'suspendue') : d.label || '';
+    var what = d.status ? (STATUS[d.status] || REUSE[d.status] || d.status) : d.live != null ? (d.live ? 'activée' : 'suspendue') : d.validated != null ? d.validated + ' rattachements' : d.label || '';
     return '<div class="log"><time>' + fmtDate(l.created_at) + '</time><div><b>' + esc(LOG_LABELS[l.action] || l.action) + '</b>' +
       (l.target ? ' · ' + esc(l.target) : '') + (what ? ' · ' + esc(what) : '') + '<div class="row-meta">' + esc(l.actor_email || '') + '</div></div></div>';
   }).join('') : '<div class="empty"><strong>Aucune action enregistrée</strong>Chaque décision de validation sera tracée ici.</div>';
