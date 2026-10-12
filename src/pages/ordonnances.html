@@ -7,8 +7,9 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js?v=4"></script>
 <script src="shell.js?v=15"></script>
-<link rel="stylesheet" href="drug-picker.css?v=1">
+<link rel="stylesheet" href="drug-picker.css?v=2">
 <script src="drug-picker.js?v=1"></script>
+<script src="rx-check.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 /* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
@@ -742,6 +743,7 @@
           <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Ajouter un médicament
         </button>
+        <div id="rx-alerts"></div>
       </div>
 
       <div class="modal-section" style="margin-bottom:0">
@@ -840,6 +842,13 @@
 
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+// Vérification des interactions et doublons pendant la rédaction
+var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa, getDrugs: function() {
+  return Array.prototype.map.call(document.querySelectorAll('#meds-builder .med-row'), function(r) {
+    var d = r._dp && r._dp.get();
+    return d ? { drug_id: d.drug_id, label: [d.brand, d.dosage].filter(Boolean).join(' ') || r.querySelector('input').value } : null;
+  });
+}});
 var _uid = null, _isPro = false, _ords = [], _patients = [], _editId = null, _selPatientId = null;
 var _activeFilter = 'all', _searchQ = '';
 
@@ -1182,8 +1191,10 @@ function openModal(id) {
   document.getElementById('f-nss').value       = meta.nss || '';
   document.getElementById('f-assurance').value = meta.assurance || '';
   document.getElementById('f-secure').checked  = !!meta.secure;
+  _rx.reset(meta.alerts_ack);
   if (meds.length) { meds.forEach(function(m){ addMedRow(m.name||m.description||'', m.quantity||m.posologie||'', m.boites||1, m.drug_id ? m : null); }); }
   else { addMedRow(); }
+  _rx.refresh();
   document.getElementById('btn-save').disabled = false;
   document.getElementById('btn-save').textContent = 'Enregistrer';
   document.getElementById('modal-overlay').classList.add('open');
@@ -1356,7 +1367,7 @@ function addMedRow(name, posologie, boites, link) {
   delBtn.className = 'btn-del-med';
   delBtn.title = 'Supprimer';
   delBtn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-  delBtn.onclick = function(){ row.remove(); };
+  delBtn.onclick = function(){ row.remove(); _rx.refresh(); };
 
   row.appendChild(acWrap);
   row.appendChild(posInp);
@@ -1368,6 +1379,7 @@ function addMedRow(name, posologie, boites, link) {
   row._dp = DrugPicker.attach(medInp, {
     supa: _supa, value: link, fallback: MEDS_DCI,
     onChange: function(d) {
+      _rx.refresh();
       if (d && d.list === 'STUPEFIANT') {
         var sec = document.getElementById('f-secure');
         if (sec && !sec.checked) { sec.checked = true; sec.dispatchEvent(new Event('change')); toast('Stupéfiant : ordonnance sécurisée activée.'); }
@@ -1423,6 +1435,14 @@ async function saveOrd() {
     }
   }
 
+  // Alertes importantes : le médecin confirme chacune avant d'enregistrer
+  await _rx.settle();
+  if (_rx.blocking()) {
+    toast('Confirmez les alertes importantes avant d\'enregistrer, ou modifiez l\'ordonnance.', 'error');
+    _rx.focus();
+    return;
+  }
+
   btn.disabled = true; btn.textContent = 'Enregistrement…';
   var meds = getMeds();
 
@@ -1431,7 +1451,7 @@ async function saveOrd() {
   var assuranceVal = document.getElementById('f-assurance').value;
   var secureVal    = document.getElementById('f-secure').checked;
   var lineItems = [
-    { _meta:true, nss:nssVal, assurance:assuranceVal, secure:secureVal }
+    { _meta:true, nss:nssVal, assurance:assuranceVal, secure:secureVal, alerts_ack:_rx.acks() }
   ].concat(meds);
 
   var payload = {

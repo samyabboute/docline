@@ -27,3 +27,30 @@
 .dp-empty{font-size:12.5px;color:#77718C;padding:12px 10px;line-height:1.45}
 @media (prefers-reduced-motion:reduce){.dp-drop{animation:none}}
 @media (max-width:600px){.dp-drop{width:100%}}
+
+/* Docline · vérification de l'ordonnance (rx-check.js) */
+.rx{margin-top:14px;border-radius:16px;background:#FCFBFF;border:1px solid rgba(76,29,149,.12);padding:14px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .2s}
+.rx[hidden]{display:none}
+.rx.rx-need{box-shadow:0 0 0 3px rgba(180,35,24,.18)}
+.rx-head{display:flex;align-items:center;gap:10px}
+.rx-ic{width:30px;height:30px;border-radius:10px;background:#EFEBFF;display:flex;align-items:center;justify-content:center;flex:none}
+.rx-ic svg{width:16px;height:16px;fill:none;stroke:#4C1D95;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rx-ic.sev{background:#FEECEC}.rx-ic.sev svg{stroke:#B42318}
+.rx-title{font-size:13.5px;font-weight:700;color:#0D0520}
+.rx-sum{font-size:12px;color:#77718C}
+.rx-item{background:#fff;border:1px solid rgba(13,5,32,.07);border-radius:12px;padding:12px 14px}
+.rx-item.rx-ci{background:#FFFBFA;border-color:rgba(217,45,32,.18)}
+.rx-item.rx-ad{background:#FFFCF8;border-color:rgba(247,144,9,.2)}
+.rx-l1{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:5px}
+.rx-lv{font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:#EFEBFF;color:#4C1D95}
+.rx-ci .rx-lv{background:#FEECEC;color:#B42318}
+.rx-ad .rx-lv{background:#FFF1E6;color:#B54708}
+.rx-dup .rx-lv{background:#EFF8FF;color:#175CD3}
+.rx-pe .rx-lv{background:#FFF8DB;color:#8A6100}
+.rx-draft{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:#FFFAEB;color:#B54708}
+.rx-what{font-size:13px;color:#0D0520;line-height:1.5}
+.rx-sub{color:#77718C;font-size:12px}
+.rx-txt{font-size:12.5px;color:#2D1B69;line-height:1.55;margin-top:4px}
+.rx-src{font-size:11px;color:#8A82A3;margin-top:6px}
+.rx-ack{display:flex;align-items:center;gap:8px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(13,5,32,.06);font-size:12.5px;font-weight:600;color:#2D1B69;cursor:pointer}
+.rx-ack input{width:16px;height:16px;accent-color:#4C1D95;flex:none}

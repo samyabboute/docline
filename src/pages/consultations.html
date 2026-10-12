@@ -7,8 +7,9 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js?v=4"></script>
 <script src="shell.js?v=15"></script>
-<link rel="stylesheet" href="drug-picker.css?v=1">
+<link rel="stylesheet" href="drug-picker.css?v=2">
 <script src="drug-picker.js?v=1"></script>
+<script src="rx-check.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 /* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
@@ -406,6 +407,7 @@
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Ajouter un médicament
         </button>
+        <div id="rx-alerts"></div>
         <div class="form-row full" style="margin-top:12px">
           <div class="form-group">
             <label class="form-label">Instructions au patient</label>
@@ -549,6 +551,10 @@
 
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+// Vérification des interactions et doublons pendant la rédaction
+var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa, getDrugs: function() {
+  return _meds.map(function(m) { return m.drug ? { drug_id: m.drug.drug_id, label: [m.drug.brand, m.drug.dosage].filter(Boolean).join(' ') || m.name } : null; });
+}});
 var _uid = null, _consults = [], _patients = [], _editId = null;
 var _meds = [];       // [{name, posologie}]
 var _drProfile = {};  // doctor info loaded from profile
@@ -822,6 +828,7 @@ function openModal(id) {
   document.getElementById('f-followup-notes').value = c ? (c.follow_up_notes||'') : '';
   // Reset ordonnance builder
   _meds = [];
+  _rx.reset();
   document.getElementById('f-instructions').value = '';
   renderMedRows();
   toggleChronicField();
@@ -972,8 +979,10 @@ function renderMedRows() {
       if (!_meds[i]) return;
       _meds[i].name = inp.value;
       _meds[i].drug = d;
+      _rx.refresh();
     }});
   });
+  _rx.refresh();
 }
 
 function syncMed(i, field, val) {
@@ -998,6 +1007,14 @@ async function saveAndPrintOrd() {
 
   var meds = getMedsFromDOM();
   if (!meds.length) { toast('Ajoutez au moins un médicament.','error'); return; }
+  // Alertes importantes : le médecin confirme chacune avant d'enregistrer
+  await _rx.settle();
+  if (_rx.blocking()) {
+    toast('Confirmez les alertes importantes avant d\'enregistrer, ou modifiez l\'ordonnance.', 'error');
+    _rx.focus();
+    return;
+  }
+  var rxAcks = _rx.acks();
 
   var btn = document.getElementById('btn-ord');
   btn.disabled = true;
@@ -1053,11 +1070,11 @@ async function saveAndPrintOrd() {
     project_type: 'ordonnance',
     project_title: 'Ordonnance — ' + patient + ' — ' + date,
     status: 'sent',
-    line_items: meds.map(function(m, idx) {
+    line_items: (rxAcks.length ? [{ _meta: true, alerts_ack: rxAcks }] : []).concat(meds.map(function(m, idx) {
       var li = { position: idx+1, description: m.name.trim(), quantity: 1, unit_price: 0, posologie: m.posologie.trim() };
       if (m.drug) { li.drug_id = m.drug.drug_id; li.dci = m.drug.dci; li.dci_code = m.drug.dci_code; li.form = m.drug.form; li.dosage = m.drug.dosage; li.list = m.drug.list; li.pharmacy = m.drug.pharmacy; li.hospital = m.drug.hospital; }
       return li;
-    }),
+    })),
     description: instructions || null,
   };
   await _supa.from('proposals').insert(ordPayload);
