@@ -166,8 +166,8 @@ body.ro [data-validate]{display:none!important}
 <script src="loader.js?v=2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="symphony-chrome.css?v=2">
-<link rel="stylesheet" href="drug-picker.css?v=2">
-<script src="drug-picker.js?v=1"></script>
+<link rel="stylesheet" href="drug-picker.css?v=3">
+<script src="drug-picker.js?v=2"></script>
 </head>
 <body class="sx">
 <div class="sx-app">
@@ -199,6 +199,7 @@ body.ro [data-validate]{display:none!important}
       <div class="pv-tabs" role="tablist">
         <button class="pv-tab on" type="button" data-tab="mol" role="tab">Molécules</button>
         <button class="pv-tab" type="button" data-tab="int" role="tab">Interactions</button>
+        <button class="pv-tab" type="button" data-tab="cond" role="tab">Situations du patient</button>
         <button class="pv-tab" type="button" data-tab="ref" role="tab">Substances et classes</button>
         <button class="pv-tab" type="button" data-tab="trial" role="tab">Essai d’ordonnance</button>
         <button class="pv-tab" type="button" data-tab="src" role="tab">Sources</button>
@@ -240,6 +241,20 @@ body.ro [data-validate]{display:none!important}
           <button class="pv-btn primary" type="button" id="btn-new-int" data-validate>Nouvelle interaction</button>
         </div>
         <div class="pv-list" id="int-list"></div>
+      </section>
+
+      <!-- Situations du patient -->
+      <section data-panel="cond" hidden>
+        <div class="pv-tools">
+          <div class="seg" id="cond-filter">
+            <button type="button" class="on" data-f="draft">À valider</button>
+            <button type="button" data-f="validated">Validées</button>
+            <button type="button" data-f="">Toutes</button>
+          </div>
+          <button class="pv-btn primary" type="button" id="btn-new-cond" data-validate>Nouvelle règle</button>
+        </div>
+        <div class="pv-list" id="cond-list"></div>
+        <p class="note" style="margin-top:12px">Une règle relie une substance ou une classe à une situation du patient : grossesse, allaitement, insuffisance rénale ou hépatique, enfant de moins de 15 ans, sujet de 75 ans et plus. Le médecin renseigne la situation dans le contexte du patient ; l’âge vient de la date de naissance. Les allergies n’ont pas besoin de règle : elles sont notées par le médecin dans le dossier.</p>
       </section>
 
       <!-- Référentiel -->
@@ -329,6 +344,40 @@ body.ro [data-validate]{display:none!important}
   </div>
 </div>
 
+<!-- Fenêtre : nouvelle règle de situation -->
+<div class="md-wrap" id="md-cond" role="dialog" aria-modal="true" aria-labelledby="md-cond-t">
+  <div class="md">
+    <div class="md-h"><div class="md-t" id="md-cond-t">Nouvelle règle de situation</div><div class="md-s">Enregistrée en brouillon. Elle ne sert aux médecins qu’après validation.</div></div>
+    <div class="md-b">
+      <div class="fld pick"><label for="c-q">Substance ou classe</label><input id="c-q" type="search" autocomplete="off" placeholder="Ex. anti-inflammatoires non stéroïdiens"><div class="pick-list" id="c-list" hidden></div><div class="chosen" id="c-chosen" hidden></div></div>
+      <div class="fld"><label for="c-cond">Situation du patient</label>
+        <select id="c-cond">
+          <option value="grossesse">Grossesse</option>
+          <option value="allaitement">Allaitement</option>
+          <option value="insuffisance_renale_moderee">Insuffisance rénale modérée (et sévère)</option>
+          <option value="insuffisance_renale_severe">Insuffisance rénale sévère</option>
+          <option value="insuffisance_hepatique">Insuffisance hépatique</option>
+          <option value="enfant">Enfant de moins de 15 ans</option>
+          <option value="sujet_age">Sujet de 75 ans et plus</option>
+        </select>
+      </div>
+      <div class="fld">
+        <span class="lbl">Niveau</span>
+        <div class="levels">
+          <label><input type="radio" name="clvl" value="contre_indication"> <span class="lv lv-contre_indication">Contre-indication</span></label>
+          <label><input type="radio" name="clvl" value="association_deconseillee"> <span class="lv lv-association_deconseillee">Déconseillé</span></label>
+          <label><input type="radio" name="clvl" value="precaution_emploi"> <span class="lv lv-precaution_emploi">Précaution d’emploi</span></label>
+          <label><input type="radio" name="clvl" value="a_prendre_en_compte"> <span class="lv lv-a_prendre_en_compte">À prendre en compte</span></label>
+        </div>
+      </div>
+      <div class="fld"><label for="c-msg">Message affiché au médecin</label><textarea id="c-msg" maxlength="600" placeholder="Ex. Contre-indiqué à partir du 6e mois de grossesse."></textarea></div>
+      <div class="fld"><label for="c-cond-txt">Conduite à tenir</label><textarea id="c-cond-txt" maxlength="600" placeholder="Ex. Préférer le paracétamol."></textarea></div>
+      <div class="fld"><label for="c-src">Source</label><select id="c-src"></select></div>
+    </div>
+    <div class="md-f"><button class="pv-btn" type="button" data-close>Annuler</button><button class="pv-btn primary" type="button" id="c-save">Enregistrer en brouillon</button></div>
+  </div>
+</div>
+
 <!-- Fenêtre : nouvelle substance ou classe -->
 <div class="md-wrap" id="md-sub" role="dialog" aria-modal="true" aria-labelledby="md-sub-t">
   <div class="md">
@@ -382,7 +431,7 @@ var OV = null;
 var LEVELS = { contre_indication:'Contre-indication', association_deconseillee:'Association déconseillée', precaution_emploi:'Précaution d’emploi', a_prendre_en_compte:'À prendre en compte', doublon:'Doublon' };
 var STATUS = { validated:'Validée', draft:'À valider', rejected:'Écartée', proposed:'Proposé' };
 var REUSE = { confirmed:'Droit confirmé', refused:'Droit refusé', pending:'Droit en attente' };
-var ERRORS = { FORBIDDEN:'Action réservée au pharmacien validateur.', NOT_READY:'Mise en service impossible : il faut une source au droit de réutilisation confirmé et au moins une interaction validée.',
+var ERRORS = { MESSAGE_REQUIRED:'Écrivez le message affiché au médecin.', FORBIDDEN:'Action réservée au pharmacien validateur.', NOT_READY:'Mise en service impossible : il faut une source au droit de réutilisation confirmé et au moins une interaction validée.',
   TWO_SUBSTANCES_REQUIRED:'Choisissez deux substances différentes.', BAD_LEVEL:'Choisissez un niveau.', SOURCE_REQUIRED:'Choisissez une source.', LABEL_REQUIRED:'Indiquez un nom.' };
 
 function $(id){ return document.getElementById(id); }
@@ -441,6 +490,7 @@ function openTab(k){
   if (k === 'mol') loadMol(true);
   if (k === 'int') loadInt(true);
   if (k === 'ref') loadRef();
+  if (k === 'cond') loadCond();
   if (k === 'trial' && !loaded.trial) { loaded.trial = true; addTrialLine(); addTrialLine(); }
   if (k === 'src') loadSrc();
   if (k === 'log') loadLog();
@@ -642,6 +692,58 @@ $('i-save').onclick = async function(){
   b.disabled = false;
 };
 
+/* ── Situations du patient ── */
+var CONDS = { grossesse:'Grossesse', allaitement:'Allaitement', insuffisance_renale_moderee:'Insuffisance rénale modérée', insuffisance_renale_severe:'Insuffisance rénale sévère',
+  insuffisance_hepatique:'Insuffisance hépatique', enfant:'Enfant de moins de 15 ans', sujet_age:'Sujet de 75 ans et plus' };
+var cond = { f:'draft', rows:[] };
+seg('cond-filter', function(b){ cond.f = b.dataset.f; loadCond(); });
+async function loadCond(){
+  try { cond.rows = await rpc('pv_condition_rules', { p_status: cond.f || null }); }
+  catch(e){ $('cond-list').innerHTML = '<div class="empty">' + esc(errText(e)) + '</div>'; return; }
+  if (!cond.rows.length) {
+    $('cond-list').innerHTML = '<div class="empty"><strong>' + (cond.f === 'draft' ? 'Aucune règle à valider' : 'Aucune règle') + '</strong>' +
+      (ME.validate ? 'Ajoutez une règle avec le bouton « Nouvelle règle ».' : '') + '</div>';
+    return;
+  }
+  $('cond-list').innerHTML = cond.rows.map(function(r, i){
+    var act = !ME.validate ? '' :
+      (r.status !== 'validated' ? '<button class="pv-btn ok" type="button" data-cond="' + i + '" data-st="validated">Valider</button>' : '') +
+      (r.status !== 'rejected' ? '<button class="pv-btn bad" type="button" data-cond="' + i + '" data-st="rejected">Écarter</button>' : '') +
+      (r.status !== 'draft' ? '<button class="pv-btn" type="button" data-cond="' + i + '" data-st="draft">Remettre à valider</button>' : '');
+    return '<div class="it"><div>' +
+      '<div class="it-pair">' + esc(r.substance) + (r.kind === 'class' ? ' <span class="kind">classe</span>' : '') + ' <span class="it-plus">×</span> ' + esc(CONDS[r.condition] || r.condition) +
+        ' <span class="lv lv-' + r.level + '">' + LEVELS[r.level] + '</span> <span class="st st-' + r.status + '">' + STATUS[r.status] + '</span></div>' +
+      '<div class="it-txt">' + esc(r.message) + '</div>' +
+      (r.conduct ? '<div class="it-txt"><b>Conduite à tenir.</b> ' + esc(r.conduct) + '</div>' : '') +
+      '<div class="it-foot">' + esc(r.source) + (r.source_version ? ', ' + esc(r.source_version) : '') + (r.reviewer ? ' · revue par ' + esc(r.reviewer) + ' le ' + fmtDate(r.reviewed_at) : '') + '</div>' +
+      '</div><div class="it-act">' + act + '</div></div>';
+  }).join('');
+}
+$('cond-list').addEventListener('click', async function(e){
+  var b = e.target.closest('[data-cond]'); if (!b) return;
+  b.disabled = true;
+  try { await rpc('pv_review_condition_rule', { p_id: cond.rows[+b.dataset.cond].id, p_status: b.dataset.st }); toast('Règle mise à jour.'); loadCond(); }
+  catch(err){ toast(errText(err), true); b.disabled = false; }
+});
+var pickC = null;
+picker('c-q', 'c-list', function(s){ pickC = s; $('c-q').value = ''; showChosen('c-chosen', s, function(){ pickC = null; showChosen('c-chosen', null); }); }, { allowCreate: true });
+$('btn-new-cond').onclick = function(){
+  pickC = null; showChosen('c-chosen', null);
+  $('c-q').value = $('c-msg').value = $('c-cond-txt').value = '';
+  document.querySelectorAll('input[name=clvl]').forEach(function(x){ x.checked = false; });
+  fillSources('c-src'); openModal('md-cond'); $('c-q').focus();
+};
+$('c-save').onclick = async function(){
+  var lvl = (document.querySelector('input[name=clvl]:checked') || {}).value;
+  if (!pickC) { toast('Choisissez une substance ou une classe.', true); return; }
+  if (!lvl) { toast(ERRORS.BAD_LEVEL, true); return; }
+  var b = this; b.disabled = true;
+  try { await rpc('pv_add_condition_rule', { p_substance: pickC.id, p_condition: $('c-cond').value, p_level: lvl, p_message: $('c-msg').value, p_conduct: $('c-cond-txt').value, p_source_id: +$('c-src').value || null });
+    toast('Règle enregistrée, à valider.'); closeModal(); if (!$('cond-list').closest('[data-panel]').hidden) loadCond(); }
+  catch(e){ toast(errText(e), true); }
+  b.disabled = false;
+};
+
 /* ── Substances et classes ── */
 $('ref-q').addEventListener('input', debounce(loadRef, 220));
 var refRows = [];
@@ -756,7 +858,7 @@ $('src-save').onclick = async function(){
 
 /* ── Journal ── */
 var LOG_LABELS = { mapping:'Rattachement', mapping_bulk_exact:'Correspondances exactes validées', auto_map:'Propositions automatiques', interaction:'Revue d’interaction', interaction_saved:'Interaction enregistrée',
-  substance:'Substance ou classe', class_member:'Membre de classe', source_reuse:'Droit de réutilisation', source_added:'Source ajoutée', live:'Mise en service' };
+  substance:'Substance ou classe', class_member:'Membre de classe', condition_rule_saved:'Règle de situation enregistrée', condition_rule:'Revue de règle de situation', source_reuse:'Droit de réutilisation', source_added:'Source ajoutée', live:'Mise en service' };
 async function loadLog(){
   var r = await sb.from('interaction_review_log').select('created_at, actor_email, action, target, detail').order('created_at', { ascending: false }).limit(100);
   if (r.error) { $('log-list').innerHTML = '<div class="empty">' + esc(errText(r.error)) + '</div>'; return; }

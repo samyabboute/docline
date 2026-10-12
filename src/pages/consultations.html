@@ -7,9 +7,10 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js?v=4"></script>
 <script src="shell.js?v=15"></script>
-<link rel="stylesheet" href="drug-picker.css?v=2">
-<script src="drug-picker.js?v=1"></script>
-<script src="rx-check.js?v=1"></script>
+<link rel="stylesheet" href="drug-picker.css?v=3">
+<script src="drug-picker.js?v=2"></script>
+<script src="rx-check.js?v=2"></script>
+<script src="patient-context.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 /* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
@@ -397,6 +398,7 @@
           <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
           Ordonnance
         </div>
+        <div id="pc-box"></div>
         <div class="med-header">
           <span>Médicament / DCI</span>
           <span>Posologie</span>
@@ -551,10 +553,27 @@
 
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
-// Vérification des interactions et doublons pendant la rédaction
-var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa, getDrugs: function() {
-  return _meds.map(function(m) { return m.drug ? { drug_id: m.drug.drug_id, label: [m.drug.brand, m.drug.dosage].filter(Boolean).join(' ') || m.name } : null; });
-}});
+// Contexte du patient (allergies, grossesse, rein, foie) et vérification pendant la rédaction
+var _pcVer = 0;
+var _pc = PatientContext.mount(document.getElementById('pc-box'), { supa: _supa, onChange: function() { _pcVer++; if (window._rx) _rx.refresh(); } });
+var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa,
+  getDrugs: function() {
+    return _meds.map(function(m) { return m.drug ? { drug_id: m.drug.drug_id, label: [m.drug.brand, m.drug.dosage].filter(Boolean).join(' ') || m.name } : null; });
+  },
+  getClient: function() { return _pc.clientId(); },
+  contextVersion: function() { return String(_pcVer); },
+  // Alternative choisie : la ligne garde sa posologie, seul le médicament change
+  replace: function(oldId, d) {
+    _meds.forEach(function(m) {
+      if (m.drug && m.drug.drug_id === oldId) {
+        m.name = DrugPicker.label(d);
+        m.drug = { drug_id: d.id, brand: d.brand, dci: d.dci, dci_code: d.dci_code, form: d.form, dosage: d.dosage, list: d.list, pharmacy: d.pharmacy, hospital: d.hospital };
+      }
+    });
+    renderMedRows();
+    toast('Médicament remplacé. Vérifiez la posologie.');
+  }
+});
 var _uid = null, _consults = [], _patients = [], _editId = null;
 var _meds = [];       // [{name, posologie}]
 var _drProfile = {};  // doctor info loaded from profile
@@ -589,6 +608,7 @@ var _selectedClientId = null;
 
 function onPatientInput() {
   var q = document.getElementById('f-patient').value.trim();
+  if (_selectedClientId) _pc.load(null);
   _selectedClientId = null;
   var dd = document.getElementById('ac-dropdown');
   if (!q) { dd.classList.remove('open'); dd.innerHTML = ''; return; }
@@ -623,11 +643,13 @@ function selectPatient(name, clientId) {
     openNpModal(name, function(newP) {
       document.getElementById('f-patient').value = (newP.first_name+' '+newP.last_name).trim();
       _selectedClientId = newP.id;
+      _pc.load(_selectedClientId);
     });
     return;
   }
   document.getElementById('f-patient').value = name;
   _selectedClientId = clientId;
+  _pc.load(_selectedClientId);
 }
 
 // ── New patient modal ─────────────────────────────────────────
@@ -815,6 +837,7 @@ function openModal(id) {
   _editId = id || null;
   var c = id ? _consults.find(function(x){return x.id===id;}) : null;
   _selectedClientId = c ? (c.client_id || null) : null;
+  _pc.load(_selectedClientId);
   document.getElementById('modal-title').textContent = id ? 'Modifier la consultation' : 'Nouvelle consultation';
   document.getElementById('f-patient').value        = c ? c.patient_name : '';
   document.getElementById('f-date').value           = c ? c.consult_date : new Date().toISOString().slice(0,10);

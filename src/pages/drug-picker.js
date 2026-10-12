@@ -146,7 +146,11 @@
     document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) close(); });
 
     paintMeta();
-    return { get: function () { return linked; } };
+    return {
+      get: function () { return linked; },
+      // Remplacement depuis une alternative proposée : même rendu qu'un choix dans la liste
+      set: function (d) { inp.value = label(d); close(); setLinked(toLink(d)); }
+    };
   }
 
   window.DrugPicker = { attach: attach, label: label };

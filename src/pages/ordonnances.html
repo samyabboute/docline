@@ -7,9 +7,10 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js?v=4"></script>
 <script src="shell.js?v=15"></script>
-<link rel="stylesheet" href="drug-picker.css?v=2">
-<script src="drug-picker.js?v=1"></script>
-<script src="rx-check.js?v=1"></script>
+<link rel="stylesheet" href="drug-picker.css?v=3">
+<script src="drug-picker.js?v=2"></script>
+<script src="rx-check.js?v=2"></script>
+<script src="patient-context.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 /* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
@@ -732,6 +733,7 @@
 
       <div class="modal-section">
         <div class="modal-section-title">Médicaments prescrits</div>
+        <div id="pc-box"></div>
         <div class="med-header">
           <span>Médicament / DCI</span>
           <span>Posologie &amp; durée</span>
@@ -842,13 +844,27 @@
 
 <script>
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
-// Vérification des interactions et doublons pendant la rédaction
-var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa, getDrugs: function() {
-  return Array.prototype.map.call(document.querySelectorAll('#meds-builder .med-row'), function(r) {
-    var d = r._dp && r._dp.get();
-    return d ? { drug_id: d.drug_id, label: [d.brand, d.dosage].filter(Boolean).join(' ') || r.querySelector('input').value } : null;
-  });
-}});
+// Contexte du patient (allergies, grossesse, rein, foie) et vérification pendant la rédaction
+var _pcVer = 0;
+var _pc = PatientContext.mount(document.getElementById('pc-box'), { supa: _supa, onChange: function() { _pcVer++; if (window._rx) _rx.refresh(); } });
+var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa,
+  getDrugs: function() {
+    return Array.prototype.map.call(document.querySelectorAll('#meds-builder .med-row'), function(r) {
+      var d = r._dp && r._dp.get();
+      return d ? { drug_id: d.drug_id, label: [d.brand, d.dosage].filter(Boolean).join(' ') || r.querySelector('input').value } : null;
+    });
+  },
+  getClient: function() { return _pc.clientId(); },
+  contextVersion: function() { return String(_pcVer); },
+  // Alternative choisie : la ligne garde sa posologie, seul le médicament change
+  replace: function(oldId, drug) {
+    Array.prototype.forEach.call(document.querySelectorAll('#meds-builder .med-row'), function(r) {
+      var d = r._dp && r._dp.get();
+      if (d && d.drug_id === oldId) r._dp.set(drug);
+    });
+    toast('Médicament remplacé. Vérifiez la posologie.');
+  }
+});
 var _uid = null, _isPro = false, _ords = [], _patients = [], _editId = null, _selPatientId = null;
 var _activeFilter = 'all', _searchQ = '';
 
@@ -983,6 +999,7 @@ function initPatientAC() {
   function selectItem(id, name) {
     inp.value = name;
     _selPatientId = id || null;
+    _pc.load(_selPatientId);
     closeDrop();
     hideNewPatientBox();
   }
@@ -1024,6 +1041,7 @@ function initPatientAC() {
       openNpModal(prefill, function(newP) {
         inp.value = (newP.first_name+' '+newP.last_name).trim();
         _selPatientId = newP.id;
+        _pc.load(_selPatientId);
         // pre-fill NSS in ordonnance form from patient modal
         var nssM = document.getElementById('np-nss');
         if (nssM && nssM.value.trim()) document.getElementById('f-nss').value = nssM.value.trim();
@@ -1176,6 +1194,7 @@ function openModal(id) {
   document.getElementById('modal-title').textContent = id ? 'Modifier l\'ordonnance' : 'Nouvelle ordonnance';
   var o = id ? _ords.find(function(x){return x.id===id;}) : null;
   _selPatientId = o ? (o.client_id || null) : null;
+  _pc.load(_selPatientId);
   document.getElementById('f-patient').value      = o ? (o.client_name||'') : '';
   document.getElementById('f-date').value         = o && o.due_date ? o.due_date : new Date().toISOString().slice(0,10);
   document.getElementById('f-title').value        = o ? (o.project_title||'') : '';
