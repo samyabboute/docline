@@ -10,6 +10,7 @@
 <meta property="og:image" content="https://docline.health/og-default.png">
 <meta property="og:type" content="website">
 <link id="canonical" rel="canonical" href="">
+<meta id="og-url" property="og:url" content="">
 <meta name="theme-color" content="#F7F6FF">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -256,6 +257,7 @@ function setMeta(d, place) {
     address: { '@type': 'PostalAddress', streetAddress: d.address || undefined, addressLocality: d.city || undefined, addressRegion: d.wilaya || undefined, addressCountry: 'DZ' },
     medicalSpecialty: (d.services || []).map(function (s) { return s.name; }),
     openingHoursSpecification: (d.hours || []).map(function (h) { return { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][h.dow], opens: h.from, closes: h.to }; }) };
+  if (document.getElementById('ld-clinic')) return;   // déjà fourni par le serveur
   var s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
 }
 

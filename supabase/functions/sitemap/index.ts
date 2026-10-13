@@ -23,6 +23,9 @@ serve(async () => {
     .not("slug", "is", null)
     .order("updated_at", { ascending: false });
 
+  // Établissements publiés (page /clinique/<adresse>)
+  const { data: clinics } = await sb.rpc("clinics_directory");
+
   const today = new Date().toISOString().slice(0, 10);
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -53,6 +56,19 @@ serve(async () => {
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>\n`;
+  }
+
+  // Pages établissements
+  for (const c of (Array.isArray(clinics) ? clinics : [])) {
+    if (!c?.slug) continue;
+    const lastmod = c.updated_at ? new Date(c.updated_at).toISOString().slice(0, 10) : today;
+    xml += `  <url>
+    <loc>${SITE}/clinique/${c.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+`;
   }
 
   xml += `</urlset>`;

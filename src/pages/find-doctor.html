@@ -1057,6 +1057,24 @@ body{background:var(--ap-bg);color:var(--ap-ink);letter-spacing:-.005em}
 button.card-rdv-btn[onclick*="openModal"]{background:var(--ap-surface)!important;color:var(--ap-ink)!important;border:1px solid var(--ap-line2)!important;opacity:1!important}
 button.card-rdv-btn[onclick*="openModal"]:hover{border-color:var(--ap-ink)!important;background:var(--ap-surface)!important}
 .skel-card{border-radius:22px;border-color:var(--ap-line);box-shadow:none}
+/* ── Établissements dans l'annuaire ─────────────────────────── */
+.results-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kind-seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--ap-fill,#F4F2F8);border:1px solid var(--ap-line)}
+.kind-seg[hidden]{display:none}
+.kind-seg button{border:0;background:transparent;font:inherit;font-size:.78rem;font-weight:600;color:var(--ap-ink3);padding:6px 13px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s,box-shadow .2s}
+.kind-seg button:hover{color:var(--ap-ink)}
+.kind-seg button.on{background:var(--ap-surface);color:var(--ap-ink);box-shadow:0 1px 2px rgba(13,5,32,.08),0 0 0 1px var(--ap-line)}
+.kind-seg button:focus-visible{outline:2px solid var(--ap-accent);outline-offset:2px}
+.clinic-tag{display:inline-flex;align-items:center;font-size:.64rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ap-accent);background:var(--ap-accent-soft);border-radius:999px;padding:3px 8px;white-space:nowrap}
+.clinic-avatar{display:flex;align-items:center;justify-content:center;border-radius:18px!important;text-decoration:none;overflow:hidden}
+.clinic-avatar svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.clinic-avatar img{width:100%;height:100%;object-fit:cover}
+.doctor-card.is-clinic .card-rdv-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.clinic-link{display:inline-flex;align-items:center;gap:6px;max-width:100%;margin:-2px 0 8px;font-size:.76rem;font-weight:600;color:var(--ap-accent);text-decoration:none;padding:4px 9px 4px 7px;border-radius:999px;background:var(--ap-accent-soft);transition:background .2s}
+.clinic-link:hover{background:#E7E1F8}
+.clinic-link span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clinic-link svg{width:13px;height:13px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.clinic-link .cl-arrow{width:11px;height:11px;opacity:.7}
 .skel{background:linear-gradient(90deg,#F4F2F8 25%,#ECE9F3 50%,#F4F2F8 75%);background-size:600px 100%}
 .state-icon-wrap{background:var(--ap-fill)}
 .state-icon-wrap svg{stroke:var(--ap-ink2)}
@@ -1529,7 +1547,14 @@ body.sfocus .hero-sub,body.sfocus .hero-stats,body.sfocus .suggest{opacity:.35}
 
 <!-- ══ RESULTS ════════════════════════════════════════════════ -->
 <div class="results-bar" id="results-header" style="display:none">
-  <div class="results-count"><span id="result-count">0</span> médecin(s) trouvé(s)</div>
+  <div class="results-left">
+    <div class="results-count"><span id="result-count">0</span> <span id="result-noun">résultats</span></div>
+    <div class="kind-seg" id="kind-seg" role="group" aria-label="Type de résultat" hidden>
+      <button type="button" class="on" aria-pressed="true" onclick="setKind('all', this)">Tout</button>
+      <button type="button" aria-pressed="false" onclick="setKind('doctors', this)">Médecins</button>
+      <button type="button" aria-pressed="false" onclick="setKind('clinics', this)">Cliniques</button>
+    </div>
+  </div>
   <select class="sort-select" onchange="sortResults(this.value)">
     <option value="name">Trier : Nom A→Z</option>
     <option value="price_asc">Prix croissant</option>
@@ -1824,6 +1849,9 @@ body.sfocus .hero-sub,body.sfocus .hero-stats,body.sfocus .suggest{opacity:.35}
 var _supa = supabase.createClient(DOCLINE_CONFIG.SUPA_URL, DOCLINE_CONFIG.SUPA_KEY);
 var _allDoctors = [];
 var _filtered   = [];
+var _clinicCards = [];   // établissements publiés, affichés avec les mêmes cartes
+var _clinicOf    = {};   // médecin → établissement où il exerce
+var _kind        = 'all';
 var _bookingDoc = null;
 
 /* ── Wilaya → Villes mapping ─────────────────────────────── */
@@ -1936,19 +1964,53 @@ function initials(name){return(name||'?').split(' ').filter(Boolean).slice(0,2).
       .order('full_name');
     if (error) throw error;
     _allDoctors = data || [];
+    await loadClinics();
     buildVilleIndex();
     var wilayas = [...new Set(_allDoctors.map(function(d){return d.wilaya;}).filter(Boolean))];
     document.getElementById('stat-docs').textContent = _allDoctors.length;
     document.getElementById('stat-wilayas').textContent = wilayas.length;
     document.getElementById('state-loading').style.display = 'none';
-    if (!_allDoctors.length){ document.getElementById('state-coming').style.display='block'; return; }
-    renderCards(_allDoctors);
+    if (!_allDoctors.length && !_clinicCards.length){ document.getElementById('state-coming').style.display='block'; return; }
+    renderCards(withKind(_allDoctors, _clinicCards));
   } catch(e){
     document.getElementById('state-loading').style.display = 'none';
     document.getElementById('state-coming').style.display = 'block';
     console.error('Erreur chargement médecins:', e);
   }
 })();
+
+/* ── Établissements (cliniques) ───────────────────────────── */
+async function loadClinics(){
+  try {
+    var r = await _supa.rpc('clinics_directory');
+    var list = (r && r.data) || [];
+    var orgIds = {};
+    _clinicCards = list.map(function(c){
+      orgIds[c.id] = 1;
+      (c.doctor_ids || []).forEach(function(id){ if (!_clinicOf[id]) _clinicOf[id] = { slug: c.slug, name: c.name }; });
+      var specs = (c.services && c.services.length ? c.services : c.specialties) || [];
+      return { _kind: 'clinic', id: 'c-' + c.slug, slug: c.slug, full_name: c.name, clinic_name: c.name,
+        specialty: specs.join(' '), _specs: specs, _count: c.doctor_count || 0, wilaya: c.wilaya, city: c.city, address: c.address,
+        bio: c.description, consultation_price: c.min_price, accepts_rdv: !!c.accepts_rdv, languages: c.languages, avatar_url: c.avatar_url, featured: false };
+    });
+    // Un compte « établissement » publié n'apparaît plus en double comme médecin
+    _allDoctors = _allDoctors.filter(function(d){ return !(d.is_clinic && orgIds[d.id]); });
+  } catch (e) { _clinicCards = []; }
+  var seg = document.getElementById('kind-seg');
+  if (seg) seg.hidden = !_clinicCards.length;
+}
+function withKind(docs, clinics){
+  if (_kind === 'doctors') return docs;
+  if (_kind === 'clinics') return clinics;
+  return docs.concat(clinics);
+}
+function setKind(k, btn){
+  _kind = k;
+  document.querySelectorAll('#kind-seg button').forEach(function(b){ var on = b === btn; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  var hasQuery = document.getElementById('s-smart').value.trim() || document.getElementById('s-ville').value.trim() || _rdvOnly;
+  if (hasQuery) doSearch(); else renderCards(withKind(_allDoctors, _clinicCards));
+}
+var BUILDING_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M10 21v-5h4v5"/><path d="M12 8v4M10 10h4"/></svg>';
 
 /* ── Specialty icons ─────────────────────────────────────── */
 var SPEC_ICONS = {
@@ -2236,6 +2298,12 @@ function doSearch(){
     return (specOk||nameOk) && locOk && (!_rdvOnly || d.accepts_rdv);
   });
   _filtered.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0); });
+  var clin = _clinicCards.filter(function(c){
+    var specOk = !smart || (c._specs||[]).some(function(x){ return x.toLowerCase().includes(smart); }) || (c.full_name||'').toLowerCase().includes(smart);
+    var locOk  = !vil || (c.city||'').toLowerCase().includes(vil) || (c.wilaya||'').toLowerCase().includes(vil) || (c.address||'').toLowerCase().includes(vil);
+    return specOk && locOk && (!_rdvOnly || c.accepts_rdv);
+  });
+  _filtered = withKind(_filtered, clin);
   renderChips();
   if(!_filtered.length){
     document.getElementById('cards-grid').innerHTML='';
@@ -2272,11 +2340,11 @@ function resetSearch(){
   document.querySelectorAll('.pill').forEach(function(p){p.classList.toggle('active',p.dataset.sp==='');});
   document.getElementById('state-empty').style.display='none';
   document.getElementById('chips-bar').innerHTML='';
-  renderCards(_allDoctors);
+  renderCards(withKind(_allDoctors, _clinicCards));
 }
 
 function sortResults(by){
-  var docs=_filtered.length?_filtered:_allDoctors;
+  var docs=_filtered.length?_filtered:withKind(_allDoctors, _clinicCards);
   if(by==='name') docs.sort(function(a,b){return(a.full_name||'').localeCompare(b.full_name||'');});
   else if(by==='price_asc') docs.sort(function(a,b){return(a.consultation_price||0)-(b.consultation_price||0);});
   else if(by==='price_desc') docs.sort(function(a,b){return(b.consultation_price||0)-(a.consultation_price||0);});
@@ -2289,9 +2357,12 @@ function renderCards(docs){
   document.getElementById('state-coming').style.display='none';
   document.getElementById('results-header').style.display='flex';
   document.getElementById('result-count').textContent=docs.length;
+  var nC = docs.filter(function(d){ return d._kind === 'clinic'; }).length, nD = docs.length - nC;
+  document.getElementById('result-noun').textContent = !nC ? (nD > 1 ? 'médecins' : 'médecin') : !nD ? (nC > 1 ? 'cliniques' : 'clinique') : 'résultats';
 
   var grid=document.getElementById('cards-grid');
   grid.innerHTML=docs.map(function(d,i){
+    if (d._kind === 'clinic') return clinicCard(d, i);
     var name   = (d.is_clinic && d.clinic_name) ? d.clinic_name : (d.full_name||'Médecin');
     var grad   = avatarGrad(name);
     var inits  = initials(name);
@@ -2310,11 +2381,12 @@ function renderCards(docs){
       +'</div>'
       +'<div class="doctor-info">'
       +'<div class="card-name-row">'
-      +'<div class="doctor-name">Dr. '+displayName+'</div>'
+      +'<div class="doctor-name">'+(d.is_clinic ? '' : 'Dr. ')+displayName+'</div>'
       +'<span class="verified-badge"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Vérifié</span>'
       +(d.featured?'<span class="featured-badge"><svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:currentColor;stroke:none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>En vedette</span>':'')
       +'</div>'
       +'<div class="doctor-specialty">'+(d.specialty||'Médecin')+'</div>'
+      +(_clinicOf[d.id] ? '<a class="clinic-link" href="/clinique/'+_clinicOf[d.id].slug+'" title="Exerce dans cet établissement">'+BUILDING_SVG+'<span>'+escHtml(_clinicOf[d.id].name)+'</span><svg class="cl-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>' : '')
       +'<div class="doctor-meta">'
       +(d.wilaya?'<div class="meta-row" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:7px"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+(d.city?d.city+', ':'')+d.wilaya+'</div>'
         +'<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([d.address,d.city,d.wilaya,'Algérie'].filter(Boolean).join(', '))+'" target="_blank" rel="noopener" title="Voir sur Google Maps" style="display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:600;color:var(--brand);text-decoration:none;border:1px solid rgba(59,23,114,.2);border-radius:6px;padding:3px 8px;transition:all .15s;flex-shrink:0" onmouseover="this.style.background=\'rgba(59,23,114,.06)\'" onmouseout="this.style.background=\'\'"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Maps</a>'
@@ -2346,10 +2418,39 @@ function renderCards(docs){
 
   window._docsMap={};
   docs.forEach(function(d){window._docsMap[d.id]=d;});
-  fillReviewRows(docs.map(function(d){return d.id;}));
+  fillReviewRows(docs.filter(function(d){ return d._kind !== 'clinic'; }).map(function(d){return d.id;}));
 }
 
 // Faits vérifiés : état de la file en direct et badges mesurés par Docline
+function escHtml(s){ var x = document.createElement('div'); x.textContent = s == null ? '' : String(s); return x.innerHTML; }
+// Carte d'établissement : même gabarit que la carte médecin, avec le label « Clinique »
+function clinicCard(c, i){
+  var url = '/clinique/' + c.slug;
+  var specs = c._specs || [];
+  var specLine = c._count + ' médecin' + (c._count > 1 ? 's' : '') + (specs.length ? ' · ' + specs.slice(0, 3).join(', ') + (specs.length > 3 ? ' +' + (specs.length - 3) : '') : '');
+  var price = c.consultation_price ? 'Dès ' + new Intl.NumberFormat('fr-DZ').format(c.consultation_price) + ' DA' : 'Sur demande';
+  var langs = (c.languages || []).map(function(l){ return '<span class="lang-tag">' + escHtml(l) + '</span>'; }).join('');
+  return '<div class="doctor-card is-clinic" style="animation-delay:' + i * .04 + 's">'
+    + '<div class="card-top">'
+    + '<a class="doctor-avatar clinic-avatar" href="' + url + '" aria-label="' + escHtml(c.full_name) + '">' + (c.avatar_url ? '<img src="' + escHtml(c.avatar_url) + '" alt="" loading="lazy">' : BUILDING_SVG) + '</a>'
+    + '<div class="doctor-info">'
+    + '<div class="card-name-row"><a class="doctor-name" href="' + url + '" style="text-decoration:none">' + escHtml(c.full_name) + '</a><span class="clinic-tag">Clinique</span></div>'
+    + '<div class="doctor-specialty">' + escHtml(specLine) + '</div>'
+    + '<div class="doctor-meta">'
+    + (c.wilaya ? '<div class="meta-row" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:7px"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + escHtml((c.city ? c.city + ', ' : '') + c.wilaya) + '</div>'
+      + '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([c.full_name, c.address, c.city, c.wilaya, 'Algérie'].filter(Boolean).join(', ')) + '" target="_blank" rel="noopener" title="Voir sur Google Maps" style="display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:600;text-decoration:none;flex-shrink:0">Maps</a></div>' : '')
+    + '</div></div></div>'
+    + (c.bio ? '<div class="card-bio">' + escHtml(c.bio.substring(0, 110)) + (c.bio.length > 110 ? '…' : '') + '</div>' : '')
+    + '<div class="card-divider"></div>'
+    + '<div class="card-bottom"><div>'
+    + '<div class="card-price-val">' + price + '</div><div class="card-price-lbl">Consultation</div>'
+    + (c.accepts_rdv ? '<div class="avail-badge" style="margin-top:6px"><span class="avail-dot"></span>RDV en ligne</div>' : '')
+    + (langs ? '<div class="card-languages" style="margin-top:5px">' + langs + '</div>' : '')
+    + '</div>'
+    + '<a class="card-rdv-btn" href="' + url + '">' + BUILDING_SVG + 'Voir la clinique</a>'
+    + '</div></div>';
+}
+
 async function fillReviewRows(ids){
   if(!ids.length || !window.DoctorFacts) return;
   try{
