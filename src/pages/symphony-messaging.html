@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SMS et WhatsApp · Docline Symphony</title>
+<title>SMS · Docline Symphony</title>
 <script src="config.js?v=4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -157,13 +157,13 @@ body.ro [data-validate]{display:none!important}
   <aside id="sx-side" data-sx-chrome aria-label="Navigation Symphony"></aside>
   <div class="sx-scrim"></div>
   <div class="sx-main">
-    <header class="sx-top"><button class="sx-ham" type="button" data-sx-ham aria-label="Ouvrir le menu"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><div class="sx-top-title">SMS et WhatsApp</div></header>
+    <header class="sx-top"><button class="sx-ham" type="button" data-sx-ham aria-label="Ouvrir le menu"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><div class="sx-top-title">SMS</div></header>
     <main class="sx-page">
       <div class="pv-head">
         <div>
           <div class="pv-eyebrow">Symphony · Système</div>
-          <h1 class="pv-title">SMS et WhatsApp</h1>
-          <p class="pv-sub">Codes de vérification, confirmations et rappels de rendez-vous. Chaque message est suivi jusqu’à sa remise. Les codes partent par WhatsApp quand le modèle est approuvé, sinon par SMS signé « Docline ». Hors codes, rien ne part entre 21 h et 8 h.</p>
+          <h1 class="pv-title">SMS</h1>
+          <p class="pv-sub">Codes de vérification, confirmations et rappels de rendez-vous. Chaque message est suivi jusqu’à sa remise. Tous les SMS sont signés « Docline ». Rappel automatique une heure avant chaque rendez-vous confirmé. Hors codes, rien ne part entre 21 h et 8 h.</p>
         </div>
         <div class="seg" id="period"><button type="button" data-d="7">7 jours</button><button type="button" class="on" data-d="30">30 jours</button><button type="button" data-d="90">90 jours</button></div>
       </div>
@@ -197,10 +197,8 @@ var ERR = {
   '30003':['Injoignable','Téléphone éteint ou hors réseau au moment de l’envoi.'],
   '30005':['Numéro inconnu','L’opérateur ne connaît pas ce numéro.'],
   '30006':['Ligne fixe ou opérateur','Le numéro ne peut pas recevoir de SMS.'],
-  '30007':['Filtré par l’opérateur','Souvent un expéditeur non enregistré en Algérie. Finalisez l’enregistrement de « Docline ».'],
+  '30007':['Filtré par l’opérateur','L’opérateur a bloqué le message. Si cela se répète pour un opérateur, demandez l’enregistrement de « Docline » auprès de lui via Twilio.'],
   '30008':['Erreur opérateur','Erreur inconnue côté opérateur. Si elle se répète, contactez le support Twilio.'],
-  '63003':['Pas de WhatsApp','Ce numéro n’a pas de compte WhatsApp. Le SMS prend le relais.'],
-  '63016':['Modèle WhatsApp requis','Hors conversation ouverte, WhatsApp n’accepte que des modèles approuvés.']
 };
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
@@ -226,11 +224,9 @@ async function loadHealth(){
     '<div class="mg-test"><input id="test-to" type="tel" inputmode="tel" placeholder="Votre mobile : 0555 12 34 56" aria-label="Numéro de test"><button class="pv-btn primary" type="button" id="test-btn">Envoyer un test</button></div>' +
     '<div class="mg-res" id="test-res" role="status"></div>';
   var items = [
-    [c.messaging_service ? 'ok' : 'no', 'Messaging Service', c.messaging_service ? 'Configuré : il porte l’expéditeur « Docline » et la remise de secours.' : 'Recommandé : regroupe l’expéditeur « Docline » et ses réglages dans Twilio.'],
-    [c.sender_id ? 'ok' : 'no', 'Expéditeur « Docline »', c.sender_id ? 'Les SMS sont signés « ' + esc(c.sender_id) + ' ».' : 'Obligatoire en Algérie : enregistrement auprès de Mobilis, Djezzy et Ooredoo via Twilio (environ 2 semaines).'],
-    [c.from_number ? 'warn' : 'no', 'Numéro classique', c.from_number ? 'Utilisé en dernier recours. Twilio le déconseille vers l’Algérie : les SMS risquent d’être filtrés.' : 'Aucun.'],
-    [c.whatsapp_sender ? 'ok' : 'no', 'Expéditeur WhatsApp', c.whatsapp_sender ? 'Configuré.' : 'Nécessite la vérification de l’entreprise par Meta.'],
-    [c.whatsapp_otp_template ? 'ok' : 'no', 'Modèle WhatsApp pour les codes', c.whatsapp_otp_template ? 'Les codes partent d’abord par WhatsApp, beaucoup moins cher qu’un SMS.' : 'À créer et faire approuver dans Twilio (catégorie Authentification).']
+    [c.messaging_service ? 'ok' : 'no', 'Messaging Service', c.messaging_service ? 'Configuré : il porte l’expéditeur et les réglages d’envoi.' : 'Facultatif.'],
+    [c.sender_id ? 'ok' : 'no', 'Expéditeur « Docline »', c.sender_id ? 'Les SMS sont signés « ' + esc(c.sender_id) + ' ».' : 'À déclarer dans les réglages des fonctions (TWILIO_SENDER_ID).'],
+    [c.from_number ? 'warn' : 'ok', 'Numéro classique', c.from_number ? 'Utilisé en dernier recours. Twilio le déconseille vers l’Algérie : les SMS risquent d’être filtrés.' : 'Aucun : tout part avec l’expéditeur « Docline ».']
   ];
   $('chan').innerHTML = '<div class="mg-k">Canaux d’envoi</div><div class="mg-list">' + items.map(function(x){
     return '<div class="mg-item"><i class="' + x[0] + '">' + (x[0] === 'ok' ? '✓' : x[0] === 'warn' ? '!' : '') + '</i><div><b>' + x[1] + '</b><p>' + x[2] + '</p></div></div>';
@@ -240,7 +236,7 @@ async function loadHealth(){
     this.disabled = true; $('test-res').className = 'mg-res'; $('test-res').textContent = 'Envoi…';
     var t = await call('POST', { to: to });
     this.disabled = false;
-    if (t.ok) { $('test-res').className = 'mg-res ok'; $('test-res').textContent = 'Envoyé par ' + (t.json.channel === 'whatsapp' ? 'WhatsApp' : 'SMS') + '. La remise s’affichera ci-dessous dans quelques secondes.'; setTimeout(loadStats, 6000); }
+    if (t.ok) { $('test-res').className = 'mg-res ok'; $('test-res').textContent = 'Envoyé par ' + 'SMS' + '. La remise s’affichera ci-dessous dans quelques secondes.'; setTimeout(loadStats, 6000); }
     else { var e = ERR[t.json.error]; $('test-res').className = 'mg-res bad'; $('test-res').textContent = e ? e[0] + ' : ' + e[1] : 'Échec : ' + (t.json.error || 'erreur inconnue'); loadStats(); }
   };
 }
@@ -259,12 +255,12 @@ async function loadStats(){
   }).join('') + '</div>' : '<p class="mg-note">Aucune erreur sur la période.</p>';
   var by = d.by || [];
   $('by').innerHTML = by.length ? '<table class="mg-tbl"><thead><tr><th>Usage</th><th>Canal</th><th>Envoyés</th><th>Remis</th><th>Échecs</th></tr></thead><tbody>' + by.map(function(b){
-    return '<tr><td>' + esc(KIND[b.kind] || b.kind) + '</td><td>' + (b.channel === 'whatsapp' ? 'WhatsApp' : 'SMS') + '</td><td class="num">' + b.n + '</td><td class="num">' + b.delivered + '</td><td class="num">' + b.failed + '</td></tr>';
+    return '<tr><td>' + esc(KIND[b.kind] || b.kind) + '</td><td>' + 'SMS' + '</td><td class="num">' + b.n + '</td><td class="num">' + b.delivered + '</td><td class="num">' + b.failed + '</td></tr>';
   }).join('') + '</tbody></table>' : '<p class="mg-note">Aucun message sur la période.</p>';
   var rec = d.recent || [];
   $('recent').innerHTML = rec.length ? '<table class="mg-tbl"><thead><tr><th>Date</th><th>Usage</th><th>Canal</th><th>Numéro</th><th>Statut</th><th>Détail</th></tr></thead><tbody>' + rec.map(function(m){
     var e = m.error_code && ERR[m.error_code];
-    return '<tr><td>' + fmt(m.created_at) + '</td><td>' + esc(KIND[m.kind] || m.kind) + '</td><td>' + (m.channel === 'whatsapp' ? 'WhatsApp' : 'SMS') + '</td><td>' + esc(m.to_hint || '') + '</td><td>' + esc(STATUS[m.status] || m.status) + '</td><td>' +
+    return '<tr><td>' + fmt(m.created_at) + '</td><td>' + esc(KIND[m.kind] || m.kind) + '</td><td>' + 'SMS' + '</td><td>' + esc(m.to_hint || '') + '</td><td>' + esc(STATUS[m.status] || m.status) + '</td><td>' +
       esc(e ? e[0] : (m.error_message || '')) + (m.price ? ' · ' + Math.abs(m.price) + ' ' + esc(m.price_unit || '') : '') + '</td></tr>';
   }).join('') + '</tbody></table>' : '<p class="mg-note">Les messages apparaîtront ici dès le premier envoi.</p>';
 }
@@ -279,6 +275,6 @@ $('period').querySelectorAll('button').forEach(function(b){
 })();
 </script>
 <script src="symphony-access.js?v=10" defer></script>
-<script src="symphony-chrome.js?v=6" defer></script>
+<script src="symphony-chrome.js?v=7" defer></script>
 </body>
 </html>

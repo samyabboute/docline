@@ -1,11 +1,7 @@
-// Docline · envoi de SMS et WhatsApp (Twilio), un seul point d'entrée pour toutes les fonctions.
+// Docline · envoi de SMS (Twilio), un seul point d'entrée pour toutes les fonctions.
 //
-// Ordre des canaux :
-//  * code de vérification (otp) : WhatsApp (modèle d'authentification approuvé par Meta) puis SMS ;
-//  * autres messages : SMS.
-// SMS vers l'Algérie : l'expéditeur alphanumérique « Docline » doit être enregistré auprès des
-// opérateurs (Mobilis, Djezzy, Ooredoo) via Twilio. On passe de préférence par un Messaging Service
-// qui porte cet expéditeur ; un numéro classique reste en dernier recours.
+// Expéditeur : Messaging Service s'il est configuré, sinon l'expéditeur alphanumérique « Docline »
+// (accepté par Twilio pour l'Algérie sans enregistrement, entreprise internationale), sinon un numéro.
 // Chaque message est journalisé (message_logs) et son statut de remise mis à jour par twilio-status.
 // Hors codes de vérification, rien n'est envoyé entre 21 h et 8 h, heure d'Alger.
 
@@ -14,8 +10,6 @@ const TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN") ?? "";
 const MSG_SERVICE = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID") ?? "";
 const SENDER_ID = Deno.env.get("TWILIO_SENDER_ID") ?? "";          // ex. « Docline », une fois enregistré
 const FROM_NUMBER = Deno.env.get("TWILIO_FROM_NUMBER") ?? "";      // dernier recours
-const WA_FROM = Deno.env.get("TWILIO_WA_FROM") ?? "";
-const WA_OTP_CONTENT = Deno.env.get("TWILIO_WA_OTP_CONTENT_SID") ?? "";
 const SUPA_URL = Deno.env.get("SUPABASE_URL") ?? "";
 
 export type MessageKind = "otp" | "booking_confirmation" | "appointment_sms" | "reminder" | "cancellation" | "test";
@@ -26,8 +20,6 @@ export function messagingConfig() {
     messaging_service: !!MSG_SERVICE,
     sender_id: SENDER_ID || null,
     from_number: !!FROM_NUMBER,
-    whatsapp_sender: !!WA_FROM,
-    whatsapp_otp_template: !!WA_OTP_CONTENT,
   };
 }
 
@@ -50,6 +42,15 @@ function quietHours(): boolean {
   return h >= 21 || h < 8;
 }
 
+// Alphabet SMS standard (GSM 7 bits) : un seul accent ferait passer le SMS en Unicode,
+// limité à 70 caractères au lieu de 160, donc facturé double. On retire accents et guillemets typographiques.
+export function smsSafe(text: string): string {
+  return String(text || "").normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[‘’ʼ]/g, "'").replace(/[«»“”]/g, '"')
+    .replace(/[–—]/g, "-").replace(/…/g, "...").replace(/[  ]/g, " ")
+    .replace(/[^\x20-\x7E\n]/g, "");
+}
+
 async function twilioPost(params: Record<string, string>) {
   const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${SID}/Messages.json`, {
     method: "POST",
@@ -61,7 +62,7 @@ async function twilioPost(params: Record<string, string>) {
 }
 
 // deno-lint-ignore no-explicit-any
-export async function sendMessage(admin: any, o: { to: string; kind: MessageKind; text: string; otp?: string; doctorId?: string | null }):
+export async function sendMessage(admin: any, o: { to: string; kind: MessageKind; text: string; doctorId?: string | null }):
   Promise<{ sent: boolean; channel?: string; error?: string }> {
   const to = normalizePhone(o.to);
   if (!to) return { sent: false, error: "INVALID_PHONE" };
@@ -77,12 +78,7 @@ export async function sendMessage(admin: any, o: { to: string; kind: MessageKind
   }
 
   const attempts: Array<{ channel: string; params: Record<string, string> }> = [];
-  if (o.kind === "otp" && o.otp && WA_FROM && WA_OTP_CONTENT) {
-    attempts.push({ channel: "whatsapp", params: {
-      From: "whatsapp:" + WA_FROM.replace(/^whatsapp:/, ""), To: "whatsapp:" + to,
-      ContentSid: WA_OTP_CONTENT, ContentVariables: JSON.stringify({ "1": o.otp }) } });
-  }
-  const sms: Record<string, string> = { To: to, Body: o.text };
+  const sms: Record<string, string> = { To: to, Body: smsSafe(o.text) };
   if (MSG_SERVICE) sms.MessagingServiceSid = MSG_SERVICE;
   else if (SENDER_ID) sms.From = SENDER_ID;
   else if (FROM_NUMBER) sms.From = FROM_NUMBER;

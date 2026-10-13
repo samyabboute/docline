@@ -1,4 +1,4 @@
-// twilio-status : accusés de remise des SMS et WhatsApp envoyés par Docline.
+// twilio-status : accusés de remise des SMS envoyés par Docline.
 // Twilio appelle cette adresse à chaque changement de statut (envoyé, remis, échec).
 // La requête est authentifiée par la signature X-Twilio-Signature (HMAC-SHA1 du jeton du compte).
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";

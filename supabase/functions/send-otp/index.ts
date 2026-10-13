@@ -78,8 +78,8 @@ serve(async (req) => {
       );
     }
 
-    // WhatsApp (modèle d'authentification) si configuré, sinon SMS signé « Docline »
-    const r = await sendMessage(supabase, { to: phoneE164, kind: "otp", otp,
+    // SMS envoyé par l'expéditeur « Docline »
+    const r = await sendMessage(supabase, { to: phoneE164, kind: "otp",
       text: `Docline : votre code est ${otp}. Valable 5 minutes, ne le partagez avec personne.` });
     if (!r.sent) {
       return new Response(
@@ -88,9 +88,8 @@ serve(async (req) => {
       );
     }
 
-    const label = r.channel === "whatsapp" ? "WhatsApp" : "SMS";
     return new Response(
-      JSON.stringify({ success: true, channel: r.channel, message: `Code envoyé par ${label}` }),
+      JSON.stringify({ success: true, channel: r.channel, message: "Code envoyé par SMS" }),
       { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
     );
 

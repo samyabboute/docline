@@ -61,7 +61,7 @@
     { s: 'Système', items: [
       { h: '/symphony-simulate', l: 'Simulation', i: 'eye', p: 'simulate.use' },
       { h: '/symphony-security', l: 'Sécurité & journal', i: 'shield', p: 'security.view' },
-      { h: '/symphony-messaging', l: 'SMS et WhatsApp', i: 'sms', p: 'settings.manage' },
+      { h: '/symphony-messaging', l: 'SMS', i: 'sms', p: 'settings.manage' },
       { h: '/symphony-settings', l: 'Paramètres', i: 'gear', p: 'settings.manage' } ] }
   ];
 

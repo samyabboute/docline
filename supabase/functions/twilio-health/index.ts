@@ -1,4 +1,4 @@
-// twilio-health : état de l'envoi des SMS et WhatsApp, pour l'équipe Docline (Symphony).
+// twilio-health : état de l'envoi des SMS, pour l'équipe Docline (Symphony).
 //  GET  : compte Twilio (essai ou complet, actif ou suspendu), solde, canaux configurés.
 //  POST { to } : envoi d'un message de test vers ce numéro.
 // Réservé aux membres de l'équipe ayant la permission « settings.manage ».
