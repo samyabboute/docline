@@ -16,7 +16,7 @@
   }
 
   function mount(el, opts) {
-    var cid = null, ctx = null, client = null, me = null, timer = null, seq = 0, open = false;
+    var cid = null, ctx = null, client = null, me = null, timer = null, seq = 0, open = false, current = [];
     el.classList.add('pc');
     el.hidden = true;
 
@@ -42,6 +42,7 @@
       if (ctx.renal === 'severe') p.push('insuffisance rénale sévère');
       if (ctx.hepatic === 'impaired') p.push('insuffisance hépatique');
       if (ctx.allergens.length) p.push(ctx.allergens.length + ' allergie' + (ctx.allergens.length > 1 ? 's' : ''));
+      if (current.length) p.push(current.length + ' traitement' + (current.length > 1 ? 's' : '') + ' en cours');
       return p.length ? p.join(' · ') : 'Rien de particulier noté';
     }
 
@@ -67,10 +68,13 @@
             '<span class="pc-add"><input type="text" id="pc-q" autocomplete="off" placeholder="Ajouter : pénicillines, aspirine…" aria-label="Ajouter une allergie"><span class="pc-drop" hidden></span></span>' +
           '</div></div>' +
           (client && client.allergies ? '<div class="pc-legacy">Noté en texte dans le dossier : « ' + esc(client.allergies) + ' ». Ajoutez-le ci-dessus pour qu’il soit vérifié.</div>' : '') +
+          (current.length ? '<div class="pc-row"><span class="pc-lbl">En cours</span><div class="pc-current">' + current.map(function (t) {
+            return '<span class="pc-cur">' + esc(t.label) + ' <small>· ' + new Date(t.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) + '</small></span>';
+          }).join('') + '</div></div>' : '') +
           (showPreg ? '<div class="pc-row"><span class="pc-lbl">Grossesse</span>' + seg('pregnancy', ctx.pregnancy, [['none', 'Non'], ['pregnant', 'Enceinte'], ['breastfeeding', 'Allaite']]) + '</div>' : '') +
           '<div class="pc-row"><span class="pc-lbl">Fonction rénale</span>' + seg('renal', ctx.renal, [['normal', 'Normale'], ['moderate', 'IR modérée'], ['severe', 'IR sévère']]) + '</div>' +
           '<div class="pc-row"><span class="pc-lbl">Foie</span>' + seg('hepatic', ctx.hepatic, [['normal', 'Normal'], ['impaired', 'Insuffisance hépatique']]) + '</div>' +
-          '<div class="pc-foot"><span class="pc-saved"></span><span>Âge calculé depuis la date de naissance du dossier.</span></div>' +
+          '<div class="pc-foot"><span class="pc-saved"></span><span>Âge calculé depuis la date de naissance. Traitements en cours : vos ordonnances des 90 derniers jours.</span></div>' +
         '</div>';
     }
 
@@ -113,7 +117,9 @@
       if (!me) { var s = await opts.supa.auth.getSession(); me = s.data.session && s.data.session.user.id; }
       var a = await opts.supa.from('clients').select('id,date_naissance,sexe,allergies').eq('id', cid).maybeSingle();
       var b = await opts.supa.from('patient_clinical_context').select('*').eq('client_id', cid).maybeSingle();
+      var h = await opts.supa.rpc('patient_current_treatments', { p_client: cid, p_exclude: opts.getExclude ? opts.getExclude() : null });
       if (my !== seq) return;
+      current = (h && h.data) || [];
       client = a.data || null;
       ctx = b.data || { allergens: [], pregnancy: 'none', renal: 'normal', hepatic: 'normal' };
       if (!Array.isArray(ctx.allergens)) ctx.allergens = [];

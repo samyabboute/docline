@@ -1,14 +1,16 @@
 /* Docline · vérification de l'ordonnance (interactions, doublons, allergies, situations du patient)
  * RxCheck.mount(el, { supa, getDrugs: () => [{ drug_id, label }], getClient: () => clientId|null,
- *                     replace: (oldDrugId, newDrug) => void, contextVersion: () => string })
+ *                     getExclude: () => ordonnanceId|null, replace: (oldDrugId, newDrug) => void,
+ *                     remove: (drugId) => void, contextVersion: () => string })
  *   refresh()        relance la vérification (avec un court délai)
  *   reset(acks)      vide les alertes ; acks = confirmations déjà enregistrées
  *   settle()         promesse résolue quand la dernière vérification est terminée
  *   blocking()       nombre d'alertes graves non confirmées par le médecin
  *   acks()           confirmations à enregistrer avec l'ordonnance
  *   focus()          amène le panneau à l'écran
- * Les interactions et les situations n'apparaissent que validées par le pharmacien et
- * mises en service ; une allergie notée dans le dossier est toujours signalée.
+ * Toujours actif : doublons, allergies notées, nomenclature officielle (retiré, non renouvelé,
+ * réservé à l'hôpital) et traitements en cours du patient (ordonnances des 90 derniers jours).
+ * Interactions et situations : seulement validées par le pharmacien et mises en service.
  */
 (function () {
   var LEVELS = {
@@ -26,21 +28,28 @@
   function kindOf(r) { return r.kind || (r.level === 'doublon' ? 'doublon' : 'interaction'); }
   function badge(r) {
     var k = kindOf(r);
+    if (k === 'nomenclature') return r.substance_b === 'withdrawn' ? 'Retiré de la nomenclature' : r.substance_b === 'not_renewed' ? 'Non renouvelé' : 'Réservé à l’hôpital';
     if (k === 'allergie') return r.level === 'contre_indication' ? 'Allergie' : 'Allergie croisée possible';
     if (k === 'situation') return (CONDITIONS[r.substance_b] || 'Situation du patient') + ' · ' + (LEVELS[r.level] || {}).l;
     return (LEVELS[r.level] || { l: r.level }).l;
   }
-  function canReplace(r) { var k = kindOf(r); return k === 'doublon' || isSevere(r.level) || (k === 'allergie' && r.level === 'contre_indication'); }
+  function canReplace(r) { var k = kindOf(r); return k === 'nomenclature' || isSevere(r.level) || (k === 'allergie' && r.level === 'contre_indication'); }
+  function frDay(iso) { if (!iso) return ''; var d = new Date(iso + 'T12:00:00'); return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }); }
 
   function mount(el, opts) {
-    var results = [], names = {}, acked = {}, lastKey = '', timer = null, seq = 0, pending = Promise.resolve();
+    var results = [], names = {}, hist = {}, acked = {}, lastKey = '', timer = null, seq = 0, pending = Promise.resolve();
     var alt = null;   // { key, forId, rows, loading }
     el.classList.add('rx');
     el.hidden = true;
     el.setAttribute('aria-live', 'polite');
 
     function keyOf(r) { return kindOf(r) + ':' + r.level + ':' + r.drug_a + ':' + (r.drug_b || '') + ':' + (r.substance_b || ''); }
-    function nameOf(id) { return names[id] || 'Médicament'; }
+    function nameOf(id) { return names[id] || (hist[id] && hist[id].label) || 'Médicament'; }
+    // Nom affiché, avec la mention « traitement en cours » pour un médicament d'une ordonnance précédente
+    function shown(id) {
+      var h = !names[id] && hist[id];
+      return '<b>' + esc(nameOf(id)) + '</b>' + (h ? ' <span class="rx-hist">en cours, prescrit le ' + esc(frDay(h.date)) + '</span>' : '');
+    }
 
     function altBlock(r) {
       if (!alt || alt.key !== keyOf(r)) return '';
@@ -71,20 +80,25 @@
         '<div class="rx-head"><span class="rx-ic' + (severe ? ' sev' : '') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>' +
         '<div><div class="rx-title">Vérification de l’ordonnance</div><div class="rx-sum">' +
         results.length + ' point' + (results.length > 1 ? 's' : '') + ' à vérifier' + (severe ? ', dont ' + severe + ' important' + (severe > 1 ? 's' : '') : '') + '</div></div></div>' +
+        (Object.keys(hist).length ? '<div class="rx-histline">Vérifiée aussi avec les traitements en cours : ' + Object.keys(hist).map(function (id) { return esc(hist[id].label); }).join(', ') + '.</div>' : '') +
         results.map(function (r, i) {
           var L = LEVELS[r.level] || { c: '' }, k = kindOf(r);
           var what;
-          if (k === 'doublon') what = '<b>' + esc(nameOf(r.drug_a)) + '</b> et <b>' + esc(nameOf(r.drug_b)) + '</b> contiennent tous deux ' + esc(r.substance_a) + '.';
-          else if (k === 'allergie' || k === 'situation') what = '<b>' + esc(nameOf(r.drug_a)) + '</b>';
-          else what = '<b>' + esc(nameOf(r.drug_a)) + '</b> et <b>' + esc(nameOf(r.drug_b)) + '</b>' + (r.substance_a ? ' <span class="rx-sub">(' + esc(cap(r.substance_a)) + ' + ' + esc(String(r.substance_b || '').toLowerCase()) + ')</span>' : '');
+          if (k === 'doublon') what = shown(r.drug_a) + ' et ' + shown(r.drug_b) + ' contiennent tous deux ' + esc(r.substance_a) + '.';
+          else if (k === 'allergie' || k === 'situation' || k === 'nomenclature') what = shown(r.drug_a);
+          else what = shown(r.drug_a) + ' et ' + shown(r.drug_b) + (r.substance_a ? ' <span class="rx-sub">(' + esc(cap(r.substance_a)) + ' + ' + esc(String(r.substance_b || '').toLowerCase()) + ')</span>' : '');
           var swap = '';
-          if (opts.replace && canReplace(r)) {
-            var targets = (k === 'allergie' || k === 'situation') ? [r.drug_a] : [r.drug_a, r.drug_b];
-            swap = '<div class="rx-swap">' + targets.map(function (id) {
+          // On ne remplace ou ne retire que les lignes de cette ordonnance, jamais un traitement en cours
+          var own = [r.drug_a, r.drug_b].filter(function (id) { return id && names[id]; });
+          if (k === 'doublon' && opts.remove) {
+            swap = '<div class="rx-swap">' + own.map(function (id) { return '<button type="button" data-rm="' + id + '">Retirer ' + esc(nameOf(id)) + '</button>'; }).join('') + '</div>';
+          } else if (opts.replace && canReplace(r)) {
+            var targets = (k === 'allergie' || k === 'situation' || k === 'nomenclature') ? [r.drug_a] : own;
+            swap = '<div class="rx-swap">' + targets.filter(function (id) { return names[id]; }).map(function (id) {
               return '<button type="button" data-alt="' + i + '" data-for="' + id + '">Remplacer ' + esc(nameOf(id)) + '</button>';
             }).join('') + '</div>';
           }
-          return '<div class="rx-item ' + L.c + (k === 'allergie' ? ' rx-allergy' : '') + '">' +
+          return '<div class="rx-item ' + L.c + (k === 'allergie' ? ' rx-allergy' : '') + (k === 'nomenclature' ? ' rx-nomenclature' : '') + '">' +
             '<div class="rx-l1"><span class="rx-lv">' + esc(badge(r)) + '</span>' + (r.reviewed === false ? '<span class="rx-draft">Non validé</span>' : '') + '</div>' +
             '<div class="rx-what">' + what + '</div>' +
             (r.mechanism ? '<div class="rx-txt">' + (k === 'interaction' ? '<b>Risque.</b> ' : '') + esc(r.mechanism) + '</div>' : '') +
@@ -93,7 +107,8 @@
             swap + altBlock(r) +
             (isSevere(r.level) ? '<label class="rx-ack"><input type="checkbox" data-ack="' + i + '"' + (acked[keyOf(r)] ? ' checked' : '') + '> Je maintiens cette prescription en connaissance de cause</label>' : '') +
             '</div>';
-        }).join('');
+        }).join('') +
+        '<p class="rx-foot">Aide à la prescription. Elle ne remplace pas votre jugement clinique.</p>';
     }
 
     el.addEventListener('change', function (e) {
@@ -119,6 +134,8 @@
         alt.loading = false; alt.rows = (res && res.data) || []; render();
         return;
       }
+      var rm = e.target.closest('[data-rm]');
+      if (rm && opts.remove) { opts.remove(+rm.dataset.rm); lastKey = ''; api.refresh(); return; }
       var p = e.target.closest('[data-pick]');
       if (p && alt && alt.rows[+p.dataset.pick]) {
         var choice = alt.rows[+p.dataset.pick].drug, old = alt.forId;
@@ -135,19 +152,24 @@
       names = {}; drugs.forEach(function (d) { names[d.drug_id] = d.label; });
       var ids = Object.keys(names).map(Number).sort(function (x, y) { return x - y; });
       var key = ids.join(',') + '|' + (client || '') + '|' + (opts.contextVersion ? opts.contextVersion() : '');
-      if (!ids.length || (ids.length < 2 && !client)) { lastKey = key; results = []; alt = null; render(); return Promise.resolve(); }
+      if (!ids.length) { lastKey = key; results = []; hist = {}; alt = null; render(); return Promise.resolve(); }
       if (key === lastKey) { render(); return Promise.resolve(); }
       var my = ++seq;
-      return Promise.resolve(opts.supa.rpc('prescription_check_ctx', { p_drug_ids: ids, p_client: client || null })).then(function (r) {
+      var exclude = opts.getExclude ? opts.getExclude() : null;
+      return Promise.resolve(opts.supa.rpc('prescription_review', { p_drug_ids: ids, p_client: client || null, p_exclude: exclude || null })).then(function (r) {
         if (my !== seq) return;
         lastKey = key;
         // En cas d'erreur, l'ordonnance reste utilisable : la vérification est une aide
+        hist = {};
         if (r.error) { console.warn('[RxCheck]', r.error.message); results = []; }
-        else results = (r.data || []).sort(function (a, b) {
+        else {
+          ((r.data && r.data.history) || []).forEach(function (h) { hist[h.drug_id] = h; });
+          results = ((r.data && r.data.alerts) || []).sort(function (a, b) {
           var sa = a.kind === 'allergie' && a.level === 'contre_indication' ? 0 : (LEVELS[a.level] || { sev: 9 }).sev;
           var sb = b.kind === 'allergie' && b.level === 'contre_indication' ? 0 : (LEVELS[b.level] || { sev: 9 }).sev;
           return sa - sb;
-        });
+          });
+        }
         if (alt && !results.some(function (x) { return keyOf(x) === alt.key; })) alt = null;
         render();
       }).catch(function (e) { if (my === seq) { console.warn('[RxCheck]', e); results = []; render(); } });

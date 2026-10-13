@@ -1,6 +1,7 @@
 /* Docline · sélecteur de médicaments
  * Recherche dans la nomenclature nationale (table drugs, fonction drug_search).
- * DrugPicker.attach(input, { supa, value, onChange(drug|null), fallback: [noms] })
+ * DrugPicker.attach(input, { supa, value, onChange(drug|null), fallback: [noms], favorites: () => [drugs] })
+ *   favorites : médicaments que le médecin prescrit le plus, proposés dès que le champ est vide
  * Le médicament choisi est rattaché à sa fiche officielle ; si le médecin modifie
  * le texte ensuite, le rattachement est retiré et la saisie reste libre.
  */
@@ -88,13 +89,13 @@
       setLinked(toLink(d));
       close();
     }
-    function render(q, list, failed) {
+    function render(q, list, failed, title) {
       results = list;
       if (!list.length) {
         drop.innerHTML = '<div class="dp-empty">' + (failed ? 'Catalogue indisponible pour le moment. La saisie libre reste possible.'
           : 'Aucun médicament en vigueur ne correspond. Vous pouvez garder votre saisie.') + '</div>';
       } else {
-        drop.innerHTML = '<div class="dp-head">' + (failed ? 'Suggestions hors ligne' : SOURCE) + '</div>' + list.map(function (d, i) {
+        drop.innerHTML = '<div class="dp-head' + (title ? ' dp-head-fav' : '') + '">' + (title || (failed ? 'Suggestions hors ligne' : SOURCE)) + '</div>' + list.map(function (d, i) {
           if (d._free) return '<div class="dp-item" role="option" data-i="' + i + '"><div class="dp-l1"><span class="dp-brand">' + mark(d.name, q) + '</span></div></div>';
           return '<div class="dp-item" role="option" data-i="' + i + '">' +
             '<div class="dp-l1"><span class="dp-brand">' + mark(d.brand, q) + '</span>' +
@@ -109,6 +110,7 @@
     }
     function search(q) {
       var key = fold(q).trim();
+      if (!key.length) { showFavorites(); return; }
       if (key.length < 2) { close(); return; }
       if (cache[key]) { render(q, cache[key]); return; }
       var my = ++seq;
@@ -131,7 +133,15 @@
       var q = inp.value;
       timer = setTimeout(function () { search(q); }, 140);
     });
-    inp.addEventListener('focus', function () { if (!linked && inp.value.trim().length >= 2) search(inp.value); });
+    function showFavorites() {
+      var fav = opts.favorites ? (opts.favorites() || []) : [];
+      if (!fav.length) return;
+      render('', fav.slice(0, 8), false, 'Vos prescriptions fréquentes');
+    }
+    inp.addEventListener('focus', function () {
+      if (!linked && inp.value.trim().length >= 2) search(inp.value);
+      else if (!inp.value.trim()) showFavorites();
+    });
     inp.addEventListener('keydown', function (e) {
       if (drop.hidden) return;
       if (e.key === 'ArrowDown') { e.preventDefault(); setHi(hi + 1); }

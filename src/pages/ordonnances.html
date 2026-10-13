@@ -7,10 +7,10 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js?v=4"></script>
 <script src="shell.js?v=17"></script>
-<link rel="stylesheet" href="drug-picker.css?v=3">
-<script src="drug-picker.js?v=2"></script>
-<script src="rx-check.js?v=2"></script>
-<script src="patient-context.js?v=1"></script>
+<link rel="stylesheet" href="drug-picker.css?v=4">
+<script src="drug-picker.js?v=3"></script>
+<script src="rx-check.js?v=3"></script>
+<script src="patient-context.js?v=2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 /* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
@@ -846,7 +846,13 @@
 var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 // Contexte du patient (allergies, grossesse, rein, foie) et vérification pendant la rédaction
 var _pcVer = 0;
-var _pc = PatientContext.mount(document.getElementById('pc-box'), { supa: _supa, onChange: function() { _pcVer++; if (window._rx) _rx.refresh(); } });
+var _pc = PatientContext.mount(document.getElementById('pc-box'), { supa: _supa, getExclude: function() { return _editId; }, onChange: function() { _pcVer++; if (window._rx) _rx.refresh(); } });
+// Habitudes du médecin : médicaments fréquents et dernière posologie utilisée
+var _habits = { favorites: [], posology: {} }, _habitsLoaded = false;
+function loadHabits() {
+  if (_habitsLoaded) return; _habitsLoaded = true;
+  _supa.rpc('my_prescribing_habits').then(function(r) { if (r && r.data) _habits = r.data; });
+}
 var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa,
   getDrugs: function() {
     return Array.prototype.map.call(document.querySelectorAll('#meds-builder .med-row'), function(r) {
@@ -855,6 +861,7 @@ var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa,
     });
   },
   getClient: function() { return _pc.clientId(); },
+  getExclude: function() { return _editId; },
   contextVersion: function() { return String(_pcVer); },
   // Alternative choisie : la ligne garde sa posologie, seul le médicament change
   replace: function(oldId, drug) {
@@ -863,6 +870,11 @@ var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa,
       if (d && d.drug_id === oldId) r._dp.set(drug);
     });
     toast('Médicament remplacé. Vérifiez la posologie.');
+  },
+  // Doublon : retirer une des deux lignes
+  remove: function(drugId) {
+    var rows = Array.prototype.filter.call(document.querySelectorAll('#meds-builder .med-row'), function(r) { var d = r._dp && r._dp.get(); return d && d.drug_id === drugId; });
+    if (rows.length) { rows[rows.length - 1].remove(); toast('Ligne retirée.'); }
   }
 });
 var _uid = null, _isPro = false, _ords = [], _patients = [], _editId = null, _selPatientId = null;
@@ -1195,6 +1207,7 @@ function openModal(id) {
   var o = id ? _ords.find(function(x){return x.id===id;}) : null;
   _selPatientId = o ? (o.client_id || null) : null;
   _pc.load(_selPatientId);
+  loadHabits();
   document.getElementById('f-patient').value      = o ? (o.client_name||'') : '';
   document.getElementById('f-date').value         = o && o.due_date ? o.due_date : new Date().toISOString().slice(0,10);
   document.getElementById('f-title').value        = o ? (o.project_title||'') : '';
@@ -1397,7 +1410,14 @@ function addMedRow(name, posologie, boites, link) {
   // Recherche dans la nomenclature nationale ; la ligne garde la fiche officielle choisie
   row._dp = DrugPicker.attach(medInp, {
     supa: _supa, value: link, fallback: MEDS_DCI,
+    favorites: function() { return _habits.favorites || []; },
     onChange: function(d) {
+      // Posologie habituelle du médecin pour ce médicament, si la ligne est encore vide
+      if (d && !posInp.value.trim() && _habits.posology && _habits.posology[d.drug_id]) {
+        var hp = _habits.posology[d.drug_id];
+        posInp.value = hp.pos || '';
+        if (hp.boites) boitesInp.value = hp.boites;
+      }
       _rx.refresh();
       if (d && d.list === 'STUPEFIANT') {
         var sec = document.getElementById('f-secure');
