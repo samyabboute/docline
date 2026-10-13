@@ -256,7 +256,11 @@ body{
 .status-card.done{background:#F8F8FC;border-color:var(--border)}
 @keyframes pulseBrand{0%,100%{background:#F5F3FF}50%{background:#EDE8FF}}
 @keyframes pulseAmber{0%,100%{background:#FFF7ED}50%{background:#FEF3C7}}
-.status-emoji{font-size:32px;margin-bottom:7px;display:block;line-height:1}
+.status-emoji{width:46px;height:46px;border-radius:15px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;background:#EFEBFF;color:#4C1D95}
+.status-emoji svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.status-card.done .status-emoji{background:#ECFDF3;color:#067647}
+.status-card.called .status-emoji{background:#4C1D95;color:#fff}
+.status-card.imminent .status-emoji{background:#FFF4E0;color:#B54708}
 .status-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px}
 .status-sub{font-size:12px;color:var(--text3);line-height:1.55}
 .status-progress{margin-top:11px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
@@ -482,7 +486,7 @@ body{
       </div>
     </div>
     <div class="status-card waiting" id="status-card">
-      <div class="status-emoji" id="status-emoji">🕐</div>
+      <div class="status-emoji" id="status-emoji" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
       <div class="status-title" id="status-title">En attente de votre tour</div>
       <div class="status-sub" id="status-sub">Restez à proximité du cabinet</div>
       <div class="status-progress">
@@ -835,6 +839,12 @@ function renderAhead(ahead) {
   document.getElementById('status-fill').style.width = pct+'%';
 }
 
+var QJ_ICON = {
+  waiting: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  imminent: '<svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+  called: '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  done: '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>'
+};
 function updateStatusCard(ahead, room) {
   var card  = document.getElementById('status-card');
   var emoji = document.getElementById('status-emoji');
@@ -842,21 +852,21 @@ function updateStatusCard(ahead, room) {
   var sub   = document.getElementById('status-sub');
   card.className = 'status-card';
   if(ahead===-1){
-    card.classList.add('done'); emoji.textContent='✅';
+    card.classList.add('done'); emoji.innerHTML=QJ_ICON.done;
     title.textContent='Consultation terminée'; sub.textContent='Merci de votre visite. Bonne santé !';
     document.getElementById('status-fill').style.width='100%';
   } else if(ahead===0){
-    card.classList.add('called'); emoji.textContent='🟢';
+    card.classList.add('called'); emoji.innerHTML=QJ_ICON.called;
     title.textContent='C\'est votre tour !';
     sub.textContent = room ? 'Rendez-vous en '+room+' maintenant' : 'Veuillez vous présenter au cabinet';
     document.getElementById('status-fill').style.width='100%';
     if(navigator.vibrate) navigator.vibrate([300,100,300]);
     playCallAlert();
   } else if(ahead===1){
-    card.classList.add('imminent'); emoji.textContent='🔔';
+    card.classList.add('imminent'); emoji.innerHTML=QJ_ICON.imminent;
     title.textContent='Vous êtes le suivant !'; sub.textContent='Préparez-vous, restez juste devant la porte';
   } else {
-    card.classList.add('waiting'); emoji.textContent='🕐';
+    card.classList.add('waiting'); emoji.innerHTML=QJ_ICON.waiting;
     title.textContent='En attente de votre tour'; sub.textContent=ahead+' personne'+(ahead>1?'s':'')+' avant vous';
   }
 }

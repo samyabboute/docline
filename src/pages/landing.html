@@ -412,6 +412,34 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
 .tv-qr svg{width:7cqw;height:7cqw;flex-shrink:0}
 .tv-r .tv-qr{justify-content:flex-start}
 @media (max-width:980px){.feat{grid-template-columns:1fr 1fr}.wr{grid-template-columns:1fr;gap:36px;margin-top:80px}}
+/* Captures réelles */
+.f-shot{display:block;width:100%;height:auto;border-radius:0 0 29px 29px}
+.tv-in.shot{display:block;padding:0;background:#F7F6FF}
+.tv-in.shot img{display:block;width:100%;height:100%;object-fit:cover}
+.tour{padding-top:40px}
+.tour-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:44px auto 26px;padding:5px;border-radius:999px;background:rgba(244,242,248,.85);width:max-content;max-width:100%}
+.tour-tabs button{border:0;background:none;padding:9px 16px;border-radius:999px;font-size:.875rem;font-weight:600;color:var(--ink3);cursor:pointer;transition:background .25s,color .25s,box-shadow .25s;white-space:nowrap}
+.tour-tabs button:hover{color:var(--ink)}
+.tour-tabs button[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(13,5,32,.08)}
+.tour-frame{max-width:1080px;margin:0 auto;border-radius:30px;background:rgba(255,255,255,.85);border:1px solid var(--line);box-shadow:0 40px 90px rgba(76,29,149,.14),0 6px 18px rgba(13,5,32,.05);overflow:hidden}
+.tour-frame img{display:block;width:100%;height:auto;transition:opacity .35s ease}
+.tour-frame img.fade{opacity:0}
+.tour-cap{text-align:center;max-width:44em;margin:22px auto 0;font-size:1rem;color:var(--ink3);line-height:1.55;min-height:3.2em}
+.wr-rx,.wr-phone{margin-top:120px}
+.wr-rx{grid-template-columns:1fr 1.05fr}
+.rx-shot{position:relative;max-width:460px;margin:0 auto;border-radius:24px;overflow:hidden;box-shadow:0 40px 90px rgba(76,29,149,.16),0 6px 18px rgba(13,5,32,.06);border:1px solid var(--line);max-height:640px}
+.rx-shot img{display:block;width:100%;height:auto}
+.rx-shot::after{content:'';position:absolute;inset:auto 0 0 0;height:90px;background:linear-gradient(180deg,rgba(251,250,253,0),rgba(251,250,253,.96))}
+.fine{font-size:.8125rem;color:var(--ink4);margin-top:18px;line-height:1.5}
+.phones{position:relative;display:flex;justify-content:center;gap:0;min-height:560px}
+.phone{width:250px;border-radius:42px;padding:10px;background:#0D0520;box-shadow:0 40px 80px rgba(13,5,32,.22);position:relative;z-index:2}
+.phone img{display:block;width:100%;height:auto;border-radius:33px}
+.phone::before{content:'';position:absolute;top:18px;left:50%;transform:translateX(-50%);width:74px;height:20px;border-radius:12px;background:#0D0520;z-index:3}
+.phone.back{z-index:1;margin-left:-40px;margin-top:60px;transform:rotate(4deg);opacity:.98}
+@media (max-width:980px){.wr-rx{grid-template-columns:1fr}.wr-rx .rx-shot{order:2}.phones{min-height:0}}
+@media (max-width:560px){.tour-tabs{border-radius:20px;width:100%}.phone{width:200px;border-radius:34px}.phone img{border-radius:26px}.phone.back{margin-left:-60px}.wr-rx,.wr-phone{margin-top:80px}}
+@media (prefers-reduced-motion:reduce){.tour-frame img{transition:none}}
+
 @media (max-width:600px){.feat{grid-template-columns:1fr}}
 </style>
 </head>
@@ -423,6 +451,7 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
     <a class="logo" href="/" aria-label="Docline, accueil"><svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Docline"><g fill="#3B1772"><g><g><path d="M73,0.8c9.6-2,19.8,7.6,17,17.4c-1.9,9.1-14.1,12.8-21.3,7.5c-4.9-2.9-7.8-9.2-6.6-14.8C63.2,5.7,67.7,1.4,73,0.8z M73.9,7.9c-5.5,1.1-6.4,9.1-1.6,11.7c3.4,2.6,9.1,1.4,10.4-2.9C84.8,11.6,78.9,6.4,73.9,7.9z"/></g><g><path d="M37.2,15.5c5.7-0.9,11.7-0.2,16.5,3.1c6.5,4.4,10.5,11.7,13,19.1c8.6-3.8,17.7-7.3,27.2-6.9c7.7,0.4,14.7,5.6,17.4,12.7c2.2,8.9-2,17.7-7.1,24.7c-9.4,13-23.4,23.9-39.8,25.5c-5.3,4.8-13.3,7.6-20.2,4.6c-8.3-3.8-13.4-11.8-17.6-19.5c-6.5-13.5-9.9-28.9-7.6-43.8C20.8,25.7,27.4,16.8,37.2,15.5z M39.1,23.2c-7.9,1.1-12.2,9.6-12.6,16.9c-0.5,14.9,3.6,30,11.9,42.4c3.3,5,8.7,10.7,15.2,8.5c-0.5-2-3.3-2.4-4.4-4.1c-5.7-5.7-9.3-14-8-22.1c0.2-5.6,4.2-10.8,9.6-12.4c6.7-2.5,15.2,0.3,18.6,6.8c4.6,7.6,3.4,17.1,1,25.3c6.8-1.8,12.5-6.3,18-10.7c6.5-6.3,12.9-13.6,15.1-22.6c1.9-5.8-3-11.5-8.5-12.3c-11.8-2.1-21.4,5.7-31.9,9.2c-4.7,1-8.9-3.8-8.4-8.3c1.2-0.8,2.5-0.1,3.8-0.1C56.4,31.1,49.1,21.1,39.1,23.2z M53.9,59.8c-3,0.8-4.7,3.9-4.5,7c-0.7,7.4,4.1,15.5,11.3,17.6c4.4-6.3,4.8-15.5,1-22.2C59.7,60.1,56.8,59,53.9,59.8z"/></g></g><g><path d="M166.9,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-1,0-1.9-0.2-2.7-0.7c-0.8-0.5-1.4-1.1-1.9-1.8c-1.5,0.9-3.2,1.7-4.9,2.2c-1.8,0.5-3.6,0.8-5.5,0.8c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9c0-2.8,0.5-5.4,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c1.8,0,3.5,0.2,5.1,0.6c1.6,0.4,3.2,1,4.6,1.8V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z M137.6,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8v-0.4c-0.1-1.3-0.3-2.5-0.9-3.7c-0.5-1.1-1.2-2.1-2.1-2.9c-0.9-0.8-1.9-1.5-3-2c-1.2-0.5-2.4-0.7-3.7-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C136.9,58.8,137.1,60.1,137.6,61.3z"/><path d="M174.7,49.6c1.1-2.5,2.5-4.6,4.4-6.5c1.8-1.8,4-3.3,6.5-4.4c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.9,1.6c2.5,1.1,4.6,2.5,6.4,4.4c1.8,1.8,3.3,4,4.3,6.5c1.1,2.5,1.6,5.1,1.6,7.9c0,2.8-0.5,5.4-1.6,7.9c-1.1,2.5-2.5,4.6-4.3,6.5c-1.8,1.8-4,3.3-6.4,4.3c-2.5,1.1-5.1,1.6-7.9,1.6c-2.8,0-5.4-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.8-1.8-3.3-4-4.4-6.5c-1.1-2.5-1.6-5.1-1.6-7.9C173.1,54.7,173.6,52,174.7,49.6z M184.4,61.3c0.5,1.2,1.2,2.2,2.1,3.1c0.9,0.9,1.9,1.6,3.1,2.1c1.2,0.5,2.4,0.7,3.8,0.7c1.4,0,2.6-0.2,3.8-0.7c1.2-0.5,2.2-1.2,3.1-2.1c0.9-0.9,1.6-1.9,2.1-3.1c0.5-1.2,0.8-2.4,0.8-3.8c0-1.4-0.3-2.6-0.8-3.8c-0.5-1.2-1.2-2.2-2.1-3.1c-0.9-0.9-1.9-1.6-3.1-2.1c-1.2-0.5-2.5-0.7-3.8-0.7c-1.3,0-2.6,0.2-3.8,0.7c-1.2,0.5-2.2,1.2-3.1,2.1c-0.9,0.9-1.6,1.9-2.1,3.1c-0.5,1.2-0.8,2.4-0.8,3.8C183.7,58.8,183.9,60.1,184.4,61.3z"/><path d="M233.6,48.7c-1.1,0.6-2,1.3-2.8,2.2c-0.8,0.9-1.4,1.9-1.9,3.1c-0.5,1.1-0.7,2.3-0.7,3.5c0,1.1,0.2,2.3,0.7,3.4c0.5,1.1,1.1,2.1,1.9,3c0.8,0.9,1.7,1.6,2.8,2.2c1.1,0.6,2.3,0.9,3.6,0.9c1.2,0.1,2.3,0,3.4-0.3c1.1-0.3,2.2-0.9,3.4-1.8c0.5-0.4,1.1-0.8,1.7-1.2c0.6-0.4,1.3-0.7,2-0.8c0.7-0.2,1.5-0.1,2.2,0c0.8,0.2,1.6,0.6,2.5,1.4c0.6,0.5,1,1.1,1.3,1.7c0.3,0.7,0.4,1.3,0.4,2.1c0,0.7-0.2,1.4-0.5,2.2c-0.3,0.7-0.8,1.4-1.4,2c-1.8,1.8-3.9,3.2-6.3,4.1c-2.4,0.9-5,1.4-7.6,1.4c-2.9,0-5.6-0.5-8.1-1.6c-2.5-1-4.7-2.5-6.6-4.3c-1.9-1.8-3.4-3.9-4.5-6.4c-1.1-2.5-1.6-5.1-1.6-8c0-2.8,0.5-5.5,1.6-8c1.1-2.5,2.6-4.7,4.5-6.5c1.9-1.8,4.1-3.3,6.6-4.4c2.5-1.1,5.2-1.6,8.1-1.6c2.7,0,5.3,0.5,7.7,1.4c2.4,0.9,4.5,2.3,6.3,4.1c0.6,0.6,1.1,1.3,1.4,2c0.3,0.7,0.5,1.5,0.5,2.2c0,0.7-0.1,1.4-0.4,2.1c-0.3,0.7-0.7,1.2-1.3,1.7c-0.9,0.7-1.7,1.2-2.5,1.4c-0.8,0.2-1.5,0.2-2.2,0c-0.7-0.2-1.4-0.5-2-0.9c-0.6-0.4-1.2-0.8-1.7-1.2c-1.2-0.9-2.3-1.5-3.4-1.7c-1.1-0.3-2.2-0.4-3.4-0.4C235.8,47.9,234.6,48.2,233.6,48.7z"/><path d="M270.7,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.6,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V27.9c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.6-1.2,1.1-1.6c0.5-0.5,1-0.8,1.7-1.1c0.6-0.3,1.3-0.4,2.1-0.4c0.7,0,1.4,0.1,2.1,0.4c0.6,0.3,1.2,0.6,1.7,1.1c0.5,0.5,0.9,1,1.1,1.6c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M279.2,25.7c0.3-0.7,0.7-1.3,1.2-1.8c0.5-0.5,1.1-0.9,1.8-1.2c0.7-0.3,1.4-0.4,2.2-0.4c0.8,0,1.5,0.1,2.2,0.4c0.7,0.3,1.3,0.7,1.8,1.2c0.5,0.5,0.9,1.1,1.2,1.8c0.3,0.7,0.4,1.4,0.4,2.2c0,0.8-0.1,1.5-0.4,2.2c-0.3,0.7-0.7,1.3-1.2,1.8c-0.5,0.5-1.1,0.9-1.8,1.2c-0.7,0.3-1.4,0.4-2.2,0.4c-0.8,0-1.5-0.1-2.2-0.4c-0.7-0.3-1.3-0.7-1.8-1.2c-0.5-0.5-0.9-1.1-1.2-1.8c-0.3-0.7-0.4-1.4-0.4-2.2C278.8,27.1,278.9,26.4,279.2,25.7z M289.8,72.1c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1c0.7-0.3,1.4-0.4,2.1-0.4c0.7,0,1.4,0.1,2,0.4c0.6,0.3,1.2,0.6,1.6,1.1c0.5,0.5,0.8,1,1.1,1.7c0.3,0.6,0.4,1.3,0.4,2V72.1z"/><path d="M303.7,37.1c1.2,0,2.2,0.4,3.1,1.1c0.9,0.7,1.5,1.6,1.8,2.7c1.4-1.2,2.9-2.1,4.5-2.7c1.6-0.7,3.2-1,5-1c2.5,0,4.8,0.5,6.9,1.5s3.9,2.4,5.4,4.2c1.5,1.8,2.7,3.9,3.5,6.3c0.8,2.4,1.3,5,1.3,7.7v15.4c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.7,1.2-1.1,1.6c-0.5,0.5-1,0.8-1.7,1.1c-0.7,0.3-1.3,0.4-2.1,0.4c-0.7,0-1.4-0.1-2-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.8-1-1.1-1.6c-0.3-0.6-0.4-1.3-0.4-2V56.9c0-1.3-0.2-2.5-0.6-3.6c-0.4-1.1-0.9-2.1-1.5-2.9c-0.7-0.8-1.4-1.5-2.4-2c-0.9-0.5-2-0.7-3.2-0.7c-1.2,0-2.2,0.2-3.2,0.6c-1,0.4-1.8,1-2.5,1.8c-0.7,0.8-1.3,1.7-1.7,2.7c-0.4,1.1-0.6,2.2-0.7,3.5v15.8c0,0.7-0.1,1.4-0.4,2c-0.3,0.6-0.6,1.2-1.1,1.7c-0.5,0.5-1,0.9-1.7,1.1c-0.6,0.3-1.3,0.4-2,0.4c-0.7,0-1.4-0.1-2.1-0.4c-0.6-0.3-1.2-0.6-1.7-1.1c-0.5-0.5-0.9-1-1.2-1.7c-0.3-0.6-0.4-1.3-0.4-2V42.4c0-0.7,0.1-1.4,0.4-2c0.3-0.6,0.7-1.2,1.2-1.7c0.5-0.5,1.1-0.9,1.7-1.1C302.3,37.2,303,37.1,303.7,37.1z"/><path d="M352.6,62.2c0.8,1.6,2,3,3.6,3.9c1.5,1,3.3,1.5,5.1,1.5c0.8,0,1.4,0,2-0.1c0.6-0.1,1-0.2,1.5-0.4c0.4-0.2,0.8-0.3,1.2-0.6c0.3-0.2,0.7-0.5,1-0.7c0.9-0.7,1.9-1.2,2.7-1.3c0.9-0.1,1.7,0,2.5,0.3c0.5,0.2,1,0.5,1.4,0.9c0.4,0.4,0.8,0.9,1.1,1.4c0.3,0.5,0.5,1.1,0.7,1.7c0.1,0.6,0.2,1.2,0.1,1.8c-0.1,0.6-0.3,1.2-0.6,1.8c-0.3,0.6-0.8,1.1-1.4,1.6c-0.6,0.5-1.2,1-2,1.4c-0.7,0.5-1.6,0.9-2.6,1.2c-1,0.4-2.1,0.6-3.3,0.9c-1.3,0.2-2.7,0.3-4.3,0.3c-2.8,0-5.5-0.5-7.9-1.6c-2.5-1.1-4.6-2.5-6.5-4.3c-1.9-1.8-3.3-4-4.4-6.4c-1.1-2.5-1.6-5.1-1.6-7.9s0.5-5.5,1.6-7.9c1.1-2.5,2.5-4.6,4.4-6.5c1.9-1.8,4-3.3,6.5-4.3c2.5-1.1,5.1-1.6,7.9-1.6c2.8,0,5.4,0.5,7.8,1.6c2.5,1,4.6,2.5,6.5,4.3c1.8,1.8,3.3,3.9,4.4,6.4c1.1,2.4,1.7,5,1.7,7.8c0,1.5-0.5,2.7-1.4,3.6c-1,0.9-2.2,1.4-3.8,1.4H352.6z M370.8,53.4c-0.7-1.9-1.9-3.4-3.6-4.5c-1.7-1.1-3.6-1.7-5.8-1.7c-1.1,0-2.1,0.2-3.1,0.5c-1,0.3-1.8,0.7-2.6,1.3c-0.8,0.6-1.5,1.2-2.1,2c-0.6,0.8-1.1,1.6-1.4,2.5H370.8z"/></g></g></svg></a>
     <a class="nav-a" href="#quoi">Docline</a>
     <a class="nav-a" href="#parcours">Comment ça marche</a>
+    <a class="nav-a" href="#visite">Le produit</a>
     <a class="nav-a" href="#fonctionnalites">Fonctionnalités</a>
     <a class="nav-a" href="#tarifs">Tarifs</a>
     <button type="button" class="nav-cta" data-space-menu>
@@ -453,37 +482,13 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
   </div>
   <div class="wrap">
     <div class="stage3d">
-      <div class="frame" id="frame" aria-hidden="true">
+      <div class="frame" id="frame">
         <div class="f-bar"><i></i><i></i><i></i><span>docline.health/dashboard</span></div>
-        <div class="f-body">
-          <nav class="f-side">
-            <a class="on"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</a><a><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Agenda</a><a><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Patients</a><a><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Ordonnances</a><a><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>File d'attente</a>
-          </nav>
-          <div class="f-main">
-            <div class="f-hello">Bonjour Dr Haddad</div>
-            <div class="f-date">Mardi 14 octobre</div>
-            <div class="f-tiles">
-              <div class="f-tile hl"><b>12</b><span>rendez-vous aujourd'hui</span></div>
-              <div class="f-tile"><b>3</b><span>en salle d'attente</span></div>
-              <div class="f-tile"><b>2</b><span>demandes en ligne</span></div>
-            </div>
-            <div class="f-list">
-              <div class="slot"><time>09:00</time><div><b>Consultation</b><small>Salle 1</small></div><span class="tag ok">Arrivé</span></div>
-              <div class="slot"><time>09:30</time><div><b>Suivi tension</b><small>Ordonnance à renouveler</small></div><span class="tag ok">Confirmé</span></div>
-              <div class="slot"><time>10:15</time><div><b>Contrôle tension</b><small>Rappel envoyé</small></div><span class="tag ok">Confirmé</span></div>
-              <div class="slot"><time>11:30</time><div><b>Première visite</b><small>Réservé en ligne</small></div><span class="tag new">Nouveau</span></div>
-            </div>
-          </div>
-          <aside class="f-q">
-            <h4>File d'attente</h4>
-            <div class="qitem cur"><span class="n">1</span><div><b>En consultation</b><small>Depuis 09:05</small></div></div>
-            <div class="qitem"><span class="n">2</span><div><b>Rendez-vous 09:30</b><small>Prioritaire</small></div></div>
-            <div class="qitem"><span class="n">3</span><div><b>Sans rendez-vous</b><small>Arrivé à 09:12</small></div></div>
-          </aside>
-        </div>
+        <img class="f-shot" src="img/landing/tableau-de-bord.webp" width="1440" height="900" fetchpriority="high"
+             alt="Tableau de bord Docline : patients récents, file d’attente du jour et raccourcis">
       </div>
     </div>
-    <p class="show-note">Illustration avec des données d'exemple</p>
+    <p class="show-note">Capture réelle de Docline, avec des données de démonstration</p>
   </div>
 </section>
 
@@ -529,6 +534,31 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
   </div>
 </section>
 
+<!-- ══ VISITE DU PRODUIT ══ -->
+<section class="section tour" id="visite">
+  <div class="wrap">
+    <div class="center sr">
+      <p class="eyebrow">Le produit, en vrai</p>
+      <h2 class="h2">Voyez Docline<br>comme vos journées.</h2>
+      <p class="sub">Des captures réelles de l’application, avec un cabinet de démonstration.</p>
+    </div>
+    <div class="tour-tabs sr" role="tablist" aria-label="Écrans de Docline">
+      <button type="button" role="tab" aria-selected="true" data-shot="file-attente" data-cap="Les patients prennent leur numéro par QR code. Vous appelez le suivant d’un clic, l’écran de la salle se met à jour.">File d’attente</button>
+      <button type="button" role="tab" aria-selected="false" data-shot="agenda" data-cap="Le mois, la semaine et les tâches du cabinet. Les rendez-vous en ligne s’y ajoutent seuls.">Agenda</button>
+      <button type="button" role="tab" aria-selected="false" data-shot="rendez-vous" data-cap="Les demandes des patients arrivent ici. Confirmer, terminer, envoyer un rappel SMS : un clic chacun.">Rendez-vous en ligne</button>
+      <button type="button" role="tab" aria-selected="false" data-shot="patients" data-cap="Chaque patient a sa fiche : assurance CNAS ou CASNOS, groupe sanguin, antécédents, consultations.">Patients</button>
+      <button type="button" role="tab" aria-selected="false" data-shot="consultations" data-cap="L’historique médical du cabinet : diagnostics, maladies chroniques et suivis à venir.">Consultations</button>
+      <button type="button" role="tab" aria-selected="false" data-shot="experience" data-cap="Ce que vivent vos patients, mesuré à chaque passage : badges, attente par jour et par heure, messages de remerciement.">Expérience patients</button>
+      <button type="button" role="tab" aria-selected="false" data-shot="profil-public" data-cap="Votre page publique : les patients vous trouvent et réservent sans vous appeler.">Profil public</button>
+    </div>
+    <div class="tour-frame sr">
+      <div class="f-bar"><i></i><i></i><i></i><span id="tour-url">docline.health/queue</span></div>
+      <img id="tour-img" src="img/landing/file-attente.webp" width="1440" height="900" loading="lazy" alt="Docline : file d’attente du cabinet">
+    </div>
+    <p class="tour-cap" id="tour-cap" aria-live="polite">Les patients prennent leur numéro par QR code. Vous appelez le suivant d’un clic, l’écran de la salle se met à jour.</p>
+  </div>
+</section>
+
 <!-- ══ FONCTIONNALITÉS ══ -->
 <section class="section" id="fonctionnalites" style="padding-top:40px">
   <div class="wrap">
@@ -555,20 +585,48 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
           <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg><span><b>Vous fixez les règles</b> : pause, fermeture, horaires, dernière arrivée, nombre de patients par jour.</span></li>
         </ul>
       </div>
-      <div class="tv sr d2" role="img" aria-label="Aperçu de l'écran de salle d'attente Docline">
-        <div class="tv-in">
-          <div class="tv-card tv-l">
-            <small>En consultation</small>
-            <div class="tv-now"><div class="tv-num">12</div><div><div class="tv-name">Amina K.</div><span class="tv-room">Salle 2</span></div></div>
-            <div class="tv-next"><span>13</span><span>14</span><span>15</span><span>16</span></div>
-          </div>
-          <div class="tv-r">
-            <div class="tv-card"><small>Docline</small><b>Prenez votre ticket depuis votre téléphone.</b></div>
-            <div class="tv-card tv-qr"><svg viewBox="0 0 21 21" aria-hidden="true" shape-rendering="crispEdges"><path fill="#0D0520" d="M0 0h7v7H0zM14 0h7v7h-7zM0 14h7v7H0z"/><path fill="#fff" d="M1 1h5v5H1zM15 1h5v5h-5zM1 15h5v5H1z"/><path fill="#0D0520" d="M2 2h3v3H2zM16 2h3v3h-3zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h3v1H8zM0 8h2v1H0zM3 9h3v1H3zM8 8h2v2H8zM11 9h3v1h-3zM15 8h2v2h-2zM18 9h3v1h-3zM9 11h1v3H9zM12 12h2v2h-2zM16 11h2v1h-2zM19 12h2v2h-2zM8 15h2v1H8zM11 16h1v3h-1zM14 15h3v1h-3zM15 17h1v2h-1zM18 16h2v2h-2zM13 19h2v2h-2zM17 19h4v1h-4zM8 18h2v3H8z"/></svg>Rejoindre la file</div>
-          </div>
-        </div>
+      <div class="tv sr d2">
+        <div class="tv-in shot"><img src="img/landing/ecran-tv.webp" width="1600" height="900" loading="lazy"
+          alt="Écran de salle d’attente Docline : numéro en consultation, numéros suivants et QR code pour rejoindre la file"></div>
       </div>
     </div>
+    <div class="wr wr-rx">
+      <div class="rx-shot sr d2">
+        <img src="img/landing/ordonnance.webp" width="600" height="1150" loading="lazy"
+             alt="Ordonnance Docline : contexte du patient, médicaments de la nomenclature et panneau de vérification">
+      </div>
+      <div class="sr">
+        <p class="eyebrow">Ordonnance</p>
+        <h2 class="h2" style="font-size:clamp(2rem,3.8vw,3rem)">Une ordonnance qui se vérifie pendant que vous l’écrivez.</h2>
+        <p class="sub">Les 9 592 médicaments de la nomenclature nationale, trouvés en trois lettres. Chaque ligne est contrôlée avant l’impression.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg><span><b>Même molécule deux fois</b> : Doliprane et Efferalgan sur la même ordonnance, signalés aussitôt.</span></li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg><span><b>Médicament retiré ou non renouvelé</b> dans la nomenclature, avec la date et le motif officiels.</span></li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg><span><b>Traitements en cours</b> : vos ordonnances précédentes pour ce patient entrent dans la vérification.</span></li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg><span><b>Allergies du dossier</b> vérifiées à chaque médicament, et votre posologie habituelle pré-remplie.</span></li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg><span><b>Interactions médicamenteuses</b> validées par un pharmacien, avec l’alternative en un clic : en cours de déploiement.</span></li>
+        </ul>
+        <p class="fine">L’alerte d’interaction visible sur la capture sera activée après validation par notre pharmacien.</p>
+      </div>
+    </div>
+
+    <div class="wr wr-phone">
+      <div class="sr">
+        <p class="eyebrow">Côté patient</p>
+        <h2 class="h2" style="font-size:clamp(2rem,3.8vw,3rem)">Le patient attend où il veut. Pas debout dans le couloir.</h2>
+        <p class="sub">Il scanne le QR code de l’accueil et suit son tour sur son téléphone, sans application à installer.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg><span><b>Son numéro et les patients avant lui</b>, mis à jour en direct.</span></li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg><span><b>Une attente estimée sur le vrai rythme de votre cabinet</b>, jamais inventée.</span></li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg><span><b>Après la consultation, trois questions</b> : il répond en cinq secondes et vous gagnez des badges vérifiés sur votre page publique.</span></li>
+        </ul>
+      </div>
+      <div class="phones sr d2">
+        <div class="phone"><img src="img/landing/telephone-file.webp" width="420" height="900" loading="lazy" alt="Téléphone du patient : son numéro dans la file d’attente et l’attente estimée"></div>
+        <div class="phone back"><img src="img/landing/telephone-avis.webp" width="420" height="900" loading="lazy" alt="Téléphone du patient après la consultation : trois questions oui ou non"></div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -808,5 +866,35 @@ footer{border-top:1px solid var(--line);padding:56px 0 calc(40px + env(safe-area
 })();
 </script>
 <script src="docline-space.js?v=3" defer></script>
+
+<script>
+/* Visite du produit : onglets avec fondu, images préchargées */
+(function(){
+  var tabs = document.querySelectorAll('.tour-tabs [data-shot]'), img = document.getElementById('tour-img'), cap = document.getElementById('tour-cap'), url = document.getElementById('tour-url');
+  if (!tabs.length || !img) return;
+  var URLS = { 'file-attente':'queue', 'agenda':'calendar', 'rendez-vous':'mes-rdv', 'patients':'patients', 'consultations':'consultations', 'experience':'avis', 'profil-public':'profil-public' };
+  var loaded = false;
+  function preload(){ if (loaded) return; loaded = true; tabs.forEach(function(t){ var i = new Image(); i.src = 'img/landing/' + t.dataset.shot + '.webp'; }); }
+  function show(t){
+    tabs.forEach(function(x){ x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
+    img.classList.add('fade');
+    setTimeout(function(){
+      img.src = 'img/landing/' + t.dataset.shot + '.webp';
+      img.alt = 'Docline : ' + t.textContent.toLowerCase();
+      cap.textContent = t.dataset.cap;
+      if (url) url.textContent = 'docline.health/' + URLS[t.dataset.shot];
+      img.onload = function(){ img.classList.remove('fade'); };
+      if (img.complete) img.classList.remove('fade');
+    }, 180);
+  }
+  tabs.forEach(function(t){ t.addEventListener('click', function(){ preload(); show(t); }); t.addEventListener('mouseenter', preload); });
+  var list = document.querySelector('.tour-tabs');
+  list.addEventListener('keydown', function(e){
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var arr = Array.prototype.slice.call(tabs), i = arr.findIndex(function(x){ return x.getAttribute('aria-selected') === 'true'; });
+    var n = arr[(i + (e.key === 'ArrowRight' ? 1 : -1) + arr.length) % arr.length]; n.focus(); preload(); show(n);
+  });
+})();
+</script>
 </body>
 </html>

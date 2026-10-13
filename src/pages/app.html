@@ -792,17 +792,22 @@ function renderKPIs(patients, queue, consultations) {
     { cls:'kpi-amber', icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
       val: (queue||[]).filter(function(q){return q.status==='waiting';}).length, lbl:'En attente', trend:'En salle', tclass:'trend-neutral' },
     { cls:'kpi-red',   icon:'<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/>',
-      val: 0, lbl:'Ordonnances ce mois', trend:'Charger…', tclass:'trend-neutral' },
+      val: '…', lbl:'Ordonnances ce mois', trend:'Ce mois-ci', tclass:'trend-neutral', id:'kpi-ord-month' },
   ];
 
   document.getElementById('kpi-grid').innerHTML = kpis.map(function(k) {
     return '<div class="kpi '+k.cls+'">'
       +'<div class="kpi-icon"><svg viewBox="0 0 24 24">'+k.icon+'</svg></div>'
-      +'<div class="kpi-val">'+k.val+'</div>'
+      +'<div class="kpi-val"'+(k.id?' id="'+k.id+'"':'')+'>'+k.val+'</div>'
       +'<div class="kpi-lbl">'+k.lbl+'</div>'
       +'<span class="kpi-trend '+k.tclass+'">'+k.trend+'</span>'
       +'</div>';
   }).join('');
+  // Vrai nombre d'ordonnances du mois (aucune valeur fixe)
+  var first = new Date(); first.setDate(1); first.setHours(0, 0, 0, 0);
+  _supa.from('proposals').select('id', { count: 'exact', head: true })
+    .eq('user_id', _uid).eq('project_type', 'ordonnance').gte('created_at', first.toISOString())
+    .then(function(r) { var el = document.getElementById('kpi-ord-month'); if (el) el.textContent = (r && !r.error && r.count != null) ? r.count : '—'; });
 }
 
 // ── PATIENTS LIST ──────────────────────────────────────
