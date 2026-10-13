@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <script src="config.js?v=4"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="shell.js?v=17"></script>
+  <script src="shell.js?v=18"></script>
   <style>
     /* ── CSS aliases for shell vars ─────────────────────────── */
     :root{
@@ -451,10 +451,10 @@ var _toastTimer = null;
 var _modalRdv = null;
 
 /* ── Auth guard ──────────────────────────────────────────────── */
-_sb.auth.getSession().then(function(r){
+_sb.auth.getSession().then(async function(r){
   var sess = r && r.data && r.data.session;
   if(!sess){ window.location.href=ghpNav('/login'); return; }
-  _uid = sess.user.id;
+  _uid = await Shell.acting(_sb, sess.user.id);
   var email = sess.user.email || '';
   var meta  = sess.user.user_metadata || {};
   var name  = Shell.displayName(meta, email);

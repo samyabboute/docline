@@ -62,8 +62,10 @@ Shell = (function () {
       icon:'<path d="M12 2.8l2.83 5.73 6.32.92-4.57 4.46 1.08 6.3L12 17.24l-5.66 2.97 1.08-6.3-4.57-4.46 6.32-.92z"/>' },
 
     // ── Mon équipe
-    { section: 'Mon équipe' },
-    { href:'/staff',              key:'staff',          label:'Personnel',    pro:true,
+    { section: 'Établissement' },
+    { href:'/clinic-agenda',      key:'clinic-agenda',  label:'Agenda partagé', clinic:true,
+      icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8.5" cy="15" r="1.4"/><circle cx="12" cy="15" r="1.4"/><circle cx="15.5" cy="15" r="1.4"/>' },
+    { href:'/staff',              key:'staff',          label:'Équipe et accès', pro:true,
       icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/>' },
   ];
 
@@ -662,14 +664,19 @@ button{font-family:inherit;cursor:pointer}
 /* ── ONBOARDING ─────────────────────────────────────────────── */
 #ob-ov{position:fixed;inset:0;background:rgba(15,10,40,.75);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(10px);animation:ob-bg .4s ease both}
 @keyframes ob-bg{from{opacity:0}to{opacity:1}}
-#ob-modal{background:#fff;border-radius:24px;width:100%;max-width:480px;box-shadow:0 32px 80px rgba(0,0,0,.30);overflow:hidden;animation:ob-pop .45s cubic-bezier(.34,1.56,.64,1) both}
+#ob-modal{background:#fff;border-radius:24px;width:100%;max-width:620px;max-height:calc(100vh - 32px);overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.30);overflow:hidden;animation:ob-pop .45s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes ob-pop{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:none}}
 .ob-bar{height:4px;background:#DDD6FE}
 .ob-fill{height:100%;background:linear-gradient(90deg,#6D28D9,#8B5CF6);border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1)}
-.ob-body{padding:32px 32px 20px;min-height:300px}
+.ob-shot{padding:22px 22px 0;background:linear-gradient(160deg,#F5F3FF 0%,#EEF4FF 100%)}
+.ob-win{border-radius:14px 14px 0 0;overflow:hidden;background:#fff;box-shadow:0 -1px 0 rgba(109,40,217,.08),0 18px 40px -18px rgba(46,16,101,.35);border:1px solid rgba(109,40,217,.12);border-bottom:none;animation:ob-zoom .5s cubic-bezier(.22,1,.36,1) both .05s}
+.ob-win-bar{height:22px;display:flex;align-items:center;gap:5px;padding:0 10px;background:#FAFAFF;border-bottom:1px solid #EEEAFB}
+.ob-win-bar i{width:7px;height:7px;border-radius:50%;background:#E4DFF5}
+.ob-win img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#F7F6FF}
+.ob-body{padding:24px 32px 6px}
 .ob-illo{height:150px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;position:relative}
 .ob-illo-inner{animation:ob-zoom .5s cubic-bezier(.34,1.56,.64,1) both .1s}
-@keyframes ob-zoom{from{opacity:0;transform:scale(.65) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes ob-zoom{from{transform:translateY(14px)}to{transform:none}}
 .ob-chip{display:inline-block;font-size:10px;font-weight:700;color:#6D28D9;background:#DDD6FE;border-radius:99px;padding:3px 10px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
 .ob-title{font-size:21px;font-weight:900;color:#0D0520;letter-spacing:-.4px;line-height:1.25;margin-bottom:10px}
 .ob-desc{font-size:13.5px;color:#6B7280;line-height:1.7;margin-bottom:10px}
@@ -690,7 +697,7 @@ button{font-family:inherit;cursor:pointer}
 @media(max-width:480px){
   .ob-body{padding:22px 18px 14px}
   .ob-foot{padding:14px 18px 22px}
-  .ob-illo{height:110px}
+  .ob-shot{padding:14px 14px 0}
   .ob-title{font-size:18px}
 }
 
@@ -699,6 +706,28 @@ button{font-family:inherit;cursor:pointer}
 .sb-item.locked-clickable:hover{background:none!important;color:var(--text-2)!important}
 .sb-item.locked-clickable svg.sb-lock-ico{display:block!important}
 .sb-lock-ico{display:none;width:11px;height:11px;margin-left:auto;fill:none;stroke:var(--text-3);stroke-width:2.2;flex-shrink:0;stroke-linecap:round}
+
+/* ── CONTEXTE ÉTABLISSEMENT (sélecteur de médecin) ── */
+.sb-ctx{position:relative;margin:4px 10px 6px}
+.sb-ctx-btn{width:100%;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;border:1px solid rgba(109,40,217,.14);background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(245,243,255,.9));box-shadow:0 1px 2px rgba(76,29,149,.06),0 6px 18px -10px rgba(109,40,217,.35);cursor:pointer;font-family:inherit;text-align:left;transition:border-color .15s,box-shadow .15s}
+.sb-ctx-btn:hover{border-color:rgba(109,40,217,.3)}
+.sb-ctx-btn:focus-visible{outline:2px solid #6D28D9;outline-offset:2px}
+.sb-ctx-av{width:30px;height:30px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;letter-spacing:.3px;color:#fff;background:linear-gradient(135deg,#6D28D9,#23A7EA)}
+.sb-ctx-av.own{background:linear-gradient(135deg,#A78BFA,#7C3AED)}
+.sb-ctx-av.sm{width:26px;height:26px;border-radius:8px;font-size:10px}
+.sb-ctx-txt{display:flex;flex-direction:column;min-width:0;flex:1}
+.sb-ctx-org{font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-ctx-who{font-size:11.5px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-ctx-chev{width:14px;height:14px;fill:none;stroke:var(--text-3);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.sb-ctx-role{display:flex;align-items:center;gap:5px;margin:6px 4px 0;font-size:11px;font-weight:600;color:#6D28D9}
+.sb-ctx-role svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.2}
+.sb-ctx-pop{display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:60;max-height:340px;overflow:auto;padding:6px;border-radius:16px;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border:1px solid rgba(109,40,217,.12);box-shadow:0 18px 40px -12px rgba(46,16,101,.28)}
+.sb-ctx.open .sb-ctx-pop{display:block;animation:sna-in .16s ease}
+.sb-ctx-grp{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);padding:8px 8px 4px}
+.sb-ctx-opt{width:100%;display:flex;align-items:center;gap:9px;padding:7px 8px;border:none;background:none;border-radius:10px;cursor:pointer;font-family:inherit;text-align:left}
+.sb-ctx-opt:hover,.sb-ctx-opt:focus-visible{background:#F5F3FF;outline:none}
+.sb-ctx-opt.on{background:#EDE9FE}
+.sb-ctx-ok{width:15px;height:15px;fill:none;stroke:#6D28D9;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 
 /* ── NO-ACCESS OVERLAY ── */
 .shell-no-access{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;animation:sna-in .25s ease}
@@ -846,7 +875,7 @@ button{font-family:inherit;cursor:pointer}
           + '<svg class="sb-lock-ico" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
           + '</a>';
       }
-      return '<a href="' + n.href + '" class="' + cls + '" data-key="' + n.key + '">'
+      return '<a href="' + n.href + '" class="' + cls + '" data-key="' + n.key + '"' + (n.clinic && plan !== 'clinic' ? ' style="display:none" data-clinic="1"' : '') + '>'
         + '<svg viewBox="0 0 24 24">' + n.icon + '</svg>'
         + '<span class="sb-lbl">' + n.label + '</span>'
         + rdvBadge
@@ -1085,206 +1114,127 @@ button{font-family:inherit;cursor:pointer}
   }
 
   // ── ONBOARDING ────────────────────────────────────────────────
-  var _OB_KEY = 'docline_ob_v1';
-  var _obStep = 0;
-
-  var _OB_STEPS = [
-    {
-      chip: 'Bienvenue',
-      title: 'Votre cabinet médical numérique',
-      desc: 'Docline centralise vos patients, consultations et rendez-vous. Suivez ce guide pour tout configurer en 4 étapes.',
-      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
-          + '<rect x="10" y="20" width="160" height="90" rx="14" fill="#EDE8FF"/>'
-          + '<rect x="24" y="34" width="60" height="62" rx="10" fill="#6D28D9"/>'
-          + '<circle cx="54" cy="55" r="14" fill="#fff" opacity=".9"/>'
-          + '<rect x="30" y="76" width="48" height="6" rx="3" fill="#fff" opacity=".5"/>'
-          + '<rect x="30" y="86" width="36" height="5" rx="2.5" fill="#fff" opacity=".3"/>'
-          + '<rect x="94" y="34" width="62" height="18" rx="6" fill="#fff" opacity=".8"/>'
-          + '<rect x="100" y="40" width="30" height="5" rx="2.5" fill="#6D28D9" opacity=".4"/>'
-          + '<rect x="94" y="58" width="62" height="18" rx="6" fill="#fff" opacity=".8"/>'
-          + '<rect x="100" y="64" width="42" height="5" rx="2.5" fill="#6D28D9" opacity=".4"/>'
-          + '<rect x="94" y="78" width="62" height="18" rx="6" fill="#7C3AED" opacity=".8"/>'
-          + '<rect x="100" y="84" width="28" height="5" rx="2.5" fill="#fff" opacity=".6"/>'
-          + '<circle cx="148" cy="26" r="10" fill="#7C3AED"/>'
-          + '<path d="M144 26l2.5 2.5L152 23" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>'
-          + '</svg>',
-    },
-    {
-      chip: 'Étape 1 — Profil',
-      title: 'Complétez votre fiche publique',
-      desc: 'Renseignez votre spécialité, votre adresse et une photo de profil. Les patients vous trouveront via la plateforme.',
-      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
-          + '<rect x="20" y="10" width="140" height="110" rx="14" fill="#F3F0FF"/>'
-          + '<rect x="36" y="22" width="108" height="70" rx="10" fill="#fff" stroke="#E8EAF0" stroke-width="1.5"/>'
-          + '<circle cx="70" cy="50" r="18" fill="#EDE8FF"/>'
-          + '<circle cx="70" cy="46" r="8" fill="#7C3AED" opacity=".7"/>'
-          + '<path d="M54 66c0-8.8 7.2-10 16-10s16 1.2 16 10" fill="#7C3AED" opacity=".4"/>'
-          + '<rect x="96" y="36" width="36" height="6" rx="3" fill="#6D28D9" opacity=".6"/>'
-          + '<rect x="96" y="48" width="24" height="5" rx="2.5" fill="#7B8194" opacity=".5"/>'
-          + '<rect x="96" y="59" width="42" height="5" rx="2.5" fill="#7B8194" opacity=".3"/>'
-          + '<rect x="96" y="70" width="20" height="14" rx="4" fill="#6D28D9" opacity=".8"/>'
-          + '<rect x="36" y="100" width="108" height="12" rx="6" fill="#EDE8FF"/>'
-          + '<rect x="36" y="100" width="72" height="12" rx="6" fill="#6D28D9" opacity=".7"/>'
-          + '</svg>',
-      href: '/profil-public',
-    },
-    {
-      chip: 'Étape 2 — Disponibilités',
-      title: 'Définissez vos créneaux',
-      desc: 'Indiquez vos jours et horaires de travail. Les patients ne pourront réserver que sur ces créneaux.',
-      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
-          + '<rect x="16" y="10" width="148" height="110" rx="14" fill="#F3F0FF"/>'
-          + '<rect x="28" y="22" width="124" height="90" rx="10" fill="#fff" stroke="#E8EAF0" stroke-width="1.5"/>'
-          + '<rect x="28" y="22" width="124" height="22" rx="10" fill="#6D28D9"/>'
-          + '<rect x="28" y="32" width="124" height="12" rx="0" fill="#6D28D9"/>'
-          + '<rect x="34" y="26" width="30" height="10" rx="3" fill="#fff" opacity=".2"/>'
-          + '<text x="90" y="37" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="sans-serif">Lun — Ven</text>'
-          + '<rect x="34" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
-          + '<rect x="34" y="50" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
-          + '<rect x="64" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
-          + '<rect x="64" y="50" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
-          + '<rect x="94" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
-          + '<rect x="124" y="50" width="24" height="18" rx="5" fill="#EDE8FF"/>'
-          + '<rect x="34" y="74" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
-          + '<rect x="64" y="74" width="24" height="18" rx="5" fill="#EDE8FF"/>'
-          + '<rect x="94" y="74" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
-          + '<rect x="124" y="74" width="24" height="18" rx="5" fill="#6D28D9" opacity=".7"/>'
-          + '<rect x="34" y="98" width="114" height="8" rx="4" fill="#EDE8FF"/>'
-          + '</svg>',
-      href: '/disponibilites',
-    },
-    {
-      chip: 'Étape 3 — Booking',
-      title: 'Partagez votre lien de RDV',
-      desc: 'Votre page de réservation est prête. Envoyez le lien à vos patients par WhatsApp, SMS ou email.',
-      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
-          + '<rect x="54" y="5" width="72" height="120" rx="12" fill="#0C0E14"/>'
-          + '<rect x="58" y="12" width="64" height="106" rx="9" fill="#F7F6FF"/>'
-          + '<rect x="62" y="20" width="56" height="8" rx="4" fill="#EDE8FF"/>'
-          + '<rect x="62" y="20" width="38" height="8" rx="4" fill="#6D28D9" opacity=".5"/>'
-          + '<rect x="66" y="34" width="48" height="32" rx="6" fill="#fff" stroke="#E8EAF0" stroke-width="1"/>'
-          + '<circle cx="82" cy="46" r="8" fill="#EDE8FF"/>'
-          + '<circle cx="82" cy="44" r="4" fill="#7C3AED" opacity=".6"/>'
-          + '<rect x="93" y="38" width="16" height="4" rx="2" fill="#6D28D9" opacity=".5"/>'
-          + '<rect x="93" y="46" width="12" height="3" rx="1.5" fill="#7B8194" opacity=".4"/>'
-          + '<rect x="93" y="53" width="20" height="8" rx="3" fill="#6D28D9" opacity=".7"/>'
-          + '<rect x="66" y="72" width="48" height="5" rx="2.5" fill="#EDE8FF"/>'
-          + '<rect x="66" y="72" width="32" height="5" rx="2.5" fill="#7C3AED" opacity=".4"/>'
-          + '<rect x="66" y="83" width="20" height="14" rx="5" fill="#6D28D9" opacity=".9"/>'
-          + '<rect x="90" y="83" width="24" height="14" rx="5" fill="#EDE8FF"/>'
-          + '<circle cx="90" cy="110" r="4" fill="#6D28D9" opacity=".5"/>'
-          + '</svg>',
-      href: '/mes-rdv',
-    },
-    {
-      chip: 'Tout est prêt',
-      title: 'Vous êtes prêt à démarrer',
-      desc: 'Votre espace Docline est configuré. Vos patients peuvent maintenant prendre rendez-vous en ligne. Bonne pratique !',
-      illo: '<svg viewBox="0 0 180 130" width="180" height="130" xmlns="http://www.w3.org/2000/svg">'
-          + '<circle cx="90" cy="65" r="48" fill="#EDE8FF"/>'
-          + '<circle cx="90" cy="65" r="36" fill="#6D28D9" opacity=".15"/>'
-          + '<circle cx="90" cy="65" r="24" fill="#6D28D9"/>'
-          + '<path d="M78 65l8 8 16-16" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'
-          + '<circle cx="38" cy="28" r="5" fill="#7C3AED" opacity=".5"/>'
-          + '<circle cx="148" cy="40" r="3.5" fill="#6D28D9" opacity=".4"/>'
-          + '<circle cx="28" cy="90" r="3" fill="#6D28D9" opacity=".4"/>'
-          + '<circle cx="155" cy="95" r="5" fill="#7C3AED" opacity=".3"/>'
-          + '<circle cx="60" cy="18" r="2.5" fill="#6D28D9" opacity=".3"/>'
-          + '<circle cx="130" cy="110" r="2" fill="#6D28D9" opacity=".5"/>'
-          + '</svg>',
-      last: true,
-    },
-  ];
+  // Trois parcours illustrés par de vraies captures du produit :
+  // médecin seul, établissement (offre Institution), collaborateur invité.
+  var _OB_KEY = 'docline_ob_v1';          // ancien parcours médecin (déjà vu = ne pas le remontrer)
+  var _obStep = 0, _obSteps = [], _obKey = null;
+  var _OB_IMG = location.protocol === 'file:' ? 'img/' : '/img/';
+  var _OB_ROUTES = {
+    doctor: [
+      { img: 'landing/tableau-de-bord.webp', chip: 'Bienvenue', title: 'Votre cabinet sur un seul écran',
+        desc: 'Rendez-vous du jour, file d’attente, patients et ordonnances. Quatre réglages et vous êtes prêt à recevoir.' },
+      { img: 'landing/profil-public.webp', chip: 'Étape 1 · Profil', title: 'Complétez votre fiche publique',
+        desc: 'Spécialité, adresse, tarif et langues. Les patients vous trouvent dans l’annuaire Docline et réservent depuis votre page.', href: '/profil-public' },
+      { img: 'landing/rendez-vous.webp', chip: 'Étape 2 · Créneaux', title: 'Ouvrez vos créneaux en ligne',
+        desc: 'Indiquez vos jours et horaires. Les demandes arrivent ici, vous confirmez en un clic et le patient reçoit un SMS.', href: '/disponibilites' },
+      { img: 'landing/file-attente.webp', chip: 'Étape 3 · Accueil', title: 'Une file d’attente sans salle bondée',
+        desc: 'Le patient scanne le QR code, prend son numéro et suit son tour sur son téléphone. Vous appelez le suivant d’un geste.', href: '/queue' },
+      { img: 'landing/ordonnance.webp', pos: 'center top', chip: 'Étape 4 · Prescription', title: 'Des ordonnances vérifiées',
+        desc: 'Recherche dans la nomenclature nationale, doublons, allergies et traitements en cours signalés avant l’impression.', href: '/ordonnances' },
+      { img: 'onboarding/equipe.webp', chip: 'Votre équipe', title: 'Invitez votre secrétaire',
+        desc: 'Elle gère l’agenda et la file pour vous, sans jamais voir le contenu médical. Chaque accès est vérifié par la base de données.', href: '/staff', last: true }
+    ],
+    clinic: [
+      { img: 'onboarding/agenda-partage.webp', chip: 'Bienvenue', title: 'Votre établissement sur un seul agenda',
+        desc: 'Chaque médecin garde son espace et ses patients. L’accueil, les soins et la direction travaillent ensemble, chacun avec ses accès.' },
+      { img: 'onboarding/equipe.webp', chip: 'Étape 1 · Équipe', title: 'Services, médecins et collaborateurs',
+        desc: 'Créez vos services (accueil, cardiologie, pédiatrie), invitez vos confrères et votre personnel. Chacun reçoit un email pour créer son mot de passe.', href: '/staff' },
+      { img: 'onboarding/droits.webp', pos: 'center top', chip: 'Étape 2 · Accès', title: 'Des droits précis, médecin par médecin',
+        desc: 'Agenda, file, fiches, laboratoire, dossier médical. Le secret médical reste fermé par défaut, y compris pour l’administration.', href: '/staff' },
+      { img: 'onboarding/secretaire.webp', pos: 'left top', chip: 'Étape 3 · Accueil', title: 'Une secrétaire, plusieurs médecins',
+        desc: 'Elle choisit le médecin pour lequel elle travaille en haut du menu. Elle ne voit que les pages autorisées, et seulement pour les médecins de son périmètre.' },
+      { img: 'landing/ecran-tv.webp', chip: 'Étape 4 · Salle d’attente', title: 'L’écran de la salle d’attente',
+        desc: 'Les numéros appelés s’affichent avec la salle de consultation. Les patients suivent aussi leur tour sur leur téléphone.', href: '/queue' },
+      { img: 'landing/ordonnance.webp', pos: 'center top', chip: 'Prescription', title: 'Des ordonnances vérifiées pour tous les médecins',
+        desc: 'Nomenclature nationale, doublons, allergies et traitements en cours. Chaque médecin retrouve ses habitudes de prescription.', href: '/ordonnances', last: true }
+    ]
+  };
+  function _obMemberSteps(a) {
+    var org = a.orgName || 'votre établissement';
+    var s = [{ img: 'onboarding/secretaire.webp', pos: 'left top', chip: org, title: 'Bienvenue dans l’équipe',
+      desc: 'En haut du menu, choisissez le médecin pour lequel vous travaillez. Votre menu affiche uniquement ce que vos accès permettent.' }];
+    if (_canFor(a, 'queue.manage')) s.push({ img: 'landing/file-attente.webp', chip: 'Accueil', title: 'La file d’attente du jour', desc: 'Ajoutez les patients à leur arrivée, appelez le suivant et pilotez l’écran de la salle d’attente.', href: '/queue' });
+    if (_canFor(a, 'agenda.view')) s.push({ img: 'landing/agenda.webp', chip: 'Agenda', title: 'L’agenda des médecins', desc: _canFor(a, 'agenda.manage') ? 'Confirmez, déplacez ou annulez les rendez-vous. Le patient est prévenu par SMS.' : 'Consultez les rendez-vous des médecins de votre périmètre.', href: '/calendar' });
+    if (_canFor(a, 'patients.view')) s.push({ img: 'landing/patients.webp', chip: 'Patients', title: 'Les fiches patients', desc: 'Identité, coordonnées et assurance. Le contenu médical reste réservé aux personnes autorisées.', href: '/patients' });
+    if (_canFor(a, 'medical.view')) s.push({ img: 'landing/consultations.webp', chip: 'Dossier médical', title: 'Le dossier médical', desc: 'Vous avez accès au dossier pour participer à la prise en charge. Ces données sont protégées par le secret médical.', href: '/consultations' });
+    s.push({ img: 'onboarding/droits.webp', pos: 'center top', chip: 'Vos accès', title: 'Vos accès sont gérés par votre établissement',
+      desc: 'Besoin d’une page en plus ? Demandez-la au responsable : il l’active en un instant depuis Équipe et accès.', last: true });
+    return s;
+  }
 
   function _obRender() {
-    var s   = _OB_STEPS[_obStep];
-    var total = _OB_STEPS.length;
-    var pct = Math.round((_obStep / (total - 1)) * 100);
+    var s   = _obSteps[_obStep];
+    var total = _obSteps.length;
+    var pct = Math.round((_obStep / Math.max(1, total - 1)) * 100);
     var modal = document.getElementById('ob-modal');
-    if (!modal) return;
-
-    var dots = _OB_STEPS.map(function(_, i) {
-      return '<div class="ob-dot' + (i === _obStep ? ' on' : '') + '"></div>';
-    }).join('');
-
+    if (!modal || !s) return;
+    var dots = _obSteps.map(function(_, i) { return '<div class="ob-dot' + (i === _obStep ? ' on' : '') + '"></div>'; }).join('');
     var btnLabel = s.last ? 'Commencer' : 'Suivant';
     var btnIcon  = s.last
       ? '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>'
       : '<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
-
-    // Lien "Accéder" discret sous la description (si la step a une page associée)
     var accessLink = s.href
-      ? '<a href="' + s.href + '" class="ob-access-link" target="_self">'
+      ? '<a href="' + s.href + '" class="ob-access-link" id="ob-go">'
         + '<svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>'
-        + 'Accéder à cette page</a>'
+        + 'Ouvrir cette page</a>'
       : '';
-
     modal.innerHTML =
-      '<div class="ob-bar"><div class="ob-fill" id="ob-fill" style="width:' + pct + '%"></div></div>'
+      '<div class="ob-bar"><div class="ob-fill" style="width:' + pct + '%"></div></div>'
+    + '<div class="ob-shot"><div class="ob-win"><div class="ob-win-bar"><i></i><i></i><i></i></div>'
+    +   '<img src="' + _OB_IMG + s.img + '" alt="" style="object-position:' + (s.pos || 'left top') + '" decoding="async"></div></div>'
     + '<div class="ob-body">'
-    +   '<div class="ob-illo"><div class="ob-illo-inner" id="ob-illo-inner">' + s.illo + '</div></div>'
-    +   '<div class="ob-chip">' + s.chip + '</div>'
-    +   '<div class="ob-title">' + s.title + '</div>'
-    +   '<div class="ob-desc">' + s.desc + '</div>'
+    +   '<div class="ob-chip">' + _esc(s.chip) + '</div>'
+    +   '<div class="ob-title">' + _esc(s.title) + '</div>'
+    +   '<div class="ob-desc">' + _esc(s.desc) + '</div>'
     +   accessLink
     + '</div>'
     + '<div class="ob-foot">'
     +   '<div class="ob-dots">' + dots + '</div>'
-    +   (!s.last ? '<button class="ob-skip" id="ob-skip">Ignorer</button>' : '')
-    +   '<button class="ob-btn" id="ob-next">' + btnLabel + btnIcon + '</button>'
+    +   (_obStep > 0 ? '<button class="ob-skip" id="ob-prev" type="button">Précédent</button>' : '')
+    +   (!s.last ? '<button class="ob-skip" id="ob-skip" type="button">Passer</button>' : '')
+    +   '<button class="ob-btn" id="ob-next" type="button">' + btnLabel + btnIcon + '</button>'
     + '</div>';
-
-    // "Suivant" : toujours avancer dans les étapes, jamais rediriger
-    document.getElementById('ob-next').addEventListener('click', function() {
-      if (s.last) {
-        _obClose();
-      } else {
-        _obNext();
-      }
-    });
-
-    var skipBtn = document.getElementById('ob-skip');
-    if (skipBtn) skipBtn.addEventListener('click', _obClose);
+    document.getElementById('ob-next').addEventListener('click', function() { if (s.last) _obClose(); else _obNext(); });
+    var skipBtn = document.getElementById('ob-skip'); if (skipBtn) skipBtn.addEventListener('click', _obClose);
+    var prevBtn = document.getElementById('ob-prev'); if (prevBtn) prevBtn.addEventListener('click', function () { _obStep--; _obRender(); });
+    var go = document.getElementById('ob-go'); if (go) go.addEventListener('click', function () { _obDone(); });
+    // précharge l'image suivante
+    var nx = _obSteps[_obStep + 1]; if (nx) { var im = new Image(); im.src = _OB_IMG + nx.img; }
   }
 
-  function _obNext() {
-    if (_obStep < _OB_STEPS.length - 1) {
-      _obStep++;
-      // Re-render avec animation de l'illustration
-      var modal = document.getElementById('ob-modal');
-      if (!modal) return;
-      _obRender();
-    }
-  }
-
+  function _obNext() { if (_obStep < _obSteps.length - 1) { _obStep++; _obRender(); } }
+  function _obDone() { try { localStorage.setItem(_obKey, '1'); if (_obKey === 'docline_ob_v2_doctor') localStorage.setItem(_OB_KEY, '1'); } catch (e) {} }
   function _obClose() {
-    localStorage.setItem(_OB_KEY, '1');
+    _obDone();
     var ov = document.getElementById('ob-ov');
-    if (ov) {
-      ov.style.animation = 'ob-bg .3s ease reverse forwards';
-      setTimeout(function(){ ov.remove(); }, 300);
-    }
+    if (ov) { ov.style.animation = 'ob-bg .3s ease reverse forwards'; setTimeout(function(){ ov.remove(); }, 300); }
   }
 
-  function _launchOnboarding() {
-    if (localStorage.getItem(_OB_KEY)) return;
-    // Délai pour laisser le shell se charger
-    setTimeout(function() {
-      _obStep = 0;
-      var ov = document.createElement('div');
-      ov.id = 'ob-ov';
-      ov.innerHTML = '<div id="ob-modal"></div>';
-      document.body.appendChild(ov);
-      _obRender();
-      // Fermer sur clic backdrop
-      ov.addEventListener('click', function(e) {
-        if (e.target === ov) _obClose();
-      });
-      // Fermer à Escape
-      document.addEventListener('keydown', function onEsc(e) {
-        if (e.key === 'Escape') { _obClose(); document.removeEventListener('keydown', onEsc); }
-      });
-    }, 600);
+  function _launchOnboarding(opts) {
+    var p = _actP || Promise.resolve(null);
+    p.then(function () {
+      if (_act && !_act.own) { _obKey = 'docline_ob_v2_member_' + _act.orgId; _obSteps = _obMemberSteps(_act); }
+      else if (opts && opts.plan === 'clinic') { _obKey = 'docline_ob_v2_clinic'; _obSteps = _OB_ROUTES.clinic; }
+      else { _obKey = 'docline_ob_v2_doctor'; _obSteps = _OB_ROUTES.doctor; }
+      try {
+        if (localStorage.getItem(_obKey)) return;
+        if (_obKey === 'docline_ob_v2_doctor' && localStorage.getItem(_OB_KEY)) return;
+      } catch (e) { return; }
+      setTimeout(function() {
+        if (document.getElementById('ob-ov') || document.querySelector('.shell-no-access')) return;
+        _obStep = 0;
+        var ov = document.createElement('div');
+        ov.id = 'ob-ov';
+        ov.innerHTML = '<div id="ob-modal" role="dialog" aria-modal="true" aria-label="Découvrir Docline"></div>';
+        document.body.appendChild(ov);
+        _obRender();
+        ov.addEventListener('click', function(e) { if (e.target === ov) _obClose(); });
+        document.addEventListener('keydown', function onEsc(e) {
+          if (e.key === 'Escape') { _obClose(); document.removeEventListener('keydown', onEsc); }
+          else if (e.key === 'ArrowRight' && document.getElementById('ob-ov')) _obNext();
+        });
+      }, 700);
+    });
   }
 
   // ── PROGRESS BAR ─────────────────────────────────────────────
@@ -1690,7 +1640,7 @@ button{font-family:inherit;cursor:pointer}
     setTimeout(_watchRdv, 250);
 
     // Lance l'onboarding à la première connexion (médecins seulement, pas dans Symphony)
-    if (!opts.isSymphony) _launchOnboarding();
+    if (!opts.isSymphony) _launchOnboarding(opts);
 
     // Heartbeat last_seen_at — toutes les 5 min
     _startHeartbeat();
@@ -1714,6 +1664,7 @@ button{font-family:inherit;cursor:pointer}
     _rdvClient.auth.getSession().then(function(res) {
       var sess = res && res.data && res.data.session;
       if (!sess) return;
+      if (sess.user.user_metadata && sess.user.user_metadata.invited_to_org) return; // collaborateur invité : pas d'email médecin
       _rdvClient.from('profiles').select('welcome_email_sent').eq('id', sess.user.id).single().then(function(r) {
         if (r.data && !r.data.welcome_email_sent) {
           _rdvClient.functions.invoke('send-email', { body: { type: 'welcome' } }).then(function() {});
@@ -1787,91 +1738,189 @@ button{font-family:inherit;cursor:pointer}
     'disponibilites':'/disponibilites',
     'profil-public':'/profil-public',
   };
-  // Ordre de priorité pour la redirection automatique depuis le dashboard
-  var _REDIRECT_PRIORITY = ['queue','clients','calendar','mes-rdv','consultations','labo','ordonnances','staff'];
+  // ── ESPACE DE TRAVAIL : établissements, médecin pour lequel on agit ──
+  // Un collaborateur (secrétaire, infirmier, labo, autre médecin) agit pour un médecin de
+  // l'établissement. La base vérifie chaque accès (RLS) ; ici on choisit le contexte,
+  // on adapte le menu et on bloque proprement les pages hors permissions.
+  var _PAGE_PERM = {
+    'dashboard': null, 'queue': 'queue.manage', 'calendar': 'agenda.view', 'mes-rdv': 'agenda.view',
+    'clients': 'patients.view', 'consultations': 'medical.view', 'ordonnances': 'medical.view',
+    'labo': 'lab.manage', 'disponibilites': 'agenda.manage', 'profil-public': '__own', 'avis': '__own',
+    'staff': 'team.manage', 'clinic-agenda': 'agenda.view'
+  };
+  var _REDIRECT_PRIORITY = ['calendar','queue','clients','mes-rdv','consultations','ordonnances','labo','staff'];
+  var _ROLE_LABEL = { admin:'Administration', doctor:'Médecin', secretary:'Secrétariat', nurse:'Soins infirmiers', lab:'Laboratoire', accountant:'Comptabilité' };
+  var _ws = null, _act = null, _ctxList = [], _actP = null, _selfId = null;
 
-  // Appelé par chaque page après Shell.init() :
-  //   Shell.checkStaff(_supa, 'queue', "File d'attente");
-  // Pour le médecin : ne fait rien (accès total).
-  // Pour le staff :
-  //   - sur le dashboard → redirige vers la première page accessible
-  //   - sur les autres pages → cache les items interdits dans la sidebar
-  //   - si la page courante est interdite → affiche l'overlay "Accès refusé"
-  function checkStaff(supaClient, pageKey, pageLabel) {
-    try {
-      supaClient.auth.getSession().then(function(res) {
-        var session = res && res.data && res.data.session;
-        if (!session) return;
-        supaClient
-          .from('staff')
-          .select('page_access, role, clinic_id')
-          .eq('user_id', session.user.id)
-          .single()
-          .then(function(result) {
-            if (!result.data) return; // médecin propriétaire → accès total, rien à faire
+  function _ctxKey(c) { return (c.own ? 'self' : c.orgId) + ':' + c.doctorId; }
+  function _can(perm) {
+    if (!_act || _act.own) return true;
+    if (!perm) return true;
+    if (perm === '__own') return false;
+    if (_act.role === 'admin' && perm.indexOf('medical.') !== 0) return true;
+    return (_act.perms || []).indexOf(perm) !== -1;
+  }
+  function _canFor(c, perm) { var keep = _act; _act = c; var ok = _can(perm); _act = keep; return ok; }
 
-            var access = result.data.page_access || [];
-
-            // ── Dashboard : redirection automatique vers la première page accessible
-            if (pageKey === 'dashboard') {
-              for (var i = 0; i < _REDIRECT_PRIORITY.length; i++) {
-                var k = _REDIRECT_PRIORITY[i];
-                if (access.indexOf(k) !== -1 && _PAGE_HREFS[k]) {
-                  window.location.replace(_PAGE_HREFS[k]);
-                  return;
-                }
-              }
-              return; // aucune page accessible → reste sur le dashboard
-            }
-
-            // ── Sidebar : cacher complètement les pages interdites
-            NAV.forEach(function(n) {
-              if (n.section) return;
-              if (access.indexOf(n.key) === -1) {
-                var el = document.querySelector('.sb-item[data-key="' + n.key + '"]');
-                if (el) el.style.display = 'none';
-              }
-            });
-
-            // ── Cacher les titres de section dont tous les items sont cachés
-            var sectionEls = document.querySelectorAll('.sb-section');
-            sectionEls.forEach(function(sEl) {
-              var sibling = sEl.nextElementSibling;
-              var hasVisible = false;
-              while (sibling && !sibling.classList.contains('sb-section')) {
-                if (sibling.style.display !== 'none' && sibling.classList.contains('sb-item')) {
-                  hasVisible = true;
-                  break;
-                }
-                sibling = sibling.nextElementSibling;
-              }
-              if (!hasVisible) sEl.style.display = 'none';
-            });
-
-            // ── Page courante interdite → overlay "Accès refusé"
-            if (pageKey && access.indexOf(pageKey) === -1) {
-              _showNoAccessPage(pageLabel || pageKey);
-            }
-          }).catch(function() {});
+  // Résout le médecin pour lequel la page agit. Les pages appellent :
+  //   _uid = await Shell.acting(_supa, session.user.id);
+  function acting(supa, selfId) {
+    if (_actP) return _actP;
+    _selfId = selfId;
+    _actP = (async function () {
+      var ws = null;
+      try {
+        var cached = JSON.parse(sessionStorage.getItem('dl_ws') || 'null');
+        if (cached && cached.uid === selfId && Date.now() - cached.t < 120000) ws = cached.ws;
+      } catch (e) {}
+      if (!ws) {
+        try {
+          var r = await supa.rpc('workspace_init');
+          ws = r && r.data;
+          if (ws) try { sessionStorage.setItem('dl_ws', JSON.stringify({ uid: selfId, t: Date.now(), ws: ws })); } catch (e) {}
+        } catch (e) { ws = null; }
+      }
+      _ws = ws;
+      _ctxList = [];
+      if (!ws || !ws.self || ws.self.own_space) _ctxList.push({ own: true, doctorId: selfId, doctorName: (ws && ws.self && ws.self.name) || '', orgName: 'Mon espace' });
+      ((ws && ws.memberships) || []).forEach(function (m) {
+        (m.doctors || []).forEach(function (d) {
+          if (d.id === selfId) return;
+          _ctxList.push({ own: false, doctorId: d.id, doctorName: d.name || 'Médecin', specialty: d.specialty || '', orgId: m.org_id, orgName: m.org_name, role: m.role, perms: m.permissions || [] });
+        });
       });
-    } catch(e) { /* silence */ }
+      var saved = null;
+      try { saved = localStorage.getItem('dl_ctx_' + selfId); } catch (e) {}
+      _act = _ctxList.filter(function (c) { return _ctxKey(c) === saved; })[0] || _ctxList[0] || null;
+      return _act ? _act.doctorId : selfId;
+    })();
+    return _actP;
   }
 
-  function _showNoAccessPage(pageLabel) {
+  function switchTo(key) {
+    try { localStorage.setItem('dl_ctx_' + _selfId, key); } catch (e) {}
+    try { sessionStorage.removeItem('dl_ws'); } catch (e) {}
+    var c = _ctxList.filter(function (x) { return _ctxKey(x) === key; })[0];
+    var page = _curPage;
+    if (!c || c.own || !page || _canFor(c, _PAGE_PERM[page] === undefined ? '__own' : _PAGE_PERM[page])) location.reload();
+    else location.href = _firstAllowed(c) || '/dashboard';
+  }
+  function _firstAllowed(c) {
+    for (var i = 0; i < _REDIRECT_PRIORITY.length; i++) {
+      var k = _REDIRECT_PRIORITY[i];
+      if (_canFor(c, _PAGE_PERM[k]) && _PAGE_HREFS[k]) return _PAGE_HREFS[k];
+    }
+    return null;
+  }
+
+  function _esc(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+  function _initials(n) { return String(n || '?').replace(/^Dr\.?\s+/i, '').split(/\s+/).map(function (w) { return w[0] || ''; }).join('').toUpperCase().slice(0, 2) || '?'; }
+  function _drName(n) { return /^dr\b/i.test(n) ? n : 'Dr ' + n; }
+
+  function _renderSwitcher() {
+    var nav = document.querySelector('#shell-sidebar .sb-nav');
+    if (!nav || document.getElementById('sb-ctx') || !_act) return;
+    if (_ctxList.length < 2 && _act.own) return; // médecin seul : rien à choisir
+    var box = document.createElement('div');
+    box.className = 'sb-ctx'; box.id = 'sb-ctx';
+    box.innerHTML =
+        '<button type="button" class="sb-ctx-btn" id="sb-ctx-btn" aria-haspopup="listbox" aria-expanded="false">'
+      +   '<span class="sb-ctx-av' + (_act.own ? ' own' : '') + '">' + _esc(_initials(_act.doctorName)) + '</span>'
+      +   '<span class="sb-ctx-txt"><span class="sb-ctx-org">' + _esc(_act.own ? 'Mon espace' : _act.orgName) + '</span>'
+      +     '<span class="sb-ctx-who">' + _esc(_act.own ? 'Mes patients, mon agenda' : _drName(_act.doctorName)) + '</span></span>'
+      +   (_ctxList.length > 1 ? '<svg viewBox="0 0 24 24" class="sb-ctx-chev"><polyline points="7 10 12 5 17 10"/><polyline points="7 14 12 19 17 14"/></svg>' : '')
+      + '</button>'
+      + (!_act.own ? '<div class="sb-ctx-role"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Accès ' + _esc((_ROLE_LABEL[_act.role] || '').toLowerCase()) + '</div>' : '');
+    nav.parentNode.insertBefore(box, nav);
+    if (_ctxList.length < 2) return;
+    var pop = document.createElement('div');
+    pop.className = 'sb-ctx-pop'; pop.setAttribute('role', 'listbox');
+    var groups = {}, order = [];
+    _ctxList.forEach(function (c) { var g = c.own ? 'Mon espace' : c.orgName; if (!groups[g]) { groups[g] = []; order.push(g); } groups[g].push(c); });
+    pop.innerHTML = order.map(function (g) {
+      return '<div class="sb-ctx-grp">' + _esc(g) + '</div>' + groups[g].map(function (c) {
+        var on = _ctxKey(c) === _ctxKey(_act);
+        return '<button type="button" class="sb-ctx-opt' + (on ? ' on' : '') + '" data-k="' + _esc(_ctxKey(c)) + '" role="option" aria-selected="' + on + '">'
+          + '<span class="sb-ctx-av sm' + (c.own ? ' own' : '') + '">' + _esc(_initials(c.doctorName)) + '</span>'
+          + '<span class="sb-ctx-txt"><span class="sb-ctx-org">' + _esc(c.own ? 'Mes patients, mon agenda' : _drName(c.doctorName)) + '</span>'
+          +   (c.specialty ? '<span class="sb-ctx-who">' + _esc(c.specialty) + '</span>' : '') + '</span>'
+          + (on ? '<svg viewBox="0 0 24 24" class="sb-ctx-ok"><polyline points="20 6 9 17 4 12"/></svg>' : '')
+          + '</button>';
+      }).join('');
+    }).join('');
+    box.appendChild(pop);
+    var btn = document.getElementById('sb-ctx-btn');
+    btn.addEventListener('click', function (e) { e.stopPropagation(); var o = box.classList.toggle('open'); btn.setAttribute('aria-expanded', String(o)); });
+    document.addEventListener('click', function () { box.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); });
+    pop.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var b = e.target.closest('.sb-ctx-opt'); if (!b) return;
+      if (b.classList.contains('on')) { box.classList.remove('open'); return; }
+      switchTo(b.getAttribute('data-k'));
+    });
+  }
+
+  function _applyNav() {
+    NAV.forEach(function (n) {
+      if (n.section) return;
+      if (!_can(_PAGE_PERM[n.key] === undefined ? '__own' : _PAGE_PERM[n.key])) {
+        document.querySelectorAll('.sb-item[data-key="' + n.key + '"], .smn-item[href="' + n.href + '"]').forEach(function (el) { el.style.display = 'none'; });
+      }
+    });
+    document.querySelectorAll('#shell-sidebar .sb-section').forEach(function (sEl) {
+      var sib = sEl.nextElementSibling, vis = false;
+      while (sib && !sib.classList.contains('sb-section')) {
+        if (sib.classList.contains('sb-item') && sib.style.display !== 'none') { vis = true; break; }
+        sib = sib.nextElementSibling;
+      }
+      sEl.style.display = vis ? '' : 'none';
+    });
+  }
+
+  var _curPage = null;
+  // Appelé par chaque page après Shell.init() : Shell.checkStaff(_supa, 'queue', "File d'attente");
+  // Médecin dans son propre espace : accès complet. Collaborateur : menu filtré,
+  // page hors permissions bloquée (la base refuse de toute façon les données).
+  function checkStaff(supaClient, pageKey, pageLabel) {
+    _curPage = pageKey;
+    supaClient.auth.getSession().then(function (res) {
+      var session = res && res.data && res.data.session;
+      if (!session) return;
+      return acting(supaClient, session.user.id).then(function () {
+        _renderSwitcher();
+        if (!_act) { _showNoAccessPage(pageLabel || pageKey, true); return; }
+        if (_act.own) return;
+        document.querySelectorAll('.sb-item[data-clinic]').forEach(function (el) { el.style.display = ''; });
+        _applyNav();
+        var perm = _PAGE_PERM[pageKey] === undefined ? '__own' : _PAGE_PERM[pageKey];
+        if (!_can(perm)) {
+          var to = _firstAllowed(_act);
+          if (pageKey === 'dashboard' && to) { window.location.replace(to); return; }
+          _showNoAccessPage(pageLabel || pageKey);
+        }
+      });
+    }).catch(function () {});
+  }
+
+  function workspace() { return { self: _ws && _ws.self, acting: _act, contexts: _ctxList.slice(), can: _can }; }
+
+  function _showNoAccessPage(pageLabel, noWorkspace) {
     var ov = document.createElement('div');
     ov.className = 'shell-no-access';
     ov.innerHTML =
         '<div class="shell-no-access-ico">'
       + '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
       + '</div>'
-      + '<div class="shell-no-access-title">Acces refuse</div>'
-      + '<div class="shell-no-access-sub">Ce compte ne dispose pas des droits pour acceder a <strong>'
-      + (pageLabel || 'cette page')
-      + '</strong>.<br>Contactez votre responsable pour obtenir l\'acces.</div>'
-      + '<button class="shell-no-access-back" onclick="history.back()">'
-      + '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><polyline points="15 18 9 12 15 6"/></svg>'
-      + 'Retour'
-      + '</button>';
+      + (noWorkspace
+        ? '<div class="shell-no-access-title">Accès désactivé</div>'
+          + '<div class="shell-no-access-sub">Votre accès à l’établissement a été suspendu ou n’est pas encore activé.<br>Contactez le responsable de votre établissement.</div>'
+          + '<a href="/login" class="shell-no-access-back" style="text-decoration:none">Changer de compte</a>'
+        : '<div class="shell-no-access-title">Accès réservé</div>'
+          + '<div class="shell-no-access-sub">Votre rôle ne donne pas accès à <strong>' + _esc(pageLabel || 'cette page') + '</strong>.<br>Le responsable de l’établissement peut l’ajouter depuis Équipe et accès.</div>'
+          + '<button class="shell-no-access-back" onclick="history.back()">'
+          + '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><polyline points="15 18 9 12 15 6"/></svg>'
+          + 'Retour'
+          + '</button>');
     document.body.appendChild(ov);
     var main = document.querySelector('.shell-main');
     if (main) main.style.visibility = 'hidden';
@@ -2024,7 +2073,7 @@ button{font-family:inherit;cursor:pointer}
       });
     });
   };
-return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, guard: guard, resetOnboarding: function(){ localStorage.removeItem(_OB_KEY); } };
+return { init: init, render: render, displayName: displayName, setRdvBadge: _setRdvBadge, checkStaff: checkStaff, acting: acting, workspace: workspace, switchTo: switchTo, guard: guard, resetOnboarding: function(){ try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('docline_ob_') === 0) localStorage.removeItem(k); }); } catch (e) {} } };
 })();
 } catch(e) {
   console.error('[Shell] Crash lors de l\'initialisation du module:', e);
@@ -2035,6 +2084,8 @@ return { init: init, render: render, displayName: displayName, setRdvBadge: _set
     displayName: function(meta, email) { return (meta && (meta.full_name || meta.name)) || (email ? String(email).split('@')[0] : '') || ''; },
     guard: function() { return true; },
     checkStaff: function() {},
+    acting: function(supa, id) { return Promise.resolve(id); },
+    workspace: function() { return { contexts: [], can: function(){ return true; } }; },
     setRdvBadge: function() {},
     resetOnboarding: function() {}
   };

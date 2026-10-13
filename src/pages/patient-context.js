@@ -25,7 +25,7 @@
     async function save() {
       if (!cid || !ctx) return;
       var r = await opts.supa.from('patient_clinical_context').upsert({
-        client_id: cid, doctor_id: me, allergens: ctx.allergens, pregnancy: ctx.pregnancy,
+        client_id: cid, doctor_id: (client && client.user_id) || me, allergens: ctx.allergens, pregnancy: ctx.pregnancy,
         renal: ctx.renal, hepatic: ctx.hepatic, updated_at: new Date().toISOString()
       });
       el.querySelector('.pc-saved').textContent = r.error ? 'Non enregistré, réessayez' : 'Enregistré dans le dossier';
@@ -115,7 +115,7 @@
       cid = clientId || null; ctx = null; client = null;
       if (!cid) { el.hidden = true; el.innerHTML = ''; return; }
       if (!me) { var s = await opts.supa.auth.getSession(); me = s.data.session && s.data.session.user.id; }
-      var a = await opts.supa.from('clients').select('id,date_naissance,sexe,allergies').eq('id', cid).maybeSingle();
+      var a = await opts.supa.from('clients').select('id,user_id,date_naissance,sexe,allergies').eq('id', cid).maybeSingle();
       var b = await opts.supa.from('patient_clinical_context').select('*').eq('client_id', cid).maybeSingle();
       var h = await opts.supa.rpc('patient_current_treatments', { p_client: cid, p_exclude: opts.getExclude ? opts.getExclude() : null });
       if (my !== seq) return;

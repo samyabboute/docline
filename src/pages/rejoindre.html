@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rejoindre l’équipe · Docline</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="config.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<style>
+/* Arrivée d'un collaborateur invité : à gauche l'invitation et le mot de passe, à droite l'écran qu'il va utiliser */
+:root{
+  --bg:#F7F6FF; --ink:#1E1238; --text:#2A2340; --muted:#6E6A85; --line:#E7E3F5; --violet:#6D28D9; --violet-2:#8B5CF6; --ok:#059669; --err:#DC2626;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.aurora{position:fixed;inset:-20%;z-index:0;pointer-events:none;background:
+  radial-gradient(40% 35% at 18% 20%,rgba(167,139,250,.35),transparent 70%),
+  radial-gradient(35% 30% at 85% 15%,rgba(56,189,248,.22),transparent 70%),
+  radial-gradient(45% 40% at 70% 90%,rgba(196,181,253,.35),transparent 70%)}
+.wrap{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:56px;align-items:center;max-width:1240px;margin:0 auto;padding:40px 32px}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:34px;font-weight:800;font-size:18px;color:var(--ink);letter-spacing:-.3px}
+.logo img{height:30px;width:auto}
+.card{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.9);border-radius:26px;padding:32px;box-shadow:0 30px 70px -30px rgba(46,16,101,.35),0 1px 0 rgba(109,40,217,.06)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet)}
+h1{font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.7px;color:var(--ink);margin:8px 0 10px;text-wrap:balance}
+.lead{font-size:14.5px;color:var(--muted);line-height:1.6}
+.role{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 22px}
+.chip{font-size:12px;font-weight:700;padding:6px 11px;border-radius:99px;background:#EDE9FE;color:#4C1D95}
+.chip.soft{background:#F5F3FF;color:var(--muted);font-weight:600}
+label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.field{position:relative;margin-bottom:14px}
+.in{width:100%;padding:13px 44px 13px 14px;border-radius:14px;border:1px solid var(--line);background:#fff;font:500 15px var(--font);color:var(--ink)}
+.in:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 4px rgba(109,40,217,.12)}
+.eye{position:absolute;right:8px;top:31px;width:32px;height:32px;border:none;background:none;border-radius:9px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.eye:hover{background:#F5F3FF}
+.eye svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rules{display:flex;gap:14px;flex-wrap:wrap;margin:2px 0 20px;font-size:12.5px;color:var(--muted)}
+.rules span{display:flex;align-items:center;gap:6px}
+.rules span::before{content:"";width:8px;height:8px;border-radius:50%;background:#D8D4E8}
+.rules span.ok{color:var(--ok)}
+.rules span.ok::before{background:var(--ok)}
+.btn{width:100%;padding:14px 18px;border:none;border-radius:99px;font:700 15px var(--font);color:#fff;cursor:pointer;background:linear-gradient(135deg,#5B21B6,var(--violet-2));box-shadow:0 14px 30px -14px rgba(109,40,217,.8);transition:transform .15s,opacity .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
+.btn:focus-visible,.eye:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.msg{font-size:13px;line-height:1.5;margin-top:12px;display:none}
+.msg.on{display:block}
+.msg.err{color:var(--err)}
+.note{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:18px;display:flex;gap:9px}
+.note svg{width:16px;height:16px;flex-shrink:0;fill:none;stroke:var(--violet);stroke-width:2;margin-top:1px}
+.state{text-align:center;padding:12px 0}
+.state h1{font-size:24px}
+.state a{display:inline-block;margin-top:18px;color:var(--violet);font-weight:700;text-decoration:none}
+
+.show{position:relative}
+.win{border-radius:18px;overflow:hidden;background:#fff;border:1px solid rgba(109,40,217,.12);box-shadow:0 50px 100px -40px rgba(46,16,101,.45);transform:perspective(1600px) rotateY(-7deg) rotateX(2deg);transform-origin:left center}
+.win-bar{height:28px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#FAFAFF;border-bottom:1px solid #EEEAFB}
+.win-bar i{width:9px;height:9px;border-radius:50%;background:#E4DFF5}
+.win img{display:block;width:100%;height:auto}
+.cap{position:absolute;left:-28px;bottom:-26px;max-width:300px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border:1px solid #fff;border-radius:18px;padding:14px 16px;box-shadow:0 20px 40px -18px rgba(46,16,101,.4);font-size:13px;line-height:1.5;color:var(--text)}
+.cap b{display:block;color:var(--ink);margin-bottom:2px}
+
+@media(max-width:980px){.wrap{grid-template-columns:1fr;gap:36px;padding:28px 16px 48px}.show{max-width:640px}.win{transform:none}.cap{position:static;margin-top:12px;max-width:none}.logo{margin-bottom:18px}}
+@media(prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+<div class="wrap">
+  <div>
+    <div class="logo"><img src="docline-logo.svg" alt="Docline"></div>
+    <div class="card" id="card">
+      <div class="state" id="loading"><p class="lead">Ouverture de votre invitation…</p></div>
+    </div>
+  </div>
+  <div class="show">
+    <div class="win"><div class="win-bar"><i></i><i></i><i></i></div><img src="img/onboarding/secretaire.webp" alt="Écran Docline d’une secrétaire : choix du médecin en haut du menu, file d’attente du jour" width="1100" height="619"></div>
+    <div class="cap"><b>Un menu à votre mesure</b>Vous choisissez le médecin pour lequel vous travaillez. Vous ne voyez que les pages que votre établissement vous a ouvertes.</div>
+  </div>
+</div>
+
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var ROLE = { admin: 'Administration', doctor: 'Médecin', secretary: 'Secrétariat', nurse: 'Soins infirmiers', lab: 'Laboratoire', accountant: 'Comptabilité' };
+var PERM = { 'agenda.view': 'Agenda', 'queue.manage': 'File d’attente', 'patients.view': 'Fiches patients', 'medical.view': 'Dossier médical', 'lab.manage': 'Laboratoire', 'team.manage': 'Équipe' };
+function esc(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+var EYE = '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+function expired() {
+  document.getElementById('card').innerHTML = '<div class="state"><div class="eyebrow">Invitation</div><h1>Ce lien n’est plus valide</h1>'
+    + '<p class="lead">Il a peut-être déjà servi ou expiré. Si vous avez déjà créé votre mot de passe, connectez-vous. Sinon, demandez au responsable de votre établissement de renvoyer l’invitation.</p>'
+    + '<a href="/login">Aller à la connexion</a></div>';
+}
+
+(async function init() {
+  // La session arrive dans l'adresse du lien d'invitation (supabase-js la lit automatiquement)
+  var s = await _supa.auth.getSession();
+  var session = s.data && s.data.session;
+  if (!session) {
+    await new Promise(function (r) { setTimeout(r, 1200); });
+    s = await _supa.auth.getSession(); session = s.data && s.data.session;
+  }
+  if (!session) return expired();
+  if (location.hash) history.replaceState(null, '', location.pathname);
+  var meta = session.user.user_metadata || {};
+  var first = meta.first_name || (meta.full_name || '').split(' ')[0] || '';
+  var ws = null;
+  try { var r = await _supa.rpc('workspace_init'); ws = r.data; } catch (e) {}
+  var m = ws && ws.memberships && ws.memberships[0];
+  var org = m ? m.org_name : 'votre établissement';
+  var perms = m ? (m.role === 'admin' ? ['agenda.view', 'queue.manage', 'patients.view', 'lab.manage', 'team.manage'].concat((m.permissions || []).filter(function (p) { return p === 'medical.view'; })) : (m.permissions || [])) : [];
+  var chips = perms.filter(function (p) { return PERM[p]; }).map(function (p) { return '<span class="chip soft">' + esc(PERM[p]) + '</span>'; }).join('');
+  document.getElementById('card').innerHTML =
+      '<div class="eyebrow">' + esc(org) + '</div>'
+    + '<h1>' + (first ? 'Bienvenue, ' + esc(first) : 'Bienvenue dans l’équipe') + '</h1>'
+    + '<p class="lead">' + esc(org) + ' vous a ouvert un accès à Docline. Choisissez votre mot de passe pour terminer.</p>'
+    + '<div class="role">' + (m ? '<span class="chip">' + esc(ROLE[m.role] || 'Équipe') + '</span>' : '') + chips + '</div>'
+    + '<form id="f" novalidate>'
+    +   '<div class="field"><label for="p1">Mot de passe</label><input class="in" id="p1" type="password" autocomplete="new-password" required>'
+    +     '<button class="eye" type="button" data-for="p1" aria-label="Afficher le mot de passe">' + EYE + '</button></div>'
+    +   '<div class="field"><label for="p2">Confirmation</label><input class="in" id="p2" type="password" autocomplete="new-password" required>'
+    +     '<button class="eye" type="button" data-for="p2" aria-label="Afficher la confirmation">' + EYE + '</button></div>'
+    +   '<div class="rules"><span id="r-len">10 caractères ou plus</span><span id="r-mix">Lettres et chiffres</span><span id="r-eq">Identiques</span></div>'
+    +   '<button class="btn" id="go" type="submit" disabled>Créer mon mot de passe</button>'
+    +   '<div class="msg err" id="err" role="alert"></div>'
+    + '</form>'
+    + '<div class="note"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Votre compte est personnel. Ne le partagez pas : chaque action est enregistrée à votre nom.</span></div>';
+
+  var p1 = document.getElementById('p1'), p2 = document.getElementById('p2'), go = document.getElementById('go');
+  function check() {
+    var a = p1.value, b = p2.value;
+    var len = a.length >= 10, mix = /[a-zA-Z]/.test(a) && /\d/.test(a), eq = a.length > 0 && a === b;
+    document.getElementById('r-len').classList.toggle('ok', len);
+    document.getElementById('r-mix').classList.toggle('ok', mix);
+    document.getElementById('r-eq').classList.toggle('ok', eq);
+    go.disabled = !(len && mix && eq);
+  }
+  p1.addEventListener('input', check); p2.addEventListener('input', check);
+  document.querySelectorAll('.eye').forEach(function (b) { b.addEventListener('click', function () { var i = document.getElementById(b.getAttribute('data-for')); i.type = i.type === 'password' ? 'text' : 'password'; }); });
+  setTimeout(function () { p1.focus(); }, 50);
+  document.getElementById('f').addEventListener('submit', async function (e) {
+    e.preventDefault(); if (go.disabled) return;
+    go.disabled = true; go.textContent = 'Enregistrement…';
+    var res = await _supa.auth.updateUser({ password: p1.value });
+    if (res.error) {
+      var err = document.getElementById('err');
+      err.textContent = /weak|pwned|leaked/i.test(res.error.message) ? 'Ce mot de passe est trop courant. Choisissez-en un autre.' : 'Le mot de passe n’a pas pu être enregistré. Réessayez.';
+      err.classList.add('on'); go.textContent = 'Créer mon mot de passe'; check(); return;
+    }
+    try { sessionStorage.removeItem('dl_ws'); } catch (e2) {}
+    window.location.replace('/dashboard');
+  });
+})();
+</script>
+</body>
+</html>

@@ -40,6 +40,7 @@ const ROUTES = {
   '/mon-espace':        '/patient.html',
   '/payment-return':    '/payment-return.html',
   '/landing':           '/landing.html',
+  '/rejoindre':         '/rejoindre.html',
 };
 
 export default {

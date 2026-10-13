@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Agenda Clinique — Docline</title>
-<script src="config.js"></script>
-<script src="shell.js?v=17"></script>
+<title>Agenda de l’établissement · Docline</title>
+<script src="config.js?v=4"></script>
+<script src="shell.js?v=18"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -137,10 +137,11 @@ label{font-size:12px;font-weight:700;color:#374151}
 </style>
 </head>
 <body>
-<div id="shell-topbar"></div>
-<div id="shell-sidebar"></div>
-<div id="shell-mobile-nav"></div>
-
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
 <div class="page-wrap">
 
   <!-- Header -->
@@ -150,9 +151,9 @@ label{font-size:12px;font-weight:700;color:#374151}
       <div class="page-sub" id="clinic-sub">Vue partagée de tous les praticiens</div>
     </div>
     <div class="header-actions">
-      <button class="btn btn-ghost btn-sm" onclick="openAddDoctor()">
+      <button class="btn btn-ghost btn-sm" id="btn-team" onclick="window.location.href='/staff'">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/></svg>
-        Ajouter un médecin
+        Équipe et accès
       </button>
       <button class="btn btn-primary btn-sm" onclick="window.location.href='/mes-rdv'">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -268,6 +269,8 @@ label{font-size:12px;font-weight:700;color:#374151}
 
 <div class="toast-container" id="toast-container"></div>
 
+  </main>
+</div>
 <script>
 'use strict';
 
@@ -543,39 +546,17 @@ function updateKPIs(){
 }
 
 /* ── Load ── */
+var _org = null;
+var DOC_COLORS = ['#6D28D9','#0066FF','#059669','#D97706','#DC2626','#7C3AED','#DB2777','#0891B2'];
 async function loadClinicDoctors(){
-  // Owner = first entry
-  var { data: ownProf } = await _supa.from('profiles').select('id,full_name,specialty,clinic_name').eq('id',_uid).single();
-  _clinicName = (ownProf && ownProf.clinic_name) ? ownProf.clinic_name : 'Ma Clinique';
+  var r = await _supa.rpc('org_doctors', { p_org: _org });
+  var d = (r && r.data) || { org: null, doctors: [] };
+  _clinicName = (d.org && d.org.name) || 'Établissement';
   document.getElementById('clinic-title').textContent = _clinicName;
-  document.getElementById('clinic-sub').textContent = 'Agenda partagé — tous les praticiens';
-
-  _doctors = [];
-  // Add owner as first doctor
-  _doctors.push({
-    id: _uid,
-    name: (ownProf && ownProf.full_name) || 'Vous',
-    color: '#6D28D9',
-    specialty: (ownProf && ownProf.specialty) || ''
+  document.getElementById('clinic-sub').textContent = 'Agenda partagé de tous les praticiens auxquels vous avez accès';
+  _doctors = (d.doctors || []).map(function(x, i){
+    return { id: x.id, name: x.name || 'Médecin', color: DOC_COLORS[i % DOC_COLORS.length], specialty: x.specialty || '' };
   });
-
-  // Load clinic members
-  var { data: members } = await _supa
-    .from('clinic_doctors')
-    .select('doctor_id, color, profiles!clinic_doctors_doctor_id_fkey(id,full_name,specialty)')
-    .eq('clinic_id', _uid);
-
-  if(members && members.length){
-    members.forEach(function(m){
-      var prof = m.profiles;
-      _doctors.push({
-        id: m.doctor_id,
-        name: (prof && prof.full_name) || m.doctor_id,
-        color: m.color || '#0066FF',
-        specialty: (prof && prof.specialty) || ''
-      });
-    });
-  }
 }
 
 async function loadAppointments(){
@@ -596,28 +577,28 @@ async function loadAppointments(){
   try {
     var { data: { session } } = await _supa.auth.getSession();
     if(!session){ window.location.href = ghpNav('/login'); return; }
-    _uid = session.user.id;
+    _uid = await Shell.acting(_supa, session.user.id);
+    var ws = Shell.workspace();
+    _org = ws.acting && !ws.acting.own ? ws.acting.orgId : session.user.id;
 
     var meta = session.user.user_metadata || {};
-    var subR = await _supa.from('subscriptions').select('plan,status').eq('user_id',_uid).maybeSingle();
+    var subR = await _supa.from('subscriptions').select('plan,status').eq('user_id',_org).maybeSingle();
     var sub  = subR.data;
+    var isPro = !!(sub && sub.plan !== 'free' && sub.status === 'active');
 
-    Shell.init({
-      page: 'clinic-agenda',
-      user: session.user,
-      meta: meta,
-      sub: sub,
-      supa: _supa
-    });
+    Shell.init({ page: 'clinic-agenda', title: 'Agenda de l’établissement', isPro: isPro, plan: (sub && sub.plan) || 'free',
+      userName: Shell.displayName(meta, session.user.email), userEmail: session.user.email || '' });
+    if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+    Shell.checkStaff(_supa, 'clinic-agenda', 'Agenda de l’établissement');
+    if (!ws.can('team.manage')) document.getElementById('btn-team').style.display = 'none';
 
-    // Guard Clinic only
+    // Offre Institution
     if(!sub || sub.plan !== 'clinic' || sub.status !== 'active'){
       document.querySelector('.page-wrap').innerHTML =
         '<div style="text-align:center;padding:80px 20px;color:#6B7280">'
-        + '<div style="font-size:48px;margin-bottom:16px">🔒</div>'
-        + '<div style="font-size:20px;font-weight:800;color:#0D1117;margin-bottom:8px">Fonctionnalité Clinic</div>'
-        + '<div style="margin-bottom:24px">L\'agenda partagé est réservé au plan Clinic.</div>'
-        + '<a href="/pricing" class="btn btn-primary" style="display:inline-flex">Passer au plan Clinic</a>'
+        + '<div style="font-size:20px;font-weight:800;color:#0D1117;margin-bottom:8px">Agenda de l’établissement</div>'
+        + '<div style="margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto;line-height:1.6">Tous les médecins de votre clinique sur un seul agenda, avec une couleur par praticien. Inclus dans l’offre Institution.</div>'
+        + '<a href="/pricing" class="btn btn-primary" style="display:inline-flex">Voir l’offre Institution</a>'
         + '</div>';
       return;
     }

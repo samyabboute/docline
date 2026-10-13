@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="config.js?v=4"></script>
-<script src="shell.js?v=17"></script>
+<script src="shell.js?v=18"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── PAGE STYLES (complètent shell.js) ─────────────────── */
@@ -981,13 +981,14 @@ async function load() {
   var { data: { session } } = await _supa.auth.getSession();
   if (!session) { window.location.href = '/login'; return; }
 
-  _uid   = session.user.id;
+  _uid   = await Shell.acting(_supa, session.user.id);
+  var _own = _uid === session.user.id; // false : collaborateur agissant pour un médecin
   _email = session.user.email || '';
   _name  = Shell.displayName(session.user.user_metadata || {}, _email);
 
   // Charger le vrai nom + statut KYC depuis profiles
   var { data: prof } = await _supa.from('profiles').select('full_name,first_name,last_name,clinic_name,is_clinic,kyc_status,kyc_reject_reason').eq('id', _uid).single();
-  if (prof) {
+  if (prof && _own) {
     if (prof.is_clinic && prof.clinic_name) _name = prof.clinic_name;
     else if (prof.full_name) _name = prof.full_name;
     else if (prof.first_name || prof.last_name) _name = ((prof.first_name||'') + ' ' + (prof.last_name||'')).trim();
@@ -1006,7 +1007,9 @@ async function load() {
   var _isTrialOver   = _trialEndDate ? (_trialEndDate < new Date()) : false;
   var _needsPayment  = sub && sub.plan !== 'free' && _paymentStatus === 'pending';
 
-  if (_isAdminGrant && sub.plan !== 'free') {
+  if (!_own) {
+    // collaborateur : ni bannière d'abonnement ni rappel de paiement
+  } else if (_isAdminGrant && sub.plan !== 'free') {
     // Bannière accès exclusif accordé par Docline
     _showAdminGrantBanner(sub);
   } else if (_needsPayment) {

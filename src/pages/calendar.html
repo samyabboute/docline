@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Agenda — Docline</title>
 <script src="config.js?v=4"></script>
-<script src="shell.js?v=17"></script>
+<script src="shell.js?v=18"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#6D28D9">
@@ -984,7 +984,7 @@ document.addEventListener('keydown',function(e){
   try{
     var s=await _supa.auth.getSession();
     if(!s.data.session){window.location.href=ghpNav('/login');return;}
-    _uid=s.data.session.user.id;
+    _uid=await Shell.acting(_supa,s.data.session.user.id);
 
     var u=s.data.session.user;
     var meta=u.user_metadata||{};

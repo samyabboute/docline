@@ -505,6 +505,8 @@ function runLockCountdown(){
 
 // ── SESSION CHECK ─────────────────────────────────────────────
 (async function(){
+  // Lien d'invitation d'un collaborateur : il choisit d'abord son mot de passe
+  if(/type=invite/.test(location.hash)){ location.replace('/rejoindre' + location.hash); return; }
   var s = await _supa.auth.getSession();
   if(s.data.session){ goAfterLogin(s.data.session.user.email); return; }
 

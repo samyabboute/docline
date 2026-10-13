@@ -6,11 +6,11 @@
 <title>Consultations — Docline</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js?v=4"></script>
-<script src="shell.js?v=17"></script>
+<script src="shell.js?v=18"></script>
 <link rel="stylesheet" href="drug-picker.css?v=4">
 <script src="drug-picker.js?v=3"></script>
 <script src="rx-check.js?v=3"></script>
-<script src="patient-context.js?v=2"></script>
+<script src="patient-context.js?v=3"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 /* ── VARIABLE ALIASES (shell.js v2 compatibility) ── */
@@ -560,7 +560,7 @@ var _pc = PatientContext.mount(document.getElementById('pc-box'), { supa: _supa,
 var _habits = { favorites: [], posology: {} }, _habitsLoaded = false;
 function loadHabits() {
   if (_habitsLoaded) return; _habitsLoaded = true;
-  _supa.rpc('my_prescribing_habits').then(function(r) { if (r && r.data) _habits = r.data; });
+  _supa.rpc('my_prescribing_habits', { p_doctor: _uid }).then(function(r) { if (r && r.data) _habits = r.data; });
 }
 var _rx = RxCheck.mount(document.getElementById('rx-alerts'), { supa: _supa,
   getDrugs: function() {
@@ -597,7 +597,7 @@ var MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov
 (async function init() {
   var s = await _supa.auth.getSession();
   if (!s.data.session) { window.location.href=ghpNav('/login'); return; }
-  _uid = s.data.session.user.id;
+  _uid = await Shell.acting(_supa, s.data.session.user.id);
   var user = s.data.session.user;
   var meta = user.user_metadata || {};
   var name = Shell.displayName(meta, user.email);
