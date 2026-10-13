@@ -851,6 +851,8 @@ button,input,select,textarea{font-family:inherit}
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
 <link rel="stylesheet" href="premium.css">
+<link rel="stylesheet" href="doctor-facts.css?v=1">
+<script src="doctor-facts.js?v=1"></script>
 <style id="docline-wow">
 /* ════════════════════════════════════════════════════════════════
    Docline · recherche de médecin — direction « épurée »
@@ -1037,13 +1039,6 @@ body{background:var(--ap-bg);color:var(--ap-ink);letter-spacing:-.005em}
 .meta-row a[href*="google.com/maps"]{background:transparent!important;border:0!important;color:var(--ap-accent)!important;
   padding:0!important;box-shadow:none!important;font-weight:600!important}
 .stars-row{padding:0 22px 12px}
-.rv-row[hidden]{display:none}
-.rv-row{gap:8px}
-.rv-score{display:inline-flex;align-items:center;gap:4px;font-size:.8125rem;font-weight:700;color:var(--ap-ink,#0D0520)}
-.rv-score svg{width:14px;height:14px;fill:#7C3AED}
-.rv-count{font-size:.75rem;color:var(--ap-ink3,#6B7280)}
-.rv-wait{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;color:#4C1D95;background:#F3F0FF;border-radius:999px;padding:3px 9px}
-.rv-wait svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .star{color:#E7E4EE}.star.on{color:var(--ap-ink2)}
 .star.half{background:linear-gradient(90deg,var(--ap-ink2) 50%,#E7E4EE 50%);-webkit-background-clip:text;background-clip:text}
 .rating-num{color:var(--ap-ink2);font-weight:600}
@@ -2325,8 +2320,8 @@ function renderCards(docs){
         +'<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([d.address,d.city,d.wilaya,'Algérie'].filter(Boolean).join(', '))+'" target="_blank" rel="noopener" title="Voir sur Google Maps" style="display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:600;color:var(--brand);text-decoration:none;border:1px solid rgba(59,23,114,.2);border-radius:6px;padding:3px 8px;transition:all .15s;flex-shrink:0" onmouseover="this.style.background=\'rgba(59,23,114,.06)\'" onmouseout="this.style.background=\'\'"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Maps</a>'
         +'</div>':'')
       +'</div></div></div>'
-      // Avis vérifiés et attente mesurée (remplis après chargement, rien d'inventé)
-      +'<div class="stars-row rv-row" data-rv="'+d.id+'" hidden></div>'
+      // Faits vérifiés : file en direct et badges (remplis après chargement, rien d'inventé)
+      +'<div class="stars-row df-row" data-df="'+d.id+'" hidden></div>'
       // Bio
       +(d.bio?'<div class="card-bio">'+d.bio.substring(0,110)+(d.bio.length>110?'…':'')+'</div>':'')
       // Divider + bottom
@@ -2354,21 +2349,18 @@ function renderCards(docs){
   fillReviewRows(docs.map(function(d){return d.id;}));
 }
 
-// Note moyenne (à partir de 3 avis vérifiés) et attente médiane mesurée par la file
+// Faits vérifiés : état de la file en direct et badges mesurés par Docline
 async function fillReviewRows(ids){
-  if(!ids.length) return;
+  if(!ids.length || !window.DoctorFacts) return;
   try{
-    var r = await _supa.rpc('doctor_review_summaries', { p_doctors: ids.slice(0,60) });
+    var r = await _supa.rpc('doctor_public_facts_many', { p_doctors: ids.slice(0,60) });
     if(r.error || !r.data) return;
     Object.keys(r.data).forEach(function(id){
-      var s = r.data[id], el = document.querySelector('[data-rv="'+id+'"]');
-      if(!el || !s) return;
-      var parts = [];
-      if(s.rating != null) parts.push('<span class="rv-score"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.83 5.73 6.32.92-4.57 4.46 1.08 6.3L12 17.24l-5.66 2.97 1.08-6.3-4.57-4.46 6.32-.92z"/></svg>'+String(s.rating).replace('.',',')+'</span><span class="rv-count">'+s.count+' avis vérifiés</span>');
-      if(s.wait_median != null) parts.push('<span class="rv-wait"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Attente mesurée ~'+s.wait_median+' min</span>');
-      if(!parts.length) return;
-      el.innerHTML = parts.join('');
-      el.hidden = false;
+      var f = r.data[id], el = document.querySelector('[data-df="'+id+'"]');
+      if(!el || !f) return;
+      var html = DoctorFacts.liveChip(f.live) + (f.badges || []).slice(0,3).map(DoctorFacts.badgeChip).join('');
+      if(!html) return;
+      el.innerHTML = html; el.hidden = false;
     });
   }catch(e){}
 }

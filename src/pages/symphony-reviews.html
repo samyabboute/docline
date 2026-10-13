@@ -141,20 +141,19 @@ body.ro [data-validate]{display:none!important}
       <div class="pv-head">
         <div>
           <div class="pv-eyebrow">Symphony · Médecins</div>
-          <h1 class="pv-title">Avis patients vérifiés</h1>
-          <p class="pv-sub">Chaque avis vient d’un patient réellement reçu en consultation, une seule fois par passage. Les notes sont publiées aussitôt, les commentaires écrits attendent votre relecture. Les avis suspects sont mis de côté automatiquement.</p>
+          <h1 class="pv-title">Avis patients</h1>
+          <p class="pv-sub">Après une consultation vérifiée, le patient répond à trois questions (écouté, traitement expliqué, recommanderait) et peut laisser un mot au médecin. Ce mot reste privé : l’équipe ne le lit pas. Ici, vous vérifiez les avis mis de côté automatiquement (consultation éclair, avis en rafale).</p>
         </div>
         <span class="pv-ro" id="ro-pill" hidden>Lecture seule</span>
       </div>
       <div class="pv-tools">
         <div class="seg" id="rv-filter">
-          <button type="button" class="on" data-f="pending">À relire</button>
-          <button type="button" data-f="hidden">Mis de côté</button>
+          <button type="button" class="on" data-f="hidden">Mis de côté</button>
           <button type="button" data-f="all">Tous les avis</button>
         </div>
       </div>
       <div class="pv-list" id="rv-list"></div>
-      <p class="note" style="margin-top:12px">Publiez un commentaire s’il décrit l’expérience du patient sans information médicale, sans nom propre et sans propos injurieux. Un avis négatif honnête se publie.</p>
+      <p class="note" style="margin-top:12px">Rétablissez un avis mis de côté s’il correspond à une vraie consultation. Un avis rétabli compte dans les badges du médecin.</p>
     </main>
   </div>
 </div>
@@ -162,18 +161,14 @@ body.ro [data-validate]{display:none!important}
 <script>
 'use strict';
 var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
-var CAN_EDIT = false, F = 'pending', ROWS = [];
-var TAGS = { ecoute:'À l’écoute', explications:'Explications claires', confiance:'Inspire confiance', accueil:'Accueil chaleureux', ponctualite:'Ponctuel',
-  rapidite:'Prise en charge rapide', cabinet:'Cabinet agréable', attente:'Attente longue', explications_insuffisantes:'Explications insuffisantes',
-  accueil_ameliorer:'Accueil à améliorer', tarif_flou:'Tarif peu clair' };
-var NEG = { attente:1, explications_insuffisantes:1, accueil_ameliorer:1, tarif_flou:1 };
-var STARS = '★★★★★';
+var CAN_EDIT = false, F = 'hidden', ROWS = [];
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
 function toast(m, err){ var t = $('toast'); t.textContent = m; t.className = 'pv-toast on' + (err ? ' err' : ''); clearTimeout(t._h); t._h = setTimeout(function(){ t.className = 'pv-toast'; }, 3200); }
 function fmt(s){ var d = new Date(s); return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }); }
-var EMPTY = { pending:'Aucun commentaire ni réponse à relire', hidden:'Aucun avis mis de côté', all:'Aucun avis pour l’instant' };
-var DONE = { reply_publish:'Réponse publiée.', reply_reject:'Réponse non publiée.', publish:'Commentaire publié.', reject:'Commentaire non publié.', hide:'Avis mis de côté.', restore:'Avis rétabli.' };
+function yn(v, label){ return v == null ? '' : '<span class="rv-tag' + (v ? '' : ' neg') + '">' + label + ' : ' + (v ? 'oui' : 'non') + '</span>'; }
+var EMPTY = { hidden:'Aucun avis mis de côté', all:'Aucun avis pour l’instant' };
+var DONE = { hide:'Avis mis de côté.', restore:'Avis rétabli.' };
 
 async function load(){
   var r = await sb.rpc('reviews_moderation', { p_status: F, p_limit: 100 });
@@ -181,28 +176,17 @@ async function load(){
   ROWS = r.data || [];
   if (!ROWS.length) {
     $('rv-list').innerHTML = '<div class="empty"><strong>' + EMPTY[F] + '</strong>' +
-      (F === 'all' ? 'Les avis arrivent après les consultations, par la file d’attente et les tickets de rendez-vous.' : '') + '</div>';
+      (F === 'all' ? 'Les avis arrivent après les consultations, par la file d’attente et les tickets de rendez-vous.' : 'Les avis suspects sont mis de côté automatiquement et apparaissent ici.') + '</div>';
     return;
   }
   $('rv-list').innerHTML = ROWS.map(function(x, i){
-    var act = '';
-    if (CAN_EDIT) {
-      if (x.comment_status === 'pending' && !x.hidden) act += '<button class="pv-btn ok" type="button" data-i="' + i + '" data-a="publish">Publier le commentaire</button><button class="pv-btn bad" type="button" data-i="' + i + '" data-a="reject">Ne pas publier</button>';
-      if (x.reply_status === 'pending' && !x.hidden) act += '<button class="pv-btn ok" type="button" data-i="' + i + '" data-a="reply_publish">Publier la réponse</button><button class="pv-btn bad" type="button" data-i="' + i + '" data-a="reply_reject">Refuser la réponse</button>';
-      act += x.hidden ? '<button class="pv-btn" type="button" data-i="' + i + '" data-a="restore">Rétablir l’avis</button>' : '<button class="pv-btn" type="button" data-i="' + i + '" data-a="hide">Mettre de côté</button>';
-    }
-    var st = x.comment_status === 'published' ? ' <span class="st st-validated">Commentaire publié</span>'
-           : x.comment_status === 'rejected' ? ' <span class="st st-rejected">Commentaire non publié</span>'
-           : x.comment_status === 'pending' ? ' <span class="st st-draft">À relire</span>' : '';
+    var act = !CAN_EDIT ? '' : x.hidden ? '<button class="pv-btn" type="button" data-i="' + i + '" data-a="restore">Rétablir l’avis</button>'
+                                        : '<button class="pv-btn" type="button" data-i="' + i + '" data-a="hide">Mettre de côté</button>';
     return '<div class="rv"><div>' +
-      '<div class="rv-h"><span class="rv-stars" aria-label="' + x.rating + ' sur 5">' + STARS.slice(0, x.rating) + '<span>' + STARS.slice(0, 5 - x.rating) + '</span></span>' + esc(x.doctor_name || 'Médecin') + st + '</div>' +
-      (x.tags && x.tags.length ? '<div class="rv-tags">' + x.tags.map(function(t){ return '<span class="rv-tag' + (NEG[t] ? ' neg' : '') + '">' + esc(TAGS[t] || t) + '</span>'; }).join('') + '</div>' : '') +
-      (x.comment ? '<div class="rv-txt">' + esc(x.comment) + '</div>' : '') +
-      (x.reply && x.reply_status !== 'none' ? '<div class="rv-txt" style="border-left:2px solid #DDD6FE;padding-left:10px"><b>Réponse du médecin</b>' +
-        (x.reply_status === 'pending' ? ' <span class="st st-draft">À relire</span>' : x.reply_status === 'published' ? ' <span class="st st-validated">Publiée</span>' : ' <span class="st st-rejected">Non publiée</span>') +
-        '<br>' + esc(x.reply) + '</div>' : '') +
+      '<div class="rv-h">' + esc(x.doctor_name || 'Médecin') + (x.hidden ? ' <span class="st st-draft">Mis de côté</span>' : ' <span class="st st-validated">Compté</span>') + '</div>' +
+      '<div class="rv-tags">' + yn(x.listened, 'Écouté') + yn(x.explained, 'Traitement expliqué') + yn(x.recommend, 'Recommande') + (x.has_note ? '<span class="rv-tag">Mot privé au médecin</span>' : '') + '</div>' +
       (x.hidden ? '<div class="rv-flag">' + esc(x.hidden_reason || 'Mis de côté') + '</div>' : '') +
-      '<div class="rv-foot">' + esc(x.author_label) + ' · ' + (x.source === 'queue' ? 'file d’attente' : 'rendez-vous en ligne') + ' · consultation du ' + esc(x.visit_date) +
+      '<div class="rv-foot">' + (x.source === 'queue' ? 'File d’attente' : 'Rendez-vous en ligne') + ' · consultation du ' + esc(x.visit_date) +
         (x.wait_minutes != null ? ' · attente mesurée ' + x.wait_minutes + ' min' : '') + ' · reçu le ' + fmt(x.created_at) + '</div>' +
       '</div><div class="it-act">' + act + '</div></div>';
   }).join('');
@@ -229,7 +213,7 @@ $('rv-filter').querySelectorAll('button').forEach(function(b){
   load();
 })();
 </script>
-<script src="symphony-access.js?v=8" defer></script>
-<script src="symphony-chrome.js?v=4" defer></script>
+<script src="symphony-access.js?v=9" defer></script>
+<script src="symphony-chrome.js?v=5" defer></script>
 </body>
 </html>

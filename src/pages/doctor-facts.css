@@ -1,0 +1,25 @@
+/* Docline · faits vérifiés (doctor-facts.js) */
+.df-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.df-row[hidden]{display:none}
+.df-live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;border-radius:999px;padding:4px 10px;background:#F2F4F7;color:#475467}
+.df-live i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.df-open{background:#ECFDF3;color:#067647}
+.df-open i{animation:dfPulse 2s ease-in-out infinite}
+.df-soon{background:#FFFAEB;color:#B54708}
+.df-pause{background:#FFFAEB;color:#B54708}
+.df-closed{background:#F2F4F7;color:#667085}
+@keyframes dfPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.df-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#4C1D95;background:#F3F0FF;border-radius:999px;padding:4px 10px}
+.df-badge svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.df-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.df-card{display:flex;gap:12px;align-items:flex-start;background:#FCFBFF;border:1px solid rgba(76,29,149,.1);border-radius:14px;padding:12px 14px}
+.df-card-ic{width:34px;height:34px;border-radius:11px;background:#EFEBFF;display:flex;align-items:center;justify-content:center;flex:none}
+.df-card-ic svg{width:17px;height:17px;fill:none;stroke:#4C1D95;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.df-card-t{font-size:13.5px;font-weight:700;color:#0D0520}
+.df-card-v{font-size:13px;font-weight:600;color:#4C1D95;margin-top:1px}
+.df-card-n{font-size:11.5px;color:#8A82A3;margin-top:3px;line-height:1.4}
+.df-times{display:flex;flex-direction:column;gap:8px}
+.df-time{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;background:#FCFBFF;border:1px solid rgba(13,5,32,.06);border-radius:12px;padding:10px 12px}
+.df-time b{font-size:13.5px;color:#0D0520}
+.df-time span{font-size:12.5px;color:#5B4F78}
+@media (prefers-reduced-motion:reduce){.df-open i{animation:none}}

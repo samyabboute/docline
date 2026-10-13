@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="config.js?v=4"></script>
-<script src="shell.js?v=16"></script>
+<script src="shell.js?v=17"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── PAGE STYLES (complètent shell.js) ─────────────────── */
@@ -1024,9 +1024,7 @@ async function load() {
   document.getElementById('content').style.display  = 'block';
 
   await load();
-  // _npsInit est défini dans un script plus bas : on attend qu'il soit chargé
-  if (typeof _npsInit === 'function') _npsInit(_uid);
-  else document.addEventListener('DOMContentLoaded', function() { _npsInit(_uid); });
+  // La satisfaction (NPS) est désormais demandée par nps-prompt.js, chargé par shell.js sur toutes les pages
 
   // Realtime queue updates
   _supa.channel('queue-dash')

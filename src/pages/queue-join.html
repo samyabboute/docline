@@ -294,7 +294,7 @@ body{
   <script src="/js/sentry-config.js"></script>
   <script src="/js/sentry-init.js"></script>
 <link rel="stylesheet" href="premium.css">
-<link rel="stylesheet" href="review-widget.css?v=1">
+<link rel="stylesheet" href="review-widget.css?v=2">
 <style>#review-slot{margin-top:16px}</style>
 </head>
 <body>
@@ -522,7 +522,7 @@ body{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js?v=4"></script>
-<script src="review-widget.js?v=1"></script>
+<script src="review-widget.js?v=2"></script>
 <script>
 var _supa     = supabase.createClient(SUPA_URL, SUPA_KEY);
 var _clinicId = null;
@@ -821,9 +821,16 @@ async function showConfirmation(entry, positionBefore, isRdv) {
   } catch(e) { renderAhead(Math.max(0,positionBefore)); }
 }
 
+// Rythme réel du cabinet (durée médiane d'une consultation, mesurée par la file) : aucune estimation inventée
+var _pace = null, _paceLoaded = false;
+function loadPace(){
+  if (_paceLoaded || !_clinicId) return; _paceLoaded = true;
+  _supa.rpc('queue_pace', { p_clinic: _clinicId }).then(function(r){ _pace = r && r.data ? r.data : null; if (window._lastAhead != null) renderAhead(window._lastAhead); });
+}
 function renderAhead(ahead) {
+  window._lastAhead = ahead; loadPace();
   document.getElementById('info-ahead').textContent = ahead===0 ? 'Vous êtes le suivant !' : ahead;
-  document.getElementById('info-wait').textContent  = ahead===0 ? 'Très bientôt' : '~'+(ahead*15)+' min';
+  document.getElementById('info-wait').textContent  = ahead===0 ? 'Très bientôt' : (_pace ? '~'+(ahead*_pace)+' min' : 'Pas encore mesurée');
   var pct = ahead===0 ? 92 : Math.max(8, Math.min(78, 8+(1/(ahead+1))*70));
   document.getElementById('status-fill').style.width = pct+'%';
 }

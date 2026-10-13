@@ -101,23 +101,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
 .not-found h2{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:8px}
 .not-found p{color:var(--ink3);font-size:.875rem;margin-bottom:20px}
 
-/* ── Avis vérifiés ── */
-.rvs-head{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:14px}
-.rvs-score{font-size:2.2rem;font-weight:800;letter-spacing:-1px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
-.rvs-score small{font-size:.9rem;font-weight:600;color:var(--ink3);letter-spacing:0}
-.rvs-meta{font-size:.8rem;color:var(--ink3);line-height:1.5}
-.rvs-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.rvs-chip{font-size:.75rem;font-weight:600;color:#4C1D95;background:#F3F0FF;border-radius:999px;padding:4px 10px}
-.rvs-list{display:flex;flex-direction:column;gap:12px}
-.rvs-item{border-top:1px solid rgba(13,5,32,.07);padding-top:12px}
-.rvs-item-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.8rem;color:var(--ink3)}
-.rvs-item-h b{color:var(--ink);font-weight:700}
-.rvs-stars{color:#7C3AED;letter-spacing:1px;font-size:.85rem}
-.rvs-item p{font-size:.875rem;color:var(--ink2,#2D1B69);line-height:1.6;margin:6px 0 0}
-.rvs-reply{margin-top:8px;border-left:2px solid #DDD6FE;padding-left:10px}
-.rvs-reply b{font-size:.75rem;color:#6D28D9}
-.rvs-reply p{margin-top:2px !important}
-.rvs-note{font-size:.75rem;color:var(--ink3);margin-top:14px;line-height:1.5}
+/* ── En pratique (faits vérifiés) ── */
+.facts-k{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+#facts-live .facts-k{margin:0 6px 0 0}
+.facts-note{font-size:.75rem;color:var(--ink3);margin-top:14px;line-height:1.5}
 
 /* ── Review stars ── */
 .stars{display:flex;gap:3px}
@@ -127,6 +114,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
 .rating-count{font-size:.78rem;color:var(--ink3)}
 </style>
 <link rel="stylesheet" href="premium.css">
+<link rel="stylesheet" href="doctor-facts.css?v=1">
+<script src="doctor-facts.js?v=1"></script>
 </head>
 <body>
 
@@ -205,13 +194,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
           <div id="info-rows"></div>
         </div>
 
-        <!-- Avis vérifiés : uniquement des patients reçus en consultation -->
-        <div class="card" id="reviews-card" style="display:none">
+        <!-- En pratique : faits mesurés par Docline (file d'attente, rendez-vous, réponses des patients) -->
+        <div class="card" id="facts-card" style="display:none">
           <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M12 2.8l2.83 5.73 6.32.92-4.57 4.46 1.08 6.3L12 17.24l-5.66 2.97 1.08-6.3-4.57-4.46 6.32-.92z"/></svg>
-            Avis vérifiés
+            <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            En pratique
           </div>
-          <div id="reviews-body"></div>
+          <div id="facts-live" class="df-row" style="margin-bottom:14px" hidden></div>
+          <div id="facts-badges"></div>
+          <div id="facts-times"></div>
+          <p class="facts-note">Mesuré par Docline à partir des passages réels au cabinet et des réponses des patients reçus en consultation. Rien n’est déclaré par le médecin.</p>
         </div>
       </div>
 
@@ -251,35 +243,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
     render(res.data);
   }
 
-  // Avis vérifiés : note publiée à partir de 3 avis, commentaires relus par l'équipe
-  var TAGS = { ecoute:'À l’écoute', explications:'Explications claires', confiance:'Inspire confiance', accueil:'Accueil chaleureux',
-               ponctualite:'Ponctuel', rapidite:'Prise en charge rapide', cabinet:'Cabinet agréable' };
-  var MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  function escR(s){ var x=document.createElement('div'); x.textContent=String(s==null?'':s); return x.innerHTML; }
-  async function loadReviews(d, schema) {
+  // En pratique : file en direct, badges vérifiés et meilleurs moments pour venir
+  async function loadReviews(d) {
     try {
-      var r1 = await _supa.rpc('doctor_review_summary', { p_doctor: d.id });
-      var s = r1.data || {};
-      var r2 = s.count ? await _supa.rpc('doctor_reviews_public', { p_doctor: d.id, p_limit: 6 }) : { data: [] };
-      var list = r2.data || [];
-      if (s.rating == null && s.wait_median == null && !list.length) return;
-      var html = '<div class="rvs-head">';
-      if (s.rating != null) html += '<div class="rvs-score">' + String(s.rating).replace('.', ',') + ' <small>/ 5</small></div><div class="rvs-meta">' + s.count + ' avis de patients reçus en consultation<br>Un seul avis par consultation</div>';
-      if (s.wait_median != null) html += '<div class="rvs-meta"><b style="color:var(--ink)">~' + s.wait_median + ' min</b> d’attente en salle<br>Mesurée par la file d’attente Docline</div>';
-      html += '</div>';
-      if (s.tags && s.tags.length) html += '<div class="rvs-chips">' + s.tags.map(function(t){ return '<span class="rvs-chip">' + escR(TAGS[t.tag] || t.tag) + ' · ' + t.n + '</span>'; }).join('') + '</div>';
-      if (list.length) html += '<div class="rvs-list">' + list.map(function(x){
-        var m = (x.visit_month || '').split('-');
-        return '<div class="rvs-item"><div class="rvs-item-h"><span><b>' + escR(x.author_label) + '</b> · consultation de ' + (m[1] ? MONTHS[+m[1]-1] + ' ' + m[0] : '') + '</span><span class="rvs-stars" aria-label="' + x.rating + ' sur 5">' + '★★★★★'.slice(0, x.rating) + '</span></div><p>' + escR(x.comment) + '</p>' +
-          (x.reply ? '<div class="rvs-reply"><b>Réponse du médecin</b><p>' + escR(x.reply) + '</p></div>' : '') + '</div>';
-      }).join('') + '</div>';
-      html += '<p class="rvs-note">Seuls les patients réellement reçus par ce médecin peuvent donner un avis. Les commentaires sont relus par Docline avant publication.</p>';
-      document.getElementById('reviews-body').innerHTML = html;
-      document.getElementById('reviews-card').style.display = '';
-      if (s.rating != null && schema) {
-        schema.aggregateRating = { '@type': 'AggregateRating', ratingValue: s.rating, reviewCount: s.count, bestRating: 5, worstRating: 1 };
-        document.getElementById('schema-jsonld').textContent = JSON.stringify(schema, null, 2);
-      }
+      var r = await _supa.rpc('doctor_public_facts', { p_doctor: d.id });
+      var f = r.data;
+      if (!f || !window.DoctorFacts) return;
+      var any = false;
+      var lv = DoctorFacts.liveChip(f.live);
+      if (lv) { document.getElementById('facts-live').innerHTML = '<span class="facts-k">En direct</span>' + lv; document.getElementById('facts-live').hidden = false; any = true; }
+      if (f.badges && f.badges.length) { document.getElementById('facts-badges').innerHTML = '<div class="facts-k">Badges vérifiés</div><div class="df-cards">' + f.badges.map(DoctorFacts.badgeCard).join('') + '</div>'; any = true; }
+      if (f.best_times && f.best_times.length) { document.getElementById('facts-times').innerHTML = '<div class="facts-k" style="margin-top:16px">Meilleurs moments pour venir sans rendez-vous</div><div class="df-times">' + DoctorFacts.bestTimes(f.best_times) + '</div>'; any = true; }
+      if (any) document.getElementById('facts-card').style.display = '';
     } catch (e) {}
   }
 
@@ -327,7 +302,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--ink);min-h
       'sameAs': [url]
     };
     document.getElementById('schema-jsonld').textContent = JSON.stringify(schema, null, 2);
-    loadReviews(d, schema);
+    loadReviews(d);
 
     // ── Breadcrumb ────────────────────────────────────────────────────────────
     document.getElementById('bc-spec').textContent = spec;

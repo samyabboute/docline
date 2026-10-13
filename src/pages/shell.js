@@ -58,7 +58,7 @@ Shell = (function () {
       icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
     { href:'/profil-public',      key:'profil-public',  label:'Profil public',
       icon:'<rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M14 10h4m-4 3.5h4M5 18c0-1.7 1.8-2.5 4-2.5s4 .8 4 2.5"/>' },
-    { href:'/avis',               key:'avis',           label:'Avis patients',
+    { href:'/avis',               key:'avis',           label:'Expérience patients',
       icon:'<path d="M12 2.8l2.83 5.73 6.32.92-4.57 4.46 1.08 6.3L12 17.24l-5.66 2.97 1.08-6.3-4.57-4.46 6.32-.92z"/>' },
 
     // ── Mon équipe
@@ -1323,7 +1323,19 @@ button{font-family:inherit;cursor:pointer}
     });
   })();
 
+  // Satisfaction (NPS) : le serveur décide s'il faut poser la question ; chargé une fois par page
+  function _loadNpsPrompt() {
+    if (window.__dlNpsLoaded) return;
+    window.__dlNpsLoaded = true;
+    setTimeout(function () {
+      var s = document.createElement('script');
+      s.src = 'nps-prompt.js?v=1'; s.defer = true;
+      document.body.appendChild(s);
+    }, 6000);
+  }
+
   function init(opts) {
+    _loadNpsPrompt();
     var sbEl  = document.getElementById('shell-sidebar');
     var tbEl  = document.getElementById('shell-topbar');
     var ovEl  = document.getElementById('shell-overlay');
