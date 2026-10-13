@@ -6,7 +6,7 @@
 <title>Équipe et accès · Docline</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="config.js?v=4"></script>
-<script src="shell.js?v=18"></script>
+<script src="shell.js?v=19"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
 /* Équipe et accès : liste claire par service, tiroir d'édition, secret médical mis en avant */
@@ -172,6 +172,18 @@
 .upsell p{flex:1;min-width:220px;margin:0;font-size:13px;color:var(--text-2);line-height:1.5}
 .upsell b{color:var(--ink)}
 
+.jr-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.jr-note{font-size:12px;color:var(--text-3);flex:1;min-width:220px;line-height:1.5}
+.jr-day{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin:16px 4px 8px}
+.jr{display:grid;grid-template-columns:52px 34px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 16px;border-top:1px solid var(--border)}
+.jr:first-child{border-top:none}
+.jr-t{font-size:12.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.jr .av{width:30px;height:30px;border-radius:10px;font-size:10.5px}
+.jr-s{font-size:13.5px;color:var(--text-2);line-height:1.45}
+.jr-s b{color:var(--text);font-weight:700}
+.jr-d{font-size:11.5px;color:var(--text-3);white-space:nowrap}
+.jr-med{margin-left:8px;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--med-bg);color:var(--med);white-space:nowrap}
+@media(max-width:600px){.jr{grid-template-columns:44px minmax(0,1fr)}.jr .av,.jr-d{display:none}}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:11px 22px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;transition:all .26s cubic-bezier(.34,1.56,.64,1);z-index:9999;max-width:calc(100vw - 32px);text-align:center;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.error{background:#DC2626}
@@ -210,11 +222,18 @@
       <div class="tabs" role="tablist">
         <button class="tab on" data-p="team" role="tab" type="button">Équipe</button>
         <button class="tab" data-p="services" role="tab" type="button">Services</button>
+        <button class="tab" data-p="journal" role="tab" type="button">Journal d’activité</button>
         <button class="tab" data-p="roles" role="tab" type="button">Rôles et permissions</button>
       </div>
 
       <div class="pane on" id="p-team"><div id="team"></div></div>
       <div class="pane" id="p-services"><div id="upsell-svc"></div><div class="list" id="services"></div></div>
+      <div class="pane" id="p-journal">
+        <div class="jr-bar"><label class="lbl" for="jr-actor" style="margin:0">Personne</label><select class="in" id="jr-actor" style="max-width:260px"><option value="">Toute l’équipe</option></select>
+          <span class="jr-note">Chaque création, modification ou suppression est enregistrée avec son auteur. Le contenu médical n’apparaît jamais ici.</span></div>
+        <div id="journal"></div>
+        <div style="text-align:center;margin-top:12px"><button class="b b-sec" id="jr-more" type="button" style="display:none">Afficher plus</button></div>
+      </div>
       <div class="pane" id="p-roles">
         <div class="mx-wrap"><table class="matrix" id="matrix"></table></div>
         <p class="mx-foot">Ce sont les réglages proposés pour chaque rôle. Vous pouvez ensuite ajuster chaque personne, et limiter ses accès à certains médecins.</p>
@@ -277,7 +296,7 @@ var ROLES = {
   lab:        { label: 'Laboratoire',      desc: 'Résultats d’analyses',                    color: '#10B981', perms: ['patients.view', 'lab.manage'] },
   accountant: { label: 'Comptabilité',     desc: 'Agenda en lecture',                        color: '#F59E0B', perms: ['agenda.view'] },
   doctor:     { label: 'Médecin',          desc: 'Garde son propre espace patients',         color: '#6D28D9', perms: ['agenda.view'] },
-  admin:      { label: 'Administration',   desc: 'Tout sauf le dossier médical',             color: '#1E1238', perms: ['agenda.view', 'agenda.manage', 'queue.manage', 'patients.view', 'patients.edit', 'lab.manage', 'team.manage', 'settings.manage'] }
+  admin:      { label: 'Administration',   desc: 'Tout sauf le dossier médical',             color: '#1E1238', perms: ['agenda.view', 'agenda.manage', 'queue.manage', 'patients.view', 'patients.edit', 'lab.manage', 'stats.view', 'team.manage', 'settings.manage'] }
 };
 var ROLE_ORDER = ['secretary', 'nurse', 'lab', 'accountant', 'doctor', 'admin'];
 var ADMIN_BASE = ROLES.admin.perms;
@@ -297,7 +316,8 @@ var PERM_GROUPS = [
   { title: 'Laboratoire', icon: '<path d="M9 3h6"/><path d="M10 3v6L4 20a1 1 0 0 0 1 1.5h14A1 1 0 0 0 20 20L14 9V3"/>', items: [
     { k: 'lab.manage', n: 'Résultats d’analyses', d: 'Déposer les résultats et les partager au patient par code.', short: 'Labo' } ] },
   { title: 'Établissement', icon: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>', items: [
-    { k: 'team.manage', n: 'Gérer l’équipe', d: 'Inviter, modifier les accès, suspendre un compte.', short: 'Équipe' },
+    { k: 'stats.view', n: 'Voir le pilotage', d: 'Activité du jour et du mois, médecin par médecin.', short: 'Pilotage' },
+    { k: 'team.manage', n: 'Gérer l’équipe', d: 'Inviter, modifier les accès, suspendre un compte, lire le journal d’activité.', short: 'Équipe' },
     { k: 'settings.manage', n: 'Gérer les services', d: 'Créer, renommer et archiver les services.', short: 'Services' } ] }
 ];
 var PERM_INDEX = {}; PERM_GROUPS.forEach(function (g) { g.items.forEach(function (i) { PERM_INDEX[i.k] = i; }); });
@@ -306,7 +326,7 @@ var PERM_INDEX = {}; PERM_GROUPS.forEach(function (g) { g.items.forEach(function
 var MENU = [
   { n: 'Agenda', p: 'agenda.view' }, { n: 'Rendez-vous en ligne', p: 'agenda.view' }, { n: 'Disponibilités', p: 'agenda.manage' },
   { n: 'File d’attente', p: 'queue.manage' }, { n: 'Patients', p: 'patients.view' }, { n: 'Consultations', p: 'medical.view' },
-  { n: 'Ordonnances', p: 'medical.view' }, { n: 'Laboratoire', p: 'lab.manage' }, { n: 'Équipe et accès', p: 'team.manage' }
+  { n: 'Ordonnances', p: 'medical.view' }, { n: 'Laboratoire', p: 'lab.manage' }, { n: 'Pilotage', p: 'stats.view' }, { n: 'Équipe et accès', p: 'team.manage' }
 ];
 var COLORS = ['#7C3AED', '#0EA5E9', '#10B981', '#F59E0B', '#EC4899', '#6366F1', '#14B8A6', '#EF4444'];
 
@@ -365,7 +385,60 @@ async function load() {
   if (r.error) { document.getElementById('team').innerHTML = '<div class="list"><div class="empty"><b>Accès réservé</b>Seuls le titulaire et les personnes autorisées gèrent l’équipe.</div></div>'; return; }
   _data = r.data || _data;
   document.getElementById('org-name').textContent = (_data.org && _data.org.name) || 'Établissement';
-  renderSummary(); renderTeam(); renderServices();
+  renderSummary(); renderTeam(); renderServices(); fillActors();
+  if (document.getElementById('p-journal').classList.contains('on')) loadJournal(true);
+}
+
+// ── Journal d'activité ──
+var _jr = [];
+var JR = {
+  appointment: { insert: 'a créé un rendez-vous pour', update: 'a modifié le rendez-vous de', delete: 'a supprimé le rendez-vous de',
+    'status:confirmed': 'a confirmé le rendez-vous de', 'status:cancelled': 'a annulé le rendez-vous de', 'status:completed': 'a clôturé le rendez-vous de', 'status:pending': 'a remis en attente le rendez-vous de' },
+  patient: { insert: 'a créé la fiche de', update: 'a modifié la fiche de', delete: 'a supprimé la fiche de' },
+  consultation: { insert: 'a rédigé une consultation pour', update: 'a modifié une consultation de', delete: 'a supprimé une consultation de', med: true },
+  ordonnance: { insert: 'a rédigé une ordonnance pour', update: 'a modifié une ordonnance de', delete: 'a supprimé une ordonnance de', status: 'a changé le statut d’une ordonnance de', med: true },
+  context: { insert: 'a renseigné les allergies et la situation de', update: 'a mis à jour les allergies et la situation de', delete: 'a effacé le contexte clinique de', med: true },
+  queue: { insert: 'a ajouté à la file', delete: 'a retiré de la file', 'status:current': 'a appelé', 'status:done': 'a terminé le passage de', 'status:waiting': 'a remis en attente', status: 'a mis à jour la file pour' },
+  lab: { insert: 'a déposé un résultat d’analyse pour', update: 'a modifié un résultat de', delete: 'a supprimé un résultat de' },
+  member: { insert: 'a ajouté à l’équipe', update: 'a modifié les accès de', delete: 'a retiré de l’équipe', 'status:disabled': 'a suspendu l’accès de', 'status:active': 'a activé l’accès de', 'status:invited': 'a rétabli l’invitation de' }
+};
+function jrText(e) {
+  var m = JR[e.entity] || {};
+  var t = m[e.action] || (e.action.indexOf('status:') === 0 ? m.status : null) || m.update || 'a modifié';
+  return t + (e.label ? ' <b>' + esc(e.label) + '</b>' : '');
+}
+function fillActors() {
+  var sel = document.getElementById('jr-actor'), cur = sel.value, seen = {}, opts = [];
+  (_data.doctors || []).forEach(function (d) { if (!seen[d.id]) { seen[d.id] = 1; opts.push([d.id, drn(d.name)]); } });
+  (_data.members || []).forEach(function (m) { if (m.user_id && !seen[m.user_id]) { seen[m.user_id] = 1; opts.push([m.user_id, m.full_name || m.email]); } });
+  sel.innerHTML = '<option value="">Toute l’équipe</option>' + opts.map(function (o) { return '<option value="' + o[0] + '">' + esc(o[1]) + '</option>'; }).join('');
+  sel.value = cur;
+}
+async function loadJournal(reset) {
+  if (reset) _jr = [];
+  var before = _jr.length ? _jr[_jr.length - 1].at : null;
+  var r = await _supa.rpc('org_activity', { p_org: _org, p_actor: document.getElementById('jr-actor').value || null, p_before: before, p_limit: 60 });
+  var el = document.getElementById('journal');
+  if (r.error) { el.innerHTML = '<div class="list"><div class="empty"><b>Journal indisponible</b>Réessayez dans un instant.</div></div>'; return; }
+  var rows = r.data || [];
+  _jr = _jr.concat(rows);
+  document.getElementById('jr-more').style.display = rows.length < 60 ? 'none' : '';
+  if (!_jr.length) { el.innerHTML = '<div class="list"><div class="empty"><b>Rien pour l’instant</b>Les actions de l’équipe apparaîtront ici dès la première modification.</div></div>'; return; }
+  var multi = (_data.doctors || []).length > 1, html = '', day = null, buf = '';
+  function flush() { if (buf) html += '<div class="jr-day">' + esc(day) + '</div><div class="list">' + buf + '</div>'; buf = ''; }
+  _jr.forEach(function (e) {
+    var dt = new Date(e.at);
+    var dl = new Date().toDateString() === dt.toDateString() ? 'Aujourd’hui' : dt.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    if (dl !== day) { flush(); day = dl; }
+    var isDoc = e.actor_role === 'owner' || e.actor_role === 'doctor';
+    var R = ROLES[isDoc ? 'doctor' : e.actor_role] || { color: '#94A3B8' };
+    buf += '<div class="jr"><span class="jr-t">' + dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</span>'
+      + '<span class="av" style="background:' + R.color + '">' + esc(ini(e.actor_name)) + '</span>'
+      + '<span class="jr-s"><b>' + esc((isDoc ? drn(e.actor_name) : e.actor_name) || 'Utilisateur') + '</b> ' + jrText(e) + ((JR[e.entity] || {}).med ? '<span class="jr-med">Dossier médical</span>' : '') + '</span>'
+      + '<span class="jr-d">' + (multi && e.entity !== 'member' && e.doctor_id !== e.actor ? 'pour ' + esc(drn(e.doctor_name)) : '') + '</span></div>';
+  });
+  flush();
+  el.innerHTML = html;
 }
 
 function renderSummary() {
@@ -579,8 +652,11 @@ function bind() {
   document.querySelectorAll('.tab').forEach(function (t) { t.addEventListener('click', function () {
     document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === t); });
     document.querySelectorAll('.pane').forEach(function (p) { p.classList.toggle('on', p.id === 'p-' + t.getAttribute('data-p')); });
+    if (t.getAttribute('data-p') === 'journal' && !_jr.length) loadJournal(true);
   }); });
   document.getElementById('btn-invite').addEventListener('click', function () { openDrawer(); });
+  document.getElementById('jr-actor').addEventListener('change', function () { loadJournal(true); });
+  document.getElementById('jr-more').addEventListener('click', function () { loadJournal(false); });
   document.getElementById('dr-x').addEventListener('click', closeDrawer);
   document.getElementById('m-cancel').addEventListener('click', closeDrawer);
   document.getElementById('dr-ov').addEventListener('click', closeDrawer);

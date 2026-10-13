@@ -63,6 +63,8 @@ Shell = (function () {
 
     // ── Mon équipe
     { section: 'Établissement' },
+    { href:'/etablissement',      key:'etablissement',  label:'Pilotage', clinic:true,
+      icon:'<path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="5" rx="1"/><rect x="12" y="8" width="3" height="9" rx="1"/><rect x="17" y="5" width="3" height="12" rx="1"/>' },
     { href:'/clinic-agenda',      key:'clinic-agenda',  label:'Agenda partagé', clinic:true,
       icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8.5" cy="15" r="1.4"/><circle cx="12" cy="15" r="1.4"/><circle cx="15.5" cy="15" r="1.4"/>' },
     { href:'/staff',              key:'staff',          label:'Équipe et accès', pro:true,
@@ -1735,6 +1737,8 @@ button{font-family:inherit;cursor:pointer}
     'labo':         '/labo',
     'ordonnances':  '/ordonnances',
     'staff':        '/staff',
+    'etablissement':'/etablissement',
+    'clinic-agenda':'/clinic-agenda',
     'disponibilites':'/disponibilites',
     'profil-public':'/profil-public',
   };
@@ -1746,9 +1750,9 @@ button{font-family:inherit;cursor:pointer}
     'dashboard': null, 'queue': 'queue.manage', 'calendar': 'agenda.view', 'mes-rdv': 'agenda.view',
     'clients': 'patients.view', 'consultations': 'medical.view', 'ordonnances': 'medical.view',
     'labo': 'lab.manage', 'disponibilites': 'agenda.manage', 'profil-public': '__own', 'avis': '__own',
-    'staff': 'team.manage', 'clinic-agenda': 'agenda.view'
+    'staff': 'team.manage', 'clinic-agenda': 'agenda.view', 'etablissement': 'stats.view'
   };
-  var _REDIRECT_PRIORITY = ['calendar','queue','clients','mes-rdv','consultations','ordonnances','labo','staff'];
+  var _REDIRECT_PRIORITY = ['etablissement','calendar','queue','clients','mes-rdv','consultations','ordonnances','labo','staff'];
   var _ROLE_LABEL = { admin:'Administration', doctor:'Médecin', secretary:'Secrétariat', nurse:'Soins infirmiers', lab:'Laboratoire', accountant:'Comptabilité' };
   var _ws = null, _act = null, _ctxList = [], _actP = null, _selfId = null;
 

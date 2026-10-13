@@ -41,6 +41,7 @@ const ROUTES = {
   '/payment-return':    '/payment-return.html',
   '/landing':           '/landing.html',
   '/rejoindre':         '/rejoindre.html',
+  '/etablissement':     '/etablissement.html',
 };
 
 export default {

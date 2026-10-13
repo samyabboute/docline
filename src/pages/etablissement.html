@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pilotage · Docline</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script src="config.js?v=4"></script>
+<script src="shell.js?v=19"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<style>
+/* Pilotage : la journée de l'établissement en un coup d'œil, puis le détail par médecin */
+:root{ --lav:#F5F3FF; --lav-2:#EDE9FE; --ink:#1E1238; --violet:#6D28D9; --sky:#38BDF8; --ok:#059669; --ok-bg:#ECFDF5; --warn:#B45309; --warn-bg:#FFFBEB; }
+.page{padding:28px 24px 64px;max-width:1180px;margin:0 auto;width:100%;box-sizing:border-box}
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.hd-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet)}
+.hd-title{font-size:26px;font-weight:850;letter-spacing:-.6px;color:var(--text);margin-top:4px}
+.hd-sub{font-size:13px;color:var(--text-3);margin-top:4px}
+.live{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text-3)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(5,150,105,.15)}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px 18px}
+.kpi-v{font-size:28px;font-weight:850;color:var(--text);letter-spacing:-.6px;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi-v small{font-size:14px;font-weight:700;color:var(--text-3);margin-left:3px}
+.kpi-l{font-size:12.5px;color:var(--text-3);margin-top:4px}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:22px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px 20px}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.panel-t{font-size:14px;font-weight:750;color:var(--text)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--text-3)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--text-3);font-size:11px;font-family:inherit}
+
+.team{display:flex;flex-direction:column;gap:2px}
+.tm{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border)}
+.tm:first-child{border-top:none}
+.tm-av{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
+.tm-av.on::after{content:"";position:absolute;right:-2px;bottom:-2px;width:10px;height:10px;border-radius:50%;background:var(--ok);border:2px solid var(--surface)}
+.tm-n{font-size:13px;font-weight:650;color:var(--text)}
+.tm-r{font-size:11.5px;color:var(--text-3)}
+.tm-s{margin-left:auto;font-size:11.5px;color:var(--text-3);white-space:nowrap}
+.tm-s.on{color:var(--ok);font-weight:700}
+
+.sec-t{font-size:12px;font-weight:700;color:var(--text-2);letter-spacing:.05em;text-transform:uppercase;margin:0 4px 10px}
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.doc{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.doc-h{display:flex;align-items:center;gap:11px}
+.doc-av{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.doc-n{font-size:14.5px;font-weight:750;color:var(--text)}
+.doc-sp{font-size:12px;color:var(--text-3)}
+.doc-pres{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--text-3);white-space:nowrap}
+.doc-pres.on{color:var(--ok)}
+.now{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,var(--lav),#EFF6FF)}
+.now-num{font-size:26px;font-weight:850;color:var(--violet);font-variant-numeric:tabular-nums;min-width:46px;letter-spacing:-.5px}
+.now-t{font-size:12.5px;color:var(--text-2);line-height:1.45}
+.now-t b{color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.st{padding:2px 0}
+.st-v{font-size:18px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+.st-l{font-size:11.5px;color:var(--text-3);margin-top:1px;line-height:1.35}
+.flag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;padding:5px 10px;border-radius:99px;background:var(--warn-bg);color:var(--warn);align-self:flex-start;text-decoration:none}
+.flag:hover{filter:brightness(.97)}
+.doc-f{display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:12px}
+.lnk{font-size:12.5px;font-weight:700;color:var(--violet);background:none;border:none;cursor:pointer;font-family:inherit;padding:0}
+.lnk:hover{text-decoration:underline}
+.empty{padding:40px 20px;text-align:center;color:var(--text-3);font-size:13.5px;line-height:1.6}
+.empty b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+.foot{font-size:12px;color:var(--text-3);margin-top:16px;line-height:1.55}
+@media(max-width:960px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.page{padding:20px 16px 90px}.docs{grid-template-columns:1fr}.hd-title{font-size:22px}}
+</style>
+<script src="loader.js?v=2"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="shell-sidebar" id="shell-sidebar"></aside>
+  <div class="shell-overlay sb-overlay" id="shell-overlay"></div>
+  <header class="shell-topbar" id="shell-topbar"></header>
+  <main class="shell-main">
+    <div class="page">
+      <div class="hd">
+        <div>
+          <div class="hd-eyebrow" id="org">Établissement</div>
+          <div class="hd-title">Pilotage</div>
+          <div class="hd-sub" id="when"></div>
+        </div>
+        <span class="live"><i></i><span id="upd">Mise à jour automatique</span></span>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-h"><div class="panel-t">14 derniers jours</div>
+            <div class="legend"><span><i style="background:#8B5CF6"></i>Rendez-vous honorés ou confirmés</span><span><i style="background:#38BDF8"></i>Passages en file</span></div></div>
+          <svg class="chart" id="chart" viewBox="0 0 640 220" role="img" aria-label="Activité des 14 derniers jours"></svg>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><div class="panel-t">Équipe</div><a class="lnk" href="/staff">Gérer</a></div>
+          <div class="team" id="team"></div>
+        </div>
+      </div>
+      <div class="sec-t">Médecins</div>
+      <div class="docs" id="docs"></div>
+      <p class="foot">Chiffres calculés en direct à partir de l’agenda, de la file d’attente et des consultations de chaque médecin. Attente médiane : temps entre l’arrivée en file et l’appel, aujourd’hui.</p>
+    </div>
+  </main>
+</div>
+<script>
+var _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var _org = null, _timer = null;
+var COLORS = ['#6D28D9', '#0EA5E9', '#10B981', '#F59E0B', '#EC4899', '#6366F1', '#14B8A6', '#EF4444'];
+var ROLE = { admin: 'Administration', secretary: 'Secrétariat', nurse: 'Soins infirmiers', lab: 'Laboratoire', accountant: 'Comptabilité' };
+var RCOL = { admin: '#1E1238', secretary: '#7C3AED', nurse: '#0EA5E9', lab: '#10B981', accountant: '#F59E0B' };
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function ini(n) { return String(n || '?').replace(/^Dr\.?\s+/i, '').split(/\s+/).map(function (w) { return w[0] || ''; }).join('').toUpperCase().slice(0, 2) || '?'; }
+function drn(n) { return /^dr\b/i.test(n || '') ? n : 'Dr ' + (n || ''); }
+function online(ts) { return ts && Date.now() - new Date(ts).getTime() < 10 * 60000; }
+function seen(ts) {
+  if (!ts) return 'Jamais connecté';
+  var m = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
+  if (m < 10) return 'En ligne';
+  if (m < 60) return 'Il y a ' + m + ' min';
+  if (m < 1440) return 'Il y a ' + Math.round(m / 60) + ' h';
+  return new Date(ts).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+function sum(a, k) { return a.reduce(function (t, x) { return t + (+x[k] || 0); }, 0); }
+
+(async function init() {
+  var s = await _supa.auth.getSession();
+  if (!s.data.session) { window.location.href = ghpNav('/login'); return; }
+  var user = s.data.session.user, meta = user.user_metadata || {};
+  await Shell.acting(_supa, user.id);
+  var ws = Shell.workspace();
+  _org = ws.acting && !ws.acting.own ? ws.acting.orgId : user.id;
+  var sub = await _supa.from('subscriptions').select('plan,status').eq('user_id', _org).maybeSingle().then(function (r) { return r.data; });
+  var isPro = !!(sub && sub.plan !== 'free' && sub.status === 'active');
+  Shell.init({ page: 'etablissement', title: 'Pilotage', isPro: isPro, plan: (sub && sub.plan) || 'free', userName: Shell.displayName(meta, user.email), userEmail: user.email || '' });
+  if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
+  Shell.checkStaff(_supa, 'etablissement', 'Pilotage');
+  load();
+  _timer = setInterval(function () { if (!document.hidden) load(); }, 60000);
+})();
+
+async function load() {
+  var r = await _supa.rpc('org_overview', { p_org: _org });
+  if (r.error) {
+    document.getElementById('docs').innerHTML = '<div class="panel empty" style="grid-column:1/-1"><b>Accès réservé</b>Le pilotage est réservé au titulaire et aux personnes autorisées.</div>';
+    return;
+  }
+  var d = r.data || {};
+  document.getElementById('org').textContent = d.org || 'Établissement';
+  document.getElementById('when').textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('upd').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  var docs = d.doctors || [];
+  renderKpis(docs); renderChart(d.series || []); renderTeam(d.team || []); renderDocs(docs);
+}
+
+function renderKpis(docs) {
+  var waits = docs.map(function (x) { return x.wait_median; }).filter(function (v) { return v != null; });
+  var wait = waits.length ? Math.round(waits.reduce(function (a, b) { return a + b; }, 0) / waits.length) : null;
+  var rdvM = sum(docs, 'rdv_month'), ns = sum(docs, 'noshow_month');
+  var k = [
+    [sum(docs, 'rdv_today'), '', 'rendez-vous aujourd’hui'],
+    [sum(docs, 'queue_waiting'), '', 'patients en salle d’attente'],
+    [wait == null ? '–' : wait, wait == null ? '' : 'min', 'attente médiane aujourd’hui'],
+    [sum(docs, 'consult_month'), '', 'consultations ce mois' + (rdvM ? ' · ' + Math.round(ns * 100 / rdvM) + ' % d’absences' : '')]
+  ];
+  document.getElementById('kpis').innerHTML = k.map(function (x) { return '<div class="kpi"><div class="kpi-v">' + x[0] + (x[1] ? '<small>' + x[1] + '</small>' : '') + '</div><div class="kpi-l">' + esc(x[2]) + '</div></div>'; }).join('');
+}
+
+function renderChart(series) {
+  var W = 640, H = 220, L = 34, R = 8, T = 10, B = 26, n = series.length || 1;
+  var max = Math.max(4, Math.max.apply(null, series.map(function (s) { return Math.max(s.rdv, s.queue); })));
+  var step = Math.ceil(max / 4); max = step * 4;
+  var cw = (W - L - R) / n, bw = Math.min(14, cw / 3);
+  var y = function (v) { return T + (H - T - B) * (1 - v / max); };
+  var g = '';
+  for (var i = 0; i <= 4; i++) {
+    var v = step * i;
+    g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="currentColor" stroke-opacity=".08"/>'
+      + '<text x="' + (L - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + v + '</text>';
+  }
+  series.forEach(function (s, i) {
+    var cx = L + cw * i + cw / 2;
+    g += '<rect x="' + (cx - bw - 1) + '" y="' + y(s.rdv) + '" width="' + bw + '" height="' + (y(0) - y(s.rdv)) + '" rx="3" fill="#8B5CF6"><title>' + s.rdv + ' rendez-vous</title></rect>'
+      + '<rect x="' + (cx + 1) + '" y="' + y(s.queue) + '" width="' + bw + '" height="' + (y(0) - y(s.queue)) + '" rx="3" fill="#38BDF8"><title>' + s.queue + ' passages en file</title></rect>';
+    if (i % 2 === (n - 1) % 2) {
+      var dt = new Date(s.d + 'T12:00:00');
+      g += '<text x="' + cx + '" y="' + (H - 8) + '" text-anchor="middle">' + dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }).replace('.', '') + '</text>';
+    }
+  });
+  var el = document.getElementById('chart');
+  el.style.color = 'var(--text)';
+  el.innerHTML = g;
+}
+
+function renderTeam(team) {
+  var el = document.getElementById('team');
+  if (!team.length) { el.innerHTML = '<div class="empty" style="padding:18px 0">Aucun collaborateur. <a class="lnk" href="/staff">Inviter votre secrétaire</a></div>'; return; }
+  el.innerHTML = team.slice(0, 8).map(function (m) {
+    var on = online(m.last_seen);
+    return '<div class="tm"><span class="tm-av' + (on ? ' on' : '') + '" style="background:' + (RCOL[m.role] || '#94A3B8') + '">' + esc(ini(m.name)) + '</span>'
+      + '<div><div class="tm-n">' + esc(m.name) + '</div><div class="tm-r">' + esc(ROLE[m.role] || '') + '</div></div>'
+      + '<span class="tm-s' + (on ? ' on' : '') + '">' + esc(seen(m.last_seen)) + '</span></div>';
+  }).join('');
+}
+
+function renderDocs(docs) {
+  var el = document.getElementById('docs');
+  if (!docs.length) { el.innerHTML = '<div class="panel empty" style="grid-column:1/-1"><b>Aucun médecin</b>Invitez vos confrères depuis Équipe et accès.</div>'; return; }
+  el.innerHTML = docs.map(function (x, i) {
+    var on = online(x.last_seen);
+    var now = x.queue_current != null
+      ? '<div class="now"><span class="now-num">' + String(x.queue_current).padStart(2, '0') + '</span><span class="now-t"><b>En consultation</b><br>' + x.queue_waiting + ' patient' + (x.queue_waiting > 1 ? 's' : '') + ' en attente · ' + x.queue_done + ' déjà vu' + (x.queue_done > 1 ? 's' : '') + '</span></div>'
+      : '<div class="now"><span class="now-num" style="color:var(--text-3)">·</span><span class="now-t"><b>' + (x.queue_waiting ? x.queue_waiting + ' en attente' : 'Pas de patient en consultation') + '</b><br>' + x.queue_done + ' passage' + (x.queue_done > 1 ? 's' : '') + ' terminé' + (x.queue_done > 1 ? 's' : '') + ' aujourd’hui</span></div>';
+    var abs = x.rdv_month ? Math.round(x.noshow_month * 100 / x.rdv_month) + ' %' : '–';
+    return '<div class="doc"><div class="doc-h"><span class="doc-av" style="background:' + COLORS[i % COLORS.length] + '">' + esc(ini(x.name)) + '</span>'
+      + '<div><div class="doc-n">' + esc(drn(x.name)) + '</div><div class="doc-sp">' + esc(x.specialty || 'Médecin') + '</div></div>'
+      + '<span class="doc-pres' + (on ? ' on' : '') + '">' + esc(seen(x.last_seen)) + '</span></div>'
+      + now
+      + '<div class="stats">'
+      +   '<div class="st"><div class="st-v">' + x.rdv_today + '</div><div class="st-l">rendez-vous aujourd’hui</div></div>'
+      +   '<div class="st"><div class="st-v">' + (x.wait_median == null ? '–' : x.wait_median + ' min') + '</div><div class="st-l">attente médiane</div></div>'
+      +   '<div class="st"><div class="st-v">' + x.consult_month + '</div><div class="st-l">consultations ce mois · ' + abs + ' d’absences</div></div>'
+      + '</div>'
+      + (x.rdv_pending ? '<a class="flag" href="#" data-doc="' + x.id + '" data-go="/mes-rdv">' + x.rdv_pending + ' demande' + (x.rdv_pending > 1 ? 's' : '') + ' de rendez-vous à confirmer</a>' : '')
+      + '<div class="doc-f"><button class="lnk" type="button" data-doc="' + x.id + '" data-go="/queue">File d’attente</button><button class="lnk" type="button" data-doc="' + x.id + '" data-go="/calendar">Agenda</button></div>'
+      + '</div>';
+  }).join('');
+}
+
+// Ouvre une page en agissant pour ce médecin (si le contexte existe pour l'utilisateur)
+document.getElementById('docs').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-go]'); if (!b) return;
+  e.preventDefault();
+  var id = b.getAttribute('data-doc'), go = b.getAttribute('data-go');
+  var ws = Shell.workspace();
+  var c = (ws.contexts || []).filter(function (x) { return x.doctorId === id; })[0];
+  if (c) { try { localStorage.setItem('dl_ctx_' + (ws.self && ws.self.id || ''), (c.own ? 'self' : c.orgId) + ':' + c.doctorId); } catch (e2) {} }
+  window.location.href = go;
+});
+</script>
+</body>
+</html>
