@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title id="meta-title">Établissement · Docline</title>
+<meta id="meta-desc" name="description" content="Médecins, services, horaires et rendez-vous en ligne sur Docline.">
+<meta id="og-title" property="og:title" content="Établissement · Docline">
+<meta id="og-desc" property="og:description" content="Médecins, services, horaires et rendez-vous en ligne.">
+<meta property="og:image" content="https://docline.health/og-default.png">
+<meta property="og:type" content="website">
+<link id="canonical" rel="canonical" href="">
+<meta name="theme-color" content="#F7F6FF">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/doctor-facts.css?v=1">
+<script src="/config.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="/doctor-facts.js?v=1"></script>
+<style>
+/* Vitrine d'un établissement : l'essentiel d'abord (horaires, appel, itinéraire), puis les médecins, réservables en un geste. */
+:root{
+  --bg:#F7F6FF; --surface:#FFFFFF; --ink:#140B2E; --text:#2A2340; --muted:#6E6A85; --line:#ECE8F7;
+  --violet:#6D28D9; --violet-2:#8B5CF6; --lav:#F3F0FF; --ok:#059669; --ok-bg:#ECFDF5; --warn:#B45309; --warn-bg:#FFFBEB;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+.aurora{position:absolute;inset:0 0 auto 0;height:620px;z-index:0;pointer-events:none;overflow:hidden}
+.aurora i{position:absolute;border-radius:50%;filter:blur(70px)}
+.aurora i:nth-child(1){width:560px;height:560px;left:-160px;top:-260px;background:#E4DCFF}
+.aurora i:nth-child(2){width:460px;height:460px;right:-120px;top:-160px;background:#DCEFFF;opacity:.9}
+.aurora i:nth-child(3){width:380px;height:380px;left:40%;top:120px;background:#F6E7FF;opacity:.7}
+.wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 20px}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+.nav img{height:26px;display:block}
+.nav a.lnk{font-size:13.5px;font-weight:600;color:var(--muted);text-decoration:none}
+.nav a.lnk:hover{color:var(--violet)}
+
+.hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:28px;align-items:start;padding:26px 0 30px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet)}
+h1{font-size:42px;line-height:1.08;letter-spacing:-1.2px;font-weight:800;color:var(--ink);margin:10px 0 14px;text-wrap:balance}
+.desc{font-size:16px;line-height:1.65;color:var(--muted);max-width:620px;white-space:pre-line}
+.services{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.svc{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:650;padding:7px 12px;border-radius:99px;background:rgba(255,255,255,.8);border:1px solid var(--line);color:var(--text);cursor:pointer;font-family:inherit}
+.svc i{width:8px;height:8px;border-radius:50%}
+.svc.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.svc:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+
+.info{background:rgba(255,255,255,.82);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.95);border-radius:24px;padding:20px;box-shadow:0 30px 60px -36px rgba(46,16,101,.45)}
+.open{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;color:var(--ink)}
+.open i{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 5px rgba(5,150,105,.14)}
+.open.closed i{background:#C4BFD6;box-shadow:none}
+.open-sub{font-size:13px;color:var(--muted);margin:4px 0 14px 18px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:14px;font-size:14px;font-weight:700;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;font-family:inherit}
+.btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.btn.pri{background:linear-gradient(135deg,#5B21B6,var(--violet-2));color:#fff;border-color:transparent;box-shadow:0 12px 26px -14px rgba(109,40,217,.8)}
+.btn.full{grid-column:1/-1}
+.btn:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.addr{font-size:13.5px;color:var(--text);line-height:1.5;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.addr b{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.live{display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--lav);font-size:13.5px;color:var(--text)}
+.live b{color:var(--ink)}
+
+.sec{padding:26px 0}
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.sec-t{font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--ink)}
+.sec-s{font-size:14px;color:var(--muted)}
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.doc{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;transition:transform .2s,box-shadow .2s}
+.doc:hover{transform:translateY(-2px);box-shadow:0 22px 44px -30px rgba(46,16,101,.45)}
+.doc-h{display:flex;gap:12px;align-items:center}
+.av{width:54px;height:54px;border-radius:17px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#fff;background:var(--c);overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.doc-n{font-size:16.5px;font-weight:750;color:var(--ink)}
+.doc-s{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-top:2px}
+.doc-s i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted)}
+.meta b{color:var(--text);font-weight:650}
+.facts{display:flex;flex-wrap:wrap;gap:6px;min-height:0}
+.facts:empty{display:none}
+.doc-a{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:auto}
+.doc-a .btn{padding:10px 12px;font-size:13.5px}
+
+.hours{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:6px 18px}
+.hr{display:flex;justify-content:space-between;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
+.hr:first-child{border-top:none}
+.hr.today{font-weight:750;color:var(--ink)}
+.hr .off{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.trust{background:linear-gradient(135deg,#F5F3FF,#EFF6FF);border:1px solid #E9E3FF;border-radius:22px;padding:20px;font-size:14px;line-height:1.6;color:var(--text)}
+.trust b{display:block;color:var(--ink);font-size:15px;margin-bottom:6px}
+.trust ul{margin:8px 0 0 18px}
+.foot{padding:30px 0 46px;font-size:12.5px;color:var(--muted);text-align:center}
+.foot a{color:var(--violet);font-weight:650;text-decoration:none}
+.state{padding:120px 20px;text-align:center}
+.state h1{font-size:28px}
+.state p{color:var(--muted);margin-top:8px}
+.state a{display:inline-block;margin-top:18px;color:var(--violet);font-weight:700;text-decoration:none}
+.skel{height:14px;border-radius:7px;background:linear-gradient(90deg,#EEE9FB,#F7F4FF,#EEE9FB);background-size:200% 100%;animation:sk 1.4s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+@media(max-width:860px){.hero{grid-template-columns:1fr}h1{font-size:32px}.grid2{grid-template-columns:1fr}}
+@media(max-width:420px){.acts{grid-template-columns:1fr}.docs{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.doc,.skel{transition:none;animation:none}}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="wrap">
+  <nav class="nav"><a href="/" aria-label="Docline, accueil"><img src="/docline-logo.svg" alt="Docline"></a><a class="lnk" href="/">Trouver un médecin</a></nav>
+  <div id="app">
+    <section class="hero" aria-busy="true">
+      <div><div class="skel" style="width:160px"></div><div class="skel" style="width:70%;height:38px;margin:16px 0"></div><div class="skel" style="width:90%"></div><div class="skel" style="width:60%;margin-top:10px"></div></div>
+      <div class="info"><div class="skel" style="width:60%"></div><div class="skel" style="margin-top:14px;height:44px"></div></div>
+    </section>
+  </div>
+  <footer class="foot">Page tenue à jour par l’établissement sur <a href="/landing">Docline</a>, la plateforme des cabinets et cliniques en Algérie.</footer>
+</div>
+
+<script>
+var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+var DAYS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+var SHORT = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+var ORDER = [6, 0, 1, 2, 3, 4, 5];          // semaine algérienne : samedi en premier
+var COLORS = ['#6D28D9', '#0EA5E9', '#10B981', '#F59E0B', '#EC4899', '#6366F1', '#14B8A6', '#EF4444'];
+var C = null, filter = null;
+function esc(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+function drn(n) { return /^dr\b/i.test(n || '') ? n : 'Dr ' + (n || ''); }
+function ini(n) { return String(n || '?').split(/\s+/).map(function (w) { return w[0] || ''; }).join('').toUpperCase().slice(0, 2); }
+function color(d, i) { return (d.service && d.service.color) || COLORS[i % COLORS.length]; }
+function svcName(d) { return (d.service && d.service.name) || d.specialty || 'Consultation'; }
+function slugFromUrl() {
+  var m = location.pathname.match(/^\/clinique\/([a-z0-9-]+)\/?$/);
+  return m ? m[1] : new URLSearchParams(location.search).get('s');
+}
+function nowAlgiers() {
+  var p = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Africa/Algiers', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date());
+  var map = {}; p.forEach(function (x) { map[x.type] = x.value; });
+  var wd = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'].indexOf(map.weekday);
+  return { dow: wd < 0 ? new Date().getDay() : wd, hm: map.hour + ':' + map.minute };
+}
+function openState(hours) {
+  var n = nowAlgiers(), h = hours.filter(function (x) { return x.dow === n.dow; })[0];
+  if (h && n.hm >= h.from && n.hm < h.to) return { open: true, text: 'Ouvert maintenant', sub: 'Jusqu’à ' + h.to + ' aujourd’hui' };
+  if (h && n.hm < h.from) return { open: false, text: 'Ouvre à ' + h.from, sub: 'Aujourd’hui, ' + h.from + ' – ' + h.to };
+  for (var i = 1; i <= 7; i++) {
+    var d = (n.dow + i) % 7, x = hours.filter(function (y) { return y.dow === d; })[0];
+    if (x) return { open: false, text: 'Fermé en ce moment', sub: 'Réouverture ' + (i === 1 ? 'demain' : DAYS[d].toLowerCase()) + ' à ' + x.from };
+  }
+  return null;
+}
+
+function render() {
+  var d = C, app = document.getElementById('app');
+  var place = [d.city, d.wilaya].filter(Boolean).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(', ');
+  var st = openState(d.hours || []);
+  var maps = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([d.name, d.address, d.city, d.wilaya, 'Algérie'].filter(Boolean).join(', '));
+  var bookable = (d.doctors || []).filter(function (x) { return x.accepts_rdv; });
+  app.innerHTML =
+      '<section class="hero">'
+    +   '<div><div class="eyebrow">Établissement de santé' + (place ? ' · ' + esc(place) : '') + '</div>'
+    +     '<h1>' + esc(d.name) + '</h1>'
+    +     (d.description ? '<p class="desc">' + esc(d.description) + '</p>' : '<p class="desc">' + (d.doctors || []).length + ' médecin' + ((d.doctors || []).length > 1 ? 's' : '') + ' vous reçoivent, sur rendez-vous ou en file d’attente.</p>')
+    +     ((d.services || []).length ? '<div class="services" id="svcs" role="group" aria-label="Filtrer par service"><button type="button" class="svc on" data-s="">Tous les médecins</button>'
+          + d.services.map(function (s) { return '<button type="button" class="svc" data-s="' + esc(s.name) + '"><i style="background:' + esc(s.color) + '"></i>' + esc(s.name) + '</button>'; }).join('') + '</div>' : '')
+    +   '</div>'
+    +   '<aside class="info">'
+    +     (st ? '<div class="open' + (st.open ? '' : ' closed') + '"><i></i>' + esc(st.text) + '</div><div class="open-sub">' + esc(st.sub) + '</div>' : '')
+    +     '<div class="acts">'
+    +       (bookable.length ? '<a class="btn pri full" href="#medecins"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Prendre rendez-vous</a>' : '')
+    +       (d.phone ? '<a class="btn" href="tel:' + esc(String(d.phone).replace(/\s+/g, '')) + '"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.8 2z"/></svg>Appeler</a>' : '')
+    +       '<a class="btn' + (d.phone ? '' : ' full') + '" href="' + maps + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>Itinéraire</a>'
+    +     '</div>'
+    +     (d.show_queue ? '<div class="live" id="live" hidden></div>' : '')
+    +     (d.address || place ? '<div class="addr"><b>Adresse</b>' + esc([d.address, place].filter(Boolean).join(', ')) + '</div>' : '')
+    +   '</aside>'
+    + '</section>'
+    + '<section class="sec" id="medecins"><div class="sec-h"><div><div class="sec-t">Nos médecins</div><div class="sec-s">Disponibilités et attente mesurées en direct par Docline.</div></div></div><div class="docs" id="docs"></div></section>'
+    + '<section class="sec"><div class="grid2">'
+    +   '<div><div class="sec-t" style="margin-bottom:12px">Horaires</div><div class="hours">' + hoursHtml(d.hours || []) + '</div></div>'
+    +   '<div><div class="sec-t" style="margin-bottom:12px">Ce que vous voyez ici est vérifié</div><div class="trust"><b>Pas d’avis inventés, pas d’étoiles achetées.</b>'
+    +     'Chaque médecin de cette page a fait vérifier son identité professionnelle par Docline. Les indications affichées sont mesurées, jamais déclarées :'
+    +     '<ul><li>attente en direct dans la salle d’attente ;</li><li>ponctualité et attente médiane, à partir des passages réels ;</li><li>retours de patients reçus en consultation, uniquement.</li></ul></div></div>'
+    + '</div></section>';
+  renderDocs();
+  var svcs = document.getElementById('svcs');
+  if (svcs) svcs.addEventListener('click', function (e) {
+    var b = e.target.closest('.svc'); if (!b) return;
+    filter = b.getAttribute('data-s') || null;
+    svcs.querySelectorAll('.svc').forEach(function (x) { x.classList.toggle('on', x === b); });
+    renderDocs(); loadFacts();
+  });
+  document.title = d.name + ' · Médecins et rendez-vous · Docline';
+  setMeta(d, place);
+}
+
+function hoursHtml(hours) {
+  var today = nowAlgiers().dow;
+  if (!hours.length) return '<div class="hr"><span class="off">Horaires communiqués par l’établissement</span></div>';
+  return ORDER.map(function (i) {
+    var h = hours.filter(function (x) { return x.dow === i; })[0];
+    return '<div class="hr' + (i === today ? ' today' : '') + '"><span>' + DAYS[i] + (i === today ? ' · aujourd’hui' : '') + '</span>' + (h ? '<span>' + h.from + ' – ' + h.to + '</span>' : '<span class="off">Fermé</span>') + '</div>';
+  }).join('');
+}
+
+function renderDocs() {
+  var list = (C.doctors || []).map(function (x, i) { x._c = color(x, i); return x; }).filter(function (x) { return !filter || svcName(x) === filter || (x.service && x.service.name === filter); });
+  var el = document.getElementById('docs');
+  if (!list.length) { el.innerHTML = '<p class="sec-s">Aucun médecin pour ce service.</p>'; return; }
+  el.innerHTML = list.map(function (x) {
+    var days = (x.days || []).slice().sort(function (a, b) { return ORDER.indexOf(a) - ORDER.indexOf(b); }).map(function (n) { return SHORT[n]; }).join(', ');
+    return '<article class="doc" style="--c:' + esc(x._c) + '">'
+      + '<div class="doc-h"><div class="av">' + (x.avatar_url ? '<img src="' + esc(x.avatar_url) + '" alt="" loading="lazy">' : esc(ini(x.name))) + '</div>'
+      + '<div><div class="doc-n">' + esc(drn(x.name)) + '</div><div class="doc-s"><i></i>' + esc(svcName(x)) + (x.service && x.specialty && x.specialty.slice(0, 6).toLowerCase() !== x.service.name.slice(0, 6).toLowerCase() ? ' · ' + esc(x.specialty) : '') + '</div></div></div>'
+      + '<div class="meta">' + (days ? '<span>Consulte <b>' + esc(days) + '</b></span>' : '') + (x.price > 0 ? '<span>Consultation <b>' + Number(x.price).toLocaleString('fr-FR') + ' DA</b></span>' : '') + (x.languages && x.languages.length ? '<span>' + esc(x.languages.join(', ')) + '</span>' : '') + '</div>'
+      + '<div class="facts" data-df="' + esc(x.id) + '"></div>'
+      + '<div class="doc-a">' + (x.accepts_rdv ? '<a class="btn pri" href="/book?doctor=' + encodeURIComponent(x.id) + '">Prendre rendez-vous</a>' : '<a class="btn pri" href="/queue-join?c=' + encodeURIComponent(x.id) + '">Prendre un numéro</a>')
+      + '<a class="btn" href="/dr/' + encodeURIComponent(x.slug || x.id) + '">Profil</a></div>'
+      + '</article>';
+  }).join('');
+}
+
+async function loadFacts() {
+  var ids = (C.doctors || []).map(function (x) { return x.id; });
+  if (!ids.length) return;
+  try {
+    var r = await sb.rpc('doctor_public_facts_many', { p_doctors: ids.slice(0, 60) });
+    if (r.error || !r.data) return;
+    var waiting = 0, open = 0;
+    Object.keys(r.data).forEach(function (id) {
+      var f = r.data[id]; if (!f) return;
+      if (f.live && f.live.accepting) { open++; waiting += f.live.waiting || 0; }
+      var el = document.querySelector('[data-df="' + id + '"]');
+      if (el) el.innerHTML = (C.show_queue ? DoctorFacts.liveChip(f.live) : '') + (f.badges || []).slice(0, 3).map(DoctorFacts.badgeChip).join('');
+    });
+    var live = document.getElementById('live');
+    if (live && open) {
+      live.hidden = false;
+      live.innerHTML = '<span>En direct : <b>' + waiting + ' patient' + (waiting > 1 ? 's' : '') + ' en attente</b> sur place.</span>'
+        + '<a class="btn" style="margin-left:auto;padding:8px 12px;font-size:13px" href="/queue-join?o=' + encodeURIComponent(C.id) + '">Prendre un numéro</a>';
+    }
+  } catch (e) {}
+}
+
+function setMeta(d, place) {
+  var desc = d.name + (place ? ', ' + place : '') + ' : ' + (d.doctors || []).length + ' médecins, ' + (d.services || []).map(function (s) { return s.name; }).join(', ') + '. Horaires, attente en direct et rendez-vous en ligne.';
+  var url = location.origin + '/clinique/' + d.slug;
+  document.getElementById('meta-desc').setAttribute('content', desc);
+  document.getElementById('og-title').setAttribute('content', d.name + ' · Docline');
+  document.getElementById('og-desc').setAttribute('content', desc);
+  document.getElementById('canonical').setAttribute('href', url);
+  var ld = { '@context': 'https://schema.org', '@type': 'MedicalClinic', name: d.name, url: url, telephone: d.phone || undefined,
+    address: { '@type': 'PostalAddress', streetAddress: d.address || undefined, addressLocality: d.city || undefined, addressRegion: d.wilaya || undefined, addressCountry: 'DZ' },
+    medicalSpecialty: (d.services || []).map(function (s) { return s.name; }),
+    openingHoursSpecification: (d.hours || []).map(function (h) { return { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][h.dow], opens: h.from, closes: h.to }; }) };
+  var s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
+}
+
+(async function init() {
+  var slug = slugFromUrl(), app = document.getElementById('app');
+  var notFound = '<div class="state"><h1>Établissement introuvable</h1><p>Cette page n’existe pas ou n’est plus publiée.</p><a href="/">Trouver un médecin sur Docline</a></div>';
+  if (!slug) { app.innerHTML = notFound; return; }
+  var r = await sb.rpc('clinic_public', { p_slug: slug });
+  if (r.error || !r.data) { app.innerHTML = notFound; return; }
+  C = r.data;
+  render();
+  loadFacts();
+  setInterval(function () { if (!document.hidden) loadFacts(); }, 60000);
+})();
+</script>
+</body>
+</html>

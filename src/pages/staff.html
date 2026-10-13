@@ -172,6 +172,22 @@
 .upsell p{flex:1;min-width:220px;margin:0;font-size:13px;color:var(--text-2);line-height:1.5}
 .upsell b{color:var(--ink)}
 
+.pub-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+.pub-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+.pub-row{display:flex;align-items:flex-start;gap:14px}
+.pub-row .pt-t{flex:1}
+.slug{display:flex;align-items:center;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.slug span{padding:10px 0 10px 12px;font-size:13.5px;color:var(--text-3);white-space:nowrap}
+.slug input{border:none;outline:none;padding:10px 12px 10px 2px;font-size:13.5px;font-weight:600;font-family:inherit;color:var(--text);flex:1;min-width:0;background:transparent}
+.slug:focus-within{border-color:var(--violet);box-shadow:0 0 0 3px rgba(109,40,217,.12)}
+textarea.in{min-height:120px;resize:vertical;line-height:1.5}
+.pub-help{font-size:12px;color:var(--text-3);line-height:1.5}
+.pub-help a{color:var(--violet);font-weight:700}
+.pub-state{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:750;color:var(--text)}
+.pub-state i{width:9px;height:9px;border-radius:50%;background:#CBD5E1}
+.pub-state.on i{background:var(--ok);box-shadow:0 0 0 4px rgba(5,150,105,.15)}
+.pub-link{font-size:13px;color:var(--violet);font-weight:700;word-break:break-all}
+@media(max-width:900px){.pub-grid{grid-template-columns:1fr}}
 .jr-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .jr-note{font-size:12px;color:var(--text-3);flex:1;min-width:220px;line-height:1.5}
 .jr-day{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin:16px 4px 8px}
@@ -222,12 +238,14 @@
       <div class="tabs" role="tablist">
         <button class="tab on" data-p="team" role="tab" type="button">Équipe</button>
         <button class="tab" data-p="services" role="tab" type="button">Services</button>
+        <button class="tab" data-p="public" role="tab" type="button">Page publique</button>
         <button class="tab" data-p="journal" role="tab" type="button">Journal d’activité</button>
         <button class="tab" data-p="roles" role="tab" type="button">Rôles et permissions</button>
       </div>
 
       <div class="pane on" id="p-team"><div id="team"></div></div>
       <div class="pane" id="p-services"><div id="upsell-svc"></div><div class="list" id="services"></div></div>
+      <div class="pane" id="p-public"><div id="pub"></div></div>
       <div class="pane" id="p-journal">
         <div class="jr-bar"><label class="lbl" for="jr-actor" style="margin:0">Personne</label><select class="in" id="jr-actor" style="max-width:260px"><option value="">Toute l’équipe</option></select>
           <span class="jr-note">Chaque création, modification ou suppression est enregistrée avec son auteur. Le contenu médical n’apparaît jamais ici.</span></div>
@@ -387,6 +405,54 @@ async function load() {
   document.getElementById('org-name').textContent = (_data.org && _data.org.name) || 'Établissement';
   renderSummary(); renderTeam(); renderServices(); fillActors();
   if (document.getElementById('p-journal').classList.contains('on')) loadJournal(true);
+}
+
+// ── Page publique de l'établissement ──
+var _pub = null;
+async function loadPublic() {
+  var el = document.getElementById('pub');
+  var r = await _supa.rpc('org_public_get', { p_org: _org });
+  if (r.error) { el.innerHTML = '<div class="list"><div class="empty"><b>Accès réservé</b>Seuls le titulaire et les personnes autorisées à gérer l’établissement règlent la page publique.</div></div>'; return; }
+  _pub = r.data;
+  var p = _pub, hidden = p.hidden_doctors || [], url = location.origin + '/clinique/' + (p.slug || '');
+  el.innerHTML = (p.plan_ok ? '' : '<div class="upsell"><p><b>La page publique fait partie de l’offre Institution.</b> Vos médecins, vos services, vos horaires et la réservation en ligne sur une seule adresse à partager.</p><a class="b b-sec" href="/pricing">Voir l’offre</a></div>')
+    + '<div class="pub-grid"><div class="pub-card">'
+    +   '<label class="pub-row"><div class="pt-t"><div class="pt-n">Publier la page</div><div class="pt-d">Visible par tous, référencée par les moteurs de recherche.</div></div><span class="tg"><input type="checkbox" id="pub-on"' + (p.published ? ' checked' : '') + (p.plan_ok ? '' : ' disabled') + ' aria-label="Publier la page"><span></span></span></label>'
+    +   '<div><label class="lbl" for="pub-slug">Adresse de la page</label><div class="slug"><span>docline.health/clinique/</span><input id="pub-slug" maxlength="60" value="' + esc(p.slug || '') + '" autocomplete="off" spellcheck="false"></div><div class="pub-help" style="margin-top:6px">Lettres, chiffres et tirets. Courte et facile à dire au téléphone.</div></div>'
+    +   '<div><label class="lbl" for="pub-desc">Présentation</label><textarea class="in" id="pub-desc" maxlength="1200" placeholder="Ex. : Polyclinique au cœur de Hydra. Consultations de médecine générale, cardiologie et pédiatrie, laboratoire sur place.">' + esc(p.description || '') + '</textarea></div>'
+    +   '<label class="pub-row"><div class="pt-t"><div class="pt-n">Afficher l’attente en direct</div><div class="pt-d">Nombre de patients en attente chez chaque médecin, et bouton pour prendre un numéro à distance.</div></div><span class="tg"><input type="checkbox" id="pub-q"' + (p.show_queue ? ' checked' : '') + ' aria-label="Afficher l’attente en direct"><span></span></span></label>'
+    +   '<div><div class="lbl">Médecins affichés</div><div class="docs" id="pub-docs">' + (p.doctors || []).map(function (d) {
+          return '<label class="dc"><input type="checkbox" data-pd="' + d.id + '"' + (hidden.indexOf(d.id) === -1 && d.public ? ' checked' : '') + (d.public ? '' : ' disabled') + '>' + esc(drn(d.name)) + '<small>' + esc(d.public ? (d.specialty || '') : 'Profil pas encore vérifié') + '</small></label>';
+        }).join('') + '</div></div>'
+    +   '<div class="err" id="pub-err" role="alert"></div>'
+    +   '<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="b b-pri" id="pub-save" type="button">Enregistrer</button></div>'
+    + '</div><div class="pub-card">'
+    +   '<div class="pub-state' + (p.published ? ' on' : '') + '"><i></i>' + (p.published ? 'Page en ligne' : 'Page non publiée') + '</div>'
+    +   (p.published ? '<a class="pub-link" href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(url.replace(/^https?:\/\//, '')) + '</a>'
+          + '<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="b b-sec" href="' + esc(url) + '" target="_blank" rel="noopener">Voir la page</a><button class="b b-ghost" type="button" id="pub-copy">Copier le lien</button></div>' : '')
+    +   '<div class="pub-help">Le nom, l’adresse, le téléphone et la photo viennent de votre <a href="/profil-public">profil public</a>. Les horaires sont calculés à partir des disponibilités de chaque médecin.</div>'
+    +   '<div class="pub-help">Seuls les médecins dont l’identité professionnelle est vérifiée par Docline apparaissent.</div>'
+    + '</div></div>';
+  document.getElementById('pub-save').onclick = savePublic;
+  var cp = document.getElementById('pub-copy');
+  if (cp) cp.onclick = function () { try { navigator.clipboard.writeText(url); toast('Lien copié.'); } catch (e) { toast(url); } };
+}
+async function savePublic() {
+  var err = document.getElementById('pub-err'); err.className = 'err';
+  var hidden = [];
+  document.querySelectorAll('#pub-docs input[data-pd]').forEach(function (c) { if (!c.checked && !c.disabled) hidden.push(c.getAttribute('data-pd')); });
+  var r = await _supa.rpc('org_public_save', { p_org: _org, p_published: document.getElementById('pub-on').checked,
+    p_slug: document.getElementById('pub-slug').value, p_description: document.getElementById('pub-desc').value,
+    p_hidden: hidden, p_show_queue: document.getElementById('pub-q').checked });
+  if (r.error) {
+    var m = r.error.message || '';
+    err.textContent = /SLUG_TAKEN/.test(m) ? 'Cette adresse est déjà prise. Essayez une variante, par exemple avec la ville.'
+      : /SLUG_INVALID/.test(m) ? 'Adresse invalide : 3 à 60 caractères, lettres, chiffres et tirets.'
+      : /PLAN_REQUIRED/.test(m) ? 'La publication demande l’offre Institution.' : errMsg(r.error);
+    err.className = 'err on'; return;
+  }
+  toast(r.data.published ? 'Page publiée.' : 'Enregistré.');
+  loadPublic();
 }
 
 // ── Journal d'activité ──
@@ -653,6 +719,7 @@ function bind() {
     document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === t); });
     document.querySelectorAll('.pane').forEach(function (p) { p.classList.toggle('on', p.id === 'p-' + t.getAttribute('data-p')); });
     if (t.getAttribute('data-p') === 'journal' && !_jr.length) loadJournal(true);
+    if (t.getAttribute('data-p') === 'public') loadPublic();
   }); });
   document.getElementById('btn-invite').addEventListener('click', function () { openDrawer(); });
   document.getElementById('jr-actor').addEventListener('change', function () { loadJournal(true); });

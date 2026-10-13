@@ -50,6 +50,11 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    // /clinique/:slug → clinique.html
+    if (path.startsWith('/clinique/') && path.length > 10) {
+      return env.ASSETS.fetch(new URL('/clinique.html', request.url).href);
+    }
+
     // /dr/:slug → dr.html
     if (path.startsWith('/dr/') && path.length > 4) {
       return env.ASSETS.fetch(new URL('/dr.html', request.url).href);
