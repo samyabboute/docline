@@ -1,44 +1,43 @@
+// invite-staff : invitation d'un membre du personnel (secrétaire, infirmier…) par le cabinet.
+// Seul le titulaire du cabinet peut inviter, uniquement un membre de SON personnel, et
+// uniquement à l'adresse enregistrée sur la fiche. Le lien renvoie toujours vers docline.health.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const cors = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://docline.health',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
+const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } })
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
-
   try {
-    const { staffId, email, redirectTo } = await req.json()
+    const auth = req.headers.get('Authorization') ?? ''
+    const asUser = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, { global: { headers: { Authorization: auth } } })
+    const { data: { user } } = await asUser.auth.getUser()
+    if (!user) return json({ error: 'UNAUTHORIZED' }, 401)
 
-    if (!staffId || !email) {
-      return new Response(JSON.stringify({ error: 'staffId et email requis' }), { status: 400, headers: cors })
-    }
+    const { staffId } = await req.json().catch(() => ({}))
+    if (!staffId) return json({ error: 'staffId requis' }, 400)
 
-    // Admin client (service role) — peut créer des utilisateurs
-    const admin = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    )
+    const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+    const { data: member } = await admin.from('staff').select('id, clinic_id, email, user_id').eq('id', staffId).maybeSingle()
+    if (!member || member.clinic_id !== user.id) return json({ error: 'FORBIDDEN' }, 403)
+    const email = String(member.email ?? '').trim().toLowerCase()
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'EMAIL_MISSING', message: 'Ajoutez une adresse email valide sur la fiche avant d’inviter.' }, 400)
+    if (member.user_id) return json({ error: 'ALREADY_INVITED', message: 'Ce membre a déjà un accès.' }, 409)
 
-    // Envoie un email d'invitation avec lien pour définir le mot de passe
-    const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: redirectTo || 'https://samyabboute.github.io/docline/app.html',
-    })
+    // Limite : 20 invitations par cabinet et par jour
+    const since = new Date(Date.now() - 86_400_000).toISOString()
+    const { count } = await admin.from('staff').select('id', { count: 'exact', head: true }).eq('clinic_id', user.id).gte('invited_at', since)
+    if ((count ?? 0) >= 20) return json({ error: 'DAILY_LIMIT', message: 'Limite de 20 invitations par jour atteinte.' }, 429)
 
-    if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: cors })
-    }
+    const { data, error } = await admin.auth.admin.inviteUserByEmail(email, { redirectTo: 'https://docline.health/login' })
+    if (error) return json({ error: 'INVITE_FAILED', message: error.message }, 400)
 
-    // Lie l'user_id Supabase Auth au membre du personnel
-    await admin
-      .from('staff')
-      .update({ user_id: data.user.id })
-      .eq('id', staffId)
-
-    return new Response(JSON.stringify({ ok: true }), { headers: cors })
-
-  } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: cors })
+    await admin.from('staff').update({ user_id: data.user.id, invited_at: new Date().toISOString() }).eq('id', staffId)
+    return json({ ok: true })
+  } catch (e) {
+    return json({ error: 'INTERNAL_ERROR', message: String((e as Error)?.message ?? e) }, 500)
   }
 })
