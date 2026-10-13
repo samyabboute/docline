@@ -19,6 +19,8 @@
 .live{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text-3)}
 .live i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(5,150,105,.15)}
 
+.tvbtn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:99px;font-size:13px;font-weight:700;color:#fff;text-decoration:none;background:linear-gradient(135deg,#5B21B6,#8B5CF6);box-shadow:0 8px 22px -10px rgba(109,40,217,.7)}
+.tvbtn:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
 .kpi{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px 18px}
 .kpi-v{font-size:28px;font-weight:850;color:var(--text);letter-spacing:-.6px;font-variant-numeric:tabular-nums;line-height:1.1}
@@ -88,7 +90,10 @@
           <div class="hd-title">Pilotage</div>
           <div class="hd-sub" id="when"></div>
         </div>
-        <span class="live"><i></i><span id="upd">Mise à jour automatique</span></span>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <span class="live"><i></i><span id="upd">Mise à jour automatique</span></span>
+          <a class="tvbtn" id="tv-link" href="/ecran" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Écran de la salle d’attente</a>
+        </div>
       </div>
       <div class="kpis" id="kpis"></div>
       <div class="grid2">
@@ -140,6 +145,7 @@ function sum(a, k) { return a.reduce(function (t, x) { return t + (+x[k] || 0); 
   Shell.init({ page: 'etablissement', title: 'Pilotage', isPro: isPro, plan: (sub && sub.plan) || 'free', userName: Shell.displayName(meta, user.email), userEmail: user.email || '' });
   if (typeof Shell.guard === 'function' && !Shell.guard(sub)) return;
   Shell.checkStaff(_supa, 'etablissement', 'Pilotage');
+  document.getElementById('tv-link').href = '/ecran?o=' + encodeURIComponent(_org);
   load();
   _timer = setInterval(function () { if (!document.hidden) load(); }, 60000);
 })();

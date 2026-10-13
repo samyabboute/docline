@@ -42,6 +42,7 @@ const ROUTES = {
   '/landing':           '/landing.html',
   '/rejoindre':         '/rejoindre.html',
   '/etablissement':     '/etablissement.html',
+  '/ecran':             '/ecran.html',
 };
 
 export default {

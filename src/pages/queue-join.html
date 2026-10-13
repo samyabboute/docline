@@ -206,6 +206,18 @@ body{
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn.loading .btn-spinner{display:block}
 .btn.loading .btn-lbl,.btn.loading .btn-ico{display:none}
+.org-pick{padding:6px 2px 4px}
+.org-pick-t{font-size:18px;font-weight:800;color:var(--text,#0D0520);letter-spacing:-.3px}
+.org-pick-s{font-size:13px;color:var(--text3,#7B8194);line-height:1.5;margin:4px 0 14px}
+.od{width:100%;display:flex;align-items:center;gap:12px;padding:13px 14px;margin-bottom:8px;border:1.5px solid var(--border,#E8EAF0);border-radius:16px;background:#fff;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent;transition:border-color .15s}
+.od:active{transform:scale(.99)}
+.od:hover,.od:focus-visible{border-color:#6D28D9;outline:none}
+.od[disabled]{opacity:.5;cursor:not-allowed}
+.od-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.od-n{font-size:15px;font-weight:700;color:#0D0520}
+.od-s{font-size:12.5px;color:#7B8194;margin-top:1px}
+.od-w{margin-left:auto;font-size:12px;font-weight:700;color:#4C1D95;background:#EDE9FE;border-radius:99px;padding:4px 9px;white-space:nowrap}
+.od-w.off{color:#B45309;background:#FFFBEB}
 .btn-ghost{
   width:100%;padding:11px;background:none;color:var(--text3);
   border:2px solid var(--border);border-radius:var(--rfull);
@@ -511,6 +523,15 @@ body{
     </div>
   </div>
 
+  <!-- Établissement : choix du médecin (QR de l'écran commun) -->
+  <div class="step hidden" id="step-doctors">
+    <div class="org-pick">
+      <div class="org-pick-t">Choisissez votre médecin</div>
+      <div class="org-pick-s">Chaque médecin a sa propre file. Votre numéro s'affichera sur l'écran de la salle d'attente.</div>
+      <div id="org-docs"></div>
+    </div>
+  </div>
+
   <div class="step hidden" id="step-invalid">
     <div class="invalid-state">
       <div class="invalid-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
@@ -541,6 +562,7 @@ var _audioCtx   = null;
 (function(){
   var params = new URLSearchParams(window.location.search);
   _clinicId = params.get('c') || params.get('clinic');
+  if (!_clinicId && params.get('o')) { showOrgChooser(params.get('o')); return; }
   if (!_clinicId) {
     showStep('invalid');
     document.getElementById('progress-dots').style.display = 'none';
@@ -551,6 +573,33 @@ var _audioCtx   = null;
   if (saved) { resumeTicket(saved); return; }
   checkQueueOpen();
 })();
+
+// Établissement : le patient choisit son médecin, puis rejoint la file de ce médecin
+async function showOrgChooser(orgId){
+  document.getElementById('progress-dots').style.display = 'none';
+  showStep('doctors');
+  var box = document.getElementById('org-docs');
+  box.innerHTML = '<div class="org-pick-s">Chargement…</div>';
+  var r = await _supa.rpc('org_board', { p_org: orgId, p_date: new Date().toISOString().slice(0, 10) });
+  var b = r && r.data;
+  if (!b || !b.doctors || !b.doctors.length) { showStep('invalid'); return; }
+  document.getElementById('hdr-name').textContent = b.org && b.org.name || 'Établissement';
+  document.getElementById('hdr-spec').textContent = 'File d’attente numérique';
+  var cols = ['#6D28D9','#0EA5E9','#10B981','#F59E0B','#EC4899','#6366F1','#14B8A6','#EF4444'];
+  function e(x){ var d = document.createElement('div'); d.textContent = x == null ? '' : String(x); return d.innerHTML; }
+  box.innerHTML = b.doctors.map(function(d, i){
+    var open = d.accepting !== false;
+    var name = /^dr\b/i.test(d.name || '') ? d.name : 'Dr ' + d.name;
+    return '<button class="od" type="button" data-id="' + e(d.id) + '"' + (open ? '' : ' disabled') + '>'
+      + '<span class="od-dot" style="background:' + e((d.service && d.service.color) || cols[i % cols.length]) + '"></span>'
+      + '<span><span class="od-n">' + e(name) + '</span><br><span class="od-s">' + e((d.service && d.service.name) || d.specialty || 'Consultation') + '</span></span>'
+      + '<span class="od-w' + (open ? '' : ' off') + '">' + (open ? (d.waiting || 0) + ' en attente' : 'File fermée') + '</span></button>';
+  }).join('');
+  box.onclick = function(ev){
+    var t = ev.target.closest('.od'); if (!t || t.disabled) return;
+    location.href = location.pathname + '?c=' + encodeURIComponent(t.getAttribute('data-id'));
+  };
+}
 
 // Ticket du jour gardé sur ce téléphone (numéro et clé d'avis), pour reprendre après un rechargement
 var _myTicket;
@@ -628,7 +677,7 @@ function playCallAlert(){var c=getAudio();if(!c)return;[0,.18,.36].forEach(funct
 
 // ── NAVIGATION ────────────────────────────────────────────────
 function showStep(id) {
-  ['choice','rdv','rdv-found','name','priority','confirm','invalid','closed'].forEach(function(s){
+  ['choice','rdv','rdv-found','name','priority','confirm','invalid','closed','doctors'].forEach(function(s){
     var el=document.getElementById('step-'+s);
     if(el){el.classList.add('hidden');el.classList.remove('step-enter');}
   });

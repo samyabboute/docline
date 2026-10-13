@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F7F6FF">
+<meta name="robots" content="noindex">
+<title>Salle d'attente · Docline</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="config.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* Écran commun d'un établissement : une carte par médecin, lisible à plusieurs mètres sur une télévision 16:9.
+   Les numéros sont propres à chaque médecin : la carte et l'appel portent toujours le nom du médecin et sa couleur. */
+:root{
+  --bg:#F7F6FF;--card:#FFFFFF;--ink:#0D0520;--ink2:#3B3551;--ink3:#8A85A0;--ink4:#C4BFD6;
+  --p:#4C1D95;--p2:#6D28D9;--lav:#EDE9FE;--line:rgba(13,5,32,.06);
+  --u:min(1vw,1.78vh);
+  --sh:0 1px 2px rgba(13,5,32,.04),0 calc(var(--u)*1.2) calc(var(--u)*4) rgba(76,29,149,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+body{cursor:none}
+body.cursor{cursor:default}
+.halo{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.halo i{position:absolute;border-radius:50%;filter:blur(calc(var(--u)*8))}
+.halo i:nth-child(1){width:60vw;height:60vw;left:-18vw;top:-30vw;background:#E4DCFF;animation:h1 40s ease-in-out infinite alternate}
+.halo i:nth-child(2){width:46vw;height:46vw;right:-14vw;bottom:-24vw;background:#DCEFFF;opacity:.8;animation:h2 46s ease-in-out infinite alternate}
+@keyframes h1{to{transform:translate(6vw,5vh)}}
+@keyframes h2{to{transform:translate(-5vw,-6vh)}}
+
+.screen{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:calc(var(--u)*2);padding:calc(var(--u)*2.4) calc(var(--u)*3) calc(var(--u)*2)}
+.top{display:flex;align-items:center;gap:calc(var(--u)*2)}
+.top img{height:calc(var(--u)*2.4);width:auto}
+.top .sep{width:1px;height:calc(var(--u)*2.8);background:var(--line)}
+.org b{display:block;font-size:calc(var(--u)*1.9);font-weight:700;letter-spacing:-.02em}
+.org span{font-size:calc(var(--u)*1.15);color:var(--ink3);font-weight:500}
+.when{margin-left:auto;text-align:right}
+.clock{font-size:calc(var(--u)*3.4);font-weight:600;letter-spacing:-.045em;line-height:1}
+.date{font-size:calc(var(--u)*1.1);color:var(--ink3);font-weight:500;text-transform:capitalize;margin-top:calc(var(--u)*.4)}
+
+.grid{display:grid;gap:calc(var(--u)*1.8);min-height:0}
+.doc{position:relative;container-type:size;background:var(--card);border-radius:calc(var(--u)*2.4);box-shadow:var(--sh);border:1px solid rgba(255,255,255,.8);padding:calc(var(--u)*2) calc(var(--u)*2.2) calc(var(--u)*1.8) calc(var(--u)*2.6);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.doc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:calc(var(--u)*.55);background:var(--c)}
+.doc-n{font-size:min(11cqh,7cqw);font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
+.doc-s{display:flex;align-items:center;gap:.6em;font-size:min(7cqh,4.4cqw);font-weight:600;color:var(--ink3);margin-top:.25em;white-space:nowrap}
+.doc-s i{width:.6em;height:.6em;border-radius:50%;background:var(--c);flex-shrink:0}
+.now{flex:1;display:flex;align-items:center;gap:4cqw;min-height:0}
+.num{font-size:min(50cqh,33cqw);font-weight:700;letter-spacing:-.06em;line-height:.9;color:var(--ink);flex-shrink:0}
+.num.idle{color:var(--ink4);font-size:min(32cqh,20cqw)}
+.num.pop{animation:pop .6s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes pop{from{transform:scale(.8);opacity:.3}to{transform:none;opacity:1}}
+.info{flex:1;min-width:0}
+.room{display:inline-block;white-space:nowrap;font-size:min(10cqh,6cqw);font-weight:700;color:#fff;background:var(--c);border-radius:99px;padding:.25em .8em}
+.pname{font-size:min(7.5cqh,4.6cqw);color:var(--ink2);font-weight:600;margin-top:.5em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hint{font-size:min(7cqh,4.4cqw);color:var(--ink3);font-weight:500;line-height:1.3}
+.foot-d{display:flex;align-items:center;gap:.7em;border-top:1px solid var(--line);padding-top:.8em;font-size:min(7cqh,4.2cqw);color:var(--ink3);font-weight:600;white-space:nowrap}
+.chips{display:flex;gap:.4em;min-width:0;overflow:hidden;flex:0 1 auto}
+.chip{min-width:2.4em;text-align:center;padding:.15em .45em;border-radius:.5em;background:var(--lav);color:var(--p);font-weight:700}
+.chip.first{background:var(--c);color:#fff}
+.wait{margin-left:auto;flex-shrink:0}
+.closed .num,.closed .now{opacity:.55}
+.badge-closed{font-size:min(7cqh,4.4cqw);font-weight:700;color:#B45309;background:#FFFBEB;border-radius:99px;padding:.25em .8em;white-space:nowrap}
+
+.bottom{display:flex;align-items:center;gap:calc(var(--u)*2.4)}
+.join{display:flex;align-items:center;gap:calc(var(--u)*1.6);background:var(--card);border-radius:calc(var(--u)*2);box-shadow:var(--sh);padding:calc(var(--u)*1.1) calc(var(--u)*1.8) calc(var(--u)*1.1) calc(var(--u)*1.1)}
+.qr{background:#fff;padding:calc(var(--u)*.5);border-radius:calc(var(--u)*.9)}
+.qr img,.qr canvas{display:block;width:calc(var(--u)*7.5)!important;height:calc(var(--u)*7.5)!important}
+.join b{display:block;font-size:calc(var(--u)*1.5);font-weight:700}
+.join p{font-size:calc(var(--u)*1.1);color:var(--ink3);font-weight:500;margin-top:calc(var(--u)*.3);max-width:calc(var(--u)*34)}
+.stats{margin-left:auto;display:flex;gap:calc(var(--u)*3);font-size:calc(var(--u)*1.2);color:var(--ink3);font-weight:500}
+.stats b{display:block;font-size:calc(var(--u)*2.6);color:var(--ink);font-weight:700;letter-spacing:-.03em}
+.state.off{color:#B91C1C}
+
+/* Appel plein écran */
+.call{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--u)*1.2);background:radial-gradient(120% 90% at 50% 20%,#FFFFFF 0%,#F2EEFF 60%,#E9E2FF 100%);opacity:0;pointer-events:none;transition:opacity .35s}
+.call.on{opacity:1}
+.call small{font-size:calc(var(--u)*2);font-weight:600;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase}
+.call .cn{font-size:calc(var(--u)*26);font-weight:700;letter-spacing:-.07em;line-height:.85}
+.call .cdoc{display:flex;align-items:center;gap:calc(var(--u)*1.2);font-size:calc(var(--u)*3.4);font-weight:700;letter-spacing:-.02em}
+.call .cdoc i{width:calc(var(--u)*1.8);height:calc(var(--u)*1.8);border-radius:50%;background:var(--c)}
+.call .croom{font-size:calc(var(--u)*3);font-weight:700;color:#fff;background:var(--c);border-radius:99px;padding:calc(var(--u)*.6) calc(var(--u)*2.4);margin-top:calc(var(--u)*.6)}
+.call .cname{font-size:calc(var(--u)*2.2);color:var(--ink2);font-weight:600}
+
+.boot{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(247,246,255,.92);backdrop-filter:blur(8px)}
+.boot[hidden]{display:none}
+.boot-card{background:#fff;border-radius:24px;padding:36px 40px;max-width:520px;text-align:center;box-shadow:0 30px 70px -30px rgba(46,16,101,.35)}
+.boot-card img{height:30px;margin-bottom:18px}
+.boot-card h1{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+.boot-card p{font-size:15px;color:var(--ink3);line-height:1.55;margin-bottom:22px}
+.boot-card button{border:none;border-radius:99px;padding:14px 28px;font:700 16px Inter,sans-serif;color:#fff;background:linear-gradient(135deg,#5B21B6,#8B5CF6);cursor:pointer}
+.boot-card button:focus-visible{outline:3px solid #6D28D9;outline-offset:3px}
+.empty{grid-column:1/-1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ink3);font-size:calc(var(--u)*1.8)}
+@media(prefers-reduced-motion:reduce){.halo i,.num.pop{animation:none}}
+</style>
+</head>
+<body>
+<div class="halo" aria-hidden="true"><i></i><i></i></div>
+<div class="screen">
+  <header class="top">
+    <img src="docline-logo.svg" alt="Docline">
+    <span class="sep"></span>
+    <div class="org"><b id="org-name">Salle d'attente</b><span id="org-sub">Chaque médecin a sa propre file</span></div>
+    <div class="when"><div class="clock" id="clock">--:--</div><div class="date" id="date"></div></div>
+  </header>
+  <main class="grid" id="grid" aria-live="polite"></main>
+  <footer class="bottom">
+    <div class="join" id="join">
+      <div class="qr" id="qr" aria-label="Code QR pour prendre un numéro"></div>
+      <div><b>Prenez votre numéro sur votre téléphone</b><p>Scannez le code, choisissez votre médecin et suivez votre tour en direct, même en attendant dehors.</p></div>
+    </div>
+    <div class="stats"><span><b id="st-wait">0</b>en attente</span><span><b id="st-done">0</b>reçus aujourd'hui</span><span class="state" id="state"></span></div>
+  </footer>
+</div>
+
+<div class="call" id="call" role="alert" aria-hidden="true">
+  <small>Numéro</small>
+  <div class="cn" id="call-num">--</div>
+  <div class="cdoc"><i></i><span id="call-doc"></span></div>
+  <div class="cname" id="call-name"></div>
+  <div class="croom" id="call-room" hidden></div>
+</div>
+
+<div class="boot" id="boot">
+  <div class="boot-card">
+    <img src="docline-logo.svg" alt="Docline">
+    <h1>Écran de l'établissement</h1>
+    <p>Touchez le bouton pour lancer l'affichage en plein écran avec le son des appels. Laissez ensuite la télévision allumée sur cette page.</p>
+    <button type="button" id="boot-go">Lancer l'écran</button>
+  </div>
+</div>
+
+<script>
+var POLL_MS = 3000, CALL_MS = 8000;
+var COLORS = ['#6D28D9', '#0EA5E9', '#10B981', '#F59E0B', '#EC4899', '#6366F1', '#14B8A6', '#EF4444'];
+var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+var params = new URLSearchParams(location.search);
+var orgId = params.get('o');
+var withVoice = params.get('voix') === '1';
+var board = null, lastCurrent = null, callQueue = [], calling = false, audio = null, failures = 0;
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+function pad(n){ return String(n == null ? '--' : n).padStart(2, '0'); }
+function today(){ return new Date().toISOString().slice(0, 10); }
+function drn(n){ return /^dr\b/i.test(n || '') ? n : 'Dr ' + (n || ''); }
+function color(d, i){ return (d.service && d.service.color) || COLORS[i % COLORS.length]; }
+
+function tick(){
+  var d = new Date();
+  $('clock').textContent = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  $('date').textContent = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+// Tailles de texte selon le nombre de médecins à l'écran
+function layout(n){
+  var g = $('grid'), cols = n <= 1 ? 1 : n <= 3 ? n : n === 4 ? 2 : 3, rows = Math.ceil(n / cols);
+  g.style.gridTemplateColumns = 'repeat(' + cols + ',minmax(0,1fr))';
+  g.style.gridTemplateRows = 'repeat(' + rows + ',minmax(0,1fr))';
+}
+
+function render(){
+  var docs = (board && board.doctors) || [];
+  if (board && board.org) {
+    $('org-name').textContent = board.org.name;
+    $('org-sub').textContent = [board.org.city, docs.length + ' médecin' + (docs.length > 1 ? 's' : '') + ' aujourd’hui'].filter(Boolean).join(' · ');
+    document.title = board.org.name + ' · Salle d’attente';
+  }
+  if (!docs.length) { $('grid').innerHTML = '<div class="empty">Aucun médecin à afficher pour cet établissement.</div>'; return; }
+  layout(docs.length);
+  var html = '', wait = 0, done = 0;
+  docs.forEach(function(d, i){
+    wait += d.waiting || 0; done += d.done || 0;
+    var c = color(d, i), cur = d.current, next = d.next || [];
+    html += '<section class="doc' + (d.accepting === false && !cur && !d.waiting ? ' closed' : '') + '" style="--c:' + esc(c) + '" data-id="' + esc(d.id) + '">'
+      + '<div><div class="doc-h"><span class="doc-n">' + esc(drn(d.name)) + '</span></div>'
+      + '<div class="doc-s"><i></i>' + esc((d.service && d.service.name) || d.specialty || 'Consultation') + '</div></div>'
+      + '<div class="now"><div class="num' + (cur ? '' : ' idle') + '" data-num="' + (cur ? cur.number : '') + '">' + (cur ? pad(cur.number) : '--') + '</div>'
+      + '<div class="info">' + (cur
+          ? (cur.room ? '<span class="room">' + esc(cur.room) + '</span>' : '<span class="hint">En consultation</span>') + (cur.name ? '<div class="pname">' + esc(cur.name) + '</div>' : '')
+          : (d.accepting === false && !d.waiting ? '<span class="badge-closed">File fermée</span>' : '<span class="hint">' + (d.waiting ? 'Prochain appel dans un instant' : 'Pas d’attente') + '</span>'))
+      + '</div></div>'
+      + '<div class="foot-d"><span>Ensuite</span><span class="chips">' + (next.length ? next.slice(0, 4).map(function(n, j){ return '<span class="chip' + (j === 0 ? ' first' : '') + '">' + pad(n) + '</span>'; }).join('') : '<span>personne</span>') + '</span>'
+      + '<span class="wait">' + (d.waiting || 0) + ' en attente</span></div>'
+      + '</section>';
+  });
+  var grid = $('grid'), prev = {};
+  grid.querySelectorAll('.num').forEach(function(el){ prev[el.closest('.doc').getAttribute('data-id')] = el.getAttribute('data-num'); });
+  grid.innerHTML = html;
+  grid.querySelectorAll('.num').forEach(function(el){
+    var id = el.closest('.doc').getAttribute('data-id');
+    if (prev[id] !== undefined && prev[id] !== el.getAttribute('data-num') && el.getAttribute('data-num')) el.classList.add('pop');
+  });
+  $('st-wait').textContent = wait; $('st-done').textContent = done;
+}
+
+// Détecte les nouveaux appels, médecin par médecin, et les annonce l'un après l'autre
+function detectCalls(){
+  var docs = (board && board.doctors) || [], seen = {};
+  docs.forEach(function(d, i){
+    var cur = d.current;
+    seen[d.id] = cur ? cur.id : null;
+    if (lastCurrent && cur && lastCurrent[d.id] !== cur.id) callQueue.push({ e: cur, d: d, c: color(d, i) });
+  });
+  lastCurrent = seen;
+  if (!calling) nextCall();
+}
+function nextCall(){
+  var x = callQueue.shift();
+  if (!x) { calling = false; $('call').classList.remove('on'); $('call').setAttribute('aria-hidden', 'true'); return; }
+  calling = true;
+  var call = $('call');
+  call.style.setProperty('--c', x.c);
+  $('call-num').textContent = pad(x.e.number);
+  $('call-doc').textContent = drn(x.d.name) + ((x.d.service && x.d.service.name) || x.d.specialty ? ' · ' + ((x.d.service && x.d.service.name) || x.d.specialty) : '');
+  $('call-name').textContent = x.e.name || '';
+  $('call-room').hidden = !x.e.room; $('call-room').textContent = x.e.room || '';
+  call.classList.add('on'); call.setAttribute('aria-hidden', 'false');
+  chime(); setTimeout(function(){ speak(x); }, 1000);
+  setTimeout(nextCall, CALL_MS);
+}
+function chime(){
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    var t0 = audio.currentTime + .02, master = audio.createGain();
+    master.gain.value = .16; master.connect(audio.destination);
+    [[1318.5, 0], [1760, .14]].forEach(function(n){
+      [[1, 1], [2, .18], [3, .05]].forEach(function(h){
+        var o = audio.createOscillator(), g = audio.createGain(), t = t0 + n[1];
+        o.type = 'sine'; o.frequency.value = n[0] * h[0]; o.connect(g); g.connect(master);
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(h[1], t + .006); g.gain.exponentialRampToValueAtTime(.0001, t + 1.1);
+        o.start(t); o.stop(t + 1.15);
+      });
+    });
+  } catch (e) {}
+}
+function speak(x){
+  if (!withVoice || !window.speechSynthesis) return;
+  try {
+    var u = new SpeechSynthesisUtterance('Numéro ' + x.e.number + ', docteur ' + String(x.d.name || '').split(' ').slice(-1)[0] + (x.e.room ? ', ' + x.e.room : '') + '.');
+    u.lang = 'fr-FR'; u.rate = .95;
+    var v = speechSynthesis.getVoices().filter(function(y){ return /^fr/i.test(y.lang); })[0]; if (v) u.voice = v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+async function poll(){
+  try {
+    var r = await sb.rpc('org_board', { p_org: orgId, p_date: today() });
+    if (r.error) throw r.error;
+    board = r.data; failures = 0;
+    $('state').className = 'state'; $('state').textContent = '';
+    render(); detectCalls();
+  } catch (e) {
+    if (++failures >= 3) { $('state').className = 'state off'; $('state').textContent = 'Connexion perdue, nouvelle tentative'; }
+  }
+}
+
+async function wake(){ try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) {} }
+function start(){
+  $('boot').hidden = true;
+  try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume(); } catch (e) {}
+  try { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){}); } catch (e) {}
+  wake();
+}
+document.addEventListener('visibilitychange', function(){ if (!document.hidden) wake(); });
+var curT; document.addEventListener('mousemove', function(){ document.body.classList.add('cursor'); clearTimeout(curT); curT = setTimeout(function(){ document.body.classList.remove('cursor'); }, 2500); });
+
+(async function init(){
+  tick(); setInterval(tick, 1000);
+  if (!orgId) {
+    $('boot').hidden = true;
+    $('grid').innerHTML = '<div class="empty">Lien incomplet. Ouvrez l’écran depuis Docline, page Pilotage ou Agenda partagé.</div>';
+    return;
+  }
+  $('boot-go').onclick = start;
+  if (params.get('auto') === '1') $('boot').hidden = true;
+  try { new QRCode($('qr'), { text: location.origin + '/queue-join?o=' + encodeURIComponent(orgId), width: 256, height: 256, colorDark: '#0D0520', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch (e) {}
+  await poll();
+  setInterval(function(){ if (!document.hidden) poll(); }, POLL_MS);
+  setInterval(function(){ if (navigator.onLine !== false) location.reload(); }, 6 * 60 * 60 * 1000);   // rafraîchissement de sécurité
+})();
+</script>
+</body>
+</html>
