@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { captureException } from "../_shared/sentry.ts";
+import { messagingConfig, normalizePhone, sendMessage } from "../_shared/messaging.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -10,10 +11,6 @@ const CORS = {
 
 // ── Config ─────────────────────────────────────────────────────────────
 const OTP_SECRET  = Deno.env.get("OTP_SECRET")           ?? "docline-otp-secret-change-me";
-const TW_SID      = Deno.env.get("TWILIO_ACCOUNT_SID")  ?? "";
-const TW_TOKEN    = Deno.env.get("TWILIO_AUTH_TOKEN")    ?? "";
-const TW_WA_FROM  = Deno.env.get("TWILIO_WA_FROM")      ?? "";
-const TW_FROM     = Deno.env.get("TWILIO_FROM_NUMBER")  ?? "";
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -22,41 +19,10 @@ async function sha256hex(text: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-function normalizePhone(raw: string): string | null {
-  const p = raw.replace(/[\s\-\.]/g, "");
-  if (/^0[5-9]\d{8}$/.test(p))  return "+213" + p.slice(1);
-  if (/^\+\d{7,15}$/.test(p))   return p;
-  if (/^00\d{7,15}$/.test(p))   return "+" + p.slice(2);
-  return null;
-}
-
 function generateOTP(): string {
   const arr = new Uint32Array(1);
   crypto.getRandomValues(arr);
   return String(100000 + (arr[0] % 900000));
-}
-
-// ── Twilio helper ──────────────────────────────────────────────────────
-async function twilioSend(from: string, to: string, body: string): Promise<boolean> {
-  try {
-    const res = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${TW_SID}/Messages.json`,
-      {
-        method: "POST",
-        headers: {
-          "Authorization": "Basic " + btoa(`${TW_SID}:${TW_TOKEN}`),
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({ From: from, To: to, Body: body }).toString(),
-      }
-    );
-    const resp = await res.text();
-    console.log(`[Twilio] ${res.status}: ${resp}`);
-    return res.ok;
-  } catch (e) {
-    console.error("[Twilio] Exception:", e);
-    return false;
-  }
 }
 
 // ── Main ───────────────────────────────────────────────────────────────
@@ -105,39 +71,26 @@ serve(async (req) => {
     await supabase.from("otp_verifications").insert({ phone_hash: phoneHash, otp_hash: otpHash, expires_at: expiresAt });
 
     // Le code n'est jamais renvoyé au navigateur : sans fournisseur d'envoi, la vérification est impossible
-    if (!TW_SID) {
+    if (!messagingConfig().account) {
       return new Response(
         JSON.stringify({ error: "SMS_UNAVAILABLE", message: "L'envoi du code est momentanément indisponible. Réessayez plus tard ou appelez le cabinet." }),
         { status: 503, headers: { ...CORS, "Content-Type": "application/json" } }
       );
     }
 
-    // WhatsApp en priorité, SMS en fallback
-    let sent = false;
-    let channel = "sms";
-
-    if (TW_WA_FROM) {
-      const waText = `🔐 *Docline* — Votre code de vérification : *${otp}*\n\nValable 5 minutes. Ne le partagez pas.`;
-      sent = await twilioSend("whatsapp:" + TW_WA_FROM.replace("whatsapp:", ""), "whatsapp:" + phoneE164, waText);
-      if (sent) channel = "whatsapp";
-    }
-
-    if (!sent && TW_FROM) {
-      const text = `Docline - Votre code : ${otp}\nValable 5 minutes. Ne le partagez pas.`;
-      sent = await twilioSend(TW_FROM, phoneE164, text);
-      if (sent) channel = "sms";
-    }
-
-    if (!sent) {
+    // WhatsApp (modèle d'authentification) si configuré, sinon SMS signé « Docline »
+    const r = await sendMessage(supabase, { to: phoneE164, kind: "otp", otp,
+      text: `Docline : votre code est ${otp}. Valable 5 minutes, ne le partagez avec personne.` });
+    if (!r.sent) {
       return new Response(
-        JSON.stringify({ error: "SEND_FAILED", message: "Impossible d'envoyer le code. Vérifiez votre numéro." }),
-        { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "SEND_FAILED", message: "Impossible d'envoyer le code. Vérifiez votre numéro ou réessayez dans un instant." }),
+        { status: 502, headers: { ...CORS, "Content-Type": "application/json" } }
       );
     }
 
-    const label = channel === "whatsapp" ? "WhatsApp" : "SMS";
+    const label = r.channel === "whatsapp" ? "WhatsApp" : "SMS";
     return new Response(
-      JSON.stringify({ success: true, channel, message: `Code envoyé sur ${label}` }),
+      JSON.stringify({ success: true, channel: r.channel, message: `Code envoyé par ${label}` }),
       { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
     );
 

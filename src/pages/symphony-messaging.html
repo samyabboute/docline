@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SMS et WhatsApp · Docline Symphony</title>
+<script src="config.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#4C1D95">
+<style>
+
+:root{--pv-line:rgba(13,5,32,.07);--pv-soft:#F4F2FF}
+.sx-page [hidden]{display:none!important}
+.pv-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.pv-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
+.pv-title{font-size:26px;font-weight:900;letter-spacing:-.7px;line-height:1.1;text-wrap:balance}
+.pv-sub{font-size:13.5px;color:var(--text-3);margin-top:6px;max-width:66ch;line-height:1.55}
+.pv-ro{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--pv-soft);font-size:12px;font-weight:700;color:var(--p)}
+
+/* Mise en service */
+.gate{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;background:var(--surface);border:1px solid var(--pv-line);border-radius:20px;padding:22px 24px;margin-bottom:16px;box-shadow:0 1px 2px rgba(13,5,32,.04)}
+.gate-state{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.gate-dot{width:10px;height:10px;border-radius:50%;background:#B8B3C9;box-shadow:0 0 0 5px rgba(184,179,201,.18)}
+.gate.live .gate-dot{background:#12B76A;box-shadow:0 0 0 5px rgba(18,183,106,.16)}
+.gate-note{font-size:13px;color:var(--text-3);margin-top:4px;line-height:1.5}
+.gate-list{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px}
+.gate-item{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--text-3)}
+.gate-item i{width:18px;height:18px;border-radius:50%;border:1.5px solid #D5D0E5;display:flex;align-items:center;justify-content:center;flex:none}
+.gate-item.ok{color:var(--text)}
+.gate-item.ok i{background:#12B76A;border-color:#12B76A}
+.gate-item.ok i::after{content:'';width:8px;height:4px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+
+.pv-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.pv-sum div{background:var(--surface);border:1px solid var(--pv-line);border-radius:14px;padding:14px 16px}
+.pv-sum b{display:block;font-size:22px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.pv-sum span{font-size:12px;color:var(--text-3);font-weight:600}
+
+.pv-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.pv-tab{padding:8px 16px;border-radius:999px;border:1px solid var(--pv-line);background:var(--surface);font:600 13px Inter,sans-serif;color:var(--text-3);cursor:pointer;white-space:nowrap}
+.pv-tab.on{background:var(--p);border-color:var(--p);color:#fff}
+.pv-tab:focus-visible,.pv-btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--p3);outline-offset:2px}
+.pv-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.pv-tools input,.pv-tools select{padding:10px 13px;border-radius:12px;border:1px solid var(--pv-line);background:var(--surface);font:500 13.5px Inter,sans-serif;color:var(--text);outline:none}
+.pv-tools input{flex:1;min-width:200px}
+.pv-tools input:focus,.pv-tools select:focus{border-color:var(--brand)}
+.seg{display:inline-flex;background:var(--pv-soft);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:9px;font:600 12.5px Inter,sans-serif;color:var(--text-3);cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(13,5,32,.08)}
+
+.pv-list{background:var(--surface);border:1px solid var(--pv-line);border-radius:16px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--pv-line)}
+.row:last-child{border-bottom:none}
+.row-name{font-size:14px;font-weight:700;text-transform:capitalize}
+.row-meta{font-size:12px;color:var(--text-3);margin-top:3px;line-height:1.45}
+.maps{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.map{display:inline-flex;align-items:center;gap:6px;padding:4px 5px 4px 10px;border-radius:999px;background:var(--pv-soft);font-size:12.5px;font-weight:600;color:var(--text)}
+.map.validated{background:#ECFDF3;color:#067647}
+.map.rejected{background:#F5F5F7;color:#9CA3B8;text-decoration:line-through}
+.map small{font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em}
+.map button{border:0;width:24px;height:24px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--surface);color:var(--text-3)}
+.map button:hover{color:var(--p)}
+.map button svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+.it{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:16px 18px;border-bottom:1px solid var(--pv-line)}
+.it:last-child{border-bottom:none}
+.it-pair{font-size:14.5px;font-weight:750;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.it-plus{color:var(--text-3);font-weight:500}
+.it-txt{font-size:13px;color:var(--text-2);margin-top:6px;line-height:1.55;max-width:80ch}
+.it-txt b{font-weight:700;color:var(--text)}
+.it-foot{font-size:11.5px;color:var(--text-3);margin-top:8px}
+.it-act{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.kind{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:999px;background:#EEF2FF;color:#3538CD}
+
+.lv{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.lv-contre_indication{background:#FEECEC;color:#B42318}
+.lv-association_deconseillee{background:#FFF1E6;color:#B54708}
+.lv-precaution_emploi{background:#FFF8DB;color:#8A6100}
+.lv-a_prendre_en_compte{background:#EFEBFF;color:#4C1D95}
+.lv-doublon{background:#EFF8FF;color:#175CD3}
+.st{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#F2F4F7;color:#475467}
+.st-validated{background:#ECFDF3;color:#067647}
+.st-draft{background:#FFFAEB;color:#B54708}
+.st-rejected{background:#F5F5F7;color:#98A2B3}
+.st-confirmed{background:#ECFDF3;color:#067647}
+.st-refused{background:#FEF3F2;color:#B42318}
+.st-pending{background:#FFFAEB;color:#B54708}
+
+.pv-btn{padding:8px 13px;border-radius:10px;border:1px solid var(--pv-line);background:var(--surface);font:650 12.5px Inter,sans-serif;color:var(--text);cursor:pointer;white-space:nowrap}
+.pv-btn:hover:not(:disabled){border-color:var(--brand);color:var(--brand)}
+.pv-btn.primary{background:var(--p);border-color:var(--p);color:#fff}
+.pv-btn.primary:hover:not(:disabled){background:var(--p2);border-color:var(--p2);color:#fff}
+.pv-btn.ok{color:#067647}
+.pv-btn.bad{color:#B42318}
+.pv-btn:disabled{opacity:.45;cursor:not-allowed}
+.more{display:flex;justify-content:center;padding:14px}
+.empty{padding:48px 24px;text-align:center;color:var(--text-3);font-size:14px;line-height:1.55}
+.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+
+.pv-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#0D0520;color:#fff;padding:11px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all .25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
+.pv-toast.on{opacity:1;transform:translateX(-50%)}.pv-toast.err{background:#B91C1C}
+[data-validate]{}
+body.ro [data-validate]{display:none!important}
+@media (max-width:820px){
+  .pv-sum{grid-template-columns:1fr 1fr}
+  .gate{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .maps{justify-content:flex-start}
+  .it{grid-template-columns:1fr}
+  .it-act{justify-content:flex-start}
+  .trial{grid-template-columns:1fr}
+  .log{grid-template-columns:1fr;gap:2px}
+  .fld-row,.levels{grid-template-columns:1fr}
+  .md-wrap{padding:0;align-items:stretch}.md{border-radius:0;min-height:100%}.md-f{border-radius:0}
+}
+@media (prefers-reduced-motion:reduce){.pv-toast{transition:none}}
+.mg-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:12px;margin-bottom:12px}
+.mg-card{background:var(--surface);border:1px solid var(--pv-line);border-radius:20px;padding:20px 22px}
+.mg-k{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;display:flex;justify-content:space-between;gap:8px}
+.mg-k span{text-transform:none;letter-spacing:0;font-weight:600}
+.mg-state{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.mg-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.mg-dot.ok{background:#12B76A;box-shadow:0 0 0 5px rgba(18,183,106,.15)}.mg-dot.warn{background:#F79009;box-shadow:0 0 0 5px rgba(247,144,9,.15)}.mg-dot.bad{background:#F04438;box-shadow:0 0 0 5px rgba(240,68,56,.15)}
+.mg-note{font-size:12.5px;color:var(--text-3);line-height:1.55;margin-top:8px}
+.mg-list{display:flex;flex-direction:column;gap:10px}
+.mg-item{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start}
+.mg-item i{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;font-weight:800;color:#fff;margin-top:1px}
+.mg-item i.ok{background:#12B76A}.mg-item i.no{background:#D0CCDD}.mg-item i.warn{background:#F79009}
+.mg-item b{font-size:13.5px;color:var(--text)}
+.mg-item p{font-size:12px;color:var(--text-3);line-height:1.5;margin-top:1px}
+.mg-test{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.mg-test input{flex:1;min-width:180px;padding:10px 12px;border-radius:12px;border:1px solid var(--pv-line);font:500 14px Inter,sans-serif;outline:none}
+.mg-test input:focus{border-color:var(--brand)}
+.mg-res{font-size:12.5px;margin-top:8px;min-height:18px}
+.mg-res.ok{color:#067647}.mg-res.bad{color:#B42318}
+.mg-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
+.mg-kpi{background:var(--surface);border:1px solid var(--pv-line);border-radius:16px;padding:14px 16px}
+.mg-kpi b{display:block;font-size:24px;font-weight:800;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
+.mg-kpi span{font-size:12px;color:var(--text-3);font-weight:600}
+.mg-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.mg-tbl th{text-align:left;font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:0 8px 8px}
+.mg-tbl td{padding:9px 8px;border-top:1px solid var(--pv-line);color:var(--text-2);vertical-align:top}
+.mg-tbl td.num{font-variant-numeric:tabular-nums}
+.mg-wrap{overflow-x:auto}
+.mg-err{display:flex;flex-direction:column;gap:8px}
+.mg-e{border:1px solid var(--pv-line);border-radius:12px;padding:10px 12px}
+.mg-e b{font-size:13px;color:var(--text)}
+.mg-e p{font-size:12px;color:var(--text-3);margin-top:2px;line-height:1.45}
+@media (max-width:980px){.mg-grid{grid-template-columns:1fr}.mg-kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script src="loader.js?v=2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="symphony-chrome.css?v=2">
+</head>
+<body class="sx">
+<div class="sx-app">
+  <aside id="sx-side" data-sx-chrome aria-label="Navigation Symphony"></aside>
+  <div class="sx-scrim"></div>
+  <div class="sx-main">
+    <header class="sx-top"><button class="sx-ham" type="button" data-sx-ham aria-label="Ouvrir le menu"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><div class="sx-top-title">SMS et WhatsApp</div></header>
+    <main class="sx-page">
+      <div class="pv-head">
+        <div>
+          <div class="pv-eyebrow">Symphony · Système</div>
+          <h1 class="pv-title">SMS et WhatsApp</h1>
+          <p class="pv-sub">Codes de vérification, confirmations et rappels de rendez-vous. Chaque message est suivi jusqu’à sa remise. Les codes partent par WhatsApp quand le modèle est approuvé, sinon par SMS signé « Docline ». Hors codes, rien ne part entre 21 h et 8 h.</p>
+        </div>
+        <div class="seg" id="period"><button type="button" data-d="7">7 jours</button><button type="button" class="on" data-d="30">30 jours</button><button type="button" data-d="90">90 jours</button></div>
+      </div>
+      <div class="mg-grid">
+        <div class="mg-card" id="acc"><div class="mg-k">Compte Twilio</div><p class="mg-note">Chargement…</p></div>
+        <div class="mg-card" id="chan"><div class="mg-k">Canaux d’envoi</div></div>
+      </div>
+      <div class="mg-kpis" id="kpis"></div>
+      <div class="mg-grid">
+        <div class="mg-card"><div class="mg-k">Erreurs de remise</div><div id="errs"></div></div>
+        <div class="mg-card"><div class="mg-k">Par usage</div><div class="mg-wrap" id="by"></div></div>
+      </div>
+      <div class="mg-card"><div class="mg-k">Derniers messages<span>numéros masqués</span></div><div class="mg-wrap" id="recent"></div></div>
+    </main>
+  </div>
+</div>
+<div class="pv-toast" id="toast" role="status"></div>
+<script>
+'use strict';
+var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+var DAYS = 30;
+var KIND = { otp:'Code de vérification', booking_confirmation:'Confirmation de réservation', appointment_sms:'Rappel envoyé par le cabinet', reminder:'Rappel automatique', cancellation:'Annulation par le cabinet', test:'Test' };
+var STATUS = { queued:'En file', accepted:'Accepté', sending:'En cours', sent:'Envoyé', delivered:'Remis', read:'Lu', undelivered:'Non remis', failed:'Échec', skipped:'Non envoyé' };
+var ERR = {
+  '21608':['Compte d’essai','Twilio n’envoie qu’aux numéros vérifiés tant que le compte est en essai. Passez le compte en mode payant.'],
+  '21408':['Algérie non autorisée','Activez l’Algérie dans Messaging › Settings › Geo permissions de la console Twilio.'],
+  '21612':['Acheminement impossible','L’expéditeur ne peut pas écrire vers ce pays. Utilisez l’expéditeur « Docline » enregistré.'],
+  '21614':['Numéro non mobile','Le numéro est une ligne fixe ou n’accepte pas les SMS.'],
+  '21211':['Numéro invalide','Le numéro n’existe pas au format international.'],
+  '21610':['Désinscrit','Le destinataire a répondu STOP : Twilio bloque les envois vers ce numéro.'],
+  '30003':['Injoignable','Téléphone éteint ou hors réseau au moment de l’envoi.'],
+  '30005':['Numéro inconnu','L’opérateur ne connaît pas ce numéro.'],
+  '30006':['Ligne fixe ou opérateur','Le numéro ne peut pas recevoir de SMS.'],
+  '30007':['Filtré par l’opérateur','Souvent un expéditeur non enregistré en Algérie. Finalisez l’enregistrement de « Docline ».'],
+  '30008':['Erreur opérateur','Erreur inconnue côté opérateur. Si elle se répète, contactez le support Twilio.'],
+  '63003':['Pas de WhatsApp','Ce numéro n’a pas de compte WhatsApp. Le SMS prend le relais.'],
+  '63016':['Modèle WhatsApp requis','Hors conversation ouverte, WhatsApp n’accepte que des modèles approuvés.']
+};
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+function fmt(s){ var d = new Date(s); return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }); }
+async function call(method, body){
+  var s = (await sb.auth.getSession()).data.session;
+  var r = await fetch(SUPA_URL + '/functions/v1/twilio-health', { method: method, headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + (s && s.access_token), 'apikey': SUPA_KEY }, body: body ? JSON.stringify(body) : undefined });
+  return { ok: r.ok, status: r.status, json: await r.json().catch(function(){ return {}; }) };
+}
+
+async function loadHealth(){
+  var r = await call('GET');
+  if (!r.ok) { $('acc').innerHTML = '<div class="mg-k">Compte Twilio</div><p class="mg-note">' + (r.status === 403 ? 'Accès réservé (permission Paramètres).' : 'Impossible de joindre Twilio.') + '</p>'; return; }
+  var h = r.json, a = h.account || {}, c = h.config || {};
+  var trial = a.type === 'Trial', active = a.status === 'active';
+  var tone = !c.account ? 'bad' : (!active ? 'bad' : (trial ? 'warn' : 'ok'));
+  var title = !c.account ? 'Twilio non configuré' : (!active ? 'Compte ' + esc(a.status || 'indisponible') : (trial ? 'Compte d’essai' : 'Compte actif'));
+  var note = !c.account ? 'Aucun identifiant Twilio : les codes de vérification ne peuvent pas partir.'
+    : trial ? 'En essai, Twilio n’envoie qu’aux numéros vérifiés et ajoute une mention à chaque SMS. Passez en mode payant avant le lancement.'
+    : 'Les envois sont possibles vers tous les numéros autorisés.';
+  $('acc').innerHTML = '<div class="mg-k">Compte Twilio' + (h.balance ? '<span>Solde : ' + esc(Number(h.balance.amount).toFixed(2)) + ' ' + esc(h.balance.currency) + '</span>' : '') + '</div>' +
+    '<div class="mg-state"><span class="mg-dot ' + tone + '"></span>' + title + '</div><p class="mg-note">' + note + '</p>' +
+    '<div class="mg-test"><input id="test-to" type="tel" inputmode="tel" placeholder="Votre mobile : 0555 12 34 56" aria-label="Numéro de test"><button class="pv-btn primary" type="button" id="test-btn">Envoyer un test</button></div>' +
+    '<div class="mg-res" id="test-res" role="status"></div>';
+  var items = [
+    [c.messaging_service ? 'ok' : 'no', 'Messaging Service', c.messaging_service ? 'Configuré : il porte l’expéditeur « Docline » et la remise de secours.' : 'Recommandé : regroupe l’expéditeur « Docline » et ses réglages dans Twilio.'],
+    [c.sender_id ? 'ok' : 'no', 'Expéditeur « Docline »', c.sender_id ? 'Les SMS sont signés « ' + esc(c.sender_id) + ' ».' : 'Obligatoire en Algérie : enregistrement auprès de Mobilis, Djezzy et Ooredoo via Twilio (environ 2 semaines).'],
+    [c.from_number ? 'warn' : 'no', 'Numéro classique', c.from_number ? 'Utilisé en dernier recours. Twilio le déconseille vers l’Algérie : les SMS risquent d’être filtrés.' : 'Aucun.'],
+    [c.whatsapp_sender ? 'ok' : 'no', 'Expéditeur WhatsApp', c.whatsapp_sender ? 'Configuré.' : 'Nécessite la vérification de l’entreprise par Meta.'],
+    [c.whatsapp_otp_template ? 'ok' : 'no', 'Modèle WhatsApp pour les codes', c.whatsapp_otp_template ? 'Les codes partent d’abord par WhatsApp, beaucoup moins cher qu’un SMS.' : 'À créer et faire approuver dans Twilio (catégorie Authentification).']
+  ];
+  $('chan').innerHTML = '<div class="mg-k">Canaux d’envoi</div><div class="mg-list">' + items.map(function(x){
+    return '<div class="mg-item"><i class="' + x[0] + '">' + (x[0] === 'ok' ? '✓' : x[0] === 'warn' ? '!' : '') + '</i><div><b>' + x[1] + '</b><p>' + x[2] + '</p></div></div>';
+  }).join('') + '</div>';
+  $('test-btn').onclick = async function(){
+    var to = $('test-to').value.trim(); if (!to) return;
+    this.disabled = true; $('test-res').className = 'mg-res'; $('test-res').textContent = 'Envoi…';
+    var t = await call('POST', { to: to });
+    this.disabled = false;
+    if (t.ok) { $('test-res').className = 'mg-res ok'; $('test-res').textContent = 'Envoyé par ' + (t.json.channel === 'whatsapp' ? 'WhatsApp' : 'SMS') + '. La remise s’affichera ci-dessous dans quelques secondes.'; setTimeout(loadStats, 6000); }
+    else { var e = ERR[t.json.error]; $('test-res').className = 'mg-res bad'; $('test-res').textContent = e ? e[0] + ' : ' + e[1] : 'Échec : ' + (t.json.error || 'erreur inconnue'); loadStats(); }
+  };
+}
+
+async function loadStats(){
+  var r = await sb.rpc('messaging_overview', { p_days: DAYS });
+  if (r.error) { $('kpis').innerHTML = '<div class="empty">' + esc(r.error.message) + '</div>'; return; }
+  var d = r.data || {}, t = d.totals || {};
+  var rate = t.n ? Math.round(t.delivered / Math.max(1, t.n - (t.skipped || 0)) * 100) : null;
+  $('kpis').innerHTML = [[t.n || 0, 'Messages'], [t.delivered || 0, 'Remis'], [rate != null ? rate + ' %' : '—', 'Taux de remise'], [t.failed || 0, 'Échecs'],
+    [t.cost ? t.cost + ' ' + (t.unit || '') : '—', 'Coût Twilio']].map(function(k){ return '<div class="mg-kpi"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>'; }).join('');
+  var errs = d.errors || [];
+  $('errs').innerHTML = errs.length ? '<div class="mg-err">' + errs.map(function(e){
+    var x = ERR[e.code] || ['Erreur ' + e.code, e.message || ''];
+    return '<div class="mg-e"><b>' + esc(x[0]) + ' · ' + e.n + '</b><p>' + esc(x[1]) + ' (code ' + esc(e.code) + ')</p></div>';
+  }).join('') + '</div>' : '<p class="mg-note">Aucune erreur sur la période.</p>';
+  var by = d.by || [];
+  $('by').innerHTML = by.length ? '<table class="mg-tbl"><thead><tr><th>Usage</th><th>Canal</th><th>Envoyés</th><th>Remis</th><th>Échecs</th></tr></thead><tbody>' + by.map(function(b){
+    return '<tr><td>' + esc(KIND[b.kind] || b.kind) + '</td><td>' + (b.channel === 'whatsapp' ? 'WhatsApp' : 'SMS') + '</td><td class="num">' + b.n + '</td><td class="num">' + b.delivered + '</td><td class="num">' + b.failed + '</td></tr>';
+  }).join('') + '</tbody></table>' : '<p class="mg-note">Aucun message sur la période.</p>';
+  var rec = d.recent || [];
+  $('recent').innerHTML = rec.length ? '<table class="mg-tbl"><thead><tr><th>Date</th><th>Usage</th><th>Canal</th><th>Numéro</th><th>Statut</th><th>Détail</th></tr></thead><tbody>' + rec.map(function(m){
+    var e = m.error_code && ERR[m.error_code];
+    return '<tr><td>' + fmt(m.created_at) + '</td><td>' + esc(KIND[m.kind] || m.kind) + '</td><td>' + (m.channel === 'whatsapp' ? 'WhatsApp' : 'SMS') + '</td><td>' + esc(m.to_hint || '') + '</td><td>' + esc(STATUS[m.status] || m.status) + '</td><td>' +
+      esc(e ? e[0] : (m.error_message || '')) + (m.price ? ' · ' + Math.abs(m.price) + ' ' + esc(m.price_unit || '') : '') + '</td></tr>';
+  }).join('') + '</tbody></table>' : '<p class="mg-note">Les messages apparaîtront ici dès le premier envoi.</p>';
+}
+
+$('period').querySelectorAll('button').forEach(function(b){
+  b.onclick = function(){ $('period').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); DAYS = +b.dataset.d; loadStats(); };
+});
+(async function(){
+  var s = await sb.auth.getSession();
+  if (!s.data.session) { location.href = '/login?return=symphony-messaging'; return; }
+  loadHealth(); loadStats();
+})();
+</script>
+<script src="symphony-access.js?v=10" defer></script>
+<script src="symphony-chrome.js?v=6" defer></script>
+</body>
+</html>

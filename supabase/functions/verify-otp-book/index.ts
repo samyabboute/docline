@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendMessage } from "../_shared/messaging.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -11,9 +12,6 @@ const CORS = {
 const OTP_SECRET  = Deno.env.get("OTP_SECRET")         ?? "docline-otp-secret-change-me";
 const APP_URL     = Deno.env.get("APP_URL")             ?? "https://samyabboute.github.io/docline";
 // Twilio SMS
-const TW_SID      = Deno.env.get("TWILIO_ACCOUNT_SID")  ?? "";
-const TW_TOKEN    = Deno.env.get("TWILIO_AUTH_TOKEN")    ?? "";
-const TW_FROM     = Deno.env.get("TWILIO_FROM_NUMBER")   ?? "";
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -45,37 +43,14 @@ function formatDateFr(isoDate: string): string {
   return `${J[d.getDay()]} ${d.getDate()} ${M[d.getMonth()]}`;
 }
 
-// ── Confirmation SMS (Twilio) ──────────────────────────────────────────
-async function sendConfirmSMS(to: string, p: {
-  patientName: string; doctorName: string; date: string; time: string;
+// ── Confirmation SMS ──────────────────────────────────────────────────
+// deno-lint-ignore no-explicit-any
+async function sendConfirmSMS(admin: any, to: string, p: {
+  patientName: string; doctorName: string; date: string; time: string; doctorId?: string;
 }): Promise<void> {
-  if (!TW_SID || !TW_TOKEN || !TW_FROM) {
-    console.warn("[DEV] Twilio non configuré — SMS confirmation ignoré");
-    return;
-  }
-  const text =
-    `Docline - RDV confirme\n` +
-    `Bonjour ${p.patientName},\n` +
-    `RDV avec ${p.doctorName}\n` +
-    `${formatDateFr(p.date)} a ${p.time}.\n` +
-    `Un rappel vous sera envoye 1h avant.`;
-  console.log(`[SMS] Confirmation Twilio vers ${to}`);
-  try {
-    const res = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${TW_SID}/Messages.json`,
-      {
-        method: "POST",
-        headers: {
-          "Authorization": "Basic " + btoa(`${TW_SID}:${TW_TOKEN}`),
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({ From: TW_FROM, To: to, Body: text }).toString(),
-      }
-    );
-    console.log(`[SMS] Twilio response ${res.status}: ${await res.text()}`);
-  } catch (e) {
-    console.error("[SMS] Exception Twilio:", e);
-  }
+  const text = `Docline : RDV confirme avec ${p.doctorName}, ${formatDateFr(p.date)} a ${p.time}. Presentez votre ticket a l'accueil.`;
+  const r = await sendMessage(admin, { to, kind: "booking_confirmation", text, doctorId: p.doctorId ?? null });
+  if (!r.sent) console.warn("[SMS] confirmation non envoyée :", r.error);
 }
 
 // ── Main ───────────────────────────────────────────────────────────────
@@ -186,7 +161,7 @@ serve(async (req) => {
       : `Dr. ${doc?.first_name ?? ""} ${doc?.last_name ?? ""}`.trim() || "votre médecin";
 
     // Envoyer SMS de confirmation
-    await sendConfirmSMS(phoneE164, { patientName, doctorName, date, time });
+    await sendConfirmSMS(supabase, phoneE164, { patientName, doctorName, date, time, doctorId });
 
     // Session courte (2 h) : le téléphone vient d'être vérifié, le patient peut
     // activer son espace en un clic (patient_activate la prolonge à 90 jours).

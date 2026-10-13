@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendMessage } from "../_shared/messaging.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -8,10 +9,6 @@ const CORS = {
 };
 
 // ── Config ─────────────────────────────────────────────────────────────
-// Twilio SMS
-const TW_SID   = Deno.env.get("TWILIO_ACCOUNT_SID") ?? "";
-const TW_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN")   ?? "";
-const TW_FROM  = Deno.env.get("TWILIO_FROM_NUMBER")  ?? "";
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -20,41 +17,6 @@ function formatDateFr(isoDate: string): string {
   const J = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
   const M = ["jan", "fev", "mar", "avr", "mai", "juin", "juil", "aout", "sep", "oct", "nov", "dec"];
   return `${J[d.getDay()]} ${d.getDate()} ${M[d.getMonth()]}`;
-}
-
-// ── Rappel SMS (Twilio) ───────────────────────────────────────────────
-async function sendRappelSMS(to: string, p: {
-  patientName: string; doctorName: string; date: string; time: string;
-}): Promise<boolean> {
-  if (!TW_SID || !TW_TOKEN || !TW_FROM) {
-    console.warn("[DEV] Twilio non configuré — rappel SMS ignoré");
-    return false;
-  }
-  const text =
-    `Docline - Rappel RDV\n` +
-    `Bonjour ${p.patientName},\n` +
-    `Votre RDV avec ${p.doctorName} est le ${formatDateFr(p.date)} a ${p.time}.\n` +
-    `Pour annuler, appelez votre medecin.`;
-  console.log(`[SMS] Rappel Twilio vers ${to}`);
-  try {
-    const res = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${TW_SID}/Messages.json`,
-      {
-        method: "POST",
-        headers: {
-          "Authorization": "Basic " + btoa(`${TW_SID}:${TW_TOKEN}`),
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({ From: TW_FROM, To: to, Body: text }).toString(),
-      }
-    );
-    const body = await res.text();
-    console.log(`[SMS] Twilio response ${res.status}: ${body}`);
-    return res.ok;
-  } catch (e) {
-    console.error("[SMS] Exception Twilio:", e);
-    return false;
-  }
 }
 
 // ── Main ───────────────────────────────────────────────────────────────
@@ -114,22 +76,27 @@ serve(async (req) => {
       || (doc?.is_clinic ? doc?.clinic_name : `Dr. ${doc?.last_name ?? ""}`.trim())
       || "votre médecin";
 
-    const opts = {
-      patientName: appt.patient_name,
-      doctorName,
-      date: appt.requested_date,
-      time: appt.requested_time,
-    };
+    // Garde-fou de coût : 100 SMS par cabinet et par jour au plus
+    const since = new Date(Date.now() - 86_400_000).toISOString();
+    const { count: today } = await supa.from("message_logs").select("id", { count: "exact", head: true })
+      .eq("doctor_id", user.id).gte("created_at", since);
+    if ((today ?? 0) >= 100) {
+      return new Response(JSON.stringify({ error: "DAILY_LIMIT", message: "Limite de 100 SMS par jour atteinte pour ce cabinet." }),
+        { status: 429, headers: { ...CORS, "Content-Type": "application/json" } });
+    }
 
-    const sent = await sendRappelSMS(appt.patient_phone, opts);
-
-    // Marquer comme envoyé
+    const text = `Docline : rappel de votre RDV avec ${doctorName}, ${formatDateFr(appt.requested_date)} a ${String(appt.requested_time).slice(0, 5)}. En cas d'empechement, prevenez le cabinet.`;
+    const r = await sendMessage(supa, { to: appt.patient_phone, kind: "appointment_sms", text, doctorId: user.id });
+    if (!r.sent) {
+      const msg = r.error === "QUIET_HOURS" ? "Les SMS ne partent pas entre 21 h et 8 h. Réessayez demain matin."
+        : r.error === "INVALID_PHONE" ? "Le numéro du patient n'est pas un mobile valide."
+        : "Le SMS n'a pas pu être envoyé. Réessayez plus tard.";
+      return new Response(JSON.stringify({ error: r.error ?? "SEND_FAILED", message: msg }),
+        { status: 502, headers: { ...CORS, "Content-Type": "application/json" } });
+    }
     await supa.from("appointments").update({ sms_confirmation_sent: true }).eq("id", appointmentId);
-
-    return new Response(
-      JSON.stringify({ ok: true, message: sent ? "Rappel SMS envoyé." : "Rappel en attente (Twilio non configuré)." }),
-      { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ ok: true, message: "Rappel SMS envoyé." }),
+      { status: 200, headers: { ...CORS, "Content-Type": "application/json" } });
 
   } catch (e) {
     console.error("send-appointment-sms error:", e);

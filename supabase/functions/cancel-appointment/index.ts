@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendMessage } from "../_shared/messaging.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -7,26 +8,7 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const INFOBIP_KEY  = Deno.env.get("INFOBIP_API_KEY") ?? "";
-const INFOBIP_BASE = Deno.env.get("INFOBIP_BASE_URL") ?? "https://api.infobip.com";
-const APP_URL      = Deno.env.get("APP_URL") ?? "https://samyabboute.github.io/docline";
-
-async function sendSMS(to: string, text: string): Promise<void> {
-  if (!INFOBIP_KEY) {
-    console.log(`[DEV] Cancel SMS to ${to}: ${text}`);
-    return;
-  }
-  await fetch(`${INFOBIP_BASE}/sms/2/text/advanced`, {
-    method: "POST",
-    headers: {
-      "Authorization": `App ${INFOBIP_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messages: [{ destinations: [{ to }], text }],
-    }),
-  });
-}
+const APP_URL = "https://docline.health";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -114,20 +96,22 @@ serve(async (req) => {
       : `Dr. ${doctor?.last_name ?? ""}`.trim();
 
     // Lien re-booking pré-rempli
-    const rebookUrl = `${APP_URL}/book.html?doctor=${user.id}`;
+    const rebookUrl = `${APP_URL}/book?doctor=${user.id}`;
 
     // SMS d'annulation au patient
     const date = new Date(appt.requested_date + "T00:00:00")
       .toLocaleDateString("fr-DZ", { weekday: "long", day: "numeric", month: "long" });
-    const reasonText = reason ? `\nMotif : ${reason}` : "";
-    const msg = `Docline - RDV annulé\n\nVotre RDV avec ${doctorName} du ${date} à ${appt.requested_time} a été annulé.${reasonText}\n\nReprenez RDV : ${rebookUrl}`;
+    const reasonText = reason ? ` Motif : ${String(reason).slice(0, 80)}.` : "";
+    const msg = `Docline : votre RDV avec ${doctorName} du ${date} a ${String(appt.requested_time).slice(0, 5)} est annule.${reasonText} Reprendre RDV : ${rebookUrl}`;
 
+    // SMS au patient (l'email part aussi, par la fonction notify) ; la nuit, seul l'email part
+    let smsSent = false;
     if (appt.patient_phone) {
-      await sendSMS(appt.patient_phone, msg);
+      smsSent = (await sendMessage(supabaseService, { to: appt.patient_phone, kind: "cancellation", text: msg, doctorId: user.id })).sent;
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: "RDV annulé et patient notifié par SMS." }),
+      JSON.stringify({ success: true, sms: smsSent, message: smsSent ? "RDV annulé, patient prévenu par SMS." : "RDV annulé." }),
       { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
     );
 
