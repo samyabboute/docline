@@ -190,7 +190,7 @@ function stepCode(s) {
     +   (s.sms ? 'SMS envoyé au <b>&nbsp;' + esc(s.phone_hint) + '</b>' : 'Le SMS n’a pas pu partir : utilisez le code reçu par email') + '</div>'
     + '<div class="' + (s.email ? '' : 'no') + '"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>'
     +   (s.email ? 'Email envoyé à <b>&nbsp;' + esc(s.email_hint) + '</b>' : 'L’email n’a pas pu partir : utilisez le code reçu par SMS') + '</div></div>'
-    + '<form id="f2" novalidate><div class="otp" id="otp">' + [0, 1, 2, 3, 4, 5].map(function (k) { return '<input inputmode="numeric" autocomplete="' + (k === 0 ? 'one-time-code' : 'off') + '" maxlength="1" aria-label="Chiffre ' + (k + 1) + '">'; }).join('') + '</div>'
+    + '<form id="f2" novalidate><div class="otp" id="otp">' + [0, 1, 2, 3, 4, 5].map(function (k) { return '<input inputmode="numeric" pattern="[0-9]*" autocomplete="' + (k === 0 ? 'one-time-code' : 'off') + '" aria-label="Chiffre ' + (k + 1) + '">'; }).join('') + '</div>'
     + '<button class="btn" id="go2" type="submit" disabled>Valider</button>'
     + '<div class="msg" id="m2" role="alert"></div>'
     + '<div class="row"><button class="lnk" type="button" id="back">Modifier mon numéro</button><button class="lnk" type="button" id="again" disabled>Renvoyer le code</button></div></form>';
@@ -198,8 +198,9 @@ function stepCode(s) {
   function code() { return boxes.map(function (b) { return b.value; }).join(''); }
   boxes.forEach(function (b, k) {
     b.addEventListener('input', function () {
+      // Saisie, collage ou code proposé par le téléphone : on répartit les chiffres dans les cases
       var v = b.value.replace(/\D/g, '');
-      if (v.length > 1) { v.split('').slice(0, 6 - k).forEach(function (c, j) { boxes[k + j].value = c; }); (boxes[Math.min(5, k + v.length)] || b).focus(); }
+      if (v.length > 1) { v.slice(0, 6 - k).split('').forEach(function (c, j) { boxes[k + j].value = c; }); (boxes[Math.min(5, k + v.length)] || b).focus(); }
       else { b.value = v; if (v && boxes[k + 1]) boxes[k + 1].focus(); }
       $('otp').classList.remove('bad'); $('go2').disabled = code().length !== 6;
       if (code().length === 6) $('f2').requestSubmit ? $('f2').requestSubmit() : $('go2').click();
