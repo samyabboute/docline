@@ -1047,8 +1047,9 @@ function renderTeam(){
           '<div class="mem-chips"><span class="chip ' + lvlChip + '">' + esc(LEVEL_SHORT[m.role] || m.role) + '</span>' +
           (m.permissions && m.permissions.length ? '<span class="chip chip-w">Accès personnalisés</span>' : '') +
           (m.is_active ? '' : '<span class="chip chip-b">Désactivé</span>') + '<span class="chip chip-n">' + esc(m.employee_id || '') + '</span></div>' +
-          '<div class="mem-seen">' + esc(ago(m.last_seen_at)) + '</div></div>' +
-          (editable ? '<div class="mem-act"><button class="icon-btn" data-edit="' + esc(m.email) + '" title="Modifier le poste et les accès" aria-label="Modifier">' + ic('edit') + '</button>' +
+          '<div class="mem-seen">' + esc(m.last_seen_at ? ago(m.last_seen_at) : 'Invitation en attente : jamais connecté') + '</div></div>' +
+          (editable ? '<div class="mem-act">' + (m.is_active && !m.last_seen_at ? '<button class="icon-btn" data-invite="' + esc(m.email) + '" title="Renvoyer l’invitation par email" aria-label="Renvoyer l’invitation">' + ic('mail') + '</button>' : '') +
+            '<button class="icon-btn" data-edit="' + esc(m.email) + '" title="Modifier le poste et les accès" aria-label="Modifier">' + ic('edit') + '</button>' +
             '<button class="icon-btn" data-toggle="' + esc(m.email) + '" title="' + (m.is_active ? 'Désactiver' : 'Réactiver') + '" aria-label="' + (m.is_active ? 'Désactiver' : 'Réactiver') + '">' + ic('power') + '</button></div>' : '') +
           '</div>';
       }).join('') + '</div></div>';
@@ -1056,6 +1057,7 @@ function renderTeam(){
 
   $('team-list').querySelectorAll('[data-edit]').forEach(function(b){ b.onclick = function(){ openMember(memberByEmail(b.dataset.edit)); }; });
   $('team-list').querySelectorAll('[data-toggle]').forEach(function(b){ b.onclick = function(){ toggleMember(memberByEmail(b.dataset.toggle), b); }; });
+  $('team-list').querySelectorAll('[data-invite]').forEach(function(b){ b.onclick = function(){ resendInvite(memberByEmail(b.dataset.invite), b); }; });
 }
 
 async function toggleMember(m, btn){
@@ -1072,6 +1074,24 @@ async function toggleMember(m, btn){
   await loadTeam(); renderTeam();
 }
 
+async function inviteMember(email){
+  try {
+    var s = (await sb.auth.getSession()).data.session;
+    var res = await fetch(SUPA_URL + '/functions/v1/symphony-invite', { method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (s && s.access_token), 'apikey': SUPA_KEY },
+      body: JSON.stringify({ email: email }) });
+    var j = await res.json().catch(function(){ return {}; });
+    return res.ok ? { ok: true, mode: j.mode } : { ok: false, message: j.message || ('Erreur ' + res.status + '.') };
+  } catch (e) { return { ok: false, message: 'Connexion impossible.' }; }
+}
+async function resendInvite(m, btn){
+  if (!m) return;
+  btn.disabled = true;
+  var r = await inviteMember(m.email);
+  btn.disabled = false;
+  toast(r.ok ? 'Invitation renvoyée à ' + m.email + '.' : 'Échec de l’envoi : ' + r.message, !r.ok);
+}
+
 function openMember(m){
   var isNew = !m;
   m = m || { email:'', full_name:'', title:'', department:'customer_success', role:'l1', permissions:null };
@@ -1086,8 +1106,7 @@ function openMember(m){
     '<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="sep-t">Accès</div>' +
     '<label style="margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;cursor:pointer"><input type="checkbox" id="m-custom"' + (custom ? ' checked' : '') + ' style="accent-color:var(--p)"> Personnaliser</label></div>' +
     '<div class="card-sub" id="m-perm-hint" style="margin-bottom:10px"></div><div class="perm-grid" id="m-perms"></div></div>' +
-    (isNew ? '<div class="note">' + ic('info') + '<div>Pour se connecter, la personne a besoin d’un compte avec <b>cet email</b>. Envoyez-lui une invitation depuis ' +
-      '<a href="https://supabase.com/dashboard/project/ferkzwzypmdtuypxribz/auth/users" target="_blank" rel="noopener">Supabase › Authentication › Users › Invite user</a>. À sa première connexion, elle arrive directement dans Symphony.</div></div>' : '');
+    (isNew ? '<div class="note">' + ic('mail') + '<div>Docline lui envoie aussitôt un email d’invitation pour choisir son mot de passe. À sa première connexion, elle arrive directement dans Symphony.</div></div>' : '');
   var foot = '<span style="flex:1"></span><button class="btn btn-g" id="m-cancel">Annuler</button><button class="btn btn-p" id="m-save">' + (isNew ? 'Ajouter à l’équipe' : 'Enregistrer') + '</button>';
   openDrawer(isNew ? 'Ajouter un membre' : 'Modifier ' + m.full_name, body, foot);
 
@@ -1140,7 +1159,12 @@ function openMember(m){
     this.disabled = false;
     if (r.error){ toast(errMsg(r.error), true); return; }
     closeDrawer();
-    toast(isNew ? name + ' a rejoint l’équipe · ' + (r.data && r.data.employee_id || '') : 'Poste de ' + name + ' mis à jour');
+    if (isNew) {
+      toast(name + ' a rejoint l’équipe. Envoi de l’invitation…');
+      var inv = await inviteMember(email);
+      toast(inv.ok ? 'Invitation envoyée à ' + email + (inv.mode === 'existing' ? ' (compte déjà existant : elle se connecte avec son mot de passe)' : '') + '.'
+                   : name + ' est dans l’équipe, mais l’email n’est pas parti : ' + inv.message + ' Utilisez « Renvoyer l’invitation ».', !inv.ok);
+    } else toast('Poste de ' + name + ' mis à jour');
     await loadTeam(); renderTeam();
   };
 }

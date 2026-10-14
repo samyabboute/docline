@@ -4,6 +4,7 @@
 // Si la personne a déjà un compte Docline, l'accès s'active à sa prochaine connexion
 // (workspace_init rapproche l'adresse email).
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { sendInvite } from '../_shared/invite.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': 'https://docline.health',
@@ -27,7 +28,7 @@ Deno.serve(async (req) => {
     if (allowed !== true) return json({ error: 'FORBIDDEN' }, 403)
 
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-    const { data: m } = await admin.from('org_members').select('id, org_id, email, full_name, user_id, status').eq('id', memberId).maybeSingle()
+    const { data: m } = await admin.from('org_members').select('id, org_id, email, full_name, user_id, status, role').eq('id', memberId).maybeSingle()
     if (!m || m.org_id !== orgId) return json({ error: 'FORBIDDEN' }, 403)
     const email = String(m.email ?? '').trim().toLowerCase()
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'EMAIL_MISSING', message: 'Ajoutez une adresse email valide avant d’inviter.' }, 400)
@@ -38,16 +39,15 @@ Deno.serve(async (req) => {
     const { count } = await admin.from('org_members').select('id', { count: 'exact', head: true }).eq('org_id', orgId).gte('invited_at', since)
     if ((count ?? 0) >= 20) return json({ error: 'DAILY_LIMIT', message: 'Limite de 20 invitations par jour atteinte.' }, 429)
 
-    const parts = String(m.full_name ?? '').trim().split(/\s+/)
-    const { error } = await admin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: 'https://docline.health/login',
-      data: { first_name: parts[0] ?? '', last_name: parts.slice(1).join(' '), invited_to_org: orgId },
-    })
-    let existing = false
-    if (error) {
-      if (/already|registered|exists/i.test(error.message)) existing = true
-      else return json({ error: 'INVITE_FAILED', message: error.message }, 400)
-    }
+    const ROLE: Record<string, string> = { admin: 'Administration', doctor: 'Médecin', secretary: 'Secrétariat', nurse: 'Soins infirmiers', lab: 'Laboratoire', accountant: 'Comptabilité' }
+    const { data: org } = await admin.from('profiles').select('clinic_name, last_name, full_name').eq('id', orgId).maybeSingle()
+    const orgName = (org?.clinic_name || '').trim() || (org ? 'Cabinet du Dr ' + (org.last_name || org.full_name || '') : 'Docline')
+    const { data: inviter } = await admin.from('profiles').select('first_name, last_name, full_name').eq('id', user.id).maybeSingle()
+    const inviterName = inviter ? ([inviter.first_name, inviter.last_name].filter(Boolean).join(' ') || inviter.full_name || null) : null
+    const r = await sendInvite(admin, { email, name: m.full_name, kind: 'clinic', orgName, orgId, roleLabel: ROLE[m.role] ?? null,
+      inviter: inviterName, triggeredBy: user.email ?? null })
+    if (!r.ok) return json({ error: 'INVITE_FAILED', message: 'L’email n’a pas pu partir : ' + (r.error ?? 'erreur inconnue') }, 502)
+    const existing = r.mode === 'existing'
     await admin.from('org_members').update({ invited_at: new Date().toISOString() }).eq('id', memberId)
     return json({ ok: true, existing })
   } catch (e) {

@@ -114,14 +114,18 @@ function expired() {
   var ws = null;
   try { var r = await _supa.rpc('workspace_init'); ws = r.data; } catch (e) {}
   var m = ws && ws.memberships && ws.memberships[0];
-  var org = m ? m.org_name : 'votre établissement';
+  // Équipe Docline (Symphony) : invitation sans établissement
+  var staff = false;
+  if (!m || meta.invited_to === 'symphony') { try { var st = await _supa.rpc('symphony_is_staff'); staff = st && st.data === true; } catch (e) {} }
+  if (staff) m = null;
+  var org = staff ? 'Équipe Docline' : m ? m.org_name : 'votre établissement';
   var perms = m ? (m.role === 'admin' ? ['agenda.view', 'queue.manage', 'patients.view', 'lab.manage', 'team.manage'].concat((m.permissions || []).filter(function (p) { return p === 'medical.view'; })) : (m.permissions || [])) : [];
   var chips = perms.filter(function (p) { return PERM[p]; }).map(function (p) { return '<span class="chip soft">' + esc(PERM[p]) + '</span>'; }).join('');
   document.getElementById('card').innerHTML =
       '<div class="eyebrow">' + esc(org) + '</div>'
     + '<h1>' + (first ? 'Bienvenue, ' + esc(first) : 'Bienvenue dans l’équipe') + '</h1>'
-    + '<p class="lead">' + esc(org) + ' vous a ouvert un accès à Docline. Choisissez votre mot de passe pour terminer.</p>'
-    + '<div class="role">' + (m ? '<span class="chip">' + esc(ROLE[m.role] || 'Équipe') + '</span>' : '') + chips + '</div>'
+    + '<p class="lead">' + (staff ? 'Vous rejoignez l’équipe Docline. Choisissez votre mot de passe pour accéder à Symphony.' : esc(org) + ' vous a ouvert un accès à Docline. Choisissez votre mot de passe pour terminer.') + '</p>'
+    + '<div class="role">' + (staff ? '<span class="chip">Symphony</span><span class="chip soft">Espace de pilotage Docline</span>' : m ? '<span class="chip">' + esc(ROLE[m.role] || 'Équipe') + '</span>' : '') + chips + '</div>'
     + '<form id="f" novalidate>'
     +   '<div class="field"><label for="p1">Mot de passe</label><input class="in" id="p1" type="password" autocomplete="new-password" required>'
     +     '<button class="eye" type="button" data-for="p1" aria-label="Afficher le mot de passe">' + EYE + '</button></div>'
@@ -155,7 +159,7 @@ function expired() {
       err.classList.add('on'); go.textContent = 'Créer mon mot de passe'; check(); return;
     }
     try { sessionStorage.removeItem('dl_ws'); } catch (e2) {}
-    window.location.replace('/dashboard');
+    window.location.replace(staff ? '/symphony-hq' : '/dashboard');
   });
 })();
 </script>
