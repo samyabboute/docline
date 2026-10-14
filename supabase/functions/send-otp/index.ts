@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { captureException } from "../_shared/sentry.ts";
-import { messagingConfig, normalizePhone, sendMessage } from "../_shared/messaging.ts";
+import { guardMessage, ipHashFrom, messagingConfig, normalizePhone, sendMessage } from "../_shared/messaging.ts";
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://docline.health",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
@@ -47,28 +47,13 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Rate limit : 3 OTP max par numéro par heure
-    const oneHourAgo = new Date(Date.now() - 3_600_000).toISOString();
-    const { count } = await supabase
-      .from("otp_verifications")
-      .select("*", { count: "exact", head: true })
-      .eq("phone_hash", phoneHash)
-      .gte("created_at", oneHourAgo);
-
-    if ((count ?? 0) >= 3) {
-      return new Response(
-        JSON.stringify({ error: "RATE_LIMIT", message: "Trop de demandes. Réessayez dans 1 heure." }),
-        { status: 429, headers: { ...CORS, "Content-Type": "application/json" } }
-      );
-    }
-
+    // Limites (par numéro, par connexion, plafonds globaux, numéros bloqués, Algérie seulement) :
+    // appliquées par le module d'envoi avant chaque SMS (_shared/messaging.ts).
     // Générer et stocker l'OTP (5 min)
     const otp      = generateOTP();
     const otpHash  = await sha256hex(otp + OTP_SECRET + phoneHash);
     const expiresAt = new Date(Date.now() + 5 * 60_000).toISOString();
 
-    await supabase.from("otp_verifications").delete().eq("phone_hash", phoneHash);
-    await supabase.from("otp_verifications").insert({ phone_hash: phoneHash, otp_hash: otpHash, expires_at: expiresAt });
 
     // Le code n'est jamais renvoyé au navigateur : sans fournisseur d'envoi, la vérification est impossible
     if (!messagingConfig().account) {
@@ -79,14 +64,18 @@ serve(async (req) => {
     }
 
     // SMS envoyé par l'expéditeur « Docline »
-    const r = await sendMessage(supabase, { to: phoneE164, kind: "otp",
+    const r = await sendMessage(supabase, { to: phoneE164, kind: "otp", scope: "public", ipHash: await ipHashFrom(req),
       text: `Docline : votre code est ${otp}. Valable 5 minutes, ne le partagez avec personne.` });
     if (!r.sent) {
+      const guarded = /^[A-Z_]+$/.test(r.error ?? "") && !/^\d/.test(r.error ?? "");
       return new Response(
-        JSON.stringify({ error: "SEND_FAILED", message: "Impossible d'envoyer le code. Vérifiez votre numéro ou réessayez dans un instant." }),
-        { status: 502, headers: { ...CORS, "Content-Type": "application/json" } }
+        JSON.stringify({ error: guarded ? r.error : "SEND_FAILED", message: guarded ? guardMessage(r.error) : "Impossible d'envoyer le code. Vérifiez votre numéro ou réessayez dans un instant." }),
+        { status: guarded ? 429 : 502, headers: { ...CORS, "Content-Type": "application/json" } }
       );
     }
+    // Le code n'est enregistré qu'une fois le SMS parti : une demande refusée n'annule pas le code déjà reçu
+    await supabase.from("otp_verifications").delete().eq("phone_hash", phoneHash);
+    await supabase.from("otp_verifications").insert({ phone_hash: phoneHash, otp_hash: otpHash, expires_at: expiresAt });
 
     return new Response(
       JSON.stringify({ success: true, channel: r.channel, message: "Code envoyé par SMS" }),

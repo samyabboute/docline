@@ -5,7 +5,7 @@
 // Aucun accès n'est ouvert avant la vérification du code. Le jeton et le code ne sont stockés qu'en empreinte.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { sha256hex } from '../_shared/invite.ts'
-import { normalizePhone, sendMessage } from '../_shared/messaging.ts'
+import { guardMessage, ipHashFrom, normalizePhone, sendMessage } from '../_shared/messaging.ts'
 import { layout, logEmail, para, sendEmail, SITE } from '../_shared/email.ts'
 
 const cors = {
@@ -15,6 +15,7 @@ const cors = {
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } })
 const err = (code: string, message: string, s = 400) => json({ error: code, message }, s)
 
+const GUARD_CODES = new Set(['PAUSED', 'BLOCKED_NUMBER', 'INVALID_NUMBER', 'COUNTRY_NOT_ALLOWED', 'TOO_FAST', 'NUMBER_HOURLY', 'NUMBER_DAILY', 'IP_HOURLY', 'IP_DAILY', 'GLOBAL_HOURLY', 'GLOBAL_DAILY'])
 const CODE_TTL_MIN = 10, MAX_ATTEMPTS = 5, MAX_CODES = 6, COOLDOWN_S = 60
 
 function maskPhone(p: string) { return p.slice(0, 4) + ' ' + '•'.repeat(Math.max(0, p.length - 7)) + ' ' + p.slice(-3) }
@@ -101,7 +102,7 @@ Deno.serve(async (req) => {
         code_attempts: 0, codes_sent: inv.codes_sent + 1, last_code_at: new Date().toISOString(),
       }).eq('id', inv.id)
 
-      const sms = await sendMessage(admin, { to: phone, kind: 'otp',
+      const sms = await sendMessage(admin, { to: phone, kind: 'staff_code', scope: 'staff', ipHash: await ipHashFrom(req),
         text: `Docline : votre code d'activation est ${code}. Valable ${CODE_TTL_MIN} minutes. Ne le communiquez a personne.` })
       const subject = `Votre code d’activation Docline : ${code}`
       const html = layout({
@@ -114,8 +115,8 @@ Deno.serve(async (req) => {
       })
       const mail = await sendEmail(inv.email, subject, html)
       await logEmail({ type: 'staff_activation_code', to: inv.email, name: `${first} ${last}`, subject: 'Code d’activation Docline', status: mail ? 'sent' : 'failed', metadata: { invitation: inv.id } })
-      if (!sms.sent && !mail) return err('SEND_FAILED', 'Le code n’a pas pu être envoyé. Vérifiez votre numéro et réessayez dans un instant.', 502)
-      return json({ ok: true, sms: sms.sent, email: mail, phone_hint: maskPhone(phone), email_hint: maskEmail(inv.email), ttl_min: CODE_TTL_MIN, cooldown: COOLDOWN_S })
+      if (!sms.sent && !mail) return err('SEND_FAILED', sms.error && GUARD_CODES.has(sms.error) ? guardMessage(sms.error) : 'Le code n’a pas pu être envoyé. Vérifiez votre numéro et réessayez dans un instant.', 502)
+      return json({ ok: true, sms: sms.sent, sms_error: sms.sent ? null : guardMessage(sms.error), email: mail, phone_hint: maskPhone(phone), email_hint: maskEmail(inv.email), ttl_min: CODE_TTL_MIN, cooldown: COOLDOWN_S })
     }
 
     // ── verify : code, création ou rattachement du compte, ouverture de l'accès ──

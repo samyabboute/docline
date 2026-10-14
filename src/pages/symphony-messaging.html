@@ -133,6 +133,26 @@ body.ro [data-validate]{display:none!important}
 .mg-test input:focus{border-color:var(--brand)}
 .mg-res{font-size:12.5px;margin-top:8px;min-height:18px}
 .mg-res.ok{color:#067647}.mg-res.bad{color:#B42318}
+.gd-top{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px}
+.gd-state{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.gd-rules{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-top:12px;font-size:12.5px;color:var(--text-2)}
+.gd-rules div{display:flex;gap:7px;align-items:baseline}
+.gd-rules div::before{content:"";width:6px;height:6px;border-radius:50%;background:#12B76A;flex:none;transform:translateY(-1px)}
+.gd-caps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}
+.gd-caps label{font-size:11.5px;font-weight:650;color:var(--text-3);display:flex;flex-direction:column;gap:4px}
+.gd-caps input,.gd-add input{padding:8px 10px;border-radius:10px;border:1px solid var(--pv-line);font:600 13.5px Inter,sans-serif;font-variant-numeric:tabular-nums;width:100%}
+.gd-meter{display:flex;gap:16px;margin:12px 0 4px;flex-wrap:wrap}
+.gd-meter div{font-size:12px;color:var(--text-3)} .gd-meter b{display:block;font-size:20px;color:var(--text);font-weight:800;font-variant-numeric:tabular-nums}
+.gd-bar{height:6px;border-radius:99px;background:#EEEAF6;overflow:hidden;margin-top:5px;width:120px}.gd-bar i{display:block;height:100%;background:var(--p)}
+.gd-bar i.hot{background:#F04438}
+.gd-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px;padding-top:16px;border-top:1px solid var(--pv-line)}
+.gd-h{font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px}
+.gd-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--pv-line);font-size:12.5px}
+.gd-row:first-of-type{border-top:none}
+.gd-row small{color:var(--text-3)}
+.gd-add{display:flex;gap:6px;margin-top:8px}
+.btn-stop{background:#B42318!important;border-color:#B42318!important;color:#fff!important}
+@media (max-width:980px){.gd-top,.gd-cols{grid-template-columns:1fr}.gd-rules{grid-template-columns:1fr}}
 .mg-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
 .mg-kpi{background:var(--surface);border:1px solid var(--pv-line);border-radius:16px;padding:14px 16px}
 .mg-kpi b{display:block;font-size:24px;font-weight:800;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
@@ -171,6 +191,7 @@ body.ro [data-validate]{display:none!important}
         <div class="mg-card" id="acc"><div class="mg-k">Compte Twilio</div><p class="mg-note">Chargement…</p></div>
         <div class="mg-card" id="chan"><div class="mg-k">Canaux d’envoi</div></div>
       </div>
+      <div class="mg-card" id="guard" style="margin-bottom:12px"><div class="mg-k">Protection contre les abus</div><p class="mg-note">Chargement…</p></div>
       <div class="mg-kpis" id="kpis"></div>
       <div class="mg-grid">
         <div class="mg-card"><div class="mg-k">Erreurs de remise</div><div id="errs"></div></div>
@@ -185,8 +206,8 @@ body.ro [data-validate]{display:none!important}
 'use strict';
 var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 var DAYS = 30;
-var KIND = { otp:'Code de vérification', booking_confirmation:'Confirmation de réservation', appointment_sms:'Rappel envoyé par le cabinet', reminder:'Rappel automatique', cancellation:'Annulation par le cabinet', test:'Test' };
-var STATUS = { queued:'En file', accepted:'Accepté', sending:'En cours', sent:'Envoyé', delivered:'Remis', read:'Lu', undelivered:'Non remis', failed:'Échec', skipped:'Non envoyé' };
+var KIND = { staff_code:'Code d’activation (équipe)', otp:'Code de vérification', booking_confirmation:'Confirmation de réservation', appointment_sms:'Rappel envoyé par le cabinet', reminder:'Rappel automatique', cancellation:'Annulation par le cabinet', test:'Test' };
+var STATUS = { blocked:'Refusé', queued:'En file', accepted:'Accepté', sending:'En cours', sent:'Envoyé', delivered:'Remis', read:'Lu', undelivered:'Non remis', failed:'Échec', skipped:'Non envoyé' };
 var ERR = {
   '21608':['Compte d’essai','Twilio n’envoie qu’aux numéros vérifiés tant que le compte est en essai. Passez le compte en mode payant.'],
   '21408':['Algérie non autorisée','Activez l’Algérie dans Messaging › Settings › Geo permissions de la console Twilio.'],
@@ -201,6 +222,7 @@ var ERR = {
   '30008':['Erreur opérateur','Erreur inconnue côté opérateur. Si elle se répète, contactez le support Twilio.'],
 };
 function $(id){ return document.getElementById(id); }
+function toast(msg, err){ var t = $('toast'); t.textContent = msg; t.classList.toggle('err', !!err); t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(function(){ t.classList.remove('on'); }, 3600); }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
 function fmt(s){ var d = new Date(s); return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }); }
 async function call(method, body){
@@ -241,6 +263,67 @@ async function loadHealth(){
   };
 }
 
+// ── Protection contre les abus ──
+function e164(raw){
+  var p = String(raw || '').replace(/[\s\-\.\(\)]/g, '');
+  if (/^0[5-7]\d{8}$/.test(p)) return '+213' + p.slice(1);
+  if (/^00\d{8,15}$/.test(p)) return '+' + p.slice(2);
+  if (/^\+\d{8,15}$/.test(p)) return p;
+  return null;
+}
+async function loadGuard(){
+  var r = await sb.rpc('sms_guard_overview');
+  var el = $('guard');
+  if (r.error) { el.innerHTML = '<div class="mg-k">Protection contre les abus</div><p class="mg-note">Accès réservé (permission Paramètres).</p>'; return; }
+  var g = r.data, st = g.settings;
+  var hPct = Math.min(100, Math.round(g.last_hour * 100 / st.hourly_cap)), dPct = Math.min(100, Math.round(g.last_day * 100 / st.daily_cap));
+  el.innerHTML = '<div class="mg-k">Protection contre les abus<span>appliquée avant chaque SMS</span></div>'
+    + '<div class="gd-top"><div>'
+    +   '<div class="gd-state"><div class="mg-state"><span class="mg-dot ' + (st.paused ? 'bad' : 'ok') + '"></span>' + (st.paused ? 'Envois suspendus' : 'Protection active') + '</div>'
+    +   '<button class="pv-btn ' + (st.paused ? 'primary' : 'btn-stop') + '" type="button" id="gd-pause">' + (st.paused ? 'Reprendre les envois' : 'Suspendre tous les SMS') + '</button></div>'
+    +   '<div class="gd-rules"><div>Patients : numéros mobiles algériens seulement</div><div>Un code par minute et 4 par heure par numéro</div>'
+    +   '<div>' + st.per_number_day + ' codes par jour et par numéro au maximum</div><div>5 SMS par heure et 15 par jour par connexion</div>'
+    +   '<div>150 SMS par jour au maximum par cabinet</div><div>Numéros fictifs et numéros bloqués refusés</div>'
+    +   '<div>Désinscription (STOP) bloquée automatiquement</div><div>Alerte email si un plafond global est atteint</div></div>'
+    + '</div><div>'
+    +   '<div class="gd-meter"><div><b>' + g.last_hour + ' / ' + st.hourly_cap + '</b>SMS sur la dernière heure<div class="gd-bar"><i class="' + (hPct > 80 ? 'hot' : '') + '" style="width:' + hPct + '%"></i></div></div>'
+    +   '<div><b>' + g.last_day + ' / ' + st.daily_cap + '</b>SMS sur 24 h<div class="gd-bar"><i class="' + (dPct > 80 ? 'hot' : '') + '" style="width:' + dPct + '%"></i></div></div>'
+    +   '<div><b>' + g.blocked_day + '</b>refusés sur 24 h</div></div>'
+    +   '<div class="gd-caps"><label>Plafond par heure<input type="number" id="gd-h" min="10" max="10000" value="' + st.hourly_cap + '"></label>'
+    +   '<label>Plafond par jour<input type="number" id="gd-d" min="50" max="100000" value="' + st.daily_cap + '"></label>'
+    +   '<label>Codes / numéro / jour<input type="number" id="gd-n" min="2" max="50" value="' + st.per_number_day + '"></label></div>'
+    +   '<div style="margin-top:8px;display:flex;justify-content:flex-end"><button class="pv-btn" type="button" id="gd-save">Enregistrer les plafonds</button></div>'
+    + '</div></div>'
+    + '<div class="gd-cols">'
+    +   '<div><div class="gd-h">Refus des 7 derniers jours</div>' + (g.reasons.length ? g.reasons.map(function(x){ return '<div class="gd-row"><span>' + esc(x.label || x.code) + '</span><b>' + x.n + '</b></div>'; }).join('') : '<p class="mg-note">Aucun refus.</p>') + '</div>'
+    +   '<div><div class="gd-h">Numéros les plus sollicités (24 h)</div>' + (g.top_numbers.length ? g.top_numbers.map(function(x){
+          return '<div class="gd-row"><span>' + esc(x.hint) + ' <small>· ' + x.n + ' SMS</small></span>' + (x.blocked ? '<small>Bloqué</small>' : '<button class="pv-btn" type="button" data-blockh="' + esc(x.hash) + '">Bloquer</button>') + '</div>'; }).join('') : '<p class="mg-note">Aucun envoi.</p>') + '</div>'
+    +   '<div><div class="gd-h">Numéros bloqués</div>' + (g.blocklist.length ? g.blocklist.slice(0, 8).map(function(x){
+          return '<div class="gd-row"><span>' + esc(x.hint || 'Numéro') + ' <small>· ' + esc(x.source === 'stop' ? 'STOP' : (x.reason || 'bloqué')) + '</small></span><button class="pv-btn" type="button" data-unblock="' + esc(x.hash) + '">Débloquer</button></div>'; }).join('') : '<p class="mg-note">Aucun numéro bloqué.</p>')
+    +     '<div class="gd-add"><input id="gd-phone" type="tel" placeholder="Bloquer un numéro : 0555 12 34 56" aria-label="Numéro à bloquer"><button class="pv-btn" type="button" id="gd-block">Bloquer</button></div></div>'
+    + '</div>';
+  $('gd-pause').onclick = async function(){
+    if (!st.paused && !confirm('Suspendre tous les SMS ? Les patients ne recevront plus de code de réservation ni de rappel tant que vous ne reprenez pas les envois.')) return;
+    var x = await sb.rpc('sms_guard_save', { p_paused: !st.paused, p_hourly: null, p_daily: null, p_per_number: null });
+    toast(x.error ? 'Échec : ' + x.error.message : (st.paused ? 'Envois repris.' : 'Tous les SMS sont suspendus.'), !!x.error); loadGuard();
+  };
+  $('gd-save').onclick = async function(){
+    var x = await sb.rpc('sms_guard_save', { p_paused: null, p_hourly: +$('gd-h').value, p_daily: +$('gd-d').value, p_per_number: +$('gd-n').value });
+    toast(x.error ? 'Valeurs refusées : plafond horaire 10 à 10 000, quotidien 50 à 100 000, codes par numéro 2 à 50.' : 'Plafonds enregistrés.', !!x.error); loadGuard();
+  };
+  $('gd-block').onclick = async function(){
+    var n = e164($('gd-phone').value); if (!n) { toast('Numéro invalide.', true); return; }
+    var x = await sb.rpc('sms_block', { p_e164: n, p_reason: 'Bloqué depuis Symphony' });
+    toast(x.error ? 'Échec : ' + x.error.message : 'Numéro bloqué : il ne recevra plus aucun SMS Docline.', !!x.error); loadGuard();
+  };
+  el.querySelectorAll('[data-blockh]').forEach(function(b){ b.onclick = async function(){
+    var x = await sb.rpc('sms_block_hash', { p_hash: b.dataset.blockh, p_reason: 'Volume anormal' });
+    toast(x.error ? 'Échec : ' + x.error.message : 'Numéro bloqué.', !!x.error); loadGuard(); }; });
+  el.querySelectorAll('[data-unblock]').forEach(function(b){ b.onclick = async function(){
+    var x = await sb.rpc('sms_unblock', { p_hash: b.dataset.unblock });
+    toast(x.error ? 'Échec : ' + x.error.message : 'Numéro débloqué.', !!x.error); loadGuard(); }; });
+}
+
 async function loadStats(){
   var r = await sb.rpc('messaging_overview', { p_days: DAYS });
   if (r.error) { $('kpis').innerHTML = '<div class="empty">' + esc(r.error.message) + '</div>'; return; }
@@ -271,7 +354,7 @@ $('period').querySelectorAll('button').forEach(function(b){
 (async function(){
   var s = await sb.auth.getSession();
   if (!s.data.session) { location.href = '/login?return=symphony-messaging'; return; }
-  loadHealth(); loadStats();
+  loadHealth(); loadStats(); loadGuard();
 })();
 </script>
 <script src="symphony-access.js?v=10" defer></script>

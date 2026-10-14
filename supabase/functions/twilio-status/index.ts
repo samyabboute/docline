@@ -33,5 +33,10 @@ serve(async (req) => {
   if (params.get("ErrorMessage")) upd.error_message = String(params.get("ErrorMessage")).slice(0, 300);
   if (params.get("Price")) { upd.price = Number(params.get("Price")); upd.price_unit = params.get("PriceUnit"); }
   await admin.from("message_logs").update(upd).eq("provider_sid", sid);
+  // Désinscription (STOP) : le numéro ne reçoit plus aucun SMS Docline
+  if (params.get("ErrorCode") === "21610") {
+    const { data: row } = await admin.from("message_logs").select("to_hash, to_hint").eq("provider_sid", sid).maybeSingle();
+    if (row?.to_hash) await admin.from("sms_blocklist").upsert({ to_hash: row.to_hash, to_hint: row.to_hint, reason: "Désinscription (STOP)", source: "stop" }, { onConflict: "to_hash", ignoreDuplicates: true });
+  }
   return new Response("ok");
 });
