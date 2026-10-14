@@ -43,6 +43,7 @@ const ROUTES = {
   '/rejoindre':         '/rejoindre.html',
   '/etablissement':     '/etablissement.html',
   '/ecran':             '/ecran.html',
+  '/mot-de-passe':      '/mot-de-passe.html',
 };
 
 const SUPA_URL = 'https://ferkzwzypmdtuypxribz.supabase.co';
@@ -103,6 +104,14 @@ export default {
     // /clinique/:slug → clinique.html, avec titre, description et aperçu de partage générés côté serveur
     if (path.startsWith('/clinique/') && path.length > 10) {
       return clinicPage(request, env, path);
+    }
+
+    // /invitation/:jeton → page d'activation d'un membre d'équipe
+    if (path === '/invitation' || path.startsWith('/invitation/')) {
+      const r = await env.ASSETS.fetch(new URL('/invitation.html', request.url).href);
+      const h = new Headers(r.headers);
+      h.set('Cache-Control', 'no-store'); h.set('Referrer-Policy', 'no-referrer'); h.set('X-Robots-Tag', 'noindex, nofollow');
+      return new Response(r.body, { status: 200, headers: h });
     }
 
     // /dr/:slug → dr.html

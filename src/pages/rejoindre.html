@@ -131,7 +131,7 @@ function expired() {
     +     '<button class="eye" type="button" data-for="p1" aria-label="Afficher le mot de passe">' + EYE + '</button></div>'
     +   '<div class="field"><label for="p2">Confirmation</label><input class="in" id="p2" type="password" autocomplete="new-password" required>'
     +     '<button class="eye" type="button" data-for="p2" aria-label="Afficher la confirmation">' + EYE + '</button></div>'
-    +   '<div class="rules"><span id="r-len">10 caractères ou plus</span><span id="r-mix">Lettres et chiffres</span><span id="r-eq">Identiques</span></div>'
+    +   '<div class="rules"><span id="r-len">10 caractères ou plus</span><span id="r-mix">Majuscule et minuscule</span><span id="r-sym">Chiffre et caractère spécial</span><span id="r-eq">Identiques</span></div>'
     +   '<button class="btn" id="go" type="submit" disabled>Créer mon mot de passe</button>'
     +   '<div class="msg err" id="err" role="alert"></div>'
     + '</form>'
@@ -140,11 +140,12 @@ function expired() {
   var p1 = document.getElementById('p1'), p2 = document.getElementById('p2'), go = document.getElementById('go');
   function check() {
     var a = p1.value, b = p2.value;
-    var len = a.length >= 10, mix = /[a-zA-Z]/.test(a) && /\d/.test(a), eq = a.length > 0 && a === b;
+    var len = a.length >= 10, mix = /[a-z]/.test(a) && /[A-Z]/.test(a), sym = /\d/.test(a) && /[^A-Za-z0-9]/.test(a), eq = a.length > 0 && a === b;
+    document.getElementById('r-sym').classList.toggle('ok', sym);
     document.getElementById('r-len').classList.toggle('ok', len);
     document.getElementById('r-mix').classList.toggle('ok', mix);
     document.getElementById('r-eq').classList.toggle('ok', eq);
-    go.disabled = !(len && mix && eq);
+    go.disabled = !(len && mix && sym && eq);
   }
   p1.addEventListener('input', check); p2.addEventListener('input', check);
   document.querySelectorAll('.eye').forEach(function (b) { b.addEventListener('click', function () { var i = document.getElementById(b.getAttribute('data-for')); i.type = i.type === 'password' ? 'text' : 'password'; }); });

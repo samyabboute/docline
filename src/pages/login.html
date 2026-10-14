@@ -430,7 +430,7 @@ a{color:inherit}
         <div class="fg">
           <label class="fl" for="re-pw">Mot de passe</label>
           <span class="fi-icon"></span>
-          <input class="fi" type="password" id="re-pw" placeholder="8 caractères minimum" autocomplete="new-password" oninput="checkStrength(this.value)" onkeydown="if(event.key==='Enter')register()" style="padding-right:96px">
+          <input class="fi" type="password" id="re-pw" placeholder="10 caractères, majuscule, chiffre, symbole" autocomplete="new-password" oninput="checkStrength(this.value)" onkeydown="if(event.key==='Enter')register()" style="padding-right:96px">
           <button type="button" class="pw-eye" onclick="togglePw('re-pw',this)">Voir</button>
           <div class="pw-strength" id="pw-strength">
             <div class="pw-bars"><div class="pw-bar" id="pb1"></div><div class="pw-bar" id="pb2"></div><div class="pw-bar" id="pb3"></div><div class="pw-bar" id="pb4"></div></div>
@@ -507,6 +507,8 @@ function runLockCountdown(){
 (async function(){
   // Lien d'invitation d'un collaborateur : il choisit d'abord son mot de passe
   if(/type=invite/.test(location.hash)){ location.replace('/rejoindre' + location.hash); return; }
+  // Lien « mot de passe oublié » : on fait choisir un nouveau mot de passe avant toute connexion
+  if(/type=recovery/.test(location.hash)){ location.replace('/mot-de-passe' + location.hash); return; }
   var s = await _supa.auth.getSession();
   if(s.data.session){ goAfterLogin(s.data.session.user.email); return; }
 
@@ -639,7 +641,8 @@ async function register(){
   var clinicName= (document.getElementById('re-clinic').value || '').trim();
   if(!name || !email || !pw){ showMsg('err','Veuillez remplir tous les champs.'); return; }
   if(isClinic && !clinicName){ showMsg('err','Veuillez saisir le nom de la clinique.'); return; }
-  if(pw.length < 8){ showMsg('err','Le mot de passe doit contenir au moins 8 caractères.'); return; }
+  if(pw.length < 10 || !/[a-z]/.test(pw) || !/[A-Z]/.test(pw) || !/\d/.test(pw) || !/[^A-Za-z0-9]/.test(pw)){
+    showMsg('err','Mot de passe trop faible : 10 caractères minimum, avec une majuscule, une minuscule, un chiffre et un caractère spécial.'); return; }
   setLoad('btn-register', true);
   try{
     var parts = name.split(' ');
@@ -700,6 +703,8 @@ async function register(){
   }catch(e){
     var msg = e.message || 'Erreur lors de la création du compte.';
     if(msg.includes('already registered')) msg = 'Cet email est déjà enregistré. Connectez-vous.';
+    else if(/pwned|leaked|known to be weak/i.test(msg)) msg = 'Ce mot de passe figure dans des fuites de données connues. Choisissez-en un autre.';
+    else if(/password/i.test(msg)) msg = 'Mot de passe trop faible : 10 caractères minimum, avec une majuscule, une minuscule, un chiffre et un caractère spécial.';
     showMsg('err', msg);
     setLoad('btn-register', false);
   }
@@ -711,7 +716,7 @@ async function forgotPw(e){
   var email = (document.getElementById('li-email').value || '').trim();
   if(!email){ showMsg('err','Saisissez votre email ci-dessus puis cliquez Oublié.'); return; }
   try{
-    await _supa.auth.resetPasswordForEmail(email, { redirectTo: DOCLINE_CONFIG.APP_URL + '/login' });
+    await _supa.auth.resetPasswordForEmail(email, { redirectTo: DOCLINE_CONFIG.APP_URL + '/login' });   // le lien arrive sur /login puis /mot-de-passe
     showMsg('ok','Email de réinitialisation envoyé. Vérifiez votre boîte mail.');
   }catch(e){ showMsg('err','Impossible d\'envoyer l\'email. Réessayez.'); }
 }
@@ -724,16 +729,18 @@ function togglePw(id, btn){
 }
 
 function checkStrength(pw){
+  // Même règle que le serveur : 10 caractères, majuscule et minuscule, chiffre, caractère spécial
   document.getElementById('pw-strength').classList.toggle('show', pw.length > 0);
-  var score = 0;
-  if(pw.length >= 8) score++;
-  if(pw.length >= 12) score++;
-  if(/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-  if(/[0-9!@#$%^&*]/.test(pw)) score++;
+  var miss = [];
+  if(pw.length < 10) miss.push('10 caractères');
+  if(!/[A-Z]/.test(pw) || !/[a-z]/.test(pw)) miss.push('majuscule et minuscule');
+  if(!/\d/.test(pw)) miss.push('un chiffre');
+  if(!/[^A-Za-z0-9]/.test(pw)) miss.push('un caractère spécial');
+  var score = 4 - miss.length;
   ['pb1','pb2','pb3','pb4'].forEach(function(id,i){
-    document.getElementById(id).className = 'pw-bar ' + (i < score ? ['w','f','g','s'][score-1] : '');
+    document.getElementById(id).className = 'pw-bar ' + (i < score ? ['w','f','g','s'][Math.max(0, score-1)] : '');
   });
-  document.getElementById('pw-lbl').textContent = ['Trop court','Faible','Moyen','Bien','Fort'][score] || 'Trop court';
+  document.getElementById('pw-lbl').textContent = miss.length ? 'Il manque : ' + miss.join(', ') : 'Mot de passe valide';
 }
 
 window.addEventListener('unhandledrejection', function(e){ console.error('[Login]', e.reason); });

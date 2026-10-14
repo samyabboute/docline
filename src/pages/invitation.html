@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Activer mon accès · Docline</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#F7F6FF">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="/config.js?v=4"></script>
+<style>
+/* Activation d'un membre d'équipe : trois étapes visibles, une action par écran */
+:root{
+  --bg:#F7F6FF; --ink:#140B2E; --text:#2A2340; --muted:#6E6A85; --line:#E7E3F5; --violet:#6D28D9; --violet-2:#8B5CF6;
+  --ok:#059669; --ok-bg:#ECFDF5; --err:#DC2626; --err-bg:#FEF2F2;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+.aurora{position:fixed;inset:-20%;z-index:0;pointer-events:none;background:
+  radial-gradient(40% 35% at 18% 20%,rgba(167,139,250,.35),transparent 70%),
+  radial-gradient(35% 30% at 85% 15%,rgba(56,189,248,.2),transparent 70%),
+  radial-gradient(45% 40% at 70% 90%,rgba(196,181,253,.32),transparent 70%)}
+.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:36px 16px 56px}
+.logo{display:flex;justify-content:center;margin-bottom:22px}
+.logo img{height:30px}
+.steps{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:18px}
+.st{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.st i{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11.5px;font-weight:800;background:#fff;border:1.5px solid var(--line);color:var(--muted)}
+.st.on{color:var(--ink)} .st.on i{background:var(--violet);border-color:var(--violet);color:#fff}
+.st.done i{background:var(--ok);border-color:var(--ok);color:#fff}
+.bar{width:26px;height:1.5px;background:var(--line)}
+.card{background:rgba(255,255,255,.88);backdrop-filter:blur(18px);border:1px solid #fff;border-radius:26px;padding:30px 26px;box-shadow:0 30px 70px -32px rgba(46,16,101,.38)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);text-align:center}
+h1{font-size:26px;line-height:1.15;font-weight:800;letter-spacing:-.6px;color:var(--ink);margin:8px 0 8px;text-align:center;text-wrap:balance}
+.lead{font-size:14.5px;color:var(--muted);line-height:1.6;text-align:center;margin-bottom:20px}
+.lead b{color:var(--ink)}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:-6px 0 20px}
+.chip{font-size:12px;font-weight:700;padding:5px 11px;border-radius:99px;background:#EDE9FE;color:#4C1D95}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld{margin-bottom:12px;position:relative}
+label{display:block;font-size:12.5px;font-weight:650;color:var(--text);margin-bottom:5px}
+.in{width:100%;padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:#fff;font:500 15px var(--font);color:var(--ink)}
+.in:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 4px rgba(109,40,217,.12)}
+.in[readonly]{background:#F8F7FC;color:var(--muted)}
+.pw{padding-right:44px}
+.eye{position:absolute;right:7px;top:28px;width:32px;height:32px;border:none;background:none;border-radius:9px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.eye svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.help{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.45}
+.rules{display:flex;gap:12px;flex-wrap:wrap;margin:2px 0 16px;font-size:12px;color:var(--muted)}
+.rules span{display:flex;align-items:center;gap:6px}
+.rules span::before{content:"";width:8px;height:8px;border-radius:50%;background:#D8D4E8}
+.rules span.ok{color:var(--ok)} .rules span.ok::before{background:var(--ok)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text);line-height:1.45;margin:4px 0 16px;cursor:pointer}
+.check input{width:17px;height:17px;margin-top:1px;accent-color:var(--violet);flex-shrink:0}
+.btn{width:100%;padding:14px 18px;border:none;border-radius:99px;font:700 15px var(--font);color:#fff;cursor:pointer;background:linear-gradient(135deg,#5B21B6,var(--violet-2));box-shadow:0 14px 30px -14px rgba(109,40,217,.8);transition:transform .15s,opacity .15s;text-decoration:none;display:block;text-align:center}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:default;transform:none}
+.btn:focus-visible,.eye:focus-visible,.lnk:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.lnk{background:none;border:none;font:600 13.5px var(--font);color:var(--violet);cursor:pointer;padding:6px}
+.lnk:disabled{color:var(--muted);cursor:default}
+.msg{display:none;font-size:13px;line-height:1.5;margin-top:12px;padding:10px 12px;border-radius:12px}
+.msg.on{display:block}
+.msg.err{color:var(--err);background:var(--err-bg)}
+.msg.ok{color:var(--ok);background:var(--ok-bg)}
+.sent{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.sent div{display:flex;align-items:center;gap:10px;font-size:13.5px;padding:10px 12px;border-radius:12px;background:#F8F7FC}
+.sent svg{width:18px;height:18px;flex-shrink:0;fill:none;stroke:var(--violet);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sent .no svg{stroke:#94A3B8}
+.otp{display:flex;gap:8px;justify-content:center;margin:4px 0 14px}
+.otp input{width:46px;height:56px;text-align:center;font:800 24px var(--font);color:var(--ink);border:1.5px solid var(--line);border-radius:14px;background:#fff}
+.otp input:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 4px rgba(109,40,217,.12)}
+.otp.bad input{border-color:var(--err)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.done-ic{width:64px;height:64px;border-radius:20px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:var(--ok-bg)}
+.done-ic svg{width:30px;height:30px;fill:none;stroke:var(--ok);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.list{display:flex;flex-direction:column;gap:8px;margin:6px 0 22px}
+.list div{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text)}
+.list svg{width:18px;height:18px;flex-shrink:0;fill:none;stroke:var(--ok);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.55}
+.skel{height:14px;border-radius:7px;background:linear-gradient(90deg,#EEE9FB,#F7F4FF,#EEE9FB);background-size:200% 100%;animation:sk 1.4s infinite;margin:10px auto}
+@keyframes sk{to{background-position:-200% 0}}
+@media(max-width:420px){.f2{grid-template-columns:1fr}.otp input{width:42px;height:52px}.card{padding:26px 18px}}
+@media(prefers-reduced-motion:reduce){.btn,.skel{transition:none;animation:none}}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+<main class="wrap">
+  <div class="logo"><img src="/docline-logo.svg" alt="Docline"></div>
+  <div class="steps" id="steps" hidden aria-label="Étapes">
+    <span class="st" data-s="1"><i>1</i>Informations</span><span class="bar"></span>
+    <span class="st" data-s="2"><i>2</i>Vérification</span><span class="bar"></span>
+    <span class="st" data-s="3"><i>3</i>Terminé</span>
+  </div>
+  <div class="card" id="card" aria-live="polite">
+    <div class="skel" style="width:40%"></div><div class="skel" style="width:70%;height:26px"></div><div class="skel" style="width:85%"></div>
+  </div>
+  <p class="foot">Cette page est personnelle. Ne transférez pas votre lien d’invitation.<br>Docline ne vous demandera jamais votre code par téléphone.</p>
+</main>
+
+<script>
+var FN = SUPA_URL + '/functions/v1/staff-onboarding';
+var TOKEN = (location.pathname.match(/^\/invitation\/([A-Za-z0-9_-]{30,64})\/?$/) || [])[1] || new URLSearchParams(location.search).get('t') || '';
+try { if (TOKEN) sessionStorage.setItem('dl_inv_t', TOKEN); else TOKEN = sessionStorage.getItem('dl_inv_t') || ''; } catch (e) {}
+var INFO = null, PASSWORD = '', TIMER = null;
+var EYE = '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+var CHECK = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+function $(id) { return document.getElementById(id); }
+function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+// Le jeton ne reste pas dans l'historique ni dans les journaux du navigateur
+try { if (TOKEN && location.pathname.indexOf(TOKEN) !== -1) history.replaceState(null, '', '/invitation'); } catch (e) {}
+
+async function call(action, extra) {
+  var body = Object.assign({ action: action, token: TOKEN }, extra || {});
+  try {
+    var r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }, body: JSON.stringify(body) });
+    var j = await r.json().catch(function () { return {}; });
+    return { ok: r.ok, status: r.status, data: j };
+  } catch (e) { return { ok: false, status: 0, data: { message: 'Connexion impossible. Vérifiez votre réseau et réessayez.' } }; }
+}
+function steps(n) {
+  $('steps').hidden = false;
+  document.querySelectorAll('.st').forEach(function (s) { var k = +s.getAttribute('data-s'); s.classList.toggle('on', k === n); s.classList.toggle('done', k < n); s.querySelector('i').innerHTML = k < n ? '✓' : k; });
+}
+function fail(title, text, loginEmail) {
+  $('steps').hidden = true;
+  $('card').innerHTML = '<div class="eyebrow">Invitation</div><h1>' + esc(title) + '</h1><p class="lead">' + esc(text) + '</p>'
+    + (loginEmail !== undefined ? '<a class="btn" href="/login' + (loginEmail ? '?email=' + encodeURIComponent(loginEmail) : '') + '">Aller à la connexion</a>' : '');
+}
+function showMsg(id, text, ok) { var m = $(id); m.textContent = text; m.className = 'msg on ' + (ok ? 'ok' : 'err'); }
+
+// ── Étape 1 : informations, téléphone, mot de passe ──
+function stepInfo() {
+  steps(1);
+  var i = INFO, team = i.kind === 'symphony' ? 'l’équipe Docline' : (i.org_name || 'votre équipe');
+  $('card').innerHTML =
+      '<div class="eyebrow">' + esc(i.kind === 'symphony' ? 'Équipe Docline' : (i.org_name || 'Invitation')) + '</div>'
+    + '<h1>Activez votre accès</h1>'
+    + '<p class="lead">Vous rejoignez <b>' + esc(team) + '</b>. Vérifiez vos informations' + (i.existing ? '' : ', choisissez votre mot de passe') + ' puis recevez votre code de vérification.</p>'
+    + (i.role_label ? '<div class="chips"><span class="chip">' + esc(i.role_label) + '</span></div>' : '')
+    + '<form id="f1" novalidate>'
+    +   '<div class="f2"><div class="fld"><label for="fn">Prénom</label><input class="in" id="fn" autocomplete="given-name" maxlength="60" value="' + esc(i.first_name || '') + '" required></div>'
+    +   '<div class="fld"><label for="ln">Nom</label><input class="in" id="ln" autocomplete="family-name" maxlength="60" value="' + esc(i.last_name || '') + '" required></div></div>'
+    +   '<div class="fld"><label for="em">Email</label><input class="in" id="em" value="' + esc(i.email) + '" readonly><div class="help">Votre identifiant de connexion. Si ce n’est pas le bon, demandez une nouvelle invitation.</div></div>'
+    +   '<div class="fld"><label for="ph">Téléphone mobile</label><input class="in" id="ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="0555 12 34 56" maxlength="20" required><div class="help">Vous y recevrez votre code par SMS. Depuis l’étranger, indiquez l’indicatif (+33…).</div></div>'
+    +   (i.existing ? '<div class="msg ok on" style="margin:0 0 14px">Vous avez déjà un compte Docline avec cet email : vous garderez votre mot de passe actuel.</div>'
+        : '<div class="fld"><label for="p1">Mot de passe</label><input class="in pw" id="p1" type="password" autocomplete="new-password" required><button class="eye" type="button" data-for="p1" aria-label="Afficher le mot de passe">' + EYE + '</button></div>'
+        + '<div class="fld"><label for="p2">Confirmation du mot de passe</label><input class="in pw" id="p2" type="password" autocomplete="new-password" required><button class="eye" type="button" data-for="p2" aria-label="Afficher la confirmation">' + EYE + '</button></div>'
+        + '<div class="rules"><span id="r1">10 caractères ou plus</span><span id="r2">Majuscule et minuscule</span><span id="r4">Chiffre et caractère spécial</span><span id="r3">Identiques</span></div>')
+    +   '<label class="check"><input type="checkbox" id="cf"> Je confirme que ces informations sont exactes et que ce numéro est le mien.</label>'
+    +   '<button class="btn" id="go1" type="submit" disabled>Recevoir mon code</button>'
+    +   '<div class="msg" id="m1" role="alert"></div>'
+    + '</form>';
+  if (i.phone_hint) $('ph').placeholder = i.phone_hint;
+  var fields = ['fn', 'ln', 'ph', 'cf'].concat(i.existing ? [] : ['p1', 'p2']);
+  function check() {
+    var ok = $('fn').value.trim().length >= 2 && $('ln').value.trim().length >= 2 && $('ph').value.replace(/\D/g, '').length >= 9 && $('cf').checked;
+    if (!i.existing) {
+      var a = $('p1').value, b = $('p2').value, r1 = a.length >= 10, r2 = /[a-z]/.test(a) && /[A-Z]/.test(a), r4 = /\d/.test(a) && /[^A-Za-z0-9]/.test(a), r3 = a.length > 0 && a === b;
+      $('r1').classList.toggle('ok', r1); $('r2').classList.toggle('ok', r2); $('r4').classList.toggle('ok', r4); $('r3').classList.toggle('ok', r3);
+      ok = ok && r1 && r2 && r4 && r3;
+    }
+    $('go1').disabled = !ok;
+  }
+  fields.forEach(function (id) { $(id).addEventListener(id === 'cf' ? 'change' : 'input', check); });
+  document.querySelectorAll('.eye').forEach(function (b) { b.onclick = function () { var x = $(b.getAttribute('data-for')); x.type = x.type === 'password' ? 'text' : 'password'; }; });
+  $('f1').addEventListener('submit', async function (e) {
+    e.preventDefault(); if ($('go1').disabled) return;
+    $('go1').disabled = true; $('go1').textContent = 'Envoi du code…';
+    PASSWORD = i.existing ? '' : $('p1').value;
+    var r = await call('start', { first_name: $('fn').value.trim(), last_name: $('ln').value.trim(), phone: $('ph').value.trim(), password: PASSWORD });
+    if (!r.ok) { $('go1').textContent = 'Recevoir mon code'; check(); showMsg('m1', r.data.message || 'Une erreur est survenue.'); return; }
+    INFO.first_name = $('fn').value.trim(); INFO.last_name = $('ln').value.trim(); INFO.phone_typed = $('ph').value.trim();
+    stepCode(r.data);
+  });
+  setTimeout(function () { $(i.first_name ? 'ph' : 'fn').focus(); }, 60);
+}
+
+// ── Étape 2 : code reçu par SMS et par email ──
+function stepCode(s) {
+  steps(2);
+  $('card').innerHTML =
+      '<div class="eyebrow">Vérification</div><h1>Saisissez votre code</h1>'
+    + '<p class="lead">Le même code à 6 chiffres vient d’être envoyé par SMS et par email. Il est valable ' + (s.ttl_min || 10) + ' minutes.</p>'
+    + '<div class="sent"><div class="' + (s.sms ? '' : 'no') + '"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>'
+    +   (s.sms ? 'SMS envoyé au <b>&nbsp;' + esc(s.phone_hint) + '</b>' : 'Le SMS n’a pas pu partir : utilisez le code reçu par email') + '</div>'
+    + '<div class="' + (s.email ? '' : 'no') + '"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>'
+    +   (s.email ? 'Email envoyé à <b>&nbsp;' + esc(s.email_hint) + '</b>' : 'L’email n’a pas pu partir : utilisez le code reçu par SMS') + '</div></div>'
+    + '<form id="f2" novalidate><div class="otp" id="otp">' + [0, 1, 2, 3, 4, 5].map(function (k) { return '<input inputmode="numeric" autocomplete="' + (k === 0 ? 'one-time-code' : 'off') + '" maxlength="1" aria-label="Chiffre ' + (k + 1) + '">'; }).join('') + '</div>'
+    + '<button class="btn" id="go2" type="submit" disabled>Valider</button>'
+    + '<div class="msg" id="m2" role="alert"></div>'
+    + '<div class="row"><button class="lnk" type="button" id="back">Modifier mon numéro</button><button class="lnk" type="button" id="again" disabled>Renvoyer le code</button></div></form>';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('#otp input'));
+  function code() { return boxes.map(function (b) { return b.value; }).join(''); }
+  boxes.forEach(function (b, k) {
+    b.addEventListener('input', function () {
+      var v = b.value.replace(/\D/g, '');
+      if (v.length > 1) { v.split('').slice(0, 6 - k).forEach(function (c, j) { boxes[k + j].value = c; }); (boxes[Math.min(5, k + v.length)] || b).focus(); }
+      else { b.value = v; if (v && boxes[k + 1]) boxes[k + 1].focus(); }
+      $('otp').classList.remove('bad'); $('go2').disabled = code().length !== 6;
+      if (code().length === 6) $('f2').requestSubmit ? $('f2').requestSubmit() : $('go2').click();
+    });
+    b.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && !b.value && boxes[k - 1]) { boxes[k - 1].focus(); boxes[k - 1].value = ''; } });
+  });
+  boxes[0].focus();
+  cooldown(s.cooldown || 60);
+  $('back').onclick = function () { clearInterval(TIMER); stepInfo(); if (INFO.phone_typed) $('ph').value = INFO.phone_typed; };
+  $('again').onclick = async function () {
+    $('again').disabled = true;
+    var r = await call('start', { first_name: INFO.first_name, last_name: INFO.last_name, phone: INFO.phone_typed, password: PASSWORD });
+    if (!r.ok) { showMsg('m2', r.data.message || 'Le code n’a pas pu être renvoyé.'); cooldown(r.data.wait || 30); return; }
+    showMsg('m2', 'Nouveau code envoyé. L’ancien n’est plus valable.', true);
+    boxes.forEach(function (b) { b.value = ''; }); boxes[0].focus(); cooldown(r.data.cooldown || 60);
+  };
+  $('f2').addEventListener('submit', async function (e) {
+    e.preventDefault(); var c = code(); if (c.length !== 6 || $('go2').dataset.busy) return;
+    $('go2').dataset.busy = '1'; $('go2').disabled = true; $('go2').textContent = 'Vérification…';
+    var r = await call('verify', { code: c, password: PASSWORD });
+    delete $('go2').dataset.busy; $('go2').textContent = 'Valider';
+    if (!r.ok) {
+      if (r.data.error === 'ALREADY_ACCEPTED') return done({ email: INFO.email, existing: true });
+      if (r.data.error === 'PASSWORD_WEAK') { stepInfo(); showMsg('m1', r.data.message); return; }
+      $('otp').classList.add('bad'); showMsg('m2', r.data.message || 'Code incorrect.');
+      boxes.forEach(function (b) { b.value = ''; }); boxes[0].focus(); return;
+    }
+    PASSWORD = ''; clearInterval(TIMER); done(r.data);
+  });
+}
+function cooldown(sec) {
+  clearInterval(TIMER);
+  var b = $('again'), left = sec;
+  function tick() { if (!b) return; if (left <= 0) { b.disabled = false; b.textContent = 'Renvoyer le code'; clearInterval(TIMER); return; } b.disabled = true; b.textContent = 'Renvoyer le code (' + left + ' s)'; left--; }
+  tick(); TIMER = setInterval(tick, 1000);
+}
+
+// ── Étape 3 : tout est en ordre ──
+function done(d) {
+  steps(3);
+  var symph = INFO && INFO.kind === 'symphony';
+  $('card').innerHTML =
+      '<div class="done-ic">' + CHECK + '</div><div class="eyebrow">Accès activé</div><h1>Tout est en ordre</h1>'
+    + '<p class="lead">Votre accès ' + (symph ? 'à Symphony' : 'à ' + esc(INFO && INFO.org_name || 'votre équipe')) + ' est prêt. Connectez-vous maintenant avec votre email et ' + (d.existing ? 'votre mot de passe habituel' : 'le mot de passe que vous venez de choisir') + '.</p>'
+    + '<div class="list"><div>' + CHECK + 'Identité confirmée</div><div>' + CHECK + 'Téléphone et email vérifiés</div><div>' + CHECK + (d.existing ? 'Compte existant rattaché' : 'Mot de passe enregistré') + '</div></div>'
+    + '<a class="btn" href="/login?email=' + encodeURIComponent(d.email || (INFO && INFO.email) || '') + '">Se connecter</a>';
+}
+
+(async function init() {
+  if (!TOKEN) return fail('Lien incomplet', 'Ouvrez le bouton « Activer mon accès » directement depuis l’email reçu.');
+  var r = await call('info');
+  if (!r.ok) {
+    if (r.data.error === 'ALREADY_ACCEPTED') return fail('Accès déjà activé', r.data.message, r.data.email || '');
+    return fail(r.data.error === 'EXPIRED' ? 'Lien expiré' : 'Lien non valable', r.data.message || 'Ce lien n’est pas valable.');
+  }
+  INFO = r.data;
+  stepInfo();
+})();
+</script>
+</body>
+</html>

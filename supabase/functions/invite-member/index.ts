@@ -1,10 +1,10 @@
 // invite-member : invitation d'un collaborateur (secrétaire, infirmier, laboratoire, comptabilité,
 // administrateur, médecin) dans un établissement. Seul un membre autorisé à gérer l'équipe peut
 // inviter, uniquement une fiche de SON établissement, à l'adresse enregistrée sur la fiche.
-// Si la personne a déjà un compte Docline, l'accès s'active à sa prochaine connexion
-// (workspace_init rapproche l'adresse email).
+// L'email contient un lien unique : la personne confirme ses informations, choisit son mot de passe
+// et valide un code reçu par SMS et par email (fonction staff-onboarding) ; l'accès s'ouvre ensuite.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { sendInvite } from '../_shared/invite.ts'
+import { sendInvitation } from '../_shared/invite.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': 'https://docline.health',
@@ -44,12 +44,11 @@ Deno.serve(async (req) => {
     const orgName = (org?.clinic_name || '').trim() || (org ? 'Cabinet du Dr ' + (org.last_name || org.full_name || '') : 'Docline')
     const { data: inviter } = await admin.from('profiles').select('first_name, last_name, full_name').eq('id', user.id).maybeSingle()
     const inviterName = inviter ? ([inviter.first_name, inviter.last_name].filter(Boolean).join(' ') || inviter.full_name || null) : null
-    const r = await sendInvite(admin, { email, name: m.full_name, kind: 'clinic', orgName, orgId, roleLabel: ROLE[m.role] ?? null,
-      inviter: inviterName, triggeredBy: user.email ?? null })
+    const r = await sendInvitation(admin, { kind: 'clinic', memberId: m.id, email, name: m.full_name, orgId, orgName, roleLabel: ROLE[m.role] ?? null,
+      inviter: inviterName, invitedBy: user.id, triggeredBy: user.email ?? null })
     if (!r.ok) return json({ error: 'INVITE_FAILED', message: 'L’email n’a pas pu partir : ' + (r.error ?? 'erreur inconnue') }, 502)
-    const existing = r.mode === 'existing'
     await admin.from('org_members').update({ invited_at: new Date().toISOString() }).eq('id', memberId)
-    return json({ ok: true, existing })
+    return json({ ok: true, existing: false })
   } catch (e) {
     return json({ error: 'INTERNAL_ERROR', message: String((e as Error)?.message ?? e) }, 500)
   }

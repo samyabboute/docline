@@ -1,7 +1,7 @@
-// symphony-invite : envoie (ou renvoie) l'invitation d'un membre de l'équipe Docline (Symphony).
+// symphony-invite : envoie (ou renvoie) le lien d'activation d'un membre de l'équipe Docline (Symphony).
 // Réservé aux personnes autorisées à gérer l'équipe ; le membre doit déjà figurer dans symphony_staff.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { sendInvite } from '../_shared/invite.ts'
+import { sendInvitation } from '../_shared/invite.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': 'https://docline.health',
@@ -24,15 +24,17 @@ Deno.serve(async (req) => {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(target)) return json({ error: 'EMAIL_INVALID' }, 400)
 
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-    const { data: m } = await admin.from('symphony_staff').select('email, full_name, title, is_active').ilike('email', target).maybeSingle()
+    const { data: m } = await admin.from('symphony_staff').select('id, email, full_name, title, is_active, activated_at').ilike('email', target).maybeSingle()
     if (!m) return json({ error: 'NOT_A_MEMBER', message: 'Ajoutez d’abord cette personne à l’équipe.' }, 404)
     if (!m.is_active) return json({ error: 'INACTIVE', message: 'Ce membre est désactivé. Réactivez-le avant de l’inviter.' }, 409)
 
+    if (m.activated_at) return json({ error: 'ALREADY_ACTIVE', message: 'Ce membre a déjà activé son accès.' }, 409)
+
     const { data: me } = await admin.from('symphony_staff').select('full_name').ilike('email', user.email ?? '').maybeSingle()
-    const r = await sendInvite(admin, { email: target, name: m.full_name, kind: 'symphony', roleLabel: m.title || null,
-      inviter: me?.full_name || null, triggeredBy: user.email ?? null })
+    const r = await sendInvitation(admin, { kind: 'symphony', memberId: m.id, email: target, name: m.full_name, roleLabel: m.title || null,
+      inviter: me?.full_name || null, invitedBy: user.id, triggeredBy: user.email ?? null })
     if (!r.ok) return json({ error: 'SEND_FAILED', message: 'L’email n’a pas pu partir : ' + (r.error ?? 'erreur inconnue') }, 502)
-    return json({ ok: true, mode: r.mode })
+    return json({ ok: true })
   } catch (e) {
     return json({ error: 'INTERNAL_ERROR', message: String((e as Error)?.message ?? e) }, 500)
   }

@@ -715,7 +715,7 @@ function setScope(s){
 
 /* ── Équipe (données) ─────────────────────────────────────────── */
 async function loadTeam(){
-  var r = await sb.from('symphony_staff').select('id,email,full_name,title,department,role,is_active,permissions,last_seen_at,employee_id,created_at').order('full_name');
+  var r = await sb.from('symphony_staff').select('id,email,full_name,title,department,role,is_active,permissions,last_seen_at,employee_id,created_at,activated_at,phone').order('full_name');
   team = r.error ? [] : (r.data || []);
 }
 
@@ -1047,8 +1047,8 @@ function renderTeam(){
           '<div class="mem-chips"><span class="chip ' + lvlChip + '">' + esc(LEVEL_SHORT[m.role] || m.role) + '</span>' +
           (m.permissions && m.permissions.length ? '<span class="chip chip-w">Accès personnalisés</span>' : '') +
           (m.is_active ? '' : '<span class="chip chip-b">Désactivé</span>') + '<span class="chip chip-n">' + esc(m.employee_id || '') + '</span></div>' +
-          '<div class="mem-seen">' + esc(m.last_seen_at ? ago(m.last_seen_at) : 'Invitation en attente : jamais connecté') + '</div></div>' +
-          (editable ? '<div class="mem-act">' + (m.is_active && !m.last_seen_at ? '<button class="icon-btn" data-invite="' + esc(m.email) + '" title="Renvoyer l’invitation par email" aria-label="Renvoyer l’invitation">' + ic('mail') + '</button>' : '') +
+          '<div class="mem-seen">' + esc(!m.activated_at ? 'Invitation en attente : accès pas encore activé' : ago(m.last_seen_at)) + '</div></div>' +
+          (editable ? '<div class="mem-act">' + (m.is_active && !m.activated_at ? '<button class="icon-btn" data-invite="' + esc(m.email) + '" title="Renvoyer l’invitation par email" aria-label="Renvoyer l’invitation">' + ic('mail') + '</button>' : '') +
             '<button class="icon-btn" data-edit="' + esc(m.email) + '" title="Modifier le poste et les accès" aria-label="Modifier">' + ic('edit') + '</button>' +
             '<button class="icon-btn" data-toggle="' + esc(m.email) + '" title="' + (m.is_active ? 'Désactiver' : 'Réactiver') + '" aria-label="' + (m.is_active ? 'Désactiver' : 'Réactiver') + '">' + ic('power') + '</button></div>' : '') +
           '</div>';
@@ -1106,7 +1106,7 @@ function openMember(m){
     '<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="sep-t">Accès</div>' +
     '<label style="margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;cursor:pointer"><input type="checkbox" id="m-custom"' + (custom ? ' checked' : '') + ' style="accent-color:var(--p)"> Personnaliser</label></div>' +
     '<div class="card-sub" id="m-perm-hint" style="margin-bottom:10px"></div><div class="perm-grid" id="m-perms"></div></div>' +
-    (isNew ? '<div class="note">' + ic('mail') + '<div>Docline lui envoie aussitôt un email d’invitation pour choisir son mot de passe. À sa première connexion, elle arrive directement dans Symphony.</div></div>' : '');
+    (isNew ? '<div class="note">' + ic('mail') + '<div>Docline lui envoie aussitôt un lien d’activation : elle confirme ses informations, choisit son mot de passe et valide un code reçu par SMS et par email. Son accès s’ouvre ensuite.</div></div>' : '');
   var foot = '<span style="flex:1"></span><button class="btn btn-g" id="m-cancel">Annuler</button><button class="btn btn-p" id="m-save">' + (isNew ? 'Ajouter à l’équipe' : 'Enregistrer') + '</button>';
   openDrawer(isNew ? 'Ajouter un membre' : 'Modifier ' + m.full_name, body, foot);
 
@@ -1162,7 +1162,7 @@ function openMember(m){
     if (isNew) {
       toast(name + ' a rejoint l’équipe. Envoi de l’invitation…');
       var inv = await inviteMember(email);
-      toast(inv.ok ? 'Invitation envoyée à ' + email + (inv.mode === 'existing' ? ' (compte déjà existant : elle se connecte avec son mot de passe)' : '') + '.'
+      toast(inv.ok ? 'Invitation envoyée à ' + email + '. L’accès s’ouvrira quand la personne aura validé son code.'
                    : name + ' est dans l’équipe, mais l’email n’est pas parti : ' + inv.message + ' Utilisez « Renvoyer l’invitation ».', !inv.ok);
     } else toast('Poste de ' + name + ' mis à jour');
     await loadTeam(); renderTeam();
